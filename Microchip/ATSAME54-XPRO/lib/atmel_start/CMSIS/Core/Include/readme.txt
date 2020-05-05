@@ -1,0 +1,1 @@
+C:\Program Files (x86)\Atmel\Studio\7.0\packs\arm\CMSIS\5.4.0\CMSIS\Core\Include
