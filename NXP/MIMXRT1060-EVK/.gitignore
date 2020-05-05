@@ -1,0 +1,7 @@
+.vscode
+.vs
+.project
+mcu.mak
+build
+_ignore
+VisualGDB

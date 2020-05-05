@@ -1,0 +1,3141 @@
+<?xml version="1.0"?>
+<BoardSupportPackage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <PackageID>com.sysprogs.imported.ksdk2x.MIMXRT1062xxxxA</PackageID>
+  <PackageDescription>Imported KSDK 2.x for MIMXRT1062xxxxA</PackageDescription>
+  <PackageVersion>2.7.0</PackageVersion>
+  <GNUTargetID>arm-eabi</GNUTargetID>
+  <MCUFamilies>
+    <MCUFamily>
+      <ID>MIMXRT1062xxxxA</ID>
+      <UserFriendlyName>MIMXRT1062</UserFriendlyName>
+      <CompilationFlags>
+        <PreprocessorMacros>
+          <string>ARM_MATH_CM7</string>
+        </PreprocessorMacros>
+        <LinkerScript>$$SYS:BSP_ROOT$$/$$com.sysprogs.imported.ksdk2x.linker_script$$</LinkerScript>
+        <COMMONFLAGS>-mcpu=cortex-m7 -mthumb $$com.sysprogs.bspoptions.arm.floatmode$$</COMMONFLAGS>
+        <EnableLinkerGroups>true</EnableLinkerGroups>
+      </CompilationFlags>
+      <AdditionalSystemVars>
+        <SysVarEntry>
+          <Key>com.sysprogs.bspoptions.arm.core</Key>
+          <Value>M7</Value>
+        </SysVarEntry>
+      </AdditionalSystemVars>
+      <ConfigurableProperties>
+        <PropertyGroups>
+          <PropertyGroup>
+            <Properties>
+              <PropertyEntry xsi:type="Enumerated">
+                <Name>Floating point support</Name>
+                <UniqueID>com.sysprogs.bspoptions.arm.floatmode</UniqueID>
+                <OmitPrefixIfEmpty>false</OmitPrefixIfEmpty>
+                <SuggestionList>
+                  <Suggestion>
+                    <UserFriendlyName>Software</UserFriendlyName>
+                    <InternalValue>-mfloat-abi=soft</InternalValue>
+                  </Suggestion>
+                  <Suggestion>
+                    <UserFriendlyName>Hardware</UserFriendlyName>
+                    <InternalValue>-mfloat-abi=hard</InternalValue>
+                  </Suggestion>
+                  <Suggestion>
+                    <UserFriendlyName>Unspecified</UserFriendlyName>
+                    <InternalValue />
+                  </Suggestion>
+                </SuggestionList>
+                <DefaultEntryIndex>0</DefaultEntryIndex>
+                <AllowFreeEntry>false</AllowFreeEntry>
+              </PropertyEntry>
+              <PropertyEntry xsi:type="Enumerated">
+                <Name>Linker script</Name>
+                <UniqueID>com.sysprogs.imported.ksdk2x.linker_script</UniqueID>
+                <OmitPrefixIfEmpty>false</OmitPrefixIfEmpty>
+                <SuggestionList>
+                  <Suggestion>
+                    <UserFriendlyName>MIMXRT1062xxxxx_flexspi_nor.ld</UserFriendlyName>
+                    <InternalValue>devices/MIMXRT1062/gcc/MIMXRT1062xxxxx_flexspi_nor.ld</InternalValue>
+                  </Suggestion>
+                  <Suggestion>
+                    <UserFriendlyName>MIMXRT1062xxxxx_flexspi_nor_sdram.ld</UserFriendlyName>
+                    <InternalValue>devices/MIMXRT1062/gcc/MIMXRT1062xxxxx_flexspi_nor_sdram.ld</InternalValue>
+                  </Suggestion>
+                  <Suggestion>
+                    <UserFriendlyName>MIMXRT1062xxxxx_ram.ld</UserFriendlyName>
+                    <InternalValue>devices/MIMXRT1062/gcc/MIMXRT1062xxxxx_ram.ld</InternalValue>
+                  </Suggestion>
+                  <Suggestion>
+                    <UserFriendlyName>MIMXRT1062xxxxx_sdram.ld</UserFriendlyName>
+                    <InternalValue>devices/MIMXRT1062/gcc/MIMXRT1062xxxxx_sdram.ld</InternalValue>
+                  </Suggestion>
+                  <Suggestion>
+                    <UserFriendlyName>MIMXRT1062xxxxx_sdram_txt.ld</UserFriendlyName>
+                    <InternalValue>devices/MIMXRT1062/gcc/MIMXRT1062xxxxx_sdram_txt.ld</InternalValue>
+                  </Suggestion>
+                </SuggestionList>
+                <DefaultEntryIndex>0</DefaultEntryIndex>
+                <AllowFreeEntry>false</AllowFreeEntry>
+              </PropertyEntry>
+            </Properties>
+            <CollapsedByDefault>false</CollapsedByDefault>
+          </PropertyGroup>
+        </PropertyGroups>
+      </ConfigurableProperties>
+    </MCUFamily>
+  </MCUFamilies>
+  <SupportedMCUs>
+    <MCU>
+      <ID>MIMXRT1062CVL5A</ID>
+      <UserFriendlyName>MIMXRT1062CVL5A (KSDK 2.x)</UserFriendlyName>
+      <CompilationFlags>
+        <PreprocessorMacros>
+          <string>CPU_MIMXRT1062CVL5A</string>
+        </PreprocessorMacros>
+        <EnableLinkerGroups>true</EnableLinkerGroups>
+      </CompilationFlags>
+      <FamilyID>MIMXRT1062xxxxA</FamilyID>
+      <FLASHSize>0</FLASHSize>
+      <RAMSize>1048576</RAMSize>
+      <FLASHBase>4294967295</FLASHBase>
+      <RAMBase>4294967295</RAMBase>
+      <AdditionalSourcesRequiredForTesting>false</AdditionalSourcesRequiredForTesting>
+    </MCU>
+    <MCU>
+      <ID>MIMXRT1062CVJ5A</ID>
+      <UserFriendlyName>MIMXRT1062CVJ5A (KSDK 2.x)</UserFriendlyName>
+      <CompilationFlags>
+        <PreprocessorMacros>
+          <string>CPU_MIMXRT1062CVJ5A</string>
+        </PreprocessorMacros>
+        <EnableLinkerGroups>true</EnableLinkerGroups>
+      </CompilationFlags>
+      <FamilyID>MIMXRT1062xxxxA</FamilyID>
+      <FLASHSize>0</FLASHSize>
+      <RAMSize>1048576</RAMSize>
+      <FLASHBase>4294967295</FLASHBase>
+      <RAMBase>4294967295</RAMBase>
+      <AdditionalSourcesRequiredForTesting>false</AdditionalSourcesRequiredForTesting>
+    </MCU>
+    <MCU>
+      <ID>MIMXRT1062DVL6A</ID>
+      <UserFriendlyName>MIMXRT1062DVL6A (KSDK 2.x)</UserFriendlyName>
+      <CompilationFlags>
+        <PreprocessorMacros>
+          <string>CPU_MIMXRT1062DVL6A</string>
+        </PreprocessorMacros>
+        <EnableLinkerGroups>true</EnableLinkerGroups>
+      </CompilationFlags>
+      <FamilyID>MIMXRT1062xxxxA</FamilyID>
+      <FLASHSize>0</FLASHSize>
+      <RAMSize>1048576</RAMSize>
+      <FLASHBase>4294967295</FLASHBase>
+      <RAMBase>4294967295</RAMBase>
+      <AdditionalSourcesRequiredForTesting>false</AdditionalSourcesRequiredForTesting>
+    </MCU>
+    <MCU>
+      <ID>MIMXRT1062DVJ6A</ID>
+      <UserFriendlyName>MIMXRT1062DVJ6A (KSDK 2.x)</UserFriendlyName>
+      <CompilationFlags>
+        <PreprocessorMacros>
+          <string>CPU_MIMXRT1062DVJ6A</string>
+        </PreprocessorMacros>
+        <EnableLinkerGroups>true</EnableLinkerGroups>
+      </CompilationFlags>
+      <FamilyID>MIMXRT1062xxxxA</FamilyID>
+      <FLASHSize>0</FLASHSize>
+      <RAMSize>1048576</RAMSize>
+      <FLASHBase>4294967295</FLASHBase>
+      <RAMBase>4294967295</RAMBase>
+      <AdditionalSourcesRequiredForTesting>false</AdditionalSourcesRequiredForTesting>
+    </MCU>
+  </SupportedMCUs>
+  <Frameworks>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.CMSIS.MIMXRT1062</ID>
+      <UserFriendlyName>CMSIS (CMSIS)</UserFriendlyName>
+      <AdditionalSourceFiles />
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/arm_common_tables.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/arm_const_structs.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/arm_math.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/cmsis_armcc.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/cmsis_armclang.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/cmsis_armclang_ltm.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/cmsis_compiler.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/cmsis_gcc.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/cmsis_iccarm.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/cmsis_version.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/core_armv81mml.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/core_armv8mbl.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/core_armv8mml.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/core_cm0.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/core_cm0plus.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/core_cm1.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/core_cm23.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/core_cm3.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/core_cm33.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/core_cm35p.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/core_cm4.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/core_cm7.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/core_dsp.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/core_sc000.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/core_sc300.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/mpu_armv7.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/mpu_armv8.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/tz_context.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>CMSIS</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.CMSIS_Driver_Include.CAN_CMSISInclude.MIMXRT1062</ID>
+      <UserFriendlyName>CAN (CMSIS_driver)</UserFriendlyName>
+      <AdditionalSourceFiles />
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Driver/Include/Driver_CAN.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Driver/Include</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>CAN</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.CMSIS_Driver_Include.Common_CMSISInclude.MIMXRT1062</ID>
+      <UserFriendlyName>Common (CMSIS_driver)</UserFriendlyName>
+      <AdditionalSourceFiles />
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Driver/Include/Driver_Common.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Driver/Include</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>Common</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.CMSIS_Driver_Include.Ethernet_CMSISInclude.MIMXRT1062</ID>
+      <UserFriendlyName>Ethernet (CMSIS_driver)</UserFriendlyName>
+      <AdditionalSourceFiles />
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Driver/Include/Driver_ETH.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Driver/Include</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>Ethernet</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.CMSIS_Driver_Include.Ethernet_MAC_CMSISInclude.MIMXRT1062</ID>
+      <UserFriendlyName>Ethernet_MAC (CMSIS_driver)</UserFriendlyName>
+      <AdditionalSourceFiles />
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Driver/Include/Driver_ETH_MAC.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Driver/Include</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>Ethernet_MAC</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.CMSIS_Driver_Include.Ethernet_PHY_CMSISInclude.MIMXRT1062</ID>
+      <UserFriendlyName>Ethernet_PHY (CMSIS_driver)</UserFriendlyName>
+      <AdditionalSourceFiles />
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Driver/Include/Driver_ETH_PHY.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Driver/Include</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>Ethernet_PHY</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.CMSIS_Driver_Include.Flash_CMSISInclude.MIMXRT1062</ID>
+      <UserFriendlyName>Flash (CMSIS_driver)</UserFriendlyName>
+      <AdditionalSourceFiles />
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Driver/Include/Driver_Flash.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Driver/Include</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>Flash</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.CMSIS_Driver_Include.I2C_CMSISInclude.MIMXRT1062</ID>
+      <UserFriendlyName>I2C (CMSIS_driver)</UserFriendlyName>
+      <AdditionalSourceFiles />
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Driver/Include/Driver_I2C.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Driver/Include</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>I2C</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.CMSIS_Driver_Include.MCI_CMSISInclude.MIMXRT1062</ID>
+      <UserFriendlyName>MCI (CMSIS_driver)</UserFriendlyName>
+      <AdditionalSourceFiles />
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Driver/Include/Driver_MCI.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Driver/Include</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>MCI</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.CMSIS_Driver_Include.NAND_CMSISInclude.MIMXRT1062</ID>
+      <UserFriendlyName>NAND (CMSIS_driver)</UserFriendlyName>
+      <AdditionalSourceFiles />
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Driver/Include/Driver_NAND.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Driver/Include</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>NAND</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.CMSIS_Driver_Include.SAI_CMSISInclude.MIMXRT1062</ID>
+      <UserFriendlyName>SAI (CMSIS_driver)</UserFriendlyName>
+      <AdditionalSourceFiles />
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Driver/Include/Driver_SAI.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Driver/Include</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>SAI</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.CMSIS_Driver_Include.SPI_CMSISInclude.MIMXRT1062</ID>
+      <UserFriendlyName>SPI (CMSIS_driver)</UserFriendlyName>
+      <AdditionalSourceFiles />
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Driver/Include/Driver_SPI.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Driver/Include</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>SPI</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.CMSIS_Driver_Include.USART_CMSISInclude.MIMXRT1062</ID>
+      <UserFriendlyName>USART (CMSIS_driver)</UserFriendlyName>
+      <AdditionalSourceFiles />
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Driver/Include/Driver_USART.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Driver/Include</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>USART</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.CMSIS_Driver_Include.USB_CMSISInclude.MIMXRT1062</ID>
+      <UserFriendlyName>USB (CMSIS_driver)</UserFriendlyName>
+      <AdditionalSourceFiles />
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Driver/Include/Driver_USB.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Driver/Include</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>USB</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.CMSIS_Driver_Include.USB_Device_CMSISInclude.MIMXRT1062</ID>
+      <UserFriendlyName>USB_Device (CMSIS_driver)</UserFriendlyName>
+      <AdditionalSourceFiles />
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Driver/Include/Driver_USBD.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Driver/Include</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>USB_Device</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.CMSIS_Driver_Include.USB_Host_CMSISInclude.MIMXRT1062</ID>
+      <UserFriendlyName>USB_Host (CMSIS_driver)</UserFriendlyName>
+      <AdditionalSourceFiles />
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Driver/Include/Driver_USBH.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Driver/Include</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>USB_Host</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.CMSIS_Driver_Include.WiFi_CMSISInclude.MIMXRT1062</ID>
+      <UserFriendlyName>WiFi (CMSIS_driver)</UserFriendlyName>
+      <AdditionalSourceFiles />
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Driver/Include/Driver_WiFi.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Driver/Include</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>WiFi</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.Include_common.MIMXRT1062</ID>
+      <UserFriendlyName>CMSIS_Include_common (CMSIS_Include)</UserFriendlyName>
+      <AdditionalSourceFiles />
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/cmsis_armcc.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/cmsis_armclang.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/cmsis_armclang_ltm.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/cmsis_compiler.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/cmsis_gcc.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/cmsis_iccarm.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/cmsis_version.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/core_armv81mml.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/core_armv8mbl.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/core_armv8mml.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/mpu_armv7.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/mpu_armv8.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>CMSIS_Include_common</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.Include_core_cm7.MIMXRT1062</ID>
+      <UserFriendlyName>CMSIS_Include_core_cm7 (CMSIS_Include)</UserFriendlyName>
+      <AdditionalSourceFiles />
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/core_cm7.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>CMSIS_Include_core_cm7</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.Include_dsp.MIMXRT1062</ID>
+      <UserFriendlyName>CMSIS_Include_dsp (CMSIS_Include)</UserFriendlyName>
+      <AdditionalSourceFiles />
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/arm_common_tables.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/arm_const_structs.h</string>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include/arm_math.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/CMSIS/Include</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>CMSIS_Include_dsp</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.tools.MIMXRT1062</ID>
+      <UserFriendlyName>cmake_toolchain (other)</UserFriendlyName>
+      <AdditionalSourceFiles />
+      <AdditionalHeaderFiles />
+      <AdditionalIncludeDirs />
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>cmake_toolchain</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.component.button.MIMXRT1062</ID>
+      <UserFriendlyName>button (software_component)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/button/button.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/button/button.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/button</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>button</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.component.codec_i2c.MIMXRT1062</ID>
+      <UserFriendlyName>codec_i2c (software_component)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/codec/i2c/fsl_codec_i2c.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/codec/i2c/fsl_codec_i2c.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/codec/i2c</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>codec_i2c</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.component.common_task.MIMXRT1062</ID>
+      <UserFriendlyName>common_task (software_component)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/common_task/common_task.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/common_task/common_task.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/common_task</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>common_task</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.component.ecspi_adapter.MIMXRT1062</ID>
+      <UserFriendlyName>ecspi_adapter (abstraction_layer)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/spi/ecspi_adapter.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/spi/spi.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/spi</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>ecspi_adapter</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.component.gpt_adapter.MIMXRT1062</ID>
+      <UserFriendlyName>gpt_adapter (abstraction_layer)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/timer/gpt_adapter.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/timer/timer.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/timer</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>gpt_adapter</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.component.igpio_adapter.MIMXRT1062</ID>
+      <UserFriendlyName>igpio_adapter (abstraction_layer)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/gpio/igpio_adapter.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/gpio/gpio.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/gpio</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>igpio_adapter</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.component.led.MIMXRT1062</ID>
+      <UserFriendlyName>led (software_component)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/led/led.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/led/led.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/led</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>led</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.component.lists.MIMXRT1062</ID>
+      <UserFriendlyName>lists (software_component)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/lists/generic_list.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/lists/generic_list.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/lists</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>lists</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.component.lpi2c_adapter.MIMXRT1062</ID>
+      <UserFriendlyName>lpi2c_adapter (abstraction_layer)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/i2c/lpi2c_adapter.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/i2c/i2c.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/i2c</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>lpi2c_adapter</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.component.lpspi_adapter.MIMXRT1062</ID>
+      <UserFriendlyName>lpspi_adapter (abstraction_layer)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/spi/lpspi_adapter.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/spi/spi.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/spi</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>lpspi_adapter</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.component.lpuart_adapter.MIMXRT1062</ID>
+      <UserFriendlyName>lpuart_adapter (utilities)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/uart/lpuart_adapter.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/uart/uart.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/uart</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>lpuart_adapter</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.component.mem_manager.MIMXRT1062</ID>
+      <UserFriendlyName>mem_manager (software_component)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/mem_manager/mem_manager.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/mem_manager/mem_manager.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/mem_manager</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>mem_manager</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.component.minispi_adapter.MIMXRT1062</ID>
+      <UserFriendlyName>minispi_adapter (abstraction_layer)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/spi/minispi_adapter.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/spi/spi.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/spi</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>minispi_adapter</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.component.osa.MIMXRT1062</ID>
+      <UserFriendlyName>osa (software_component)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/osa/fsl_os_abstraction_bm.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/osa/fsl_os_abstraction.h</string>
+        <string>$$SYS:BSP_ROOT$$/components/osa/fsl_os_abstraction_config.h</string>
+        <string>$$SYS:BSP_ROOT$$/components/osa/fsl_os_abstraction_bm.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/osa</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>osa</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.component.osa_bm.MIMXRT1062</ID>
+      <UserFriendlyName>osa_bm (software_component)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/osa/fsl_os_abstraction_bm.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/osa/fsl_os_abstraction.h</string>
+        <string>$$SYS:BSP_ROOT$$/components/osa/fsl_os_abstraction_bm.h</string>
+        <string>$$SYS:BSP_ROOT$$/components/osa/fsl_os_abstraction_config.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/osa</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>osa_bm</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.component.panic.MIMXRT1062</ID>
+      <UserFriendlyName>panic (software_component)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/panic/panic.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/panic/panic.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/panic</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>panic</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.component.pit_adapter.MIMXRT1062</ID>
+      <UserFriendlyName>pit_adapter (abstraction_layer)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/timer/pit_adapter.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/timer/timer.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/timer</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>pit_adapter</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.component.serial_manager.MIMXRT1062</ID>
+      <UserFriendlyName>serial_manager (utilities)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/serial_manager/serial_manager.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/serial_manager/serial_manager.h</string>
+        <string>$$SYS:BSP_ROOT$$/components/serial_manager/serial_port_internal.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/serial_manager</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>serial_manager</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.component.serial_manager_swo.MIMXRT1062</ID>
+      <UserFriendlyName>serial_manager_swo (utilities)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/serial_manager/serial_port_swo.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/serial_manager/serial_port_swo.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/serial_manager</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros>
+        <string>SERIAL_PORT_TYPE_SWO=1</string>
+      </AdditionalPreprocessorMacros>
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>serial_manager_swo</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.component.serial_manager_uart.MIMXRT1062</ID>
+      <UserFriendlyName>serial_manager_uart (utilities)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/serial_manager/serial_port_uart.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/serial_manager/serial_port_uart.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/serial_manager</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros>
+        <string>SERIAL_PORT_TYPE_UART=1</string>
+      </AdditionalPreprocessorMacros>
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>serial_manager_uart</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.component.serial_manager_usb_cdc_device_config.evkmimxrt1060.MIMXRT1062</ID>
+      <UserFriendlyName>evkmimxrt1060 (abstraction_layer)</UserFriendlyName>
+      <AdditionalSourceFiles />
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/boards/evkmimxrt1060/component_examples/config/usb_device_config.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/boards/evkmimxrt1060/component_examples/config</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>evkmimxrt1060</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.component.serial_manager_usb_cdc_virtual.MIMXRT1062</ID>
+      <UserFriendlyName>serial_manager_usb_cdc_virtual (utilities)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/serial_manager/serial_port_usb_virtual.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/serial_manager/serial_port_usb_virtual.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/serial_manager</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros>
+        <string>SERIAL_PORT_TYPE_USBCDC_VIRTUAL=1</string>
+        <string>DEBUG_CONSOLE_TRANSFER_NON_BLOCKING</string>
+      </AdditionalPreprocessorMacros>
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>serial_manager_usb_cdc_virtual</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.component.software_crc_adapter.MIMXRT1062</ID>
+      <UserFriendlyName>software_crc_adapter (abstraction_layer)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/crc/software_crc_adapter.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/crc/crc.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/crc</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>software_crc_adapter</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.component.timer_manager.MIMXRT1062</ID>
+      <UserFriendlyName>timer_manager (software_component)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/timer_manager/timer_manager.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/timer_manager/timer_manager.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/timer_manager</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>timer_manager</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.component.trng_adapter.MIMXRT1062</ID>
+      <UserFriendlyName>trng_adapter (abstraction_layer)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/rng/trng_adapter.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/rng/rng.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/rng</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>trng_adapter</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.component.vspi_adapter.MIMXRT1062</ID>
+      <UserFriendlyName>vspi_adapter (abstraction_layer)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/spi/vspi_adapter.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/spi/spi.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/spi</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>vspi_adapter</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.component.wm8960_adapter.MIMXRT1062</ID>
+      <UserFriendlyName>wm8960_adapter (abstraction_layer)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/codec/port/wm8960/fsl_codec_adapter.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles />
+      <AdditionalIncludeDirs />
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>wm8960_adapter</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.device.MIMXRT1062_CMSIS.MIMXRT1062</ID>
+      <UserFriendlyName>MIMXRT1062_CMSIS (CMSIS_Include)</UserFriendlyName>
+      <AdditionalSourceFiles />
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/MIMXRT1062.h</string>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/MIMXRT1062_features.h</string>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/fsl_device_registers.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>MIMXRT1062_CMSIS</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.device.MIMXRT1062_startup.MIMXRT1062</ID>
+      <UserFriendlyName>MIMXRT1062_startup (startup)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/gcc/startup_MIMXRT1062.S</string>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/system_MIMXRT1062.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/system_MIMXRT1062.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>MIMXRT1062_startup</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.adc_12b1msps_sar.MIMXRT1062</ID>
+      <UserFriendlyName>adc_12b1msps_sar (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_adc.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_adc.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>adc_12b1msps_sar</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.adc_etc.MIMXRT1062</ID>
+      <UserFriendlyName>adc_etc (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_adc_etc.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_adc_etc.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>adc_etc</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.aipstz.MIMXRT1062</ID>
+      <UserFriendlyName>aipstz (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_aipstz.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_aipstz.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>aipstz</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.aoi.MIMXRT1062</ID>
+      <UserFriendlyName>aoi (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_aoi.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_aoi.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>aoi</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.bee.MIMXRT1062</ID>
+      <UserFriendlyName>bee (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_bee.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_bee.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>bee</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.cache_armv7_m7.MIMXRT1062</ID>
+      <UserFriendlyName>cache (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_cache.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_cache.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>cache</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.driver.camera-common.MIMXRT1062</ID>
+      <UserFriendlyName>camera-common (abstraction_layer)</UserFriendlyName>
+      <AdditionalSourceFiles />
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/video/camera/fsl_camera.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/video/camera</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>camera-common</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.driver.camera-device-common.MIMXRT1062</ID>
+      <UserFriendlyName>camera-device-common (abstraction_layer)</UserFriendlyName>
+      <AdditionalSourceFiles />
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/video/camera/device/fsl_camera_device.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/video/camera/device</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>camera-device-common</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.driver.camera-device-mt9m114.MIMXRT1062</ID>
+      <UserFriendlyName>camera-device-mt9m114 (board_component)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/video/camera/device/mt9m114/fsl_mt9m114.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/video/camera/device/mt9m114/fsl_mt9m114.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/video/camera/device/mt9m114</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>camera-device-mt9m114</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.driver.camera-device-ov7725.MIMXRT1062</ID>
+      <UserFriendlyName>camera-device-ov7725 (board_component)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/video/camera/device/ov7725/fsl_ov7725.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/video/camera/device/ov7725/fsl_ov7725.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/video/camera/device/ov7725</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>camera-device-ov7725</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.driver.camera-device-sccb.MIMXRT1062</ID>
+      <UserFriendlyName>camera-device-sccb (software_component)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/video/camera/device/sccb/fsl_sccb.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/video/camera/device/sccb/fsl_sccb.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/video/camera/device/sccb</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>camera-device-sccb</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.driver.camera-receiver-common.MIMXRT1062</ID>
+      <UserFriendlyName>camera-receiver-common (abstraction_layer)</UserFriendlyName>
+      <AdditionalSourceFiles />
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/video/camera/receiver/fsl_camera_receiver.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/video/camera/receiver</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>camera-receiver-common</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.driver.camera-receiver-csi.MIMXRT1062</ID>
+      <UserFriendlyName>camera-receiver-csi (abstraction_layer)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/video/camera/receiver/csi/fsl_csi_camera_adapter.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/video/camera/receiver/csi/fsl_csi_camera_adapter.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/video/camera/receiver/csi</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>camera-receiver-csi</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.clock.MIMXRT1062</ID>
+      <UserFriendlyName>clock (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_clock.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_clock.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>clock</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.cmp.MIMXRT1062</ID>
+      <UserFriendlyName>cmp (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_cmp.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_cmp.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>cmp</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.lpi2c_cmsis.MIMXRT1062</ID>
+      <UserFriendlyName>lpi2c_cmsis (CMSIS_driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/cmsis_drivers/fsl_lpi2c_cmsis.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/cmsis_drivers/fsl_lpi2c_cmsis.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/cmsis_drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>lpi2c_cmsis</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.lpspi_cmsis.MIMXRT1062</ID>
+      <UserFriendlyName>lpspi_cmsis (CMSIS_driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/cmsis_drivers/fsl_lpspi_cmsis.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/cmsis_drivers/fsl_lpspi_cmsis.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/cmsis_drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>lpspi_cmsis</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.lpuart_cmsis_edma.MIMXRT1062</ID>
+      <UserFriendlyName>lpuart_cmsis (CMSIS_driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/cmsis_drivers/fsl_lpuart_cmsis.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/cmsis_drivers/fsl_lpuart_cmsis.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/cmsis_drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>lpuart_cmsis</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.driver.codec.MIMXRT1062</ID>
+      <UserFriendlyName>codec (abstraction_layer)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/codec/fsl_codec_common.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/codec/fsl_codec_common.h</string>
+        <string>$$SYS:BSP_ROOT$$/components/codec/port/fsl_codec_adapter.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/codec</string>
+        <string>$$SYS:BSP_ROOT$$/components/codec/port</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>codec</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.common.MIMXRT1062</ID>
+      <UserFriendlyName>common (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_common.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_common.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>common</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.csi.MIMXRT1062</ID>
+      <UserFriendlyName>csi (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_csi.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_csi.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>csi</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.driver.dc-fb-common.MIMXRT1062</ID>
+      <UserFriendlyName>dc-fb-common (abstraction_layer)</UserFriendlyName>
+      <AdditionalSourceFiles />
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/video/display/dc/fsl_dc_fb.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/video/display/dc</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>dc-fb-common</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.driver.dc-fb-elcdif.MIMXRT1062</ID>
+      <UserFriendlyName>dc-fb-elcdif (abstraction_layer)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/video/display/dc/elcdif/fsl_dc_fb_elcdif.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/video/display/dc/elcdif/fsl_dc_fb_elcdif.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/video/display/dc/elcdif</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>dc-fb-elcdif</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.dcdc_1.MIMXRT1062</ID>
+      <UserFriendlyName>dcdc_1 (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_dcdc.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_dcdc.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>dcdc_1</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.dcp.MIMXRT1062</ID>
+      <UserFriendlyName>dcp (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_dcp.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_dcp.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>dcp</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.dmamux.MIMXRT1062</ID>
+      <UserFriendlyName>dmamux (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_dmamux.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_dmamux.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>dmamux</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.edma.MIMXRT1062</ID>
+      <UserFriendlyName>edma (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_edma.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_edma.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>edma</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.elcdif.MIMXRT1062</ID>
+      <UserFriendlyName>elcdif (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_elcdif.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_elcdif.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>elcdif</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.enc.MIMXRT1062</ID>
+      <UserFriendlyName>enc (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_enc.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_enc.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>enc</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.enet.MIMXRT1062</ID>
+      <UserFriendlyName>enet (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_enet.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_enet.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>enet</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.ewm.MIMXRT1062</ID>
+      <UserFriendlyName>ewm (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_ewm.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_ewm.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>ewm</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.flexcan.MIMXRT1062</ID>
+      <UserFriendlyName>flexcan (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_flexcan.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_flexcan.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>flexcan</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.flexcan_edma.MIMXRT1062</ID>
+      <UserFriendlyName>flexcan_edma (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_flexcan_edma.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_flexcan_edma.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>flexcan_edma</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.flexio.MIMXRT1062</ID>
+      <UserFriendlyName>flexio (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_flexio.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_flexio.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>flexio</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.flexio_camera.MIMXRT1062</ID>
+      <UserFriendlyName>flexio_camera (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_flexio_camera.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_flexio_camera.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>flexio_camera</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.flexio_camera_edma.MIMXRT1062</ID>
+      <UserFriendlyName>flexio_camera_edma (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_flexio_camera_edma.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_flexio_camera_edma.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>flexio_camera_edma</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.flexio_i2c_master.MIMXRT1062</ID>
+      <UserFriendlyName>flexio_i2c_master (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_flexio_i2c_master.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_flexio_i2c_master.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>flexio_i2c_master</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.flexio_i2s.MIMXRT1062</ID>
+      <UserFriendlyName>flexio_i2s (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_flexio_i2s.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_flexio_i2s.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>flexio_i2s</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.flexio_i2s_edma.MIMXRT1062</ID>
+      <UserFriendlyName>flexio_i2s_edma (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_flexio_i2s_edma.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_flexio_i2s_edma.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>flexio_i2s_edma</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.flexio_mculcd.MIMXRT1062</ID>
+      <UserFriendlyName>flexio_mculcd (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_flexio_mculcd.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_flexio_mculcd.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>flexio_mculcd</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.flexio_mculcd_edma.MIMXRT1062</ID>
+      <UserFriendlyName>flexio_mculcd_edma (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_flexio_mculcd_edma.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_flexio_mculcd_edma.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>flexio_mculcd_edma</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.flexio_spi.MIMXRT1062</ID>
+      <UserFriendlyName>flexio_spi (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_flexio_spi.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_flexio_spi.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>flexio_spi</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.flexio_spi_edma.MIMXRT1062</ID>
+      <UserFriendlyName>flexio_spi_edma (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_flexio_spi_edma.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_flexio_spi_edma.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>flexio_spi_edma</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.flexio_uart.MIMXRT1062</ID>
+      <UserFriendlyName>flexio_uart (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_flexio_uart.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_flexio_uart.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>flexio_uart</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.flexio_uart_edma.MIMXRT1062</ID>
+      <UserFriendlyName>flexio_uart_edma (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_flexio_uart_edma.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_flexio_uart_edma.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>flexio_uart_edma</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.flexram.MIMXRT1062</ID>
+      <UserFriendlyName>flexram (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_flexram_allocate.c</string>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_flexram.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_flexram_allocate.h</string>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_flexram.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>flexram</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.flexspi.MIMXRT1062</ID>
+      <UserFriendlyName>flexspi (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_flexspi.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_flexspi.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>flexspi</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.driver.ft5406_rt.MIMXRT1062</ID>
+      <UserFriendlyName>ft5406_rt (board_component)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/ft5406_rt/fsl_ft5406_rt.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/ft5406_rt/fsl_ft5406_rt.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/ft5406_rt</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>ft5406_rt</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.driver.fxos8700cq.MIMXRT1062</ID>
+      <UserFriendlyName>fxos8700cq (board_component)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/fxos8700cq/fsl_fxos.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/fxos8700cq/fsl_fxos.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/fxos8700cq</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>fxos8700cq</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.gpc_1.MIMXRT1062</ID>
+      <UserFriendlyName>gpc (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_gpc.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_gpc.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>gpc</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.gpt.MIMXRT1062</ID>
+      <UserFriendlyName>gpt (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_gpt.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_gpt.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>gpt</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.igpio.MIMXRT1062</ID>
+      <UserFriendlyName>gpio (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_gpio.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_gpio.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>gpio</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.iomuxc.MIMXRT1062</ID>
+      <UserFriendlyName>iomuxc (driver)</UserFriendlyName>
+      <AdditionalSourceFiles />
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_iomuxc.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>iomuxc</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.kpp.MIMXRT1062</ID>
+      <UserFriendlyName>kpp (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_kpp.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_kpp.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>kpp</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.lpi2c.MIMXRT1062</ID>
+      <UserFriendlyName>i2c (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_lpi2c.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_lpi2c.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>i2c</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.lpi2c_edma.MIMXRT1062</ID>
+      <UserFriendlyName>i2c_edma (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_lpi2c_edma.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_lpi2c_edma.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>i2c_edma</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.lpspi.MIMXRT1062</ID>
+      <UserFriendlyName>lpspi (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_lpspi.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_lpspi.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>lpspi</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.lpspi_edma.MIMXRT1062</ID>
+      <UserFriendlyName>lpspi_edma (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_lpspi_edma.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_lpspi_edma.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>lpspi_edma</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.lpuart.MIMXRT1062</ID>
+      <UserFriendlyName>lpuart (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_lpuart.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_lpuart.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>lpuart</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.lpuart_edma.MIMXRT1062</ID>
+      <UserFriendlyName>lpuart_edma (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_lpuart_edma.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_lpuart_edma.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>lpuart_edma</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.driver.nand_flash-common.MIMXRT1062</ID>
+      <UserFriendlyName>nand_flash-common (abstraction_layer)</UserFriendlyName>
+      <AdditionalSourceFiles />
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/flash/nand/fsl_nand_flash.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/flash/nand</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>nand_flash-common</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.driver.nand_flash-controller-semc.MIMXRT1062</ID>
+      <UserFriendlyName>nand_flash-controller-semc (abstraction_layer)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/flash/nand/semc/fsl_semc_nand_flash.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/flash/nand/semc/fsl_semc_nand_flash.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/flash/nand/semc</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>nand_flash-controller-semc</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.driver.nor_flash-common.MIMXRT1062</ID>
+      <UserFriendlyName>nor_flash-common (abstraction_layer)</UserFriendlyName>
+      <AdditionalSourceFiles />
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/flash/nor/fsl_nor_flash.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/flash/nor</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>nor_flash-common</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.driver.nor_flash-controller-flexspi.MIMXRT1062</ID>
+      <UserFriendlyName>nor_flash-controller-flexspi (abstraction_layer)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/flash/nor/flexspi/fsl_flexspi_nor_flash.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/flash/nor/flexspi/fsl_flexspi_nor_flash.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/flash/nor/flexspi</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>nor_flash-controller-flexspi</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.ocotp.MIMXRT1062</ID>
+      <UserFriendlyName>ocotp (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_ocotp.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_ocotp.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>ocotp</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.driver.phyksz8081.MIMXRT1062</ID>
+      <UserFriendlyName>phyksz8081 (board_component)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/phyksz8081/fsl_phy.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/phyksz8081/fsl_phy.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/phyksz8081</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>phyksz8081</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.pit.MIMXRT1062</ID>
+      <UserFriendlyName>pit (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_pit.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_pit.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>pit</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.pmu.MIMXRT1062</ID>
+      <UserFriendlyName>pmu (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_pmu.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_pmu.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>pmu</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.pwm.MIMXRT1062</ID>
+      <UserFriendlyName>pwm (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_pwm.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_pwm.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>pwm</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.pxp.MIMXRT1062</ID>
+      <UserFriendlyName>pxp (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_pxp.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_pxp.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>pxp</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.qtmr.MIMXRT1062</ID>
+      <UserFriendlyName>qtmr (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_qtmr.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_qtmr.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>qtmr</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.rtwdog.MIMXRT1062</ID>
+      <UserFriendlyName>rtwdog (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_rtwdog.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_rtwdog.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>rtwdog</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.sai.MIMXRT1062</ID>
+      <UserFriendlyName>sai (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_sai.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_sai.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>sai</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.sai_edma.MIMXRT1062</ID>
+      <UserFriendlyName>sai_edma (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_sai_edma.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_sai_edma.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>sai_edma</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.semc.MIMXRT1062</ID>
+      <UserFriendlyName>semc (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_semc.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_semc.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>semc</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.snvs_hp.MIMXRT1062</ID>
+      <UserFriendlyName>snvs_hp (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_snvs_hp.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_snvs_hp.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>snvs_hp</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.snvs_lp.MIMXRT1062</ID>
+      <UserFriendlyName>snvs_lp (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_snvs_lp.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_snvs_lp.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>snvs_lp</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.spdif.MIMXRT1062</ID>
+      <UserFriendlyName>spdif (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_spdif.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_spdif.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>spdif</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.spdif_edma.MIMXRT1062</ID>
+      <UserFriendlyName>spdif_edma (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_spdif_edma.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_spdif_edma.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>spdif_edma</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.src.MIMXRT1062</ID>
+      <UserFriendlyName>src (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_src.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_src.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>src</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.tempmon.MIMXRT1062</ID>
+      <UserFriendlyName>tempmon (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_tempmon.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_tempmon.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>tempmon</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.trng.MIMXRT1062</ID>
+      <UserFriendlyName>trng (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_trng.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_trng.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>trng</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.tsc.MIMXRT1062</ID>
+      <UserFriendlyName>tsc (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_tsc.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_tsc.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>tsc</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.usdhc.MIMXRT1062</ID>
+      <UserFriendlyName>sdhc (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_usdhc.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_usdhc.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>sdhc</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.driver.video-common.MIMXRT1062</ID>
+      <UserFriendlyName>video-common (software_component)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/video/fsl_video_common.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/video/fsl_video_common.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/video</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>video-common</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.driver.video-i2c.MIMXRT1062</ID>
+      <UserFriendlyName>video-i2c (abstraction_layer)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/video/i2c/fsl_video_i2c.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/video/i2c/fsl_video_i2c.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/video/i2c</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>video-i2c</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.wdog01.MIMXRT1062</ID>
+      <UserFriendlyName>wdog (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_wdog.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_wdog.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>wdog</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.driver.wm8960.MIMXRT1062</ID>
+      <UserFriendlyName>wm8960 (software_component)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/components/codec/wm8960/fsl_wm8960.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/components/codec/wm8960/fsl_wm8960.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/components/codec/wm8960</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>wm8960</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.xbara.MIMXRT1062</ID>
+      <UserFriendlyName>xbara (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_xbara.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_xbara.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>xbara</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.xbarb.MIMXRT1062</ID>
+      <UserFriendlyName>xbarb (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_xbarb.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers/fsl_xbarb.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/drivers</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>xbarb</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.xip_board.MIMXRT1062</ID>
+      <UserFriendlyName>xip_board (board_component)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/boards/evkmimxrt1060/xip/evkmimxrt1060_flexspi_nor_config.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/boards/evkmimxrt1060/xip/evkmimxrt1060_flexspi_nor_config.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/boards/evkmimxrt1060/xip</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros>
+        <string>XIP_EXTERNAL_FLASH=1</string>
+        <string>XIP_BOOT_HEADER_ENABLE=1</string>
+      </AdditionalPreprocessorMacros>
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>xip_board</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.xip_board_dcd.MIMXRT1062</ID>
+      <UserFriendlyName>xip_board_dcd (board_component)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/boards/evkmimxrt1060/xip/evkmimxrt1060_sdram_ini_dcd.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/boards/evkmimxrt1060/xip/evkmimxrt1060_sdram_ini_dcd.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/boards/evkmimxrt1060/xip</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros>
+        <string>XIP_EXTERNAL_FLASH=1</string>
+        <string>XIP_BOOT_HEADER_ENABLE=1</string>
+      </AdditionalPreprocessorMacros>
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>xip_board_dcd</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.drivers.xip_device.MIMXRT1062</ID>
+      <UserFriendlyName>xip_device (driver)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/xip/fsl_flexspi_nor_boot.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/xip/fsl_flexspi_nor_boot.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/xip</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros>
+        <string>XIP_EXTERNAL_FLASH=1</string>
+        <string>XIP_BOOT_HEADER_ENABLE=1</string>
+      </AdditionalPreprocessorMacros>
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>xip_device</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.middleware.baremetal.MIMXRT1062</ID>
+      <UserFriendlyName>baremetal (OS)</UserFriendlyName>
+      <AdditionalSourceFiles />
+      <AdditionalHeaderFiles />
+      <AdditionalIncludeDirs />
+      <AdditionalPreprocessorMacros>
+        <string>FSL_RTOS_BM</string>
+        <string>SDK_OS_BAREMETAL</string>
+      </AdditionalPreprocessorMacros>
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>baremetal</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.middleware.sdmmc.common.MIMXRT1062</ID>
+      <UserFriendlyName>common (middleware)</UserFriendlyName>
+      <AdditionalSourceFiles />
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/middleware/sdmmc/inc/fsl_sdmmc_spec.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/middleware/sdmmc/inc</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>common</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.middleware.sdmmc.mmc.MIMXRT1062</ID>
+      <UserFriendlyName>mmc (middleware)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/middleware/sdmmc/src/fsl_mmc.c</string>
+        <string>$$SYS:BSP_ROOT$$/middleware/sdmmc/src/fsl_sdmmc_common.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/middleware/sdmmc/inc/fsl_mmc.h</string>
+        <string>$$SYS:BSP_ROOT$$/middleware/sdmmc/inc/fsl_sdmmc_common.h</string>
+        <string>$$SYS:BSP_ROOT$$/middleware/sdmmc/inc/fsl_sdmmc_host.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/middleware/sdmmc/inc</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>mmc</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.middleware.sdmmc.sd.MIMXRT1062</ID>
+      <UserFriendlyName>sd (middleware)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/middleware/sdmmc/src/fsl_sd.c</string>
+        <string>$$SYS:BSP_ROOT$$/middleware/sdmmc/src/fsl_sdmmc_common.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/middleware/sdmmc/inc/fsl_sd.h</string>
+        <string>$$SYS:BSP_ROOT$$/middleware/sdmmc/inc/fsl_sdmmc_common.h</string>
+        <string>$$SYS:BSP_ROOT$$/middleware/sdmmc/inc/fsl_sdmmc_host.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/middleware/sdmmc/inc</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>sd</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.middleware.sdmmc.sdio.MIMXRT1062</ID>
+      <UserFriendlyName>sdio (middleware)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/middleware/sdmmc/src/fsl_sdio.c</string>
+        <string>$$SYS:BSP_ROOT$$/middleware/sdmmc/src/fsl_sdmmc_common.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/middleware/sdmmc/inc/fsl_sdio.h</string>
+        <string>$$SYS:BSP_ROOT$$/middleware/sdmmc/inc/fsl_sdmmc_common.h</string>
+        <string>$$SYS:BSP_ROOT$$/middleware/sdmmc/inc/fsl_sdmmc_host.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/middleware/sdmmc/inc</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>sdio</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.middleware.sdmmc.usdhcadaptor.freertos.MIMXRT1062</ID>
+      <UserFriendlyName>adapter_freertos (middleware)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/middleware/sdmmc/port/usdhc/freertos/fsl_sdmmc_event.c</string>
+        <string>$$SYS:BSP_ROOT$$/middleware/sdmmc/port/usdhc/freertos/fsl_sdmmc_host.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/middleware/sdmmc/port/fsl_sdmmc_event.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/middleware/sdmmc/port</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>adapter_freertos</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.middleware.sdmmc.usdhcadaptor.interrupt.MIMXRT1062</ID>
+      <UserFriendlyName>adapter_interrupt (middleware)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/middleware/sdmmc/port/usdhc/interrupt/fsl_sdmmc_event.c</string>
+        <string>$$SYS:BSP_ROOT$$/middleware/sdmmc/port/usdhc/interrupt/fsl_sdmmc_host.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/middleware/sdmmc/port/fsl_sdmmc_event.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/middleware/sdmmc/port</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>adapter_interrupt</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.middleware.sdmmc.usdhcadaptor.polling.MIMXRT1062</ID>
+      <UserFriendlyName>adapter_polling (middleware)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/middleware/sdmmc/port/usdhc/polling/fsl_sdmmc_event.c</string>
+        <string>$$SYS:BSP_ROOT$$/middleware/sdmmc/port/usdhc/polling/fsl_sdmmc_host.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/middleware/sdmmc/port/fsl_sdmmc_event.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/middleware/sdmmc/port</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>adapter_polling</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.utilities.misc_utilities.MIMXRT1062</ID>
+      <UserFriendlyName>misc_utilities (utilities)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/utilities/fsl_sbrk.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles />
+      <AdditionalIncludeDirs />
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>misc_utilities</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.utilities.assert.MIMXRT1062</ID>
+      <UserFriendlyName>assert (utilities)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/utilities/fsl_assert.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles />
+      <AdditionalIncludeDirs />
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>assert</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.utility.debug_console.MIMXRT1062</ID>
+      <UserFriendlyName>debug_console (utilities)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/utilities/debug_console/fsl_debug_console.c</string>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/utilities/str/fsl_str.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/utilities/debug_console/fsl_debug_console.h</string>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/utilities/debug_console/fsl_debug_console_conf.h</string>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/utilities/str/fsl_str.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/utilities/debug_console</string>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/utilities/str</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>debug_console</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.platform.utilities.notifier.MIMXRT1062</ID>
+      <UserFriendlyName>notifier (utilities)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/utilities/fsl_notifier.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/utilities/fsl_notifier.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/utilities</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros />
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>notifier</ProjectFolderName>
+    </EmbeddedFramework>
+    <EmbeddedFramework>
+      <ID>com.sysprogs.ksdk2x_imported.utility.shell.MIMXRT1062</ID>
+      <UserFriendlyName>shell (utilities)</UserFriendlyName>
+      <AdditionalSourceFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/utilities/fsl_shell.c</string>
+      </AdditionalSourceFiles>
+      <AdditionalHeaderFiles>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/utilities/fsl_shell.h</string>
+      </AdditionalHeaderFiles>
+      <AdditionalIncludeDirs>
+        <string>$$SYS:BSP_ROOT$$/devices/MIMXRT1062/utilities</string>
+      </AdditionalIncludeDirs>
+      <AdditionalPreprocessorMacros>
+        <string>DEBUG_CONSOLE_RX_ENABLE=0</string>
+      </AdditionalPreprocessorMacros>
+      <AdditionalLibraries />
+      <RequiredFrameworks />
+      <MCUFilterRegex>^MIMXR.*</MCUFilterRegex>
+      <DefaultEnabled>false</DefaultEnabled>
+      <ProjectFolderName>shell</ProjectFolderName>
+    </EmbeddedFramework>
+  </Frameworks>
+  <FileConditions>
+    <FileCondition>
+      <ConditionToInclude xsi:type="ReferencesFramework">
+        <FrameworkID>com.sysprogs.ksdk2x_imported.middleware.freertos.MIMXRT1062</FrameworkID>
+      </ConditionToInclude>
+      <FilePath>$$SYS:BSP_ROOT$$/middleware/sdmmc/port/usdhc/freertos/fsl_sdmmc_event.c</FilePath>
+    </FileCondition>
+    <FileCondition>
+      <ConditionToInclude xsi:type="ReferencesFramework">
+        <FrameworkID>com.sysprogs.ksdk2x_imported.middleware.freertos.MIMXRT1062</FrameworkID>
+      </ConditionToInclude>
+      <FilePath>$$SYS:BSP_ROOT$$/middleware/sdmmc/port/usdhc/freertos/fsl_sdmmc_host.c</FilePath>
+    </FileCondition>
+  </FileConditions>
+  <VendorSampleDirectoryPath>.</VendorSampleDirectoryPath>
+  <VendorSampleCatalogName>KSDK Samples</VendorSampleCatalogName>
+  <EmbeddedSamples />
+  <BSPImporterID>com.sysprogs.sdkimporters.nxp.ksdk</BSPImporterID>
+</BoardSupportPackage>

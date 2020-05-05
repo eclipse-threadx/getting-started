@@ -339,8 +339,8 @@ void mqtt_thread_entry(ULONG info)
 
         mqtt_publish(mqtt_publish_topic, mqtt_message);
 
-        // Sleep for 10 minutes
-        tx_thread_sleep(600 * TX_TIMER_TICKS_PER_SECOND);
+        // Sleep for 1 minute
+        tx_thread_sleep(60 * TX_TIMER_TICKS_PER_SECOND);
     }
 }
 
