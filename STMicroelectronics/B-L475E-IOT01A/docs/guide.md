@@ -2,7 +2,7 @@
 
 [[_TOC_]]
 
-**Total completion time**:  45-60 minutes
+**Total completion time**:  30-45 minutes
 
 In this tutorial you use Azure RTOS to connect the STMicroelectronics B-L475E-IOT01 (hereafter, the STM  DevKit) to Azure IoT.  The article is part of the series [Getting Started with Azure RTOS](https://review.docs.microsoft.com/azure/rtos/getting-started?branch=master). The series introduces device developers to Azure RTOS, and shows how to connect several micro-controller units (MCU) to Azure IoT.
 
@@ -21,8 +21,8 @@ You will complete the following tasks:
 * Hardware
 
     > * The [STMicroelectronics B-L475E-IOT01](https://www.st.com/content/st_com/en/products/evaluation-tools/product-evaluation-tools/mcu-mpu-eval-tools/stm32-mcu-mpu-eval-tools/stm32-discovery-kits/b-l475e-iot01a.html) (STM DevKit)
-    > * Wi-Fi access
-    > * USB Cable (data capable)
+    > * Wi-Fi 2.4 GHz
+    > * USB 2.0 A male to Micro USB cable
 
 ## Prepare the development environment
 
@@ -49,9 +49,9 @@ The cloned repo contains a setup script that installs and configures the first s
 
 To run the setup script:
 
-1. In the cloned repo folder, run the setup script found at `tools\get-toolchain.bat`. If the script prompts for elevated access during the installation, enable it.
+1. In the cloned repo folder, run the setup script found at *getting-started\tools\get-toolchain.bat*. If the script prompts for elevated access during the installation, enable it.
 1. After the installation, open the console app found at **Windows Start > Visual Studio 2019 > Developer Command Prompt for VS 2019**. You must use this console to use the installed programming environment. Keep the **Developer Command Prompt** open for use later in the tutorial.
-1. Run the following code to confirm proper installation and version of CMake.
+1. Run the following code to confirm that CMake version 3.14 or later is installed.
 
     ```
     cmake --version
@@ -80,10 +80,9 @@ If you prefer to run Azure CLI in the browser-based Azure Cloud Shell:
 
 1. Use your Azure account credentials to sign into the Azure Cloud shell at https://shell.azure.com/.
     > Note: If this is the first time you've used the Cloud Shell, it prompts you to create storage, which is required to use the Cloud Shell.  Select a subscription to create a storage account and Microsoft Azure Files share.
-1. Select your preferred CLI environment in the **Select environment** dropdown. This tutorial uses the **Bash** environment. Azure CLI commands work in the Powershell environment too.
+1. Select your preferred CLI environment in the **Select environment** dropdown. You can run all Azure CLI commands in this tutorial in Bash or in the Powershell environment.
 
     ![Select CLI environment](images/cloud-shell-environment.png)
-1. Keep the browser open to run the CLI commands in later steps.
 
 ### Create an IoT hub
 
@@ -91,7 +90,7 @@ You can use Azure CLI to create an IoT hub that handles events and messaging for
 
 To create an IoT hub:
 
-1. In your console, run the [az extension add](https://docs.microsoft.com/cli/azure/extension?view=azure-cli-latest#az-extension-add) command to add the Microsoft Azure IoT Extension for Azure CLI to your CLI shell. The IOT Extension adds IoT Hub, IoT Edge, and IoT Device Provisioning Service (DPS) specific commands to Azure CLI.
+1. In your CLI console, run the [az extension add](https://docs.microsoft.com/cli/azure/extension?view=azure-cli-latest#az-extension-add) command to add the Microsoft Azure IoT Extension for Azure CLI to your CLI shell. The IOT Extension adds IoT Hub, IoT Edge, and IoT Device Provisioning Service (DPS) specific commands to Azure CLI.
 
    ```azurecli
    az extension add --name azure-iot
@@ -123,7 +122,7 @@ To register a device:
 
     *YourIotHubName*. Replace this placeholder below with the name you chose for your IoT hub.
 
-    *MySTMDevice*. You can use this name directly for the device in the rest of this tutorial. Optionally, use a different name.
+    *MySTMDevice*. You can use this name directly for the device in CLI commands in this tutorial. Optionally, use a different name.
 
     ```azurecli
     az iot hub device-identity create --device-id MySTMDevice --hub-name {YourIoTHubName}
@@ -139,17 +138,17 @@ Confirm that you have the copied the following values from the JSON output to us
 
 ## Prepare the device
 
-To connect the STM DevKit to Azure, you'll modify a configuration file for WiFi and Azure IoT settings, rebuild the image, and flash the image to the device.
+To connect the STM DevKit to Azure, you'll modify a configuration file for Wi-Fi and Azure IoT settings, rebuild the image, and flash the image to the device.
 
 ### Add configuration
 
-1. In a text editor, edit the file `STM-B-L475E-IOT01\app\azure_config.c` to set the WiFi constants to the following values from your local environment.
+1. In a text editor, edit the file *STM-B-L475E-IOT01\app\azure_config.c* to set the Wi-Fi constants to the following values from your local environment.
 
     |Constant name|Value|
     |-------------|-----|
-    |`wifi_ssid` |{*Your WiFi ssid*}|
-    |`wifi_password` |{*Your WiFi password*}|
-    |`wifi_mode` |{*One of the enumerated WiFi mode values in the file*}|
+    |`wifi_ssid` |{*Your Wi-Fi ssid*}|
+    |`wifi_password` |{*Your Wi-Fi password*}|
+    |`wifi_mode` |{*One of the enumerated Wi-Fi mode values in the file*}|
 
 1. Edit the same file to set the Azure IoT device information constants to the values that you saved after you created Azure resources.
 
@@ -161,70 +160,144 @@ To connect the STM DevKit to Azure, you'll modify a configuration file for WiFi 
 
 ### Build the image
 
-In **Developer Command Prompt**, go to the `getting-started\STM-B-L475E-IOT01` folder and run the script at `tools\rebuild.bat` to build the image.
+In **Developer Command Prompt**, go to the *getting-started\STM-B-L475E-IOT01* folder and run the following script to build the image.
+
 ```
 tools\rebuild.bat
 ```
 
-After the build is complete, the binary file is in the `_build\app` folder.
+After the build completes, confirm that a binary file was created in the following path:
+
+> *\getting-started\STM-B-L475E-IOT01\build\app\stm32_azure_iot.bin*
 
 ### Flash the image
 
-1.  Launch STM32 ST-LINK Utility
-2.  Select `Target` -> `Program...` and select the azure_iot_sample.bin produced from the [Building the Image](##Building-the-Image) step. It should be located in the `STM-B-L475E-IOT01\_build\app` folder
-3.  Click on `Start` in `Download` diaglog while keeping the fields as is
-4.  The flashing process should be quick. The console window in the STM32 ST-LINK Utility tool should display a message similar to ` Memory programmed in 18s and 375ms.` once the flashing process is complete
+1. On the STM DevKit MCU, locate the **Reset** button and the Micro USB port, which is labeled **USB STLink**. Both components are highlighted in the following picture:
+
+    :::image type="content" source="images/stm-devkit-board.png" alt-text="STM DevKit board reset button and micro usb port":::
+
+1. Connect the Micro USB cable to the Micro USB port on the STM DevKit, and then connect it to your computer.
+    > Note: For detailed setup information about the STM DevKit, see the instructions on the packaging, or see [Tools and Resources](https://www.st.com/content/st_com/en/products/evaluation-tools/product-evaluation-tools/mcu-mpu-eval-tools/stm32-mcu-mpu-eval-tools/stm32-discovery-kits/b-l475e-iot01a.html#resource).
+1. Start the **STM32 ST-LINK Utility**.
+1. Select **Target > Program**.
+1. In the **Download** dialog, select **Browse**, select the binary file **stm32_azure_iot.bin** that you built in the [Build the image](#build-the-image) section, and select **Open**.
+1. Select **Start**. You don't need to change existing field values.
+
+The flashing process happens quickly. After flashing completes successfully, the **STM32 ST-LINK Utility** displays a message that starts with *Memory programmed in* and indicates how long it took:
+
+:::image type="content" source="images/stm32-stlink-utility.png" alt-text="Flash a device with the STM32 ST-LINK Utility":::
 
 ### Confirm device connection details
 
-**TODO**: Run termite, and confirm that the device starts up and connects to hub correctly.
-List the checkpoint output strings:
-1. Wifi
-2. DHCP - Ip address
-3. SNTP - Simple Network Time Protocol
-4. MQTT Client
+You can use the **Termite** utility to monitor communication and confirm that your device is set up correctly.
 
-Refer to troubleshooting to help resolve this.
+1. Start **Termite**.
+1. Select **Settings**.
+1. In the **Serial port settings** dialog, check the following settings and update if needed:
+    * **Baud rate**: 115,000
+    * **Port**: The port that your STM DevKit is connected to. If there are multiple port options in the dropdown, you can find the correct port to use. Open Windows **Device Manager**, and select **Ports > STMicroelectronics STLink Virtual COM Port**. The device entry indicates the correct port to use in **Port** setting.
+1. Press the **Reset** button on the board. The button is black and is labeled on the board.
+1. In the **Termite** console, check the following checkpoint values to confirm that the device is initialized and connected to Azure IoT. If a checkpoint value is missing or incorrect and you can't resolve the issue, see [Troubleshooting](#troubleshooting).
+
+    |Checkpoint name|Output value|
+    |---------------|-----|
+    |Board initialized |{*blank*}|
+    |Network |Network connection success|
+    |DHCP |DHCP client success|
+    |SNTP |SNTP time sync success|
+    |MQTT client |Starting MQTT thread success|
+
+The Termite console shows the checkpoint values.
+
+:::image type="content" source="images/termite-output-checkpoints.png" alt-text="Termite output with connection checkpoints":::
+
+Keep Termite open to monitor device output in the following steps.
 
 ## View telemetry
 
-You can use [Azure IoT Explorer](https://github.com/Azure/azure-iot-explorer) to inspect the flow of telemetry from the device to Azure. 
-1.  Launch Azure IoT Explorer
-2.  Paste in the connection string for the IoT Hub you created earlier in this guide
-3.  Click on `Connect`
-4.  Select the device you wish to interact with
-5.  Select `Telemetry` from the left menu
-6.  Click `Start` to view the telemetry flowing through the hub
+You can use Azure CLI to inspect the flow of telemetry from the device to Azure IoT.
+
+1. In your CLI console, run the [az iot hub monitor-events](https://docs.microsoft.com/cli/azure/ext/azure-cli-iot-ext/iot/hub?view=azure-cli-latest#ext-azure-cli-iot-ext-az-iot-hub-monitor-events) command to monitor telemetry from your device. Use the names that you created previously in Azure IoT for your device and IoT hub.
+
+    > Note: The first time you run this command, Azure CLI prompts to install a *Dependency update (uamqp 1.2) required for IoT extension version: 0.9.1*. Select *y* to install the update. If the CLI also prompts to install the older `azure-iot-cli-ext` version of the Azure IoT CLI extension, select *no*.
+
+    ```
+    az iot hub monitor-events --device-id MySTMDevice --hub-name {YourIoTHubName}
+    ```
+
+    View the telemetry in the console's JSON output.
+
+    ```json
+    {
+        "event": {
+            "origin": "MySTMDevice",
+            "payload": "{\"temperature\": 25}"
+        }
+    }
+    ```
+
+1. Select CTRL+C to end monitoring.
 
 ## View device properties
 
-If you connected the device using IoT Hub:
-1.  On the [Azure Portal](https://portal.azure.com/), navigate to the IoT Hub instance you created earlier in step 2
-2.  Select *"IoT devices"* from the navigation menu for the hub instance
-3.  Select the device you would like to examine the properties for
-4.  On the device blade, click on the *"Device Twin"* button on the top menu
-5. You can now view the device properties in the `properties` element in the JSON payload
+Using Azure CLI, you can inspect the properties on your Azure resources, including your connected device.
 
-## Invoke a direct method on the device
-You can use the [Azure IoT Explorer](https://github.com/Azure/azure-iot-explorer) or the [Azure Portal](https://portal.azure.com/) to communicate with your board. Whether you are using the IoT explorer or the Azure portal, the experience of communicating with the board is similar. 
+1. Run the [az iot hub device-identity list](https://docs.microsoft.com/cli/azure/ext/azure-cli-iot-ext/iot/hub/device-identity?view=azure-cli-latest#ext-azure-cli-iot-ext-az-iot-hub-device-identity-list) command to list devices attached to your Iot hub.
 
-If you plan to use the Azure IoT Explorer:
-1.  Launch the tool
-2.  Paste in the connection string for the IoT Hub you created earlier in this guide
-3.  Click on `Connect`
-4.  Select the device you plan to communicate with
+    ```
+    az iot hub device-identity list --hub-name {YourIoTHubName}
+    ```
 
-If you plan to use the Azure Portal:
-1.  Navigate to [Azure Portal](https://portal.azure.com/)
-2.  Navigate to the IoT Hub instance you created earlier in this guide
-3.  Select *"IoT devices"* from the navigation menu for the hub instance
-4.  Select the device you plan to communicate with
+    The following partial JSON output shows how the connected device is included in the device list.
 
-### Messages
-Messages have both a body and optional properties organized as a collection of key/value string pairs. Enter a message body and a set of properties if you desire. 
+    ```json
+    {
+    "authenticationType": "sas",
+    "capabilities": {
+        "iotEdge": false
+    },
+    "cloudToDeviceMessageCount": 0,
+    "connectionState": "Connected",
+    "deviceEtag": "Njc0NTAzODkw",
+    "deviceId": "MySTMDevice",
+    ```
 
-### Direct Methods
-Direct methods have a name, payload, and configurable connection and method timeouts. Fill in the method name to invoke on the device. If the method takes in a payload, fill in the payload text box. You can configure a connection or a response timeout in seconds before invoking the method.
+1. Run the [az iot hub device-identity show](https://docs.microsoft.com/cli/azure/ext/azure-cli-iot-ext/iot/hub/device-identity?view=azure-cli-latest#ext-azure-cli-iot-ext-az-iot-hub-device-identity-show) command to view the properties of your device.
+
+    ```
+    az iot hub device-identity show --device-id MySTMDevice --hub-name {YourIoTHubName}
+    ```
+
+## Call a direct method on the device
+
+You can use the Azure CLI to call a direct method on your board from a console. Direct methods have a name, and can optionally have a JSON payload, configurable connection, and method timeout.
+
+To call a direct method on your device:
+
+1. Run the [az iot hub invoke-device-method](https://docs.microsoft.com/cli/azure/ext/azure-cli-iot-ext/iot/hub?view=azure-cli-latest#ext-azure-cli-iot-ext-az-iot-hub-invoke-device-method) command to invoke a direct method.
+
+    ```
+    az iot hub invoke-device-method --device-id MySTMDevice --method-name MyMethod --method-payload '{"Greeting":"Hello world!"}' --hub-name {YourIoTHubName}
+    ```
+
+    > Note: If you use Powershell rather than the **Developer Command Prompt** to run `invoke-device-method`, format the JSON payload parameter according to Powershell formatting rules.
+
+    ```
+    az iot hub invoke-device-method --device-id MySTMDevice --method-name MyMethod --method-payload '{\"Greeting\": \"Hello world!\"}' --hub-name {YourIoTHubName}
+    ```
+
+    The console shows the status of your method call on the device, where `1` indicates success.
+
+    ```json
+    {
+        "payload": {},
+        "status": 1
+    }
+    ```
+
+1. View the Termite console to see the JSON payload output:
+
+    :::image type="content" source="images/termite-output-direct-method.png" alt-text="Termite output for direct methods":::
 
 ## Clean up resources
 
