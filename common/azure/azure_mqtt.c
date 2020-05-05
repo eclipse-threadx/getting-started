@@ -61,7 +61,10 @@ static UINT mqtt_message_length;
 
 extern const NX_SECURE_TLS_CRYPTO nx_crypto_tls_ciphers;
 
-static UINT mqtt_publish(CHAR *topic, CHAR *message);
+UINT mqtt_publish(CHAR *topic, CHAR *message);
+
+static func_ptr_t cb_ptr_mqtt_main_thread = NULL;
+
 void mqtt_thread_entry(ULONG info);
 
 #define DIRECT_METHOD_BASE "$iothub/methods/"
@@ -306,7 +309,7 @@ static UINT azure_mqtt_open()
     return NXD_MQTT_SUCCESS;
 }
 
-static UINT mqtt_publish(CHAR *topic, CHAR *message)
+UINT mqtt_publish(CHAR *topic, CHAR *message)
 {
     UINT status = nxd_mqtt_client_publish(&mqtt_client,
                                           topic, strlen(topic),
@@ -320,28 +323,6 @@ static UINT mqtt_publish(CHAR *topic, CHAR *message)
     }
 
     return status;
-}
-
-void mqtt_thread_entry(ULONG info)
-{
-    CHAR mqtt_message[200];
-    CHAR mqtt_publish_topic[100];
-    UINT temperature = 25;
-
-    printf("Starting MQTT thread\r\n");
-
-    snprintf(mqtt_publish_topic, sizeof(mqtt_publish_topic), PUBLISH_TOPIC, iot_device_id);
-
-    while (true)
-    {
-        snprintf(mqtt_message, sizeof(mqtt_message), "{\"temperature\": %d}", temperature);
-        printf("Sending %s\r\n", mqtt_message);
-
-        mqtt_publish(mqtt_publish_topic, mqtt_message);
-
-        // Sleep for 1 minute
-        tx_thread_sleep(60 * TX_TIMER_TICKS_PER_SECOND);
-    }
 }
 
 bool azure_mqtt_start()
@@ -363,18 +344,44 @@ bool azure_mqtt_start()
         return false;
     }
 
-    status = tx_thread_create(&mqtt_thread,
-                              "MQTT Thread",
-                              mqtt_thread_entry,
-                              (ULONG)NULL,
-                              &mqtt_thread_stack, MQTT_THREAD_STACK_SIZE,
-                              MQTT_THREAD_PRIORITY, MQTT_THREAD_PRIORITY,
-                              TX_NO_TIME_SLICE, TX_AUTO_START);
-    if (status != TX_SUCCESS)
+    if (cb_ptr_mqtt_main_thread == NULL)
     {
-        printf("Unable to create MQTT thread (0x%02x)\r\n", status);
+        printf("No callback is registered for main MQTT thread\r\n");
+        nxd_mqtt_client_delete(&mqtt_client);
         return false;
+    }
+    else
+    {
+        status = tx_thread_create(&mqtt_thread,
+            "MQTT Thread",
+            cb_ptr_mqtt_main_thread,
+            (ULONG)NULL,
+            &mqtt_thread_stack,
+            MQTT_THREAD_STACK_SIZE,
+            MQTT_THREAD_PRIORITY,
+            MQTT_THREAD_PRIORITY,
+            TX_NO_TIME_SLICE,
+            TX_AUTO_START);
+    
+        if (status != TX_SUCCESS)
+        {
+            printf("Unable to create MQTT thread (0x%02x)\r\n", status);
+            return false;
+        }
     }
 
     return true;
+}
+
+bool azure_mqtt_register_main_thread_callback(func_ptr_t mqtt_main_thread_callback)
+{
+    bool status = false;
+    
+    if (cb_ptr_mqtt_main_thread == NULL)
+    {
+        cb_ptr_mqtt_main_thread = mqtt_main_thread_callback;
+        status = true;
+    }
+    
+    return status;
 }
