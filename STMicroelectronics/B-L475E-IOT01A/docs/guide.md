@@ -34,15 +34,15 @@ Clone the following repo to download all sample device code, setup scripts, and 
 
 To clone the repo, run the following command:
 
-    ```
-    git clone https://github.com/AzureRTOS/getting-started
-    ```
+```
+git clone https://github.com/AzureRTOS/getting-started
+```
 
 ### Install the tools
 
 The cloned repo contains a setup script that installs and configures the first set of required tools. After you run the setup script, you can install the remaining tools manually.
 
-> Note: The script uses the Visual Studio 2019 installer to install the following set of tools:
+> Note: The setup script uses the Visual Studio 2019 installer to install the following tools:
 > * [GCC](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm): Compile
 > * [CMake](https://cmake.org): Build
 > * [Ninja](https://ninja-build.org): Build
@@ -59,9 +59,9 @@ To run the setup script:
 
 To install the remaining tools:
 
-1. Install [ST-LINK](https://www.st.com/en/development-tools/stsw-link004.html). You use this utility to flash the device.
+1. Register for a free account at [ST-LINK](https://www.st.com/en/development-tools/stsw-link004.html), if you don't have one.
 
-    > Note: Before you download ST-LINK, register for a free user account.
+1. Download and install STM32 ST-LINK utility from the [ST-LINK](https://www.st.com/en/development-tools/stsw-link004.html) page. You use this utility to flash the device.
 
 1. Install [Termite](https://www.compuphase.com/software_termite.htm). You use this utility to monitor your device.
 
@@ -74,13 +74,13 @@ Use one of the following options to run Azure CLI.
 If you prefer to run Azure CLI locally:
 
 1. If you already have Azure CLI installed locally, run `az --version` to check the version. This tutorial uses Azure CLI 2.4.0 or later.
-1. To install or upgrade, see [Install Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest). If you install Azure CLI locally, you can run CLI commands in the **Developer Command Prompt**.
+1. To install or upgrade, see [Install Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest). If you install Azure CLI locally, you can run CLI commands in the **Developer Command Prompt**, in Git Bash for Windows, or in Powershell.
 
 If you prefer to run Azure CLI in the browser-based Azure Cloud Shell:
 
 1. Use your Azure account credentials to sign into the Azure Cloud shell at https://shell.azure.com/.
     > Note: If this is the first time you've used the Cloud Shell, it prompts you to create storage, which is required to use the Cloud Shell.  Select a subscription to create a storage account and Microsoft Azure Files share.
-1. Select your preferred CLI environment in the **Select environment** dropdown. You can run all Azure CLI commands in this tutorial in Bash or in the Powershell environment.
+1. Select Bash or Powershell as your preferred CLI environment in the **Select environment** dropdown.  
 
     ![Select CLI environment](images/cloud-shell-environment.png)
 
@@ -96,7 +96,7 @@ To create an IoT hub:
    az extension add --name azure-iot
    ```
 
-1. Run the [az group create](https://docs.microsoft.com/cli/azure/group?view=azure-cli-latest#az-group-create) command to create a resource group. The following command creates a resource group named *MyResourceGroup* in the *eastus* location.
+1. Run the [az group create](https://docs.microsoft.com/cli/azure/group?view=azure-cli-latest#az-group-create) command to create a resource group. The following command creates a resource group named *MyResourceGroup* in the *eastus* region. To see other available regions, you can run [az account list-locations](https://docs.microsoft.com/cli/azure/account?view=azure-cli-latest#az-account-list-locations).
 
     ```azurecli
     az group create --name MyResourceGroup --location eastus
@@ -172,9 +172,9 @@ After the build completes, confirm that a binary file was created in the followi
 
 ### Flash the image
 
-1. On the STM DevKit MCU, locate the **Reset** button and the Micro USB port, which is labeled **USB STLink**. Both components are highlighted in the following picture:
+1. On the STM DevKit MCU, locate the **Reset** button, and the Micro USB port which is labeled **USB STLink**. You use these components in the following steps. Both are highlighted in the following picture:
 
-    :::image type="content" source="images/stm-devkit-board.png" alt-text="STM DevKit board reset button and micro usb port":::
+    ![STM DevKit board reset button and micro usb port](images/stm-devkit-board.png)
 
 1. Connect the Micro USB cable to the Micro USB port on the STM DevKit, and then connect it to your computer.
     > Note: For detailed setup information about the STM DevKit, see the instructions on the packaging, or see [Tools and Resources](https://www.st.com/content/st_com/en/products/evaluation-tools/product-evaluation-tools/mcu-mpu-eval-tools/stm32-mcu-mpu-eval-tools/stm32-discovery-kits/b-l475e-iot01a.html#resource).
@@ -185,7 +185,7 @@ After the build completes, confirm that a binary file was created in the followi
 
 The flashing process happens quickly. After flashing completes successfully, the **STM32 ST-LINK Utility** displays a message that starts with *Memory programmed in* and indicates how long it took:
 
-:::image type="content" source="images/stm32-stlink-utility.png" alt-text="Flash a device with the STM32 ST-LINK Utility":::
+![Flash a device with the STM32 ST-LINK Utility](images/stm32-stlink-utility.png)
 
 ### Confirm device connection details
 
@@ -195,7 +195,7 @@ You can use the **Termite** utility to monitor communication and confirm that yo
 1. Select **Settings**.
 1. In the **Serial port settings** dialog, check the following settings and update if needed:
     * **Baud rate**: 115,000
-    * **Port**: The port that your STM DevKit is connected to. If there are multiple port options in the dropdown, you can find the correct port to use. Open Windows **Device Manager**, and select **Ports > STMicroelectronics STLink Virtual COM Port**. The device entry indicates the correct port to use in **Port** setting.
+    * **Port**: The port that your STM DevKit is connected to. If there are multiple port options in the dropdown, you can find the correct port to use. Open Windows **Device Manager**, and view **Ports > STMicroelectronics STLink Virtual COM Port** to identify which port to use.
 1. Press the **Reset** button on the board. The button is black and is labeled on the board.
 1. In the **Termite** console, check the following checkpoint values to confirm that the device is initialized and connected to Azure IoT. If a checkpoint value is missing or incorrect and you can't resolve the issue, see [Troubleshooting](#troubleshooting).
 
@@ -209,7 +209,7 @@ You can use the **Termite** utility to monitor communication and confirm that yo
 
 The Termite console shows the checkpoint values.
 
-:::image type="content" source="images/termite-output-checkpoints.png" alt-text="Termite output with connection checkpoints":::
+![Termite output with connection checkpoints](images/termite-output-checkpoints.png)
 
 Keep Termite open to monitor device output in the following steps.
 
@@ -219,7 +219,7 @@ You can use Azure CLI to inspect the flow of telemetry from the device to Azure 
 
 1. In your CLI console, run the [az iot hub monitor-events](https://docs.microsoft.com/cli/azure/ext/azure-cli-iot-ext/iot/hub?view=azure-cli-latest#ext-azure-cli-iot-ext-az-iot-hub-monitor-events) command to monitor telemetry from your device. Use the names that you created previously in Azure IoT for your device and IoT hub.
 
-    > Note: The first time you run this command, Azure CLI prompts to install a *Dependency update (uamqp 1.2) required for IoT extension version: 0.9.1*. Select *y* to install the update. If the CLI also prompts to install the older `azure-iot-cli-ext` version of the Azure IoT CLI extension, select *no*.
+    > Note: The first time you run this command, Azure CLI might prompt to install a *Dependency update (uamqp 1.2) required for IoT extension version: 0.9.1*. Select *y* to install the update. If the CLI also prompts to install the older `azure-iot-cli-ext` version of the Azure IoT CLI extension, select *no*.
 
     ```
     az iot hub monitor-events --device-id MySTMDevice --hub-name {YourIoTHubName}
@@ -280,7 +280,7 @@ To call a direct method on your device:
     az iot hub invoke-device-method --device-id MySTMDevice --method-name MyMethod --method-payload '{"Greeting":"Hello world!"}' --hub-name {YourIoTHubName}
     ```
 
-    > Note: If you use Powershell rather than the **Developer Command Prompt** to run `invoke-device-method`, format the JSON payload parameter according to Powershell formatting rules.
+    > Note: If you use Powershell rather than the **Developer Command Prompt** or Bash, format the JSON `method-payload` parameter according to Powershell formatting rules.
 
     ```
     az iot hub invoke-device-method --device-id MySTMDevice --method-name MyMethod --method-payload '{\"Greeting\": \"Hello world!\"}' --hub-name {YourIoTHubName}
@@ -297,7 +297,7 @@ To call a direct method on your device:
 
 1. View the Termite console to see the JSON payload output:
 
-    :::image type="content" source="images/termite-output-direct-method.png" alt-text="Termite output for direct methods":::
+    ![Termite output for direct methods](images/termite-output-direct-method.png)
 
 ## Clean up resources
 
@@ -305,8 +305,7 @@ If you no longer need the Azure resources created in this tutorial, you can use 
 
 If you continue to another tutorial in the series [Getting Started with Azure RTOS](https://review.docs.microsoft.com/azure/rtos/getting-started?branch=master), you can keep the resources you've already created and reuse them.
 
-> [!IMPORTANT]
-> Deleting a resource group is irreversible. The resource group and all the resources contained in it are permanently deleted. Make sure that you do not accidentally delete the wrong resource group or resources.
+> **Important**: Deleting a resource group is irreversible. The resource group and all the resources contained in it are permanently deleted. Make sure that you do not accidentally delete the wrong resource group or resources.
 
 To delete a resource group by name:
 1. Run the [az group delete](https://docs.microsoft.com/cli/azure/group?view=azure-cli-latest#az-group-delete) command. This removes the resource group, the IoT Hub, and the device registration you created.
