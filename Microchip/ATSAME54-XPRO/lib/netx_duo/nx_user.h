@@ -165,10 +165,8 @@
 #define NX_DISABLE_INCLUDE_SOURCE_CODE
 
 #define NX_SECURE_ENABLE
-#define NXD_MQTT_MAX_TOPIC_NAME_LENGTH  200
-#define NXD_MQTT_MAX_MESSAGE_LENGTH     200
-#define NX_DNS_CLIENT_USER_CREATE_PACKET_POOL
-
+//#define NXD_MQTT_MAX_TOPIC_NAME_LENGTH  200
+//#define NXD_MQTT_MAX_MESSAGE_LENGTH     200
 
 /* Define various build options for the NetX Duo port.  The application should either make changes
    here by commenting or un-commenting the conditional compilation defined OR supply the defines

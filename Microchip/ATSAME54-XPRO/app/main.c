@@ -37,24 +37,23 @@ void azure_thread_entry(ULONG parameter)
         return;
     }
 
-    // // Start the SNTP client
-    // if (!sntp_start())
-    // {
-        // printf("Failed to start the SNTP client\r\n");
-        // return;
-    // }
+     // Start the SNTP client
+     if (!sntp_start())
+     {
+         printf("Failed to start the SNTP client\r\n");
+         return;
+     }
 
-    // // Wait for an SNTP sync
-    // if (!sntp_wait_for_sync())
-    // {
-        // printf("Failed to start sync SNTP time\r\n");
+     // Wait for an SNTP sync
+     if (!sntp_wait_for_sync())
+     {
+         printf("Failed to start sync SNTP time\r\n");
 
-    // }
+     }
     
     float tempDegC;
     while (true)
     {
-		delay_ms(5000);
         // Print the compensated temperature readings
         WeatherClick_waitforRead();
         tempDegC = Weather_getTemperatureDegC();
@@ -62,7 +61,7 @@ void azure_thread_entry(ULONG parameter)
         
         // time_t current = time(NULL);
         // printf("Time %ld\r\n", (long)current);
-        // tx_thread_sleep(60 * TX_TIMER_TICKS_PER_SECOND);
+        tx_thread_sleep(5 * TX_TIMER_TICKS_PER_SECOND);
     }
 }
 
