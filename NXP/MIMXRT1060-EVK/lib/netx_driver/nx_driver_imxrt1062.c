@@ -117,7 +117,6 @@ static VOID         _nx_driver_hardware_packet_received(VOID);
 static UINT         _nx_driver_hardware_capability_set(NX_IP_DRIVER *driver_req_ptr);
 #endif 
 
-
 /**************************************************************************/ 
 /*                                                                        */ 
 /*  FUNCTION                                               RELEASE        */ 
@@ -1509,6 +1508,13 @@ typedef struct
     phy_duplex_t         duplex;        /* Ethernet Duplex          */
     uint8_t              mac[6];        /* Ethernet Address         */
 } ENET_CONFIG_IMX;
+
+void enet_init_imx(ENET_CONFIG_IMX *config);
+void delay(void);
+void BOARD_InitModule(void);
+void enet_init();
+VOID nx_driver_link_mode_changed(VOID);
+VOID nx_driver_imx_ethernet_isr(VOID);
 
 void enet_init_imx(ENET_CONFIG_IMX *config)
 {

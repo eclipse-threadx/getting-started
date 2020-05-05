@@ -1,0 +1,119 @@
+/**************************************************************************/
+/*                                                                        */
+/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*                                                                        */
+/*  This software is copyrighted by and is the sole property of Express   */
+/*  Logic, Inc.  All rights, title, ownership, or other interests         */
+/*  in the software remain the property of Express Logic, Inc.  This      */
+/*  software may only be used in accordance with the corresponding        */
+/*  license agreement.  Any unauthorized use, duplication, transmission,  */
+/*  distribution, or disclosure of this software is expressly forbidden.  */
+/*                                                                        */
+/*  This Copyright notice may not be removed or modified without prior    */
+/*  written consent of Express Logic, Inc.                                */
+/*                                                                        */
+/*  Express Logic, Inc. reserves the right to modify this software        */
+/*  without notice.                                                       */
+/*                                                                        */
+/*  Express Logic, Inc.                     info@expresslogic.com         */
+/*  11423 West Bernardo Court               http://www.expresslogic.com   */
+/*  San Diego, CA  92127                                                  */
+/*                                                                        */
+/**************************************************************************/
+
+
+/**************************************************************************/
+/**************************************************************************/
+/**                                                                       */
+/** NetX Secure Component                                                 */
+/**                                                                       */
+/**    X509 Digital Certificates                                          */
+/**                                                                       */
+/**************************************************************************/
+/**************************************************************************/
+
+#define NX_SECURE_SOURCE_CODE
+
+
+/* Include necessary system files.  */
+
+#include "nx_secure_tls.h"
+#include "nx_secure_x509.h"
+/* Bring in externs for caller checking code.  */
+
+NX_SECURE_CALLER_CHECKING_EXTERNS
+
+/**************************************************************************/
+/*                                                                        */
+/*  FUNCTION                                               RELEASE        */
+/*                                                                        */
+/*    _nxe_secure_x509_certificate_initialize             PORTABLE C      */
+/*                                                           5.12         */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*                                                                        */
+/*  DESCRIPTION                                                           */
+/*                                                                        */
+/*    This function checks for errors in the X509 Initialize call.        */
+/*                                                                        */
+/*  INPUT                                                                 */
+/*                                                                        */
+/*    certificate                           Certificate structure         */
+/*    certificate_data                      Pointer to certificate data   */
+/*    length                                Length of certificate data    */
+/*    raw_data_buffer                       Buffer to hold raw cert data  */
+/*    buffer_size                           Size of raw data buffer       */
+/*    private_key                           Pointer to private key data   */
+/*    priv_len                              Length of private key data    */
+/*    private_key_type                      Type of private key data      */
+/*                                                                        */
+/*  OUTPUT                                                                */
+/*                                                                        */
+/*    status                                Completion status             */
+/*                                                                        */
+/*  CALLS                                                                 */
+/*                                                                        */
+/*    _nx_secure_x509_certificate_initialize                              */
+/*                                          Actual X509 certificate       */
+/*                                            initialize call             */
+/*                                                                        */
+/*  CALLED BY                                                             */
+/*                                                                        */
+/*    Application Code                                                    */
+/*                                                                        */
+/*  RELEASE HISTORY                                                       */
+/*                                                                        */
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  06-09-2017     Timothy Stapko           Initial Version 5.10          */
+/*  12-15-2017     Timothy Stapko           Modified comment(s), added    */
+/*                                            logic to support vendor-    */
+/*                                            defined private key type,   */
+/*                                            resulting in version 5.11   */
+/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
+/*                                            added caller checking,      */
+/*                                            resulting in version 5.12   */
+/*                                                                        */
+/**************************************************************************/
+UINT _nxe_secure_x509_certificate_initialize(NX_SECURE_X509_CERT *certificate, UCHAR *certificate_data,
+                                             USHORT length, UCHAR *raw_data_buffer,
+                                             USHORT buffer_size, const UCHAR *private_key,
+                                             USHORT priv_len, UINT private_key_type)
+{
+UINT status;
+
+    if ((certificate == NX_NULL) || (certificate_data == NX_NULL) || (length == 0))
+    {
+        return(NX_PTR_ERROR);
+    }
+
+    /* Check for appropriate caller.  */
+    NX_THREADS_ONLY_CALLER_CHECKING
+
+    status = _nx_secure_x509_certificate_initialize(certificate, certificate_data, length, raw_data_buffer, buffer_size, private_key, priv_len, private_key_type);
+
+    /* Return completion status.  */
+    return(status);
+}
+

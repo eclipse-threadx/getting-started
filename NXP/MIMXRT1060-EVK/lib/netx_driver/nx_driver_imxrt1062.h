@@ -122,17 +122,18 @@ extern   "C" {
 
 /*calculate checksum by hardware*/
 
-//#define NX_DRIVER_CAPABILITY ( NX_INTERFACE_CAPABILITY_IPV4_TX_CHECKSUM | \
-//                              NX_INTERFACE_CAPABILITY_IPV4_RX_CHECKSUM |\
-//                               NX_INTERFACE_CAPABILITY_TCP_TX_CHECKSUM    | \
-//                               NX_INTERFACE_CAPABILITY_TCP_RX_CHECKSUM    | \
-//                                 NX_INTERFACE_CAPABILITY_UDP_TX_CHECKSUM    | \
-//                              NX_INTERFACE_CAPABILITY_UDP_RX_CHECKSUM| \
-//                               NX_INTERFACE_CAPABILITY_ICMPV4_TX_CHECKSUM   | \
-//                               NX_INTERFACE_CAPABILITY_ICMPV4_RX_CHECKSUM   )
-//                              // NX_INTERFACE_CAPABILITY_ICMPV6_TX_CHECKSUM | \
-//                              // NX_INTERFACE_CAPABILITY_ICMPV6_RX_CHECKSUM )  
-
+/*
+#define NX_DRIVER_CAPABILITY ( NX_INTERFACE_CAPABILITY_IPV4_TX_CHECKSUM | \
+                              NX_INTERFACE_CAPABILITY_IPV4_RX_CHECKSUM |\
+                               NX_INTERFACE_CAPABILITY_TCP_TX_CHECKSUM    | \
+                               NX_INTERFACE_CAPABILITY_TCP_RX_CHECKSUM    | \
+                                 NX_INTERFACE_CAPABILITY_UDP_TX_CHECKSUM    | \
+                              NX_INTERFACE_CAPABILITY_UDP_RX_CHECKSUM| \
+                               NX_INTERFACE_CAPABILITY_ICMPV4_TX_CHECKSUM   | \
+                               NX_INTERFACE_CAPABILITY_ICMPV4_RX_CHECKSUM   )
+                              // NX_INTERFACE_CAPABILITY_ICMPV6_TX_CHECKSUM | \
+                              // NX_INTERFACE_CAPABILITY_ICMPV6_RX_CHECKSUM )  
+*/
 
 /****** DRIVER SPECIFIC ****** Start of part/vendor specific constants area.  Include any such constants here!  */
 
