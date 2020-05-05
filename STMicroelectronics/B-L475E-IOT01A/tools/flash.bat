@@ -1,0 +1,1 @@
+c:\OpenOCD\bin\openocd -f c:\openocd\scripts\board\stm32l4discovery.cfg -c "program build/app/stm32_azure_iot.elf verify reset exit"
