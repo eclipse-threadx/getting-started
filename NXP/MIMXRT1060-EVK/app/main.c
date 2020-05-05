@@ -1,91 +1,90 @@
 #include <stdio.h>
+#include <time.h>
 
 #include "tx_api.h"
-
 #include "board.h"
+#include "nx_driver_imxrt1062.h"
 
+#include "azure/azure_mqtt.h"
 #include "board_init.h"
-#include "network.h"
-#include "sync_time.h"
+#include "networking.h"
+#include "sntp_client.h"
 
-#include "azure_central.h"
-
-// define the thread for running Azure SDK on Azure RTOS
 #define AZURE_THREAD_STACK_SIZE 4096
 #define AZURE_THREAD_PRIORITY 4
 
-// define the memory area for the SDK thread
+TX_THREAD azure_thread;
 UCHAR azure_thread_stack[AZURE_THREAD_STACK_SIZE];
 
-TX_THREAD azure_thread;
+void azure_thread_entry(ULONG parameter);
+void tx_application_define(void* first_unused_memory);
 
-#define EXAMPLE_LED_GPIO BOARD_USER_LED_GPIO
-#define EXAMPLE_LED_GPIO_PIN BOARD_USER_LED_GPIO_PIN
-
-// Azure thread
 void azure_thread_entry(ULONG parameter)
 {
-	printf("Starting Azure thread\r\n");
+    printf("Starting Azure thread\r\n");
     
-	// initialise the network
-	network_init();
-//    sntp_init();
-
-	// synchonise time via SNTP
-//	sntp_sync();
-	
-	// run the sample
-	azure_central_application();
-
-    bool g_pinSet = false;
-    while (true)
+    // Initialize the network
+    if (!network_init(nx_driver_imx))
     {
-        printf("hello world\r\n");
-        if (g_pinSet)
-        {
-            GPIO_PinWrite(BOARD_USER_LED_GPIO, BOARD_USER_LED_GPIO_PIN, 0U);
-            g_pinSet = false;
-        }
-        else
-        {
-            GPIO_PinWrite(BOARD_USER_LED_GPIO, BOARD_USER_LED_GPIO_PIN, 1U);
-            g_pinSet = true;
-        }
-        
-        // Sleep 2 second
-	    tx_thread_sleep(2 * TX_TIMER_TICKS_PER_SECOND);
+        printf("Failed to initialize the network\r\n");
+        return;
+    }
+  
+    // Start the SNTP client
+/*    if (!sntp_start())
+    {
+        printf("Failed to start the SNTP client\r\n");
+        return;
     }
 
-    sntp_deinit();
+    // Wait for an SNTP sync
+    if (!sntp_wait_for_sync())
+    {
+        printf("Failed to start sync SNTP time\r\n");
+        return;
+    }
+
+    // Start the Azure MQTT client
+    if (!azure_mqtt_start())
+    {
+        printf("Failed to start Azure IoT thread\r\n");
+        return;
+    }*/
+
+    bool pin_set = false;
+    while (true)
+    {
+        time_t current = time(NULL);
+        printf("Time %ld\r\n", (long)current);
+
+        GPIO_PinWrite(BOARD_USER_LED_GPIO, BOARD_USER_LED_GPIO_PIN, pin_set ? (0U) : (1U));
+        pin_set = !pin_set;
+        
+	    tx_thread_sleep(10 * TX_TIMER_TICKS_PER_SECOND);
+    }
 }
 
-// threadx entry point
 void tx_application_define(void* first_unused_memory)
 {
-    // create Azure SDK thread.
+    // Initialise the board
+    board_init();
+        
+    // Create Azure SDK thread.
     UINT status = tx_thread_create(
-        &azure_thread, 
-        "Azure SDK Thread",
-        azure_thread_entry, 
-        0,
-        azure_thread_stack, 
-        AZURE_THREAD_STACK_SIZE,
-        AZURE_THREAD_PRIORITY, 
-        AZURE_THREAD_PRIORITY,
-        TX_NO_TIME_SLICE, 
-        TX_AUTO_START);
+        &azure_thread, "Azure SDK Thread",
+        azure_thread_entry, 0,
+        azure_thread_stack, AZURE_THREAD_STACK_SIZE,
+        AZURE_THREAD_PRIORITY, AZURE_THREAD_PRIORITY,
+        TX_NO_TIME_SLICE, TX_AUTO_START);
 
-    if (status)
+    if (status != TX_SUCCESS)
     {
-        printf("Azure SDK thread creation failed\r\n");
+        printf("Azure MQTT application failed, please restart\r\n");
     }
 }
 
 int main(void)
 {
-    // initialise the board
-    board_init();
-        
-    // enter the threadx kernel
     tx_kernel_enter();
+    return 0;
 }
