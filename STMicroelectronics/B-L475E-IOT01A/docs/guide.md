@@ -2,7 +2,7 @@
 
 [[_TOC_]]
 
-**Total completion time**:  40 minutes
+**Total completion time**:  45 minutes
 
 In this tutorial you use Azure RTOS to connect the STMicroelectronics B-L475E-IOT01 (hereafter, the STM  DevKit) to Azure IoT.  The article is part of the series [Getting Started with Azure RTOS](https://review.docs.microsoft.com/azure/rtos/getting-started?branch=master). The series introduces device developers to Azure RTOS, and shows how to connect several micro-controller units (MCU) to Azure IoT.
 
@@ -50,7 +50,7 @@ The cloned repo contains a setup script that installs and configures the first s
 To run the setup script:
 
 1. In the cloned repo folder, run the setup script found at *getting-started\tools\get-toolchain.bat*. If the script prompts for elevated access during the installation, enable it.
-1. After the installation, open the console app found at **Windows Start > Visual Studio 2019 > Developer Command Prompt for VS 2019**. You must use this console to use the installed programming environment. Keep the **Developer Command Prompt** open for use later in the tutorial.
+1. After the installation, open the console app found at **Windows Start > Visual Studio 2019 > Developer Command Prompt for VS 2019**. You must use this console to use the installed programming environment. Keep the **Developer Command Prompt** open to use later.
 1. Run the following code to confirm that CMake version 3.14 or later is installed.
 
     ```
@@ -160,7 +160,7 @@ To connect the STM DevKit to Azure, you'll modify a configuration file for Wi-Fi
 
 ### Build the image
 
-In **Developer Command Prompt**, go to the *getting-started\STM-B-L475E-IOT01* folder and run the following script to build the image.
+In **Developer Command Prompt**, go to the *getting-started\STMicroelectronics\B-L475E-IOT01A* folder and run the following script to build the image.
 
 ```
 tools\rebuild.bat
@@ -168,7 +168,7 @@ tools\rebuild.bat
 
 After the build completes, confirm that a binary file was created in the following path:
 
-> *\getting-started\STM-B-L475E-IOT01\build\app\stm32_azure_iot.bin*
+> *getting-started\STMicroelectronics\B-L475E-IOT01A\build\app\stm32_azure_iot.bin*
 
 ### Flash the image
 
