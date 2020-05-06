@@ -48,4 +48,4 @@ echo Installation complete! Successfully installed CMake, GCC-ARM and Ninja
 echo.
 
 :finish
-if %0 == "%~0" pause
+pause
