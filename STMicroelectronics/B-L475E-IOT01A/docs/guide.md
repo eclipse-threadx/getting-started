@@ -49,9 +49,13 @@ The cloned repo contains a setup script that installs and configures the first s
 
 To run the setup script:
 
-1. Open File Explorer or open a console with administrator privileges, and go to the setup script at *getting-started\tools\get-toolchain.bat*.
-1. If you're using File Explorer, right-click the file and select **Run as Administrator**. If you're using a console with elevated privileges, run the script.
-1. After the installation, keep a console app open to complete the remaining programming tasks in the tutorial.  You can use Windows CMD, Powershell, or Git Bash for Windows.
+1. Open a console app with administrator privileges, go to the following path in the cloned repo, and run the setup script. If you use File Explorer, right-click the file and select **Run As Administrator**.
+
+    ```
+    getting-started\tools\get-toolchain.bat
+    ```
+
+1. After the installation, open a new console window to recognize the configuration updates that the setup script made. Use this console to complete the remaining programming tasks in the tutorial. You can use Windows CMD, Powershell, or Git Bash for Windows.
 1. Run the following code to confirm that CMake version 3.14 or later is installed.
 
     ```
