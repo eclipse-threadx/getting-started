@@ -2,7 +2,7 @@
 
 [[_TOC_]]
 
-**Total completion time**:  30-45 minutes
+**Total completion time**:  45 minutes
 
 In this tutorial you use Azure RTOS to connect the STMicroelectronics B-L475E-IOT01 (hereafter, the STM  DevKit) to Azure IoT.  The article is part of the series [Getting Started with Azure RTOS](https://review.docs.microsoft.com/azure/rtos/getting-started?branch=master). The series introduces device developers to Azure RTOS, and shows how to connect several micro-controller units (MCU) to Azure IoT.
 
@@ -50,7 +50,7 @@ The cloned repo contains a setup script that installs and configures the first s
 To run the setup script:
 
 1. In the cloned repo folder, run the setup script found at *getting-started\tools\get-toolchain.bat*. If the script prompts for elevated access during the installation, enable it.
-1. After the installation, open the console app found at **Windows Start > Visual Studio 2019 > Developer Command Prompt for VS 2019**. You must use this console to use the installed programming environment. Keep the **Developer Command Prompt** open for use later in the tutorial.
+1. After the installation, open the console app found at **Windows Start > Visual Studio 2019 > Developer Command Prompt for VS 2019**. You must use this console to use the installed programming environment. Keep the **Developer Command Prompt** open to use later.
 1. Run the following code to confirm that CMake version 3.14 or later is installed.
 
     ```
@@ -59,9 +59,9 @@ To run the setup script:
 
 To install the remaining tools:
 
-1. Register for a free account at [ST-LINK](https://www.st.com/en/development-tools/stsw-link004.html), if you don't have one.
+1. Download and install [ST-LINK](https://www.st.com/en/development-tools/stsw-link004.html). You use this utility to flash the device.
 
-1. Download and install STM32 ST-LINK utility from the [ST-LINK](https://www.st.com/en/development-tools/stsw-link004.html) page. You use this utility to flash the device.
+    >Note: After you click the buttons to download and accept the license, the page prompts you to log in or register. Register for a free account, if you don't have one. Then return to the page and log in to complete the installation.
 
 1. Install [Termite](https://www.compuphase.com/software_termite.htm). You use this utility to monitor your device.
 
@@ -74,13 +74,13 @@ Use one of the following options to run Azure CLI.
 If you prefer to run Azure CLI locally:
 
 1. If you already have Azure CLI installed locally, run `az --version` to check the version. This tutorial uses Azure CLI 2.4.0 or later.
-1. To install or upgrade, see [Install Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest). If you install Azure CLI locally, you can run CLI commands in the **Developer Command Prompt**, in Git Bash for Windows, or in Powershell.
+1. To install or upgrade, see [Install Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest). If you install Azure CLI locally, you can run CLI commands in the **Developer Command Prompt**, Git Bash for Windows, or Powershell.
 
 If you prefer to run Azure CLI in the browser-based Azure Cloud Shell:
 
 1. Use your Azure account credentials to sign into the Azure Cloud shell at https://shell.azure.com/.
     > Note: If this is the first time you've used the Cloud Shell, it prompts you to create storage, which is required to use the Cloud Shell.  Select a subscription to create a storage account and Microsoft Azure Files share.
-1. Select Bash or Powershell as your preferred CLI environment in the **Select environment** dropdown.  
+1. Select Bash or Powershell as your preferred CLI environment in the **Select environment** dropdown. If you plan to use Azure Cloud Shell, keep your browser open to run the Azure CLI commands in the rest of this tutorial.
 
     ![Select CLI environment](images/cloud-shell-environment.png)
 
@@ -142,7 +142,7 @@ To connect the STM DevKit to Azure, you'll modify a configuration file for Wi-Fi
 
 ### Add configuration
 
-1. In a text editor, edit the file *STM-B-L475E-IOT01\app\azure_config.c* to set the Wi-Fi constants to the following values from your local environment.
+1. In a text editor, edit the file *getting-started\STMicroelectronics\B-L475E-IOT01A\app\azure_config.c* to set the Wi-Fi constants to the following values from your local environment.
 
     |Constant name|Value|
     |-------------|-----|
@@ -160,7 +160,7 @@ To connect the STM DevKit to Azure, you'll modify a configuration file for Wi-Fi
 
 ### Build the image
 
-In **Developer Command Prompt**, go to the *getting-started\STM-B-L475E-IOT01* folder and run the following script to build the image.
+In **Developer Command Prompt**, go to the *getting-started\STMicroelectronics\B-L475E-IOT01A* folder and run the following script to build the image.
 
 ```
 tools\rebuild.bat
@@ -168,7 +168,7 @@ tools\rebuild.bat
 
 After the build completes, confirm that a binary file was created in the following path:
 
-> *\getting-started\STM-B-L475E-IOT01\build\app\stm32_azure_iot.bin*
+> *getting-started\STMicroelectronics\B-L475E-IOT01A\build\app\stm32_azure_iot.bin*
 
 ### Flash the image
 
