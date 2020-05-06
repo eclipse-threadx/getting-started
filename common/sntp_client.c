@@ -87,18 +87,18 @@ void sntp_thread_entry(ULONG info)
     UINT server_status;
     
     ULONG events = 0;
-    ULONG sntp_address;
+    NXD_ADDRESS sntp_address;
     
     printf("Starting SNTP client\r\n");
 
-    status = nx_dns_host_by_name_get(&dns_client, (UCHAR*)SNTP_SERVER, &sntp_address, 5 * NX_IP_PERIODIC_RATE);
+    status = nxd_dns_host_by_name_get(&dns_client, (UCHAR *)SNTP_SERVER, &sntp_address, 5 * NX_IP_PERIODIC_RATE, NX_IP_VERSION_V4);
     if (status != NX_SUCCESS)
     {
         printf("\tFAIL: Unable to resolve DNS for SNTP Server %s (0x%02x)\r\n", SNTP_SERVER, status);
         return;
     }
     
-    status = nx_sntp_client_initialize_unicast(&sntp_client, sntp_address);
+    status = nxd_sntp_client_initialize_unicast(&sntp_client, &sntp_address);
     if (status != NX_SUCCESS)
     {
         printf("\tFAIL: Unable to initialize unicast SNTP client (0x%02x)\r\n", status);
@@ -123,7 +123,7 @@ void sntp_thread_entry(ULONG info)
     // Run initial sync, try 5 times
     for (int i = 0 ; i < 5 ; ++i)
     {
-        printf("\tAttempting to synchronize time, attempt %d\r\n", i + 1);
+        printf("\tSynchronizing time, attempt %d\r\n", i + 1);
         status = nx_sntp_client_request_unicast_time(&sntp_client, 5 * NX_IP_PERIODIC_RATE);
         if (status == NX_SUCCESS)
         {

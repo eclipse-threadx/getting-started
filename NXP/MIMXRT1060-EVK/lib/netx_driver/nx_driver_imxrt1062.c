@@ -43,7 +43,7 @@
 
 /* Determine if the driver uses IP deferred processing or direct ISR processing.  */
 
-#define NX_DRIVER_ENABLE_DEFERRED                /* Define this to enable deferred ISR processing.  */
+//#define NX_DRIVER_ENABLE_DEFERRED                /* Define this to enable deferred ISR processing.  */
 
 /* #define  ENET_ENHANCEDBUFFERDESCRIPTOR_MODE*/
 /* Determine if the packet transmit queue logic is required for this driver.   */
