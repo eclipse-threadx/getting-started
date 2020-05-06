@@ -1,7 +1,14 @@
 @echo off
 
-echo Elevating to Adminstrator privilages
-if not "%1"=="am_admin" (powershell start -verb runas '%0' am_admin & exit /b)
+echo Preparing to install guide prerequisites
+
+net session >nul 2>&1
+if NOT %errorLevel% == 0 (
+    echo.
+    echo Error: Unable to install, please execute bat file with Administrator privilages.
+    pause
+    exit
+) 
 
 echo.
 echo Downloading components
@@ -28,14 +35,13 @@ if not exist "%TEMP%\%ninja_file%" (
 )
 
 echo.
+
 echo Installing CMake
 "%TEMP%\%cmake_file%" ADD_CMAKE_TO_PATH=System /passive
 
-echo.
 echo Installing ARM GCC - Please don't close this window
 "%TEMP%\%gccarm_file%" /S /P /R
 
-echo.
 echo Installing Ninja
 mkdir "%ProgramFiles(x86)%\ninja"
 "%~dp0\pathman.exe" /as "%ProgramFiles(x86)%\ninja"
@@ -43,7 +49,7 @@ powershell Expand-Archive -Force -Path "%TEMP%\%ninja_file%" -DestinationPath "%
 copy "%TEMP%\ninja.exe" "%ProgramFiles(x86)%\ninja"
 
 echo.
-echo Installation complete
+echo Installation complete, successfully installed CMake, GCC-ARM and Ninja
 pause
 
 
