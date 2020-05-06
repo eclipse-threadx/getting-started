@@ -13,6 +13,8 @@
 #define AZURE_THREAD_STACK_SIZE 4096
 #define AZURE_THREAD_PRIORITY 4
 
+void* __RAM_segment_used_end__ = 0;
+
 TX_THREAD azure_thread;
 UCHAR azure_thread_stack[AZURE_THREAD_STACK_SIZE];
 
@@ -21,7 +23,7 @@ void tx_application_define(void* first_unused_memory);
 
 void azure_thread_entry(ULONG parameter)
 {
-    printf("Starting Azure thread. Built %s, %s\r\n", __DATE__, __TIME__);
+    printf("Starting Azure thread. Built %s, %s\r\n\r\n", __DATE__, __TIME__);
     
     // Initialize the network
     if (!network_init(nx_driver_imx))
@@ -45,11 +47,11 @@ void azure_thread_entry(ULONG parameter)
     }
 
     // Start the Azure MQTT client
-/*    if (!azure_mqtt_start())
-    {
-        printf("Failed to start Azure IoT thread\r\n");
-        return;
-    }*/
+//    if (!azure_mqtt_start())
+//    {
+//        printf("Failed to start MQTT client\r\n");
+//        return;
+//    }
 
     bool pin_set = false;
     while (true)

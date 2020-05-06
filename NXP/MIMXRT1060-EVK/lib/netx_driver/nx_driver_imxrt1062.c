@@ -43,7 +43,7 @@
 
 /* Determine if the driver uses IP deferred processing or direct ISR processing.  */
 
-//#define NX_DRIVER_ENABLE_DEFERRED                /* Define this to enable deferred ISR processing.  */
+#define NX_DRIVER_ENABLE_DEFERRED                /* Define this to enable deferred ISR processing.  */
 
 /* #define  ENET_ENHANCEDBUFFERDESCRIPTOR_MODE*/
 /* Determine if the packet transmit queue logic is required for this driver.   */
@@ -1822,9 +1822,6 @@ void enet_init()
 	// Hardware initialization
     BOARD_InitModule();
     
-   
-    PRINTF("\r\nENET start\r\n");
- 
     econf.interface = kENET_RmiiMode;
     econf.neg = 0; /*autoneg on */
     econf.speed = kPHY_Speed100M;

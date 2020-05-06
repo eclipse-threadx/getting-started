@@ -78,7 +78,7 @@ static void set_sntp_time()
     tx_event_flags_set(&sntp_flags, SNTP_NEW_TIME, TX_OR);
     
     nx_sntp_client_utility_display_date_time(&sntp_client, time_buffer, sizeof(time_buffer));
-    printf("SNTP time update:\r\n\t%s\r\n", time_buffer);
+    printf("\tSNTP time update: %s\r\n", time_buffer);
 }
 
 void sntp_thread_entry(ULONG info)
@@ -89,7 +89,7 @@ void sntp_thread_entry(ULONG info)
     ULONG events = 0;
     NXD_ADDRESS sntp_address;
     
-    printf("Starting SNTP client\r\n");
+    printf("Initializing SNTP client\r\n");
 
     status = nxd_dns_host_by_name_get(&dns_client, (UCHAR *)SNTP_SERVER, &sntp_address, 5 * NX_IP_PERIODIC_RATE, NX_IP_VERSION_V4);
     if (status != NX_SUCCESS)
@@ -120,19 +120,17 @@ void sntp_thread_entry(ULONG info)
         return;
     }
     
-    // Run initial sync, try 5 times
-    for (int i = 0 ; i < 5 ; ++i)
+    // Run initial sync, keep trying forever
+    int retries = 1;
+    do
     {
-        printf("\tSynchronizing time, attempt %d\r\n", i + 1);
+        printf("\tSynchronizing time, #%d\r\n", retries++);
         status = nx_sntp_client_request_unicast_time(&sntp_client, 5 * NX_IP_PERIODIC_RATE);
-        if (status == NX_SUCCESS)
-        {
-            set_sntp_time();
-            break;
-        }
 
-        printf("FAIL: Unable to sync SNTP time (0x%02x)\r\n", status);
-    }
+    } while (status != NX_SUCCESS);
+
+    set_sntp_time();
+    printf("SUCCESS: SNTP initialized\r\n\r\n");
 
     // Setup time update callback function
     nx_sntp_client_set_time_update_notify(&sntp_client, time_update_callback);

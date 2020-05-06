@@ -6,7 +6,7 @@
 #include "nxd_dns.h"
 
 #define THREADX_IP_STACK_SIZE 2048
-#define THREADX_PACKET_COUNT 40
+#define THREADX_PACKET_COUNT 20
 #define THREADX_PACKET_SIZE 1536
 #define THREADX_POOL_SIZE ((THREADX_PACKET_SIZE + sizeof(NX_PACKET)) * THREADX_PACKET_COUNT)
 #define THREADX_ARP_CACHE_SIZE 512
@@ -43,7 +43,7 @@ static UINT dhcp_wait()
     ULONG network_mask;
     ULONG gateway_address;
 
-    printf("DHCP in Progress...\r\n");
+    printf("Initializing DHCP\r\n");
 
     // Create the DHCP instance.
     status = nx_dhcp_create(&dhcp_client, &ip_0, "azure_iot");
@@ -69,7 +69,7 @@ static UINT dhcp_wait()
     print_address("Mask", network_mask);
     print_address("Gateway", gateway_address);
 
-    printf("SUCCESS: DHCP connected\r\n");
+    printf("SUCCESS: DHCP initialized\r\n\r\n");
 
     return status;
 }
@@ -80,7 +80,7 @@ static UINT dns_create()
     ULONG dns_server_address[3] = { 0 };
     UINT dns_server_address_size = 12;
 
-    printf("DNS in Progress...\r\n");
+    printf("Initializing DNS client\r\n");
 
     // Create a DNS instance for the Client. Note this function will create
     // the DNS Client packet pool for creating DNS message packets intended
@@ -105,7 +105,7 @@ static UINT dns_create()
     // Output DNS Server address
     print_address("DNS address", dns_server_address[0]);
 
-    printf("SUCCESS: DNS connected\r\n");
+    printf("SUCCESS: DNS client initialized\r\n\r\n");
 
     return NX_SUCCESS;
 }
@@ -197,7 +197,7 @@ bool network_init(VOID (*ip_link_driver)(struct NX_IP_DRIVER_STRUCT *))
     }
     
     // Initialize TLS
-    nx_secure_tls_initialize();  
+    nx_secure_tls_initialize();
     
     return true;
 }

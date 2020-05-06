@@ -346,6 +346,8 @@ void mqtt_thread_entry(ULONG info)
 
 bool azure_mqtt_start()
 {
+    printf("Initializing MQTT client\r\n");
+
     UINT status;
 
     status = azure_mqtt_init();
@@ -375,6 +377,8 @@ bool azure_mqtt_start()
         printf("Unable to create MQTT thread (0x%02x)\r\n", status);
         return false;
     }
+
+    printf("SUCCESS: MQTT client initialized\r\n");
 
     return true;
 }

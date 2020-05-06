@@ -22,7 +22,7 @@ set(LIBRARIES
     app_common
 )
 
-set(BUILD_RAM true)
+#set(BUILD_RAM true)
 set(BUILD_FLASH true)
 
 if(BUILD_RAM)
@@ -72,3 +72,6 @@ if(BUILD_FLASH)
     create_bin_output(${TARGET_FLASH})
     firmware_size(${TARGET_FLASH})
 endif()
+
+add_custom_target(invalidate_files ALL
+    COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_LIST_DIR}/main.c)
