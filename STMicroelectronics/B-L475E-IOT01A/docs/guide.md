@@ -225,6 +225,8 @@ You can use Azure CLI to inspect the flow of telemetry from the device to Azure 
     az iot hub monitor-events --device-id MySTMDevice --hub-name {YourIoTHubName}
     ```
 
+1. To force the STM DevKit to reconnect and resend telemetry, press **Reset**.
+
     View the telemetry in the console's JSON output.
 
     ```json
