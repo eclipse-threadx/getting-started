@@ -24,7 +24,7 @@ if not exist "%TEMP%\%gccarm_file%" (
 )
 
 if not exist "%TEMP%\%ninja_file%" (
-    bitsadmin /transfer cmakejob /dynamic /download /priority FOREGROUND %ninja_path%%ninja_file% "%TEMP%\%ninja_file%"
+    bitsadmin /transfer ninjajob /dynamic /download /priority FOREGROUND %ninja_path%%ninja_file% "%TEMP%\%ninja_file%"
 )
 
 echo.
