@@ -1,4 +1,4 @@
-set(TARGET nx_driver)
+set(TARGET netx_driver)
 
 set(SOURCES
     nx_driver_imxrt1062.c

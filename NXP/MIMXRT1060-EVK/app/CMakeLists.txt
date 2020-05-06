@@ -10,7 +10,6 @@ set(SOURCES
 
     azure_config.c
     board_init.c
-    network.c
 
     main.c
 )
@@ -19,11 +18,11 @@ set(LIBRARIES
     azrtos::threadx
     azrtos::netxduo
     MIMXRT1060-evk
-    nx_driver
+    netx_driver
     app_common
 )
 
-#set(BUILD_RAM true)
+set(BUILD_RAM true)
 set(BUILD_FLASH true)
 
 if(BUILD_RAM)
