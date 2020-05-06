@@ -66,6 +66,7 @@ UINT mqtt_publish(CHAR *topic, CHAR *message);
 static func_ptr_t cb_ptr_mqtt_main_thread = NULL;
 
 void mqtt_thread_entry(ULONG info);
+void set_led_blink_interval(UINT ms);
 
 #define DIRECT_METHOD_BASE "$iothub/methods/"
 #define DIRECT_METHOD_RECEIVE DIRECT_METHOD_BASE "POST/"
@@ -104,6 +105,18 @@ static VOID process_direct_method(CHAR *topic, CHAR *message)
     mqtt_publish(topic, "{}");
 
     printf("Received direct method=%s, id=%s, message=%s\r\n", direct_method_name, request_id, message);
+    
+    if (strstr((CHAR *)direct_method_name, "set_led_blink_interval"))
+    {
+        // Set LED blink interval
+        int new_interval = atoi(message);
+        // Set LED blink interval
+        set_led_blink_interval(new_interval);
+    }
+    else
+    {
+        printf("Received direct menthod=%s is unknown\r\n", direct_method_name);
+    }
 }
 
 static VOID mqtt_notify(NXD_MQTT_CLIENT *client_ptr, UINT number_of_messages)
@@ -139,11 +152,6 @@ static VOID mqtt_notify(NXD_MQTT_CLIENT *client_ptr, UINT number_of_messages)
     if (strcmp((CHAR *)mqtt_topic_buffer, DIRECT_METHOD_RECEIVE) > 0)
     {
         process_direct_method(mqtt_topic_buffer, mqtt_message_buffer);
-    }
-
-    // Process the message
-    if (strstr((CHAR *)mqtt_message_buffer, "interval"))
-    {
     }
 }
 
@@ -384,4 +392,9 @@ bool azure_mqtt_register_main_thread_callback(func_ptr_t mqtt_main_thread_callba
     }
     
     return status;
+}
+
+void set_led_blink_interval(UINT ms)
+{
+    printf("Blinking interval changed to %u\r\n", ms);
 }
