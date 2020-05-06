@@ -22,7 +22,7 @@ You will complete the following tasks:
 
     > * The [STMicroelectronics B-L475E-IOT01](https://www.st.com/content/st_com/en/products/evaluation-tools/product-evaluation-tools/mcu-mpu-eval-tools/stm32-mcu-mpu-eval-tools/stm32-discovery-kits/b-l475e-iot01a.html) (STM DevKit)
     > * Wi-Fi 2.4 GHz
-    > * USB 2.0 A male to Micro USB cable
+    > * USB 2.0 A male to Micro USB male cable
 
 ## Prepare the development environment
 
@@ -42,15 +42,16 @@ git clone https://github.com/AzureRTOS/getting-started
 
 The cloned repo contains a setup script that installs and configures the first set of required tools. After you run the setup script, you can install the remaining tools manually.
 
-> Note: The setup script uses the Visual Studio 2019 installer to install the following tools:
+> Note: The setup script installs the following tools:
 > * [GCC](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm): Compile
 > * [CMake](https://cmake.org): Build
 > * [Ninja](https://ninja-build.org): Build
 
 To run the setup script:
 
-1. In the cloned repo folder, run the setup script found at *getting-started\tools\get-toolchain.bat*. If the script prompts for elevated access during the installation, enable it.
-1. After the installation, open the console app found at **Windows Start > Visual Studio 2019 > Developer Command Prompt for VS 2019**. You must use this console to use the installed programming environment. Keep the **Developer Command Prompt** open to use later.
+1. Open File Explorer or open a console with administrator privileges, and go to the setup script at *getting-started\tools\get-toolchain.bat*.
+1. If you're using File Explorer, right-click the file and select **Run as Administrator**. If you're using a console with elevated privileges, run the script.
+1. After the installation, open the console app found at **Windows Start > GCC Command Prompt**. You must use this console to use the installed programming environment. Keep the **GCC Command Prompt** open to use later.
 1. Run the following code to confirm that CMake version 3.14 or later is installed.
 
     ```
@@ -61,7 +62,7 @@ To install the remaining tools:
 
 1. Download and install [ST-LINK](https://www.st.com/en/development-tools/stsw-link004.html). You use this utility to flash the device.
 
-    >Note: After you click the buttons to download and accept the license, the page prompts you to log in or register. Register for a free account, if you don't have one. Then return to the page and log in to complete the installation.
+    >Note: After you click the button to accept the license, the page prompts you to log in or register. Register for a free account, if you don't have one. Then return to the page and log in to complete the installation.
 
 1. Install [Termite](https://www.compuphase.com/software_termite.htm). You use this utility to monitor your device.
 
@@ -74,13 +75,13 @@ Use one of the following options to run Azure CLI.
 If you prefer to run Azure CLI locally:
 
 1. If you already have Azure CLI installed locally, run `az --version` to check the version. This tutorial uses Azure CLI 2.4.0 or later.
-1. To install or upgrade, see [Install Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest). If you install Azure CLI locally, you can run CLI commands in the **Developer Command Prompt**, Git Bash for Windows, or Powershell.
+1. To install or upgrade, see [Install Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest). If you install Azure CLI locally, you can run CLI commands in the **GCC Command Prompt**, Git Bash for Windows, or Powershell.
 
 If you prefer to run Azure CLI in the browser-based Azure Cloud Shell:
 
 1. Use your Azure account credentials to sign into the Azure Cloud shell at https://shell.azure.com/.
     > Note: If this is the first time you've used the Cloud Shell, it prompts you to create storage, which is required to use the Cloud Shell.  Select a subscription to create a storage account and Microsoft Azure Files share.
-1. Select Bash or Powershell as your preferred CLI environment in the **Select environment** dropdown. If you plan to use Azure Cloud Shell, keep your browser open to run the Azure CLI commands in the rest of this tutorial.
+1. Select Bash or Powershell as your preferred CLI environment in the **Select environment** dropdown. If you plan to use Azure Cloud Shell, keep your browser open to run the Azure CLI commands in this tutorial.
 
     ![Select CLI environment](images/cloud-shell-environment.png)
 
@@ -160,10 +161,10 @@ To connect the STM DevKit to Azure, you'll modify a configuration file for Wi-Fi
 
 ### Build the image
 
-In **Developer Command Prompt**, go to the *getting-started\STMicroelectronics\B-L475E-IOT01A* folder and run the following script to build the image.
+In your console or in File Explorer, go to the *getting-started\STMicroelectronics\B-L475E-IOT01A\tools* folder and run the following script to build the image.
 
 ```
-tools\rebuild.bat
+.\rebuild.bat
 ```
 
 After the build completes, confirm that a binary file was created in the following path:
@@ -207,7 +208,7 @@ You can use the **Termite** utility to monitor communication and confirm that yo
     |SNTP |SNTP time sync success|
     |MQTT client |Starting MQTT thread success|
 
-The Termite console shows the checkpoint values.
+The Termite console shows the details about the board, your connection, and the checkpoint values.
 
 ![Termite output with connection checkpoints](images/termite-output-checkpoints.png)
 
@@ -282,7 +283,7 @@ To call a direct method on your device:
     az iot hub invoke-device-method --device-id MySTMDevice --method-name MyMethod --method-payload '{"Greeting":"Hello world!"}' --hub-name {YourIoTHubName}
     ```
 
-    > Note: If you use Powershell rather than the **Developer Command Prompt** or Bash, format the JSON `method-payload` parameter according to Powershell formatting rules.
+    > Note: If you use Powershell rather than the **GCC Command Prompt** or Bash, format the JSON `method-payload` parameter according to Powershell formatting rules.
 
     ```
     az iot hub invoke-device-method --device-id MySTMDevice --method-name MyMethod --method-payload '{\"Greeting\": \"Hello world!\"}' --hub-name {YourIoTHubName}
