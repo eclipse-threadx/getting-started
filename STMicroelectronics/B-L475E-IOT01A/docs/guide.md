@@ -2,7 +2,7 @@
 
 [[_TOC_]]
 
-**Total completion time**:  30-45 minutes
+**Total completion time**:  40 minutes
 
 In this tutorial you use Azure RTOS to connect the STMicroelectronics B-L475E-IOT01 (hereafter, the STM  DevKit) to Azure IoT.  The article is part of the series [Getting Started with Azure RTOS](https://review.docs.microsoft.com/azure/rtos/getting-started?branch=master). The series introduces device developers to Azure RTOS, and shows how to connect several micro-controller units (MCU) to Azure IoT.
 
@@ -59,9 +59,9 @@ To run the setup script:
 
 To install the remaining tools:
 
-1. Register for a free account at [ST-LINK](https://www.st.com/en/development-tools/stsw-link004.html), if you don't have one.
+1. Download and install [ST-LINK](https://www.st.com/en/development-tools/stsw-link004.html). You use this utility to flash the device.
 
-1. Download and install STM32 ST-LINK utility from the [ST-LINK](https://www.st.com/en/development-tools/stsw-link004.html) page. You use this utility to flash the device.
+    >Note: After you click the buttons to download and accept the license, the page prompts you to log in or register. Register for a free account, if you don't have one. Then return to the page and log in to complete the installation.
 
 1. Install [Termite](https://www.compuphase.com/software_termite.htm). You use this utility to monitor your device.
 
@@ -74,13 +74,13 @@ Use one of the following options to run Azure CLI.
 If you prefer to run Azure CLI locally:
 
 1. If you already have Azure CLI installed locally, run `az --version` to check the version. This tutorial uses Azure CLI 2.4.0 or later.
-1. To install or upgrade, see [Install Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest). If you install Azure CLI locally, you can run CLI commands in the **Developer Command Prompt**, in Git Bash for Windows, or in Powershell.
+1. To install or upgrade, see [Install Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest). If you install Azure CLI locally, you can run CLI commands in the **Developer Command Prompt**, Git Bash for Windows, or Powershell.
 
 If you prefer to run Azure CLI in the browser-based Azure Cloud Shell:
 
 1. Use your Azure account credentials to sign into the Azure Cloud shell at https://shell.azure.com/.
     > Note: If this is the first time you've used the Cloud Shell, it prompts you to create storage, which is required to use the Cloud Shell.  Select a subscription to create a storage account and Microsoft Azure Files share.
-1. Select Bash or Powershell as your preferred CLI environment in the **Select environment** dropdown.  
+1. Select Bash or Powershell as your preferred CLI environment in the **Select environment** dropdown. If you plan to use Azure Cloud Shell, keep your browser open to run the Azure CLI commands in the rest of this tutorial.
 
     ![Select CLI environment](images/cloud-shell-environment.png)
 
