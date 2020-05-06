@@ -142,7 +142,7 @@ To connect the STM DevKit to Azure, you'll modify a configuration file for Wi-Fi
 
 ### Add configuration
 
-1. In a text editor, edit the file *STM-B-L475E-IOT01\app\azure_config.c* to set the Wi-Fi constants to the following values from your local environment.
+1. In a text editor, edit the file *getting-started\STMicroelectronics\B-L475E-IOT01A\app\azure_config.c* to set the Wi-Fi constants to the following values from your local environment.
 
     |Constant name|Value|
     |-------------|-----|
