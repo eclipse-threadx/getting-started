@@ -22,6 +22,7 @@ void* __RAM_segment_used_end__ = 0;
 extern  VOID nx_driver_same54(NX_IP_DRIVER*);
 
 void azure_thread_entry(ULONG parameter);
+
 void mqtt_thread_entry(ULONG info);
 extern UINT mqtt_publish(CHAR *topic, CHAR *message);
 
