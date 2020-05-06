@@ -51,7 +51,7 @@ To run the setup script:
 
 1. Open File Explorer or open a console with administrator privileges, and go to the setup script at *getting-started\tools\get-toolchain.bat*.
 1. If you're using File Explorer, right-click the file and select **Run as Administrator**. If you're using a console with elevated privileges, run the script.
-1. After the installation, open the console app found at **Windows Start > GCC Command Prompt**. You must use this console to use the installed programming environment. Keep the **GCC Command Prompt** open to use later.
+1. After the installation, open a console app to complete the programming tasks in the tutorial.  You can use Windows CMD, Powershell, or Git Bash for Windows.
 1. Run the following code to confirm that CMake version 3.14 or later is installed.
 
     ```
@@ -331,7 +331,7 @@ To delete a resource group by name:
 
 List of different troubleshooting to deal with edge cases arising from the steps within this guide. This would include device connection errors, Wi-Fi connection errors, Central connection errors, etc. 
 
-Provide a pre-built binary that is known to work so they can test that they can use to test flashing and monitoring. 
+Provide a pre-built binary that is known to work so they can test that they can use to test flashing and monitoring.
 
 ## Next Steps 
 **Ryan TODO**
