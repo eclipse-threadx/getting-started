@@ -282,17 +282,16 @@ To call a direct method on your device:
 
 1. Run the [az iot hub invoke-device-method](https://docs.microsoft.com/cli/azure/ext/azure-cli-iot-ext/iot/hub?view=azure-cli-latest#ext-azure-cli-iot-ext-az-iot-hub-invoke-device-method) command to invoke a direct method.
 
-    <!-- Enable following code blocks to line wrap. -->
-    code {
-      white-space : pre-wrap !important;
-    }
-
+    <!-- Enable code block to line wrap. -->
+    code { white-space : pre-wrap !important; }
     ```azurecli
     az iot hub invoke-device-method --device-id MySTMDevice --method-name MyMethod --method-payload '{"Greeting":"Hello world!"}' --hub-name {YourIoTHubName}
     ```
 
     > Note: If you use Powershell rather than the **GCC Command Prompt** or Bash, format the JSON `method-payload` parameter according to Powershell formatting rules.
 
+    <!-- Enable code block to line wrap. -->
+    code { white-space : pre-wrap !important; }
     ```powershell
     az iot hub invoke-device-method --device-id MySTMDevice --method-name MyMethod --method-payload '{\"Greeting\": \"Hello world!\"}' --hub-name {YourIoTHubName}
     ```
