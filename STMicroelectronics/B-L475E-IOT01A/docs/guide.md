@@ -1,7 +1,5 @@
 <h1>Getting started with the STMicroelectronics B-L475E-IOT01</h1>
 
-[[_TOC_]]
-
 **Total completion time**:  45 minutes
 
 In this tutorial you use Azure RTOS to connect the STMicroelectronics B-L475E-IOT01 (hereafter, the STM  DevKit) to Azure IoT.  The article is part of the series [Getting Started with Azure RTOS](https://review.docs.microsoft.com/azure/rtos/getting-started?branch=master). The series introduces device developers to Azure RTOS, and shows how to connect several micro-controller units (MCU) to Azure IoT.
@@ -282,11 +280,13 @@ To call a direct method on your device:
 
 1. Run the [az iot hub invoke-device-method](https://docs.microsoft.com/cli/azure/ext/azure-cli-iot-ext/iot/hub?view=azure-cli-latest#ext-azure-cli-iot-ext-az-iot-hub-invoke-device-method) command to invoke a direct method.
 
+    <!-- Inline code tag and CSS to wrap long code lines. -->
     <code style="white-space : pre-wrap !important;">
     az iot hub invoke-device-method --device-id MySTMDevice --method-name MyMethod --method-payload '{"Greeting":"Hello world!"}' --hub-name {YourIoTHubName}
     </code>
 
-    > Note: If you use Powershell rather than the **GCC Command Prompt** or Bash, format the JSON `method-payload` parameter according to Powershell formatting rules.
+
+    **Note**: If you use Powershell use the following code block instead. This code formats the JSON `method-payload` parameter according to Powershell formatting rules.
 
     <code style="white-space : pre-wrap !important;">
     az iot hub invoke-device-method --device-id MySTMDevice --method-name MyMethod --method-payload '> > {\"Greeting\": \"Hello world!\"}' --hub-name {YourIoTHubName}
