@@ -225,7 +225,7 @@ You can use Azure CLI to inspect the flow of telemetry from the device to Azure 
 
     > Note: The first time you run this command, Azure CLI might prompt to install a *Dependency update (uamqp 1.2) required for IoT extension version: 0.9.1*. Select *y* to install the update. If the CLI also prompts to install the older `azure-iot-cli-ext` version of the Azure IoT CLI extension, select *no*.
 
-    ```
+    ```azurecli
     az iot hub monitor-events --device-id MySTMDevice --hub-name {YourIoTHubName}
     ```
 
@@ -250,7 +250,7 @@ Using Azure CLI, you can inspect the properties on your Azure resources, includi
 
 1. Run the [az iot hub device-identity list](https://docs.microsoft.com/cli/azure/ext/azure-cli-iot-ext/iot/hub/device-identity?view=azure-cli-latest#ext-azure-cli-iot-ext-az-iot-hub-device-identity-list) command to list devices attached to your Iot hub.
 
-    ```
+    ```azurecli
     az iot hub device-identity list --hub-name {YourIoTHubName}
     ```
 
@@ -270,7 +270,7 @@ Using Azure CLI, you can inspect the properties on your Azure resources, includi
 
 1. Run the [az iot hub device-identity show](https://docs.microsoft.com/cli/azure/ext/azure-cli-iot-ext/iot/hub/device-identity?view=azure-cli-latest#ext-azure-cli-iot-ext-az-iot-hub-device-identity-show) command to view the properties of your device.
 
-    ```
+    ```azurecli
     az iot hub device-identity show --device-id MySTMDevice --hub-name {YourIoTHubName}
     ```
 
@@ -282,14 +282,19 @@ To call a direct method on your device:
 
 1. Run the [az iot hub invoke-device-method](https://docs.microsoft.com/cli/azure/ext/azure-cli-iot-ext/iot/hub?view=azure-cli-latest#ext-azure-cli-iot-ext-az-iot-hub-invoke-device-method) command to invoke a direct method.
 
-    ```
-    az iot hub invoke-device-method --device-id MySTMDevice --method-name MyMethod --method-payload '{"Greeting":"Hello world!"}' --hub-name {YourIoTHubName}
+    ```azurecli
+    az iot hub invoke-device-method --device-id MySTMDevice --method-name MyMethod
+        --method-payload '{"Greeting":"Hello world!"}' --hub-name {YourIoTHubName}
     ```
 
     > Note: If you use Powershell rather than the **GCC Command Prompt** or Bash, format the JSON `method-payload` parameter according to Powershell formatting rules.
 
-    ```
-    az iot hub invoke-device-method --device-id MySTMDevice --method-name MyMethod --method-payload '{\"Greeting\": \"Hello world!\"}' --hub-name {YourIoTHubName}
+    code {
+      white-space : pre-wrap !important;
+    }
+    ```powershell
+    az iot hub invoke-device-method --device-id MySTMDevice --method-name MyMethod
+        --method-payload '{\"Greeting\": \"Hello world!\"}' --hub-name {YourIoTHubName}
     ```
 
     The console shows the status of your method call on the device, where `1` indicates success.
