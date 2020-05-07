@@ -1,4 +1,4 @@
-set(TARGET netxdriver)
+set(TARGET netx_driver)
 
 set(SOURCES
     nx_driver_imxrt1062.c
@@ -19,7 +19,7 @@ target_include_directories(${TARGET}
 
 target_link_libraries(${TARGET} 
     INTERFACE
-        threadx
-        netxduo
+        azrtos::threadx
+        azrtos::netxduo
         MIMXRT1060-evk
 )

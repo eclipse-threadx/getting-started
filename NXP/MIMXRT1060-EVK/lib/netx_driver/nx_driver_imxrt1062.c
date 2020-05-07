@@ -117,7 +117,6 @@ static VOID         _nx_driver_hardware_packet_received(VOID);
 static UINT         _nx_driver_hardware_capability_set(NX_IP_DRIVER *driver_req_ptr);
 #endif 
 
-
 /**************************************************************************/ 
 /*                                                                        */ 
 /*  FUNCTION                                               RELEASE        */ 
@@ -1510,6 +1509,13 @@ typedef struct
     uint8_t              mac[6];        /* Ethernet Address         */
 } ENET_CONFIG_IMX;
 
+void enet_init_imx(ENET_CONFIG_IMX *config);
+void delay(void);
+void BOARD_InitModule(void);
+void enet_init();
+VOID nx_driver_link_mode_changed(VOID);
+VOID nx_driver_imx_ethernet_isr(VOID);
+
 void enet_init_imx(ENET_CONFIG_IMX *config)
 {
     /* Clear the Individual and Group Address Hash registers */
@@ -1816,9 +1822,6 @@ void enet_init()
 	// Hardware initialization
     BOARD_InitModule();
     
-   
-    PRINTF("\r\nENET start\r\n");
- 
     econf.interface = kENET_RmiiMode;
     econf.neg = 0; /*autoneg on */
     econf.speed = kPHY_Speed100M;

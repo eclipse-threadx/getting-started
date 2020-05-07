@@ -435,6 +435,8 @@ UINT mqtt_publish(CHAR *topic, CHAR *message)
 
 bool azure_mqtt_start()
 {
+    printf("Initializing MQTT client\r\n");
+
     UINT status;
 
     status = azure_mqtt_init();
@@ -477,6 +479,8 @@ bool azure_mqtt_start()
             return false;
         }
     }
+
+    printf("SUCCESS: MQTT client initialized\r\n");
 
     return true;
 }

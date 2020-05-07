@@ -13,7 +13,7 @@ CPMAddPackage(
 )
 
 # netX-duo
-set(NX_USER_FILE "${CMAKE_CURRENT_LIST_DIR}/netx_duo/nx_user.h" CACHE STRING "")
+set(NX_USER_FILE "${CMAKE_CURRENT_LIST_DIR}/netxduo/nx_user.h" CACHE STRING "")
 CPMAddPackage(
     NAME netxduo
     GIT_REPOSITORY https://github.com/azurertos/netx-duo.git

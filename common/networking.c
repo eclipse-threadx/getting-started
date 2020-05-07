@@ -39,24 +39,38 @@ static UINT dhcp_wait()
 {
     UINT status;
     ULONG actual_status;
+    ULONG ip_address;
+    ULONG network_mask;
+    ULONG gateway_address;
 
-    printf("DHCP In Progress...\r\n");
+    printf("Initializing DHCP\r\n");
 
     // Create the DHCP instance.
-    status = nx_dhcp_create(&dhcp_client, &ip_0, "aecloud2");
+    status = nx_dhcp_create(&dhcp_client, &ip_0, "azure_iot");
 
     // Start the DHCP Client.
     status = nx_dhcp_start(&dhcp_client);
 
     // Wait until address is solved.
     status = nx_ip_status_check(&ip_0, NX_IP_ADDRESS_RESOLVED, &actual_status, NX_WAIT_FOREVER);
-    
     if (status != NX_SUCCESS)
     {
         // DHCP Failed...  no IP address!
         printf("Can't resolve address\r\n");
+        return status;
     }
-    
+
+   // Get IP address and gateway address
+    nx_ip_address_get(&ip_0, &ip_address, &network_mask);
+    nx_ip_gateway_address_get(&ip_0, &gateway_address);
+
+    // Output IP address and gateway address
+    print_address("IP address", ip_address);
+    print_address("Mask", network_mask);
+    print_address("Gateway", gateway_address);
+
+    printf("SUCCESS: DHCP initialized\r\n\r\n");
+
     return status;
 }
 
@@ -66,13 +80,23 @@ static UINT dns_create()
     ULONG dns_server_address[3] = { 0 };
     UINT dns_server_address_size = 12;
 
-    // Create a DNS instance for the Client.  Note this function will create
+    printf("Initializing DNS client\r\n");
+
+    // Create a DNS instance for the Client. Note this function will create
     // the DNS Client packet pool for creating DNS message packets intended
     // for querying its DNS server.
     status = nx_dns_create(&dns_client, &ip_0, (UCHAR *)"DNS Client");
     if (status != NX_SUCCESS)
     {
         return status;
+    }
+
+    // Use the packet pool here
+    status = nx_dns_packet_pool_set(&dns_client, ip_0.nx_ip_default_packet_pool);
+    if (status != NX_SUCCESS)
+    {
+        nx_dns_delete(&dns_client);
+        return(status);
     }
 
     // Retrieve DNS server address
@@ -88,16 +112,15 @@ static UINT dns_create()
     
     // Output DNS Server address
     print_address("DNS address", dns_server_address[0]);
-   
+
+    printf("SUCCESS: DNS client initialized\r\n\r\n");
+
     return NX_SUCCESS;
 }
 
 bool network_init(VOID (*ip_link_driver)(struct NX_IP_DRIVER_STRUCT *))
 {
     UINT status;
-    ULONG ip_address;
-    ULONG network_mask;
-    ULONG gateway_address;
 
     // Create a packet pool.
     status = nx_packet_pool_create(&main_pool, "NetX Packet Pool",
@@ -165,16 +188,11 @@ bool network_init(VOID (*ip_link_driver)(struct NX_IP_DRIVER_STRUCT *))
     }
     
     status = dhcp_wait();
+    if (status != NX_SUCCESS)
+    {
+        printf("Failed to create DHCP\r\n");
+    }
 
-    // Get IP address and gateway address
-    nx_ip_address_get(&ip_0, &ip_address, &network_mask);
-    nx_ip_gateway_address_get(&ip_0, &gateway_address);
-
-    // Output IP address and gateway address
-    print_address("IP address", ip_address);
-    print_address("Mask", network_mask);
-    print_address("Gateway", gateway_address);
-    
     // Create DNS
     status = dns_create();
     if (status != NX_SUCCESS)
@@ -187,7 +205,7 @@ bool network_init(VOID (*ip_link_driver)(struct NX_IP_DRIVER_STRUCT *))
     }
     
     // Initialize TLS
-    nx_secure_tls_initialize();  
+    nx_secure_tls_initialize();
     
     return true;
 }

@@ -1,7 +1,8 @@
-#ifndef __BOARD_INIT_H
-#define __BOARD_INIT_H
+#ifndef _BOARD_INIT_H
+#define _BOARD_INIT_H
+
+#include "nx_api.h"
 
 void board_init();
-//time_t time(time_t* pointer);
 
-#endif /* __BOARD_INIT_H */
+#endif // _BOARD_INIT_H
