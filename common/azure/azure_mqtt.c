@@ -13,12 +13,21 @@
 #include "networking.h"
 #include "sntp_client.h"
 
-//#define USERNAME                        "%s/%s/?api-version=2020-03-01&digital-twin-model-id=%s"
 #define USERNAME "%s/%s/?api-version=2018-06-30"
-#define PUBLISH_TOPIC "devices/%s/messages/events/"
+#define PUBLISH_TELEMETRY_TOPIC "devices/%s/messages/events/"
 #define DEVICE_MESSAGE_TOPIC "devices/%s/messages/devicebound/#"
 #define DIRECT_METHOD_TOPIC "$iothub/methods/POST/#"
-#define DEVICE_TWIN_TOPIC "$iothub/twin/res/#de"
+
+#define DEVICE_TWIN_BASE "$iothub/twin/"
+#define DEVICE_TWIN_PUBLISH_TOPIC DEVICE_TWIN_BASE "PATCH/properties/reported/?$rid=%d"
+#define DEVICE_TWIN_RES_BASE DEVICE_TWIN_BASE "res/"
+#define DEVICE_TWIN_RES_BASE_SIZE sizeof(DEVICE_TWIN_RES_BASE) - 1
+#define DEVICE_TWIN_RES_TOPIC DEVICE_TWIN_RES_BASE "#"
+
+#define DIRECT_METHOD_BASE "$iothub/methods/"
+#define DIRECT_METHOD_RECEIVE DIRECT_METHOD_BASE "POST/"
+#define DIRECT_METHOD_RESPONSE DIRECT_METHOD_BASE "res/%d/?$rid=%s"
+#define DIRECT_METHOD_RECEIVE_SIZE sizeof(DIRECT_METHOD_RECEIVE) - 1
 
 #define MQTT_CLIENT_STACK_SIZE 4096
 #define MQTT_CLIENT_PRIORITY 2
@@ -62,17 +71,51 @@ static UINT mqtt_message_length;
 extern const NX_SECURE_TLS_CRYPTO nx_crypto_tls_ciphers;
 
 UINT mqtt_publish(CHAR *topic, CHAR *message);
+UINT mqtt_publish_float(CHAR  *topic, CHAR *label, float value);
 
 static func_ptr_t cb_ptr_mqtt_main_thread = NULL;
 
 void mqtt_thread_entry(ULONG info);
-void set_led_blink_interval(UINT ms);
+extern void set_led_state(bool level);
 
-#define DIRECT_METHOD_BASE "$iothub/methods/"
-#define DIRECT_METHOD_RECEIVE DIRECT_METHOD_BASE "POST/"
-#define DIRECT_METHOD_RESPONSE DIRECT_METHOD_BASE "res/%d/?$rid=%s"
-#define DIRECT_METHOD_RECEIVE_SIZE sizeof(DIRECT_METHOD_RECEIVE) - 1
+static VOID process_device_twin_response(CHAR *topic)
+{
+    CHAR device_twin_res_status[16] = { 0 };
+    CHAR request_id[16] = { 0 };
+    
+    // Parse the device twin response status
+    CHAR *location = topic + DEVICE_TWIN_RES_BASE_SIZE;
+    CHAR *find;
 
+    find = strchr(location, '/');
+    if (find == 0)
+    {
+        return;
+    }
+    
+    strncpy(device_twin_res_status, location, find - location);
+
+    // Parse the request id from the device twin response
+    location = find;
+
+    find = strstr(location, "$rid=");
+    if (find == 0)
+    {
+        return;
+    }
+
+    location = find + 5;
+    
+    find = strchr(location, '&');
+    if (find == 0)
+    {
+        return;
+    }
+
+    strncpy(request_id, location, find - location);
+
+    printf("Processed device twin update response with status=%s, id=%s\r\n", device_twin_res_status, request_id);
+}
 static VOID process_direct_method(CHAR *topic, CHAR *message)
 {
     CHAR direct_method_name[64] = {0};
@@ -106,12 +149,20 @@ static VOID process_direct_method(CHAR *topic, CHAR *message)
 
     printf("Received direct method=%s, id=%s, message=%s\r\n", direct_method_name, request_id, message);
     
-    if (strstr((CHAR *)direct_method_name, "set_led_blink_interval"))
+    if (strstr((CHAR *)direct_method_name, "set_led_state"))
     {
-        // Set LED blink interval
-        int new_interval = atoi(message);
-        // Set LED blink interval
-        set_led_blink_interval(new_interval);
+        // Set LED state
+        // '0' - turn LED off
+        // '1' - turn LED on
+        int arg = atoi(message);
+        if (arg != 0 && arg != 1)
+        {
+            printf("Invalid LED state. Possible states are '0' - turn LED off or '1' - turn LED on\r\n");
+            return;
+        }
+        bool new_state = !arg;
+        set_led_state(new_state);
+        printf("Direct method=%s invoked\r\n", direct_method_name);
     }
     else
     {
@@ -149,9 +200,17 @@ static VOID mqtt_notify(NXD_MQTT_CLIENT *client_ptr, UINT number_of_messages)
 
     printf("[Received] topic = %s, message = %s\r\n", mqtt_topic_buffer, mqtt_message_buffer);
 
-    if (strcmp((CHAR *)mqtt_topic_buffer, DIRECT_METHOD_RECEIVE) > 0)
+    if (strstr((CHAR *)mqtt_topic_buffer, DIRECT_METHOD_RECEIVE))
     {
         process_direct_method(mqtt_topic_buffer, mqtt_message_buffer);
+    }
+    else if (strstr((CHAR *)mqtt_topic_buffer, DEVICE_TWIN_RES_BASE))
+    {
+        process_device_twin_response(mqtt_topic_buffer);
+    }
+    else
+    {
+        printf("Unknown topic, no custom processing specified\r\n");
     }
 }
 
@@ -307,6 +366,17 @@ static UINT azure_mqtt_open()
         return status;
     }
 
+    status = nxd_mqtt_client_subscribe(
+        &mqtt_client,
+        DEVICE_TWIN_RES_TOPIC,
+        strlen(DEVICE_TWIN_RES_TOPIC),
+        MQTT_QOS_0);
+    if (status != NXD_MQTT_SUCCESS)
+    {
+        printf("Error in device twin response subscribing to server (0x%02x)\r\n", status);
+        return status;
+    }
+
     status = nxd_mqtt_client_receive_notify_set(&mqtt_client, mqtt_notify);
     if (status)
     {
@@ -315,6 +385,36 @@ static UINT azure_mqtt_open()
     }
 
     return NXD_MQTT_SUCCESS;
+}
+
+UINT azure_mqtt_publish_float_telemetry(CHAR* label, float value)
+{
+    CHAR mqtt_publish_topic[100] = { 0 };
+
+    snprintf(mqtt_publish_topic, sizeof(mqtt_publish_topic), PUBLISH_TELEMETRY_TOPIC, iot_device_id);
+    printf("Sending telemetry\r\n");
+
+    return mqtt_publish_float(mqtt_publish_topic, label, value);
+}
+
+UINT azure_mqtt_publish_float_twin(CHAR* label, float value)
+{
+    CHAR mqtt_publish_topic[100] = { 0 };
+
+    snprintf(mqtt_publish_topic, sizeof(mqtt_publish_topic), DEVICE_TWIN_PUBLISH_TOPIC, 1);
+    printf("Sending device twin update\r\n");
+
+    return mqtt_publish_float(mqtt_publish_topic, label, value);
+}
+
+UINT mqtt_publish_float(CHAR  *topic, CHAR *label, float value)
+{
+    CHAR mqtt_message[200] = { 0 };
+
+    snprintf(mqtt_message, sizeof(mqtt_message), "{\"%s\": %3.2f}", label, value);
+    printf("Sending message %s\r\n", mqtt_message);
+
+    return mqtt_publish(topic, mqtt_message);
 }
 
 UINT mqtt_publish(CHAR *topic, CHAR *message)
@@ -392,9 +492,4 @@ bool azure_mqtt_register_main_thread_callback(func_ptr_t mqtt_main_thread_callba
     }
     
     return status;
-}
-
-void set_led_blink_interval(UINT ms)
-{
-    printf("Blinking interval changed to %u\r\n", ms);
 }

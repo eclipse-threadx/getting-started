@@ -12,8 +12,6 @@
 #define AZURE_THREAD_STACK_SIZE 4096
 #define AZURE_THREAD_PRIORITY   4
 
-#define PUBLISH_TOPIC "devices/%s/messages/events/"
-
 TX_THREAD azure_thread;
 UCHAR azure_thread_stack[AZURE_THREAD_STACK_SIZE];
 
@@ -22,30 +20,43 @@ void* __RAM_segment_used_end__ = 0;
 extern  VOID nx_driver_same54(NX_IP_DRIVER*);
 
 void azure_thread_entry(ULONG parameter);
+void set_led_state(bool level);
+
+void set_led_state(bool level)
+{
+    if (level)
+    {
+        // Pin level set to "high" state
+        printf("LED0 is turned OFF\r\n");
+    }
+    else
+    {
+        // Pin level set to "low" state
+        printf("LED0 is turned ON\r\n");
+    }
+
+    gpio_set_pin_level(PC18, level);
+}
 
 void mqtt_thread_entry(ULONG info);
-extern UINT mqtt_publish(CHAR *topic, CHAR *message);
 
 void mqtt_thread_entry(ULONG info)
 {
-    CHAR mqtt_message[200];
-    CHAR mqtt_publish_topic[100];
-
     printf("Starting MQTT thread\r\n");
-
-    snprintf(mqtt_publish_topic, sizeof(mqtt_publish_topic), PUBLISH_TOPIC, iot_device_id);
 
     while (true)
     {
         float tempDegC;
+
         // Print the compensated temperature readings
         WeatherClick_waitforRead();
         tempDegC = Weather_getTemperatureDegC();
-        
-        snprintf(mqtt_message, sizeof(mqtt_message), "{\"temperature\": %3.2f C}", tempDegC);
-        printf("Sending %s\r\n", mqtt_message);
 
-        mqtt_publish(mqtt_publish_topic, mqtt_message);
+        // Send the compensated temperature as a telemetry event
+        azure_mqtt_publish_float_twin("temperature(C)", tempDegC);
+
+        // Send the compensated temperature as a device twin update
+        azure_mqtt_publish_float_telemetry("temperature(C)", tempDegC);
 
         // Sleep for 1 minute
         tx_thread_sleep(60 * TX_TIMER_TICKS_PER_SECOND);
