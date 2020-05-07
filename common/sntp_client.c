@@ -124,9 +124,8 @@ void sntp_thread_entry(ULONG info)
     int retries = 1;
     do
     {
-        printf("\tSynchronizing time, #%d\r\n", retries++);
+        printf("\tSynchronizing time, attempt %d\r\n", retries++);
         status = nx_sntp_client_request_unicast_time(&sntp_client, 5 * NX_IP_PERIODIC_RATE);
-
     } while (status != NX_SUCCESS);
 
     set_sntp_time();

@@ -158,6 +158,7 @@
 #define NX_USER_H
 
 #define NX_DISABLE_INCLUDE_SOURCE_CODE
+#define NX_DISABLE_EXTENDED_NOTIFY_SUPPORT
 
 #define NX_FTP_NO_FILEX
 #define NX_HTTP_NO_FILEX
@@ -165,6 +166,8 @@
 #define NX_WEB_HTTP_NO_FILEX
 
 #define NX_SECURE_ENABLE
+#define NX_DNS_CLIENT_USER_CREATE_PACKET_POOL
+
 #define NXD_MQTT_MAX_TOPIC_NAME_LENGTH  200
 #define NXD_MQTT_MAX_MESSAGE_LENGTH     200
 
@@ -430,7 +433,6 @@
    NetX Duo reverts back to IGMPv1 only. */
 #define NX_DISABLE_IGMPV2
 
-
 /* Configuration options for ARP */
 
 /* When defines, ARP reply is sent when address conflict occurs. */
@@ -536,9 +538,9 @@
 
 /* This define specifies the number of TCP packets to receive before sending an ACK. */
 /* The default value is 2: ack every 2 packets.                                      */
-/*
+
 #define NX_TCP_ACK_EVERY_N_PACKETS  2
-*/
+
 
 /* Automatically define NX_TCP_ACK_EVERY_N_PACKETS to 1 if NX_TCP_IMMEDIATE_ACK is defined.
    This is needed for backward compatibility. */
@@ -730,7 +732,6 @@
 /* Defined, UDP information gathering is disabled.  */
 #define NX_DISABLE_UDP_INFO
 
-
 /* Configuration options for Packet Pool */
 
 /* This define specifies the size of the physical packet header. The default value is 16 (based on
@@ -746,9 +747,7 @@
 */
 
 /* Defined, this option disables the addition size checking on received packets.  */
-
 #define NX_DISABLE_RX_SIZE_CHECKING
-
 
 /* Defined, packet debug infromation is enabled.  */
 /*
@@ -762,9 +761,7 @@
 */
 
 /* Defined, packet header and payload are aligned automatically by the value. The default value is sizeof(ULONG). */
-/*
-#define NX_PACKET_ALIGNMENT sizeof(ULONG)
-*/
+#define NX_PACKET_ALIGNMENT 32
 
 /* If defined, the packet chain feature is removed. */
 /*

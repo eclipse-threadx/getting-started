@@ -22,7 +22,7 @@ set(LIBRARIES
     app_common
 )
 
-#set(BUILD_RAM true)
+set(BUILD_RAM true)
 set(BUILD_FLASH true)
 
 if(BUILD_RAM)

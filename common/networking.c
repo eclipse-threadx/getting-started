@@ -6,7 +6,7 @@
 #include "nxd_dns.h"
 
 #define THREADX_IP_STACK_SIZE 2048
-#define THREADX_PACKET_COUNT 20
+#define THREADX_PACKET_COUNT 40
 #define THREADX_PACKET_SIZE 1536
 #define THREADX_POOL_SIZE ((THREADX_PACKET_SIZE + sizeof(NX_PACKET)) * THREADX_PACKET_COUNT)
 #define THREADX_ARP_CACHE_SIZE 512
@@ -89,6 +89,14 @@ static UINT dns_create()
     if (status != NX_SUCCESS)
     {
         return status;
+    }
+
+    // Use the packet pool here
+    status = nx_dns_packet_pool_set(&dns_client, ip_0.nx_ip_default_packet_pool);
+    if (status != NX_SUCCESS)
+    {
+        nx_dns_delete(&dns_client);
+        return(status);
     }
 
     // Retrieve DNS server address
