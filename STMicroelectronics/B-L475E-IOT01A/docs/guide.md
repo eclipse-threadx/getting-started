@@ -285,7 +285,7 @@ To call a direct method on your device:
     **Note**: If you use Powershell use the following code block instead. This code formats the JSON `method-payload` parameter according to Powershell formatting rules.
 
     <code style="white-space : pre-wrap !important;">
-    az iot hub invoke-device-method --device-id MySTMDevice --method-name MyMethod --method-payload '> > {\"Greeting\": \"Hello world!\"}' --hub-name {YourIoTHubName}
+    az iot hub invoke-device-method --device-id MySTMDevice --method-name MyMethod --method-payload '{\"Greeting\": \"Hello world!\"}' --hub-name {YourIoTHubName}
     </code>
 
     The console shows the status of your method call on the device, where `1` indicates success.
