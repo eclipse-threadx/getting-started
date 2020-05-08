@@ -20,6 +20,9 @@ void* __RAM_segment_used_end__ = 0;
 extern  VOID nx_driver_same54(NX_IP_DRIVER*);
 
 void azure_thread_entry(ULONG parameter);
+void mqtt_thread_entry(ULONG info);
+void mqtt_direct_method_invoke(CHAR *topic, CHAR *request_id, CHAR *direct_method_name, CHAR *message);
+void mqtt_c2d_message(CHAR *key, CHAR *value);
 void set_led_state(bool level);
 
 void set_led_state(bool level)
@@ -38,7 +41,72 @@ void set_led_state(bool level)
     gpio_set_pin_level(PC18, level);
 }
 
-void mqtt_thread_entry(ULONG info);
+void mqtt_direct_method_invoke(CHAR *topic, CHAR *request_id, CHAR *direct_method_name, CHAR *message)
+{
+    // Default response - 501 Not Implemented
+    int status = 501;
+    if (strstr((CHAR *)direct_method_name, "set_led_state"))
+    {
+        // Set LED state
+        // '0' - turn LED off
+        // '1' - turn LED on
+        int arg = atoi(message);
+        if (arg != 0 && arg != 1)
+        {
+            printf("Invalid LED state. Possible states are '0' - turn LED off or '1' - turn LED on\r\n");
+
+            status = 500;
+            azure_mqtt_respond_direct_method(topic, request_id, "{}", status);
+
+            return;
+        }
+        bool new_state = !arg;
+        set_led_state(new_state);
+        
+        // 204 No Content
+        // The server successfully processed the request and is not returning any content.
+        status = 204;
+
+        // Update device twin property
+        azure_mqtt_publish_bool_twin("led0State", arg);
+
+        printf("Direct method=%s invoked\r\n", direct_method_name);
+    }
+    else
+    {
+        printf("Received direct menthod=%s is unknown\r\n", direct_method_name);
+    }
+
+    azure_mqtt_respond_direct_method(topic, request_id, "{}", status);
+}
+
+void mqtt_c2d_message(CHAR *key, CHAR *value)
+{
+    if (strstr((CHAR *)key, "led0State"))
+    {
+        // Set LED state
+        // '0' - turn LED off
+        // '1' - turn LED on
+        int arg = atoi(value);
+        if (arg != 0 && arg != 1)
+        {
+            printf("Invalid LED state. Possible states are '0' - turn LED off or '1' - turn LED on\r\n");
+            return;
+        }
+        bool new_state = !arg;
+        set_led_state(new_state);
+
+        // Update device twin property
+        azure_mqtt_publish_bool_twin(key, arg);
+    }
+    else
+    {
+        // Update device twin property
+        azure_mqtt_publish_string_twin(key, value);
+    }
+    
+    printf("Propoerty=%s updated with value=%s\r\n", key, value);
+}
 
 void mqtt_thread_entry(ULONG info)
 {
@@ -53,10 +121,10 @@ void mqtt_thread_entry(ULONG info)
         tempDegC = Weather_getTemperatureDegC();
 
         // Send the compensated temperature as a telemetry event
-        azure_mqtt_publish_float_twin("temperature(C)", tempDegC);
+        azure_mqtt_publish_float_telemetry("temperature(C)", tempDegC);
 
         // Send the compensated temperature as a device twin update
-        azure_mqtt_publish_float_telemetry("temperature(C)", tempDegC);
+        azure_mqtt_publish_float_twin("temperature(C)", tempDegC);
 
         // Sleep for 1 minute
         tx_thread_sleep(60 * TX_TIMER_TICKS_PER_SECOND);
@@ -101,6 +169,18 @@ void azure_thread_entry(ULONG parameter)
         return;
     }
     
+    if (!azure_mqtt_register_direct_method_invoke_callback(mqtt_direct_method_invoke))
+    {
+        printf("Failed to register MQTT direct method callback\r\n");
+        return;
+    }
+    
+    if (!azure_mqtt_register_c2d_message_callback(mqtt_c2d_message))
+    {
+        printf("Failed to register MQTT cloud to device callback callback\r\n");
+        return;
+    }
+    
     // Start the Azure MQTT client
     if(!azure_mqtt_start())
     {
@@ -112,7 +192,7 @@ void azure_thread_entry(ULONG parameter)
     {
         time_t current = time(NULL);
         printf("Time %ld\r\n", (long)current);
-        tx_thread_sleep(5 * TX_TIMER_TICKS_PER_SECOND);
+        tx_thread_sleep(60 * TX_TIMER_TICKS_PER_SECOND);
     }
 }
 
