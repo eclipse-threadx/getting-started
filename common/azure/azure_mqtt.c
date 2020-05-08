@@ -40,7 +40,7 @@
 #define TLS_REMOTE_CERTIFICATE_BUFFER 4096
 #define TLS_PACKET_BUFFER (4 * 1024)
 
-#define MQTT_MEMORY_SIZE (10 * sizeof(MQTT_MESSAGE_BLOCK))
+#define MQTT_MEMORY_SIZE 60
 
 #define MQTT_TIMEOUT (30 * TX_TIMER_TICKS_PER_SECOND)
 #define MQTT_KEEP_ALIVE 240
@@ -161,7 +161,7 @@ static VOID process_direct_method(CHAR *topic, CHAR *message)
             return;
         }
         bool new_state = !arg;
-        set_led_state(new_state);
+//        set_led_state(new_state);
         printf("Direct method=%s invoked\r\n", direct_method_name);
     }
     else

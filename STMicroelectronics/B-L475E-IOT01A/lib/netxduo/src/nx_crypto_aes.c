@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -36,9 +24,6 @@
 /* Include necessary system files.  */
 
 #include "nx_crypto_aes.h"
-#include "nx_crypto_ccm.h"
-#include "nx_crypto_cbc.h"
-#include "nx_crypto_ctr.h"
 #include "nx_crypto_xcbc_mac.h"
 
 #if !defined(NX_LITTLE_ENDIAN)
@@ -426,10 +411,10 @@ extern UINT _nx_crypto_library_state;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_aes_add_round_key                        PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -458,11 +443,7 @@ extern UINT _nx_crypto_library_state;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP static VOID _nx_crypto_aes_add_round_key(NX_CRYPTO_AES *aes_ptr, UINT *round_key)
@@ -484,10 +465,10 @@ UINT i;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_aes_sub_shift_roundkey                   PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -518,11 +499,7 @@ UINT i;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP static VOID _nx_crypto_aes_sub_shift_roundkey(NX_CRYPTO_AES *aes_ptr, UINT *round_key)
@@ -578,10 +555,10 @@ UCHAR *S;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_aes_inv_sub_shift_roundkey               PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -612,11 +589,7 @@ UCHAR *S;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP static VOID _nx_crypto_aes_inv_sub_shift_roundkey(NX_CRYPTO_AES *aes_ptr, UINT *round_key)
@@ -693,10 +666,10 @@ UCHAR *S;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_aes_encryption_round                     PORTABLE C      */
-/*                                                          5.12          */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -730,11 +703,7 @@ UCHAR *S;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP static VOID _nx_crypto_aes_encryption_round(NX_CRYPTO_AES *aes_ptr, int num_rounds)
@@ -878,10 +847,10 @@ int  round;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_aes_decryption_round                     PORTABLE C      */
-/*                                                          5.12          */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -915,12 +884,7 @@ int  round;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            static analysis fixes,      */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP static VOID _nx_crypto_aes_decryption_round(NX_CRYPTO_AES *aes_ptr, int round)
@@ -1017,10 +981,10 @@ ULONG  val;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_aes_encrypt                              PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -1062,14 +1026,7 @@ ULONG  val;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            added macro to disable      */
-/*                                            unaligned memory access,    */
-/*                                            static analysis fixes,      */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP UINT _nx_crypto_aes_encrypt(NX_CRYPTO_AES *aes_ptr, UCHAR *input, UCHAR *output, UINT length)
@@ -1083,7 +1040,7 @@ UINT *buf;
 #endif
 
 
-    NX_PARAMETER_NOT_USED(length);
+    NX_CRYPTO_PARAMETER_NOT_USED(length);
 
     w = aes_ptr -> nx_crypto_aes_key_schedule;
 
@@ -1164,10 +1121,10 @@ UINT *buf;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_aes_subword                              PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -1195,11 +1152,7 @@ UINT *buf;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP static UINT _nx_crypto_aes_subword(UINT word)
@@ -1218,10 +1171,10 @@ UINT result;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_aes_key_expansion                        PORTABLE C      */
-/*                                                          5.12          */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -1248,11 +1201,7 @@ UINT result;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP static VOID _nx_crypto_aes_key_expansion(NX_CRYPTO_AES *aes_ptr)
@@ -1340,10 +1289,10 @@ UINT  key_size;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_aes_key_expansion_inverse                PORTABLE C      */
-/*                                                          5.12          */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -1375,11 +1324,7 @@ UINT  key_size;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP static VOID _nx_crypto_aes_key_expansion_inverse(NX_CRYPTO_AES *aes_ptr)
@@ -1477,10 +1422,10 @@ ULONG key;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_aes_decrypt                              PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -1522,14 +1467,7 @@ ULONG key;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            added macro to disable      */
-/*                                            unaligned memory access,    */
-/*                                            static analysis fixes,      */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP UINT _nx_crypto_aes_decrypt(NX_CRYPTO_AES *aes_ptr, UCHAR *input, UCHAR *output, UINT length)
@@ -1545,7 +1483,7 @@ UINT *buf;
 #endif
 
 
-    NX_PARAMETER_NOT_USED(length);
+    NX_CRYPTO_PARAMETER_NOT_USED(length);
 
     w = aes_ptr -> nx_crypto_aes_decrypt_key_schedule;
     v = aes_ptr -> nx_crypto_aes_key_schedule;
@@ -1629,10 +1567,10 @@ UINT *buf;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_aes_key_set                              PORTABLE C      */
-/*                                                          5.12          */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -1665,11 +1603,7 @@ UINT *buf;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP UINT _nx_crypto_aes_key_set(NX_CRYPTO_AES *aes_ptr, UCHAR *key, UINT key_size)
@@ -1716,10 +1650,10 @@ UINT   i;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_method_aes_init                          PORTABLE C      */
-/*                                                          5.12          */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -1750,11 +1684,7 @@ UINT   i;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP UINT  _nx_crypto_method_aes_init(struct NX_CRYPTO_METHOD_STRUCT *method,
@@ -1764,25 +1694,25 @@ NX_CRYPTO_KEEP UINT  _nx_crypto_method_aes_init(struct NX_CRYPTO_METHOD_STRUCT *
                                                 ULONG crypto_metadata_size)
 {
 
-    NX_PARAMETER_NOT_USED(handle);
+    NX_CRYPTO_PARAMETER_NOT_USED(handle);
 
     NX_CRYPTO_STATE_CHECK
 
 
-    if ((method == NX_NULL) || (key == NX_NULL) || (crypto_metadata == NX_NULL))
+    if ((method == NX_CRYPTO_NULL) || (key == NX_CRYPTO_NULL) || (crypto_metadata == NX_CRYPTO_NULL))
     {
-        return(NX_PTR_ERROR);
+        return(NX_CRYPTO_PTR_ERROR);
     }
 
     /* Verify the metadata addrsss is 4-byte aligned. */
     if((((ULONG)crypto_metadata) & 0x3) != 0)
     {
-        return(NX_PTR_ERROR);
+        return(NX_CRYPTO_PTR_ERROR);
     }
 
     if(crypto_metadata_size < sizeof(NX_CRYPTO_AES))
     {
-        return(NX_PTR_ERROR);
+        return(NX_CRYPTO_PTR_ERROR);
     }
 
     /* We only support 128-bit or 256-bit key size for the time-being. */
@@ -1790,6 +1720,8 @@ NX_CRYPTO_KEEP UINT  _nx_crypto_method_aes_init(struct NX_CRYPTO_METHOD_STRUCT *
     {
         return(NX_CRYPTO_UNSUPPORTED_KEY_SIZE);
     }
+
+    NX_CRYPTO_MEMSET(&((NX_CRYPTO_AES *)crypto_metadata) -> nx_crypto_aes_mode_context, 0, sizeof(((NX_CRYPTO_AES *)crypto_metadata) -> nx_crypto_aes_mode_context));
 
     _nx_crypto_aes_key_set((NX_CRYPTO_AES *)crypto_metadata, key, key_size_in_bits >> 5);
 
@@ -1802,10 +1734,10 @@ NX_CRYPTO_KEEP UINT  _nx_crypto_method_aes_init(struct NX_CRYPTO_METHOD_STRUCT *
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_method_aes_cleanup                       PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -1831,7 +1763,7 @@ NX_CRYPTO_KEEP UINT  _nx_crypto_method_aes_init(struct NX_CRYPTO_METHOD_STRUCT *
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  08-15-2019     Timothy Stapko           Initial Version 5.12          */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP UINT  _nx_crypto_method_aes_cleanup(VOID *crypto_metadata)
@@ -1846,7 +1778,7 @@ NX_CRYPTO_KEEP UINT  _nx_crypto_method_aes_cleanup(VOID *crypto_metadata)
     /* Clean up the crypto metadata.  */
     NX_CRYPTO_MEMSET(crypto_metadata, 0, sizeof(NX_CRYPTO_AES));
 #else
-    NX_PARAMETER_NOT_USED(crypto_metadata);
+    NX_CRYPTO_PARAMETER_NOT_USED(crypto_metadata);
 #endif /* NX_SECURE_KEY_CLEAR  */
 
     return(NX_CRYPTO_SUCCESS);
@@ -1858,10 +1790,10 @@ NX_CRYPTO_KEEP UINT  _nx_crypto_method_aes_cleanup(VOID *crypto_metadata)
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_method_aes_operation                     PORTABLE C      */
-/*                                                          5.12          */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -1893,6 +1825,7 @@ NX_CRYPTO_KEEP UINT  _nx_crypto_method_aes_cleanup(VOID *crypto_metadata)
 /*                                                                        */
 /*    _nx_crypto_method_aes_cbc_operation   Handle AES CBC operation      */
 /*    _nx_crypto_method_aes_ccm_operation   Handle AES CCM operation      */
+/*    _nx_crypto_method_aes_gcm_operation   Handle AES GCM operation      */
 /*    _nx_crypto_method_aes_ctr_operation   Handle AES CTR operation      */
 /*    _nx_crypto_method_aes_xcbc_operation  Handle AES XCBC operation     */
 /*                                                                        */
@@ -1904,13 +1837,7 @@ NX_CRYPTO_KEEP UINT  _nx_crypto_method_aes_cleanup(VOID *crypto_metadata)
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Yuxin Zhou               Modified comment(s),          */
-/*                                            split operation functions   */
-/*                                            for different modes,        */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP UINT  _nx_crypto_method_aes_operation(UINT op,      /* Encrypt, Decrypt, Authenticate */
@@ -1933,14 +1860,14 @@ UINT    status;
     NX_CRYPTO_STATE_CHECK
 
     /* Verify the metadata addrsss is 4-byte aligned. */
-    if((method == NX_NULL) || (crypto_metadata == NX_NULL) || ((((ULONG)crypto_metadata) & 0x3) != 0))
+    if((method == NX_CRYPTO_NULL) || (crypto_metadata == NX_CRYPTO_NULL) || ((((ULONG)crypto_metadata) & 0x3) != 0))
     {
-        return(NX_PTR_ERROR);
+        return(NX_CRYPTO_PTR_ERROR);
     }
 
     if(crypto_metadata_size < sizeof(NX_CRYPTO_AES))
     {
-        return(NX_PTR_ERROR);
+        return(NX_CRYPTO_PTR_ERROR);
     }
 
     /* Check if the algorithm is cbc or ctr. */
@@ -1960,6 +1887,18 @@ UINT    status;
 
         /* AES CCM */
         status = _nx_crypto_method_aes_ccm_operation(op, handle, method, key, key_size_in_bits,
+                                                     input, input_length_in_byte, iv_ptr,
+                                                     output, output_length_in_byte,
+                                                     crypto_metadata, crypto_metadata_size,
+                                                     packet_ptr, nx_crypto_hw_process_callback);
+
+    }
+    else if ((method -> nx_crypto_algorithm >= NX_CRYPTO_ENCRYPTION_AES_GCM_8) &&
+             (method -> nx_crypto_algorithm <= NX_CRYPTO_ENCRYPTION_AES_GCM_16))
+    {
+
+        /* AES GCM */
+        status = _nx_crypto_method_aes_gcm_operation(op, handle, method, key, key_size_in_bits,
                                                      input, input_length_in_byte, iv_ptr,
                                                      output, output_length_in_byte,
                                                      crypto_metadata, crypto_metadata_size,
@@ -1997,10 +1936,10 @@ UINT    status;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_method_aes_cbc_operation                 PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -2041,7 +1980,7 @@ UINT    status;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  08-15-2019     Timothy Stapko           Initial Version 5.12          */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP UINT  _nx_crypto_method_aes_cbc_operation(UINT op,      /* Encrypt, Decrypt, Authenticate */
@@ -2063,54 +2002,104 @@ NX_CRYPTO_KEEP UINT  _nx_crypto_method_aes_cbc_operation(UINT op,      /* Encryp
 NX_CRYPTO_AES *ctx;
 UINT    status;
 
-    NX_PARAMETER_NOT_USED(handle);
-    NX_PARAMETER_NOT_USED(key);
-    NX_PARAMETER_NOT_USED(key_size_in_bits);
-    NX_PARAMETER_NOT_USED(output_length_in_byte);
-    NX_PARAMETER_NOT_USED(packet_ptr);
-    NX_PARAMETER_NOT_USED(nx_crypto_hw_process_callback);
+    NX_CRYPTO_PARAMETER_NOT_USED(handle);
+    NX_CRYPTO_PARAMETER_NOT_USED(key);
+    NX_CRYPTO_PARAMETER_NOT_USED(key_size_in_bits);
+    NX_CRYPTO_PARAMETER_NOT_USED(output_length_in_byte);
+    NX_CRYPTO_PARAMETER_NOT_USED(packet_ptr);
+    NX_CRYPTO_PARAMETER_NOT_USED(nx_crypto_hw_process_callback);
     
     NX_CRYPTO_STATE_CHECK
 
     /* Verify the metadata addrsss is 4-byte aligned. */
-    if((method == NX_NULL) || (crypto_metadata == NX_NULL) || ((((ULONG)crypto_metadata) & 0x3) != 0))
+    if((method == NX_CRYPTO_NULL) || (crypto_metadata == NX_CRYPTO_NULL) || ((((ULONG)crypto_metadata) & 0x3) != 0))
     {
-        return(NX_PTR_ERROR);
+        return(NX_CRYPTO_PTR_ERROR);
     }
 
     if(crypto_metadata_size < sizeof(NX_CRYPTO_AES))
     {
-        return(NX_PTR_ERROR);
+        return(NX_CRYPTO_PTR_ERROR);
     }
 
     ctx = (NX_CRYPTO_AES *)crypto_metadata;
 
-    if (op == NX_CRYPTO_DECRYPT)
+    switch (op)
     {
+        case NX_CRYPTO_DECRYPT:
+        {
+            status = _nx_crypto_cbc_decrypt_init(&(ctx -> nx_crypto_aes_mode_context.cbc),
+                                                 iv_ptr, method -> nx_crypto_IV_size_in_bits >> 3);
+            if (status)
+            {
+                break;
+            }
 
-        status = _nx_crypto_cbc_decrypt(ctx,
-                                        (UINT (*)(VOID *, UCHAR *, UCHAR *, UINT))_nx_crypto_aes_decrypt,
-                                        NX_NULL, NX_NULL, NX_NULL,
-                                        input, output, input_length_in_byte,
-                                        iv_ptr, NX_NULL,
-                                        NX_CRYPTO_AES_BLOCK_SIZE);
-    }
-    else if (op == NX_CRYPTO_ENCRYPT)
-    {
+            status = _nx_crypto_cbc_decrypt(ctx, &(ctx -> nx_crypto_aes_mode_context.cbc),
+                                            (UINT (*)(VOID *, UCHAR *, UCHAR *, UINT))_nx_crypto_aes_decrypt,
+                                            input, output, input_length_in_byte,
+                                            NX_CRYPTO_AES_BLOCK_SIZE);
+        } break;
 
-        status = _nx_crypto_cbc_encrypt(ctx,
-                                        (UINT (*)(VOID *, UCHAR *, UCHAR *, UINT))_nx_crypto_aes_encrypt,
-                                        NX_NULL, NX_NULL, NX_NULL,
-                                        input, output, input_length_in_byte,
-                                        iv_ptr, NX_NULL,
-                                        NX_CRYPTO_AES_BLOCK_SIZE);
-    }
-    else
-    {
-        status = NX_CRYPTO_INVALID_ALGORITHM;
+        case NX_CRYPTO_ENCRYPT:
+        {
+            status = _nx_crypto_cbc_encrypt_init(&(ctx -> nx_crypto_aes_mode_context.cbc),
+                                                 iv_ptr, method -> nx_crypto_IV_size_in_bits >> 3);
+            if (status)
+            {
+                break;
+            }
+
+            status = _nx_crypto_cbc_encrypt(ctx, &(ctx -> nx_crypto_aes_mode_context.cbc),
+                                            (UINT (*)(VOID *, UCHAR *, UCHAR *, UINT))_nx_crypto_aes_encrypt,
+                                            input, output, input_length_in_byte,
+                                            NX_CRYPTO_AES_BLOCK_SIZE);
+        } break;
+
+        case NX_CRYPTO_DECRYPT_INITIALIZE:
+        {
+            status = _nx_crypto_cbc_decrypt_init(&(ctx -> nx_crypto_aes_mode_context.cbc),
+                                                 iv_ptr, method -> nx_crypto_IV_size_in_bits >> 3);
+        } break;
+
+        case NX_CRYPTO_ENCRYPT_INITIALIZE:
+        {
+            status = _nx_crypto_cbc_encrypt_init(&(ctx -> nx_crypto_aes_mode_context.cbc),
+                                                 iv_ptr, method -> nx_crypto_IV_size_in_bits >> 3);
+        } break;
+
+        case NX_CRYPTO_DECRYPT_UPDATE:
+        {
+            status = _nx_crypto_cbc_decrypt(ctx, &(ctx -> nx_crypto_aes_mode_context.cbc),
+                                            (UINT (*)(VOID *, UCHAR *, UCHAR *, UINT))_nx_crypto_aes_decrypt,
+                                            input, output, input_length_in_byte,
+                                            NX_CRYPTO_AES_BLOCK_SIZE);
+        } break;
+
+        case NX_CRYPTO_ENCRYPT_UPDATE:
+        {
+            status = _nx_crypto_cbc_encrypt(ctx, &(ctx -> nx_crypto_aes_mode_context.cbc),
+                                            (UINT (*)(VOID *, UCHAR *, UCHAR *, UINT))_nx_crypto_aes_encrypt,
+                                            input, output, input_length_in_byte,
+                                            NX_CRYPTO_AES_BLOCK_SIZE);
+        } break;
+
+        case NX_CRYPTO_ENCRYPT_CALCULATE:
+        /* fallthrough */
+        case NX_CRYPTO_DECRYPT_CALCULATE:
+        {
+
+            /* Nothing to do. */
+            status = NX_CRYPTO_SUCCESS;
+        } break;
+
+        default:
+        {
+            status = NX_CRYPTO_INVALID_ALGORITHM;
+        } break;
     }
 
-    return status;
+    return(status);
 }
 
 /**************************************************************************/
@@ -2118,10 +2107,10 @@ UINT    status;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_method_aes_ccm_operation                 PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -2163,7 +2152,7 @@ UINT    status;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  08-15-2019     Timothy Stapko           Initial Version 5.12          */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP UINT  _nx_crypto_method_aes_ccm_operation(UINT op,      /* Encrypt, Decrypt, Authenticate */
@@ -2185,24 +2174,24 @@ NX_CRYPTO_KEEP UINT  _nx_crypto_method_aes_ccm_operation(UINT op,      /* Encryp
 NX_CRYPTO_AES *ctx;
 UINT    status;
 
-    NX_PARAMETER_NOT_USED(handle);
-    NX_PARAMETER_NOT_USED(key);
-    NX_PARAMETER_NOT_USED(key_size_in_bits);
-    NX_PARAMETER_NOT_USED(output_length_in_byte);
-    NX_PARAMETER_NOT_USED(packet_ptr);
-    NX_PARAMETER_NOT_USED(nx_crypto_hw_process_callback);
+    NX_CRYPTO_PARAMETER_NOT_USED(handle);
+    NX_CRYPTO_PARAMETER_NOT_USED(key);
+    NX_CRYPTO_PARAMETER_NOT_USED(key_size_in_bits);
+    NX_CRYPTO_PARAMETER_NOT_USED(output_length_in_byte);
+    NX_CRYPTO_PARAMETER_NOT_USED(packet_ptr);
+    NX_CRYPTO_PARAMETER_NOT_USED(nx_crypto_hw_process_callback);
     
     NX_CRYPTO_STATE_CHECK
 
     /* Verify the metadata addrsss is 4-byte aligned. */
-    if((method == NX_NULL) || (crypto_metadata == NX_NULL) || ((((ULONG)crypto_metadata) & 0x3) != 0))
+    if((method == NX_CRYPTO_NULL) || (crypto_metadata == NX_CRYPTO_NULL) || ((((ULONG)crypto_metadata) & 0x3) != 0))
     {
-        return(NX_PTR_ERROR);
+        return(NX_CRYPTO_PTR_ERROR);
     }
 
     if(crypto_metadata_size < sizeof(NX_CRYPTO_AES))
     {
-        return(NX_PTR_ERROR);
+        return(NX_CRYPTO_PTR_ERROR);
     }
 
     ctx = (NX_CRYPTO_AES *)crypto_metadata;
@@ -2215,63 +2204,491 @@ UINT    status;
 
     /* IV : Nonce length(1 byte) + Nonce
        nx_crypto_ICV_size_in_bits: authentication tag length in bits */
-    if (op == NX_CRYPTO_DECRYPT)
+    switch (op)
     {
-        _nx_crypto_ccm_decrypt(ctx,
-                               (UINT (*)(VOID *, UCHAR *, UCHAR *, UINT))_nx_crypto_aes_encrypt,
-                               NX_NULL, NX_NULL, NX_NULL,
-                               input, output,
-                               input_length_in_byte - (method -> nx_crypto_ICV_size_in_bits >> 3),
-                               iv_ptr, NX_NULL,
-                               NX_CRYPTO_AES_BLOCK_SIZE);
+        case NX_CRYPTO_DECRYPT:
+        {
+            if (iv_ptr == NX_CRYPTO_NULL ||
+                (ctx -> nx_crypto_aes_mode_context.ccm.nx_crypto_ccm_additional_data_len > 0 &&
+                 ctx -> nx_crypto_aes_mode_context.ccm.nx_crypto_ccm_additional_data == NX_CRYPTO_NULL))
+            {
+                status = NX_CRYPTO_PTR_ERROR;
+                break;
+            }
 
-        status = _nx_crypto_ccm_authentication_check(ctx,
-                                                     (UINT (*)(VOID *, UCHAR *, UCHAR *, UINT))_nx_crypto_aes_encrypt,
-                                                     NX_NULL,
-                                                     ctx -> nx_crypto_aes_additional_data,
-                                                     ctx -> nx_crypto_aes_additional_data_len,
-                                                     input, output, input_length_in_byte,
-                                                     iv_ptr,
-                                                     (UCHAR)(method -> nx_crypto_ICV_size_in_bits >> 3),
-                                                     NX_CRYPTO_AES_BLOCK_SIZE);
+            if (input_length_in_byte < (method -> nx_crypto_ICV_size_in_bits >> 3) ||
+                output_length_in_byte < input_length_in_byte - (method -> nx_crypto_ICV_size_in_bits >> 3))
+            {
+                status = NX_CRYPTO_INVALID_BUFFER_SIZE;
+                break;
+            }
+
+            status = _nx_crypto_ccm_decrypt_init(ctx, &(ctx -> nx_crypto_aes_mode_context.ccm),
+                                                 (UINT (*)(VOID *, UCHAR *, UCHAR *, UINT))_nx_crypto_aes_encrypt,
+                                                 ctx -> nx_crypto_aes_mode_context.ccm.nx_crypto_ccm_additional_data,
+                                                 ctx -> nx_crypto_aes_mode_context.ccm.nx_crypto_ccm_additional_data_len,
+                                                 input_length_in_byte - (method -> nx_crypto_ICV_size_in_bits >> 3), iv_ptr, 
+                                                 (UCHAR)(method -> nx_crypto_ICV_size_in_bits >> 3),
+                                                 NX_CRYPTO_AES_BLOCK_SIZE);
+
+            if (status)
+            {
+                break;
+            }
+
+            status = _nx_crypto_ccm_decrypt_update(NX_CRYPTO_DECRYPT_UPDATE,
+                                                   ctx, &(ctx -> nx_crypto_aes_mode_context.ccm),
+                                                   (UINT (*)(VOID *, UCHAR *, UCHAR *, UINT))_nx_crypto_aes_encrypt,
+                                                   input, output, input_length_in_byte - (method -> nx_crypto_ICV_size_in_bits >> 3),
+                                                   NX_CRYPTO_AES_BLOCK_SIZE);
+            if (status)
+            {
+                break;
+            }
+
+            status = _nx_crypto_ccm_decrypt_calculate(ctx, &(ctx -> nx_crypto_aes_mode_context.ccm),
+                                                      (UINT (*)(VOID *, UCHAR *, UCHAR *, UINT))_nx_crypto_aes_encrypt,
+                                                      input + input_length_in_byte - (method -> nx_crypto_ICV_size_in_bits >> 3),
+                                                      NX_CRYPTO_AES_BLOCK_SIZE);
+            if (status)
+            {
+                break;
+            }
+        } break;
+
+        case NX_CRYPTO_ENCRYPT:
+        {
+            if (iv_ptr == NX_CRYPTO_NULL ||
+                (ctx -> nx_crypto_aes_mode_context.ccm.nx_crypto_ccm_additional_data_len > 0 &&
+                 ctx -> nx_crypto_aes_mode_context.ccm.nx_crypto_ccm_additional_data == NX_CRYPTO_NULL))
+            {
+                status = NX_CRYPTO_PTR_ERROR;
+                break;
+            }
+
+            if (output_length_in_byte < input_length_in_byte + (method -> nx_crypto_ICV_size_in_bits >> 3))
+            {
+                status = NX_CRYPTO_INVALID_BUFFER_SIZE;
+                break;
+            }
+
+            status = _nx_crypto_ccm_encrypt_init(ctx, &(ctx -> nx_crypto_aes_mode_context.ccm),
+                                                 (UINT (*)(VOID *, UCHAR *, UCHAR *, UINT))_nx_crypto_aes_encrypt,
+                                                 ctx -> nx_crypto_aes_mode_context.ccm.nx_crypto_ccm_additional_data,
+                                                 ctx -> nx_crypto_aes_mode_context.ccm.nx_crypto_ccm_additional_data_len,
+                                                 input_length_in_byte, iv_ptr, 
+                                                 (UCHAR)(method -> nx_crypto_ICV_size_in_bits >> 3),
+                                                 NX_CRYPTO_AES_BLOCK_SIZE);
+
+            if (status)
+            {
+                break;
+            }
+
+            status = _nx_crypto_ccm_encrypt_update(NX_CRYPTO_ENCRYPT_UPDATE,
+                                                   ctx, &(ctx -> nx_crypto_aes_mode_context.ccm),
+                                                   (UINT (*)(VOID *, UCHAR *, UCHAR *, UINT))_nx_crypto_aes_encrypt,
+                                                   input, output, input_length_in_byte,
+                                                   NX_CRYPTO_AES_BLOCK_SIZE);
+            if (status)
+            {
+                break;
+            }
+
+            status = _nx_crypto_ccm_encrypt_calculate(ctx, &(ctx -> nx_crypto_aes_mode_context.ccm),
+                                                      (UINT (*)(VOID *, UCHAR *, UCHAR *, UINT))_nx_crypto_aes_encrypt,
+                                                      output + input_length_in_byte,
+                                                      NX_CRYPTO_AES_BLOCK_SIZE);
+            if (status)
+            {
+                break;
+            }
+        } break;
+
+        case NX_CRYPTO_SET_ADDITIONAL_DATA:
+        {
+
+            /* Set additonal data pointer.  */
+            ctx -> nx_crypto_aes_mode_context.ccm.nx_crypto_ccm_additional_data = (VOID *)input;
+
+            /* Set additional data length.  */
+            ctx -> nx_crypto_aes_mode_context.ccm.nx_crypto_ccm_additional_data_len = input_length_in_byte;
+
+            status = NX_CRYPTO_SUCCESS;
+        } break;
+
+        case NX_CRYPTO_DECRYPT_INITIALIZE:
+        {
+            if (iv_ptr == NX_CRYPTO_NULL)
+            {
+                status = NX_CRYPTO_PTR_ERROR;
+                break;
+            }
+
+            status = _nx_crypto_ccm_decrypt_init(ctx, &(ctx -> nx_crypto_aes_mode_context.ccm),
+                                                 (UINT (*)(VOID *, UCHAR *, UCHAR *, UINT))_nx_crypto_aes_encrypt,
+                                                 input, /* pointers to AAD */
+                                                 input_length_in_byte, /* length of AAD */
+                                                 output_length_in_byte, /* total length of message */
+                                                 iv_ptr, 
+                                                 (UCHAR)(method -> nx_crypto_ICV_size_in_bits >> 3),
+                                                 NX_CRYPTO_AES_BLOCK_SIZE);
+        } break;
+
+        case NX_CRYPTO_DECRYPT_UPDATE:
+        {
+            status = _nx_crypto_ccm_decrypt_update(NX_CRYPTO_DECRYPT_UPDATE,
+                                                   ctx, &(ctx -> nx_crypto_aes_mode_context.ccm),
+                                                   (UINT (*)(VOID *, UCHAR *, UCHAR *, UINT))_nx_crypto_aes_encrypt,
+                                                   input, output, input_length_in_byte,
+                                                   NX_CRYPTO_AES_BLOCK_SIZE);
+
+        } break;
+
+        case NX_CRYPTO_DECRYPT_CALCULATE:
+        {
+            status = _nx_crypto_ccm_decrypt_calculate(ctx, &(ctx -> nx_crypto_aes_mode_context.ccm),
+                                                      (UINT (*)(VOID *, UCHAR *, UCHAR *, UINT))_nx_crypto_aes_encrypt,
+                                                      input, NX_CRYPTO_AES_BLOCK_SIZE);
+        } break;
+
+        case NX_CRYPTO_ENCRYPT_INITIALIZE:
+        {
+            if (iv_ptr == NX_CRYPTO_NULL)
+            {
+                status = NX_CRYPTO_PTR_ERROR;
+                break;
+            }
+
+            status = _nx_crypto_ccm_encrypt_init(ctx, &(ctx -> nx_crypto_aes_mode_context.ccm),
+                                                 (UINT (*)(VOID *, UCHAR *, UCHAR *, UINT))_nx_crypto_aes_encrypt,
+                                                 input, /* pointers to AAD */
+                                                 input_length_in_byte, /* length of AAD */
+                                                 output_length_in_byte, /* total length of message */
+                                                 iv_ptr, 
+                                                 (UCHAR)(method -> nx_crypto_ICV_size_in_bits >> 3),
+                                                 NX_CRYPTO_AES_BLOCK_SIZE);
+        } break;
+
+        case NX_CRYPTO_ENCRYPT_UPDATE:
+        {
+
+            status = _nx_crypto_ccm_encrypt_update(NX_CRYPTO_ENCRYPT_UPDATE,
+                                                   ctx, &(ctx -> nx_crypto_aes_mode_context.ccm),
+                                                   (UINT (*)(VOID *, UCHAR *, UCHAR *, UINT))_nx_crypto_aes_encrypt,
+                                                   input, output, input_length_in_byte,
+                                                   NX_CRYPTO_AES_BLOCK_SIZE);
+        } break;
+
+        case NX_CRYPTO_ENCRYPT_CALCULATE:
+        {
+
+            status = _nx_crypto_ccm_encrypt_calculate(ctx, &(ctx -> nx_crypto_aes_mode_context.ccm),
+                                                      (UINT (*)(VOID *, UCHAR *, UCHAR *, UINT))_nx_crypto_aes_encrypt,
+                                                      output, NX_CRYPTO_AES_BLOCK_SIZE);
+        } break;
+
+        default:
+        {
+            status = NX_CRYPTO_INVALID_ALGORITHM;
+        } break;
     }
-    else if (op == NX_CRYPTO_ENCRYPT)
+
+    return(status);
+}
+
+/**************************************************************************/
+/*                                                                        */
+/*  FUNCTION                                               RELEASE        */
+/*                                                                        */
+/*    _nx_crypto_method_aes_gcm_operation                 PORTABLE C      */
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Timothy Stapko, Microsoft Corporation                               */
+/*                                                                        */
+/*  DESCRIPTION                                                           */
+/*                                                                        */
+/*    This function encrypts and decrypts a message using                 */
+/*    the AES GCM algorithm.                                              */
+/*                                                                        */
+/*  INPUT                                                                 */
+/*                                                                        */
+/*    op                                    AES operation                 */
+/*    handle                                Crypto handle                 */
+/*    method                                Cryption Method Object        */
+/*    key                                   Encryption Key                */
+/*    key_size_in_bits                      Key size in bits              */
+/*    input                                 Input data                    */
+/*    input_length_in_byte                  Input data size               */
+/*    iv_ptr                                Initial vector                */
+/*    output                                Output buffer                 */
+/*    output_length_in_byte                 Output buffer size            */
+/*    crypto_metadata                       Metadata area                 */
+/*    crypto_metadata_size                  Metadata area size            */
+/*    packet_ptr                            Pointer to packet             */
+/*    nx_crypto_hw_process_callback         Callback function pointer     */
+/*                                                                        */
+/*  OUTPUT                                                                */
+/*                                                                        */
+/*    status                                Completion status             */
+/*                                                                        */
+/*  CALLS                                                                 */
+/*                                                                        */
+/*    _nx_crypto_gcm_operation              Perform GCM encryption or     */
+/*                                            decryption                  */
+/*                                                                        */
+/*  CALLED BY                                                             */
+/*                                                                        */
+/*    _nx_crypto_method_aes_operation       Handle AES encrypt or decrypt */
+/*    Application Code                                                    */
+/*                                                                        */
+/*  RELEASE HISTORY                                                       */
+/*                                                                        */
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
+NX_CRYPTO_KEEP UINT  _nx_crypto_method_aes_gcm_operation(UINT op,      /* Encrypt, Decrypt, Authenticate */
+                                                         VOID *handle, /* Crypto handler */
+                                                         struct NX_CRYPTO_METHOD_STRUCT *method,
+                                                         UCHAR *key,
+                                                         NX_CRYPTO_KEY_SIZE key_size_in_bits,
+                                                         UCHAR *input,
+                                                         ULONG input_length_in_byte,
+                                                         UCHAR *iv_ptr,
+                                                         UCHAR *output,
+                                                         ULONG output_length_in_byte,
+                                                         VOID *crypto_metadata,
+                                                         ULONG crypto_metadata_size,
+                                                         VOID *packet_ptr,
+                                                         VOID (*nx_crypto_hw_process_callback)(VOID *packet_ptr, UINT status))
+{
+
+NX_CRYPTO_AES *ctx;
+UINT icv_len;
+UINT message_len;
+UINT    status;
+
+    NX_CRYPTO_PARAMETER_NOT_USED(handle);
+    NX_CRYPTO_PARAMETER_NOT_USED(key);
+    NX_CRYPTO_PARAMETER_NOT_USED(key_size_in_bits);
+    NX_CRYPTO_PARAMETER_NOT_USED(output_length_in_byte);
+    NX_CRYPTO_PARAMETER_NOT_USED(packet_ptr);
+    NX_CRYPTO_PARAMETER_NOT_USED(nx_crypto_hw_process_callback);
+
+    NX_CRYPTO_STATE_CHECK
+
+    /* Verify the metadata addrsss is 4-byte aligned. */
+    if((method == NX_CRYPTO_NULL) || (crypto_metadata == NX_CRYPTO_NULL) || ((((ULONG)crypto_metadata) & 0x3) != 0))
     {
-
-        _nx_crypto_ccm_authentication_add(ctx,
-                                          (UINT (*)(VOID *, UCHAR *, UCHAR *, UINT))_nx_crypto_aes_encrypt,
-                                          NX_NULL,
-                                          ctx -> nx_crypto_aes_additional_data,
-                                          ctx -> nx_crypto_aes_additional_data_len,
-                                          input, output, input_length_in_byte,
-                                          iv_ptr,
-                                          (UCHAR)(method -> nx_crypto_ICV_size_in_bits >> 3),
-                                          NX_CRYPTO_AES_BLOCK_SIZE);
-
-        status = _nx_crypto_ccm_encrypt(ctx,
-                                        (UINT (*)(VOID *, UCHAR *, UCHAR *, UINT))_nx_crypto_aes_encrypt,
-                                        NX_NULL, NX_NULL, NX_NULL,
-                                        input, output, input_length_in_byte,
-                                        iv_ptr, NX_NULL,
-                                        NX_CRYPTO_AES_BLOCK_SIZE);
+        return(NX_CRYPTO_PTR_ERROR);
     }
-    else if (op == NX_CRYPTO_SET_ADDITIONAL_DATA)
+
+    if(crypto_metadata_size < sizeof(NX_CRYPTO_AES))
     {
-
-        /* Set additonal data pointer.  */
-        ctx -> nx_crypto_aes_additional_data = (VOID *)input;
-
-        /* Set additional data length.  */
-        ctx -> nx_crypto_aes_additional_data_len = input_length_in_byte;
-
-        status = NX_CRYPTO_SUCCESS;
+        return(NX_CRYPTO_PTR_ERROR);
     }
-    else
+
+    ctx = (NX_CRYPTO_AES *)crypto_metadata;
+
+    if ((method -> nx_crypto_algorithm < NX_CRYPTO_ENCRYPTION_AES_GCM_8) ||
+        (method -> nx_crypto_algorithm > NX_CRYPTO_ENCRYPTION_AES_GCM_16))
     {
-        status = NX_CRYPTO_INVALID_ALGORITHM;
+        return(NX_CRYPTO_INVALID_ALGORITHM);
     }
 
-    return status;
+    /* IV : Nonce length(1 byte) + Nonce
+       nx_crypto_ICV_size_in_bits: authentication tag length in bits */
+    switch (op)
+    {
+        case NX_CRYPTO_DECRYPT:
+        {
+            if (iv_ptr == NX_CRYPTO_NULL ||
+                (ctx -> nx_crypto_aes_mode_context.gcm.nx_crypto_gcm_additional_data_len > 0 &&
+                 ctx -> nx_crypto_aes_mode_context.gcm.nx_crypto_gcm_additional_data == NX_CRYPTO_NULL))
+            {
+                status = NX_CRYPTO_PTR_ERROR;
+                break;
+            }
+
+            icv_len = (method -> nx_crypto_ICV_size_in_bits >> 3);
+
+            if (input_length_in_byte < icv_len || output_length_in_byte < input_length_in_byte - icv_len)
+            {
+                status = NX_CRYPTO_INVALID_BUFFER_SIZE;
+                break;
+            }
+
+            message_len = input_length_in_byte - icv_len;
+            status = _nx_crypto_gcm_decrypt_init(ctx, &(ctx -> nx_crypto_aes_mode_context.gcm),
+                                                 (UINT (*)(VOID *, UCHAR *, UCHAR *, UINT))_nx_crypto_aes_encrypt,
+                                                 ctx -> nx_crypto_aes_mode_context.gcm.nx_crypto_gcm_additional_data,
+                                                 ctx -> nx_crypto_aes_mode_context.gcm.nx_crypto_gcm_additional_data_len,
+                                                 iv_ptr, NX_CRYPTO_AES_BLOCK_SIZE);
+
+            if (status)
+            {
+                break;
+            }
+
+            status = _nx_crypto_gcm_decrypt_update(ctx, &(ctx -> nx_crypto_aes_mode_context.gcm),
+                                                   (UINT (*)(VOID *, UCHAR *, UCHAR *, UINT))_nx_crypto_aes_encrypt,
+                                                   input, output, message_len,
+                                                   NX_CRYPTO_AES_BLOCK_SIZE);
+
+            if (status)
+            {
+                break;
+            }
+
+            status = _nx_crypto_gcm_decrypt_calculate(ctx, &(ctx -> nx_crypto_aes_mode_context.gcm),
+                                                      (UINT (*)(VOID *, UCHAR *, UCHAR *, UINT))_nx_crypto_aes_encrypt,
+                                                      input + message_len, icv_len,
+                                                      NX_CRYPTO_AES_BLOCK_SIZE);
+        } break;
+
+        case NX_CRYPTO_ENCRYPT:
+        {
+            if (iv_ptr == NX_CRYPTO_NULL ||
+                (ctx -> nx_crypto_aes_mode_context.gcm.nx_crypto_gcm_additional_data_len > 0 &&
+                 ctx -> nx_crypto_aes_mode_context.gcm.nx_crypto_gcm_additional_data == NX_CRYPTO_NULL))
+            {
+                status = NX_CRYPTO_PTR_ERROR;
+                break;
+            }
+
+            icv_len = (method -> nx_crypto_ICV_size_in_bits >> 3);
+
+            if (output_length_in_byte < input_length_in_byte + icv_len)
+            {
+                status = NX_CRYPTO_INVALID_BUFFER_SIZE;
+                break;
+            }
+
+            status = _nx_crypto_gcm_encrypt_init(ctx, &(ctx -> nx_crypto_aes_mode_context.gcm),
+                                                 (UINT (*)(VOID *, UCHAR *, UCHAR *, UINT))_nx_crypto_aes_encrypt,
+                                                 ctx -> nx_crypto_aes_mode_context.gcm.nx_crypto_gcm_additional_data,
+                                                 ctx -> nx_crypto_aes_mode_context.gcm.nx_crypto_gcm_additional_data_len,
+                                                 iv_ptr, NX_CRYPTO_AES_BLOCK_SIZE);
+
+            if (status)
+            {
+                break;
+            }
+
+            status = _nx_crypto_gcm_encrypt_update(ctx, &(ctx -> nx_crypto_aes_mode_context.gcm),
+                                                   (UINT (*)(VOID *, UCHAR *, UCHAR *, UINT))_nx_crypto_aes_encrypt,
+                                                   input, output, input_length_in_byte,
+                                                   NX_CRYPTO_AES_BLOCK_SIZE);
+
+            if (status)
+            {
+                break;
+            }
+
+            status = _nx_crypto_gcm_encrypt_calculate(ctx, &(ctx -> nx_crypto_aes_mode_context.gcm),
+                                                      (UINT (*)(VOID *, UCHAR *, UCHAR *, UINT))_nx_crypto_aes_encrypt,
+                                                      output + input_length_in_byte, icv_len,
+                                                      NX_CRYPTO_AES_BLOCK_SIZE);
+        } break;
+
+        case NX_CRYPTO_DECRYPT_INITIALIZE:
+        {
+            if (iv_ptr == NX_CRYPTO_NULL)
+            {
+                status = NX_CRYPTO_PTR_ERROR;
+                break;
+            }
+
+            status = _nx_crypto_gcm_decrypt_init(ctx, &(ctx -> nx_crypto_aes_mode_context.gcm),
+                                                 (UINT (*)(VOID *, UCHAR *, UCHAR *, UINT))_nx_crypto_aes_encrypt,
+                                                 input, /* pointers to AAD */
+                                                 input_length_in_byte, /* length of AAD */
+                                                 iv_ptr, NX_CRYPTO_AES_BLOCK_SIZE);
+        } break;
+
+        case NX_CRYPTO_DECRYPT_UPDATE:
+        {
+            status = _nx_crypto_gcm_decrypt_update(ctx, &(ctx -> nx_crypto_aes_mode_context.gcm),
+                                                   (UINT (*)(VOID *, UCHAR *, UCHAR *, UINT))_nx_crypto_aes_encrypt,
+                                                   input, output, input_length_in_byte,
+                                                   NX_CRYPTO_AES_BLOCK_SIZE);
+        } break;
+
+        case NX_CRYPTO_DECRYPT_CALCULATE:
+        {
+            icv_len = (method -> nx_crypto_ICV_size_in_bits >> 3);
+            if (input_length_in_byte < icv_len)
+            {
+                status = NX_CRYPTO_INVALID_BUFFER_SIZE;
+                break;
+            }
+
+            status = _nx_crypto_gcm_decrypt_calculate(ctx, &(ctx -> nx_crypto_aes_mode_context.gcm),
+                                                      (UINT (*)(VOID *, UCHAR *, UCHAR *, UINT))_nx_crypto_aes_encrypt,
+                                                      input, icv_len,
+                                                      NX_CRYPTO_AES_BLOCK_SIZE);
+        } break;
+
+        case NX_CRYPTO_ENCRYPT_INITIALIZE:
+        {
+            if (iv_ptr == NX_CRYPTO_NULL)
+            {
+                status = NX_CRYPTO_PTR_ERROR;
+                break;
+            }
+
+            status = _nx_crypto_gcm_encrypt_init(ctx, &(ctx -> nx_crypto_aes_mode_context.gcm),
+                                                 (UINT (*)(VOID *, UCHAR *, UCHAR *, UINT))_nx_crypto_aes_encrypt,
+                                                 input, /* pointers to AAD */
+                                                 input_length_in_byte, /* length of AAD */
+                                                 iv_ptr, NX_CRYPTO_AES_BLOCK_SIZE);
+        } break;
+
+        case NX_CRYPTO_ENCRYPT_UPDATE:
+        {
+            status = _nx_crypto_gcm_encrypt_update(ctx, &(ctx -> nx_crypto_aes_mode_context.gcm),
+                                                   (UINT (*)(VOID *, UCHAR *, UCHAR *, UINT))_nx_crypto_aes_encrypt,
+                                                   input, output, input_length_in_byte,
+                                                   NX_CRYPTO_AES_BLOCK_SIZE);
+        } break;
+
+        case NX_CRYPTO_ENCRYPT_CALCULATE:
+        {
+            icv_len = (method -> nx_crypto_ICV_size_in_bits >> 3);
+            if (output_length_in_byte < icv_len)
+            {
+                status = NX_CRYPTO_INVALID_BUFFER_SIZE;
+                break;
+            }
+
+            status = _nx_crypto_gcm_encrypt_calculate(ctx, &(ctx -> nx_crypto_aes_mode_context.gcm),
+                                                      (UINT (*)(VOID *, UCHAR *, UCHAR *, UINT))_nx_crypto_aes_encrypt,
+                                                      output, icv_len,
+                                                      NX_CRYPTO_AES_BLOCK_SIZE);
+        } break;
+
+        case NX_CRYPTO_SET_ADDITIONAL_DATA:
+        {
+
+            /* Set additonal data pointer.  */
+            ctx -> nx_crypto_aes_mode_context.gcm.nx_crypto_gcm_additional_data = (VOID *)input;
+
+            /* Set additional data length.  */
+            ctx -> nx_crypto_aes_mode_context.gcm.nx_crypto_gcm_additional_data_len = input_length_in_byte;
+
+            status = NX_CRYPTO_SUCCESS;
+        } break;
+
+        default:
+        {
+            status = NX_CRYPTO_INVALID_ALGORITHM;
+        } break;
+    }
+
+    return(status);
 }
 
 /**************************************************************************/
@@ -2279,10 +2696,10 @@ UINT    status;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_method_aes_ctr_operation                 PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -2323,7 +2740,7 @@ UINT    status;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  08-15-2019     Timothy Stapko           Initial Version 5.12          */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP UINT  _nx_crypto_method_aes_ctr_operation(UINT op,      /* Encrypt, Decrypt, Authenticate */
@@ -2342,40 +2759,82 @@ NX_CRYPTO_KEEP UINT  _nx_crypto_method_aes_ctr_operation(UINT op,      /* Encryp
                                                          VOID (*nx_crypto_hw_process_callback)(VOID *packet_ptr, UINT status))
 {
 
-NX_CRYPTO_AES  *ctx;
-UCHAR           key_size_in_bytes;
-UINT            status;
+NX_CRYPTO_AES      *ctx;
+UINT                status;
 
-    NX_PARAMETER_NOT_USED(op);
-    NX_PARAMETER_NOT_USED(handle);
-    NX_PARAMETER_NOT_USED(output_length_in_byte);
-    NX_PARAMETER_NOT_USED(packet_ptr);
-    NX_PARAMETER_NOT_USED(nx_crypto_hw_process_callback);
+    NX_CRYPTO_PARAMETER_NOT_USED(op);
+    NX_CRYPTO_PARAMETER_NOT_USED(handle);
+    NX_CRYPTO_PARAMETER_NOT_USED(output_length_in_byte);
+    NX_CRYPTO_PARAMETER_NOT_USED(packet_ptr);
+    NX_CRYPTO_PARAMETER_NOT_USED(nx_crypto_hw_process_callback);
     
     NX_CRYPTO_STATE_CHECK
 
     /* Verify the metadata addrsss is 4-byte aligned. */
-    if((method == NX_NULL) || (key == NX_NULL) || (crypto_metadata == NX_NULL) || ((((ULONG)crypto_metadata) & 0x3) != 0))
+    if((method == NX_CRYPTO_NULL) || (crypto_metadata == NX_CRYPTO_NULL) || ((((ULONG)crypto_metadata) & 0x3) != 0))
     {
-        return(NX_PTR_ERROR);
+        return(NX_CRYPTO_PTR_ERROR);
     }
 
     if(crypto_metadata_size < sizeof(NX_CRYPTO_AES))
     {
-        return(NX_PTR_ERROR);
+        return(NX_CRYPTO_PTR_ERROR);
     }
 
     ctx = (NX_CRYPTO_AES *)crypto_metadata;
 
-    key_size_in_bytes = (UCHAR)(key_size_in_bits >> 3);
+    switch (op)
+    {
+        case NX_CRYPTO_ENCRYPT:
+        /* fallthrough */
+        case NX_CRYPTO_DECRYPT:
+        {
+            status = _nx_crypto_ctr_encrypt_init(&(ctx -> nx_crypto_aes_mode_context.ctr),
+                                                 iv_ptr, 8, &key[key_size_in_bits >> 3], 4);
+            if (status)
+            {
+                break;
+            }
 
-    status = _nx_crypto_ctr_encrypt(ctx,
-                                    (UINT (*)(VOID *, UCHAR *, UCHAR *, UINT))_nx_crypto_aes_encrypt,
-                                    NX_NULL,
-                                    &key[key_size_in_bytes], NX_NULL,
-                                    input, output, input_length_in_byte,
-                                    iv_ptr, NX_NULL,
-                                    NX_CRYPTO_AES_BLOCK_SIZE);
+            status = _nx_crypto_ctr_encrypt(ctx, &(ctx -> nx_crypto_aes_mode_context.ctr),
+                                            (UINT (*)(VOID *, UCHAR *, UCHAR *, UINT))_nx_crypto_aes_encrypt,
+                                            input, output, input_length_in_byte,
+                                            NX_CRYPTO_AES_BLOCK_SIZE);
+        } break;
+
+        case NX_CRYPTO_ENCRYPT_INITIALIZE:
+        /* fallthrough */
+        case NX_CRYPTO_DECRYPT_INITIALIZE:
+        {
+            status = _nx_crypto_ctr_encrypt_init(&(ctx -> nx_crypto_aes_mode_context.ctr),
+                                                 iv_ptr, 8, input, /* input pointers to nonce */
+                                                 input_length_in_byte);
+        } break;
+
+        case NX_CRYPTO_ENCRYPT_UPDATE:
+        /* fallthrough */
+        case NX_CRYPTO_DECRYPT_UPDATE:
+        {
+            status = _nx_crypto_ctr_encrypt(ctx, &(ctx -> nx_crypto_aes_mode_context.ctr),
+                                            (UINT (*)(VOID *, UCHAR *, UCHAR *, UINT))_nx_crypto_aes_encrypt,
+                                            input, output, input_length_in_byte,
+                                            NX_CRYPTO_AES_BLOCK_SIZE);
+        } break;
+
+        case NX_CRYPTO_ENCRYPT_CALCULATE:
+        /* fallthrough */
+        case NX_CRYPTO_DECRYPT_CALCULATE:
+        {
+
+            /* Nothing to do. */
+            status = NX_CRYPTO_SUCCESS;
+        } break;
+
+        default:
+        {
+            status = NX_CRYPTO_INVALID_ALGORITHM;
+        } break;
+    }
 
     return status;
 }
@@ -2385,10 +2844,10 @@ UINT            status;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_method_aes_xcbc_operation                PORTABLE C      */
-/*                                                          5.12          */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -2429,7 +2888,7 @@ UINT            status;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  08-15-2019     Timothy Stapko           Initial Version 5.12          */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP UINT  _nx_crypto_method_aes_xcbc_operation(UINT op,      /* Encrypt, Decrypt, Authenticate */
@@ -2451,24 +2910,24 @@ NX_CRYPTO_KEEP UINT  _nx_crypto_method_aes_xcbc_operation(UINT op,      /* Encry
 NX_CRYPTO_AES  *ctx;
 UINT            status;
 
-    NX_PARAMETER_NOT_USED(op);
-    NX_PARAMETER_NOT_USED(handle);
-    NX_PARAMETER_NOT_USED(iv_ptr);
-    NX_PARAMETER_NOT_USED(output_length_in_byte);
-    NX_PARAMETER_NOT_USED(packet_ptr);
-    NX_PARAMETER_NOT_USED(nx_crypto_hw_process_callback);
+    NX_CRYPTO_PARAMETER_NOT_USED(op);
+    NX_CRYPTO_PARAMETER_NOT_USED(handle);
+    NX_CRYPTO_PARAMETER_NOT_USED(iv_ptr);
+    NX_CRYPTO_PARAMETER_NOT_USED(output_length_in_byte);
+    NX_CRYPTO_PARAMETER_NOT_USED(packet_ptr);
+    NX_CRYPTO_PARAMETER_NOT_USED(nx_crypto_hw_process_callback);
 
     NX_CRYPTO_STATE_CHECK
 
     /* Verify the metadata addrsss is 4-byte aligned. */
-    if((method == NX_NULL) || (key == NX_NULL) || (crypto_metadata == NX_NULL) || ((((ULONG)crypto_metadata) & 0x3) != 0))
+    if((method == NX_CRYPTO_NULL) || (key == NX_CRYPTO_NULL) || (crypto_metadata == NX_CRYPTO_NULL) || ((((ULONG)crypto_metadata) & 0x3) != 0))
     {
-        return(NX_PTR_ERROR);
+        return(NX_CRYPTO_PTR_ERROR);
     }
 
     if(crypto_metadata_size < sizeof(NX_CRYPTO_AES))
     {
-        return(NX_PTR_ERROR);
+        return(NX_CRYPTO_PTR_ERROR);
     }
 
     ctx = (NX_CRYPTO_AES *)crypto_metadata;
@@ -2478,7 +2937,7 @@ UINT            status;
                                  (UINT (*)(VOID *, UCHAR *, UINT))_nx_crypto_aes_key_set,
                                  key, key_size_in_bits,
                                  input, output, input_length_in_byte,
-                                 NX_NULL, NX_CRYPTO_AUTHENTICATION_ICV_TRUNC_BITS >> 3,
+                                 NX_CRYPTO_NULL, NX_CRYPTO_AUTHENTICATION_ICV_TRUNC_BITS >> 3,
                                  NX_CRYPTO_AES_BLOCK_SIZE);
 
     return status;

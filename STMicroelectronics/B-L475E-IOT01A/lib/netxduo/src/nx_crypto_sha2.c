@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -32,7 +20,6 @@
 /**************************************************************************/
 /**************************************************************************/
 
-#include "nx_api.h"
 #include "nx_crypto_sha2.h"
 
 /* Constants used in the SHA-256 digest calculation. */
@@ -69,11 +56,11 @@ const UCHAR   _nx_crypto_sha256_padding[64] = {0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_sha256_initialize                        PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*                                                                        */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -100,19 +87,15 @@ const UCHAR   _nx_crypto_sha256_padding[64] = {0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP UINT  _nx_crypto_sha256_initialize(NX_CRYPTO_SHA256 *context, UINT algorithm )
 {
     /* Determine if the context is non-null.  */
-    if (context == NX_NULL)
+    if (context == NX_CRYPTO_NULL)
     {
-        return(NX_PTR_ERROR);
+        return(NX_CRYPTO_PTR_ERROR);
     }
 
     /* First, clear the bit count for this context.  */
@@ -120,7 +103,6 @@ NX_CRYPTO_KEEP UINT  _nx_crypto_sha256_initialize(NX_CRYPTO_SHA256 *context, UIN
     context -> nx_sha256_bit_count[1] =  0;                   /* Clear the upper 32-bits of the count.*/
 
     if ((algorithm == NX_CRYPTO_AUTHENTICATION_HMAC_SHA2_256) ||
-        (algorithm == NX_CRYPTO_PRF_HMAC_SHA2_256) ||
         (algorithm == NX_CRYPTO_HASH_SHA256))
     {
 
@@ -158,11 +140,11 @@ NX_CRYPTO_KEEP UINT  _nx_crypto_sha256_initialize(NX_CRYPTO_SHA256 *context, UIN
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_sha256_update                            PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*                                                                        */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -193,11 +175,7 @@ NX_CRYPTO_KEEP UINT  _nx_crypto_sha256_initialize(NX_CRYPTO_SHA256 *context, UIN
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP UINT _nx_crypto_sha256_update(NX_CRYPTO_SHA256 *context, UCHAR *input_ptr, UINT input_length)
@@ -206,9 +184,9 @@ ULONG current_bytes;
 ULONG needed_fill_bytes;
 
     /* Determine if the context is non-null.  */
-    if (context == NX_NULL)
+    if (context == NX_CRYPTO_NULL)
     {
-        return(NX_PTR_ERROR);
+        return(NX_CRYPTO_PTR_ERROR);
     }
 
     /* Determine if there is a length.  */
@@ -288,11 +266,11 @@ ULONG needed_fill_bytes;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_sha256_digest_calculate                  PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*                                                                        */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -322,11 +300,7 @@ ULONG needed_fill_bytes;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP UINT _nx_crypto_sha256_digest_calculate(NX_CRYPTO_SHA256 *context, UCHAR *digest, UINT algorithm)
@@ -388,7 +362,6 @@ ULONG padding_bytes;
     digest[26] =  (UCHAR)(context -> nx_sha256_states[6] >> 8);
     digest[27] =  (UCHAR)(context -> nx_sha256_states[6]);
     if ((algorithm == NX_CRYPTO_AUTHENTICATION_HMAC_SHA2_256) ||
-        (algorithm == NX_CRYPTO_PRF_HMAC_SHA2_256) ||
         (algorithm == NX_CRYPTO_HASH_SHA256))
     {
         digest[28] =  (UCHAR)(context -> nx_sha256_states[7] >> 24);
@@ -411,11 +384,11 @@ ULONG padding_bytes;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_sha256_process_buffer                    PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*                                                                        */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -444,11 +417,7 @@ ULONG padding_bytes;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP VOID _nx_crypto_sha256_process_buffer(NX_CRYPTO_SHA256 *context, UCHAR buffer[64])
@@ -525,10 +494,10 @@ ULONG  a, b, c, d, e, f, g, h;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_method_sha256_init                       PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -560,7 +529,7 @@ ULONG  a, b, c, d, e, f, g, h;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  08-15-2019     Timothy Stapko           Initial Version 5.12          */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP UINT  _nx_crypto_method_sha256_init(struct  NX_CRYPTO_METHOD_STRUCT *method,
@@ -570,26 +539,26 @@ NX_CRYPTO_KEEP UINT  _nx_crypto_method_sha256_init(struct  NX_CRYPTO_METHOD_STRU
                                                    ULONG crypto_metadata_size)
 {
 
-    NX_PARAMETER_NOT_USED(key);
-    NX_PARAMETER_NOT_USED(key_size_in_bits);
-    NX_PARAMETER_NOT_USED(handle);
+    NX_CRYPTO_PARAMETER_NOT_USED(key);
+    NX_CRYPTO_PARAMETER_NOT_USED(key_size_in_bits);
+    NX_CRYPTO_PARAMETER_NOT_USED(handle);
 
     NX_CRYPTO_STATE_CHECK
 
-    if ((method == NX_NULL) || (crypto_metadata == NX_NULL))
+    if ((method == NX_CRYPTO_NULL) || (crypto_metadata == NX_CRYPTO_NULL))
     {
-        return(NX_PTR_ERROR);
+        return(NX_CRYPTO_PTR_ERROR);
     }
 
     /* Verify the metadata addrsss is 4-byte aligned. */
     if((((ULONG)crypto_metadata) & 0x3) != 0)
     {
-        return(NX_PTR_ERROR);
+        return(NX_CRYPTO_PTR_ERROR);
     }
 
     if(crypto_metadata_size < sizeof(NX_CRYPTO_SHA256))
     {
-        return(NX_PTR_ERROR);
+        return(NX_CRYPTO_PTR_ERROR);
     }
 
     return(NX_CRYPTO_SUCCESS);
@@ -601,10 +570,10 @@ NX_CRYPTO_KEEP UINT  _nx_crypto_method_sha256_init(struct  NX_CRYPTO_METHOD_STRU
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_method_sha256_cleanup                    PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -630,7 +599,7 @@ NX_CRYPTO_KEEP UINT  _nx_crypto_method_sha256_init(struct  NX_CRYPTO_METHOD_STRU
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  08-15-2019     Timothy Stapko           Initial Version 5.12          */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP UINT  _nx_crypto_method_sha256_cleanup(VOID *crypto_metadata)
@@ -645,7 +614,7 @@ NX_CRYPTO_KEEP UINT  _nx_crypto_method_sha256_cleanup(VOID *crypto_metadata)
     /* Clean up the crypto metadata.  */
     NX_CRYPTO_MEMSET(crypto_metadata, 0, sizeof(NX_CRYPTO_SHA256));
 #else
-    NX_PARAMETER_NOT_USED(crypto_metadata);
+    NX_CRYPTO_PARAMETER_NOT_USED(crypto_metadata);
 #endif/* NX_SECURE_KEY_CLEAR  */
 
     return(NX_CRYPTO_SUCCESS);
@@ -657,10 +626,10 @@ NX_CRYPTO_KEEP UINT  _nx_crypto_method_sha256_cleanup(VOID *crypto_metadata)
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_method_sha256_operation                 PORTABLE C       */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -703,11 +672,7 @@ NX_CRYPTO_KEEP UINT  _nx_crypto_method_sha256_cleanup(VOID *crypto_metadata)
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP UINT  _nx_crypto_method_sha256_operation(UINT op,      /* Encrypt, Decrypt, Authenticate */
@@ -727,44 +692,39 @@ NX_CRYPTO_KEEP UINT  _nx_crypto_method_sha256_operation(UINT op,      /* Encrypt
 {
 NX_CRYPTO_SHA256 *ctx;
 
-    NX_PARAMETER_NOT_USED(handle);
-    NX_PARAMETER_NOT_USED(key);
-    NX_PARAMETER_NOT_USED(key_size_in_bits);
-    NX_PARAMETER_NOT_USED(iv_ptr);
-    NX_PARAMETER_NOT_USED(packet_ptr);
-    NX_PARAMETER_NOT_USED(nx_crypto_hw_process_callback);
+    NX_CRYPTO_PARAMETER_NOT_USED(handle);
+    NX_CRYPTO_PARAMETER_NOT_USED(key);
+    NX_CRYPTO_PARAMETER_NOT_USED(key_size_in_bits);
+    NX_CRYPTO_PARAMETER_NOT_USED(iv_ptr);
+    NX_CRYPTO_PARAMETER_NOT_USED(packet_ptr);
+    NX_CRYPTO_PARAMETER_NOT_USED(nx_crypto_hw_process_callback);
 
     NX_CRYPTO_STATE_CHECK
 
-    if (method == NX_NULL)
+    if (method == NX_CRYPTO_NULL)
     {
-        return(NX_PTR_ERROR);
+        return(NX_CRYPTO_PTR_ERROR);
     }
 
     /* Verify the metadata addrsss is 4-byte aligned. */
-    if((crypto_metadata == NX_NULL) || ((((ULONG)crypto_metadata) & 0x3) != 0))
+    if((crypto_metadata == NX_CRYPTO_NULL) || ((((ULONG)crypto_metadata) & 0x3) != 0))
     {
-        return(NX_PTR_ERROR);
+        return(NX_CRYPTO_PTR_ERROR);
     }
 
     if(crypto_metadata_size < sizeof(NX_CRYPTO_SHA256))
     {
-        return(NX_PTR_ERROR);
+        return(NX_CRYPTO_PTR_ERROR);
     }
 
     ctx = (NX_CRYPTO_SHA256 *)crypto_metadata;
-
-    if (method == NX_NULL)
-    {
-        return(NX_PTR_ERROR);
-    }
 
     if ((method -> nx_crypto_algorithm != NX_CRYPTO_AUTHENTICATION_HMAC_SHA2_256) &&
         (method -> nx_crypto_algorithm != NX_CRYPTO_HASH_SHA224) &&
         (method -> nx_crypto_algorithm != NX_CRYPTO_HASH_SHA256))
     {
         /* Incorrect method. */
-        return(NX_NOT_SUCCESSFUL);
+        return(NX_CRYPTO_NOT_SUCCESSFUL);
     }
 
     switch (op)
@@ -779,7 +739,6 @@ NX_CRYPTO_SHA256 *ctx;
 
     case NX_CRYPTO_HASH_CALCULATE:
         if ((method -> nx_crypto_algorithm == NX_CRYPTO_AUTHENTICATION_HMAC_SHA2_256) ||
-            (method -> nx_crypto_algorithm == NX_CRYPTO_PRF_HMAC_SHA2_256) ||
             (method -> nx_crypto_algorithm == NX_CRYPTO_HASH_SHA256))
         {
             if(output_length_in_byte < 32)
@@ -793,7 +752,6 @@ NX_CRYPTO_SHA256 *ctx;
 
     default:
         if ((method -> nx_crypto_algorithm == NX_CRYPTO_AUTHENTICATION_HMAC_SHA2_256) ||
-            (method -> nx_crypto_algorithm == NX_CRYPTO_PRF_HMAC_SHA2_256) ||
             (method -> nx_crypto_algorithm == NX_CRYPTO_HASH_SHA256))
         {
             if(output_length_in_byte < 32)

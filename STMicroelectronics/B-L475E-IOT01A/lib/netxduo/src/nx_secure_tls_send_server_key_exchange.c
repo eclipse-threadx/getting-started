@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -41,10 +29,10 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_tls_send_server_key_exchange             PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -63,6 +51,8 @@
 /*                                                                        */
 /*  CALLS                                                                 */
 /*                                                                        */
+/*    _nx_secure_tlx_ecc_generate_keys      Generate keys for ECC exchange*/
+/*    [nx_crypto_init]                      Initialize Crypto Method      */
 /*    [nx_crypto_operation]                 Crypto operation              */
 /*                                                                        */
 /*  CALLED BY                                                             */
@@ -74,19 +64,7 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-09-2017     Timothy Stapko           Initial Version 5.10          */
-/*  12-15-2017     Timothy Stapko           Modified comment(s),          */
-/*                                            supported ECJPAKE, optimized*/
-/*                                            the logic,                  */
-/*                                            resulting in version 5.11   */
-/*  08-15-2019     Timothy Stapko           Modified comment(s), added    */
-/*                                            elliptic curve cryptography,*/
-/*                                            support, fix swapped PSK    */
-/*                                            parameter, improved packet  */
-/*                                            length verification, fixed  */
-/*                                            endian issue, removed       */
-/*                                            cipher suite lookup,        */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 UINT _nx_secure_tls_send_server_key_exchange(NX_SECURE_TLS_SESSION *tls_session,
@@ -94,21 +72,29 @@ UINT _nx_secure_tls_send_server_key_exchange(NX_SECURE_TLS_SESSION *tls_session,
 {
 UINT                                  length;
 const NX_SECURE_TLS_CIPHERSUITE_INFO *ciphersuite;
+#if defined(NX_SECURE_ENABLE_ECJPAKE_CIPHERSUITE) || defined(NX_SECURE_ENABLE_ECC_CIPHERSUITE)
+UINT                                  status;
+#endif /* defined(NX_SECURE_ENABLE_ECJPAKE_CIPHERSUITE) || defined(NX_SECURE_ENABLE_ECC_CIPHERSUITE) */
 
-#if defined(NX_SECURE_ENABLE_PSK_CIPHERSUITES) || defined(NX_SECURE_ENABLE_ECJPAKE_CIPHERSUITE)
+#if defined(NX_SECURE_ENABLE_PSK_CIPHERSUITES) || defined(NX_SECURE_ENABLE_ECJPAKE_CIPHERSUITE) || defined(NX_SECURE_ENABLE_ECC_CIPHERSUITE)
 UCHAR *packet_buffer;
-#endif /* defined(NX_SECURE_ENABLE_PSK_CIPHERSUITES) || defined(NX_SECURE_ENABLE_ECJPAKE_CIPHERSUITE) */
+#endif /* defined(NX_SECURE_ENABLE_PSK_CIPHERSUITES) || defined(NX_SECURE_ENABLE_ECJPAKE_CIPHERSUITE) || defined(NX_SECURE_ENABLE_ECC_CIPHERSUITE) */
+
 #ifdef NX_SECURE_ENABLE_PSK_CIPHERSUITES
 USHORT identity_length;
 UCHAR *identity;
 #endif
 
-#ifdef NX_SECURE_ENABLE_ECJPAKE_CIPHERSUITE
-UINT              status;
+#if defined(NX_SECURE_ENABLE_ECJPAKE_CIPHERSUITE)
 USHORT            named_curve;
 NX_CRYPTO_METHOD *crypto_method;
 NX_CRYPTO_EXTENDED_OUTPUT extended_output;
+#endif /* defined(NX_SECURE_ENABLE_ECJPAKE_CIPHERSUITE) */
+
+#ifdef NX_SECURE_ENABLE_ECC_CIPHERSUITE
+NX_SECURE_TLS_ECDHE_HANDSHAKE_DATA   *ecdhe_data;
 #endif
+
 
     /* Build up the server key exchange message. Structure:
      * |        2        |  <key data length>  |
@@ -194,7 +180,7 @@ NX_CRYPTO_EXTENDED_OUTPUT extended_output;
             (ULONG)send_packet -> nx_packet_data_end - (ULONG)&packet_buffer[length];
         extended_output.nx_crypto_extended_output_actual_size = 0;
 
-        crypto_method = ciphersuite -> nx_secure_tls_public_auth;
+        crypto_method = (NX_CRYPTO_METHOD*)ciphersuite -> nx_secure_tls_public_auth;
         status = crypto_method -> nx_crypto_operation(NX_CRYPTO_ECJPAKE_SERVER_KEY_EXCHANGE_GENERATE,
                                                       &tls_session -> nx_secure_public_auth_handler,
                                                       crypto_method,
@@ -212,6 +198,25 @@ NX_CRYPTO_EXTENDED_OUTPUT extended_output;
         length += extended_output.nx_crypto_extended_output_actual_size;
     }
 #endif
+
+#ifdef NX_SECURE_ENABLE_ECC_CIPHERSUITE
+    /* Check for ECDHE ciphersuites. */
+    if (ciphersuite -> nx_secure_tls_public_cipher -> nx_crypto_algorithm == NX_CRYPTO_KEY_EXCHANGE_ECDHE)
+    {
+        ecdhe_data = (NX_SECURE_TLS_ECDHE_HANDSHAKE_DATA *)tls_session -> nx_secure_tls_key_material.nx_secure_tls_new_key_material_data;
+
+        packet_buffer = send_packet -> nx_packet_append_ptr;
+        length = (UINT)(send_packet->nx_packet_data_end - send_packet->nx_packet_append_ptr);
+
+        status = _nx_secure_tls_ecc_generate_keys(tls_session, ecdhe_data -> nx_secure_tls_ecdhe_named_curve, NX_TRUE,
+                                                  packet_buffer, &length, ecdhe_data);
+
+        if (status != NX_SUCCESS)
+        {
+            return(status);
+        }
+    }
+#endif /* NX_SECURE_ENABLE_ECC_CIPHERSUITE */
 
 
     /* Finally, we have a complete length and can adjust our packet accordingly. */

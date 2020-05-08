@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -45,10 +33,10 @@ static INT _nx_secure_x509_distinguished_name_field_compare(const UCHAR *field1,
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_x509_distinguished_name_compare          PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -97,15 +85,7 @@ static INT _nx_secure_x509_distinguished_name_field_compare(const UCHAR *field1,
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-09-2017     Timothy Stapko           Initial Version 5.10          */
-/*  12-15-2017     Timothy Stapko           Modified comment(s), added    */
-/*                                            empty name comparison,      */
-/*                                            improved the distinguished  */
-/*                                            name comparison logic,      */
-/*                                            added compare bit fields,   */
-/*                                            resulting in version 5.11   */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 INT _nx_secure_x509_distinguished_name_compare(NX_SECURE_X509_DISTINGUISHED_NAME *name,
@@ -249,10 +229,10 @@ INT status = 0;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_x509_distinguished_name_field_compare    PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -285,12 +265,7 @@ INT status = 0;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s), and      */
-/*                                            added flexibility of using  */
-/*                                            macros instead of direct C  */
-/*                                            library function calls,     */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 static INT _nx_secure_x509_distinguished_name_field_compare(const UCHAR *field1, const UINT length1,

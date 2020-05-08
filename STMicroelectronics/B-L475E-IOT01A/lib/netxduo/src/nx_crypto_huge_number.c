@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -45,10 +33,10 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_huge_number_is_zero                      PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -60,8 +48,8 @@
 /*                                                                        */
 /*  OUTPUT                                                                */
 /*                                                                        */
-/*    Status                                NX_TRUE: x is zero            */
-/*                                          NX_FALSE: x is nonzero        */
+/*    Status                                NX_CRYPTO_TRUE: x is zero     */
+/*                                          NX_CRYPTO_FALSE: x is nonzero */
 /*                                                                        */
 /*  CALLS                                                                 */
 /*                                                                        */
@@ -91,11 +79,7 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP UINT _nx_crypto_huge_number_is_zero(NX_CRYPTO_HUGE_NUMBER *x)
@@ -108,12 +92,12 @@ UINT i;
         {
 
             /* Found one value that is not zero. */
-            return(NX_FALSE);
+            return(NX_CRYPTO_FALSE);
         }
     }
 
     /* All values are zero. */
-    return(NX_TRUE);
+    return(NX_CRYPTO_TRUE);
 }
 
 /**************************************************************************/
@@ -121,10 +105,10 @@ UINT i;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_huge_number_add                          PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -178,11 +162,7 @@ UINT i;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP VOID _nx_crypto_huge_number_add(NX_CRYPTO_HUGE_NUMBER *left, NX_CRYPTO_HUGE_NUMBER *right)
@@ -219,10 +199,10 @@ UINT cmp;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_huge_number_subtract                     PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -275,11 +255,7 @@ UINT cmp;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP VOID _nx_crypto_huge_number_subtract(NX_CRYPTO_HUGE_NUMBER *left, NX_CRYPTO_HUGE_NUMBER *right)
@@ -317,10 +293,10 @@ UINT cmp;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_huge_number_add_unsigned                 PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -358,11 +334,7 @@ UINT cmp;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP VOID _nx_crypto_huge_number_add_unsigned(NX_CRYPTO_HUGE_NUMBER *left, NX_CRYPTO_HUGE_NUMBER *right)
@@ -427,10 +399,10 @@ UINT      right_size;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_huge_number_subtract_unsigned            PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -465,11 +437,7 @@ UINT      right_size;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP VOID _nx_crypto_huge_number_subtract_unsigned(NX_CRYPTO_HUGE_NUMBER *left,
@@ -511,10 +479,10 @@ HN_UBASE *result_buffer = result -> nx_crypto_huge_number_data;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_huge_number_add_digit_unsigned           PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -545,11 +513,7 @@ HN_UBASE *result_buffer = result -> nx_crypto_huge_number_data;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP VOID _nx_crypto_huge_number_add_digit_unsigned(NX_CRYPTO_HUGE_NUMBER *value, HN_UBASE digit)
@@ -582,10 +546,10 @@ UINT      size = value -> nx_crypto_huge_number_size;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_huge_number_subtract_digit_unsigned      PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -622,11 +586,7 @@ UINT      size = value -> nx_crypto_huge_number_size;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP VOID _nx_crypto_huge_number_subtract_digit_unsigned(NX_CRYPTO_HUGE_NUMBER *value, HN_UBASE digit)
@@ -654,10 +614,10 @@ UINT      size = value -> nx_crypto_huge_number_size;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_huge_number_left                         PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -687,11 +647,7 @@ UINT      size = value -> nx_crypto_huge_number_size;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP VOID _nx_crypto_huge_number_shift_left(NX_CRYPTO_HUGE_NUMBER *x, UINT shift)
@@ -719,10 +675,10 @@ HN_UBASE *x_buffer = x -> nx_crypto_huge_number_data;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_huge_number_shift_right                  PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -759,11 +715,7 @@ HN_UBASE *x_buffer = x -> nx_crypto_huge_number_data;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP VOID _nx_crypto_huge_number_shift_right(NX_CRYPTO_HUGE_NUMBER *x, UINT shift)
@@ -786,10 +738,10 @@ HN_UBASE *x_buffer = x -> nx_crypto_huge_number_data;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_huge_number_adjust_size                  PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -830,11 +782,7 @@ HN_UBASE *x_buffer = x -> nx_crypto_huge_number_data;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP VOID _nx_crypto_huge_number_adjust_size(NX_CRYPTO_HUGE_NUMBER *val)
@@ -856,7 +804,7 @@ INT size;
     }
 
     /* The result is zero. */
-    val -> nx_crypto_huge_number_is_negative = NX_FALSE;
+    val -> nx_crypto_huge_number_is_negative = NX_CRYPTO_FALSE;
     val -> nx_crypto_huge_number_size = 1;
 }
 
@@ -865,10 +813,10 @@ INT size;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_huge_number_compare                      PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -918,11 +866,7 @@ INT size;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP UINT _nx_crypto_huge_number_compare(NX_CRYPTO_HUGE_NUMBER *left, NX_CRYPTO_HUGE_NUMBER *right)
@@ -955,10 +899,10 @@ NX_CRYPTO_KEEP UINT _nx_crypto_huge_number_compare(NX_CRYPTO_HUGE_NUMBER *left, 
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_huge_number_compare_unsigned             PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -1011,11 +955,7 @@ NX_CRYPTO_KEEP UINT _nx_crypto_huge_number_compare(NX_CRYPTO_HUGE_NUMBER *left, 
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP UINT _nx_crypto_huge_number_compare_unsigned(NX_CRYPTO_HUGE_NUMBER *left,
@@ -1071,10 +1011,10 @@ UINT right_size;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_huge_number_multiply                     PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -1112,11 +1052,7 @@ UINT right_size;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP VOID _nx_crypto_huge_number_multiply(NX_CRYPTO_HUGE_NUMBER *left,
@@ -1175,11 +1111,11 @@ HN_UBASE *temp_ptr;
     /* Set is_negative. */
     if (left -> nx_crypto_huge_number_is_negative == right -> nx_crypto_huge_number_is_negative)
     {
-        result -> nx_crypto_huge_number_is_negative = NX_FALSE;
+        result -> nx_crypto_huge_number_is_negative = NX_CRYPTO_FALSE;
     }
     else
     {
-        result -> nx_crypto_huge_number_is_negative = NX_TRUE;
+        result -> nx_crypto_huge_number_is_negative = NX_CRYPTO_TRUE;
     }
 
     _nx_crypto_huge_number_adjust_size(result);
@@ -1192,10 +1128,10 @@ HN_UBASE *temp_ptr;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_huge_number_multiply_digit               PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -1225,11 +1161,7 @@ HN_UBASE *temp_ptr;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP VOID _nx_crypto_huge_number_multiply_digit(NX_CRYPTO_HUGE_NUMBER *value,
@@ -1247,7 +1179,7 @@ HN_UBASE *result_buffer;
     {
         result -> nx_crypto_huge_number_data[0] = 0;
         result -> nx_crypto_huge_number_size = 1;
-        result -> nx_crypto_huge_number_is_negative = NX_FALSE;
+        result -> nx_crypto_huge_number_is_negative = NX_CRYPTO_FALSE;
         return;
     }
 
@@ -1282,10 +1214,10 @@ HN_UBASE *result_buffer;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_huge_number_square                       PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -1319,11 +1251,7 @@ HN_UBASE *result_buffer;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP VOID _nx_crypto_huge_number_square(NX_CRYPTO_HUGE_NUMBER *value, NX_CRYPTO_HUGE_NUMBER *result)
@@ -1373,7 +1301,7 @@ UINT      i, j;
         result_buffer[(i << 1) + 1] = product & HN_MASK;
     }
 
-    result -> nx_crypto_huge_number_is_negative = NX_FALSE;
+    result -> nx_crypto_huge_number_is_negative = NX_CRYPTO_FALSE;
     _nx_crypto_huge_number_adjust_size(result);
 }
 
@@ -1382,10 +1310,10 @@ UINT      i, j;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_huge_number_modulus                      PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -1448,12 +1376,7 @@ UINT      i, j;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            static analysis fixes,      */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP VOID _nx_crypto_huge_number_modulus(NX_CRYPTO_HUGE_NUMBER *dividend, NX_CRYPTO_HUGE_NUMBER *divisor)
@@ -1633,10 +1556,10 @@ NX_CRYPTO_HUGE_NUMBER *result;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_huge_number_setup                         PORTABLE C     */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -1692,11 +1615,7 @@ NX_CRYPTO_HUGE_NUMBER *result;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP UINT _nx_crypto_huge_number_setup(NX_CRYPTO_HUGE_NUMBER *number, const UCHAR *byte_stream, UINT size)
@@ -1719,12 +1638,12 @@ UINT      num_words;
     {
         if (number -> nx_crypto_huge_buffer_size < sizeof(HN_UBASE))
         {
-            return(TX_SIZE_ERROR);
+            return(NX_CRYPTO_SIZE_ERROR);
         }
 
         number -> nx_crypto_huge_number_data[0] = 0;
         number -> nx_crypto_huge_number_size = 1;
-        number -> nx_crypto_huge_number_is_negative = NX_FALSE;
+        number -> nx_crypto_huge_number_is_negative = NX_CRYPTO_FALSE;
 
         return(NX_CRYPTO_SUCCESS);
     }
@@ -1734,7 +1653,7 @@ UINT      num_words;
     /* Make sure the huge number buffer size is large enough to hold the value. */
     if (number -> nx_crypto_huge_buffer_size < (num_words << HN_SIZE_SHIFT))
     {
-        return(TX_SIZE_ERROR);
+        return(NX_CRYPTO_SIZE_ERROR);
     }
 
     destination = number -> nx_crypto_huge_number_data + num_words - 1;
@@ -1781,7 +1700,7 @@ UINT      num_words;
     }
 
     number -> nx_crypto_huge_number_size = num_words;
-    number -> nx_crypto_huge_number_is_negative = NX_FALSE;
+    number -> nx_crypto_huge_number_is_negative = NX_CRYPTO_FALSE;
 
     return(NX_CRYPTO_SUCCESS);
 }
@@ -1791,10 +1710,10 @@ UINT      num_words;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_huge_number_rbg                          PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -1822,7 +1741,7 @@ UINT      num_words;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  08-15-2019     Timothy Stapko           Initial Version 5.12          */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP UINT _nx_crypto_huge_number_rbg(UINT bits, UCHAR *result)
@@ -1895,10 +1814,10 @@ UINT mask;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_huge_number_extract                      PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -1948,11 +1867,7 @@ UINT mask;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP UINT _nx_crypto_huge_number_extract(NX_CRYPTO_HUGE_NUMBER *number, UCHAR *byte_stream,
@@ -1967,7 +1882,7 @@ UCHAR    *bytes;
     if ((number -> nx_crypto_huge_number_size << HN_SIZE_SHIFT) > byte_stream_size)
     {
         /* User byte stream buffer too small. */
-        return(NX_NOT_SUCCESSFUL);
+        return(NX_CRYPTO_NOT_SUCCESSFUL);
     }
 
     bytes = byte_stream;
@@ -1997,10 +1912,10 @@ UCHAR    *bytes;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_huge_number_extract_fixed_size           PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -2028,7 +1943,7 @@ UCHAR    *bytes;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  08-15-2019     Timothy Stapko           Initial Version 5.12          */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP UINT _nx_crypto_huge_number_extract_fixed_size(NX_CRYPTO_HUGE_NUMBER *number,
@@ -2074,7 +1989,7 @@ UINT      num_size_adjusted;
     if ((num_size_adjusted << HN_SIZE_SHIFT) - leading_count > byte_stream_size)
     {
         /* User byte stream buffer too small. */
-        return(TX_SIZE_ERROR);
+        return(NX_CRYPTO_SIZE_ERROR);
     }
 
     byte_stream_size -= (num_size_adjusted << HN_SIZE_SHIFT) - leading_count;
@@ -2137,10 +2052,10 @@ UINT      num_size_adjusted;
 /*                                                                        */
 /*    _nx_crypto_huge_number_inverse_modulus_prime                        */
 /*                                                        PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -2191,11 +2106,7 @@ UINT      num_size_adjusted;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP UINT _nx_crypto_huge_number_inverse_modulus_prime(NX_CRYPTO_HUGE_NUMBER *a,
@@ -2279,10 +2190,10 @@ UINT                  buffer_size;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_huge_number_inverse_modulus              PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -2329,11 +2240,7 @@ UINT                  buffer_size;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP UINT _nx_crypto_huge_number_inverse_modulus(NX_CRYPTO_HUGE_NUMBER *a,
@@ -2349,7 +2256,7 @@ UINT                  buffer_size;
 
         /* gcd(m, a) <> 1.
          * a is not invertible modulo m. */
-        return(NX_NOT_SUCCESSFUL);
+        return(NX_CRYPTO_NOT_SUCCESSFUL);
     }
 
     if (m -> nx_crypto_huge_number_size > a -> nx_crypto_huge_number_size)
@@ -2442,10 +2349,10 @@ UINT                  buffer_size;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_huge_number_mont                         PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -2483,11 +2390,7 @@ UINT                  buffer_size;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP VOID _nx_crypto_huge_number_mont(NX_CRYPTO_HUGE_NUMBER *m, UINT mi,
@@ -2582,10 +2485,10 @@ HN_UBASE *result_buffer = result -> nx_crypto_huge_number_data;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_huge_number_mont_power_modulus           PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -2639,12 +2542,7 @@ HN_UBASE *result_buffer = result -> nx_crypto_huge_number_data;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            optimized the logic,        */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP VOID _nx_crypto_huge_number_mont_power_modulus(NX_CRYPTO_HUGE_NUMBER *x,
@@ -2676,12 +2574,12 @@ NX_CRYPTO_HUGE_NUMBER *operand, *temp_result, *temp_swap;
     /* Initialize const huge numbers. */
     radix.nx_crypto_huge_number_data = radix_buffer;
     radix.nx_crypto_huge_number_size = 2;
-    radix.nx_crypto_huge_number_is_negative = NX_FALSE;
+    radix.nx_crypto_huge_number_is_negative = NX_CRYPTO_FALSE;
     radix.nx_crypto_huge_buffer_size = sizeof(radix_buffer);
     m0.nx_crypto_huge_number_data = m -> nx_crypto_huge_number_data;
     m0.nx_crypto_huge_number_size = 1;
     m0.nx_crypto_huge_buffer_size = 4;
-    m0.nx_crypto_huge_number_is_negative = NX_FALSE;
+    m0.nx_crypto_huge_number_is_negative = NX_CRYPTO_FALSE;
     mi.nx_crypto_huge_number_data = mm_buffer;
     mi.nx_crypto_huge_buffer_size = sizeof(mm_buffer);
 
@@ -2766,10 +2664,10 @@ NX_CRYPTO_HUGE_NUMBER *operand, *temp_result, *temp_swap;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_huge_number_crt_power_modulus            PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -2827,11 +2725,7 @@ NX_CRYPTO_HUGE_NUMBER *operand, *temp_result, *temp_swap;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP VOID _nx_crypto_huge_number_crt_power_modulus(NX_CRYPTO_HUGE_NUMBER *x,

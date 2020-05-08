@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -44,10 +32,10 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_tls_handshake_hash_update                PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -82,21 +70,117 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-09-2017     Timothy Stapko           Initial Version 5.10          */
-/*  12-15-2017     Timothy Stapko           Modified comment(s),          */
-/*                                            supported DTLS,             */
-/*                                            resulting in version 5.11   */
-/*  08-15-2019     Timothy Stapko           Modified comment(s), added    */
-/*                                            passed crypto handle into   */
-/*                                            crypto internal functions,  */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 UINT  _nx_secure_tls_handshake_hash_update(NX_SECURE_TLS_SESSION *tls_session, UCHAR *data,
                                            UINT length)
 {
-UINT              status = NX_NOT_SUCCESSFUL;
-NX_CRYPTO_METHOD *method_ptr;
+UINT                    status = NX_NOT_SUCCESSFUL;
+const NX_CRYPTO_METHOD *method_ptr;
+
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+UINT                    hash_length;
+#endif
+
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+    if(tls_session->nx_secure_tls_1_3)
+    {
+        /* Hash handshake record using ciphersuite hash routine. */
+        if (tls_session -> nx_secure_tls_session_ciphersuite == NX_NULL)
+        {
+            /* Set the hash method to the default of SHA-256 if no ciphersuite is available. */
+            method_ptr = tls_session -> nx_secure_tls_crypto_table->nx_secure_tls_handshake_hash_sha256_method;
+
+        }
+        else
+        {
+            /* The handshake transcript hash in TLS 1.3 uses the hash routine associated with the chosen ciphersuite. */
+            method_ptr = tls_session -> nx_secure_tls_session_ciphersuite -> nx_secure_tls_hash;
+        }
+
+        /* Generate the "transcript hash" for the point in the handshake where this message falls.
+         * This is needed for TLS 1.3 key generation which uses the hash of all previous handshake
+         * messages at multiple points during the handshake. Instead of saving the entirety of the
+         * handshake messages, just generate a hash when each record is hashed. */
+        if (method_ptr -> nx_crypto_operation != NX_NULL)
+        {
+            status = method_ptr -> nx_crypto_operation(NX_CRYPTO_HASH_UPDATE,
+                                                       tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_sha256_handler,
+                                                       (NX_CRYPTO_METHOD*)method_ptr,
+                                                       NX_NULL,
+                                                       0,
+                                                       data,
+                                                       length,
+                                                       NX_NULL,
+                                                       NX_NULL,
+                                                       0,
+                                                       tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_sha256_metadata,
+                                                       tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_sha256_metadata_size,
+                                                       NX_NULL,
+                                                       NX_NULL);
+
+           /* Modify message buffer - replace message with hash used for HelloRetryRequest processing. */
+            if ((status == NX_SUCCESS) &&
+                ((tls_session -> nx_secure_tls_server_state == NX_SECURE_TLS_SERVER_STATE_SEND_HELLO_RETRY)||
+                 (tls_session -> nx_secure_tls_client_state == NX_SECURE_TLS_CLIENT_STATE_HELLO_RETRY)) &&
+                (data[0] == NX_SECURE_TLS_CLIENT_HELLO) &&
+                (length > NX_SECURE_TLS_HANDSHAKE_HEADER_SIZE))
+            {
+
+                /* ClientHello1 is replaced with "message_hash || 00 00 Hash.length || Hash(ClientHello1)"*/
+                status = method_ptr -> nx_crypto_operation(NX_CRYPTO_HASH_CALCULATE,
+                                                           tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_sha256_handler,
+                                                           (NX_CRYPTO_METHOD*)method_ptr,
+                                                           NX_NULL,
+                                                           0,
+                                                           NX_NULL,
+                                                           0,
+                                                           NX_NULL,
+                                                           data + 4, /* Reuse input buffer since the input will not be used anymore. */
+                                                           NX_SECURE_TLS_MAX_HASH_SIZE,
+                                                           tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_sha256_metadata,
+                                                           tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_sha256_metadata_size,
+                                                           NX_NULL,
+                                                           NX_NULL);
+
+                /* Initialize handshake HASH again. */
+                if (status == NX_SUCCESS)
+                {
+                    status = _nx_secure_tls_handshake_hash_init(tls_session);
+                }
+
+                if (status == NX_SUCCESS)
+                {
+                    hash_length = method_ptr -> nx_crypto_ICV_size_in_bits >> 3;
+                    data[0] = NX_SECURE_TLS_MESSAGE_HASH & 0xFF;
+                    data[1] = 0;
+                    data[2] = 0;
+                    data[3] = hash_length & 0xFF;
+
+                    status = method_ptr -> nx_crypto_operation(NX_CRYPTO_HASH_UPDATE,
+                                                               tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_sha256_handler,
+                                                               (NX_CRYPTO_METHOD*)method_ptr,
+                                                               NX_NULL,
+                                                               0,
+                                                               data,
+                                                               hash_length + 4,
+                                                               NX_NULL,
+                                                               NX_NULL,
+                                                               0,
+                                                               tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_sha256_metadata,
+                                                               tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_sha256_metadata_size,
+                                                               NX_NULL,
+                                                               NX_NULL);
+                }
+            }
+        }
+
+        return(status);
+
+
+    }
+#endif
 
     /* Hash this handshake message. We do not hash HelloRequest messages, but since only the server will send them,
        we do not worry about them here because these are only messages received from the client at this point.
@@ -115,7 +199,7 @@ NX_CRYPTO_METHOD *method_ptr;
         {
             status = method_ptr -> nx_crypto_operation(NX_CRYPTO_HASH_UPDATE,
                                                        tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_sha256_handler,
-                                                       method_ptr,
+                                                       (NX_CRYPTO_METHOD*)method_ptr,
                                                        NX_NULL,
                                                        0,
                                                        data,
@@ -127,6 +211,11 @@ NX_CRYPTO_METHOD *method_ptr;
                                                        tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_sha256_metadata_size,
                                                        NX_NULL,
                                                        NX_NULL);
+
+            if (status != NX_CRYPTO_SUCCESS)
+            {
+                return(status);
+            }
         }
     }
 #endif
@@ -147,7 +236,7 @@ NX_CRYPTO_METHOD *method_ptr;
         {
             status = method_ptr -> nx_crypto_operation(NX_CRYPTO_HASH_UPDATE,
                                                        tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_md5_handler,
-                                                       method_ptr,
+                                                       (NX_CRYPTO_METHOD*)method_ptr,
                                                        NX_NULL,
                                                        0,
                                                        data,
@@ -159,6 +248,11 @@ NX_CRYPTO_METHOD *method_ptr;
                                                        tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_md5_metadata_size,
                                                        NX_NULL,
                                                        NX_NULL);
+
+            if (status != NX_CRYPTO_SUCCESS)
+            {
+                return(status);
+            }
         }
 
         method_ptr = tls_session -> nx_secure_tls_crypto_table -> nx_secure_tls_handshake_hash_sha1_method;
@@ -166,7 +260,7 @@ NX_CRYPTO_METHOD *method_ptr;
         {
             status = method_ptr -> nx_crypto_operation(NX_CRYPTO_HASH_UPDATE,
                                                        tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_sha1_handler,
-                                                       method_ptr,
+                                                       (NX_CRYPTO_METHOD*)method_ptr,
                                                        NX_NULL,
                                                        0,
                                                        data,
@@ -178,6 +272,11 @@ NX_CRYPTO_METHOD *method_ptr;
                                                        tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_sha1_metadata_size,
                                                        NX_NULL,
                                                        NX_NULL);
+
+            if (status != NX_CRYPTO_SUCCESS)
+            {
+                return(status);
+            }
         }
     }
 #endif

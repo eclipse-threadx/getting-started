@@ -7,8 +7,8 @@ set(SOURCES
     azure/hmac_sha256.c
     azure/sas_token.c
 
-    networking.c
-    sntp_client.c
+#    networking.c
+#    sntp_client.c
 )
 
 add_library(${TARGET} INTERFACE)

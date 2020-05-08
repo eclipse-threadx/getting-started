@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -43,10 +31,10 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_tls_process_remote_certificate           PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -86,26 +74,7 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-09-2017     Timothy Stapko           Initial Version 5.10          */
-/*  12-15-2017     Timothy Stapko           Modified comment(s),          */
-/*                                            optimized the logic,        */
-/*                                            resulting in version 5.11   */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            free remote certificates    */
-/*                                            after validation complete,  */
-/*                                            added flexibility of using  */
-/*                                            macros instead of direct C  */
-/*                                            library function calls,     */
-/*                                            fixed the usage of crypto   */
-/*                                            metadata for hash method,   */
-/*                                            fix issues with proper      */
-/*                                            CertificateVerify handling, */
-/*                                            allow duplicate certificates*/
-/*                                            for servers that send them, */
-/*                                            add remote certificate      */
-/*                                            memory optimization,        */
-/*                                            static analysis bug fixes,  */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 UINT _nx_secure_tls_process_remote_certificate(NX_SECURE_TLS_SESSION *tls_session,
@@ -119,6 +88,9 @@ NX_SECURE_X509_CERT *certificate;
 UCHAR               *endpoint_raw_ptr;
 UINT                 endpoint_length;
 UINT                 bytes_processed;
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+UINT                 extensions_length;
+#endif
 UCHAR               *cert_buffer;
 ULONG               cert_buf_size;
 
@@ -128,6 +100,13 @@ ULONG               cert_buf_size;
      * | Total length |       3        |   <Cert[0] Length> | 3 + <Cert[x] Len> |
      * |              | Cert[0] Length |   Certificate[0]   |    More certs...  |
      */
+
+    /* TLS 1.3 Structure:
+     * |    1    | <Ctx Len> |      3       |                     <Total Length>                         |
+     * | Ctx Len | Context   | Total length |       3        |   <Cert[x] Length> |   2    |   <ExtLen>  |
+     * |                                    | Cert[x] Length |   Certificate[x]   | ExtLen |  Extensions |
+     */
+
 
 
     /* At this point, the packet buffer is filled with a TLS record. We can use the remainder of
@@ -150,7 +129,20 @@ ULONG               cert_buf_size;
     /* Use our length as an index into the buffer. */
     length = 0;
 
-
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+    if(tls_session->nx_secure_tls_1_3)
+    {
+        /* The certificate chain in TLS 1.3 contains a "context" at
+           the beginning of the handshake record. If the first byte is non-zero
+           it means the following bytes (length given as the value of that byte)
+           should be the context. */
+        packet_buffer++;
+        message_length--;
+      
+    }
+#endif
+      
+     
     /* Extract the certificate(s) from the incoming data, starting with. */
     total_length = (UINT)((packet_buffer[0] << 16) + (packet_buffer[1] << 8) + packet_buffer[2]);
     length = length + 3;
@@ -180,9 +172,6 @@ ULONG               cert_buf_size;
         {
             return(NX_SECURE_TLS_INCORRECT_MESSAGE_LENGTH);
         }
-
-        /* Advance the variable of total_length. */
-        total_length -= (3 + cert_length);
 
         /* Get a reference to the remote endpoint certificate that was allocated earlier. */
         status = _nx_secure_x509_free_certificate_get(&tls_session -> nx_secure_tls_credentials.nx_secure_tls_certificate_store,
@@ -240,6 +229,26 @@ ULONG               cert_buf_size;
             return(status);
         }
 
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+        /* Check for TLS 1.3 extensions following each certificate. */
+        if(tls_session->nx_secure_tls_1_3)
+        {
+            extensions_length = (UINT)((packet_buffer[length] << 8) + packet_buffer[length + 1]);
+
+            /* Add extensions length bytes. */
+            length += 2;
+            
+            /* Add extensions length to offset. */
+            length += extensions_length;
+            
+            /* Adjust the total length with our extension data. */
+            total_length -= (2 + extensions_length);
+        }
+#endif
+
+        /* Advance the variable of total_length. */
+        total_length -= (3 + cert_length);
+        
         /* Assign the TLS Session metadata areas to the certificate for later use. */
         certificate -> nx_secure_x509_public_cipher_metadata_area = tls_session -> nx_secure_public_cipher_metadata_area;
         certificate -> nx_secure_x509_public_cipher_metadata_size = tls_session -> nx_secure_public_cipher_metadata_size;
@@ -248,8 +257,7 @@ ULONG               cert_buf_size;
         certificate -> nx_secure_x509_hash_metadata_size = tls_session -> nx_secure_hash_mac_metadata_size;
 
         /* Add the certificate to the remote store. */
-        /* Parse and initialize the remote certificate for use in subsequent operations. Allow duplicates in case
-           the server is mis-configured and sends the same certificate twice. */
+        /* Parse and initialize the remote certificate for use in subsequent operations. */
         status = _nx_secure_x509_certificate_list_add(&tls_session -> nx_secure_tls_credentials.nx_secure_tls_certificate_store.nx_secure_x509_remote_certificates,
                                                       certificate, NX_TRUE);
 
@@ -263,7 +271,7 @@ ULONG               cert_buf_size;
         certificate -> nx_secure_x509_cipher_table = tls_session -> nx_secure_tls_crypto_table -> nx_secure_tls_x509_cipher_table;
         certificate -> nx_secure_x509_cipher_table_size = tls_session -> nx_secure_tls_crypto_table -> nx_secure_tls_x509_cipher_table_size;
     }
-
+        
     /* =============================== CERTIFICATE CHAIN VERIFICATION ======================================== */
     /* Verify the certificates we received are valid against the trusted store. */
     status = _nx_secure_tls_remote_certificate_verify(tls_session);
@@ -347,7 +355,7 @@ ULONG               cert_buf_size;
         tx_mutex_put(&_nx_secure_tls_protection);
 
         /* Re-parse the certificate using the original data. */
-        status = _nx_secure_x509_certificate_parse(certificate -> nx_secure_x509_certificate_raw_data, cert_length, &bytes_processed, certificate);
+        status = _nx_secure_x509_certificate_parse(certificate -> nx_secure_x509_certificate_raw_data, endpoint_length, &bytes_processed, certificate);
 
         /* Get the protection. */
         tx_mutex_get(&_nx_secure_tls_protection, TX_WAIT_FOREVER);

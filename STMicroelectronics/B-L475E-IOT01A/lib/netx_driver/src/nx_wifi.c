@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2018 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -120,11 +108,11 @@ static void    nx_wifi_thread_entry(ULONG thread_input);
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    nx_wifi_initialize                                  PORTABLE C      */
-/*                                                           5.11         */ 
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */
 /*    This function initializes the NetX Wifi.                            */ 
@@ -148,10 +136,10 @@ static void    nx_wifi_thread_entry(ULONG thread_input);
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  07-15-2018     Yuxin Zhou               Initial Version 5.11          */ 
-/*                                                                        */ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
 /**************************************************************************/
 UINT nx_wifi_initialize(NX_IP *ip_ptr, NX_PACKET_POOL *packet_pool)
 {
@@ -188,11 +176,11 @@ UINT    status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    nx_wifi_thread_entry                                PORTABLE C      */
-/*                                                           5.11         */ 
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */
 /*    This function is the entry point for NetX Wifi helper thread.  The  */
@@ -216,10 +204,10 @@ UINT    status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  07-15-2018     Yuxin Zhou               Initial Version 5.11          */ 
-/*                                                                        */ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
 /**************************************************************************/
 void nx_wifi_thread_entry(ULONG thread_input)
 {
@@ -365,11 +353,11 @@ NX_UDP_SOCKET   *udp_socket;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    nx_wifi_tick_convert_ms                             PORTABLE C      */
-/*                                                           5.11         */ 
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */
 /*    This function converts the ticks to milliseconds.                   */
@@ -393,10 +381,10 @@ NX_UDP_SOCKET   *udp_socket;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  07-15-2018     Yuxin Zhou               Initial Version 5.11          */ 
-/*                                                                        */ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
 /**************************************************************************/
 static VOID  nx_wifi_tick_convert_ms(ULONG tick, ULONG *millisecond)
 {
@@ -426,11 +414,11 @@ UINT    factor = 1000/NX_IP_PERIODIC_RATE;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    nx_wifi_socket_entry_find                           PORTABLE C      */
-/*                                                           5.11         */ 
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */
 /*    This function finds an available entry.                             */
@@ -455,10 +443,10 @@ UINT    factor = 1000/NX_IP_PERIODIC_RATE;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  07-15-2018     Yuxin Zhou               Initial Version 5.11          */ 
-/*                                                                        */ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
 /**************************************************************************/
 static UINT  nx_wifi_socket_entry_find(void *socket_ptr, UCHAR *entry_index, UCHAR entry_find)
 {
@@ -514,11 +502,11 @@ UCHAR   empty_index = NX_WIFI_SOCKET_COUNTER;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    nx_wifi_socket_reset                                PORTABLE C      */
-/*                                                           5.11         */ 
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */
 /*    This function resets the entry and release the packet.              */
@@ -543,10 +531,10 @@ UCHAR   empty_index = NX_WIFI_SOCKET_COUNTER;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  07-15-2018     Yuxin Zhou               Initial Version 5.11          */ 
-/*                                                                        */ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
 /**************************************************************************/
 static void  nx_wifi_socket_reset(UCHAR entry_index)
 {
@@ -586,11 +574,11 @@ NX_PACKET *current_packet;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    nx_wifi_socket_receive                              PORTABLE C      */
-/*                                                           5.11         */ 
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */
 /*    This function receives packet for wifi socket                       */
@@ -616,10 +604,10 @@ NX_PACKET *current_packet;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  07-15-2018     Yuxin Zhou               Initial Version 5.11          */ 
-/*                                                                        */ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
 /**************************************************************************/
 static UINT  nx_wifi_socket_receive(VOID *socket_ptr, NX_PACKET **packet_ptr, ULONG wait_option, UINT socket_type)
 {
@@ -778,11 +766,11 @@ UINT    received_packet = NX_FALSE;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    nx_wifi_tcp_client_socket_connect                   PORTABLE C      */
-/*                                                           5.11         */ 
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */
 /*    This function sends wifi connection command                         */
@@ -808,10 +796,10 @@ UINT    received_packet = NX_FALSE;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  07-15-2018     Yuxin Zhou               Initial Version 5.11          */ 
-/*                                                                        */ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
 /**************************************************************************/
 UINT  nx_wifi_tcp_client_socket_connect(NX_TCP_SOCKET *socket_ptr,
                                         NXD_ADDRESS *server_ip,
@@ -884,11 +872,11 @@ UCHAR   entry_index;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    nx_wifi_tcp_socket_disconnect                       PORTABLE C      */
-/*                                                           5.11         */ 
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */
 /*    This function sends wifi disconnect command                         */
@@ -912,10 +900,10 @@ UCHAR   entry_index;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  07-15-2018     Yuxin Zhou               Initial Version 5.11          */ 
-/*                                                                        */ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
 /**************************************************************************/
 UINT  nx_wifi_tcp_socket_disconnect(NX_TCP_SOCKET *socket_ptr, ULONG wait_option)
 {
@@ -966,11 +954,11 @@ UCHAR   entry_index;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    nx_wifi_tcp_socket_send                             PORTABLE C      */
-/*                                                           5.11         */ 
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */
 /*    This function sends a TCP packet.                                   */
@@ -995,10 +983,10 @@ UCHAR   entry_index;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  07-15-2018     Yuxin Zhou               Initial Version 5.11          */ 
-/*                                                                        */ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
 /**************************************************************************/
 UINT  nx_wifi_tcp_socket_send(NX_TCP_SOCKET *socket_ptr, NX_PACKET *packet_ptr, ULONG wait_option)
 {
@@ -1078,11 +1066,11 @@ NX_PACKET   *current_packet;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    nx_wifi_tcp_socket_receive                          PORTABLE C      */
-/*                                                           5.11         */ 
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */
 /*    This function receives a TCP packet.                                */
@@ -1107,10 +1095,10 @@ NX_PACKET   *current_packet;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  07-15-2018     Yuxin Zhou               Initial Version 5.11          */ 
-/*                                                                        */ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
 /**************************************************************************/
 UINT  nx_wifi_tcp_socket_receive(NX_TCP_SOCKET *socket_ptr, NX_PACKET **packet_ptr, ULONG wait_option)
 {
@@ -1123,11 +1111,11 @@ UINT  nx_wifi_tcp_socket_receive(NX_TCP_SOCKET *socket_ptr, NX_PACKET **packet_p
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    nx_wifi_udp_socket_bind                             PORTABLE C      */
-/*                                                           5.11         */ 
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */
 /*    This function binds UDP socket.                                     */
@@ -1152,10 +1140,10 @@ UINT  nx_wifi_tcp_socket_receive(NX_TCP_SOCKET *socket_ptr, NX_PACKET **packet_p
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  07-15-2018     Yuxin Zhou               Initial Version 5.11          */ 
-/*                                                                        */ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
 /**************************************************************************/
 UINT  nx_wifi_udp_socket_bind(NX_UDP_SOCKET *socket_ptr, UINT  port, ULONG wait_option)
 {
@@ -1193,11 +1181,11 @@ UCHAR       entry_index;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    nx_wifi_udp_socket_unbind                           PORTABLE C      */
-/*                                                           5.11         */ 
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */
 /*    This function unbinds UDP socket.                                   */
@@ -1220,10 +1208,10 @@ UCHAR       entry_index;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  07-15-2018     Yuxin Zhou               Initial Version 5.11          */ 
-/*                                                                        */ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
 /**************************************************************************/
 UINT  nx_wifi_udp_socket_unbind(NX_UDP_SOCKET *socket_ptr)
 {
@@ -1270,11 +1258,11 @@ UCHAR   entry_index;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    nx_wifi_udp_socket_send                             PORTABLE C      */
-/*                                                           5.11         */ 
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */
 /*    This function sends UDP packet.                                     */
@@ -1297,10 +1285,10 @@ UCHAR   entry_index;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  07-15-2018     Yuxin Zhou               Initial Version 5.11          */ 
-/*                                                                        */ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
 /**************************************************************************/
 UINT  nx_wifi_udp_socket_send(NX_UDP_SOCKET *socket_ptr, NX_PACKET *packet_ptr, 
                               NXD_ADDRESS *ip_address, UINT port)
@@ -1400,11 +1388,11 @@ NX_PACKET   *current_packet;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    nx_wifi_udp_socket_receive                          PORTABLE C      */
-/*                                                           5.11         */ 
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */
 /*    This function receives UDP packet.                                  */
@@ -1427,10 +1415,10 @@ NX_PACKET   *current_packet;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  07-15-2018     Yuxin Zhou               Initial Version 5.11          */ 
-/*                                                                        */ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
 /**************************************************************************/
 UINT  nx_wifi_udp_socket_receive(NX_UDP_SOCKET *socket_ptr, NX_PACKET **packet_ptr, ULONG wait_option)
 {

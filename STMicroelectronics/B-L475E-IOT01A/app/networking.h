@@ -9,5 +9,6 @@ extern NX_PACKET_POOL main_pool;
 extern NX_DNS dns_client;
 
 int threadx_net_init(void);
+unsigned long sntp_get_time(void);
 
 #endif // _NETWORKING_H

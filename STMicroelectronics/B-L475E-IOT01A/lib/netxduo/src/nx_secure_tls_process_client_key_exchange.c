@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -43,10 +31,10 @@ static UCHAR _nx_secure_client_padded_pre_master[600];
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_tls_process_client_key_exchange          PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -60,6 +48,7 @@ static UCHAR _nx_secure_client_padded_pre_master[600];
 /*    tls_session                           TLS control block             */
 /*    packet_buffer                         Pointer to message data       */
 /*    message_length                        Length of message data (bytes)*/
+/*    id                                    TLS or DTLS                   */
 /*                                                                        */
 /*  OUTPUT                                                                */
 /*                                                                        */
@@ -73,6 +62,7 @@ static UCHAR _nx_secure_client_padded_pre_master[600];
 /*    _nx_secure_x509_local_device_certificate_get                        */
 /*                                          Get the local certificate     */
 /*                                            for its keys                */
+/*    _nx_secure_tls_find_curve_method      Find named curve used         */
 /*    [nx_crypto_init]                      Initialize crypto             */
 /*    [nx_crypto_operation]                 Crypto operation              */
 /*                                                                        */
@@ -85,50 +75,34 @@ static UCHAR _nx_secure_client_padded_pre_master[600];
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-09-2017     Timothy Stapko           Initial Version 5.10          */
-/*  12-15-2017     Timothy Stapko           Modified comment(s), and      */
-/*                                            updated to new crypto API,  */
-/*                                            added logic to support      */
-/*                                            vendor-defined private key  */
-/*                                            type, supported ECJPAKE,    */
-/*                                            resulting in version 5.11   */
-/*  08-15-2019     Timothy Stapko           Modified comment(s), and      */
-/*                                            added flexibility of using  */
-/*                                            macros instead of direct C  */
-/*                                            library function calls,     */
-/*                                            passed crypto handle into   */
-/*                                            crypto internal functions,  */
-/*                                            added operation method for  */
-/*                                            elliptic curve cryptography,*/
-/*                                            removed server state        */
-/*                                            processing, added extension */
-/*                                            hook, added logic to clear  */
-/*                                            encryption key and other    */
-/*                                            secret data, updated buffer */
-/*                                            for 4096 RSA, improved      */
-/*                                            used random premaster for   */
-/*                                            incorrect message, fixed    */
-/*                                            endian issue, updated       */
-/*                                            error return codes,         */
-/*                                            updated error return checks,*/
-/*                                            removed cipher suite lookup,*/
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 UINT _nx_secure_tls_process_client_key_exchange(NX_SECURE_TLS_SESSION *tls_session,
-                                                UCHAR *packet_buffer, UINT message_length)
+                                                UCHAR *packet_buffer, UINT message_length, UINT id)
 {
 USHORT                                length;
 UINT                                  status;
 UCHAR                                *encrypted_pre_master_secret;
-NX_CRYPTO_METHOD                     *public_cipher_method;
+const NX_CRYPTO_METHOD                     *public_cipher_method;
 NX_SECURE_X509_CERT                  *local_certificate;
 UINT                                  user_defined_key;
 VOID                                 *handler = NX_NULL;
 UCHAR                                 rand_byte;
 UINT                                  i;
+#ifdef NX_SECURE_ENABLE_ECC_CIPHERSUITE
+NX_SECURE_EC_PRIVATE_KEY             *ec_privkey;
+NX_SECURE_TLS_ECDHE_HANDSHAKE_DATA   *ecdhe_data;
+NX_CRYPTO_EXTENDED_OUTPUT             extended_output;
+const NX_CRYPTO_METHOD               *curve_method;
+const NX_CRYPTO_METHOD               *ecdh_method;
+UCHAR                                *private_key;
+UINT                                  private_key_length;
+#endif /* NX_SECURE_ENABLE_ECC_CIPHERSUITE */
 
-    NX_SECURE_PROCESS_CLIENT_KEY_EXCHANGE_EXTENSION
+#ifndef NX_SECURE_ENABLE_PSK_CIPHERSUITES
+    NX_PARAMETER_NOT_USED(id);
+#endif /* NX_SECURE_ENABLE_PSK_CIPHERSUITES */
 
     if (tls_session -> nx_secure_tls_session_ciphersuite == NX_NULL)
     {
@@ -150,7 +124,7 @@ UINT                                  i;
         public_cipher_method = tls_session -> nx_secure_tls_session_ciphersuite -> nx_secure_tls_public_auth;
         status = public_cipher_method -> nx_crypto_operation(NX_CRYPTO_ECJPAKE_CLIENT_KEY_EXCHANGE_PROCESS,
                                                              tls_session -> nx_secure_public_auth_handler,
-                                                             public_cipher_method,
+                                                             (NX_CRYPTO_METHOD*)public_cipher_method,
                                                              NX_NULL, 0,
                                                              packet_buffer,
                                                              message_length,
@@ -178,36 +152,12 @@ UINT                                  i;
     else
 #endif
     {
-        /* Get pre-master-secret length. */
-        length = (USHORT)((packet_buffer[0] << 8) + (USHORT)packet_buffer[1]);
-        packet_buffer += 2;
-
-        if (length > message_length)
-        {
-            /* The payload is larger than the header indicated. */
-            return(NX_SECURE_TLS_INCORRECT_MESSAGE_LENGTH);
-        }
-
-        /* Pointer to the encrypted pre-master secret in our packet buffer. */
-        encrypted_pre_master_secret = &packet_buffer[0];
-
-
-        if (tls_session -> nx_secure_tls_session_ciphersuite -> nx_secure_tls_ciphersuite == TLS_NULL_WITH_NULL_NULL)
-        {
-            /* Special case - NULL ciphersuite. No keys are generated. */
-            if (length > sizeof(tls_session -> nx_secure_tls_key_material.nx_secure_tls_pre_master_secret))
-            {
-                length = sizeof(tls_session -> nx_secure_tls_key_material.nx_secure_tls_pre_master_secret);
-            }
-            NX_SECURE_MEMCPY(tls_session -> nx_secure_tls_key_material.nx_secure_tls_pre_master_secret, encrypted_pre_master_secret, length);
-            tls_session -> nx_secure_tls_key_material.nx_secure_tls_pre_master_secret_size = length;
-        }
 
 #ifdef NX_SECURE_ENABLE_PSK_CIPHERSUITES
         /* Check for PSK ciphersuites and generate the pre-master-secret. */
         if (tls_session -> nx_secure_tls_session_ciphersuite -> nx_secure_tls_public_auth -> nx_crypto_algorithm == NX_CRYPTO_KEY_EXCHANGE_PSK)
         {
-            status = _nx_secure_tls_generate_premaster_secret(tls_session);
+            status = _nx_secure_tls_generate_premaster_secret(tls_session, id);
 
             if (status != NX_SUCCESS)
             {
@@ -216,7 +166,180 @@ UINT                                  i;
         }
         else
 #endif
+#ifdef NX_SECURE_ENABLE_ECC_CIPHERSUITE
+        if (tls_session -> nx_secure_tls_session_ciphersuite -> nx_secure_tls_public_cipher -> nx_crypto_algorithm == NX_CRYPTO_KEY_EXCHANGE_ECDH ||
+            tls_session -> nx_secure_tls_session_ciphersuite -> nx_secure_tls_public_cipher -> nx_crypto_algorithm == NX_CRYPTO_KEY_EXCHANGE_ECDHE)
+        {
+            length = packet_buffer[0];
+
+            if (length > message_length)
+            {
+                /* The public key length is larger than the header indicated. */
+                return(NX_SECURE_TLS_INCORRECT_MESSAGE_LENGTH);
+            }
+
+            if (tls_session -> nx_secure_tls_session_ciphersuite -> nx_secure_tls_public_cipher -> nx_crypto_algorithm == NX_CRYPTO_KEY_EXCHANGE_ECDH)
+            {
+                /* Get the local certificate. */
+                if (tls_session -> nx_secure_tls_credentials.nx_secure_tls_active_certificate != NX_NULL)
+                {
+                    local_certificate = tls_session -> nx_secure_tls_credentials.nx_secure_tls_active_certificate;
+                }
+                else
+                {
+                    /* Get reference to local device certificate. NX_NULL is passed for name to get default entry. */
+                    status = _nx_secure_x509_local_device_certificate_get(&tls_session -> nx_secure_tls_credentials.nx_secure_tls_certificate_store,
+                                                                          NX_NULL, &local_certificate);
+                    if (status != NX_SUCCESS)
+                    {
+                        local_certificate = NX_NULL;
+                    }
+                }
+
+                if (local_certificate == NX_NULL)
+                {
+                    /* No certificate found, error! */
+                    return(NX_SECURE_TLS_CERTIFICATE_NOT_FOUND);
+                }
+
+                ec_privkey = &local_certificate -> nx_secure_x509_private_key.ec_private_key;
+
+                /* Find out which named curve the local certificate is using. */
+                status = _nx_secure_tls_find_curve_method(tls_session, (USHORT)(ec_privkey -> nx_secure_ec_named_curve), &curve_method);
+
+                if(status != NX_SUCCESS)
+                {
+                    return(status);
+                }
+
+                private_key = (UCHAR *)ec_privkey -> nx_secure_ec_private_key;
+                private_key_length = ec_privkey -> nx_secure_ec_private_key_length;
+            }
+            else
+            {
+                ecdhe_data = (NX_SECURE_TLS_ECDHE_HANDSHAKE_DATA *)tls_session -> nx_secure_tls_key_material.nx_secure_tls_new_key_material_data;
+
+                /* Find out which named curve the we are using. */
+                status = _nx_secure_tls_find_curve_method(tls_session, (USHORT)ecdhe_data -> nx_secure_tls_ecdhe_named_curve, &curve_method);
+
+                if(status != NX_SUCCESS)
+                {
+                    return(status);
+                }
+
+                private_key = ecdhe_data -> nx_secure_tls_ecdhe_private_key;
+                private_key_length = ecdhe_data -> nx_secure_tls_ecdhe_private_key_length;
+            }
+
+            if (curve_method == NX_NULL)
+            {
+                /* No named curve is selected. */
+                return(NX_SECURE_TLS_UNSUPPORTED_ECC_CURVE);
+            }
+
+            ecdh_method = tls_session -> nx_secure_tls_session_ciphersuite -> nx_secure_tls_public_cipher;
+            if (ecdh_method -> nx_crypto_operation == NX_NULL)
+            {
+                return(NX_SECURE_TLS_MISSING_CRYPTO_ROUTINE);
+            }
+
+            if (ecdh_method -> nx_crypto_init != NX_NULL)
+            {
+                status = ecdh_method -> nx_crypto_init((NX_CRYPTO_METHOD*)ecdh_method,
+                                              NX_NULL,
+                                              0,
+                                              &handler,
+                                              tls_session -> nx_secure_public_cipher_metadata_area,
+                                              tls_session -> nx_secure_public_cipher_metadata_size);
+                if(status != NX_CRYPTO_SUCCESS)
+                {
+                    return(status);
+                }
+            }
+
+            status = ecdh_method -> nx_crypto_operation(NX_CRYPTO_EC_CURVE_SET, handler,
+                                                        (NX_CRYPTO_METHOD*)ecdh_method, NX_NULL, 0,
+                                                        (UCHAR *)curve_method, sizeof(NX_CRYPTO_METHOD *), NX_NULL,
+                                                        NX_NULL, 0,
+                                                        tls_session -> nx_secure_public_cipher_metadata_area,
+                                                        tls_session -> nx_secure_public_cipher_metadata_size,
+                                                        NX_NULL, NX_NULL);
+            if (status != NX_CRYPTO_SUCCESS)
+            {
+                return(status);
+            }
+
+            /* Import the private key to the ECDH context. */
+            status = ecdh_method -> nx_crypto_operation(NX_CRYPTO_DH_KEY_PAIR_IMPORT, handler,
+                                                        (NX_CRYPTO_METHOD*)ecdh_method,
+                                                        private_key, private_key_length << 3,
+                                                        NX_NULL, 0, NX_NULL,
+                                                        NX_NULL,
+                                                        0,
+                                                        tls_session -> nx_secure_public_cipher_metadata_area,
+                                                        tls_session -> nx_secure_public_cipher_metadata_size,
+                                                        NX_NULL, NX_NULL);
+            if (status != NX_CRYPTO_SUCCESS)
+            {
+                return(status);
+            }
+
+            extended_output.nx_crypto_extended_output_data = tls_session -> nx_secure_tls_key_material.nx_secure_tls_pre_master_secret;
+            extended_output.nx_crypto_extended_output_length_in_byte = sizeof(tls_session -> nx_secure_tls_key_material.nx_secure_tls_pre_master_secret);
+            extended_output.nx_crypto_extended_output_actual_size = 0;
+            status = ecdh_method -> nx_crypto_operation(NX_CRYPTO_DH_CALCULATE, handler,
+                                                        (NX_CRYPTO_METHOD*)ecdh_method, NX_NULL, 0,
+                                                        &packet_buffer[1],
+                                                        length, NX_NULL,
+                                                        (UCHAR *)&extended_output,
+                                                        sizeof(extended_output),
+                                                        tls_session -> nx_secure_public_cipher_metadata_area,
+                                                        tls_session -> nx_secure_public_cipher_metadata_size,
+                                                        NX_NULL, NX_NULL);
+            if (status != NX_CRYPTO_SUCCESS)
+            {
+                return(status);
+            }
+
+            tls_session -> nx_secure_tls_key_material.nx_secure_tls_pre_master_secret_size = extended_output.nx_crypto_extended_output_actual_size;
+
+            if (ecdh_method -> nx_crypto_cleanup)
+            {
+                status = ecdh_method -> nx_crypto_cleanup(tls_session -> nx_secure_public_cipher_metadata_area);
+                if(status != NX_CRYPTO_SUCCESS)
+                {
+                    return(status);
+                }
+            }
+        }
+        else
+#endif /* NX_SECURE_ENABLE_ECC_CIPHERSUITE */
         {       /* Certificate-based authentication. */
+
+            /* Get pre-master-secret length. */
+            length = (USHORT)((packet_buffer[0] << 8) + (USHORT)packet_buffer[1]);
+            packet_buffer += 2;
+
+            if (length > message_length)
+            {
+                /* The payload is larger than the header indicated. */
+                return(NX_SECURE_TLS_INCORRECT_MESSAGE_LENGTH);
+            }
+
+            /* Pointer to the encrypted pre-master secret in our packet buffer. */
+            encrypted_pre_master_secret = &packet_buffer[0];
+
+
+            if (tls_session -> nx_secure_tls_session_ciphersuite -> nx_secure_tls_ciphersuite == TLS_NULL_WITH_NULL_NULL)
+            {
+                /* Special case - NULL ciphersuite. No keys are generated. */
+                if (length > sizeof(tls_session -> nx_secure_tls_key_material.nx_secure_tls_pre_master_secret))
+                {
+                    length = sizeof(tls_session -> nx_secure_tls_key_material.nx_secure_tls_pre_master_secret);
+                }
+                NX_SECURE_MEMCPY(tls_session -> nx_secure_tls_key_material.nx_secure_tls_pre_master_secret, encrypted_pre_master_secret, length);
+                tls_session -> nx_secure_tls_key_material.nx_secure_tls_pre_master_secret_size = length;
+            }
 
             /* Get reference to local device certificate. NX_NULL is passed for name to get default entry. */
             status = _nx_secure_x509_local_device_certificate_get(&tls_session -> nx_secure_tls_credentials.nx_secure_tls_certificate_store,
@@ -248,7 +371,7 @@ UINT                                  i;
                     /* A user-defined key is passed directly into the crypto routine. */
                     status = public_cipher_method -> nx_crypto_operation(local_certificate -> nx_secure_x509_private_key_type,
                                                                 NX_NULL,
-                                                                public_cipher_method,
+                                                                (NX_CRYPTO_METHOD*)public_cipher_method,
                                                                 (UCHAR *)local_certificate -> nx_secure_x509_private_key.user_key.key_data,
                                                                 (NX_CRYPTO_KEY_SIZE)(local_certificate -> nx_secure_x509_private_key.user_key.key_length),
                                                                 encrypted_pre_master_secret,
@@ -260,7 +383,7 @@ UINT                                  i;
                                                                 tls_session -> nx_secure_public_cipher_metadata_size,
                                                                 NX_NULL, NX_NULL);
 
-                    if(status != NX_SUCCESS)
+                    if(status != NX_CRYPTO_SUCCESS)
                     {
                         return(status);
                     }                                                     
@@ -271,14 +394,14 @@ UINT                                  i;
                     if (public_cipher_method -> nx_crypto_init != NX_NULL)
                     {
                         /* Initialize the crypto method with public key. */
-                        status = public_cipher_method -> nx_crypto_init(public_cipher_method,
+                        status = public_cipher_method -> nx_crypto_init((NX_CRYPTO_METHOD*)public_cipher_method,
                                                                (UCHAR *)local_certificate -> nx_secure_x509_public_key.rsa_public_key.nx_secure_rsa_public_modulus,
                                                                (NX_CRYPTO_KEY_SIZE)(local_certificate -> nx_secure_x509_public_key.rsa_public_key.nx_secure_rsa_public_modulus_length << 3),
                                                                &handler,
                                                                tls_session -> nx_secure_public_cipher_metadata_area,
                                                                tls_session -> nx_secure_public_cipher_metadata_size);
 
-                        if(status != NX_SUCCESS)
+                        if(status != NX_CRYPTO_SUCCESS)
                         {
                             return(status);
                         }                                                     
@@ -297,7 +420,7 @@ UINT                                  i;
 
                             status = public_cipher_method -> nx_crypto_operation(NX_CRYPTO_SET_PRIME_P,
                                                                         handler,
-                                                                        public_cipher_method,
+                                                                        (NX_CRYPTO_METHOD*)public_cipher_method,
                                                                         NX_NULL,
                                                                         0,
                                                                         (VOID *)local_certificate -> nx_secure_x509_private_key.rsa_private_key.nx_secure_rsa_private_prime_p,
@@ -309,14 +432,14 @@ UINT                                  i;
                                                                         tls_session -> nx_secure_public_cipher_metadata_size,
                                                                         NX_NULL, NX_NULL);
 
-                            if(status != NX_SUCCESS)
+                            if(status != NX_CRYPTO_SUCCESS)
                             {
                                 return(status);
                             }                                                     
 
                             status = public_cipher_method -> nx_crypto_operation(NX_CRYPTO_SET_PRIME_Q,
                                                                         handler,
-                                                                        public_cipher_method,
+                                                                        (NX_CRYPTO_METHOD*)public_cipher_method,
                                                                         NX_NULL,
                                                                         0,
                                                                         (VOID *)local_certificate -> nx_secure_x509_private_key.rsa_private_key.nx_secure_rsa_private_prime_q,
@@ -328,40 +451,41 @@ UINT                                  i;
                                                                         tls_session -> nx_secure_public_cipher_metadata_size,
                                                                         NX_NULL, NX_NULL);
 
-                            if(status != NX_SUCCESS)
+                            if(status != NX_CRYPTO_SUCCESS)
                             {
                                 return(status);
-                            }                                                     
-                    
+                            }
 
-                            /* Decrypt the pre-master-secret using the private key provided by the user
-                                and place the result in the session key material space in our socket. */
-                            status = public_cipher_method -> nx_crypto_operation(NX_CRYPTO_DECRYPT,
-                                                                        handler,
-                                                                        public_cipher_method,
-                                                                        (UCHAR *)local_certificate -> nx_secure_x509_private_key.rsa_private_key.nx_secure_rsa_private_exponent,
-                                                                        (NX_CRYPTO_KEY_SIZE)(local_certificate -> nx_secure_x509_private_key.rsa_private_key.nx_secure_rsa_private_exponent_length << 3),
-                                                                        encrypted_pre_master_secret,
-                                                                        length,
-                                                                        NX_NULL,
-                                                                        _nx_secure_client_padded_pre_master,
-                                                                        sizeof(_nx_secure_client_padded_pre_master),
-                                                                        tls_session -> nx_secure_public_cipher_metadata_area,
-                                                                        tls_session -> nx_secure_public_cipher_metadata_size,
-                                                                        NX_NULL, NX_NULL);
-
-                            if(status != NX_SUCCESS)
-                            {
-                                return(status);
-                            }                                                     
                         }
+
+                        /* Decrypt the pre-master-secret using the private key provided by the user
+                            and place the result in the session key material space in our socket. */
+                        status = public_cipher_method -> nx_crypto_operation(NX_CRYPTO_DECRYPT,
+                                                                    handler,
+                                                                    (NX_CRYPTO_METHOD*)public_cipher_method,
+                                                                    (UCHAR *)local_certificate -> nx_secure_x509_private_key.rsa_private_key.nx_secure_rsa_private_exponent,
+                                                                    (NX_CRYPTO_KEY_SIZE)(local_certificate -> nx_secure_x509_private_key.rsa_private_key.nx_secure_rsa_private_exponent_length << 3),
+                                                                    encrypted_pre_master_secret,
+                                                                    length,
+                                                                    NX_NULL,
+                                                                    _nx_secure_client_padded_pre_master,
+                                                                    sizeof(_nx_secure_client_padded_pre_master),
+                                                                    tls_session -> nx_secure_public_cipher_metadata_area,
+                                                                    tls_session -> nx_secure_public_cipher_metadata_size,
+                                                                    NX_NULL, NX_NULL);
+
+                        if(status != NX_CRYPTO_SUCCESS)
+                        {
+                            return(status);
+                        }
+
                     }
                     
                     if (public_cipher_method -> nx_crypto_cleanup)
                     {
                         status = public_cipher_method -> nx_crypto_cleanup(tls_session -> nx_secure_public_cipher_metadata_area);
 
-                        if(status != NX_SUCCESS)
+                        if(status != NX_CRYPTO_SUCCESS)
                         {
 #ifdef NX_SECURE_KEY_CLEAR
                             NX_SECURE_MEMSET(_nx_secure_client_padded_pre_master, 0, sizeof(_nx_secure_client_padded_pre_master));
@@ -376,7 +500,7 @@ UINT                                  i;
                    precede the data. */
                 if (_nx_secure_client_padded_pre_master[0] != 0x00 ||
                     _nx_secure_client_padded_pre_master[1] != 0x02 ||
-                    _nx_secure_client_padded_pre_master[length - NX_SECURE_TLS_PREMASTER_SIZE - 1] != 0x00)
+                    _nx_secure_client_padded_pre_master[length - NX_SECURE_TLS_RSA_PREMASTER_SIZE - 1] != 0x00)
                 {
 
                     /* Invalid padding.  To avoid Bleichenbacher's attack, use random numbers to 
@@ -386,7 +510,7 @@ UINT                                  i;
                        This is described in RFC 5246, section 7.4.7.1, page 58-59. */
 
                     /* Generate premaster secret using random numbers. */
-                    for (i = 0; i < NX_SECURE_TLS_PREMASTER_SIZE; ++i)
+                    for (i = 0; i < NX_SECURE_TLS_RSA_PREMASTER_SIZE; ++i)
                     {
 
                         /* PKCS#1 padding must be random, but CANNOT be 0. */
@@ -402,10 +526,10 @@ UINT                                  i;
 
                     /* Extract the 48 bytes of the actual pre-master secret from the data we just decrypted, stripping the padding, which
                        comes at the beginning of the decrypted block (the pre-master secret is the last 48 bytes. */
-                    NX_SECURE_MEMCPY(tls_session -> nx_secure_tls_key_material.nx_secure_tls_pre_master_secret, 
-                           &_nx_secure_client_padded_pre_master[length - NX_SECURE_TLS_PREMASTER_SIZE], NX_SECURE_TLS_PREMASTER_SIZE);
+                    NX_SECURE_MEMCPY(tls_session -> nx_secure_tls_key_material.nx_secure_tls_pre_master_secret,
+                           &_nx_secure_client_padded_pre_master[length - NX_SECURE_TLS_RSA_PREMASTER_SIZE], NX_SECURE_TLS_RSA_PREMASTER_SIZE);
                 }
-                tls_session -> nx_secure_tls_key_material.nx_secure_tls_pre_master_secret_size = NX_SECURE_TLS_PREMASTER_SIZE;
+                tls_session -> nx_secure_tls_key_material.nx_secure_tls_pre_master_secret_size = NX_SECURE_TLS_RSA_PREMASTER_SIZE;
             }   /* End RSA-specific section. */
             else
             {

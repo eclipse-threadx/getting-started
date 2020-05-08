@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -41,10 +29,10 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_tls_map_error_to_alert                   PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -79,13 +67,7 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-09-2017     Timothy Stapko           Initial Version 5.10          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s), updated  */
-/*                                            mapping for certificate     */
-/*                                            verification failure,       */
-/*                                            supported TLS Fallback SCSV,*/
-/*                                            and error return codes,     */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 VOID _nx_secure_tls_map_error_to_alert(UINT error_number, UINT *alert_number, UINT *alert_level)
@@ -96,7 +78,6 @@ VOID _nx_secure_tls_map_error_to_alert(UINT error_number, UINT *alert_number, UI
     NX_SECURE_TLS_ALERT_USER_CANCELED                // Only used if the application chooses to abort the connection during the handshake
     NX_SECURE_TLS_ALERT_ACCESS_DENIED                // Only used in systems with access control
     NX_SECURE_TLS_ALERT_DECRYPTION_FAILED_RESERVED   // MUST NOT be sent per RFC
-    NX_SECURE_TLS_ALERT_RECORD_OVERFLOW              // This is handled by NX_SECURE_TLS_INCORRECT_MESSAGE_LENGTH, which is a decode alert
     NX_SECURE_TLS_ALERT_DECOMPRESSION_FAILURE        // No compression methods are used currently
     NX_SECURE_TLS_ALERT_NO_CERTIFICATE_RESERVED      // MUST NOT be sent per RFC
     NX_SECURE_TLS_ALERT_UNSUPPORTED_EXTENSION        // We ignore extensions currently
@@ -107,6 +88,7 @@ VOID _nx_secure_tls_map_error_to_alert(UINT error_number, UINT *alert_number, UI
     /* Unexpected message alerts. */
     case NX_SECURE_TLS_UNRECOGNIZED_MESSAGE_TYPE:
     case NX_SECURE_TLS_ALERT_RECEIVED:
+    case NX_SECURE_TLS_UNEXPECTED_CLIENTHELLO:
     case NX_SECURE_TLS_BAD_CIPHERSPEC:               
     case NX_SECURE_TLS_UNEXPECTED_MESSAGE:           /* Deliberate fall-through. */
         *alert_number = NX_SECURE_TLS_ALERT_UNEXPECTED_MESSAGE;
@@ -183,6 +165,8 @@ VOID _nx_secure_tls_map_error_to_alert(UINT error_number, UINT *alert_number, UI
 
     /*  Illegal parameters - bad compression method, etc. */
     case NX_SECURE_TLS_BAD_COMPRESSION_METHOD:        /* Deliberate fall-through. */
+    case NX_SECURE_TLS_1_3_UNKNOWN_CIPHERSUITE:
+    case NX_SECURE_TLS_BAD_SERVERHELLO_KEYSHARE:
         *alert_number = NX_SECURE_TLS_ALERT_ILLEGAL_PARAMETER;
         *alert_level = NX_SECURE_TLS_ALERT_LEVEL_FATAL;
         break;
@@ -233,7 +217,25 @@ VOID _nx_secure_tls_map_error_to_alert(UINT error_number, UINT *alert_number, UI
         *alert_number = NX_SECURE_TLS_ALERT_INAPPROPRIATE_FALLBACK;
         *alert_level = NX_SECURE_TLS_ALERT_LEVEL_FATAL;
         break;
-        
+
+    /* Miss extension. */
+    case NX_SECURE_TLS_MISSING_EXTENSION:
+        *alert_number = NX_SECURE_TLS_ALERT_MISSING_EXTENSION;
+        *alert_level = NX_SECURE_TLS_ALERT_LEVEL_FATAL;
+        break;
+
+    /* Require certificate. */
+    case NX_SECURE_TLS_CERTIFICATE_REQUIRED:
+        *alert_number = NX_SECURE_TLS_ALERT_CERTIFICATE_REQUIRED;
+        *alert_level = NX_SECURE_TLS_ALERT_LEVEL_FATAL;
+        break;
+
+    /* Record overflow. */
+    case NX_SECURE_TLS_RECORD_OVERFLOW:
+        *alert_number = NX_SECURE_TLS_ALERT_RECORD_OVERFLOW;
+        *alert_level = NX_SECURE_TLS_ALERT_LEVEL_FATAL;
+        break;
+
     /* Internal errors. */
 
     case NX_SECURE_TLS_ALLOCATE_PACKET_FAILED:

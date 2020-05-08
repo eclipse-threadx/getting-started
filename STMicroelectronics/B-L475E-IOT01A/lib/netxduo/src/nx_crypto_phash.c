@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -40,10 +28,10 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_phash                                    PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -71,7 +59,7 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  08-15-2019     Timothy Stapko           Initial Version 5.12          */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP UINT _nx_crypto_phash(NX_CRYPTO_PHASH *phash, UCHAR *output, UINT desired_length)
@@ -103,12 +91,12 @@ NX_CRYPTO_METHOD *hash_method = phash -> nx_crypto_hmac_method;
     NX_CRYPTO_STATE_CHECK
 
     /* Validate pointers. */
-    if (hash_method == NX_NULL
-        || hash_method -> nx_crypto_operation == NX_NULL
-        || hash_method -> nx_crypto_cleanup == NX_NULL
-        || output == NX_NULL)
+    if (hash_method == NX_CRYPTO_NULL
+        || hash_method -> nx_crypto_operation == NX_CRYPTO_NULL
+        || hash_method -> nx_crypto_cleanup == NX_CRYPTO_NULL
+        || output == NX_CRYPTO_NULL)
     {
-        return(NX_INVALID_PARAMETERS);
+        return(NX_CRYPTO_INVALID_PARAMETER);
     }
 
     /* Initialize temporary variables. */
@@ -126,7 +114,7 @@ NX_CRYPTO_METHOD *hash_method = phash -> nx_crypto_hmac_method;
 
     if (hash_size > hmac_output_size)
     {
-        return(NX_INVALID_PARAMETERS);
+        return(NX_CRYPTO_INVALID_PARAMETER);
     }
 
     /* Assign the seed as A(0). */
@@ -147,7 +135,7 @@ NX_CRYPTO_METHOD *hash_method = phash -> nx_crypto_hmac_method;
                                           metadata,
                                           metadata_size);
 
-            if(status != NX_SUCCESS)
+            if(status != NX_CRYPTO_SUCCESS)
             {
                 return(status);
             }                                                     
@@ -160,15 +148,15 @@ NX_CRYPTO_METHOD *hash_method = phash -> nx_crypto_hmac_method;
                                            (NX_CRYPTO_KEY_SIZE)(secret_len << 3),
                                            temp_A,
                                            A_len,
-                                           NX_NULL,
+                                           NX_CRYPTO_NULL,
                                            temp_A,
                                            temp_A_size,
                                            metadata,
                                            metadata_size,
-                                           NX_NULL,
-                                           NX_NULL);
+                                           NX_CRYPTO_NULL,
+                                           NX_CRYPTO_NULL);
 
-        if(status != NX_SUCCESS)
+        if(status != NX_CRYPTO_SUCCESS)
         {
             return(status);
         }                                                     
@@ -198,15 +186,15 @@ NX_CRYPTO_METHOD *hash_method = phash -> nx_crypto_hmac_method;
                                            (NX_CRYPTO_KEY_SIZE)(secret_len << 3),
                                            temp_A,
                                            A_len + seed_len,
-                                           NX_NULL,
+                                           NX_CRYPTO_NULL,
                                            hmac_output,
                                            output_len,
                                            metadata,
                                            metadata_size,
-                                           NX_NULL,
-                                           NX_NULL);
+                                           NX_CRYPTO_NULL,
+                                           NX_CRYPTO_NULL);
 
-        if(status != NX_SUCCESS)
+        if(status != NX_CRYPTO_SUCCESS)
         {
             return(status);
         }                                                     
@@ -222,7 +210,7 @@ NX_CRYPTO_METHOD *hash_method = phash -> nx_crypto_hmac_method;
 
         status = hash_method -> nx_crypto_cleanup(metadata);
 
-        if(status != NX_SUCCESS)
+        if(status != NX_CRYPTO_SUCCESS)
         {
             return(status);
         }                                                     

@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -41,10 +29,10 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_tls_send_finished                        PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -77,64 +65,75 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-09-2017     Timothy Stapko           Initial Version 5.10          */
-/*  12-15-2017     Timothy Stapko           Modified comment(s),          */
-/*                                            supported renegotiation,    */
-/*                                            resulting in version 5.11   */
-/*  08-15-2019     Timothy Stapko           Modified comment(s), and      */
-/*                                            added flexibility of using  */
-/*                                            macros instead of direct C  */
-/*                                            library function calls,     */
-/*                                            improved packet length      */
-/*                                            verification, cleared       */
-/*                                            remote certificate space,   */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 UINT _nx_secure_tls_send_finished(NX_SECURE_TLS_SESSION *tls_session, NX_PACKET *send_packet)
 {
 UCHAR            *finished_label;
-UINT              status;
+UINT             hash_size = 0;
+UINT             status;
+UINT             is_server;
 
-    /* Select our label for generating the finished hash expansion. */
-    if (tls_session -> nx_secure_tls_socket_type == NX_SECURE_TLS_SESSION_TYPE_SERVER)
+
+    is_server = (tls_session -> nx_secure_tls_socket_type == NX_SECURE_TLS_SESSION_TYPE_SERVER);
+
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+    if(tls_session->nx_secure_tls_1_3)
     {
-        finished_label = (UCHAR *)"server finished";
+
+        /* Generate the TLS 1.3-specific finished data. */
+        status = _nx_secure_tls_1_3_finished_hash_generate(tls_session, is_server, &hash_size,
+                                                           send_packet -> nx_packet_append_ptr,
+                                                           ((ULONG)(send_packet -> nx_packet_data_end) -
+                                                            (ULONG)(send_packet -> nx_packet_append_ptr)));
     }
     else
+#endif /* (NX_SECURE_TLS_TLS_1_3_ENABLED) */
     {
-        finished_label = (UCHAR *)"client finished";
-    }
+        /* Select our label for generating the finished hash expansion. */
+        if (is_server)
+        {
+            finished_label = (UCHAR *)"server finished";
+        }
+        else
+        {
+            finished_label = (UCHAR *)"client finished";
+        }
 
-    if (NX_SECURE_TLS_FINISHED_HASH_SIZE > ((ULONG)(send_packet -> nx_packet_data_end) - (ULONG)(send_packet -> nx_packet_append_ptr)))
-    {
-        
-        /* Packet buffer too small. */
-        return(NX_SECURE_TLS_PACKET_BUFFER_TOO_SMALL);
-    }
+        if (NX_SECURE_TLS_FINISHED_HASH_SIZE > ((ULONG)(send_packet -> nx_packet_data_end) - (ULONG)(send_packet -> nx_packet_append_ptr)))
+        {
+            
+            /* Packet buffer too small. */
+            return(NX_SECURE_TLS_PACKET_BUFFER_TOO_SMALL);
+        }
 
-    /* Finally, generate the verification data required by TLS - 12 bytes using the PRF and the data
-       we have collected. Place the result directly into the packet buffer. */
-    _nx_secure_tls_finished_hash_generate(tls_session, finished_label, send_packet -> nx_packet_append_ptr);
+        /* Finally, generate the verification data required by TLS - 12 bytes using the PRF and the data
+           we have collected. Place the result directly into the packet buffer. */
+        status = _nx_secure_tls_finished_hash_generate(tls_session, finished_label, send_packet -> nx_packet_append_ptr);
 
 #ifdef NX_SECURE_TLS_ENABLE_SECURE_RENEGOTIATION
-    /* If we are doing secure renegotiation as per RFC 5746, we need to save off the generated
-       verify data now. For TLS 1.0-1.2 this is 12 bytes. If SSLv3 is ever used, it will be 36 bytes. */
-    NX_SECURE_MEMCPY(tls_session -> nx_secure_tls_local_verify_data, send_packet -> nx_packet_append_ptr, NX_SECURE_TLS_FINISHED_HASH_SIZE);
+        /* If we are doing secure renegotiation as per RFC 5746, we need to save off the generated
+           verify data now. For TLS 1.0-1.2 this is 12 bytes. If SSLv3 is ever used, it will be 36 bytes. */
+        NX_SECURE_MEMCPY(tls_session -> nx_secure_tls_local_verify_data, send_packet -> nx_packet_append_ptr, NX_SECURE_TLS_FINISHED_HASH_SIZE);
 #endif
 
-    /* The finished verify data is always 12 bytes. */
-    send_packet -> nx_packet_append_ptr = send_packet -> nx_packet_append_ptr + NX_SECURE_TLS_FINISHED_HASH_SIZE;
-    send_packet -> nx_packet_length = send_packet -> nx_packet_length + NX_SECURE_TLS_FINISHED_HASH_SIZE;
+        /* The finished verify data is always 12 bytes for TLS 1.2 and earlier. */
+        hash_size = NX_SECURE_TLS_FINISHED_HASH_SIZE;
+    }
 
-    /* Finished with the handshake - we can free certificates now. */
-    status = _nx_secure_tls_remote_certificate_free_all(tls_session);
+    /* Adjust the packet into which we just wrote the finished hash. */
+    send_packet -> nx_packet_append_ptr = send_packet -> nx_packet_append_ptr + hash_size;
+    send_packet -> nx_packet_length = send_packet -> nx_packet_length + hash_size;
 
     if (status != NX_SUCCESS)
     {
         return(status);
     }
 
-    return(NX_SECURE_TLS_SUCCESS);
+    /* Finished with the handshake - we can free certificates now. */
+    status = _nx_secure_tls_remote_certificate_free_all(tls_session);
+
+    return(status);
 }
 

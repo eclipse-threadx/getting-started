@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -38,10 +26,10 @@
 /*  APPLICATION INTERFACE DEFINITION                       RELEASE        */
 /*                                                                        */
 /*    nx_crypto_aes.h                                     PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -52,11 +40,7 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Yuxin Zhou               Modified comment(s),          */
-/*                                            split operation functions   */
-/*                                            for different modes,        */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 
@@ -74,8 +58,11 @@ extern   "C" {
 
 /* Include the ThreadX and port-specific data type file.  */
 
-#include "nx_api.h"
 #include "nx_crypto.h"
+#include "nx_crypto_cbc.h"
+#include "nx_crypto_ctr.h"
+#include "nx_crypto_ccm.h"
+#include "nx_crypto_gcm.h"
 
 
 
@@ -83,7 +70,7 @@ extern   "C" {
 #define NX_CRYPTO_BITS_IN_UCHAR                  ((UINT)0x8)
 
 /* Helper macros for bit indexing (used by the division operation). */
-#define NX_CRYTPO_BIT_POSITION_BYTE_INDEX(x)     (x >> 3)                 /* Divide the bit position by 8 to get the byte array index.   */
+#define NX_CRYPTO_BIT_POSITION_BYTE_INDEX(x)     (x >> 3)                 /* Divide the bit position by 8 to get the byte array index.   */
 #define NX_CRYPTO_BIT_POSITION_BIT_VALUE(x)      ((UINT)0x1 << (x & 0x7)) /* The bit to set (OR with the byte) is at (bit position % 8). */
 
 /* Word-aligned versions. */
@@ -139,15 +126,15 @@ typedef struct NX_CRYPTO_AES_STRUCT
     UINT nx_crypto_aes_key_schedule[NX_CRYPTO_AES_MAX_KEY_SIZE * 8];
     UINT nx_crypto_aes_decrypt_key_schedule[NX_CRYPTO_AES_MAX_KEY_SIZE * 8];
 
-    /* Pointer of additional data. */
-    VOID *nx_crypto_aes_additional_data;
-
-    /* Length of additional data. */
-    UINT nx_crypto_aes_additional_data_len;
+    /* Metadata for each mode. */
+    union
+    {
+        NX_CRYPTO_CBC cbc;
+        NX_CRYPTO_CTR ctr;
+        NX_CRYPTO_GCM gcm;
+        NX_CRYPTO_CCM ccm;
+    } nx_crypto_aes_mode_context;
 } NX_CRYPTO_AES;
-
-
-
 
 UINT _nx_crypto_aes_encrypt(NX_CRYPTO_AES *aes_ptr, UCHAR *input, UCHAR *output, UINT length);
 UINT _nx_crypto_aes_decrypt(NX_CRYPTO_AES *aes_ptr, UCHAR *input, UCHAR *output, UINT length);
@@ -193,6 +180,21 @@ UINT  _nx_crypto_method_aes_cbc_operation(UINT op,      /* Encrypt, Decrypt, Aut
                                           VOID (*nx_crypto_hw_process_callback)(VOID *packet_ptr, UINT status));
 
 UINT  _nx_crypto_method_aes_ccm_operation(UINT op,      /* Encrypt, Decrypt, Authenticate */
+                                          VOID *handle, /* Crypto handler */
+                                          struct NX_CRYPTO_METHOD_STRUCT *method,
+                                          UCHAR *key,
+                                          NX_CRYPTO_KEY_SIZE key_size_in_bits,
+                                          UCHAR *input,
+                                          ULONG input_length_in_byte,
+                                          UCHAR *iv_ptr,
+                                          UCHAR *output,
+                                          ULONG output_length_in_byte,
+                                          VOID *crypto_metadata,
+                                          ULONG crypto_metadata_size,
+                                          VOID *packet_ptr,
+                                          VOID (*nx_crypto_hw_process_callback)(VOID *packet_ptr, UINT status));
+
+UINT  _nx_crypto_method_aes_gcm_operation(UINT op,      /* Encrypt, Decrypt, Authenticate */
                                           VOID *handle, /* Crypto handler */
                                           struct NX_CRYPTO_METHOD_STRUCT *method,
                                           UCHAR *key,

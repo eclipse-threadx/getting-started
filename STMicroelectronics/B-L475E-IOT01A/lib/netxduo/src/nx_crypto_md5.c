@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
  
@@ -57,7 +45,6 @@
 /**************************************************************************/
 /**************************************************************************/
 
-#include "nx_api.h"
 #include "nx_crypto_md5.h"
 
 
@@ -111,10 +98,10 @@ const UCHAR _nx_crypto_md5_padding[64] = {0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_md5_initialize                           PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -142,13 +129,7 @@ const UCHAR _nx_crypto_md5_padding[64] = {0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            fixed the compiler error for*/
-/*                                            cast-function-type,         */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP UINT  _nx_crypto_md5_initialize(NX_CRYPTO_MD5 *context, UINT algorithm)
@@ -156,9 +137,9 @@ NX_CRYPTO_KEEP UINT  _nx_crypto_md5_initialize(NX_CRYPTO_MD5 *context, UINT algo
     NX_PARAMETER_NOT_USED(algorithm);
 
     /* Determine if the context is non-null.  */
-    if (context == NX_NULL)
+    if (context == NX_CRYPTO_NULL)
     {
-        return(NX_PTR_ERROR);
+        return(NX_CRYPTO_PTR_ERROR);
     }
 
     /* First, clear the bit count for this context.  */
@@ -181,10 +162,10 @@ NX_CRYPTO_KEEP UINT  _nx_crypto_md5_initialize(NX_CRYPTO_MD5 *context, UINT algo
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_md5_update                               PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -216,11 +197,7 @@ NX_CRYPTO_KEEP UINT  _nx_crypto_md5_initialize(NX_CRYPTO_MD5 *context, UINT algo
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP UINT  _nx_crypto_md5_update(NX_CRYPTO_MD5 *context, UCHAR *input_ptr, UINT input_length)
@@ -231,9 +208,9 @@ ULONG needed_fill_bytes;
 
 
     /* Determine if the context is non-null.  */
-    if (context == NX_NULL)
+    if (context == NX_CRYPTO_NULL)
     {
-        return(NX_PTR_ERROR);
+        return(NX_CRYPTO_PTR_ERROR);
     }
 
     /* Determine if there is a length.  */
@@ -313,10 +290,10 @@ ULONG needed_fill_bytes;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_md5_digest_calculate                     PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -347,13 +324,7 @@ ULONG needed_fill_bytes;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            fixed the compiler error for*/
-/*                                            cast-function-type,         */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP UINT  _nx_crypto_md5_digest_calculate(NX_CRYPTO_MD5 *context, UCHAR digest[16], UINT algorithm)
@@ -419,10 +390,10 @@ ULONG padding_bytes;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_md5_process_buffer                       PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -451,11 +422,7 @@ ULONG padding_bytes;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP VOID  _nx_crypto_md5_process_buffer(NX_CRYPTO_MD5 *context, UCHAR buffer[64])
@@ -574,10 +541,10 @@ ULONG x[16];
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_method_md5_init                          PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -609,7 +576,7 @@ ULONG x[16];
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  08-15-2019     Timothy Stapko           Initial Version 5.12          */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP UINT  _nx_crypto_method_md5_init(struct  NX_CRYPTO_METHOD_STRUCT *method,
@@ -619,28 +586,28 @@ NX_CRYPTO_KEEP UINT  _nx_crypto_method_md5_init(struct  NX_CRYPTO_METHOD_STRUCT 
                                                 ULONG crypto_metadata_size)
 {
 
-    NX_PARAMETER_NOT_USED(key);
-    NX_PARAMETER_NOT_USED(key_size_in_bits);
-    NX_PARAMETER_NOT_USED(handle);
+    NX_CRYPTO_PARAMETER_NOT_USED(key);
+    NX_CRYPTO_PARAMETER_NOT_USED(key_size_in_bits);
+    NX_CRYPTO_PARAMETER_NOT_USED(handle);
 
     NX_CRYPTO_STATE_CHECK
 
-    if (method == NX_NULL)
+    if (method == NX_CRYPTO_NULL)
     {
-        return(NX_PTR_ERROR);
+        return(NX_CRYPTO_PTR_ERROR);
     }
 
-    if (crypto_metadata == NX_NULL)
+    if (crypto_metadata == NX_CRYPTO_NULL)
     {
 
         /* metadata is not passed by IPsec. */
 #ifndef NX_IPSEC_ENABLE
-        return(NX_PTR_ERROR);
+        return(NX_CRYPTO_PTR_ERROR);
 #endif
     }
     else if (((((ULONG)crypto_metadata) & 0x3) != 0) || (crypto_metadata_size < sizeof(NX_CRYPTO_MD5)))
     {
-        return(NX_PTR_ERROR);
+        return(NX_CRYPTO_PTR_ERROR);
     }
 
     return(NX_CRYPTO_SUCCESS);
@@ -652,10 +619,10 @@ NX_CRYPTO_KEEP UINT  _nx_crypto_method_md5_init(struct  NX_CRYPTO_METHOD_STRUCT 
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_method_md5_cleanup                       PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -681,7 +648,7 @@ NX_CRYPTO_KEEP UINT  _nx_crypto_method_md5_init(struct  NX_CRYPTO_METHOD_STRUCT 
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  08-15-2019     Timothy Stapko           Initial Version 5.12          */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP UINT  _nx_crypto_method_md5_cleanup(VOID *crypto_metadata)
@@ -696,7 +663,7 @@ NX_CRYPTO_KEEP UINT  _nx_crypto_method_md5_cleanup(VOID *crypto_metadata)
     /* Clean up the crypto metadata.  */
     NX_CRYPTO_MEMSET(crypto_metadata, 0, sizeof(NX_CRYPTO_MD5));
 #else
-    NX_PARAMETER_NOT_USED(crypto_metadata);
+    NX_CRYPTO_PARAMETER_NOT_USED(crypto_metadata);
 #endif/* NX_SECURE_KEY_CLEAR  */
 
     return(NX_CRYPTO_SUCCESS);
@@ -708,10 +675,10 @@ NX_CRYPTO_KEEP UINT  _nx_crypto_method_md5_cleanup(VOID *crypto_metadata)
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_method_md5_operation                    PORTABLE C       */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -755,13 +722,7 @@ NX_CRYPTO_KEEP UINT  _nx_crypto_method_md5_cleanup(VOID *crypto_metadata)
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            fixed the compiler error for*/
-/*                                            cast-function-type,         */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP UINT  _nx_crypto_method_md5_operation(UINT op,      /* Encrypt, Decrypt, Authenticate */
@@ -784,33 +745,33 @@ NX_CRYPTO_MD5 *ctx = (NX_CRYPTO_MD5 *)crypto_metadata;
 NX_CRYPTO_MD5 metadata;
 #endif
 
-    NX_PARAMETER_NOT_USED(handle);
-    NX_PARAMETER_NOT_USED(key);
-    NX_PARAMETER_NOT_USED(key_size_in_bits);
-    NX_PARAMETER_NOT_USED(iv_ptr);
-    NX_PARAMETER_NOT_USED(packet_ptr);
-    NX_PARAMETER_NOT_USED(nx_crypto_hw_process_callback);
+    NX_CRYPTO_PARAMETER_NOT_USED(handle);
+    NX_CRYPTO_PARAMETER_NOT_USED(key);
+    NX_CRYPTO_PARAMETER_NOT_USED(key_size_in_bits);
+    NX_CRYPTO_PARAMETER_NOT_USED(iv_ptr);
+    NX_CRYPTO_PARAMETER_NOT_USED(packet_ptr);
+    NX_CRYPTO_PARAMETER_NOT_USED(nx_crypto_hw_process_callback);
 
     NX_CRYPTO_STATE_CHECK
 
-    if (method == NX_NULL)
+    if (method == NX_CRYPTO_NULL)
     {
-        return(NX_PTR_ERROR);
+        return(NX_CRYPTO_PTR_ERROR);
     }
 
     /* Verify the metadata addrsss is 4-byte aligned. */
-    if (crypto_metadata == NX_NULL)
+    if (crypto_metadata == NX_CRYPTO_NULL)
     {
 #ifdef NX_IPSEC_ENABLE
         /* metadata is not passed by IPsec. */
         ctx = &metadata;
 #else
-        return(NX_PTR_ERROR);
+        return(NX_CRYPTO_PTR_ERROR);
 #endif
     }
     else if (((((ULONG)crypto_metadata) & 0x3) != 0) || (crypto_metadata_size < sizeof(NX_CRYPTO_MD5)))
     {
-        return(NX_PTR_ERROR);
+        return(NX_CRYPTO_PTR_ERROR);
     }
 
     switch (op)
@@ -836,7 +797,7 @@ NX_CRYPTO_MD5 metadata;
         _nx_crypto_md5_update(ctx, input, input_length_in_byte);
         _nx_crypto_md5_digest_calculate(ctx, output, method -> nx_crypto_algorithm);
 #if defined(NX_SECURE_KEY_CLEAR) && defined(NX_IPSEC_ENABLE)
-        if (crypto_metadata == NX_NULL)
+        if (crypto_metadata == NX_CRYPTO_NULL)
         {
             memset(ctx, 0, sizeof(NX_CRYPTO_MD5));
         }

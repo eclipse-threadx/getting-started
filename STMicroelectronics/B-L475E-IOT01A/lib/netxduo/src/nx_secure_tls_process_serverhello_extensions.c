@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -39,16 +27,28 @@
 #ifdef NX_SECURE_TLS_ENABLE_SECURE_RENEGOTIATION
 static UINT _nx_secure_tls_proc_serverhello_sec_reneg_extension(NX_SECURE_TLS_SESSION *tls_session,
                                                                 UCHAR *packet_buffer,
-                                                                USHORT *extension_length);
+                                                                USHORT *extension_length, UINT message_length);
+#endif
+
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+#ifdef NX_SECURE_ENABLE_ECC_CIPHERSUITE
+static UINT _nx_secure_tls_proc_serverhello_keyshare_extension(NX_SECURE_TLS_SESSION *tls_session,
+                                                                UCHAR *packet_buffer,
+                                                                USHORT *extension_length, UINT message_length);
+#endif
+static UINT _nx_secure_tls_proc_serverhello_supported_versions_extension(NX_SECURE_TLS_SESSION *tls_session,
+                                                                         UCHAR *packet_buffer,
+                                                                         USHORT *supported_version,
+                                                                         USHORT *extension_length, UINT message_length);
 #endif
 
 #ifdef NX_SECURE_ENABLE_ECJPAKE_CIPHERSUITE
 static UINT _nx_secure_tls_proc_serverhello_ecc_point_formats(NX_SECURE_TLS_SESSION *tls_session,
                                                               UCHAR *packet_buffer,
-                                                              USHORT *extension_length);
+                                                              USHORT *extension_length, UINT message_length);
 static UINT _nx_secure_tls_proc_serverhello_ecjpake_key_kp_pair(NX_SECURE_TLS_SESSION *tls_session,
                                                                 UCHAR *packet_buffer,
-                                                                USHORT *extension_length);
+                                                                USHORT *extension_length, UINT message_length);
 #endif
 
 /**************************************************************************/
@@ -56,10 +56,10 @@ static UINT _nx_secure_tls_proc_serverhello_ecjpake_key_kp_pair(NX_SECURE_TLS_SE
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_tls_process_serverhello_extensions       PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -98,12 +98,7 @@ static UINT _nx_secure_tls_proc_serverhello_ecjpake_key_kp_pair(NX_SECURE_TLS_SE
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s), added    */
-/*                                            extension hook, updated     */
-/*                                            error return codes,         */
-/*                                            removed cipher suite lookup,*/
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 UINT _nx_secure_tls_process_serverhello_extensions(NX_SECURE_TLS_SESSION *tls_session,
@@ -119,7 +114,9 @@ USHORT                                ec_point_formats_match, zkp_verified;
 UINT                                  offset;
 USHORT                                extension_id;
 USHORT                                extension_length;
-
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+USHORT                                supported_version = tls_session -> nx_secure_tls_protocol_version;
+#endif
 
 #ifndef NX_SECURE_TLS_ENABLE_SECURE_RENEGOTIATION
 #ifndef NX_SECURE_ENABLE_ECJPAKE_CIPHERSUITE
@@ -144,6 +141,14 @@ USHORT                                extension_length;
     /* Process extensions until we run out. */
     while (offset < message_length)
     {
+
+        /* Make sure there are at least 4 bytes available so we can read extension_id and
+           extension_length. */
+        if (offset + 4 > message_length)
+        {
+            return(NX_SECURE_TLS_INCORRECT_MESSAGE_LENGTH);
+        }
+
         /* See what the extension is. */
         extension_id = (USHORT)((packet_buffer[offset] << 8) + packet_buffer[offset + 1]);
 
@@ -155,21 +160,106 @@ USHORT                                extension_length;
         {
 #ifdef NX_SECURE_TLS_ENABLE_SECURE_RENEGOTIATION
         case NX_SECURE_TLS_EXTENSION_SECURE_RENEGOTIATION:
-            status = _nx_secure_tls_proc_serverhello_sec_reneg_extension(tls_session, &packet_buffer[offset], &extension_length);
+            status = _nx_secure_tls_proc_serverhello_sec_reneg_extension(tls_session, &packet_buffer[offset], &extension_length, message_length - offset);
 
+            if (status)
+            {
+                return(status);
+            }
             break;
 #endif /* NX_SECURE_TLS_ENABLE_SECURE_RENEGOTIATION */
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+#ifdef NX_SECURE_ENABLE_ECC_CIPHERSUITE
+        case NX_SECURE_TLS_EXTENSION_KEY_SHARE:
+
+            if(tls_session->nx_secure_tls_1_3)
+            {
+                /* Process the TLS 1.3 key share extension. */
+                status = _nx_secure_tls_proc_serverhello_keyshare_extension(tls_session, &packet_buffer[offset], &extension_length, message_length - offset);
+
+                if (status)
+                {
+                    return(status);
+                }
+            }
+            else
+            {
+                extension_length = (USHORT)((packet_buffer[offset] << 8) + packet_buffer[offset + 1]);
+                if (extension_length + offset + 2 > message_length)
+                {
+                    return(NX_SECURE_TLS_INCORRECT_MESSAGE_LENGTH);
+                }
+            }
+            offset += 2;
+
+            /* Ignore if not TLS 1.3. */
+            break;
+#endif
+        case NX_SECURE_TLS_EXTENSION_SUPPORTED_VERSIONS:
+            if(tls_session->nx_secure_tls_1_3)
+            {
+
+                /* Process the TLS 1.3 supported_versions extension. */
+                status = _nx_secure_tls_proc_serverhello_supported_versions_extension(tls_session, &packet_buffer[offset], &supported_version, &extension_length, message_length - offset);
+
+                if (status)
+                {
+                    return(status);
+                }
+            }
+            else
+            {
+                extension_length = (USHORT)((packet_buffer[offset] << 8) + packet_buffer[offset + 1]);
+                if (extension_length + offset + 2 > message_length)
+                {
+                    return(NX_SECURE_TLS_INCORRECT_MESSAGE_LENGTH);
+                }
+            }
+            offset += 2;
+
+            /* Ignore if not TLS 1.3. */
+            break;
+        case NX_SECURE_TLS_EXTENSION_COOKIE:
+            extension_length = (USHORT)((packet_buffer[offset] << 8) + packet_buffer[offset + 1]);
+            offset += 2;
+
+            if (extension_length + offset > message_length)
+            {
+                return(NX_SECURE_TLS_INCORRECT_MESSAGE_LENGTH);
+            }
+
+            /* Store the pointer of cookie. */
+            /* Note: Cookie data is stored in ServerHello packet buffer. This buffer should not be released 
+               or overwrote before Cookie is copied to ClientHello. */
+            if (tls_session -> nx_secure_tls_1_3)
+            {
+                if (extension_length < 2)
+                {
+                    return(NX_SECURE_TLS_INCORRECT_MESSAGE_LENGTH);
+                }
+
+                tls_session -> nx_secure_tls_cookie_length = (USHORT)((packet_buffer[offset] << 8) + packet_buffer[offset + 1]);
+                tls_session -> nx_secure_tls_cookie = &packet_buffer[offset + 2];
+
+                if (tls_session -> nx_secure_tls_cookie_length + 2 > extension_length)
+                {
+                    return(NX_SECURE_TLS_INCORRECT_MESSAGE_LENGTH);
+                }
+            }
+
+            break;
+#endif
 #ifdef NX_SECURE_ENABLE_ECJPAKE_CIPHERSUITE
         /* ECJPAKE ciphersuite extensions. */
         case NX_SECURE_TLS_EXTENSION_EC_POINT_FORMATS:
-            status = _nx_secure_tls_proc_serverhello_ecc_point_formats(tls_session, &packet_buffer[offset], &extension_length);
+            status = _nx_secure_tls_proc_serverhello_ecc_point_formats(tls_session, &packet_buffer[offset], &extension_length, message_length - offset);
             if (status == NX_SUCCESS)
             {
                 ec_point_formats_match = NX_TRUE;
             }
             break;
         case NX_SECURE_TLS_EXTENSION_ECJPAKE_KEY_KP_PAIR:
-            status = _nx_secure_tls_proc_serverhello_ecjpake_key_kp_pair(tls_session, &packet_buffer[offset], &extension_length);
+            status = _nx_secure_tls_proc_serverhello_ecjpake_key_kp_pair(tls_session, &packet_buffer[offset], &extension_length, message_length - offset);
             if (status == NX_SUCCESS)
             {
                 zkp_verified = NX_TRUE;
@@ -180,7 +270,6 @@ USHORT                                extension_length;
         case NX_SECURE_TLS_EXTENSION_EC_POINT_FORMATS:
         case NX_SECURE_TLS_EXTENSION_ECJPAKE_KEY_KP_PAIR:
 #endif /* NX_SECURE_ENABLE_ECJPAKE_CIPHERSUITE */
-
         case NX_SECURE_TLS_EXTENSION_SERVER_NAME_INDICATION:
         case NX_SECURE_TLS_EXTENSION_MAX_FRAGMENT_LENGTH:
         case NX_SECURE_TLS_EXTENSION_CLIENT_CERTIFICATE_URL:
@@ -191,12 +280,20 @@ USHORT                                extension_length;
             extension_length = (USHORT)((packet_buffer[offset] << 8) + packet_buffer[offset + 1]);
             offset += 2;
 
-            extensions[*num_extensions].nx_secure_tls_extension_id = extension_id;
-            extensions[*num_extensions].nx_secure_tls_extension_data = &packet_buffer[offset];
-            extensions[*num_extensions].nx_secure_tls_extension_data_length = extension_length;
+            if (extension_length + offset > message_length)
+            {
+                return(NX_SECURE_TLS_INCORRECT_MESSAGE_LENGTH);
+            }
 
-            /* Added another extension to the array. */
-            *num_extensions = *num_extensions + 1;
+            if (*num_extensions < NX_SECURE_TLS_HELLO_EXTENSIONS_MAX)
+            {
+                extensions[*num_extensions].nx_secure_tls_extension_id = extension_id;
+                extensions[*num_extensions].nx_secure_tls_extension_data = &packet_buffer[offset];
+                extensions[*num_extensions].nx_secure_tls_extension_data_length = extension_length;
+
+                /* Added another extension to the array. */
+                *num_extensions = *num_extensions + 1;
+            }
 
             break;
         case NX_SECURE_TLS_EXTENSION_SIGNATURE_ALGORITHMS:
@@ -207,6 +304,11 @@ USHORT                                extension_length;
                octets are the length field so we can continue processing. */
             extension_length = (USHORT)((packet_buffer[offset] << 8) + packet_buffer[offset + 1]);
             offset += 2;
+
+            if (extension_length + offset > message_length)
+            {
+                return(NX_SECURE_TLS_INCORRECT_MESSAGE_LENGTH);
+            }
 
             break;
         }
@@ -224,7 +326,36 @@ USHORT                                extension_length;
     }
 #endif /* NX_SECURE_ENABLE_ECJPAKE_CIPHERSUITE */
 
-    NX_SECURE_PROCESS_SERVERHELLO_EXTENSIONS_EXTENSION
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+    if(tls_session->nx_secure_tls_1_3)
+    {
+        if (supported_version != NX_SECURE_TLS_VERSION_TLS_1_3)
+        {
+
+            /* Server negotiates a version of TLS prior to TLS 1.3. */
+            if (tls_session -> nx_secure_tls_protocol_version_override == 0)
+            {
+                tls_session -> nx_secure_tls_1_3 = NX_FALSE;
+                tls_session -> nx_secure_tls_renegotation_enabled = NX_TRUE;
+            }
+            else
+            {
+
+                /* Protocol version is overridden to TLS 1.3. */
+                return(NX_SECURE_TLS_UNSUPPORTED_TLS_VERSION);
+            }
+        }
+        else
+        {
+            if (tls_session -> nx_secure_tls_protocol_version != NX_SECURE_TLS_VERSION_TLS_1_2)
+            {
+
+                /* Server negotiates TLS 1.3 must set the legacy version to TLS 1.2. */
+                return(NX_SECURE_TLS_UNKNOWN_TLS_VERSION);
+            }
+        }
+    }
+#endif
 
     return(status);
 }
@@ -235,10 +366,10 @@ USHORT                                extension_length;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_tls_proc_serverhello_ecc_point_formats   PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -250,6 +381,7 @@ USHORT                                extension_length;
 /*    tls_session                           TLS control block             */
 /*    packet_buffer                         Outgoing TLS packet buffer    */
 /*    extension_length                      Length of extension data      */
+/*    message_length                        Length of message data (bytes)*/
 /*                                                                        */
 /*  OUTPUT                                                                */
 /*                                                                        */
@@ -268,19 +400,13 @@ USHORT                                extension_length;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added operation method for  */
-/*                                            elliptic curve cryptography,*/
-/*                                            fixed compiler warnings,    */
-/*                                            removed cipher suite lookup,*/
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 #ifdef NX_SECURE_ENABLE_ECJPAKE_CIPHERSUITE
 static UINT _nx_secure_tls_proc_serverhello_ecc_point_formats(NX_SECURE_TLS_SESSION *tls_session,
                                                               UCHAR *packet_buffer,
-                                                              USHORT *extension_length)
+                                                              USHORT *extension_length, UINT message_length)
 {
 UINT                                  status;
 UINT                                  i;
@@ -297,9 +423,19 @@ UINT                                  offset;
     /* Skip the length field of this extension. */
     offset = 2;
 
+    if (*extension_length > message_length || *extension_length < 3)
+    {
+        return(NX_SECURE_TLS_INCORRECT_MESSAGE_LENGTH);
+    }
+
     /* ec_point_formats Extension.  */
     ec_point_formats_length = packet_buffer[offset];
     offset += 1;
+
+    if (offset + ec_point_formats_length != *extension_length)
+    {
+        return(NX_SECURE_TLS_INCORRECT_MESSAGE_LENGTH);
+    }
 
     /* Ignore the extension if we are not using ECJPAKE. */
     if (tls_session -> nx_secure_tls_session_ciphersuite -> nx_secure_tls_public_auth -> nx_crypto_algorithm == NX_CRYPTO_KEY_EXCHANGE_ECJPAKE)
@@ -322,9 +458,6 @@ UINT                                  offset;
         }
     }
 
-    /* Return the extension length - add 1 for length itself. */
-    *extension_length = (USHORT)(offset + ec_point_formats_length);
-
     return(NX_SUCCESS);
 }
 #endif
@@ -335,10 +468,10 @@ UINT                                  offset;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_tls_proc_serverhello_ecjpake_key_kp_pair PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -350,6 +483,7 @@ UINT                                  offset;
 /*    tls_session                           TLS control block             */
 /*    packet_buffer                         Outgoing TLS packet buffer    */
 /*    extension_length                      Length of extension data      */
+/*    message_length                        Length of message data (bytes)*/
 /*                                                                        */
 /*  OUTPUT                                                                */
 /*                                                                        */
@@ -368,26 +502,23 @@ UINT                                  offset;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added operation method for  */
-/*                                            elliptic curve cryptography,*/
-/*                                            passed crypto handle into   */
-/*                                            crypto internal functions,  */
-/*                                            updated error return codes, */
-/*                                            removed cipher suite lookup,*/
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 #ifdef NX_SECURE_ENABLE_ECJPAKE_CIPHERSUITE
 static UINT _nx_secure_tls_proc_serverhello_ecjpake_key_kp_pair(NX_SECURE_TLS_SESSION *tls_session,
                                                                 UCHAR *packet_buffer,
-                                                                USHORT *extension_length)
+                                                                USHORT *extension_length, UINT message_length)
 {
 UINT                                  status;
 NX_CRYPTO_METHOD                     *crypto_method;
 
     *extension_length = (USHORT)((*packet_buffer << 8) + packet_buffer[1] + 2);
+
+    if (*extension_length > message_length || *extension_length <= 2)
+    {
+        return(NX_SECURE_TLS_INCORRECT_MESSAGE_LENGTH);
+    }
 
     if (tls_session -> nx_secure_tls_session_ciphersuite == NX_NULL)
     {
@@ -398,7 +529,7 @@ NX_CRYPTO_METHOD                     *crypto_method;
     if (tls_session -> nx_secure_tls_session_ciphersuite -> nx_secure_tls_public_auth -> nx_crypto_algorithm == NX_CRYPTO_KEY_EXCHANGE_ECJPAKE)
     {
 
-        crypto_method = tls_session -> nx_secure_tls_session_ciphersuite -> nx_secure_tls_public_auth;
+        crypto_method = (NX_CRYPTO_METHOD*)tls_session -> nx_secure_tls_session_ciphersuite -> nx_secure_tls_public_auth;
 
         /* ecjpake_key_kp_pair Extension.  */
         status = crypto_method -> nx_crypto_operation(NX_CRYPTO_ECJPAKE_SERVER_HELLO_PROCESS,
@@ -426,10 +557,10 @@ NX_CRYPTO_METHOD                     *crypto_method;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_tls_proc_serverhello_sec_reneg_extension PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -442,6 +573,7 @@ NX_CRYPTO_METHOD                     *crypto_method;
 /*    tls_session                           TLS control block             */
 /*    packet_buffer                         Outgoing TLS packet buffer    */
 /*    extension_length                      Length of extension data      */
+/*    message_length                        Length of message data (bytes)*/
 /*                                                                        */
 /*  OUTPUT                                                                */
 /*                                                                        */
@@ -460,24 +592,13 @@ NX_CRYPTO_METHOD                     *crypto_method;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added flexibility of using  */
-/*                                            macros instead of direct C  */
-/*                                            library function calls,     */
-/*                                            fixed issue with requiring  */
-/*                                            both the SCSV and extension */
-/*                                            to be present for           */
-/*                                            renegotation, changed the   */
-/*                                            name of the SCSV            */
-/*                                            renegotiation flag,         */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 #ifdef NX_SECURE_TLS_ENABLE_SECURE_RENEGOTIATION
 static UINT _nx_secure_tls_proc_serverhello_sec_reneg_extension(NX_SECURE_TLS_SESSION *tls_session,
                                                                 UCHAR *packet_buffer,
-                                                                USHORT *extension_length)
+                                                                USHORT *extension_length, UINT message_length)
 {
 ULONG  offset;
 UCHAR  renegotiated_connection_length;
@@ -524,9 +645,19 @@ INT    compare_value;
     *extension_length = (USHORT)(2 + parsed_length);
     offset = 2;
 
+    if (*extension_length > message_length || *extension_length < 3)
+    {
+        return(NX_SECURE_TLS_INCORRECT_MESSAGE_LENGTH);
+    }
+
     /* Get the "renegotiated_connection" field. */
     renegotiated_connection_length = packet_buffer[offset];
     offset++;
+
+    if (offset + renegotiated_connection_length > *extension_length)
+    {
+        return(NX_SECURE_TLS_INCORRECT_MESSAGE_LENGTH);
+    }
 
     /* See if the client is attempting to renegotiate an established connection. */
     if (renegotiated_connection_length)
@@ -587,6 +718,335 @@ INT    compare_value;
     }
 
     return(NX_SUCCESS);
+}
+#endif
+
+
+/**************************************************************************/
+/*                                                                        */
+/*  FUNCTION                                               RELEASE        */
+/*                                                                        */
+/*    _nx_secure_tls_proc_serverhello_keyshare_extension  PORTABLE C      */
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Timothy Stapko, Microsoft Corporation                               */
+/*                                                                        */
+/*  DESCRIPTION                                                           */
+/*                                                                        */
+/*    This function parses the Key Share extension introduced in TLS 1.3. */
+/*                                                                        */
+/*  INPUT                                                                 */
+/*                                                                        */
+/*    tls_session                           TLS control block             */
+/*    packet_buffer                         Outgoing TLS packet buffer    */
+/*    extension_length                      Length of extension data      */
+/*    message_length                        Length of message data (bytes)*/
+/*                                                                        */
+/*  OUTPUT                                                                */
+/*                                                                        */
+/*    status                                Completion status             */
+/*                                                                        */
+/*  CALLS                                                                 */
+/*                                                                        */
+/*    None                                                                */
+/*                                                                        */
+/*  CALLED BY                                                             */
+/*                                                                        */
+/*    _nx_secure_tls_process_serverhello_extensions                       */
+/*                                          Process ServerHello extensions*/
+/*                                                                        */
+/*  RELEASE HISTORY                                                       */
+/*                                                                        */
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+
+extern NX_CRYPTO_METHOD crypto_method_ecdhe;
+
+static UINT _nx_secure_tls_proc_serverhello_keyshare_extension(NX_SECURE_TLS_SESSION *tls_session,
+                                                                UCHAR *packet_buffer,
+                                                                USHORT *extension_length, UINT message_length)
+{
+UINT status;
+UINT i;
+ULONG  offset;
+USHORT key_group;
+USHORT key_length;
+UCHAR  legacy_form;
+NX_SECURE_TLS_ECDHE_HANDSHAKE_DATA *ecc_key_data;
+UCHAR                                *pubkey;
+UCHAR                                *private_key;
+UINT                                  private_key_length;
+NX_CRYPTO_EXTENDED_OUTPUT             extended_output;
+NX_CRYPTO_METHOD                     *ecdhe_method;
+const NX_CRYPTO_METHOD               *curve_method;
+VOID                                 *handler = NX_NULL;
+NX_SECURE_TLS_ECC *ecc_info;
+
+    /* Key Share Extension structure (for serverhello):
+     *
+     * ServerHello:
+     * |      2     |     2     |     <key len>       |
+     * |  Key Group |  Key Len  |  Key Exchange value |
+     */
+
+    offset = 0;
+
+    /* Extract the extension length. */
+    *extension_length = (USHORT)((packet_buffer[offset] << 8) + packet_buffer[offset + 1]);
+    offset = (USHORT)(offset + 2);
+
+    if (offset + *extension_length > message_length || *extension_length < 2)
+    {
+        return(NX_SECURE_TLS_INCORRECT_MESSAGE_LENGTH);
+    }
+
+    /* Get the key group. It must match one we sent in our ClientHello KeyShare extension. */
+    key_group = (USHORT)((packet_buffer[offset] << 8) + packet_buffer[offset + 1]);
+    offset = (USHORT)(offset + 2);
+
+    /* Get our session ECC data. */
+    ecc_info = &(tls_session -> nx_secure_tls_ecc);
+
+    /* Check the key group. */
+    key_group = (USHORT)((ULONG)key_group | NX_CRYPTO_EC_MASK);
+
+
+    /* Loop through all supported ECC curves in this session. */
+    for (i = 0; i < ecc_info -> nx_secure_tls_ecc_supported_groups_count; i++)
+    {
+        /* Find the matchin group in the keys we generated and saved. */
+        if(key_group != tls_session->nx_secure_tls_key_material.nx_secure_tls_ecc_key_data[i].nx_secure_tls_ecdhe_named_curve)
+        {
+            continue;
+        }
+
+        /* Store selected ECDHE key data index. */
+        tls_session -> nx_secure_tls_key_material.nx_secure_tls_ecc_key_data_selected = i;
+
+        if (tls_session -> nx_secure_tls_client_state == NX_SECURE_TLS_CLIENT_STATE_HELLO_RETRY)
+        {
+
+            /* A HelloRetryRequest is received. Done here. */
+            return(NX_SUCCESS);
+        }
+
+        /* Got a matching key/curve combo, get a pointer to the selected key data. */
+        ecc_key_data = tls_session->nx_secure_tls_key_material.nx_secure_tls_ecc_key_data;
+
+        if (*extension_length < 4)
+        {
+            return(NX_SECURE_TLS_INCORRECT_MESSAGE_LENGTH);
+        }
+
+        /* Get the key length. */
+        key_length = (USHORT)((packet_buffer[offset] << 8) + packet_buffer[offset + 1]);
+        if (offset + key_length > *extension_length)
+        {
+            return(NX_SECURE_TLS_INCORRECT_MESSAGE_LENGTH);
+        }
+        offset = (USHORT)(offset + 2);
+
+        /* Extract the legacy form value. NOTE: the form must be included in the ECC calculations below
+          so don't advance the offset! */
+        legacy_form = packet_buffer[offset];
+
+        if(legacy_form != 0x4)
+        {
+            /* In TLS 1.3, the only valid form is 0x4. */
+            return(NX_SECURE_TLS_BAD_SERVERHELLO_KEYSHARE);
+        }
+        
+        /* Initialize the remote public key in our session. */
+        pubkey = &packet_buffer[offset];
+
+        /* Get the curve method to initialize the remote public key data. */
+        _nx_secure_tls_find_curve_method(tls_session, key_group, &curve_method);
+
+        if (curve_method == NX_NULL)
+        {
+            return(NX_SECURE_TLS_MISSING_CRYPTO_ROUTINE);
+        }
+
+        /* Get the ECDHE method we are going to use. */
+        ecdhe_method = &crypto_method_ecdhe;
+
+        if (ecdhe_method -> nx_crypto_operation == NX_NULL )
+        {
+            return(NX_SECURE_TLS_MISSING_CRYPTO_ROUTINE);
+        }
+
+        /* Initialize the ECDHE method. */
+        if (ecdhe_method -> nx_crypto_init != NX_NULL)
+        {
+            status = ecdhe_method -> nx_crypto_init(ecdhe_method,
+                                                    NX_NULL,
+                                                    0,
+                                                    &handler,
+                                                    tls_session -> nx_secure_public_cipher_metadata_area,
+                                                    tls_session -> nx_secure_public_cipher_metadata_size);
+
+            if (status != NX_CRYPTO_SUCCESS)
+            {
+                return(status);
+            }
+        }
+
+        /* Set the curve we want to use. */
+        status = ecdhe_method -> nx_crypto_operation(NX_CRYPTO_EC_CURVE_SET, handler,
+                                                     ecdhe_method, NX_NULL, 0,
+                                                     (UCHAR *)curve_method, sizeof(NX_CRYPTO_METHOD *), NX_NULL,
+                                                     NX_NULL, 0,
+                                                     tls_session -> nx_secure_public_cipher_metadata_area,
+                                                     tls_session -> nx_secure_public_cipher_metadata_size,
+                                                     NX_NULL, NX_NULL);
+        if (status != NX_CRYPTO_SUCCESS)
+        {
+            return(status);
+        }
+
+        /* Import the private key to the ECDH context. */
+        private_key = &ecc_key_data[i].nx_secure_tls_ecdhe_private_key[0];
+        private_key_length = ecc_key_data[i].nx_secure_tls_ecdhe_private_key_length;
+
+        status = ecdhe_method -> nx_crypto_operation(NX_CRYPTO_DH_KEY_PAIR_IMPORT, handler,
+                                                    (NX_CRYPTO_METHOD*)ecdhe_method,
+                                                    private_key, private_key_length << 3,
+                                                    NX_NULL, 0, NX_NULL,
+                                                    NX_NULL,
+                                                    0,
+                                                    tls_session -> nx_secure_public_cipher_metadata_area,
+                                                    tls_session -> nx_secure_public_cipher_metadata_size,
+                                                    NX_NULL, NX_NULL);
+
+
+        if (status != NX_CRYPTO_SUCCESS)
+        {
+            return(status);
+        }
+
+        //tls_session -> nx_secure_tls_key_material.nx_secure_tls_new_key_material_data[0] = (UCHAR)extended_output.nx_crypto_extended_output_actual_size;
+
+        /* Calculate the final pre_master_secret - the "private key" here is the Pre-Master Secret. */
+        extended_output.nx_crypto_extended_output_data = tls_session -> nx_secure_tls_key_material.nx_secure_tls_pre_master_secret;
+        extended_output.nx_crypto_extended_output_length_in_byte = sizeof(tls_session -> nx_secure_tls_key_material.nx_secure_tls_pre_master_secret);
+        extended_output.nx_crypto_extended_output_actual_size = 0;
+        status = ecdhe_method -> nx_crypto_operation(NX_CRYPTO_DH_CALCULATE, handler,
+                                                     ecdhe_method, NX_NULL, 0,
+                                                     pubkey, key_length, NX_NULL,
+                                                     (UCHAR *)&extended_output,
+                                                     sizeof(extended_output),
+                                                     tls_session -> nx_secure_public_cipher_metadata_area,
+                                                     tls_session -> nx_secure_public_cipher_metadata_size,
+                                                     NX_NULL, NX_NULL);
+        if (status != NX_CRYPTO_SUCCESS)
+        {
+            return(status);
+        }
+
+        tls_session -> nx_secure_tls_key_material.nx_secure_tls_pre_master_secret_size = extended_output.nx_crypto_extended_output_actual_size;
+
+        if (ecdhe_method -> nx_crypto_cleanup)
+        {
+            status = ecdhe_method -> nx_crypto_cleanup(tls_session -> nx_secure_public_cipher_metadata_area);
+        }
+
+        return(status);
+    }
+
+    /* If we exhaust the list of ECC curves we sent, the server is doing something weird. */
+    return(NX_SECURE_TLS_BAD_SERVERHELLO_KEYSHARE);
+
+}
+
+/**************************************************************************/
+/*                                                                        */
+/*  FUNCTION                                               RELEASE        */
+/*                                                                        */
+/*    _nx_secure_tls_proc_serverhello_supported_versions_extension        */
+/*                                                        PORTABLE C      */
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Timothy Stapko, Microsoft Corporation                               */
+/*                                                                        */
+/*  DESCRIPTION                                                           */
+/*                                                                        */
+/*    This function parses the supported versions extension introduced in */
+/*    TLS 1.3.                                                            */
+/*                                                                        */
+/*  INPUT                                                                 */
+/*                                                                        */
+/*    tls_session                           TLS control block             */
+/*    packet_buffer                         Outgoing TLS packet buffer    */
+/*    supported_version                     Supported version             */
+/*    extension_length                      Length of extension data      */
+/*    message_length                        Length of message data (bytes)*/
+/*                                                                        */
+/*  OUTPUT                                                                */
+/*                                                                        */
+/*    status                                Completion status             */
+/*                                                                        */
+/*  CALLS                                                                 */
+/*                                                                        */
+/*    None                                                                */
+/*                                                                        */
+/*  CALLED BY                                                             */
+/*                                                                        */
+/*    _nx_secure_tls_process_serverhello_extensions                       */
+/*                                          Process ServerHello extensions*/
+/*                                                                        */
+/*  RELEASE HISTORY                                                       */
+/*                                                                        */
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
+static UINT _nx_secure_tls_proc_serverhello_supported_versions_extension(NX_SECURE_TLS_SESSION *tls_session,
+                                                                         UCHAR *packet_buffer,
+                                                                         USHORT *supported_version,
+                                                                         USHORT *extension_length, UINT message_length)
+{
+ULONG  offset;
+
+    NX_PARAMETER_NOT_USED(tls_session);
+
+    /* Supported Versions Extension structure (for serverhello):
+     *
+     * ServerHello:
+     * |   2   |     2    |        ...         |
+     * |  Type |  Length  |  Selected Version  |
+     */
+
+    /* RFC 8446, section 4.2.1, page 39.
+     * A server negotiates TLS 1.3 MUST respond with 0x0304 in supported_versions extension.
+     */
+
+    offset = 0;
+
+    /* Extract the extension length. */
+    *extension_length = (USHORT)((packet_buffer[offset] << 8) + packet_buffer[offset + 1]);
+    offset = (USHORT)(offset + 2);
+
+    if (offset + *extension_length > message_length || *extension_length != 2)
+    {
+        return(NX_SECURE_TLS_INCORRECT_MESSAGE_LENGTH);
+    }
+
+    /* Find the selected version 0x0304(TLS 1.3). */
+    *supported_version = (USHORT)((packet_buffer[offset] << 8) + packet_buffer[offset + 1]);
+    if (*supported_version == NX_SECURE_TLS_VERSION_TLS_1_3)
+    {
+        return(NX_SUCCESS);
+    }
+
+    return(NX_SECURE_TLS_UNKNOWN_TLS_VERSION);
+
 }
 #endif
 

@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -42,10 +30,10 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_tls_process_changecipherspec             PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -75,21 +63,13 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-09-2017     Timothy Stapko           Initial Version 5.10          */
-/*  12-15-2017     Timothy Stapko           Modified comment(s),          */
-/*                                            optimize the logic,         */
-/*                                            resulting in version 5.11   */
-/*  08-15-2019     Timothy Stapko           Modified comment(s), and      */
-/*                                            added flexibility of using  */
-/*                                            macros instead of direct C  */
-/*                                            library function calls,     */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 UINT _nx_secure_tls_process_changecipherspec(NX_SECURE_TLS_SESSION *tls_session,
                                              UCHAR *packet_buffer, UINT message_length)
 {
-UINT status;
+UINT status = NX_SUCCESS;
 
     /* Verify that we received a proper ChangeCipherSpec message. */
     if (message_length != 1)
@@ -103,15 +83,38 @@ UINT status;
         return(NX_SECURE_TLS_BAD_CIPHERSPEC);
     }
 
-    /* The remote session is now active - all incoming records from this point will be hashed and encrypted. */
-    tls_session -> nx_secure_tls_remote_session_active = 1;
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+    /* TLS 1.3 deprecates the ChangeCipherSpec message. Check that it's correct (above)
+       but otherwise ignore it. */
+    if(!tls_session->nx_secure_tls_1_3)
+#endif
+    {
 
-    /* Reset the sequence number now that we are starting a new session. */
-    NX_SECURE_MEMSET(tls_session -> nx_secure_tls_remote_sequence_number, 0, sizeof(tls_session -> nx_secure_tls_remote_sequence_number));
+#ifndef NX_SECURE_TLS_SERVER_DISABLED
+        if (tls_session -> nx_secure_tls_socket_type == NX_SECURE_TLS_SESSION_TYPE_SERVER &&
+            tls_session -> nx_secure_tls_server_state != NX_SECURE_TLS_SERVER_STATE_KEY_EXCHANGE &&
+            tls_session -> nx_secure_tls_server_state != NX_SECURE_TLS_SERVER_STATE_CERTIFICATE_VERIFY)
+        {
+            return(NX_SECURE_TLS_UNEXPECTED_MESSAGE);
+        }
+#endif
+#ifndef NX_SECURE_TLS_CLIENT_DISABLED
+        if (tls_session -> nx_secure_tls_socket_type == NX_SECURE_TLS_SESSION_TYPE_CLIENT &&
+            tls_session -> nx_secure_tls_client_state != NX_SECURE_TLS_CLIENT_STATE_SERVERHELLO_DONE)
+        {
+            return(NX_SECURE_TLS_UNEXPECTED_MESSAGE);
+        }
+#endif
 
-    /* Set our remote session keys since we have received a CCS from the remote host. */
-    status = _nx_secure_tls_session_keys_set(tls_session, NX_SECURE_TLS_KEY_SET_REMOTE);
+        /* The remote session is now active - all incoming records from this point will be hashed and encrypted. */
+        tls_session -> nx_secure_tls_remote_session_active = 1;
 
+        /* Reset the sequence number now that we are starting a new session. */
+        NX_SECURE_MEMSET(tls_session -> nx_secure_tls_remote_sequence_number, 0, sizeof(tls_session -> nx_secure_tls_remote_sequence_number));
+
+        /* Set our remote session keys since we have received a CCS from the remote host. */
+        status = _nx_secure_tls_session_keys_set(tls_session, NX_SECURE_TLS_KEY_SET_REMOTE);
+    }
     return(status);
 }
 

@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -38,10 +26,10 @@
 /*  APPLICATION INTERFACE DEFINITION                       RELEASE        */
 /*                                                                        */
 /*    nx_crypto_cbc.h                                     PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -52,11 +40,7 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 
@@ -74,21 +58,30 @@ extern   "C" {
 
 /* Include the ThreadX and port-specific data type file.  */
 
-#include "nx_api.h"
 #include "nx_crypto.h"
 
+#ifndef NX_CRYPTO_CBC_MAX_BLOCK_SIZE
+#define NX_CRYPTO_CBC_MAX_BLOCK_SIZE 16
+#endif /* NX_CRYPTO_CBC_MAX_BLOCK_SIZE */
 
-UINT _nx_crypto_cbc_encrypt(VOID *crypto_metadata, UINT (*crypto_function)(VOID *, UCHAR *, UCHAR *, UINT),
-                            UINT (*key_set_function)(VOID *, UCHAR *, UINT),
-                            VOID *additional_data, UINT additional_len,
-                            UCHAR *input, UCHAR *output, UINT length,
-                            UCHAR *iv, UCHAR icv_len, UCHAR block_size);
+typedef struct NX_CRYPTO_CBC_STRUCT
+{
 
-UINT _nx_crypto_cbc_decrypt(VOID *crypto_metadata, UINT (*crypto_function)(VOID *, UCHAR *, UCHAR *, UINT),
-                            UINT (*key_set_function)(VOID *, UCHAR *, UINT),
-                            VOID *additional_data, UINT additional_len,
-                            UCHAR *input, UCHAR *output, UINT length,
-                            UCHAR *iv, UCHAR icv_len, UCHAR block_size);
+    /* Initial Vector for next round. */
+    UCHAR nx_crypto_cbc_last_block[NX_CRYPTO_CBC_MAX_BLOCK_SIZE];
+} NX_CRYPTO_CBC;
+
+NX_CRYPTO_KEEP UINT _nx_crypto_cbc_encrypt(VOID *crypto_metadata, NX_CRYPTO_CBC *cbc_metadata,
+                                           UINT (*crypto_function)(VOID *, UCHAR *, UCHAR *, UINT),
+                                           UCHAR *input, UCHAR *output, UINT length, UCHAR block_size);
+
+NX_CRYPTO_KEEP UINT _nx_crypto_cbc_decrypt(VOID *crypto_metadata, NX_CRYPTO_CBC *cbc_metadata,
+                                           UINT (*crypto_function)(VOID *, UCHAR *, UCHAR *, UINT),
+                                           UCHAR *input, UCHAR *output, UINT length, UCHAR block_size);
+
+NX_CRYPTO_KEEP UINT _nx_crypto_cbc_encrypt_init(NX_CRYPTO_CBC *cbc_metadata, UCHAR *iv, UINT iv_len);
+
+#define _nx_crypto_cbc_decrypt_init _nx_crypto_cbc_encrypt_init
 
 #ifdef __cplusplus
 }

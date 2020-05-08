@@ -8,18 +8,11 @@ set(SOURCES
     stm32cubel4_conf/stm32l4xx_it.c
     stm32cubel4_conf/stm32l4xx_hal_msp.c
 
-    azure/azure_mqtt.c
-    azure/cert.c
-    azure/hmac_sha256.c
-    azure/sas_token.c
-    azure/sha256.c
-
     azure_config.c
     board_init.c
     console.c
     main.c
     networking.c
-    sntp_client.c
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})
@@ -43,10 +36,11 @@ target_include_directories(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME}
-    threadx
-    netxduo
+    azrtos::threadx
+    azrtos::netxduo
     stm32cubel4
     netx_driver
+    app_common
 )
 
 create_bin_output(${PROJECT_NAME})

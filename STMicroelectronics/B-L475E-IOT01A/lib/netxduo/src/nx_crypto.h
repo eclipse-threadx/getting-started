@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -38,10 +26,10 @@
 /*  COMPONENT DEFINITION                                   RELEASE        */
 /*                                                                        */
 /*    nx_crypto.h                                         PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -51,16 +39,7 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added operation method for  */
-/*                                            elliptic curve cryptography,*/
-/*                                            added logic so NetX Cryto   */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            add C++ extern wrapper,     */
-/*                                            avoided unexpected          */
-/*                                            optimization on memset,     */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 
@@ -151,6 +130,10 @@ extern VOID *(*volatile _nx_crypto_memcpy_ptr)(void *dest, const void *src, size
 #define NX_CRYPTO_CONST     const
 #endif
 
+#if !defined(NX_CRYPTO_CHANGE_ULONG_ENDIAN) && defined(NX_CHANGE_ULONG_ENDIAN)
+#define NX_CRYPTO_CHANGE_ULONG_ENDIAN NX_CHANGE_ULONG_ENDIAN
+#endif
+
 #ifndef NX_CRYPTO_INTEGRITY_TEST
 #define NX_CRYPTO_INTEGRITY_TEST
 #endif
@@ -186,6 +169,13 @@ extern unsigned int _nx_crypto_library_state;
 #define NX_CRYPTO_KEEP
 #endif /* NX_CRYPTO_KEEP */
 
+#ifndef NX_CRYPTO_HARDWARE_RAND_INITIALIZE
+#define NX_CRYPTO_HARDWARE_RAND_INITIALIZE
+#endif /* NX_CRYPTO_HARDWARE_RAND_INITIALIZE */
+
+#ifndef NX_CRYPTO_PARAMETER_NOT_USED
+#define NX_CRYPTO_PARAMETER_NOT_USED(p) ((void)(p))
+#endif /* NX_CRYPTO_PARAMETER_NOT_USED */
 
 /* Note that both input and output packets are prepared by the
    caller. For encryption/decryption operations, the callee shall
@@ -307,6 +297,41 @@ typedef struct NX_CRYPTO_EXTENDED_OUTPUT_STRUCT
     /* Actual size of output buffer used. */
     ULONG  nx_crypto_extended_output_actual_size;
 } NX_CRYPTO_EXTENDED_OUTPUT;
+
+/* This defines the maximum number of cipher roles for a given ciphersuite. */
+#define NX_CRYPTO_MAX_CIPHER_ROLES 8
+
+/* Structure to associate a NX_CRYPTO_METHOD ID with a particular
+   role (defined by the intended application, e.g. TLS, X.509). */
+typedef struct NX_CRYPTO_ROLE_ENTRY_STRUCT
+{
+    /* Crypto method id. */
+    UINT nx_crypto_role_cipher_id;
+
+    /* Crypto role id. */
+    UINT nx_crypto_role_id;
+} NX_CRYPTO_ROLE_ENTRY;
+
+/* New-style API structures for TLS support. */
+typedef struct NX_CRYPTO_CIPHERSUITE_STRUCT
+{
+    /* IANA-defined ciphersuite identifier (used by TLS). */
+    USHORT nx_crypto_ciphersuite_id;
+
+    /* Disambiguation ID for overlapping ciphersuite IDs. (e.g. NX_CRYPTO_TLS, NX_CRYPTO_X509). */
+    USHORT nx_crypto_internal_id;
+
+    /* We need the key size for TLS operations using symmetric key ciphers. For example,
+       unlike RSA and ECC, the AES key size is needed in TLS to calculate key material.
+       For ciphersuites not using a symmetric cipher (e.g. X.509 suites) this should be 0. */
+    UINT nx_crypto_symmetric_key_size;
+
+    /* Array of cipher IDs and their associated roles. */
+    NX_CRYPTO_ROLE_ENTRY nx_crypto_ciphers[NX_CRYPTO_MAX_CIPHER_ROLES];
+
+    /* Bitmap for protocol versions which can use this ciphersuite. */
+    UINT nx_crypto_version;
+} NX_CRYPTO_CIPHERSUITE;
 
 
 /* APIs. */

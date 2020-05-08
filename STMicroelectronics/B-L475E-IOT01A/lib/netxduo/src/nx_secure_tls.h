@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -38,10 +26,10 @@
 /*  COMPONENT DEFINITION                                   RELEASE        */
 /*                                                                        */
 /*    nx_secure_tls.h                                     PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -52,49 +40,7 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-09-2017     Timothy Stapko           Initial Version 5.10          */
-/*  12-15-2017     Timothy Stapko           Modified comment(s),          */
-/*                                            supported ECJPAKE, supported*/
-/*                                            renegotiation, supported    */
-/*                                            more ciphersuites, supported*/
-/*                                            to configure symbols for PSK*/
-/*                                            buffers, supported multiple */
-/*                                            extensions, sorted the      */
-/*                                            functions by alphabet order,*/
-/*                                            added session callbacks,    */
-/*                                            resulting in version 5.11   */
-/*  08-15-2019     Timothy Stapko           Modified comment(s), added    */
-/*                                            wait_option to _nx_secure_  */
-/*                                            tls_send_certificate, added */
-/*                                            a new error for renegotia-  */
-/*                                            tion issues and changed the */
-/*                                            name of the CSCV renegotia- */
-/*                                            tion flag, added new error  */
-/*                                            return for improperly       */
-/*                                            initialized crypto routines,*/
-/*                                            added support for AEAD      */
-/*                                            cipher, added flexibility of*/
-/*                                            using macros instead of     */
-/*                                            direct C library function   */
-/*                                            calls, added extension hook,*/
-/*                                            used macros from crypto     */
-/*                                            library, added macros for   */
-/*                                            elliptic curve cryptography,*/
-/*                                            passed crypto handle into   */
-/*                                            crypto internal functions,  */
-/*                                            added support for passing   */
-/*                                            alert information to user,  */
-/*                                            supported ECC ciphersuites, */
-/*                                            disabled AEAD by default,   */
-/*                                            improved packet length      */
-/*                                            verification, supported TLS */
-/*                                            Fallback SCSV, updated      */
-/*                                            error return codes, added   */
-/*                                            new API to get alert value  */
-/*                                            and level, add remote cert  */
-/*                                            memory optimization,        */
-/*                                            improved internal logic,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 
@@ -138,12 +84,9 @@ extern   "C" {
 #undef NX_SECURE_ENABLE_ECC_CIPHERSUITE
 #endif
 
-#ifdef NX_SECURE_ENABLE_ECC_CIPHERSUITE
-#include "nx_secure_tls_ecc.h"
-#endif /* NX_SECURE_ENABLE_ECC_CIPHERSUITE */
 #include "nx_secure_x509.h"
 
-#if defined(NX_SECURE_ENABLE_ECJPAKE_CIPHERSUITE)
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED) || defined(NX_SECURE_ENABLE_ECJPAKE_CIPHERSUITE)
 #ifndef NX_SECURE_ENABLE_AEAD_CIPHER
 #define NX_SECURE_ENABLE_AEAD_CIPHER
 #endif /* NX_SECURE_ENABLE_AEAD_CIPHER */
@@ -156,8 +99,8 @@ extern   "C" {
 #define NX_SECURE_TLS_ID                                ((ULONG)0x544c5320)
 
 #define EL_PRODUCT_NETX_SECURE
-#define NETX_SECURE_MAJOR_VERSION                       5
-#define NETX_SECURE_MINOR_VERSION                      12
+#define NETX_SECURE_MAJOR_VERSION                       6
+#define NETX_SECURE_MINOR_VERSION                       0
 #define NETX_SECURE_SERVICE_PACK_VERSION                0
 
 /* The following symbols are defined for backward compatibility reasons. */
@@ -182,71 +125,6 @@ extern   "C" {
 #ifndef NX_SECURE_MEMMOVE
 #define NX_SECURE_MEMMOVE                               memmove
 #endif /* NX_SECURE_MEMMOVE */
-
-/* Define extensions used for user defined actions during handshake. */
-#ifndef NX_SECURE_PROCESS_CLIENTHELLO_EXTENSIONS_EXTENSION
-#define NX_SECURE_PROCESS_CLIENTHELLO_EXTENSIONS_EXTENSION
-#endif /* NX_SECURE_PROCESS_CLIENTHELLO_EXTENSIONS_EXTENSION */
-
-#ifndef NX_SECURE_PROCESS_CLIENTHELLO_EXTENSION
-#define NX_SECURE_PROCESS_CLIENTHELLO_EXTENSION
-#endif /* NX_SECURE_PROCESS_CLIENTHELLO_EXTENSION */
-
-#ifndef NX_SECURE_PROCESS_SERVERHELLO_EXTENSIONS_EXTENSION
-#define NX_SECURE_PROCESS_SERVERHELLO_EXTENSIONS_EXTENSION
-#endif /* NX_SECURE_PROCESS_SERVERHELLO_EXTENSIONS_EXTENSION */
-
-#ifndef NX_SECURE_SEND_CLIENTHELLO_EXTENSIONS_EXTENSION
-#define NX_SECURE_SEND_CLIENTHELLO_EXTENSIONS_EXTENSION
-#endif /* NX_SECURE_SEND_CLIENTHELLO_EXTENSIONS_EXTENSION */
-
-#ifndef NX_SECURE_SEND_SERVERHELLO_EXTENSIONS_EXTENSION
-#define NX_SECURE_SEND_SERVERHELLO_EXTENSIONS_EXTENSION
-#endif /* NX_SECURE_SEND_SERVERHELLO_EXTENSIONS_EXTENSION */
-
-#ifndef NX_SECURE_PROCESS_CLIENT_KEY_EXCHANGE_EXTENSION
-#define NX_SECURE_PROCESS_CLIENT_KEY_EXCHANGE_EXTENSION
-#endif /* NX_SECURE_PROCESS_CLIENT_KEY_EXCHANGE_EXTENSION */
-
-#ifndef NX_SECURE_PROCESS_SERVER_KEY_EXCHANGE_EXTENSION
-#define NX_SECURE_PROCESS_SERVER_KEY_EXCHANGE_EXTENSION
-#endif /* NX_SECURE_PROCESS_SERVER_KEY_EXCHANGE_EXTENSION */
-
-#ifndef NX_SECURE_SEND_CLIENT_KEY_EXCHANGE_EXTENSION
-#define NX_SECURE_SEND_CLIENT_KEY_EXCHANGE_EXTENSION
-#endif /* NX_SECURE_SEND_CLIENT_KEY_EXCHANGE_EXTENSION */
-
-#ifndef NX_SECURE_SEND_SERVER_KEY_EXCHANGE_EXTENSION
-#define NX_SECURE_SEND_SERVER_KEY_EXCHANGE_EXTENSION
-#endif /* NX_SECURE_SEND_SERVER_KEY_EXCHANGE_EXTENSION */
-
-#ifndef NX_SECURE_PROCESS_CERTIFICATE_REQUEST_EXTENSION
-#define NX_SECURE_PROCESS_CERTIFICATE_REQUEST_EXTENSION
-#endif /* NX_SECURE_PROCESS_CERTIFICATE_REQUEST_EXTENSION */
-
-#ifndef NX_SECURE_SEND_CERTIFICATE_REQUEST_EXTENSION
-#define NX_SECURE_SEND_CERTIFICATE_REQUEST_EXTENSION
-#endif /* NX_SECURE_SEND_CERTIFICATE_REQUEST_EXTENSION */
-
-#ifndef NX_SECURE_PROCESS_CERTIFICATE_VERIFY_EXTENSION
-#define NX_SECURE_PROCESS_CERTIFICATE_VERIFY_EXTENSION
-#endif /* NX_SECURE_PROCESS_CERTIFICATE_VERIFY_EXTENSION */
-
-#ifndef NX_SECURE_SEND_CERTIFICATE_VERIFY_EXTENSION
-#define NX_SECURE_SEND_CERTIFICATE_VERIFY_EXTENSION
-#endif /* NX_SECURE_SEND_CERTIFICATE_VERIFY_EXTENSION */
-
-#ifndef NX_SECURE_GENERATE_PREMASTER_SECRET_EXTENSION
-#define NX_SECURE_GENERATE_PREMASTER_SECRET_EXTENSION
-#endif /* NX_SECURE_GENERATE_PREMASTER_SECRET_EXTENSION */
-
-#ifndef NX_SECURE_GENERATE_KEYS_EXTENSION
-#define NX_SECURE_GENERATE_KEYS_EXTENSION
-#endif /* NX_SECURE_GENERATE_KEYS_EXTENSION */
-
-#ifndef NX_SECURE_TLS_SESSION_EXTENSION
-#define NX_SECURE_TLS_SESSION_EXTENSION
-#endif /* NX_SECURE_TLS_SESSION_EXTENSION */
 
 /* Map NX_SECURE_CALLER_CHECKING_EXTERNS to NX_CALLER_CHECKING_EXTERNS, which is defined
    in nx_port.h.*/
@@ -330,15 +208,27 @@ extern   "C" {
 #define NX_SECURE_TLS_MISSING_CRYPTO_ROUTINE            0x13B       /* In attempting to perform a cryptographic operation, an entry in the ciphersuite table (or one of its function pointers) was NULL. */
 #define NX_SECURE_TLS_EMPTY_EC_GROUP                    0x13C       /* ECC ciphersuite is set but no supported EC group. */
 #define NX_SECURE_TLS_EMPTY_EC_POINT_FORMAT             0x13D       /* ECC ciphersuite is set but no supported EC point format. */
-#define NX_SECURE_TLS_INAPPROPRIATE_FALLBACK            0x146       /* Remote Client attempted an inappropriate TLS version downgrade. */
-#define NX_SECURE_TLS_CRYPTO_KEYS_TOO_LARGE             0x147       /* In attempting to generate TLS session keys, the key buffer was too small - increase NX_SECURE_TLS_KEY_MATERIAL_SIZE. */
-#define NX_SECURE_TLS_UNSUPPORTED_ECC_CURVE             0x148       /* The remote host provided a certificate or chose a ciphersuite with an ECC curve that isn't supported. */
-#define NX_SECURE_TLS_UNSUPPORTED_ECC_FORMAT            0x149       /* Encountered a curve type or ECC format that is not supported. */
-#define NX_SECURE_TLS_UNSUPPORTED_SIGNATURE_ALGORITHM   0x14A       /* An unsupported signature algorithm was encountered (used in key exchange or other non-certificate situations). */
-#define NX_SECURE_TLS_SIGNATURE_VERIFICATION_ERROR      0x14B       /* A signature verification check failed (used in key exchange or other non-cert situations). */
-#define NX_SECURE_TLS_UNEXPECTED_MESSAGE                0x14C       /* TLS received an unexpected message from the remote host. */
-#define NX_SECURE_TLS_AEAD_DECRYPT_FAIL                 0x14D       /* An incoming record did not pass integrity check with AEAD ciphers. */
-
+#define NX_SECURE_TLS_BAD_SERVERHELLO_KEYSHARE          0x13E       /* In a TLS 1.3 KeyShare extension from a remote server, the server provided something we didn't expect. */
+#define NX_SECURE_TLS_INSUFFICIENT_METADATA_SPACE       0x13F       /* The application-supplied "metadata" for TLS cryptographic routines was too small. */
+#define NX_SECURE_TLS_POST_HANDSHAKE_RECEIVED           0x140       /* Not an error, but an indication to continue processing until application data is received. */
+#define NX_SECURE_TLS_BAD_CLIENTHELLO_KEYSHARE          0x141       /* In a TLS 1.3 KeyShare extension from a remote client, the client provided something we didn't expect. */
+#define NX_SECURE_TLS_1_3_UNKNOWN_CIPHERSUITE           0x142       /* Received unknown ciphersuite when using TLS 1.3. */
+#define NX_SECURE_TLS_INVALID_SESSION_TICKET            0x143       /* Received a NewSessionTicket message with improper or invalid parameters. */
+#define NX_SECURE_TLS_MISSING_EXTENSION                 0x144       /* Specific extension is missed in the message. */
+#define NX_SECURE_TLS_CERTIFICATE_REQUIRED              0x145       /* Server receive empty certificate. */
+#define NX_SECURE_TLS_UNEXPECTED_CLIENTHELLO            0x146       /* TLS 1.3 Server receive ClientHello for renegotiation. */
+#define NX_SECURE_TLS_INAPPROPRIATE_FALLBACK            0x147       /* Remote Client attempted an inappropriate TLS version downgrade. */
+#define NX_SECURE_TLS_BAD_CLIENTHELLO_PSK_EXTENSION     0x148       /* In a TLS 1.3 PSK extension from a remote client, the client provided something we didn't expect. */
+#define NX_SECURE_TLS_PSK_BINDER_MISMATCH               0x149       /* In a TLS 1.3 PSK extension from a remote client, the client provided a bad PSK binder value. */
+#define NX_SECURE_TLS_CRYPTO_KEYS_TOO_LARGE             0x14A       /* In attempting to generate TLS session keys, the key buffer was too small - increase NX_SECURE_TLS_KEY_MATERIAL_SIZE. */
+#define NX_SECURE_TLS_UNSUPPORTED_ECC_CURVE             0x14B       /* The remote host provided a certificate or chose a ciphersuite with an ECC curve that isn't supported. */
+#define NX_SECURE_TLS_UNSUPPORTED_ECC_FORMAT            0x14C       /* Encountered a curve type or ECC format that is not supported. */
+#define NX_SECURE_TLS_UNSUPPORTED_SIGNATURE_ALGORITHM   0x14D       /* An unsupported signature algorithm was encountered (used in key exchange or other non-certificate situations). */
+#define NX_SECURE_TLS_SIGNATURE_VERIFICATION_ERROR      0x14E       /* A signature verification check failed (used in key exchange or other non-cert situations). */
+#define NX_SECURE_TLS_UNEXPECTED_MESSAGE                0x14F       /* TLS received an unexpected message from the remote host. */
+#define NX_SECURE_TLS_AEAD_DECRYPT_FAIL                 0x150       /* An incoming record did not pass integrity check with AEAD ciphers. */
+#define NX_SECURE_TLS_RECORD_OVERFLOW                   0x151       /* Received a TLSCiphertext record that had a length too long. */
+#define NX_SECURE_TLS_HANDSHAKE_FRAGMENT_RECEIVED       0x152       /* Received a fragmented handshake message - take appropriate action at a higher level of the state machine. */
 
 /* NX_CONTINUE is a symbol defined in NetX Duo 5.10.  For backward compatibility, this symbol is defined here */
 #if ((__NETXDUO_MAJOR_VERSION__ == 5) && (__NETXDUO_MINOR_VERSION__ == 9))
@@ -374,6 +264,7 @@ extern   "C" {
 #define NX_SECURE_TLS_SERVER_STATE_FINISH_HANDSHAKE     9  /* Server received a client Finished message and needs to respond. */
 #define NX_SECURE_TLS_SERVER_STATE_HANDSHAKE_FINISHED   10 /* Server has completed the handshake. */
 #define NX_SECURE_TLS_SERVER_STATE_HELLO_REQUEST        11 /* A HelloRequest has been sent. */
+#define NX_SECURE_TLS_SERVER_STATE_SEND_HELLO_RETRY     12 /* A ClientHello has been received but key_share mismatch. We need to respond HelloRetryRequest. */
 
 /* TLS handshake states - Client. */
 #define NX_SECURE_TLS_CLIENT_STATE_IDLE                 0  /* Client socket is not connected, waiting for connection request from application. */
@@ -388,6 +279,8 @@ extern   "C" {
 #define NX_SECURE_TLS_CLIENT_STATE_SERVERHELLO_DONE     9  /* A ServerHelloDone message has been received. */
 #define NX_SECURE_TLS_CLIENT_STATE_HANDSHAKE_FINISHED   10 /* Client has received a Finished message to end the handshake. */
 #define NX_SECURE_TLS_CLIENT_STATE_RENEGOTIATING        11 /* Client is renegotiating a handshake. Only used to kick off a renegotiation. */
+#define NX_SECURE_TLS_CLIENT_STATE_ENCRYPTED_EXTENSIONS 12 /* Client received and processed an encrypted extensions handshake message. */
+#define NX_SECURE_TLS_CLIENT_STATE_HELLO_RETRY          13 /* A HelloRetryRequest has been received. We need to resend ClientHello. */
 
 /* TLS Alert message numbers from RFC 5246. */
 #define NX_SECURE_TLS_ALERT_CLOSE_NOTIFY                0
@@ -415,8 +308,10 @@ extern   "C" {
 #define NX_SECURE_TLS_ALERT_INAPPROPRIATE_FALLBACK      86
 #define NX_SECURE_TLS_ALERT_USER_CANCELED               90
 #define NX_SECURE_TLS_ALERT_NO_RENEGOTIATION            100
+#define NX_SECURE_TLS_ALERT_MISSING_EXTENSION           109
 #define NX_SECURE_TLS_ALERT_UNSUPPORTED_EXTENSION       110
 #define NX_SECURE_TLS_ALERT_UNKNOWN_PSK_IDENTITY        115
+#define NX_SECURE_TLS_ALERT_CERTIFICATE_REQUIRED        116
 
 /* TLS alert levels. */
 #define NX_SECURE_TLS_ALERT_LEVEL_WARNING               0x1
@@ -429,11 +324,13 @@ extern   "C" {
 #define NX_SECURE_TLS_VERSION_MINOR_1_0                 0x1
 #define NX_SECURE_TLS_VERSION_MINOR_1_1                 0x2
 #define NX_SECURE_TLS_VERSION_MINOR_1_2                 0x3
+#define NX_SECURE_TLS_VERSION_MINOR_1_3                 0x4
 
 #define NX_SECURE_TLS_VERSION_SSL_3_0                   ((NX_SECURE_TLS_VERSION_MAJOR_3 << 8) | NX_SECURE_SSL_VERSION_MINOR_3_0)
 #define NX_SECURE_TLS_VERSION_TLS_1_0                   ((NX_SECURE_TLS_VERSION_MAJOR_3 << 8) | NX_SECURE_TLS_VERSION_MINOR_1_0)
 #define NX_SECURE_TLS_VERSION_TLS_1_1                   ((NX_SECURE_TLS_VERSION_MAJOR_3 << 8) | NX_SECURE_TLS_VERSION_MINOR_1_1)
 #define NX_SECURE_TLS_VERSION_TLS_1_2                   ((NX_SECURE_TLS_VERSION_MAJOR_3 << 8) | NX_SECURE_TLS_VERSION_MINOR_1_2)
+#define NX_SECURE_TLS_VERSION_TLS_1_3                   ((NX_SECURE_TLS_VERSION_MAJOR_3 << 8) | NX_SECURE_TLS_VERSION_MINOR_1_3)
 
 
 /* The number of TLS versions actually recognized by the NetX Secure TLS stack. */
@@ -452,15 +349,20 @@ extern   "C" {
 #define NX_SECURE_TLS_TLS_1_0_ENABLED                   (0) /* TLS 1.0 not currently supported. */
 #endif
 
-#ifdef NX_SECURE_TLS_DISABLE_TLS_1_1
-#define NX_SECURE_TLS_TLS_1_1_ENABLED                   (0) /* TLS 1.1 supported. */
+#ifdef NX_SECURE_TLS_ENABLE_TLS_1_1
+#define NX_SECURE_TLS_TLS_1_1_ENABLED                   (1) /* TLS 1.1 supported. */
 #else
-#define NX_SECURE_TLS_TLS_1_1_ENABLED                   (1) /* TLS 1.1 not currently supported. */
+#define NX_SECURE_TLS_TLS_1_1_ENABLED                   (0) /* TLS 1.1 not currently supported. */
 #endif
 
 #ifndef NX_SECURE_TLS_TLS_1_2_ENABLED
 #define NX_SECURE_TLS_TLS_1_2_ENABLED                   (1)
 #endif
+
+#ifndef NX_SECURE_TLS_TLS_1_3_ENABLED
+#define NX_SECURE_TLS_TLS_1_3_ENABLED                   (0)
+#endif
+
 
 /* Define a structure to keep track of which versions of TLS are enabled and supported. */
 typedef struct NX_SECURE_TLS_VERSIONS_STRUCT
@@ -478,6 +380,27 @@ typedef struct NX_SECURE_VERSIONS_LIST_STRUCT
     const NX_SECURE_TLS_VERSIONS *nx_secure_versions_list;
     UINT                          nx_secure_versions_list_count;
 } NX_SECURE_VERSIONS_LIST;
+
+
+/* Disambiguation label/id for ciphersuites table. */
+#define NX_SECURE_APPLICATION_NONE                         0
+#define NX_SECURE_APPLICATION_TLS                          1
+#define NX_SECURE_APPLICATION_X509                         2
+
+/* Bitfields for TLS versions. */
+#define NX_SECURE_TLS_BITFIELD_VERSION_1_0                 0x00000001
+#define NX_SECURE_TLS_BITFIELD_VERSION_1_1                 0x00000002
+#define NX_SECURE_TLS_BITFIELD_VERSION_1_2                 0x00000004
+#define NX_SECURE_TLS_BITFIELD_VERSION_1_3                 0x00000008
+#define NX_SECURE_DTLS_BITFIELD_VERSION_1_0                0x00000010
+#define NX_SECURE_DTLS_BITFIELD_VERSION_1_2                0x00000020
+#define NX_SECURE_DTLS_BITFIELD_VERSION_1_3                0x00000040
+#define NX_SECURE_X509_BITFIELD_VERSION_3                  0x00000080
+
+/* Composite bitfields. */
+#define NX_SECURE_TLS_BITFIELD_VERSIONS_PRE_1_3            (NX_SECURE_TLS_BITFIELD_VERSION_1_0 | NX_SECURE_TLS_BITFIELD_VERSION_1_1 | NX_SECURE_TLS_BITFIELD_VERSION_1_2)
+#define NX_SECURE_DTLS_BITFIELD_VERSIONS_PRE_1_3           (NX_SECURE_DTLS_BITFIELD_VERSION_1_0 | NX_SECURE_DTLS_BITFIELD_VERSION_1_2)
+#define NX_SECURE_TLS_BITFIELD_VERSIONS_ALL                (NX_SECURE_TLS_BITFIELD_VERSIONS_PRE_1_3 | NX_SECURE_DTLS_BITFIELD_VERSIONS_PRE_1_3 | NX_SECURE_TLS_BITFIELD_VERSION_1_3 | NX_SECURE_DTLS_BITFIELD_VERSION_1_3)
 
 /* TLS ciphersuite definitions. */
 #define TLS_NULL_WITH_NULL_NULL                            0x0000
@@ -542,6 +465,11 @@ typedef struct NX_SECURE_VERSIONS_LIST_STRUCT
 #define TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256               0xC031
 #define TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384               0xC032
 
+#define TLS_AES_128_GCM_SHA256                             0x1301
+#define TLS_AES_256_GCM_SHA384                             0x1302
+#define TLS_AES_128_CCM_SHA256                             0x1304
+#define TLS_AES_128_CCM_8_SHA256                           0x1305
+
 #define TLS_EMPTY_RENEGOTIATION_INFO_SCSV                  0x00FF /* Secure renegotiation extension Signalling Ciphersuite Value (SCSV). */
 #define TLS_FALLBACK_NOTIFY_SCSV                           0x5600 /* TLS version fallback notification SCSV. */
 
@@ -572,6 +500,11 @@ typedef struct NX_SECURE_VERSIONS_LIST_STRUCT
 #define NX_SECURE_TLS_CERT_TYPE_RSA_EPHEMERAL_DH           5
 #define NX_SECURE_TLS_CERT_TYPE_DSS_EPHEMERAL_DH           6
 #define NX_SECURE_TLS_CERT_TYPE_FORTEZZA_DMS               20
+/* Values taken directly from RFC 4492, section 5.5. */
+#define NX_SECURE_TLS_CERT_TYPE_ECDSA_SIGN                 64
+#define NX_SECURE_TLS_CERT_TYPE_RSA_FIXED_ECDH             65
+#define NX_SECURE_TLS_CERT_TYPE_ECDSA_FIXED_ECDH           66
+
 
 /* Algorithm identifiers for signature methods used in CertificateVerify messages and
    in the "signature_algorithms" extension, from RFC 5246, section 7.4.1.4.1.*/
@@ -590,7 +523,17 @@ typedef struct NX_SECURE_VERSIONS_LIST_STRUCT
 #define NX_SECURE_TLS_SIGNATURE_ALGORITHM_ECDSA            3
 
 /* Packed algorithm values (as seen over the wire). */
+#define NX_SECURE_TLS_SIGNATURE_RSA_MD5                    (((UINT)NX_SECURE_TLS_HASH_ALGORITHM_MD5 << 8) + (UINT)NX_SECURE_TLS_SIGNATURE_ALGORITHM_RSA)
+#define NX_SECURE_TLS_SIGNATURE_RSA_SHA1                   (((UINT)NX_SECURE_TLS_HASH_ALGORITHM_SHA1 << 8) + (UINT)NX_SECURE_TLS_SIGNATURE_ALGORITHM_RSA)
 #define NX_SECURE_TLS_SIGNATURE_RSA_SHA256                 (((UINT)NX_SECURE_TLS_HASH_ALGORITHM_SHA256 << 8) + (UINT)NX_SECURE_TLS_SIGNATURE_ALGORITHM_RSA)
+#define NX_SECURE_TLS_SIGNATURE_RSA_SHA384                 (((UINT)NX_SECURE_TLS_HASH_ALGORITHM_SHA384 << 8) + (UINT)NX_SECURE_TLS_SIGNATURE_ALGORITHM_RSA)
+#define NX_SECURE_TLS_SIGNATURE_RSA_SHA512                 (((UINT)NX_SECURE_TLS_HASH_ALGORITHM_SHA512 << 8) + (UINT)NX_SECURE_TLS_SIGNATURE_ALGORITHM_RSA)
+#define NX_SECURE_TLS_SIGNATURE_ECDSA_SHA1                 (((UINT)NX_SECURE_TLS_HASH_ALGORITHM_SHA1 << 8) + (UINT)NX_SECURE_TLS_SIGNATURE_ALGORITHM_ECDSA)
+#define NX_SECURE_TLS_SIGNATURE_ECDSA_SHA224               (((UINT)NX_SECURE_TLS_HASH_ALGORITHM_SHA224 << 8) + (UINT)NX_SECURE_TLS_SIGNATURE_ALGORITHM_ECDSA)
+#define NX_SECURE_TLS_SIGNATURE_ECDSA_SHA256               (((UINT)NX_SECURE_TLS_HASH_ALGORITHM_SHA256 << 8) + (UINT)NX_SECURE_TLS_SIGNATURE_ALGORITHM_ECDSA)
+#define NX_SECURE_TLS_SIGNATURE_ECDSA_SHA384               (((UINT)NX_SECURE_TLS_HASH_ALGORITHM_SHA384 << 8) + (UINT)NX_SECURE_TLS_SIGNATURE_ALGORITHM_ECDSA)
+#define NX_SECURE_TLS_SIGNATURE_ECDSA_SHA512               (((UINT)NX_SECURE_TLS_HASH_ALGORITHM_SHA512 << 8) + (UINT)NX_SECURE_TLS_SIGNATURE_ALGORITHM_ECDSA)
+
 
 /* Session key generation and assignment constants. */
 #define NX_SECURE_TLS_KEY_SET_LOCAL                        0
@@ -606,6 +549,16 @@ typedef struct NX_SECURE_VERSIONS_LIST_STRUCT
 #define NX_SECURE_TLS_EXTENSION_EC_GROUPS                  (0x000A)
 #define NX_SECURE_TLS_EXTENSION_EC_POINT_FORMATS           (0x000B)
 #define NX_SECURE_TLS_EXTENSION_SIGNATURE_ALGORITHMS       (0x000D)
+#define NX_SECURE_TLS_EXTENSION_PRE_SHARED_KEY             (0x0029)
+#define NX_SECURE_TLS_EXTENSION_EARLY_DATA                 (0x002A)
+#define NX_SECURE_TLS_EXTENSION_SUPPORTED_VERSIONS         (0x002B)
+#define NX_SECURE_TLS_EXTENSION_COOKIE                     (0x002C)
+#define NX_SECURE_TLS_EXTENSION_PSK_KEY_EXCHANGE_MODES     (0x002D)
+#define NX_SECURE_TLS_EXTENSION_CERTIFICATE_AUTHORITIES    (0x002F)
+#define NX_SECURE_TLS_EXTENSION_OID_FILTERS                (0x0030)
+#define NX_SECURE_TLS_EXTENSION_POST_HANDSHAKE_AUTH        (0x0031)
+#define NX_SECURE_TLS_EXTENSION_SIGNATURE_ALGORITHMS_CERT  (0x0032)
+#define NX_SECURE_TLS_EXTENSION_KEY_SHARE                  (0x0033)
 #define NX_SECURE_TLS_EXTENSION_ECJPAKE_KEY_KP_PAIR        (0x0100)
 #define NX_SECURE_TLS_EXTENSION_SECURE_RENEGOTIATION       (0xFF01)
 
@@ -618,9 +571,26 @@ typedef struct NX_SECURE_VERSIONS_LIST_STRUCT
 /* Some constants for use in defining buffers for crypto and hash operations. */
 #define NX_SECURE_TLS_RANDOM_SIZE                          (32)  /* Size of the server and client random values, in bytes. */
 #define NX_SECURE_TLS_MAX_HASH_SIZE                        (32)  /* This is the largest size a single hash/MAC for ANY session *might* be, in bytes. */
+#define NX_SECURE_TLS_1_3_MAX_TRANSCRIPT_HASHES            (5)   /* This is the number of transcript hashes we need to save for TLS 1.3 key generation. */
+
+/* The following #defines are indicies into the transcript hash array used to store
+   the various transcript hashes for TLS 1.3 key generation. */
+#define NX_SECURE_TLS_TRANSCRIPT_IDX_CLIENTHELLO           (0)
+#define NX_SECURE_TLS_TRANSCRIPT_IDX_SERVERHELLO           (1)
+#define NX_SECURE_TLS_TRANSCRIPT_IDX_CERTIFICATE           (2)
+#define NX_SECURE_TLS_TRANSCRIPT_IDX_CLIENT_FINISHED       (3)
+#define NX_SECURE_TLS_TRANSCRIPT_IDX_SERVER_FINISHED       (4)
+
+#ifdef NX_SECURE_ENABLE_ECC_CIPHERSUITE
+#ifndef NX_SECURE_TLS_PREMASTER_SIZE
+#define NX_SECURE_TLS_PREMASTER_SIZE                       (68)  /* The pre-master secret should be at least 66 bytes for ECDH/ECDHE with secp521r1. */
+#endif
+#else /* !NX_SECURE_ENABLE_ECC_CIPHERSUITE */
 #ifndef NX_SECURE_TLS_PREMASTER_SIZE
 #define NX_SECURE_TLS_PREMASTER_SIZE                       (48)  /* The pre-master secret is 48 bytes, except for PSK ciphersuites for which it may be more. */
 #endif
+#endif /* NX_SECURE_ENABLE_ECC_CIPHERSUITE */
+#define NX_SECURE_TLS_RSA_PREMASTER_SIZE                   (48)  /* The size of RSA encrypted pre-master secret. */
 #define NX_SECURE_TLS_MASTER_SIZE                          (48)  /* The master secret is also 48 bytes. */
 #define NX_SECURE_TLS_MAX_KEY_SIZE                         (32)  /* Maximum size of a session key in bytes. */
 #define NX_SECURE_TLS_MAX_IV_SIZE                          (16)  /* Maximum size of a session initialization vector in bytes. */
@@ -631,6 +601,12 @@ typedef struct NX_SECURE_VERSIONS_LIST_STRUCT
 #define NX_SECURE_TLS_FINISHED_HASH_SIZE                   (12)  /* Size of the TLS handshake Finished hash in bytes. If SSLv3 is added, the hash size will need to
                                                                     be revisited because it is different. */
 #define NX_SECURE_TLS_MAX_CIPHER_BLOCK_SIZE                (128) /* Size of the largest block used by session ciphers (in block mode). */
+
+#define NX_SECURE_TLS_MAX_SESSION_TICKET_AGE               (604800) /* Maximum lifetime of a NewSessionTicket (in milliseconds). */
+
+#define NX_SECURE_TLS_MAX_CIPHERTEXT_LENGTH                (18432) /* Maximum TLSCiphertext record length. */
+#define NX_SECURE_TLS_MAX_CIPHERTEXT_LENGTH_1_3            (16640) /* Maximum TLSCiphertext record length of TLS 1.3. */
+#define NX_SECURE_TLS_MAX_PLAINTEXT_LENGTH                 (16384) /* Maximum TLSPlaintext record length. */
 
 /* The minimum size for the TLS message buffer is determined by a number of factors, but primarily
  * the expected size of the TLS handshake Certificate message (sent by the TLS server) that may
@@ -659,11 +635,12 @@ typedef struct NX_SECURE_VERSIONS_LIST_STRUCT
 #define NX_SECURE_TLS_KEY_MATERIAL_SIZE                    (2 * (NX_SECURE_TLS_MAX_HASH_SIZE + NX_SECURE_TLS_MAX_KEY_SIZE + NX_SECURE_TLS_MAX_IV_SIZE))
 
 /* PSK-specific defines. If PSK is disabled, don't bring PSK types into the build. */
-#if defined(NX_SECURE_ENABLE_PSK_CIPHERSUITES) || defined(NX_SECURE_ENABLE_ECJPAKE_CIPHERSUITE)
+#if defined(NX_SECURE_ENABLE_PSK_CIPHERSUITES) || defined(NX_SECURE_ENABLE_ECJPAKE_CIPHERSUITE) || (NX_SECURE_TLS_TLS_1_3_ENABLED)
 
 
 #ifndef NX_SECURE_TLS_MAX_PSK_SIZE
-#define NX_SECURE_TLS_MAX_PSK_SIZE                         (20)
+/* The maximum PSK size for TLS 1.3 must be greater than or equal to the largest possible hash output for PSK session resumption keys. */
+#define NX_SECURE_TLS_MAX_PSK_SIZE                         (64)
 #endif /* NX_SECURE_TLS_MAX_PSK_SIZE */
 
 #ifndef NX_SECURE_TLS_MAX_PSK_KEYS
@@ -674,14 +651,9 @@ typedef struct NX_SECURE_VERSIONS_LIST_STRUCT
 #define NX_SECURE_TLS_MAX_PSK_ID_SIZE                      (20)
 #endif /* NX_SECURE_TLS_MAX_PSK_ID_SIZE */
 
-/* ECC-specific defines. */
-#ifndef NX_SECURE_TLS_EC_MAX_REMOTE_GROUPS
-#define NX_SECURE_TLS_EC_MAX_REMOTE_GROUPS                 (4)
-#endif /* NX_SECURE_TLS_EC_MAX_REMOTE_GROUPS */
-
-#ifndef NX_SECURE_TLS_EC_MAX_REMOTE_POINT_FORMATS
-#define NX_SECURE_TLS_EC_MAX_REMOTE_POINT_FORMATS          (4)
-#endif /* NX_SECURE_TLS_EC_MAX_REMOTE_POINT_FORMATS */
+#ifndef NX_SECURE_TLS_MAX_PSK_NONCE_SIZE
+#define NX_SECURE_TLS_MAX_PSK_NONCE_SIZE                   (255)
+#endif
 
 /* This structure holds the data for Pre-Shared Keys (PSKs) for use with
    the TLS PSK ciphersuites. The actual keys are generated from this data
@@ -701,6 +673,39 @@ typedef struct NX_SECURE_TLS_PSK_STORE_STRUCT
        The hint tells the server how to choose a PSK/identity pair. */
     UCHAR nx_secure_tls_psk_id_hint[NX_SECURE_TLS_MAX_PSK_ID_SIZE];
     UINT  nx_secure_tls_psk_id_hint_size;
+
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+    /* TLS 1.3 session ticket data. */
+    UINT  nx_secure_tls_psk_ticket_lifetime;
+    UCHAR nx_secure_tls_psk_ticket_nonce[NX_SECURE_TLS_MAX_PSK_NONCE_SIZE];
+    UCHAR  nx_secure_tls_psk_ticket_nonce_size;
+
+    /* PSK early secret. */
+    UCHAR nx_secure_tls_psk_early_secret[NX_SECURE_TLS_MAX_PSK_SIZE];
+    UINT  nx_secure_tls_psk_early_secret_size;
+
+    /* PSK binder key. */
+    UCHAR nx_secure_tls_psk_binder_key[NX_SECURE_TLS_MAX_PSK_SIZE];
+    UINT  nx_secure_tls_psk_binder_key_size;
+
+    /* PSK finished binder key. */
+    UCHAR nx_secure_tls_psk_finished_key[NX_SECURE_TLS_MAX_PSK_SIZE];
+    UINT  nx_secure_tls_psk_finished_key_size;
+
+    /* PSK binder value. */
+    UCHAR nx_secure_tls_psk_binder[NX_SECURE_TLS_MAX_PSK_SIZE];
+    UINT  nx_secure_tls_psk_binder_size;
+
+
+
+    /* The PSK is associated with a hash routine to generate the binder.
+     * If the PSK is for session resumption, the hash is that of the original
+     * handshake's chosen ciphersuite. For user-defined PSKs, the hash is
+     * either chosen by the user or defaults to SHA-256. RFC 8446, Section 4.2.11.
+     */
+    const struct NX_SECURE_TLS_CIPHERSUITE_INFO_STRUCT *nx_secure_tls_psk_binder_ciphersuite;
+
+#endif
 } NX_SECURE_TLS_PSK_STORE;
 #endif /* defined(NX_SECURE_ENABLE_PSK_CIPHERSUITES) || defined(NX_SECURE_ENABLE_ECJPAKE_CIPHERSUITE) */
 
@@ -713,15 +718,15 @@ typedef struct NX_SECURE_TLS_CIPHERSUITE_INFO_STRUCT
     USHORT nx_secure_tls_ciphersuite;
 
     /* The Public Key operation in this suite - RSA or DH. */
-    NX_CRYPTO_METHOD *nx_secure_tls_public_cipher;
+    const NX_CRYPTO_METHOD *nx_secure_tls_public_cipher;
 
     /* The Public Authentication method used for signing data. */
-    NX_CRYPTO_METHOD *nx_secure_tls_public_auth;
+    const NX_CRYPTO_METHOD *nx_secure_tls_public_auth;
 
     /* NOTE: The Public Key size is determined by the public keys used and cannot be determined at compile time. */
 
     /* The session cipher being used - AES, RC4, etc. */
-    NX_CRYPTO_METHOD *nx_secure_tls_session_cipher;
+    const NX_CRYPTO_METHOD *nx_secure_tls_session_cipher;
 
     /* The size of the initialization vectors needed for the session cipher. N/A for all session ciphers (enter "NONE"). */
     USHORT nx_secure_tls_iv_size;
@@ -730,7 +735,7 @@ typedef struct NX_SECURE_TLS_CIPHERSUITE_INFO_STRUCT
     UCHAR nx_secure_tls_session_key_size;
 
     /* The hash being used - MD5, SHA-1, SHA-256, etc. */
-    NX_CRYPTO_METHOD *nx_secure_tls_hash;
+    const NX_CRYPTO_METHOD *nx_secure_tls_hash;
 
     /* The size of the hash being used. This is for convenience as the size is determined
        by the hash, e.g. SHA-1 is 20 bytes, MD5 is 16 bytes. */
@@ -738,13 +743,94 @@ typedef struct NX_SECURE_TLS_CIPHERSUITE_INFO_STRUCT
 
     /* The TLS PRF being used - for TLSv1.0 and TLSv1.1 this is a single function. For TLSv1.2,
        the PRF is determined by the ciphersuite. */
-    NX_CRYPTO_METHOD *nx_secure_tls_prf;
+    const NX_CRYPTO_METHOD *nx_secure_tls_prf;
+
 } NX_SECURE_TLS_CIPHERSUITE_INFO;
 
 
 typedef USHORT NX_SECURE_TLS_STATE;
 typedef USHORT NX_SECURE_TLS_SERVER_STATE;
 typedef USHORT NX_SECURE_TLS_CLIENT_STATE;
+
+
+#ifdef NX_SECURE_ENABLE_ECC_CIPHERSUITE
+/* EC handshake information. */
+typedef struct NX_SECURE_TLS_ECDHE_HANDSHAKE_DATA_STRUCT
+{
+    /* Named curve used. */
+    UINT nx_secure_tls_ecdhe_named_curve;
+
+    /* Signature Algorithm for ECDHE. */
+    USHORT nx_secure_tls_ecdhe_signature_algorithm;
+
+    /* Length of the private key. */
+    USHORT nx_secure_tls_ecdhe_private_key_length;
+
+    /* Private key for ECDHE. */
+    UCHAR nx_secure_tls_ecdhe_private_key[NX_SECURE_TLS_PREMASTER_SIZE];
+
+    /* Length of the public key. */
+    USHORT nx_secure_tls_ecdhe_public_key_length;
+
+    /* Public key for ECDHE. */
+    UCHAR nx_secure_tls_ecdhe_public_key[4 * NX_SECURE_TLS_PREMASTER_SIZE];
+
+} NX_SECURE_TLS_ECDHE_HANDSHAKE_DATA;
+
+/* ECC information. */
+typedef struct NX_SECURE_TLS_ECC_STRUCT
+{
+    /* Supported named curves. */
+    const USHORT *nx_secure_tls_ecc_supported_groups;
+
+    /* Number of supported named curves. */
+    USHORT  nx_secure_tls_ecc_supported_groups_count;
+
+    /* Corresponding crypto methods for the supported named curve. */
+    const NX_CRYPTO_METHOD **nx_secure_tls_ecc_curves;
+} NX_SECURE_TLS_ECC;
+#endif /* NX_SECURE_ENABLE_ECC_CIPHERSUITE */
+
+
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+typedef struct NX_SECURE_TLS_KEY_SECRETS_STRUCT
+{
+    /* TLS 1.3 has many secrets and keys to be generated. This structure contains them. */
+
+    UCHAR tls_early_secret[NX_SECURE_TLS_MAX_HASH_SIZE];
+    UINT  tls_early_secret_len;
+    UCHAR tls_binder_key[NX_SECURE_TLS_MAX_HASH_SIZE];
+    UINT  tls_binder_key_len;
+    UCHAR tls_client_early_traffic_secret[NX_SECURE_TLS_MAX_HASH_SIZE];
+    UINT  tls_client_early_traffic_secret_len;
+    UCHAR tls_early_exporter_master_secret[NX_SECURE_TLS_MAX_HASH_SIZE];
+    UINT  tls_early_exporter_master_secret_len;
+    UCHAR tls_handshake_secret[NX_SECURE_TLS_MAX_HASH_SIZE];
+    UINT  tls_handshake_secret_len;
+    UCHAR tls_client_handshake_traffic_secret[NX_SECURE_TLS_MAX_HASH_SIZE];
+    UINT  tls_client_handshake_traffic_secret_len;
+    UCHAR tls_server_handshake_traffic_secret[NX_SECURE_TLS_MAX_HASH_SIZE];
+    UINT  tls_server_handshake_traffic_secret_len;
+    UCHAR tls_master_secret[NX_SECURE_TLS_MAX_HASH_SIZE];
+    UINT  tls_master_secret_len;
+    UCHAR tls_client_application_traffic_secret_0[NX_SECURE_TLS_MAX_HASH_SIZE];
+    UINT  tls_client_application_traffic_secret_0_len;
+    UCHAR tls_server_application_traffic_secret_0[NX_SECURE_TLS_MAX_HASH_SIZE];
+    UINT  tls_server_application_traffic_secret_0_len;
+    UCHAR tls_exporter_master_secret[NX_SECURE_TLS_MAX_HASH_SIZE];
+    UINT  tls_exporter_master_secret_len;
+    UCHAR tls_resumption_master_secret[NX_SECURE_TLS_MAX_HASH_SIZE];
+    UINT  tls_resumption_master_secret_len;
+
+    UCHAR tls_server_finished_key[NX_SECURE_TLS_MAX_HASH_SIZE];
+    UINT  tls_server_finished_key_len;
+    UCHAR tls_client_finished_key[NX_SECURE_TLS_MAX_HASH_SIZE];
+    UINT  tls_client_finished_key_len;
+} NX_SECURE_TLS_KEY_SECRETS;
+
+
+#endif
+
 
 typedef struct NX_SECURE_TLS_KEY_MATERIAL_STRUCT
 {
@@ -777,6 +863,30 @@ typedef struct NX_SECURE_TLS_KEY_MATERIAL_STRUCT
      */
     UCHAR nx_secure_tls_new_key_material_data[NX_SECURE_TLS_KEY_MATERIAL_SIZE];
 
+    /* Storage space for public ECC key data for curves supported (mostly for client).
+     * For TLS 1.3 we have to generate public keys before sending the ClientHello - one
+     * key for each curve we support!
+     */
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+    /* TLS 1.3 ECDHE key data. */
+    NX_SECURE_TLS_ECDHE_HANDSHAKE_DATA nx_secure_tls_ecc_key_data[10];
+
+    /* Selected ECDHE key data index. */
+    UINT nx_secure_tls_ecc_key_data_selected;
+
+    /* TLS 1.3 key secrets. */
+    NX_SECURE_TLS_KEY_SECRETS nx_secure_tls_key_secrets;
+
+    /* Store each transcript hash as it is generated. */
+    UCHAR nx_secure_tls_transcript_hashes[NX_SECURE_TLS_1_3_MAX_TRANSCRIPT_HASHES][NX_SECURE_TLS_MAX_HASH_SIZE];
+
+#endif
+
+    /* Pointer to buffer where we can store handshake messages to hash once we know
+       the hash routine we are using. */
+    UCHAR nx_secure_tls_handshake_cache[500];
+    UINT  nx_secure_tls_handshake_cache_length;
+
     /* The TLS protocol requires a "secret" used in the hash of each message,
        and one secret each for client and server. */
     UCHAR *nx_secure_tls_client_write_mac_secret;
@@ -791,6 +901,19 @@ typedef struct NX_SECURE_TLS_KEY_MATERIAL_STRUCT
     /* Some algorithms used in the TLS session require initialization vectors. */
     UCHAR *nx_secure_tls_client_iv;
     UCHAR *nx_secure_tls_server_iv;
+
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+    /* Any time we are switching keys (going from one encrypted context to another) we need to switch
+     * the keys for client and server independently. These pointers allow us to refer to the next
+     * keys to be used without having to access the key material directly.  */
+    UCHAR *nx_secure_tls_client_next_write_key;
+    UCHAR *nx_secure_tls_server_next_write_key;
+
+    /* Some algorithms used in the TLS session require initialization vectors. */
+    UCHAR *nx_secure_tls_client_next_iv;
+    UCHAR *nx_secure_tls_server_next_iv;
+#endif
+
 } NX_SECURE_TLS_KEY_MATERIAL;
 
 /* This structure contains the metadata for the TLS handshake hash - the state
@@ -837,15 +960,22 @@ typedef struct NX_SECURE_TLS_CRYPTO_STRUCT
 
     /* Specific routines needed for specific TLS versions. */
 #if (NX_SECURE_TLS_TLS_1_0_ENABLED || NX_SECURE_TLS_TLS_1_1_ENABLED)
-    NX_CRYPTO_METHOD *nx_secure_tls_handshake_hash_md5_method;
-    NX_CRYPTO_METHOD *nx_secure_tls_handshake_hash_sha1_method;
-    NX_CRYPTO_METHOD *nx_secure_tls_prf_1_method;
+    const NX_CRYPTO_METHOD *nx_secure_tls_handshake_hash_md5_method;
+    const NX_CRYPTO_METHOD *nx_secure_tls_handshake_hash_sha1_method;
+    const NX_CRYPTO_METHOD *nx_secure_tls_prf_1_method;
 #endif
 
 #if (NX_SECURE_TLS_TLS_1_2_ENABLED)
-    NX_CRYPTO_METHOD *nx_secure_tls_handshake_hash_sha256_method;
-    NX_CRYPTO_METHOD *nx_secure_tls_prf_sha256_method;
+    const NX_CRYPTO_METHOD *nx_secure_tls_handshake_hash_sha256_method;
+    const NX_CRYPTO_METHOD *nx_secure_tls_prf_sha256_method;
 #endif
+
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+    const NX_CRYPTO_METHOD *nx_secure_tls_hkdf_method;
+    const NX_CRYPTO_METHOD *nx_secure_tls_hmac_method;
+    const NX_CRYPTO_METHOD *nx_secure_tls_ecdhe_method;
+#endif
+
 } NX_SECURE_TLS_CRYPTO;
 
 
@@ -862,7 +992,7 @@ typedef struct NX_SECURE_TLS_CREDENTIALS_STRUCT
 
 #endif
 
-#ifdef NX_SECURE_ENABLE_PSK_CIPHERSUITES
+#if defined(NX_SECURE_ENABLE_PSK_CIPHERSUITES) || (NX_SECURE_TLS_TLS_1_3_ENABLED)
 
     /* Server identity value (received from remote host). */
     UCHAR nx_secure_tls_remote_psk_id[NX_SECURE_TLS_MAX_PSK_ID_SIZE];
@@ -872,13 +1002,14 @@ typedef struct NX_SECURE_TLS_CREDENTIALS_STRUCT
     NX_SECURE_TLS_PSK_STORE nx_secure_tls_client_psk;
 #endif
 
-#if defined(NX_SECURE_ENABLE_PSK_CIPHERSUITES) || defined(NX_SECURE_ENABLE_ECJPAKE_CIPHERSUITE)
+#if defined(NX_SECURE_ENABLE_PSK_CIPHERSUITES) || defined(NX_SECURE_ENABLE_ECJPAKE_CIPHERSUITE) || (NX_SECURE_TLS_TLS_1_3_ENABLED)
     /* Store for PSK ciphersuite keys. Used for TLS servers and PSK. */
     NX_SECURE_TLS_PSK_STORE nx_secure_tls_psk_store[NX_SECURE_TLS_MAX_PSK_KEYS];
 
     /* Current count/index into PSK store. */
     UINT nx_secure_tls_psk_count;
 #endif /* defined(NX_SECURE_ENABLE_PSK_CIPHERSUITES) || defined(NX_SECURE_ENABLE_ECJPAKE_CIPHERSUITE) */
+
 } NX_SECURE_TLS_CREDENTIALS;
 
 /* This structure encapsulates a single extension and its associated data. The
@@ -929,6 +1060,15 @@ typedef struct NX_SECURE_TLS_SESSION_STRUCT
      * user preference and the remote host. */
     USHORT nx_secure_tls_protocol_version;
 
+    /* TLS 1.3 doesn't use the protocol version - it's fixed to TLS 1.2 (0x0303) so
+       we distinguish a TLS 1.3 session from others using the flag below. */
+    USHORT nx_secure_tls_supported_versions;
+
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+    UCHAR nx_secure_tls_1_3;
+    UCHAR nx_secure_tls_1_3_supported; 
+#endif
+
     /* This field overrides the version returned by _nx_secure_tls_newest_supported_version. */
     USHORT nx_secure_tls_protocol_version_override;
 
@@ -940,7 +1080,7 @@ typedef struct NX_SECURE_TLS_SESSION_STRUCT
     const NX_SECURE_TLS_CIPHERSUITE_INFO *nx_secure_tls_session_ciphersuite;
 
     /* Chosen ciphersuite table, passed in during the session create call. */
-    const NX_SECURE_TLS_CRYPTO *nx_secure_tls_crypto_table;
+    NX_SECURE_TLS_CRYPTO *nx_secure_tls_crypto_table;
 
     /* Key material (master secret, session keys, etc.) is stored here. */
     NX_SECURE_TLS_KEY_MATERIAL nx_secure_tls_key_material;
@@ -1086,7 +1226,17 @@ typedef struct NX_SECURE_TLS_SESSION_STRUCT
     UINT nx_secure_tls_received_alert_level;
     UINT nx_secure_tls_received_alert_value;
 
-    NX_SECURE_TLS_SESSION_EXTENSION
+#ifdef NX_SECURE_ENABLE_ECC_CIPHERSUITE
+    /* Supported EC groups information for this session. */
+    NX_SECURE_TLS_ECC nx_secure_tls_ecc;
+#endif /* NX_SECURE_ENABLE_ECC_CIPHERSUITE */
+
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+    UCHAR *nx_secure_tls_cookie;
+    UINT   nx_secure_tls_cookie_length;
+
+    UINT nx_secure_tls_signature_algorithm;
+#endif
 } NX_SECURE_TLS_SESSION;
 
 /* TLS record types. */
@@ -1100,6 +1250,9 @@ typedef struct NX_SECURE_TLS_SESSION_STRUCT
 #define NX_SECURE_TLS_CLIENT_HELLO         1
 #define NX_SECURE_TLS_SERVER_HELLO         2
 #define NX_SECURE_TLS_HELLO_VERIFY_REQUEST 3
+#define NX_SECURE_TLS_NEW_SESSION_TICKET   4
+#define NX_SECURE_TLS_END_OF_EARLY_DATA    5
+#define NX_SECURE_TLS_ENCRYPTED_EXTENSIONS 8
 #define NX_SECURE_TLS_CERTIFICATE_MSG      11
 #define NX_SECURE_TLS_SERVER_KEY_EXCHANGE  12
 #define NX_SECURE_TLS_CERTIFICATE_REQUEST  13
@@ -1109,34 +1262,52 @@ typedef struct NX_SECURE_TLS_SESSION_STRUCT
 #define NX_SECURE_TLS_FINISHED             20
 #define NX_SECURE_TLS_CERTIFICATE_URL      21
 #define NX_SECURE_TLS_CERTIFICATE_STATUS   22
+#define NX_SECURE_TLS_KEY_UPDATE           25
 #define NX_SECURE_TLS_INVALID_MESSAGE      100
-
-
-/* Cryptographic hashing - P-HASH and the TLS PRF. */
-typedef UINT (*_nx_secure_hmac_function_pointer)(UCHAR *input_ptr, UINT input_length,
-                                                 UCHAR *key_ptr, UINT key_length,
-                                                 UCHAR *digest_ptr);
-
-/* These are passed to the P-HASH function to tell it which digest length is being used. */
-#define NX_SECURE_PHASH_HMAC_MD5           16
-#define NX_SECURE_PHASH_HMAC_SHA1          20
-#define NX_SECURE_PHASH_HMAC_SHA256        32
+#define NX_SECURE_TLS_MESSAGE_HASH         254
 
 
 /* Declare internal functions. */
+
+
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+UINT _nx_secure_tls_1_3_crypto_init(NX_SECURE_TLS_SESSION *tls_session);
+UINT _nx_secure_tls_1_3_client_handshake(NX_SECURE_TLS_SESSION *tls_session, UCHAR *packet_buffer,
+                                         UINT data_length, ULONG wait_option);
+UINT _nx_secure_tls_1_3_server_handshake(NX_SECURE_TLS_SESSION *tls_session, UCHAR *packet_buffer,
+                                         UINT data_length, ULONG wait_option);    
+UINT _nx_secure_tls_1_3_generate_handshake_keys(NX_SECURE_TLS_SESSION *tls_session);
+UINT _nx_secure_tls_1_3_generate_session_keys(NX_SECURE_TLS_SESSION *tls_session);
+UINT _nx_secure_tls_1_3_session_psk_generate(NX_SECURE_TLS_SESSION *tls_session, NX_SECURE_TLS_PSK_STORE *ticket_psk, UCHAR *nonce, UINT nonce_len);
+UINT _nx_secure_tls_psk_binder_generate(NX_SECURE_TLS_SESSION *tls_session, NX_SECURE_TLS_PSK_STORE *psk_entry);
+UINT _nx_secure_tls_1_3_session_keys_set(NX_SECURE_TLS_SESSION *tls_session, USHORT key_set);
+UINT _nx_secure_tls_1_3_transcript_hash_save(NX_SECURE_TLS_SESSION *tls_session, UINT hash_index, UINT need_copy);
+UINT _nx_secure_tls_1_3_finished_hash_generate(NX_SECURE_TLS_SESSION *tls_session,
+                                               UINT is_server, UINT *hash_size, UCHAR *finished_hash,
+                                               ULONG available_size);
+UINT _nx_secure_tls_1_3_generate_psk_secret(NX_SECURE_TLS_SESSION *tls_session,
+                                            NX_SECURE_TLS_PSK_STORE *psk_entry,
+                                            const NX_CRYPTO_METHOD *hash_method);
+UINT _nx_secure_tls_send_newsessionticket(NX_SECURE_TLS_SESSION *tls_session, NX_PACKET *send_packet);
+UINT _nx_secure_tls_process_encrypted_extensions(NX_SECURE_TLS_SESSION *tls_session,
+                                                 UCHAR *packet_buffer, UINT message_length);
+UINT _nx_secure_tls_send_encrypted_extensions(NX_SECURE_TLS_SESSION *tls_session, NX_PACKET *send_packet);
+#endif
+
+VOID _nx_secure_tls_get_signature_algorithm_id(UINT signature_algorithm, USHORT *signature_algorithm_id);
 UINT _nx_secure_tls_allocate_handshake_packet(NX_SECURE_TLS_SESSION *tls_session,
                                               NX_PACKET_POOL *packet_pool,
                                               NX_PACKET **send_packet, ULONG wait_option);
 UINT _nx_secure_tls_check_protocol_version(NX_SECURE_TLS_SESSION *tls_session,
                                            USHORT protocol_version, UINT id);
 UINT _nx_secure_tls_ciphersuite_lookup(NX_SECURE_TLS_SESSION *tls_session, UINT ciphersuite,
-                                       NX_SECURE_TLS_CIPHERSUITE_INFO const **info);
+                                       const NX_SECURE_TLS_CIPHERSUITE_INFO **info);
 UINT _nx_secure_tls_client_handshake(NX_SECURE_TLS_SESSION *tls_session, UCHAR *packet_buffer,
                                      UINT data_length, ULONG wait_option);
 UINT _nx_secure_tls_finished_hash_generate(NX_SECURE_TLS_SESSION *tls_session,
                                            UCHAR *finished_label, UCHAR *finished_hash);
 UINT _nx_secure_tls_generate_keys(NX_SECURE_TLS_SESSION *tls_session);
-UINT _nx_secure_tls_generate_premaster_secret(NX_SECURE_TLS_SESSION *tls_session);
+UINT _nx_secure_tls_generate_premaster_secret(NX_SECURE_TLS_SESSION *tls_session, UINT id);
 UINT _nx_secure_tls_handshake_hash_init(NX_SECURE_TLS_SESSION *tls_session);
 UINT _nx_secure_tls_handshake_hash_update(NX_SECURE_TLS_SESSION *tls_session, UCHAR *data,
                                           UINT length);
@@ -1159,13 +1330,13 @@ UINT _nx_secure_tls_process_certificate_verify(NX_SECURE_TLS_SESSION *tls_sessio
 UINT _nx_secure_tls_process_changecipherspec(NX_SECURE_TLS_SESSION *tls_session,
                                              UCHAR *packet_buffer, UINT message_length);
 UINT _nx_secure_tls_process_client_key_exchange(NX_SECURE_TLS_SESSION *tls_session,
-                                                UCHAR *packet_buffer, UINT message_length);
+                                                UCHAR *packet_buffer, UINT message_length, UINT id);
 UINT _nx_secure_tls_process_clienthello(NX_SECURE_TLS_SESSION *tls_session,
                                         UCHAR *packet_buffer, UINT message_length);
 UINT _nx_secure_tls_process_clienthello_extensions(NX_SECURE_TLS_SESSION *tls_session,
                                                    UCHAR *packet_buffer, UINT message_length,
                                                    NX_SECURE_TLS_HELLO_EXTENSION *extensions,
-                                                   UINT *num_extensions);
+                                                   UINT *num_extensions, UCHAR *client_hello_buffer, UINT client_hello_length);
 
 UINT _nx_secure_tls_process_finished(NX_SECURE_TLS_SESSION *tls_session, UCHAR *packet_buffer,
                                      UINT message_length);
@@ -1217,7 +1388,7 @@ UINT _nx_secure_tls_send_changecipherspec(NX_SECURE_TLS_SESSION *tls_session,
 UINT _nx_secure_tls_send_clienthello(NX_SECURE_TLS_SESSION *tls_session, NX_PACKET *send_packet);
 UINT _nx_secure_tls_send_clienthello_extensions(NX_SECURE_TLS_SESSION *tls_session,
                                                 UCHAR *packet_buffer, ULONG *packet_offset,
-                                                ULONG available_size);
+                                                ULONG *extensions_length, ULONG available_size);
 UINT _nx_secure_tls_send_client_key_exchange(NX_SECURE_TLS_SESSION *tls_session,
                                              NX_PACKET *send_packet);
 UINT _nx_secure_tls_send_finished(NX_SECURE_TLS_SESSION *tls_session, NX_PACKET *send_packet);
@@ -1241,13 +1412,26 @@ UINT _nx_secure_tls_server_certificate_find(NX_SECURE_TLS_SESSION *tls_session,
                                             NX_SECURE_X509_CERT **certificate, UINT cert_id);
 UINT _nx_secure_tls_server_certificate_remove(NX_SECURE_TLS_SESSION *tls_session, UINT cert_id);
 UINT _nx_secure_tls_server_handshake(NX_SECURE_TLS_SESSION *tls_session, UCHAR *packet_buffer,
-                                     ULONG wait_option);
+                                     UINT data_length, ULONG wait_option);
 UINT _nx_secure_tls_session_iv_size_get(NX_SECURE_TLS_SESSION *tls_session, USHORT *iv_size);
 UINT _nx_secure_tls_session_keys_set(NX_SECURE_TLS_SESSION *tls_session, USHORT key_set);
 UINT _nx_secure_tls_session_receive_records(NX_SECURE_TLS_SESSION *tls_session,
                                             NX_PACKET **packet_ptr_ptr, ULONG wait_option);
 UINT _nx_secure_tls_verify_mac(NX_SECURE_TLS_SESSION *tls_session, UCHAR *header_data,
                                USHORT header_length, UCHAR *data, UINT *length);
+#ifdef NX_SECURE_ENABLE_ECC_CIPHERSUITE
+UINT _nx_secure_tls_ecc_generate_keys(NX_SECURE_TLS_SESSION *tls_session, UINT ecc_named_curve, USHORT sign_key,
+                                      UCHAR *public_key, UINT *public_key_size, NX_SECURE_TLS_ECDHE_HANDSHAKE_DATA *ecc_data);
+UINT _nx_secure_tls_find_curve_method(NX_SECURE_TLS_SESSION *tls_session,
+                                      USHORT named_curve, const NX_CRYPTO_METHOD **curve_method);
+UINT _nx_secure_tls_proc_clienthello_sec_sa_extension(NX_SECURE_TLS_SESSION *tls_session,
+                                                      NX_SECURE_TLS_HELLO_EXTENSION *exts,
+                                                      UINT num_extensions,
+                                                      UINT *selected_curve, USHORT cert_curve,
+                                                      UINT *cert_curve_supported,
+                                                      USHORT *ecdhe_signature_algorithm,
+                                                      NX_SECURE_X509_CERT *cert);
+#endif /* NX_SECURE_ENABLE_ECC_CIPHERSUITE */
 
 
 /* Actual API functions .*/
@@ -1260,6 +1444,7 @@ UINT nx_secure_module_hash_compute(NX_CRYPTO_METHOD *hmac_ptr,
 UINT _nx_secure_tls_active_certificate_set(NX_SECURE_TLS_SESSION *tls_session,
                                            NX_SECURE_X509_CERT *certificate);
 VOID _nx_secure_tls_initialize(VOID);
+UINT _nx_secure_tls_shutdown(VOID);
 
 UINT _nx_secure_tls_local_certificate_add(NX_SECURE_TLS_SESSION *tls_session,
                                           NX_SECURE_X509_CERT *certificate);
@@ -1297,6 +1482,13 @@ UINT _nx_secure_tls_session_create(NX_SECURE_TLS_SESSION *session_ptr,
                                    const NX_SECURE_TLS_CRYPTO *cipher_table,
                                    VOID *metadata_area,
                                    ULONG metadata_size);
+
+UINT _nx_secure_tls_session_create_ext(NX_SECURE_TLS_SESSION *tls_session,
+                                   const NX_CRYPTO_METHOD **crypto_array, UINT crypto_array_size,
+                                   const NX_CRYPTO_CIPHERSUITE **cipher_map, UINT cipher_map_size,
+                                   VOID *metadata_buffer,
+                                   ULONG metadata_size);
+
 UINT _nx_secure_tls_session_delete(NX_SECURE_TLS_SESSION *tls_session);
 UINT _nx_secure_tls_session_end(NX_SECURE_TLS_SESSION *tls_session, UINT wait_option);
 UINT _nx_secure_tls_session_packet_buffer_set(NX_SECURE_TLS_SESSION *session_ptr,
@@ -1335,10 +1527,19 @@ UINT _nx_secure_tls_packet_allocate(NX_SECURE_TLS_SESSION *tls_session, NX_PACKE
 UINT _nx_secure_tls_psk_add(NX_SECURE_TLS_SESSION *tls_session, UCHAR *pre_shared_key, UINT psk_length,
                             UCHAR *psk_identity, UINT identity_length, UCHAR *hint, UINT hint_length);
 UINT _nx_secure_tls_psk_find(NX_SECURE_TLS_SESSION *tls_session, UCHAR **psk_data, UINT *psk_length,
-                             UCHAR *psk_identity, UINT identity_length);
+                             UCHAR *psk_identity_hint, UINT identity_length, UINT *psk_store_index);
 UINT _nx_secure_tls_client_psk_set(NX_SECURE_TLS_SESSION *tls_session, UCHAR *pre_shared_key, UINT psk_length,
                                    UCHAR *psk_identity, UINT identity_length, UCHAR *hint, UINT hint_length);
 #endif
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED) && defined(NX_SECURE_ENABLE_PSK_CIPHERSUITES)
+UINT _nx_secure_tls_psk_identity_find(NX_SECURE_TLS_SESSION *tls_session, UCHAR **psk_data, UINT *psk_length,
+                                      UCHAR *psk_identity, UINT identity_length, UINT *psk_store_index);
+#endif
+#ifdef NX_SECURE_ENABLE_ECC_CIPHERSUITE
+UINT _nx_secure_tls_ecc_initialize(NX_SECURE_TLS_SESSION *tls_session,
+                                   const USHORT *supported_groups, USHORT supported_group_count,
+                                   const NX_CRYPTO_METHOD **curves);
+#endif /* NX_SECURE_ENABLE_ECC_CIPHERSUITE */
 
 /* Functions for error checking .*/
 UINT _nxe_secure_tls_active_certificate_set(NX_SECURE_TLS_SESSION *tls_session,
