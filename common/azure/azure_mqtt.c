@@ -175,7 +175,7 @@ bool azure_mqtt_start()
         }
     }
 
-    printf("SUCCESS: MQTT client initialized\r\n");
+    printf("SUCCESS: MQTT client initialized\r\n\r\n");
 
     return true;
 }
@@ -360,6 +360,12 @@ static UINT mqtt_open()
 
     snprintf(mqtt_subscribe_topic, sizeof(mqtt_subscribe_topic), DEVICE_MESSAGE_TOPIC, iot_device_id);
 
+    if (iot_hub_hostname[0] == 0)
+    {
+        printf("ERROR: iot_hub_hostname is blank\r\n");
+        return 1;
+    }
+    
     status = nx_secure_tls_session_create(
         &mqtt_client.nxd_mqtt_tls_session,
         &nx_crypto_tls_ciphers,
