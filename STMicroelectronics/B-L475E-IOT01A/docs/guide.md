@@ -47,13 +47,11 @@ The cloned repo contains a setup script that installs and configures the first s
 
 To run the setup script:
 
-1. Open a console app with administrator privileges, go to the following path in the cloned repo, and run the setup script. If you use File Explorer, right-click the file and select **Run As Administrator**.
+1. Open a console app with administrator privileges, go to the following path in the repo, and run the setup script named *get-toolchain.bat*. If you use File Explorer, right-click the file and select **Run As Administrator**.
 
-    ```
-    getting-started\tools\get-toolchain.bat
-    ```
+    > *getting-started\tools\get-toolchain.bat*
 
-1. After the installation, open a new console window to recognize the configuration updates that the setup script made. Use this console to complete the remaining programming tasks in the tutorial. You can use Windows CMD, Powershell, or Git Bash for Windows.
+1. After the installation, open a new console window to recognize the configuration changes made by the setup script. Use this console to complete the remaining programming tasks in the tutorial. You can use Windows CMD, Powershell, or Git Bash for Windows.
 1. Run the following code to confirm that CMake version 3.14 or later is installed.
 
     ```
@@ -163,11 +161,9 @@ To connect the STM DevKit to Azure, you'll modify a configuration file for Wi-Fi
 
 ### Build the image
 
-In your console or in File Explorer, go to the *getting-started\STMicroelectronics\B-L475E-IOT01A\tools* folder and run the following script to build the image.
+In your console or in File Explorer, run the script *rebuild.bat* at the following path to build the image:
 
-```
-.\rebuild.bat
-```
+> *getting-started\STMicroelectronics\B-L475E-IOT01A\tools\rebuild.bat*
 
 After the build completes, confirm that a binary file was created in the following path:
 
@@ -227,7 +223,7 @@ You can use Azure CLI to inspect the flow of telemetry from the device to Azure 
     az iot hub monitor-events --device-id MySTMDevice --hub-name {YourIoTHubName}
     ```
 
-1. To force the STM DevKit to reconnect and resend telemetry, press **Reset**.
+1. To force the STM DevKit to reconnect and send telemetry, press **Reset**.
 
     View the telemetry in the console's JSON output.
 
