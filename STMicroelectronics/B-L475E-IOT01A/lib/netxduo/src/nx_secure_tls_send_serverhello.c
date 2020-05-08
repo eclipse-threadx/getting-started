@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -36,15 +24,33 @@
 
 #include "nx_secure_tls.h"
 
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+const UCHAR _nx_secure_tls_hello_retry_request_random[32] =
+{
+    0xCF, 0x21, 0xAD, 0x74, 0xE5, 0x9A, 0x61, 0x11, 0xBE, 0x1D, 0x8C, 0x02, 0x1E, 0x65, 0xB8, 0x91,
+    0xC2, 0xA2, 0x11, 0x16, 0x7A, 0xBB, 0x8C, 0x5E, 0x07, 0x9E, 0x09, 0xE2, 0xC8, 0xA8, 0x33, 0x9C
+};
+
+const UCHAR _nx_secure_tls_1_2_random[8] =
+{
+    0x44, 0x4F, 0x57, 0x4E, 0x47, 0x52, 0x44, 0x01
+};
+
+const UCHAR _nx_secure_tls_1_1_random[8] =
+{
+    0x44, 0x4F, 0x57, 0x4E, 0x47, 0x52, 0x44, 0x00
+};
+#endif
+
 /**************************************************************************/
 /*                                                                        */
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_tls_send_serverhello                     PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -74,23 +80,7 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-09-2017     Timothy Stapko           Initial Version 5.10          */
-/*  12-15-2017     Timothy Stapko           Modified comment(s),          */
-/*                                            supported renegotiation,    */
-/*                                            optimized the logic,        */
-/*                                            supported extensions,       */
-/*                                            resulting in version 5.11   */
-/*  08-15-2019     Timothy Stapko           Modified comment(s), and      */
-/*                                            optimized internal logic,   */
-/*                                            added flexibility of using  */
-/*                                            macros instead of direct C  */
-/*                                            library function calls,     */
-/*                                            fix Session ID issue in     */
-/*                                            initial ServerHello, fixed  */
-/*                                            compiler warnings, improved */
-/*                                            packet length verification, */
-/*                                            stored cipher suite pointer,*/
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 UINT _nx_secure_tls_send_serverhello(NX_SECURE_TLS_SESSION *tls_session, NX_PACKET *send_packet)
@@ -142,14 +132,54 @@ UINT   status;
 
     NX_SECURE_MEMCPY(tls_session -> nx_secure_tls_key_material.nx_secure_tls_server_random, (UCHAR *)&gmt_time, sizeof(gmt_time));
 
-    /* Next 28 bytes is random data. */
-    for (i = 4; i <= 28; i += (UINT)sizeof(random_value))
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+    if (tls_session -> nx_secure_tls_server_state == NX_SECURE_TLS_SERVER_STATE_SEND_HELLO_RETRY)
     {
-        random_value = (UINT)NX_RAND();
-        tls_session -> nx_secure_tls_key_material.nx_secure_tls_server_random[i]     = (UCHAR)(random_value);
-        tls_session -> nx_secure_tls_key_material.nx_secure_tls_server_random[i + 1] = (UCHAR)(random_value >> 8);
-        tls_session -> nx_secure_tls_key_material.nx_secure_tls_server_random[i + 2] = (UCHAR)(random_value >> 16);
-        tls_session -> nx_secure_tls_key_material.nx_secure_tls_server_random[i + 3] = (UCHAR)(random_value >> 24);
+        NX_SECURE_MEMCPY(tls_session -> nx_secure_tls_key_material.nx_secure_tls_server_random,
+                         _nx_secure_tls_hello_retry_request_random,
+                         sizeof(_nx_secure_tls_hello_retry_request_random));
+    }
+    else if (!(tls_session -> nx_secure_tls_1_3) && !(tls_session -> nx_secure_tls_protocol_version_override))
+    {
+        /* Next 20 bytes is random data. */
+        for (i = 4; i <= 20; i += (UINT)sizeof(random_value))
+        {
+            random_value = (UINT)NX_RAND();
+            tls_session -> nx_secure_tls_key_material.nx_secure_tls_server_random[i]     = (UCHAR)(random_value);
+            tls_session -> nx_secure_tls_key_material.nx_secure_tls_server_random[i + 1] = (UCHAR)(random_value >> 8);
+            tls_session -> nx_secure_tls_key_material.nx_secure_tls_server_random[i + 2] = (UCHAR)(random_value >> 16);
+            tls_session -> nx_secure_tls_key_material.nx_secure_tls_server_random[i + 3] = (UCHAR)(random_value >> 24);
+        }
+
+        /* RFC 8446 4.1.3:
+           TLS 1.3 servers which negotiate TLS 1.2 or below in response to a ClientHello 
+           MUST set the last 8 bytes of their Random value specially in their ServerHello. */
+        if (tls_session -> nx_secure_tls_protocol_version == NX_SECURE_TLS_VERSION_TLS_1_2)
+        {
+            NX_SECURE_MEMCPY(&(tls_session -> nx_secure_tls_key_material.nx_secure_tls_server_random[24]),
+                             _nx_secure_tls_1_2_random,
+                             sizeof(_nx_secure_tls_1_2_random));
+        }
+        else
+        {
+            NX_SECURE_MEMCPY(&(tls_session -> nx_secure_tls_key_material.nx_secure_tls_server_random[24]),
+                             _nx_secure_tls_1_1_random,
+                             sizeof(_nx_secure_tls_1_1_random));
+        }
+    }
+    else
+#endif
+    {
+        
+        /* Next 28 bytes is random data. */
+        for (i = 4; i <= 28; i += (UINT)sizeof(random_value))
+        {
+            random_value = (UINT)NX_RAND();
+            tls_session -> nx_secure_tls_key_material.nx_secure_tls_server_random[i]     = (UCHAR)(random_value);
+            tls_session -> nx_secure_tls_key_material.nx_secure_tls_server_random[i + 1] = (UCHAR)(random_value >> 8);
+            tls_session -> nx_secure_tls_key_material.nx_secure_tls_server_random[i + 2] = (UCHAR)(random_value >> 16);
+            tls_session -> nx_secure_tls_key_material.nx_secure_tls_server_random[i + 3] = (UCHAR)(random_value >> 24);
+        }
     }
 
     /* Copy the random data into the packet. */
@@ -158,9 +188,25 @@ UINT   status;
     length += sizeof(tls_session -> nx_secure_tls_key_material.nx_secure_tls_server_random);
 
     /* Session ID length is one byte. Session ID data follows if we ever implement session resumption. */
-    packet_buffer[length] = 0;
-    length++;
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+    if(tls_session->nx_secure_tls_1_3)
+    {
+        /* TLS 1.3 doesn't use the session ID, but the Server must echo the server ID provided in the ClientHello
+           back to the client or the client will abort the handshake (RFC 8446, Section 4.1.3). */
 
+        packet_buffer[length] = tls_session->nx_secure_tls_session_id_length;
+        length++;
+
+
+        NX_SECURE_MEMCPY(&packet_buffer[length], tls_session -> nx_secure_tls_session_id, tls_session->nx_secure_tls_session_id_length);
+        length += tls_session->nx_secure_tls_session_id_length;
+    }
+    else
+#endif
+    {
+        packet_buffer[length] = 0;
+        length++;
+    }
     /* Finally, our chosen ciphersuite - this is selected when we receive the Client Hello. */
     ciphersuite = tls_session -> nx_secure_tls_session_ciphersuite -> nx_secure_tls_ciphersuite;
     packet_buffer[length]     = (UCHAR)(ciphersuite >> 8);

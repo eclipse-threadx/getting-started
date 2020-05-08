@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -41,10 +29,10 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_tls_process_record                       PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -88,23 +76,7 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-09-2017     Timothy Stapko           Initial Version 5.10          */
-/*  12-15-2017     Timothy Stapko           Modified comment(s),          */
-/*                                            fixed record length check,  */
-/*                                            resulting in version 5.11   */
-/*  08-15-2019     Timothy Stapko           Modified comment(s), added    */
-/*                                            logic to clear encryption   */
-/*                                            key and other secret data,  */
-/*                                            added ability to pass alert */
-/*                                            information back to user,   */
-/*                                            optimized the logic,        */
-/*                                            make sure hash check is     */
-/*                                            always performed (attack    */
-/*                                            mitigation),  modified the  */
-/*                                            format slight, remove unused*/
-/*                                            parameter, add remote cert  */
-/*                                            memory optimization,        */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 UINT _nx_secure_tls_process_record(NX_SECURE_TLS_SESSION *tls_session, NX_PACKET *packet_ptr,
@@ -243,8 +215,31 @@ ULONG      record_offset = 0;
         record_offset += *bytes_processed;
 
         /* Check for active encryption of incoming records. If encrypted, decrypt before further processing. */
-        if (tls_session -> nx_secure_tls_remote_session_active)
+        if (tls_session -> nx_secure_tls_remote_session_active
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+            && (!tls_session -> nx_secure_tls_1_3 || message_type == NX_SECURE_TLS_APPLICATION_DATA)
+#endif
+            )
         {
+
+            /* Check the record length. */
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+            if (tls_session -> nx_secure_tls_1_3)
+            {
+                if (message_length > NX_SECURE_TLS_MAX_CIPHERTEXT_LENGTH_1_3)
+                {
+                    return(NX_SECURE_TLS_RECORD_OVERFLOW);
+                }
+            }
+            else
+#endif
+            {
+                if (message_length > NX_SECURE_TLS_MAX_CIPHERTEXT_LENGTH)
+                {
+                    return(NX_SECURE_TLS_RECORD_OVERFLOW);
+                }
+            }
+
             /* Decrypt the record data. */
             status = _nx_secure_tls_record_payload_decrypt(tls_session, packet_data, &message_length,
                                                            tls_session -> nx_secure_tls_remote_sequence_number, (UCHAR)message_type);
@@ -258,25 +253,56 @@ ULONG      record_offset = 0;
                 /* Save off the error status so we can return it after the mac check. */
                 error_status = status;
             }
-
-            /* Verify the hash MAC in the decrypted record.
-               !!! NOTE - the MAC check MUST always be performed regardless of the error state of
-                          the payload decryption operation. Skipping the MAC check on padding failures
-                          could enable a timing-based attack allowing an attacker to determine whether
-                          padding was valid or not, causing an information leak. */
-            status = _nx_secure_tls_verify_mac(tls_session, header_data, header_length, packet_data, &message_length);
-
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+            /* TLS 1.3 uses AEAD for all authentication and encryption. Therefore
+               the MAC verification is only needed for older TLS versions. */
+            if(tls_session->nx_secure_tls_1_3)
+            {
+                /* In TLS 1.3, encrypted records have a single byte at the 
+                   record that contains the message type (e.g. application data,
+                   ect.), which is now the ACTUAL message type. */
+                message_type = packet_data[message_length - 1];
+                                 
+                /* Remove the content type byte from the data length to process. */
+                message_length = message_length - 1;
+                 
+                /* Increment the sequence number. This is done in the MAC verify
+                   step for 1.2 and eariler, but AEAD includes the MAC so we don't
+                   check the MAC and need to increment here. */
+                if ((tls_session -> nx_secure_tls_remote_sequence_number[0] + 1) == 0)
+                {
+                    /* Check for overflow of the 32-bit unsigned number. */
+                    tls_session -> nx_secure_tls_remote_sequence_number[1]++;
+                }
+                tls_session -> nx_secure_tls_remote_sequence_number[0]++;
+            }
+            else
+#endif
+            {
+                /* Verify the hash MAC in the decrypted record.
+                   !!! NOTE - the MAC check MUST always be performed regardless of the error state of
+                              the payload decryption operation. Skipping the MAC check on padding failures
+                              could enable a timing-based attack allowing an attacker to determine whether
+                              padding was valid or not, causing an information leak. */
+                status = _nx_secure_tls_verify_mac(tls_session, header_data, header_length, packet_data, &message_length);
+            }
+              
             /* Check to see if decryption or verification failed. */
             if(error_status != NX_SECURE_TLS_SUCCESS)
             {
                 /* Decryption failed. */
                 return(error_status);
             }
-
+            
             if (status != NX_SECURE_TLS_SUCCESS)
             {
                 /* MAC verification failed. */
                 return(status);
+            }
+
+            if (message_length > NX_SECURE_TLS_MAX_PLAINTEXT_LENGTH)
+            {
+                return(NX_SECURE_TLS_RECORD_OVERFLOW);
             }
         }
 
@@ -324,18 +350,69 @@ ULONG      record_offset = 0;
             status = NX_SECURE_TLS_ALERT_RECEIVED;
             break;
         case NX_SECURE_TLS_HANDSHAKE:
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+            /* TLS 1.3 can send post-handshake messages with TLS HANDSHAKE record type. Process those separately. */
+            if(tls_session->nx_secure_tls_1_3 && tls_session -> nx_secure_tls_client_state == NX_SECURE_TLS_CLIENT_STATE_HANDSHAKE_FINISHED)
+            {
+                /* Process post-handshake messages. */
+                status = NX_SECURE_TLS_POST_HANDSHAKE_RECEIVED;
+                break;
+            }
+#endif /* (NX_SECURE_TLS_TLS_1_3_ENABLED) */
+
 #ifndef NX_SECURE_TLS_SERVER_DISABLED
             /* The socket is a TLS server, so process incoming handshake messages in that context. */
             if (tls_session -> nx_secure_tls_socket_type == NX_SECURE_TLS_SESSION_TYPE_SERVER)
             {
-                status = _nx_secure_tls_server_handshake(tls_session, packet_data, wait_option);
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+                if(tls_session->nx_secure_tls_1_3)
+                {
+                    status = _nx_secure_tls_1_3_server_handshake(tls_session, packet_data, message_length, wait_option);
+
+                    if ((status == NX_SUCCESS) && (tls_session -> nx_secure_tls_1_3 == NX_FALSE))
+                    {
+
+                        /* Negotiate a version of TLS prior to TLS 1.3. */
+                        /* Handle the ClientHello packet by legacy routine. */
+                        status = _nx_secure_tls_server_handshake(tls_session, packet_data, message_length, wait_option);
+                    }
+                }
+                else
+#endif
+                {
+                    status = _nx_secure_tls_server_handshake(tls_session, packet_data, message_length, wait_option);
+                }
             }
 #endif
+
+
 #ifndef NX_SECURE_TLS_CLIENT_DISABLED
             /* The socket is a TLS client, so process incoming handshake messages in that context. */
             if (tls_session -> nx_secure_tls_socket_type == NX_SECURE_TLS_SESSION_TYPE_CLIENT)
             {
-                status = _nx_secure_tls_client_handshake(tls_session, packet_data, message_length, wait_option);
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+                if(tls_session->nx_secure_tls_1_3)
+                {
+                    status = _nx_secure_tls_1_3_client_handshake(tls_session, packet_data, message_length, wait_option);
+                    if ((status == NX_SUCCESS) && (tls_session -> nx_secure_tls_1_3 == NX_FALSE))
+                    {
+
+                        /* Server negotiates a version of TLS prior to TLS 1.3. */
+#ifdef NX_SECURE_TLS_DISABLE_PROTOCOL_VERSION_DOWNGRADE
+                        /* Protocol version downgrade is disabled. Return error status. */
+                        status = NX_SECURE_TLS_UNSUPPORTED_TLS_VERSION;
+#else
+                        /* Handle the ServerHello packet by legacy routine. */
+                        _nx_secure_tls_handshake_hash_init(tls_session);
+                        status = _nx_secure_tls_client_handshake(tls_session, packet_data, message_length, wait_option);
+#endif /* NX_SECURE_TLS_DISABLE_PROTOCOL_VERSION_DOWNGRADE */
+                    }
+                }
+                else
+#endif
+                {
+                    status = _nx_secure_tls_client_handshake(tls_session, packet_data, message_length, wait_option);
+                }
             }
 #endif
             break;
@@ -353,18 +430,21 @@ ULONG      record_offset = 0;
             else
             {
 
+                /* Handshake is complete, send message to application. */
                 /* Release the protection before suspending on nx_packet_data_append. */
                 tx_mutex_put(&_nx_secure_tls_protection);
 
                 status = nx_packet_data_append(tls_session -> nx_secure_record_decrypted_packet, packet_data, message_length,
                                                tls_session -> nx_secure_tls_packet_pool, wait_option);
 
-#ifdef NX_SECURE_KEY_CLEAR
-                NX_SECURE_MEMSET(packet_data, 0, message_length);
-#endif /* NX_SECURE_KEY_CLEAR  */
-
                 /* Get the protection after nx_packet_data_append. */
                 tx_mutex_get(&_nx_secure_tls_protection, TX_WAIT_FOREVER);
+
+#ifdef NX_SECURE_KEY_CLEAR
+                tx_mutex_put(&_nx_secure_tls_protection);
+                NX_SECURE_MEMSET(packet_data, 0, message_length);
+                tx_mutex_get(&_nx_secure_tls_protection, TX_WAIT_FOREVER);
+#endif /* NX_SECURE_KEY_CLEAR  */
             }
             break;
         default:

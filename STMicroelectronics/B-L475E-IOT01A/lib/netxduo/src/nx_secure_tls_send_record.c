@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -41,10 +29,10 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_tls_send_record                          PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -91,20 +79,7 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-09-2017     Timothy Stapko           Initial Version 5.10          */
-/*  12-15-2017     Timothy Stapko           Modified comment(s),          */
-/*                                            let the caller release      */
-/*                                            packet when TCP send failed,*/
-/*                                            optimized the logic,        */
-/*                                            resulting in version 5.11   */
-/*  08-15-2019     Timothy Stapko           Modified comment(s), and skip */
-/*                                            hash when it is not required*/
-/*                                            logic to clear encryption   */
-/*                                            key and other secret data,  */
-/*                                            improved packet length      */
-/*                                            verification, removed       */
-/*                                            cipher suite lookup,        */
-/*                                            resulting in version 5.12    */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 UINT _nx_secure_tls_send_record(NX_SECURE_TLS_SESSION *tls_session, NX_PACKET *send_packet,
@@ -126,8 +101,12 @@ NX_PACKET *current_packet;
     length = send_packet -> nx_packet_length;
 
     /* See if this is an active session, we need to account for the IV if the session cipher
-       uses one. */
-    if (tls_session -> nx_secure_tls_local_session_active)
+       uses one. TLS 1.3 does not use an explicit IV so don't add it.*/
+    if (tls_session -> nx_secure_tls_local_session_active
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+        && !tls_session->nx_secure_tls_1_3
+#endif
+        )
     {
 
         /* Get the size of the IV used by the session cipher. */
@@ -136,6 +115,14 @@ NX_PACKET *current_packet;
         if (status != NX_SUCCESS)
         {
             return(status);
+        }
+
+        /* Ensure there is enough room for the IV data.  */
+        if ((ULONG)(send_packet -> nx_packet_prepend_ptr - send_packet -> nx_packet_data_start) < iv_size)
+        {
+
+            /* Return an invalid packet error.  */
+            return(NX_SECURE_TLS_INVALID_PACKET);
         }
 
         /* Back off the pointer to the point before the IV data allocation
@@ -147,6 +134,14 @@ NX_PACKET *current_packet;
     /* Back off the prepend_ptr for TLS Record header. Note the packet_length field is adjusted
        prior to nx_tcp_socket_send() below. */
     //send_packet -> nx_packet_prepend_ptr -= NX_SECURE_TLS_RECORD_HEADER_SIZE;
+
+    /* Ensure there is enough room for the record header.  */
+    if ((ULONG)(send_packet -> nx_packet_prepend_ptr - send_packet -> nx_packet_data_start) < NX_SECURE_TLS_RECORD_HEADER_SIZE)
+    {
+
+        /* Return an invalid packet error.  */
+        return(NX_SECURE_TLS_INVALID_PACKET);
+    }
 
     /* Get a pointer to our record header which is now right after the prepend pointer. */
     record_header = send_packet -> nx_packet_prepend_ptr - NX_SECURE_TLS_RECORD_HEADER_SIZE;
@@ -179,7 +174,31 @@ NX_PACKET *current_packet;
             return(NX_SECURE_TLS_UNKNOWN_CIPHERSUITE);
         }
 
-        if (tls_session -> nx_secure_tls_session_ciphersuite -> nx_secure_tls_hash -> nx_crypto_operation)
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+        /* TLS 1.3 records have the record type appended in a single byte. */
+        if(tls_session->nx_secure_tls_1_3)
+        {
+            /* If in a TLS 1.3 encrypted session, write the message type to the end. */
+            status = nx_packet_data_append(send_packet, (UCHAR*)(&record_type), 1,
+                                           tls_session -> nx_secure_tls_packet_pool, wait_option);
+
+            if(status != NX_SUCCESS)
+            {
+                return(status);
+            }
+
+            /* Record header type is APPLICATION DATA for all TLS 1.3 encrypted records. */
+            record_type = NX_SECURE_TLS_APPLICATION_DATA;
+            record_header[0] = record_type;
+        }
+#endif
+
+        /* TLS 1.3 does uses AEAD instead of per-record hash MACs. */
+        if (
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+            !tls_session->nx_secure_tls_1_3 && 
+#endif
+            tls_session -> nx_secure_tls_session_ciphersuite -> nx_secure_tls_hash -> nx_crypto_operation)
         {
 
             /***** HASHING *****/
@@ -218,7 +237,7 @@ NX_PACKET *current_packet;
             /* Walk packet chain. */
             do
             {
-                /* Update the handshake hash with the data. */
+                /* Update the hash with the data. */
                 status = _nx_secure_tls_record_hash_update(tls_session, hash_data,
                                                            (UINT)hash_data_length);
 
@@ -239,7 +258,7 @@ NX_PACKET *current_packet;
 
             /* Append the hash to the plaintext data in the last packet before encryption. */
             status = nx_packet_data_append(send_packet, record_hash, hash_length,
-                                           tls_session -> nx_secure_tls_packet_pool, NX_WAIT_FOREVER);
+                                           tls_session -> nx_secure_tls_packet_pool, wait_option);
 
 #ifdef NX_SECURE_KEY_CLEAR
             NX_SECURE_MEMSET(record_hash, 0, sizeof(record_hash));
@@ -248,6 +267,7 @@ NX_PACKET *current_packet;
             /* Get the protection after nx_packet_data_append. */
             tx_mutex_get(&_nx_secure_tls_protection, TX_WAIT_FOREVER);
         }
+
 
         /*************************************************************************************************************/
         /***** ENCRYPTION *****/

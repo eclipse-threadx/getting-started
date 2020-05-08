@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -47,10 +35,10 @@ static UCHAR _nx_secure_tls_gen_keys_random[NX_SECURE_TLS_RANDOM_SIZE + NX_SECUR
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_tls_generate_keys                        PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -83,30 +71,7 @@ static UCHAR _nx_secure_tls_gen_keys_random[NX_SECURE_TLS_RANDOM_SIZE + NX_SECUR
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-09-2017     Timothy Stapko           Initial Version 5.10          */
-/*  12-15-2017     Timothy Stapko           Modified comment(s),          */
-/*                                            added additional check for  */
-/*                                            missing PRF, supported      */
-/*                                            ECJPAKE, optimize the logic,*/
-/*                                            resulting in version 5.11   */
-/*  08-15-2019     Timothy Stapko           Modified comment(s), and      */
-/*                                            added flexibility of using  */
-/*                                            macros instead of direct C  */
-/*                                            library function calls,     */
-/*                                            added extension hook, added */
-/*                                            logic to clear encryption   */
-/*                                            key and other secret data,  */
-/*                                            passed crypto handle into   */
-/*                                            crypto internal functions,  */
-/*                                            rearranged code sequence    */
-/*                                            for static analysis,improved*/
-/*                                            packet length verification, */
-/*                                            updated error return checks,*/
-/*                                            improved packet length      */
-/*                                            verification, fix static    */
-/*                                            analyis bug reports, removed*/
-/*                                            cipher suite lookup,        */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 UINT _nx_secure_tls_generate_keys(NX_SECURE_TLS_SESSION *tls_session)
@@ -120,16 +85,14 @@ UINT                                  key_size;
 UINT                                  hash_size;
 UINT                                  iv_size;
 UINT                                  status;
-NX_CRYPTO_METHOD                     *session_cipher_method = NX_NULL;
-NX_CRYPTO_METHOD                     *session_prf_method = NX_NULL;
+const NX_CRYPTO_METHOD               *session_cipher_method = NX_NULL;
+const NX_CRYPTO_METHOD               *session_prf_method = NX_NULL;
 const NX_SECURE_TLS_CIPHERSUITE_INFO *ciphersuite;
 VOID                                 *handler = NX_NULL;
 
     /* Generate the session keys using the parameters obtained in the handshake.
        By this point all the information needed to generate the TLS session key
        material should have been gathered and stored in the TLS socket structure. */
-
-    NX_SECURE_GENERATE_KEYS_EXTENSION
 
     key_block_size = 0;
 
@@ -161,6 +124,10 @@ VOID                                 *handler = NX_NULL;
 
     /* The generation of key material is different between RSA and DH. */
     if (ciphersuite -> nx_secure_tls_public_cipher -> nx_crypto_algorithm == NX_CRYPTO_KEY_EXCHANGE_RSA
+#ifdef NX_SECURE_ENABLE_ECC_CIPHERSUITE
+        || ciphersuite -> nx_secure_tls_public_cipher -> nx_crypto_algorithm == NX_CRYPTO_KEY_EXCHANGE_ECDHE
+        || ciphersuite -> nx_secure_tls_public_cipher -> nx_crypto_algorithm == NX_CRYPTO_KEY_EXCHANGE_ECDH
+#endif /* NX_SECURE_ENABLE_ECC_CIPHERSUITE */
 #ifdef NX_SECURE_ENABLE_PSK_CIPHERSUITES
         || ciphersuite -> nx_secure_tls_public_auth -> nx_crypto_algorithm == NX_CRYPTO_KEY_EXCHANGE_PSK
 #endif
@@ -212,20 +179,28 @@ VOID                                 *handler = NX_NULL;
         /* If we don't have a PRF method, the version is wrong! */
         if (session_prf_method == NX_NULL)
         {
+#ifdef NX_SECURE_KEY_CLEAR
+            NX_SECURE_MEMSET(_nx_secure_tls_gen_keys_random, 0, sizeof(_nx_secure_tls_gen_keys_random));
+#endif /* NX_SECURE_KEY_CLEAR  */
+
             return(NX_SECURE_TLS_PROTOCOL_VERSION_CHANGED);
         }
 
         /* Use the PRF to generate the master secret. */
         if (session_prf_method -> nx_crypto_init != NX_NULL)
         {
-            status = session_prf_method -> nx_crypto_init(session_prf_method,
+            status = session_prf_method -> nx_crypto_init((NX_CRYPTO_METHOD*)session_prf_method,
                                                  pre_master_sec, (NX_CRYPTO_KEY_SIZE)pre_master_sec_size,
                                                  &handler,
                                                  tls_session -> nx_secure_tls_prf_metadata_area,
                                                  tls_session -> nx_secure_tls_prf_metadata_size);
 
-            if(status != NX_SUCCESS)
+            if(status != NX_CRYPTO_SUCCESS)
             {
+#ifdef NX_SECURE_KEY_CLEAR
+                NX_SECURE_MEMSET(_nx_secure_tls_gen_keys_random, 0, sizeof(_nx_secure_tls_gen_keys_random));
+#endif /* NX_SECURE_KEY_CLEAR  */
+
                 return(status);
             }                                                     
         }
@@ -234,7 +209,7 @@ VOID                                 *handler = NX_NULL;
         {
             status = session_prf_method -> nx_crypto_operation(NX_CRYPTO_PRF,
                                                       handler,
-                                                      session_prf_method,
+                                                      (NX_CRYPTO_METHOD*)session_prf_method,
                                                       (UCHAR *)"master secret",
                                                       13,
                                                       _nx_secure_tls_gen_keys_random,
@@ -247,21 +222,24 @@ VOID                                 *handler = NX_NULL;
                                                       NX_NULL,
                                                       NX_NULL);
 
-            if(status != NX_SUCCESS)
-            {
-                return(status);
-            }                                                     
 #ifdef NX_SECURE_KEY_CLEAR
             NX_SECURE_MEMSET(_nx_secure_tls_gen_keys_random, 0, sizeof(_nx_secure_tls_gen_keys_random));
 #endif /* NX_SECURE_KEY_CLEAR  */
+
+            if(status != NX_CRYPTO_SUCCESS)
+            {
+                /* Secrets cleared above. */
+                return(status);
+            }
         }
 
         if (session_prf_method -> nx_crypto_cleanup)
         {
             status = session_prf_method -> nx_crypto_cleanup(tls_session -> nx_secure_tls_prf_metadata_area);
 
-            if(status != NX_SUCCESS)
+            if(status != NX_CRYPTO_SUCCESS)
             {
+                /* All secrets cleared above. */
                 return(status);
             }                                                     
         }
@@ -320,14 +298,18 @@ VOID                                 *handler = NX_NULL;
        above) and the client and server random values transmitted during the initial hello negotiation. */
     if (session_prf_method -> nx_crypto_init != NX_NULL)
     {
-        status = session_prf_method -> nx_crypto_init(session_prf_method,
+        status = session_prf_method -> nx_crypto_init((NX_CRYPTO_METHOD*)session_prf_method,
                                              master_sec, 48,
                                              &handler,
                                              tls_session -> nx_secure_tls_prf_metadata_area,
                                              tls_session -> nx_secure_tls_prf_metadata_size);
 
-        if(status != NX_SUCCESS)
+        if(status != NX_CRYPTO_SUCCESS)
         {
+#ifdef NX_SECURE_KEY_CLEAR
+            NX_SECURE_MEMSET(_nx_secure_tls_gen_keys_random, 0, sizeof(_nx_secure_tls_gen_keys_random));
+#endif /* NX_SECURE_KEY_CLEAR  */
+
             return(status);
         }                                                     
     }
@@ -336,7 +318,7 @@ VOID                                 *handler = NX_NULL;
     {
         status = session_prf_method -> nx_crypto_operation(NX_CRYPTO_PRF,
                                                   handler,
-                                                  session_prf_method,
+                                                  (NX_CRYPTO_METHOD*)session_prf_method,
                                                   (UCHAR *)"key expansion",
                                                   13,
                                                   _nx_secure_tls_gen_keys_random,
@@ -349,22 +331,25 @@ VOID                                 *handler = NX_NULL;
                                                   NX_NULL,
                                                   NX_NULL);
 
-        if(status != NX_SUCCESS)
-        {
-            return(status);
-        }                                                     
-
 #ifdef NX_SECURE_KEY_CLEAR
+        /* We now have a key block, clear our temporary secrets buffer. */
         NX_SECURE_MEMSET(_nx_secure_tls_gen_keys_random, 0, sizeof(_nx_secure_tls_gen_keys_random));
 #endif /* NX_SECURE_KEY_CLEAR  */
+
+        if(status != NX_CRYPTO_SUCCESS)
+        {
+            /* Secrets cleared above. */
+            return(status);
+        }
     }
 
     if (session_prf_method -> nx_crypto_cleanup)
     {
         status = session_prf_method -> nx_crypto_cleanup(tls_session -> nx_secure_tls_prf_metadata_area);
 
-        if(status != NX_SUCCESS)
+        if(status != NX_CRYPTO_SUCCESS)
         {
+            /* Secrets cleared above. */
             return(status);
         }                                                     
     }

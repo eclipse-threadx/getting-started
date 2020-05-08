@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -41,10 +29,10 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_tls_session_receive_records              PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -85,14 +73,7 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s), added    */
-/*                                            logic to clear encryption   */
-/*                                            key and other secret data,  */
-/*                                            improved packet length      */
-/*                                            verification, remove unused */
-/*                                            parameters, resulting in    */
-/*                                            version 5.12                */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 UINT  _nx_secure_tls_session_receive_records(NX_SECURE_TLS_SESSION *tls_session,
@@ -102,14 +83,13 @@ UINT           status;
 NX_PACKET     *packet_ptr;
 NX_TCP_SOCKET *tcp_socket;
 ULONG          bytes_processed = 0;
+ULONG          packet_fragment_length;
 NX_PACKET     *tmp_ptr;
 NX_PACKET     *send_packet = NX_NULL;
 UINT           error_number;
 UINT           alert_number;
 UINT           alert_level;
-#ifdef NX_SECURE_KEY_CLEAR
 NX_PACKET     *current_packet;
-#endif /* NX_SECURE_KEY_CLEAR */
 
     /* Get the protection. */
     tx_mutex_get(&_nx_secure_tls_protection, TX_WAIT_FOREVER);
@@ -162,47 +142,86 @@ NX_PACKET     *current_packet;
     }
 
     /* Cleanup if the record processing was successful or if we have a renegotiation attempt. */
-    if (status == NX_SUCCESS)
+    if (status == NX_SUCCESS || status == NX_SECURE_TLS_POST_HANDSHAKE_RECEIVED)
     {
 
         /* Remove processed packets. */
         tls_session -> nx_secure_record_queue_length -= bytes_processed;
         tmp_ptr = tls_session -> nx_secure_record_queue_header;
-        while (tmp_ptr && (bytes_processed >= tmp_ptr -> nx_packet_length))
+        while (tmp_ptr)
         {
-            bytes_processed -= tmp_ptr -> nx_packet_length;
-            tls_session -> nx_secure_record_queue_header = tmp_ptr -> nx_packet_queue_next;
+            if (bytes_processed >= tmp_ptr -> nx_packet_length)
+            {
+
+                /* Remove entire packet. */
+                bytes_processed -= tmp_ptr -> nx_packet_length;
+                tls_session -> nx_secure_record_queue_header = tmp_ptr -> nx_packet_queue_next;
 #ifdef NX_SECURE_KEY_CLEAR
-            /* Clear all data in chained packet. */
-            current_packet = tmp_ptr;
-            while (current_packet)
-            {
-                NX_SECURE_MEMSET(current_packet -> nx_packet_prepend_ptr, 0,
-                       (ULONG)current_packet -> nx_packet_append_ptr -
-                       (ULONG)current_packet -> nx_packet_prepend_ptr);
-                current_packet = current_packet -> nx_packet_next;
-            }
+                /* Clear all data in chained packet. */
+                current_packet = tmp_ptr;
+                while (current_packet)
+                {
+                    NX_SECURE_MEMSET(current_packet -> nx_packet_prepend_ptr, 0,
+                           (ULONG)current_packet -> nx_packet_append_ptr -
+                           (ULONG)current_packet -> nx_packet_prepend_ptr);
+                    current_packet = current_packet -> nx_packet_next;
+                }
 #endif /* NX_SECURE_KEY_CLEAR  */
-            nx_packet_release(tmp_ptr);
-            tmp_ptr = tls_session -> nx_secure_record_queue_header;
+                nx_packet_release(tmp_ptr);
+                tmp_ptr = tls_session -> nx_secure_record_queue_header;
+            }
+            else
+            {
+
+                /* Only partial data been processed. */
+                current_packet = tmp_ptr;
+                while (current_packet)
+                {
+                    packet_fragment_length = (ULONG)(current_packet -> nx_packet_append_ptr) - (ULONG)(current_packet -> nx_packet_prepend_ptr);
+
+                    /* Determine if all data in the current fragment have been processed. */
+                    if (packet_fragment_length < bytes_processed)
+                    {
+#ifdef NX_SECURE_KEY_CLEAR
+                        /* Remove all data of this fragment. */
+                        NX_SECURE_MEMSET(current_packet -> nx_packet_prepend_ptr, 0,
+                                         packet_fragment_length);
+#endif /* NX_SECURE_KEY_CLEAR  */
+                        current_packet -> nx_packet_prepend_ptr = current_packet -> nx_packet_append_ptr;
+                        tmp_ptr -> nx_packet_length -= packet_fragment_length;
+                        bytes_processed -= packet_fragment_length;
+                    }
+                    else
+                    {
+#ifdef NX_SECURE_KEY_CLEAR
+                        /* Remove partial data of this fragment. */
+                        NX_SECURE_MEMSET(current_packet -> nx_packet_prepend_ptr, 0,
+                                         bytes_processed);
+#endif /* NX_SECURE_KEY_CLEAR  */
+                        current_packet -> nx_packet_prepend_ptr += bytes_processed;
+                        tmp_ptr -> nx_packet_length -= bytes_processed;
+                        bytes_processed = 0;
+                        break;
+                    }
+                    current_packet = current_packet -> nx_packet_next;
+                }
+                break;
+            }
         }
-        if (tmp_ptr)
+
+        if (!tmp_ptr)
+        {
+            tls_session -> nx_secure_record_queue_tail = NX_NULL;
+        }
+
+        if (bytes_processed)
         {
 
-            if (((ULONG)(tmp_ptr -> nx_packet_append_ptr) - (ULONG)(tmp_ptr -> nx_packet_prepend_ptr)) < bytes_processed)
-            {
+            /* Release the protection. */
+            tx_mutex_put(&_nx_secure_tls_protection);
 
-                /* Release the protection. */
-                tx_mutex_put(&_nx_secure_tls_protection);
-
-                return(NX_SECURE_TLS_INVALID_PACKET);
-            }
-
-            /* Adjust the last packet. */
-            tmp_ptr -> nx_packet_prepend_ptr += bytes_processed;
-            tmp_ptr -> nx_packet_length -= bytes_processed;
+            return(NX_SECURE_TLS_INVALID_PACKET);
         }
-        tls_session -> nx_secure_record_queue_tail = tmp_ptr;
 
         if (tls_session -> nx_secure_record_decrypted_packet == NX_NULL)
         {

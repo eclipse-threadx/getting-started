@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -38,10 +26,10 @@
 /*  APPLICATION INTERFACE DEFINITION                       RELEASE        */
 /*                                                                        */
 /*    nx_crypto_huge_number.h                             PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -52,11 +40,7 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 
@@ -74,7 +58,6 @@ extern   "C" {
 
 /* Include the ThreadX and port-specific data type file.  */
 
-#include "nx_api.h"
 #include "nx_crypto.h"
 
 /* Return values for _nx_crypto_huge_number_compare */
@@ -147,7 +130,7 @@ typedef struct NX_CRYPTO_HUGE_NUMBER_STRUCT
     (hn) -> nx_crypto_huge_number_data = (HN_UBASE *)(buff); \
     (hn) -> nx_crypto_huge_number_size = 0;                  \
     (hn) -> nx_crypto_huge_buffer_size = (((size) + HN_SIZE_ROUND) >> HN_SIZE_SHIFT) << HN_SIZE_SHIFT;\
-    (hn) -> nx_crypto_huge_number_is_negative = NX_FALSE;    \
+    (hn) -> nx_crypto_huge_number_is_negative = NX_CRYPTO_FALSE;    \
     (buff) = (buff) + (((size) + HN_SIZE_ROUND) >> HN_SIZE_SHIFT);
 
 /* Is it an even huge number? */
@@ -157,7 +140,7 @@ typedef struct NX_CRYPTO_HUGE_NUMBER_STRUCT
 /* Set value of huge number between 0 and (HN_RADIX - 1). */
 #define NX_CRYPTO_HUGE_NUMBER_SET_DIGIT(hn, val)          \
     (hn) -> nx_crypto_huge_number_data[0] = (val);        \
-    (hn) -> nx_crypto_huge_number_is_negative = NX_FALSE; \
+    (hn) -> nx_crypto_huge_number_is_negative = NX_CRYPTO_FALSE; \
     (hn) -> nx_crypto_huge_number_size = 1;
 
 /* Initialize the buffer of huge number to variable between 0 and (HN_RADIX - 1). */

@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -42,10 +30,10 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_tls_send_handshake_record                PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -81,12 +69,7 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-09-2017     Timothy Stapko           Initial Version 5.10          */
-/*  12-15-2017     Timothy Stapko           Modified comment(s),          */
-/*                                            released packet on error,   */
-/*                                            resulting in version 5.11   */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 UINT _nx_secure_tls_send_handshake_record(NX_SECURE_TLS_SESSION *tls_session,
@@ -97,7 +80,7 @@ UINT       status;
 UCHAR     *packet_buffer;
 ULONG      length;
 NX_PACKET *current_packet;
-
+UINT       buffer_offset;
 
     /* Build up the TLS handshake header.
      * Structure:
@@ -135,17 +118,40 @@ NX_PACKET *current_packet;
         /* Account for large records that exceed the packet size and are chained in multiple packets
            such as large certificate messages with multiple certificates. */
         current_packet = send_packet;
+
+        buffer_offset = 0;
         do
         {
             /* Update the handshake hash with the data. */
             length = (ULONG)(current_packet -> nx_packet_append_ptr - current_packet -> nx_packet_prepend_ptr);
-            _nx_secure_tls_handshake_hash_update(tls_session, current_packet -> nx_packet_prepend_ptr,
-                                                 (UINT)length);
+
+            /* If using TLS 1.3 and no ciphersuite is chosen, we don't yet know what the handshake hash routine will be,
+               so cache the message data to be hashed later. */
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+            if((tls_session->nx_secure_tls_1_3 && tls_session->nx_secure_tls_session_ciphersuite == 0x0) ||
+               (handshake_type == NX_SECURE_TLS_CLIENT_HELLO))
+#else
+            if (handshake_type == NX_SECURE_TLS_CLIENT_HELLO)
+#endif /* (NX_SECURE_TLS_TLS_1_3_ENABLED) */
+            {
+                NX_SECURE_MEMCPY(&tls_session->nx_secure_tls_key_material.nx_secure_tls_handshake_cache[buffer_offset],
+                                 current_packet -> nx_packet_prepend_ptr, (UINT)length);
+
+                /* Advance the length. */
+                buffer_offset += (UINT)length;
+                tls_session->nx_secure_tls_key_material.nx_secure_tls_handshake_cache_length += (UINT)length;
+            }
+            else
+            {
+                _nx_secure_tls_handshake_hash_update(tls_session, current_packet -> nx_packet_prepend_ptr,
+                                                     (UINT)length);
+            }
 
             /* Advance the packet pointer to the next packet in the chain. */
             current_packet = current_packet -> nx_packet_next;
         } while (current_packet != NX_NULL);
     }
+
 
     /* Finally, send the record off to the client. */
     status = _nx_secure_tls_send_record(tls_session, send_packet, NX_SECURE_TLS_HANDSHAKE, wait_option);
@@ -155,7 +161,6 @@ NX_PACKET *current_packet;
         /* Release packet on send error. */
         nx_packet_release(send_packet);
     }
-
 
     return(status);
 }

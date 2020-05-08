@@ -1,23 +1,11 @@
-/**************************************************************************/ 
-/*                                                                        */ 
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */ 
-/*                                                                        */ 
-/*  This software is copyrighted by and is the sole property of Express   */ 
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */ 
-/*  in the software remain the property of Express Logic, Inc.  This      */ 
-/*  software may only be used in accordance with the corresponding        */ 
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */ 
-/*  distribution, or disclosure of this software is expressly forbidden.  */ 
+/**************************************************************************/
 /*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */ 
-/*  written consent of Express Logic, Inc.                                */ 
-/*                                                                        */ 
-/*  Express Logic, Inc. reserves the right to modify this software        */ 
-/*  without notice.                                                       */ 
-/*                                                                        */ 
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
+/*                                                                        */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -95,7 +83,7 @@ static UINT        _nx_dns_cache_find_answer(NX_DNS *dns_ptr, VOID *cache_ptr, U
 static UINT        _nx_dns_cache_delete_rr(NX_DNS *dns_ptr, VOID *cache_ptr, UINT cache_size, NX_DNS_RR *record_ptr);   
 static UINT        _nx_dns_cache_delete_rr_string(NX_DNS *dns_ptr, VOID *cache_ptr, UINT cache_size, NX_DNS_RR *record_ptr);
 static UINT        _nx_dns_cache_add_string(NX_DNS *dns_ptr, VOID *cache_ptr, UINT cache_size, VOID *string_ptr, UINT string_size, VOID **insert_ptr);
-static UINT        _nx_dns_cache_delete_string(NX_DNS *dns_ptr, VOID *cache_ptr, UINT cache_size, VOID *string_ptr);  
+static UINT        _nx_dns_cache_delete_string(NX_DNS *dns_ptr, VOID *cache_ptr, UINT cache_size, VOID *string_ptr, UINT string_len);  
 static ULONG       _nx_dns_resource_time_to_live_get(UCHAR *resource); 
 #endif /* NX_DNS_CACHE_ENABLE  */
 
@@ -143,11 +131,11 @@ NX_DNS *_nx_dns_instance_ptr;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxe_dns_create                                     PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function checks for errors in the DNS create function call.    */ 
@@ -172,25 +160,11 @@ NX_DNS *_nx_dns_instance_ptr;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */  
-/*  06-01-2010     Janet Christiansen       Initial Version 5.0           */ 
-/*  10-31-2011     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-27-2012     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.2    */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */ 
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nxe_dns_create(NX_DNS *dns_ptr, NX_IP *ip_ptr, UCHAR *domain_name)
 {
 
@@ -217,11 +191,11 @@ UINT    status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_create                                      PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function creates a DNS instance for the specified IP. This     */ 
@@ -252,33 +226,11 @@ UINT    status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
+/*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-10-2010     Janet Christiansen       Initial Version 5.0           */ 
-/*  10-31-2011     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-27-2012     Janet Christiansen       Modified comment(s),          */ 
-/*                                            added support for the       */
-/*                                            NX_DNS_CLIENT_USER_CREATE_  */
-/*                                            PACKET_POOL option,         */
-/*                                            resulting in version 5.2    */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.3    */ 
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */ 
-/*  02-22-2016     Yuxin Zhou               Modified comment(s), and      */
-/*                                            modified the logic for      */
-/*                                            setting the IP gateway      */
-/*                                            server to be the DNS Server,*/
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            added support for disabling */
-/*                                            IPv4 feature,               */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT _nx_dns_create(NX_DNS *dns_ptr, NX_IP *ip_ptr, UCHAR *domain_name)
 {
 
@@ -404,11 +356,11 @@ UINT            status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxe_dns_packet_pool_set                            PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function performs error checking for the set the DNS Client    */
@@ -436,22 +388,11 @@ UINT            status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     Janet Christiansen       Initial Version 5.2           */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */ 
-/*  02-22-2016     Yuxin Zhou               Modified comment(s), and      */
-/*                                            fixed compiler warnings,    */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nxe_dns_packet_pool_set(NX_DNS *dns_ptr, NX_PACKET_POOL *packet_pool_ptr)
 {
 
@@ -485,11 +426,11 @@ UINT  status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_packet_pool_set                             PORTABLE C      */ 
-/*                                                           5.11 SP2     */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function sets the DNS Client packet pool by passing in a       */
@@ -521,25 +462,11 @@ UINT  status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */  
-/*  01-27-2012     Janet Christiansen       Initial Version 5.2           */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */  
-/*  02-22-2016     Yuxin Zhou               Modified comment(s), and      */
-/*                                            fixed compiler warnings,    */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*  03-15-2019     Yuxin Zhou               Modified comment(s), improved */
-/*                                            packet payload verification,*/
-/*                                            resulting in version 5.11SP2*/
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nx_dns_packet_pool_set(NX_DNS *dns_ptr, NX_PACKET_POOL *packet_pool_ptr)
 {
 
@@ -568,11 +495,11 @@ UINT  _nx_dns_packet_pool_set(NX_DNS *dns_ptr, NX_PACKET_POOL *packet_pool_ptr)
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxe_dns_delete                                     PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function checks for errors in the DNS delete function call.    */ 
@@ -595,25 +522,11 @@ UINT  _nx_dns_packet_pool_set(NX_DNS *dns_ptr, NX_PACKET_POOL *packet_pool_ptr)
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  06-01-2010     Janet Christiansen       Initial Version 5.0           */ 
-/*  10-31-2011     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-27-2012     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.2    */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */  
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nxe_dns_delete(NX_DNS *dns_ptr)
 {
 
@@ -639,11 +552,11 @@ UINT    status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_delete                                      PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function deletes a previously created DNS instance for the     */ 
@@ -669,29 +582,11 @@ UINT    status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */  
-/*  06-01-2010     Janet Christiansen       Initial Version 5.0           */ 
-/*  10-31-2011     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-27-2012     Janet Christiansen       Modified comment(s), and      */
-/*                                            modified packet pool ptr,   */ 
-/*                                            resulting in version 5.2    */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s), and      */
-/*                                            added a check if the DNS    */
-/*                                            packet pool is user defined */
-/*                                            before deleting it,         */
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nx_dns_delete(NX_DNS *dns_ptr)
 {
 
@@ -750,11 +645,11 @@ UINT    status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxe_dns_server_add                                 PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function checks for errors in the DNS add server function      */ 
@@ -779,30 +674,11 @@ UINT    status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */   
-/*  06-01-2010     Janet Christiansen       Initial Version 5.0           */ 
-/*  10-31-2011     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-27-2012     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.2    */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s), and      */
-/*                                            modified error status       */
-/*                                            returns to be consistent    */
-/*                                            with other API,             */
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */ 
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            added support for disabling */
-/*                                            IPv4 feature,               */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nxe_dns_server_add(NX_DNS *dns_ptr, ULONG server_address)
 {
 
@@ -845,11 +721,11 @@ UINT    status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_server_add                                  PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function calls the actual service to add DNS server address.   */
@@ -873,27 +749,11 @@ UINT    status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */  
-/*  06-01-2010     Janet Christiansen       Initial Version 5.0           */ 
-/*  10-31-2011     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-27-2012     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.2    */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */ 
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            added support for disabling */
-/*                                            IPv4 feature,               */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nx_dns_server_add(NX_DNS *dns_ptr, ULONG server_address)
 {
 
@@ -923,11 +783,11 @@ NXD_ADDRESS dns_server_address;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxde_dns_server_add                                PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function checks for errors in the DNS add server function      */ 
@@ -952,30 +812,11 @@ NXD_ADDRESS dns_server_address;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
+/*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-01-2010     Janet Christiansen       Initial Version 5.0           */ 
-/*  10-31-2011     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-27-2012     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.2    */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s), and      */
-/*                                            modified error status       */
-/*                                            returns to be consistent    */
-/*                                            with other API,             */
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            added support for disabling */
-/*                                            IPv4 feature,               */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nxde_dns_server_add(NX_DNS *dns_ptr, NXD_ADDRESS *server_address)
 {
 
@@ -1056,11 +897,11 @@ UINT    status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxd_dns_server_add                                 PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function adds the specified DNS server to this DNS (client)    */
@@ -1086,31 +927,11 @@ UINT    status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  06-01-2010     Janet Christiansen       Initial Version 5.0           */ 
-/*  10-31-2011     Janet Christiansen       Modified comment(s), and      */
-/*                                            added dual IPv4 and IPv6    */ 
-/*                                            support, resulting in       */ 
-/*                                            version 5.1                 */
-/*  01-27-2012     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.2    */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s), and      */
-/*                                            added missing DNS mutex     */
-/*                                            release calls,a dded checks */
-/*                                            for null IP address input   */
-/*                                            and invalid IP address type,*/
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT _nxd_dns_server_add(NX_DNS *dns_ptr, NXD_ADDRESS *dns_server_address)
 {
  
@@ -1125,11 +946,11 @@ UINT _nxd_dns_server_add(NX_DNS *dns_ptr, NXD_ADDRESS *dns_server_address)
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_server_add_internal                         PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function adds the specified DNS server to this DNS (client)    */
@@ -1155,19 +976,11 @@ UINT _nxd_dns_server_add(NX_DNS *dns_ptr, NXD_ADDRESS *dns_server_address)
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-12-2015     Janet Christiansen       Initial Version 5.8           */ 
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            added support for disabling */
-/*                                            IPv4 feature,               */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT _nx_dns_server_add_internal(NX_DNS *dns_ptr, NXD_ADDRESS *server_address)
 {
 
@@ -1300,11 +1113,11 @@ UINT        i;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxe_dns_server_remove                              PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function checks for errors in the DNS remove server function   */ 
@@ -1330,30 +1143,11 @@ UINT        i;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  06-01-2010     Janet Christiansen       Initial Version 5.0           */ 
-/*  10-31-2011     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-27-2012     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.2    */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s),and      */
-/*                                            modified error status       */
-/*                                            returns to be consistent    */
-/*                                            with other API,             */
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */ 
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            added support for disabling */
-/*                                            IPv4 feature,               */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nxe_dns_server_remove(NX_DNS *dns_ptr, ULONG server_address)
 {
 
@@ -1394,11 +1188,11 @@ UINT    status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_server_remove                               PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function calls actual service to remove specified DNS Server.  */
@@ -1422,27 +1216,11 @@ UINT    status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */   
-/*  06-01-2010     Janet Christiansen       Initial Version 5.0           */ 
-/*  10-31-2011     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-27-2012     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.2    */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            added support for disabling */
-/*                                            IPv4 feature,               */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nx_dns_server_remove(NX_DNS *dns_ptr, ULONG server_address)
 {
 
@@ -1469,11 +1247,11 @@ NXD_ADDRESS dns_server_address;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxde_dns_server_remove                             PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function checks for errors in the DNS remove server function   */ 
@@ -1499,30 +1277,11 @@ NXD_ADDRESS dns_server_address;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  06-01-2010     Janet Christiansen       Initial Version 5.0           */ 
-/*  10-31-2011     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-27-2012     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.2    */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s), and      */
-/*                                            added checks for null IP    */
-/*                                            address input and invalid   */
-/*                                            IP address type,            */
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            added support for disabling */
-/*                                            IPv4 feature,               */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nxde_dns_server_remove(NX_DNS *dns_ptr, NXD_ADDRESS *server_address)
 {
 
@@ -1594,11 +1353,11 @@ UINT    status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxd_dns_server_remove                              PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function removes the specified DNS server to this DNS          */ 
@@ -1627,31 +1386,11 @@ UINT    status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
+/*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-01-2010     Janet Christiansen       Initial Version 5.0           */ 
-/*  10-31-2011     Janet Christiansen       Modified comment(s), and      */
-/*                                            added dual IPv4 and IPv6    */ 
-/*                                            support, resulting in       */ 
-/*                                            version 5.1                 */
-/*  01-27-2012     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.2    */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s), and      */
-/*                                            added missing DNS mutex     */
-/*                                            release calls, added checks */
-/*                                            for null IP address input   */
-/*                                            and invalid IP address type,*/
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nxd_dns_server_remove(NX_DNS *dns_ptr, NXD_ADDRESS *server_address)
 {
                      
@@ -1666,11 +1405,11 @@ UINT  _nxd_dns_server_remove(NX_DNS *dns_ptr, NXD_ADDRESS *server_address)
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_server_remove_internal                      PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function removes the specified DNS server to this DNS          */ 
@@ -1699,22 +1438,11 @@ UINT  _nxd_dns_server_remove(NX_DNS *dns_ptr, NXD_ADDRESS *server_address)
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-12-2015     Janet Christiansen       Initial Version 5.8           */ 
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s), and      */
-/*                                            Fixed a bug that mutex is   */
-/*                                            not released before return, */
-/*                                            improved internal logic,    */
-/*                                            added support for disabling */
-/*                                            IPv4 feature,               */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 static UINT  _nx_dns_server_remove_internal(NX_DNS *dns_ptr, NXD_ADDRESS *server_address)
 {
 
@@ -1873,11 +1601,11 @@ UINT            found_match;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxe_dns_server_remove_all                          PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function checks for errors in the DNS remove all               */ 
@@ -1901,23 +1629,11 @@ UINT            found_match;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  04-10-2010     Janet Christiansen       Initial Version 5.1           */ 
-/*  07-15-2011     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.2    */
-/*  04-30-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nxe_dns_server_remove_all(NX_DNS *dns_ptr)
 {
 
@@ -1943,11 +1659,11 @@ UINT    status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_server_remove_all                           PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function removes all DNS servers.                              */ 
@@ -1971,23 +1687,11 @@ UINT    status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */   
-/*  04-10-2010     Janet Christiansen       Initial Version 5.1           */ 
-/*  07-15-2011     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.2    */
-/*  04-30-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */ 
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nx_dns_server_remove_all(NX_DNS *dns_ptr)
 {
 
@@ -2019,11 +1723,11 @@ UINT    status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxe_dns_get_serverlist_size                        PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function checks for errors in the get DNS server list size     */
@@ -2049,19 +1753,11 @@ UINT    status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */  
-/*  01-31-2013     Janet Christiansen       Initial Version 5.3           */ 
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */ 
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nxe_dns_get_serverlist_size(NX_DNS *dns_ptr, UINT *size)
 {
 
@@ -2087,11 +1783,11 @@ UINT    status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_get_serverlist_size                         PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function returns the number of DNS servers in the Client list. */ 
@@ -2115,19 +1811,11 @@ UINT    status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-31-2013     Janet Christiansen       Initial Version 5.3           */ 
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */ 
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nx_dns_get_serverlist_size(NX_DNS *dns_ptr, UINT *size)
 {
 
@@ -2158,11 +1846,11 @@ UINT  _nx_dns_get_serverlist_size(NX_DNS *dns_ptr, UINT *size)
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxe_dns_server_get                                 PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function checks for errors in the get DNS server service.      */ 
@@ -2187,19 +1875,11 @@ UINT  _nx_dns_get_serverlist_size(NX_DNS *dns_ptr, UINT *size)
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-31-2013     Janet Christiansen       Initial Version 5.3           */ 
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */  
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nxe_dns_server_get(NX_DNS *dns_ptr, UINT index, ULONG *dns_server_address)
 {
 
@@ -2227,11 +1907,11 @@ UINT    status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_server_get                                  PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function calls actual service to get the DNS Server address.   */
@@ -2256,21 +1936,11 @@ UINT    status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-31-2013     Janet Christiansen       Initial Version 5.3           */ 
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */  
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            added support for disabling */
-/*                                            IPv4 feature,               */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nx_dns_server_get(NX_DNS *dns_ptr, UINT index, ULONG *dns_server_address)
 {
 
@@ -2315,11 +1985,11 @@ NXD_ADDRESS server_address;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxde_dns_server_get                                PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function checks for errors in the get DNS server service.      */ 
@@ -2345,19 +2015,11 @@ NXD_ADDRESS server_address;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
+/*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  01-31-2013     Janet Christiansen       Initial Version 5.3           */ 
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nxde_dns_server_get(NX_DNS *dns_ptr, UINT index, NXD_ADDRESS *dns_server_address)
 {
 
@@ -2386,11 +2048,11 @@ UINT    status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxd_dns_server_get                                 PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function retreives the DNS server at the specified index into  */
@@ -2418,19 +2080,11 @@ UINT    status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
+/*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  01-31-2013     Janet Christiansen       Initial Version 5.3           */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */ 
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nxd_dns_server_get(NX_DNS *dns_ptr, UINT index, NXD_ADDRESS *dns_server_address)
 {
                   
@@ -2444,11 +2098,11 @@ UINT  _nxd_dns_server_get(NX_DNS *dns_ptr, UINT index, NXD_ADDRESS *dns_server_a
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_server_get_internal                         PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function retreives the DNS server at the specified index into  */
@@ -2476,19 +2130,11 @@ UINT  _nxd_dns_server_get(NX_DNS *dns_ptr, UINT index, NXD_ADDRESS *dns_server_a
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-12-2015     Janet Christiansen       Initial Version 5.8           */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            added support for disabling */
-/*                                            IPv4 feature,               */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 static UINT  _nx_dns_server_get_internal(NX_DNS *dns_ptr, UINT index, NXD_ADDRESS *server_address)
 {
            
@@ -2576,11 +2222,11 @@ UINT            status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxe_dns_host_by_name_get                           PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function checks for errors in the DNS look up host IP address  */ 
@@ -2588,10 +2234,10 @@ UINT            status;
 /*                                                                        */ 
 /*  INPUT                                                                 */ 
 /*                                                                        */ 
-/*    dns_ptr                              Pointer to DNS instance        */ 
-/*    host_name_ptr                        Name of host to search on      */
-/*    dns_address                          DNS Server IP address to return*/ 
-/*    wait_option                          Time to wait on server response*/
+/*    dns_ptr                               Pointer to DNS instance       */ 
+/*    host_name                             Name of host to resolve       */ 
+/*    host_address_ptr                      Pointer to DNS host IP address*/ 
+/*    wait_option                           Timeout value                 */ 
 /*                                                                        */ 
 /*  OUTPUT                                                                */ 
 /*                                                                        */ 
@@ -2608,33 +2254,19 @@ UINT            status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
+/*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-01-2010     Janet Christiansen       Initial Version 5.0           */ 
-/*  10-31-2011     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-27-2012     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.2    */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */ 
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
-UINT  _nxe_dns_host_by_name_get(NX_DNS *dns_ptr, UCHAR *host_name_ptr, ULONG *dns_address, ULONG wait_option)
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
+UINT  _nxe_dns_host_by_name_get(NX_DNS *dns_ptr, UCHAR *host_name, ULONG *host_address_ptr, ULONG wait_option)
 {
 
 UINT    status;
 
 
     /* Check for invalid input pointers.  */
-    if ((dns_ptr == NX_NULL) || (host_name_ptr == NX_NULL) || (dns_address == NX_NULL))
+    if ((dns_ptr == NX_NULL) || (host_name == NX_NULL) || (host_address_ptr == NX_NULL))
         return(NX_PTR_ERROR);
 
     /* Check for invalid non pointer input. */
@@ -2647,7 +2279,7 @@ UINT    status;
     NX_THREADS_ONLY_CALLER_CHECKING
 
     /* Call actual DNS get host by name service.  */
-    status =  _nx_dns_host_by_name_get(dns_ptr, host_name_ptr, dns_address, wait_option);
+    status =  _nx_dns_host_by_name_get(dns_ptr, host_name, host_address_ptr, wait_option);
 
     /* Return status.  */
     return(status);
@@ -2659,11 +2291,11 @@ UINT    status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_host_by_name_get                            PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function calls service to get the host address by name service */
@@ -2673,8 +2305,7 @@ UINT    status;
 /*                                                                        */ 
 /*    dns_ptr                               Pointer to DNS instance       */ 
 /*    host_name                             Name of host to resolve       */ 
-/*    host_address_ptr                      Pointer to destination of     */ 
-/*                                            host IP address             */ 
+/*    host_address_ptr                      Pointer to DNS host IP address*/ 
 /*    wait_option                           Timeout value                 */ 
 /*                                                                        */ 
 /*  OUTPUT                                                                */ 
@@ -2693,34 +2324,19 @@ UINT    status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  06-01-2010     Janet Christiansen       Initial Version 5.0           */ 
-/*  10-31-2011     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-27-2012     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.2    */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s),          */
-/*                                            simplified the logic,       */
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */ 
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
-UINT  _nx_dns_host_by_name_get(NX_DNS *dns_ptr, UCHAR *host_name_ptr, ULONG *dns_address, ULONG wait_option)
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
+UINT  _nx_dns_host_by_name_get(NX_DNS *dns_ptr, UCHAR *host_name, ULONG *host_address_ptr, ULONG wait_option)
 {
 
 UINT        status;
 UINT        record_count = 0;
 
     /* Keep the API consistency. Invoke the real DNS query call. */
-    status = _nx_dns_host_resource_data_by_name_get(dns_ptr, host_name_ptr, (VOID*)dns_address, sizeof(ULONG), &record_count, NX_DNS_RR_TYPE_A, wait_option);
+    status = _nx_dns_host_resource_data_by_name_get(dns_ptr, host_name, (VOID*)host_address_ptr, sizeof(ULONG), &record_count, NX_DNS_RR_TYPE_A, wait_option);
  
     /* Record_count set to 1 indicates the call is successful. */
     if(record_count == 1)
@@ -2739,11 +2355,11 @@ UINT        record_count = 0;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxde_dns_host_by_name_get                          PORTABLE C      */ 
-/*                                                           5.11 SP2     */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function checks for errors in the DNS get host by name         */ 
@@ -2773,30 +2389,11 @@ UINT        record_count = 0;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  06-01-2010     Janet Christiansen       Initial Version 5.0           */ 
-/*  10-31-2011     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-27-2012     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.2    */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s), and      */
-/*                                            removed the requirement for */
-/*                                            a non zero lookup type,     */
-/*                                            resulting in version 5.3    */ 
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*  03-15-2019     Yuxin Zhou               Modified comment(s), and      */
-/*                                            improved internal logic,    */
-/*                                            resulting in version 5.11SP2*/
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nxde_dns_host_by_name_get(NX_DNS *dns_ptr, UCHAR *host_name, NXD_ADDRESS *host_address_ptr, 
                                  ULONG wait_option, UINT lookup_type)
 {
@@ -2829,11 +2426,11 @@ UINT    status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxd_dns_host_by_name_get                           PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function checks for errors in the DNS get host by name         */ 
@@ -2843,8 +2440,7 @@ UINT    status;
 /*                                                                        */ 
 /*    dns_ptr                               Pointer to DNS instance       */ 
 /*    host_name                             Name of host to resolve       */ 
-/*    host_address_ptr                      Pointer to destination of     */ 
-/*                                            host IP address             */ 
+/*    host_address_ptr                      Pointer to host IP address    */ 
 /*    wait_option                           Timeout value                 */ 
 /*    lookup_type                           Lookup for which IP version   */
 /*                                                                        */ 
@@ -2864,28 +2460,11 @@ UINT    status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  06-01-2010     Janet Christiansen       Initial Version 5.0           */ 
-/*  10-31-2011     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-27-2012     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.2    */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s),          */
-/*                                            simplified the process,     */
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */ 
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            added support for disabling */
-/*                                            IPv4 feature,               */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nxd_dns_host_by_name_get(NX_DNS *dns_ptr, UCHAR *host_name, NXD_ADDRESS *host_address_ptr, 
                                 ULONG wait_option, UINT lookup_type)
 {
@@ -2954,11 +2533,11 @@ UINT        record_count = 0;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxe_dns_info_by_name_get                           PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function checks for errors in the DNS get info by name         */ 
@@ -2989,23 +2568,11 @@ UINT        record_count = 0;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  04-10-2010     Janet Christiansen       Initial Version 5.1           */ 
-/*  07-15-2011     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.2    */
-/*  04-30-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nxe_dns_info_by_name_get(NX_DNS *dns_ptr, UCHAR *host_name, ULONG *host_address_ptr, USHORT *host_port_ptr, ULONG wait_option)
 {
 
@@ -3034,11 +2601,11 @@ UINT    status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_info_by_name_get                            PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*                                                                        */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function uses DNS to get the Service record associated with the*/ 
@@ -3069,25 +2636,11 @@ UINT    status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  04-10-2010      Janet Christiansen       Initial Version 5.1          */ 
-/*  07-15-2011      Janet Christiansen       Modified comment(s),         */
-/*                                            changed to IP default packet*/
-/*                                            pool for packet copy        */
-/*                                            resulting in version 5.2    */
-/*  04-30-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */    
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nx_dns_info_by_name_get(NX_DNS *dns_ptr, UCHAR *host_name, ULONG *host_address_ptr, 
                                        USHORT *host_port_ptr, ULONG wait_option)
 {
@@ -3123,11 +2676,11 @@ UCHAR               temp_buffer[TEMP_SRV_BUFFER_SIZE];
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxe_dns_ipv4_address_by_name_get                   PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function checks for errors in the DNS look up host IP address  */ 
@@ -3158,21 +2711,11 @@ UCHAR               temp_buffer[TEMP_SRV_BUFFER_SIZE];
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-31-2013     Yuxin Zhou               Initial Version 5.3           */ 
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */   
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            added the check for         */
-/*                                            record_count pointer,       */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nxe_dns_ipv4_address_by_name_get(NX_DNS *dns_ptr, UCHAR *host_name_ptr, VOID *record_buffer, 
                                         UINT buffer_size, UINT *record_count, ULONG wait_option)
 {
@@ -3190,7 +2733,7 @@ UINT    status;
     }
 
     /* Make sure record_buffer is 4-byte aligned. */
-    if(((UINT)record_buffer & 0x3) != 0)
+    if(((ALIGN_TYPE)record_buffer & 0x3) != 0)
     {
         return(NX_PTR_ERROR);
     }
@@ -3211,11 +2754,11 @@ UINT    status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_ipv4_address_by_name_get                    PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */    
 /*    This function calls service to get the host address by name service */
@@ -3247,19 +2790,11 @@ UINT    status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-31-2013     Yuxin Zhou               Initial Version 5.3           */ 
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */ 
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nx_dns_ipv4_address_by_name_get(NX_DNS *dns_ptr, UCHAR *host_name_ptr, VOID *buffer, 
                                        UINT buffer_size, UINT *record_count, ULONG wait_option)
 {
@@ -3279,11 +2814,11 @@ UINT        status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxde_dns_ipv6_address_by_name_get                  PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function checks for errors in the DNS look up host IPv6 address*/ 
@@ -3314,21 +2849,11 @@ UINT        status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-31-2013     Yuxin Zhou               Initial Version 5.3           */ 
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            added the check for         */
-/*                                            record_count pointer,       */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nxde_dns_ipv6_address_by_name_get(NX_DNS *dns_ptr, UCHAR *host_name_ptr, VOID *record_buffer, 
                                          UINT buffer_size, UINT *record_count, ULONG wait_option)
 {
@@ -3346,7 +2871,7 @@ UINT    status;
     }
 
     /* Make sure record_buffer is 4-byte aligned. */
-    if(((UINT)record_buffer & 0x3) != 0)
+    if(((ALIGN_TYPE)record_buffer & 0x3) != 0)
     {
         return(NX_PTR_ERROR);
     }
@@ -3367,11 +2892,11 @@ UINT    status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxd_dns_ipv6_address_by_name_get                   PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function creates an NXD_ADDRESS instance from the specified    */
@@ -3404,19 +2929,11 @@ UINT    status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-31-2013     Yuxin Zhou               Initial Version 5.3           */  
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nxd_dns_ipv6_address_by_name_get(NX_DNS *dns_ptr, UCHAR *host_name_ptr, VOID *buffer, 
                                         UINT buffer_size, UINT *record_count, ULONG wait_option)
 {
@@ -3437,11 +2954,11 @@ UINT        status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxe_dns_cname_get                                  PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function checks for errors in the DNS look up host cname       */ 
@@ -3471,19 +2988,11 @@ UINT        status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-31-2013     Yuxin Zhou               Initial Version 5.3           */ 
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */ 
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nxe_dns_cname_get(NX_DNS *dns_ptr, UCHAR *host_name,  UCHAR *record_buffer,
                          UINT buffer_size, ULONG wait_option)
 {
@@ -3518,11 +3027,11 @@ UINT    status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_cname_get                                   PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function uses DNS to get the host cname associated with        */
@@ -3554,20 +3063,11 @@ UINT    status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-31-2013     Yuxin Zhou               Initial Version 5.3           */ 
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */ 
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s), and      */
-/*                                            improved internal logic,    */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nx_dns_cname_get(NX_DNS *dns_ptr, UCHAR *host_name, UCHAR *record_buffer, 
                         UINT buffer_size, ULONG wait_option)
 {
@@ -3591,11 +3091,11 @@ UINT        record_count = 0;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxe_dns_domain_name_server_get                     PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function checks for errors in the DNS look up the authoritative*/ 
@@ -3628,21 +3128,11 @@ UINT        record_count = 0;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-31-2013     Yuxin Zhou               Initial Version 5.3           */ 
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */ 
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            added the check for         */
-/*                                            record_count pointer,       */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nxe_dns_domain_name_server_get(NX_DNS *dns_ptr, UCHAR *host_name,  VOID *record_buffer, 
                                       UINT buffer_size, UINT *record_count, ULONG wait_option)
 {
@@ -3660,7 +3150,7 @@ UINT    status;
     }
 
     /* Make sure record_buffer is 4-byte aligned. */
-    if(((UINT)record_buffer & 0x3) != 0)
+    if(((ALIGN_TYPE)record_buffer & 0x3) != 0)
     {
         return(NX_PTR_ERROR);
     }
@@ -3683,11 +3173,11 @@ UINT    status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_domain_name_server_get                      PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function uses DNS to get the authoritative name server         */
@@ -3724,19 +3214,11 @@ UINT    status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
+/*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  01-31-2013     Yuxin Zhou               Initial Version 5.3           */ 
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */   
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nx_dns_domain_name_server_get(NX_DNS *dns_ptr, UCHAR *host_name, VOID *record_buffer, 
                                      UINT buffer_size, UINT *record_count, ULONG wait_option)
 {
@@ -3758,11 +3240,11 @@ UINT        status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxe_dns_host_text_get                              PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function checks for errors in the DNS look up the text strings */ 
@@ -3791,19 +3273,11 @@ UINT        status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-31-2013     Yuxin Zhou               Initial Version 5.3           */ 
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */  
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nxe_dns_host_text_get(NX_DNS *dns_ptr, UCHAR *host_name,  UCHAR *record_buffer,
                              UINT buffer_size, ULONG wait_option)
 {
@@ -3838,11 +3312,11 @@ UINT    status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_host_text_get                               PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function uses DNS to get the text strings associated with      */
@@ -3874,20 +3348,11 @@ UINT    status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-31-2013     Yuxin Zhou               Initial Version 5.3           */ 
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s), and      */
-/*                                            improved internal logic,    */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nx_dns_host_text_get(NX_DNS *dns_ptr, UCHAR *host_name, UCHAR *record_buffer, 
                             UINT buffer_size, ULONG wait_option)
 {
@@ -3910,11 +3375,11 @@ UINT        record_count = 0;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxe_dns_domain_mail_exchange_get                   PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function checks for errors in the DNS look up the mail         */ 
@@ -3947,21 +3412,11 @@ UINT        record_count = 0;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */  
-/*  01-31-2013     Yuxin Zhou               Initial Version 5.3           */ 
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */  
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            added the check for         */
-/*                                            record_count pointer,       */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nxe_dns_domain_mail_exchange_get(NX_DNS *dns_ptr, UCHAR *host_name,  VOID *record_buffer, 
                                         UINT buffer_size, UINT *record_count, ULONG wait_option)
 {
@@ -3979,7 +3434,7 @@ UINT    status;
     }
 
     /* Make sure record_buffer is 4-byte aligned. */
-    if(((UINT)record_buffer & 0x3) != 0)
+    if(((ALIGN_TYPE)record_buffer & 0x3) != 0)
     {
         return(NX_PTR_ERROR);
     }
@@ -4002,11 +3457,11 @@ UINT    status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_domain_mail_exchange_get                    PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function uses DNS to get the mail exchange associated with     */
@@ -4041,19 +3496,11 @@ UINT    status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */  
-/*  01-31-2013     Yuxin Zhou               Initial Version 5.3           */  
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */      
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nx_dns_domain_mail_exchange_get(NX_DNS *dns_ptr, UCHAR *host_name, VOID *record_buffer, 
                                        UINT buffer_size, UINT *record_count, ULONG wait_option)
 {
@@ -4076,11 +3523,11 @@ UINT        status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxe_dns_domain_service_get                         PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function checks for errors in the DNS look up the service      */ 
@@ -4114,21 +3561,11 @@ UINT        status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-31-2013     Yuxin Zhou               Initial Version 5.3           */  
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */   
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            added the check for         */
-/*                                            record_count pointer,       */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nxe_dns_domain_service_get(NX_DNS *dns_ptr, UCHAR *host_name,  VOID *record_buffer, 
                                   UINT buffer_size, UINT *record_count, ULONG wait_option)
 {
@@ -4146,7 +3583,7 @@ UINT    status;
     }
 
     /* Make sure record_buffer is 4-byte aligned. */
-    if(((UINT)record_buffer & 0x3) != 0)
+    if(((ALIGN_TYPE)record_buffer & 0x3) != 0)
     {
         return(NX_PTR_ERROR);
     }
@@ -4169,11 +3606,11 @@ UINT    status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_domain_service_get                          PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function uses DNS to get the service associated with           */
@@ -4209,19 +3646,11 @@ UINT    status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */  
-/*  01-31-2013     Yuxin Zhou               Initial Version 5.3           */ 
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */ 
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nx_dns_domain_service_get(NX_DNS *dns_ptr, UCHAR *host_name, VOID *record_buffer, 
                                  UINT buffer_size, UINT *record_count, ULONG wait_option)
 {
@@ -4244,11 +3673,11 @@ UINT        status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxe_dns_authority_zone_start_get                   PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function checks for errors in the DNS look up the start of     */ 
@@ -4278,19 +3707,11 @@ UINT        status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-31-2013     Yuxin Zhou               Initial Version 5.3           */ 
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */   
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nxe_dns_authority_zone_start_get(NX_DNS *dns_ptr, UCHAR *host_name,  UCHAR *record_buffer,
                                         UINT buffer_size, ULONG wait_option)
 {
@@ -4308,7 +3729,7 @@ UINT    status;
     }
     
     /* Make sure record_buffer is 4-byte aligned. */
-    if(((UINT)record_buffer & 0x3) != 0)
+    if(((ALIGN_TYPE)record_buffer & 0x3) != 0)
     {
         return(NX_PTR_ERROR);
     }
@@ -4331,11 +3752,11 @@ UINT    status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_authority_zone_start_get                    PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function uses DNS to get the start of a zone of authority      */
@@ -4368,20 +3789,11 @@ UINT    status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */  
-/*  01-31-2013     Yuxin Zhou               Initial Version 5.3           */ 
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */   
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s), and      */
-/*                                            improved internal logic,    */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nx_dns_authority_zone_start_get(NX_DNS *dns_ptr, UCHAR *host_name, UCHAR *record_buffer, 
                                        UINT buffer_size, ULONG wait_option)
 {
@@ -4403,11 +3815,11 @@ UINT        record_count = 0;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_host_resource_data_by_name_get               PORTABLE C     */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function attempts to find the IP address associated with the   */ 
@@ -4443,34 +3855,11 @@ UINT        record_count = 0;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  06-01-2010     Janet Christiansen       Initial Version 5.0           */ 
-/*  10-31-2011     Janet Christiansen       Modified comment(s), and      */
-/*                                            added dual IPv4 and IPv6    */ 
-/*                                            support, resulting in       */ 
-/*                                            version 5.1                 */
-/*  01-27-2012     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.2    */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s), and      */
-/*                                            added support for           */
-/*                                            exponential backoff on      */
-/*                                            retransmit timeout,         */
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s), and      */
-/*                                            added DNS Cache feature,    */
-/*                                            resulting in version 5.8    */   
-/*  02-22-2016     Yuxin Zhou               Modified comment(s), and      */   
-/*                                            modified the logic to send  */
-/*                                            DNS query,                  */ 
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s), and      */
-/*                                            improved internal logic,    */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 static UINT  _nx_dns_host_resource_data_by_name_get(NX_DNS *dns_ptr, UCHAR *host_name, 
                                                     UCHAR *buffer, UINT buffer_size, 
                                                     UINT *record_count, UINT lookup_type, ULONG wait_option)
@@ -4569,11 +3958,11 @@ UINT        i;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_send_query_by_address                       PORTABLE C      */ 
-/*                                                           5.11 SP2     */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function uses DNS to get the name of a host from the specified */
@@ -4614,41 +4003,9 @@ UINT        i;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  06-01-2010     Janet Christiansen       Initial Version 5.0           */ 
-/*  10-31-2011     Janet Christiansen       Modified comment(s), and      */
-/*                                            added dual IPv4 and IPv6    */ 
-/*                                            support, resulting in       */ 
-/*                                            version 5.1                 */
-/*  01-27-2012     Janet Christiansen       Modified comment(s), and      */
-/*                                            modified packet pool ptr,   */ 
-/*                                            resulting in version 5.2    */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s), and      */
-/*                                            added support for option to */
-/*                                            clear old packets off DNS   */
-/*                                            queue,                      */
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s), and      */
-/*                                            added DNS Cache feature,    */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s), and      */
-/*                                            modified the return status, */
-/*                                            added check for malformed   */
-/*                                            packet,                     */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s), improved */
-/*                                            packet length verification, */
-/*                                            dropped the chained packet  */
-/*                                            to avoid memory overflow,   */
-/*                                            added support for disabling */
-/*                                            IPv4 feature,               */
-/*                                            resulting in version 5.11   */
-/*  03-15-2019     Yuxin Zhou               Modified comment(s), and      */
-/*                                            improved internal logic,    */
-/*                                            resulting in version 5.11SP2*/
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 static UINT _nx_dns_send_query_by_address(NX_DNS *dns_ptr, NXD_ADDRESS *dns_server, UCHAR *ip_question, UCHAR *host_name_ptr, 
@@ -4661,6 +4018,8 @@ UCHAR       *data_ptr;
 NX_PACKET   *packet_ptr;
 NX_PACKET   *receive_packet_ptr;  
 USHORT      id;
+UINT        ip_question_size;
+UINT        name_size;
 #ifdef NX_DNS_CLIENT_CLEAR_QUEUE
 ULONG       start_time;
 ULONG       current_time;
@@ -4670,6 +4029,14 @@ ULONG       time_remaining;
 #ifdef NX_DNS_CACHE_ENABLE 
 ULONG       rr_ttl;
 #endif /* NX_DNS_CACHE_ENABLE  */
+
+
+
+    /* Check for IP question.  */
+    if (_nx_utility_string_length_check((CHAR *)ip_question, &ip_question_size, NX_DNS_IP_LOOKUP_SIZE))
+    {
+        return(NX_DNS_SIZE_ERROR);
+    }
 
     /* Create a random DNS query ID based on the first word of an IP address (or only
        word for IPv4 addresses). */
@@ -4927,7 +4294,8 @@ ULONG       rr_ttl;
                     data_ptr =  _nx_dns_resource_data_address_get(data_ptr);
 
                     /* Determine if there is room for the name - one less for NULL termination.  */
-                    if (_nx_dns_name_string_unencode(receive_packet_ptr, data_ptr, host_name_ptr, host_name_buffer_size - 1))
+                    name_size = _nx_dns_name_string_unencode(receive_packet_ptr, data_ptr, host_name_ptr, host_name_buffer_size - 1);
+                    if (name_size)
                     {
 
                         /* Yes; We're done! */
@@ -4943,19 +4311,19 @@ ULONG       rr_ttl;
                         temp_rr.nx_dns_rr_ttl = rr_ttl;
 
                         /* Add the name string.  */
-                        status = _nx_dns_cache_add_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, ip_question, strlen((const char*)ip_question), (VOID **)(&(temp_rr.nx_dns_rr_name)));
+                        status = _nx_dns_cache_add_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, ip_question, ip_question_size, (VOID **)(&(temp_rr.nx_dns_rr_name)));
 
                         /* Check the status.  */
                         if(status)
                             return (NX_SUCCESS);
 
                         /* Add the PTR string.  */
-                        status = _nx_dns_cache_add_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, host_name_ptr, strlen((const char*)host_name_ptr), (VOID **)(&(temp_rr.nx_dns_rr_rdata.nx_dns_rr_rdata_ptr.nx_dns_rr_ptr_name)));
+                        status = _nx_dns_cache_add_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, host_name_ptr, name_size, (VOID **)(&(temp_rr.nx_dns_rr_rdata.nx_dns_rr_rdata_ptr.nx_dns_rr_ptr_name)));
 
                         /* Check the status.  */
                         if(status)
                         {
-                            _nx_dns_cache_delete_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, temp_rr.nx_dns_rr_name); 
+                            _nx_dns_cache_delete_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, temp_rr.nx_dns_rr_name, 0); 
                             return (NX_SUCCESS);
                         }
 
@@ -5018,11 +4386,11 @@ ULONG       rr_ttl;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_send_query_get_rdata_by_name                 PORTABLE C     */ 
-/*                                                           5.11 SP2     */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function allocates and sends a new DNS query on the specific   */   
@@ -5058,35 +4426,11 @@ ULONG       rr_ttl;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
+/*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-01-2010     Janet Christiansen       Initial Version 5.0           */ 
-/*  10-31-2011     Janet Christiansen       Modified comment(s),          */
-/*                                            added dual IPv4 and IPv6    */ 
-/*                                            support, and added support  */ 
-/*                                            for SOA type response from  */  
-/*                                            DNS server, resulting in    */ 
-/*                                            version 5.1                 */
-/*  01-27-2012     Janet Christiansen       Modified comment(s), and      */
-/*                                            modified packet pool ptr,   */ 
-/*                                            resulting in version 5.2    */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s), and      */
-/*                                            dropped the chained packet  */
-/*                                            to avoid memory overflow,   */
-/*                                            resulting in version 5.11   */
-/*  03-15-2019     Yuxin Zhou               Modified comment(s), and      */
-/*                                            improved internal logic,    */
-/*                                            resulting in version 5.11SP2*/
-/*                                                                        */ 
-/**************************************************************************/ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 static UINT _nx_dns_send_query_get_rdata_by_name(NX_DNS *dns_ptr, NXD_ADDRESS *dns_server_address, 
                                                  UCHAR *host_name, UCHAR *record_buffer, UINT buffer_size, 
                                                  UINT *record_count, UINT dns_record_type, ULONG wait_option)
@@ -5104,7 +4448,7 @@ ULONG               time_remaining;
 #endif
  
     /* Generate a random ID based on host name. */
-    id =  (USHORT)((ULONG) host_name ^ tx_time_get());   
+    id =  (USHORT)((ALIGN_TYPE) host_name ^ tx_time_get());   
 
     /* Allocate a packet.  */
     status =  nx_packet_allocate(dns_ptr -> nx_dns_packet_pool_ptr, &packet_ptr, NX_UDP_PACKET, NX_DNS_PACKET_ALLOCATE_TIMEOUT);
@@ -5266,11 +4610,11 @@ ULONG               time_remaining;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_response_process                             PORTABLE C     */
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function processes a DNS respond packet. If the reply packet   */
@@ -5312,29 +4656,11 @@ ULONG               time_remaining;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */  
-/*  01-31-2013     Yuxin Zhou               Initial Version 5.3           */ 
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            initialized the status      */
-/*                                            variable, and also return   */
-/*                                            error code if the packet    */
-/*                                            does not contain the RR     */
-/*                                            the application expects,    */
-/*                                            resulting in version 5.8    */  
-/*  02-22-2016     Yuxin Zhou               Modified comment(s), and      */
-/*                                            modified the return status  */
-/*                                            if answer_found is true,    */
-/*                                            fixed compiler warnings,    */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s), improved */
-/*                                            packet length verification, */
-/*                                            improved internal logic,    */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 static UINT _nx_dns_response_process(NX_DNS *dns_ptr, NX_PACKET *packet_ptr, UCHAR *record_buffer, 
                                      UINT buffer_size, UINT *record_count)
 {
@@ -5560,11 +4886,11 @@ UINT                answer_found = NX_FALSE;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_process_a_type                               PORTABLE C     */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function process the A record type.   If the DNS look up type  */ 
@@ -5601,23 +4927,11 @@ UINT                answer_found = NX_FALSE;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-31-2013     Yuxin Zhou               Initial Version 5.3           */ 
-/*  01-12-2015     Janet Christiansen       Modified comment(s), and      */
-/*                                            added DNS Cache feature,    */
-/*                                            resulting in version 5.8    */  
-/*  02-22-2016     Yuxin Zhou               Modified comment(s), and      */ 
-/*                                            fixed compiler warnings,    */
-/*                                            added check for malformed   */
-/*                                            packet,                     */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 static UINT _nx_dns_process_a_type(NX_DNS *dns_ptr, NX_PACKET *packet_ptr, UCHAR *data_ptr, 
                                    UCHAR **buffer_prepend_ptr, UCHAR **buffer_append_ptr, 
                                    UINT *record_count, UINT rr_location)
@@ -5710,7 +5024,7 @@ ULONG           rr_ttl;
             temp_rr.nx_dns_rr_ttl = rr_ttl;
 
             /* Add the name string.  */
-            status = _nx_dns_cache_add_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, temp_string_buffer, strlen((const char*)temp_string_buffer), (VOID **)(&(temp_rr.nx_dns_rr_name)));
+            status = _nx_dns_cache_add_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, temp_string_buffer, size, (VOID **)(&(temp_rr.nx_dns_rr_name)));
 
             /* Check the status.  */
             if(status)
@@ -5965,11 +5279,11 @@ ULONG           rr_ttl;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_process_aaaa_type                            PORTABLE C     */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function process the AAAA record type.                         */ 
@@ -6004,23 +5318,11 @@ ULONG           rr_ttl;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
+/*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  01-31-2013     Yuxin Zhou               Initial Version 5.3           */ 
-/*  01-12-2015     Janet Christiansen       Modified comment(s), and      */
-/*                                            added DNS Cache feature,    */
-/*                                            resulting in version 5.8    */  
-/*  02-22-2016     Yuxin Zhou               Modified comment(s), and      */
-/*                                            fixed compiler warnings,    */
-/*                                            added check for malformed   */
-/*                                            packet,                     */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 static UINT _nx_dns_process_aaaa_type(NX_DNS *dns_ptr, NX_PACKET *packet_ptr, 
                                       UCHAR *data_ptr, UCHAR **buffer_prepend_ptr, 
                                       UCHAR **buffer_append_ptr, UINT *record_count, 
@@ -6121,7 +5423,7 @@ ULONG                   rr_ttl;
             temp_rr.nx_dns_rr_ttl = rr_ttl;
                  
             /* Add the name string.  */
-            status = _nx_dns_cache_add_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, temp_string_buffer, strlen((const char*)temp_string_buffer), (VOID **)(&(temp_rr.nx_dns_rr_name)));
+            status = _nx_dns_cache_add_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, temp_string_buffer, size, (VOID **)(&(temp_rr.nx_dns_rr_name)));
 
             /* Check the status.  */
             if(status)
@@ -6132,7 +5434,10 @@ ULONG                   rr_ttl;
 
             /* Check the status.  */
             if(status)
+            {
+                _nx_dns_cache_delete_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, temp_rr.nx_dns_rr_name, 0); 
                 return (NX_SUCCESS);
+            }
 
             /* Add the resource record.  */
             status = _nx_dns_cache_add_rr(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, &temp_rr,  NX_NULL);
@@ -6170,11 +5475,11 @@ ULONG                   rr_ttl;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_process_cname_type                           PORTABLE C     */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function process the CNAME record type.                        */ 
@@ -6207,27 +5512,16 @@ ULONG                   rr_ttl;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-31-2013     Yuxin Zhou               Initial Version 5.3           */ 
-/*  01-12-2015     Janet Christiansen       Modified comment(s), and      */
-/*                                            added DNS Cache feature,    */
-/*                                            resulting in version 5.8    */  
-/*  02-22-2016     Yuxin Zhou               Modified comment(s), and      */
-/*                                            added check for malformed   */
-/*                                            packet,                     */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s), and      */
-/*                                            improved internal logic,    */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 static UINT _nx_dns_process_cname_type(NX_DNS *dns_ptr, NX_PACKET *packet_ptr, UCHAR *data_ptr, 
                                        UCHAR *record_buffer, UINT buffer_size, UINT *record_count)
 {
 UINT            response_type;
+UINT            name_size;
 #ifdef NX_DNS_CACHE_ENABLE  
 UINT            size;
 UINT            status;     
@@ -6265,7 +5559,8 @@ ULONG           rr_ttl;
         data_ptr =  _nx_dns_resource_data_address_get(data_ptr);
 
         /* Determine if there is room for the name - one less for NULL termination.  */
-        if (_nx_dns_name_string_unencode(packet_ptr, data_ptr, record_buffer, buffer_size - 1))
+        name_size = _nx_dns_name_string_unencode(packet_ptr, data_ptr, record_buffer, buffer_size - 1);
+        if (name_size)
         {
 
             /* Yes, got the canonical name successfully,and record the information!  */
@@ -6281,19 +5576,19 @@ ULONG           rr_ttl;
             temp_rr.nx_dns_rr_ttl = rr_ttl;
 
             /* Add the name string.  */
-            status = _nx_dns_cache_add_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, temp_string_buffer, strlen((const char*)temp_string_buffer), (VOID **)(&(temp_rr.nx_dns_rr_name)));
+            status = _nx_dns_cache_add_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, temp_string_buffer, size, (VOID **)(&(temp_rr.nx_dns_rr_name)));
 
             /* Check the status.  */
             if(status)
                 return (NX_SUCCESS);
                                                 
             /* Add the cname string.  */
-            status = _nx_dns_cache_add_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, record_buffer, strlen((const char*)record_buffer), (VOID **)(&(temp_rr.nx_dns_rr_rdata.nx_dns_rr_rdata_cname.nx_dns_rr_cname_name)));
+            status = _nx_dns_cache_add_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, record_buffer, name_size, (VOID **)(&(temp_rr.nx_dns_rr_rdata.nx_dns_rr_rdata_cname.nx_dns_rr_cname_name)));
 
             /* Check the status.  */
             if(status)         
             {
-                _nx_dns_cache_delete_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, temp_rr.nx_dns_rr_name); 
+                _nx_dns_cache_delete_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, temp_rr.nx_dns_rr_name, 0); 
                 return (NX_SUCCESS);
             }
 
@@ -6347,11 +5642,11 @@ ULONG           rr_ttl;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_process_txt_type                             PORTABLE C     */ 
-/*                                                           5.11 SP1     */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */  
 /*    This function process the TXT DNS type packet and record text string*/ 
@@ -6382,24 +5677,9 @@ ULONG           rr_ttl;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-31-2013     Yuxin Zhou               Initial Version 5.3           */ 
-/*  01-12-2015     Janet Christiansen       Modified comment(s), and      */
-/*                                            added DNS Cache feature,    */
-/*                                            resulting in version 5.8    */     
-/*  02-22-2016     Yuxin Zhou               Modified comment(s), and      */
-/*                                            added check for malformed   */
-/*                                            packet,                     */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s), and      */
-/*                                            improved internal logic,    */
-/*                                            resulting in version 5.11   */
-/*  12-15-2018     Yuxin Zhou               Modified comment(s), and      */
-/*                                            fixed compiler warnings,    */
-/*                                            resulting in version 5.11SP1*/
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 static UINT _nx_dns_process_txt_type(NX_DNS *dns_ptr, NX_PACKET *packet_ptr, UCHAR *data_ptr, 
@@ -6482,19 +5762,19 @@ ULONG           rr_ttl;
         temp_rr.nx_dns_rr_ttl = rr_ttl;
 
         /* Add the name string.  */
-        status = _nx_dns_cache_add_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, temp_string_buffer, strlen((const char*)temp_string_buffer), (VOID **)(&(temp_rr.nx_dns_rr_name)));
+        status = _nx_dns_cache_add_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, temp_string_buffer, size, (VOID **)(&(temp_rr.nx_dns_rr_name)));
 
         /* Check the status.  */
         if(status)
             return (NX_SUCCESS);
 
         /* Add the txt string.  */
-        status = _nx_dns_cache_add_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, record_buffer, strlen((const char*)record_buffer), (VOID **)(&(temp_rr.nx_dns_rr_rdata.nx_dns_rr_rdata_txt.nx_dns_rr_txt_data)));
+        status = _nx_dns_cache_add_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, record_buffer, text_data_length, (VOID **)(&(temp_rr.nx_dns_rr_rdata.nx_dns_rr_rdata_txt.nx_dns_rr_txt_data)));
 
         /* Check the status.  */
         if(status)         
         {
-            _nx_dns_cache_delete_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, temp_rr.nx_dns_rr_name); 
+            _nx_dns_cache_delete_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, temp_rr.nx_dns_rr_name, 0); 
             return (NX_SUCCESS);
         }
 
@@ -6523,11 +5803,11 @@ ULONG           rr_ttl;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_process_ns_type                              PORTABLE C     */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function process the NS record type.                           */ 
@@ -6563,22 +5843,11 @@ ULONG           rr_ttl;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */   
-/*  01-31-2013     Yuxin Zhou               Initial Version 5.3           */ 
-/*  01-12-2015     Janet Christiansen       Modified comment(s), and      */
-/*                                            added DNS Cache feature,    */
-/*                                            resulting in version 5.8    */ 
-/*  02-22-2016     Yuxin Zhou               Modified comment(s), and      */
-/*                                            added check for malformed   */
-/*                                            packet,                     */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 static UINT _nx_dns_process_ns_type(NX_DNS *dns_ptr, NX_PACKET *packet_ptr, UCHAR *data_ptr, 
                                     UCHAR **buffer_prepend_ptr, UCHAR **buffer_append_ptr, 
                                     UINT *record_count)
@@ -6671,19 +5940,19 @@ ULONG               rr_ttl;
         temp_rr.nx_dns_rr_ttl = rr_ttl;
 
         /* Add the name string.  */
-        status = _nx_dns_cache_add_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, temp_string_buffer, strlen((const char*)temp_string_buffer), (VOID **)(&(temp_rr.nx_dns_rr_name)));
+        status = _nx_dns_cache_add_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, temp_string_buffer, size, (VOID **)(&(temp_rr.nx_dns_rr_name)));
 
         /* Check the status.  */
         if(status)
             return (NX_SUCCESS);
 
         /* Add the ns string.  */
-        status = _nx_dns_cache_add_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, nx_dns_ns_entry_ptr -> nx_dns_ns_hostname_ptr, strlen((const char*)nx_dns_ns_entry_ptr -> nx_dns_ns_hostname_ptr), (VOID **)(&(temp_rr.nx_dns_rr_rdata.nx_dns_rr_rdata_ns.nx_dns_rr_ns_name)));
+        status = _nx_dns_cache_add_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, nx_dns_ns_entry_ptr -> nx_dns_ns_hostname_ptr, name_buffer_size, (VOID **)(&(temp_rr.nx_dns_rr_rdata.nx_dns_rr_rdata_ns.nx_dns_rr_ns_name)));
 
         /* Check the status.  */
         if(status)         
         {
-            _nx_dns_cache_delete_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, temp_rr.nx_dns_rr_name); 
+            _nx_dns_cache_delete_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, temp_rr.nx_dns_rr_name, 0); 
             return (NX_SUCCESS);
         }
 
@@ -6716,11 +5985,11 @@ ULONG               rr_ttl;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_process_mx_type                              PORTABLE C     */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function processes the MX record type.                         */
@@ -6756,22 +6025,11 @@ ULONG               rr_ttl;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
+/*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  01-31-2013     Yuxin Zhou               Initial Version 5.3           */ 
-/*  01-12-2015     Janet Christiansen       Modified comment(s), and      */
-/*                                            added DNS Cache feature,    */
-/*                                            resulting in version 5.8    */ 
-/*  02-22-2016     Yuxin Zhou               Modified comment(s), and      */
-/*                                            added check for malformed   */
-/*                                            packet,                     */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 static UINT _nx_dns_process_mx_type(NX_DNS *dns_ptr, NX_PACKET *packet_ptr, UCHAR *data_ptr, 
                                     UCHAR **buffer_prepend_ptr, UCHAR **buffer_append_ptr, 
                                     UINT *record_count)
@@ -6784,6 +6042,7 @@ UINT                name_length;
 #ifdef NX_DNS_CACHE_ENABLE  
 UINT                status;    
 ULONG               rr_ttl;
+UINT                size;
 #endif /* NX_DNS_CACHE_ENABLE  */
            
 #ifdef NX_DNS_CACHE_ENABLE 
@@ -6792,10 +6051,10 @@ ULONG               rr_ttl;
     memset(&temp_rr, 0, sizeof (NX_DNS_RR));
                              
     /* First obtain the string. */
-    name_length = _nx_dns_name_string_unencode(packet_ptr, data_ptr, temp_string_buffer, NX_DNS_NAME_MAX);
+    size = _nx_dns_name_string_unencode(packet_ptr, data_ptr, temp_string_buffer, NX_DNS_NAME_MAX);
 
     /* Check the string correct.  */
-    if(!name_length)
+    if(!size)
     {
 
         /* Return!  */
@@ -6882,7 +6141,7 @@ ULONG               rr_ttl;
         temp_rr.nx_dns_rr_ttl = rr_ttl;       
 
         /* Add the name string.  */
-        status = _nx_dns_cache_add_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, temp_string_buffer, strlen((const char*)temp_string_buffer), (VOID **)(&(temp_rr.nx_dns_rr_name)));
+        status = _nx_dns_cache_add_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, temp_string_buffer, size, (VOID **)(&(temp_rr.nx_dns_rr_name)));
 
         /* Check the status.  */
         if(status)
@@ -6892,7 +6151,7 @@ ULONG               rr_ttl;
         *(USHORT *)(&temp_string_buffer[0]) = mx_preference;
 
         /* Set the MX rdata string.  */
-        strcpy((char*)&temp_string_buffer[2], (const char*)nx_dns_mx_entry_ptr -> nx_dns_mx_hostname_ptr);
+        memcpy((char*)&temp_string_buffer[2], (const char*)nx_dns_mx_entry_ptr -> nx_dns_mx_hostname_ptr, name_length);
 
         /* Add the MX string.  */
         status = _nx_dns_cache_add_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, temp_string_buffer, name_length + 2, (VOID **)(&(temp_rr.nx_dns_rr_rdata.nx_dns_rr_rdata_mx.nx_dns_rr_mx_rdata)));
@@ -6900,7 +6159,7 @@ ULONG               rr_ttl;
         /* Check the status.  */
         if(status)         
         {
-            _nx_dns_cache_delete_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, temp_rr.nx_dns_rr_name); 
+            _nx_dns_cache_delete_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, temp_rr.nx_dns_rr_name, 0); 
             return (NX_SUCCESS);
         }
 
@@ -6934,11 +6193,11 @@ ULONG               rr_ttl;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_process_srv_type                             PORTABLE C     */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */
 /*    This function process the DNS SRV record type.                      */
@@ -6974,22 +6233,11 @@ ULONG               rr_ttl;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */    
-/*  01-31-2013     Yuxin Zhou               Initial Version 5.3           */ 
-/*  01-12-2015     Janet Christiansen       Modified comment(s), and      */
-/*                                            added DNS Cache feature,    */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s), and      */
-/*                                            added check for malformed   */
-/*                                            packet,                     */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 static UINT _nx_dns_process_srv_type(NX_DNS *dns_ptr, NX_PACKET *packet_ptr, UCHAR *data_ptr, UCHAR **buffer_prepend_ptr, 
                                      UCHAR **buffer_append_ptr, UINT *record_count)
 {
@@ -7003,6 +6251,7 @@ UINT                name_length;
 #ifdef NX_DNS_CACHE_ENABLE 
 UINT                status;   
 ULONG               rr_ttl;
+UINT                size;
 #endif /* NX_DNS_CACHE_ENABLE  */
                
 #ifdef NX_DNS_CACHE_ENABLE 
@@ -7011,10 +6260,10 @@ ULONG               rr_ttl;
     memset(&temp_rr, 0, sizeof (NX_DNS_RR));
                              
     /* First obtain the string. */
-    name_length = _nx_dns_name_string_unencode(packet_ptr, data_ptr, temp_string_buffer, NX_DNS_NAME_MAX);
+    size = _nx_dns_name_string_unencode(packet_ptr, data_ptr, temp_string_buffer, NX_DNS_NAME_MAX);
 
     /* Check the string correct.  */
-    if(!name_length)
+    if(!size)
     {
 
         /* Return!  */
@@ -7115,7 +6364,7 @@ ULONG               rr_ttl;
         temp_rr.nx_dns_rr_ttl = rr_ttl;         
 
         /* Add the name string.  */
-        status = _nx_dns_cache_add_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, temp_string_buffer, strlen((const char*)temp_string_buffer), (VOID **)(&(temp_rr.nx_dns_rr_name)));
+        status = _nx_dns_cache_add_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, temp_string_buffer, size, (VOID **)(&(temp_rr.nx_dns_rr_name)));
 
         /* Check the status.  */
         if(status)
@@ -7127,7 +6376,7 @@ ULONG               rr_ttl;
         *(USHORT *)(&temp_string_buffer[4]) = srv_port_number;
 
         /* Set the SRV rdata string.  */
-        strcpy((char*)&temp_string_buffer[6], (const char*)nx_dns_srv_entry_ptr -> nx_dns_srv_hostname_ptr);
+        memcpy((char*)&temp_string_buffer[6], (const char*)nx_dns_srv_entry_ptr -> nx_dns_srv_hostname_ptr, name_length);
 
         /* Add the srv string.  */
         status = _nx_dns_cache_add_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, temp_string_buffer, name_length + 6, (VOID **)(&(temp_rr.nx_dns_rr_rdata.nx_dns_rr_rdata_srv.nx_dns_rr_srv_rdata)));
@@ -7135,7 +6384,7 @@ ULONG               rr_ttl;
         /* Check the status.  */
         if(status)         
         {
-            _nx_dns_cache_delete_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, temp_rr.nx_dns_rr_name); 
+            _nx_dns_cache_delete_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, temp_rr.nx_dns_rr_name, 0); 
             return (NX_SUCCESS);
         }
 
@@ -7169,11 +6418,11 @@ ULONG               rr_ttl;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_process_soa_type                             PORTABLE C     */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function process the SOA record type.                          */ 
@@ -7207,23 +6456,11 @@ ULONG               rr_ttl;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */  
-/*  01-31-2013     Yuxin Zhou               Initial Version 5.3           */ 
-/*  01-12-2015     Janet Christiansen       Modified comment(s), and      */
-/*                                            added DNS Cache feature,    */
-/*                                            resulting in version 5.8    */  
-/*  02-22-2016     Yuxin Zhou               Modified comment(s), and      */
-/*                                            added check for malformed   */
-/*                                            packet,                     */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s), and      */
-/*                                            improved internal logic,    */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 static UINT _nx_dns_process_soa_type(NX_DNS *dns_ptr, NX_PACKET *packet_ptr, UCHAR *data_ptr, 
                                      UCHAR *record_buffer, UINT buffer_size, UINT *record_count)
 {
@@ -7374,18 +6611,18 @@ ULONG               rr_ttl;
     temp_rr.nx_dns_rr_ttl = rr_ttl;         
 
     /* Add the name string.  */
-    status = _nx_dns_cache_add_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, temp_string_buffer, strlen((const char*)temp_string_buffer), (VOID **)(&(temp_rr.nx_dns_rr_name)));
+    status = _nx_dns_cache_add_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, temp_string_buffer, name_length, (VOID **)(&(temp_rr.nx_dns_rr_name)));
 
     /* Check the status.  */
     if(status)
         return (NX_SUCCESS);   
 
     /* Set the SOA MNAME.  */
-    strcpy((char*)&temp_string_buffer[0], (const char*)nx_dns_soa_entry_ptr -> nx_dns_soa_host_mname_ptr);
+    memcpy((char*)&temp_string_buffer[0], (char*)nx_dns_soa_entry_ptr -> nx_dns_soa_host_mname_ptr, mname_length);
     temp_string_buffer[mname_length] = '\0';
                                                  
     /* Set the SOA RNAME.  */
-    strcpy((char*)&temp_string_buffer[mname_length + 1], (const char*)nx_dns_soa_entry_ptr -> nx_dns_soa_host_rname_ptr);
+    memcpy((char*)&temp_string_buffer[mname_length + 1], (char*)nx_dns_soa_entry_ptr -> nx_dns_soa_host_rname_ptr, rname_length);
     temp_string_buffer[mname_length + 1 + rname_length] = '\0';
 
     /* Set the SOA Serial, Refresh, Retry, Expire, Minmum.  */ 
@@ -7401,7 +6638,7 @@ ULONG               rr_ttl;
     /* Check the status.  */
     if(status)         
     {
-        _nx_dns_cache_delete_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, temp_rr.nx_dns_rr_name); 
+        _nx_dns_cache_delete_string(dns_ptr, dns_ptr -> nx_dns_cache, dns_ptr -> nx_dns_cache_size, temp_rr.nx_dns_rr_name, 0); 
         return (NX_SUCCESS);
     }
 
@@ -7427,11 +6664,11 @@ ULONG               rr_ttl;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxe_dns_host_by_address_get                        PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function checks for errors in the DNS get host by address      */ 
@@ -7460,25 +6697,11 @@ ULONG               rr_ttl;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */    
-/*  06-01-2010     Janet Christiansen       Initial Version 5.0           */ 
-/*  10-31-2011     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-27-2012     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.2    */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.3    */ 
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
+/*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/**************************************************************************/ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nxe_dns_host_by_address_get(NX_DNS *dns_ptr, ULONG host_address, UCHAR *host_name, UINT host_name_buffer_size, ULONG wait_option)
 {
 
@@ -7508,11 +6731,11 @@ UINT    status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_host_by_address_get                         PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function uses DNS to get the host name associated with the     */ 
@@ -7542,30 +6765,11 @@ UINT    status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
+/*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-01-2010     Janet Christiansen       Initial Version 5.0           */ 
-/*  10-31-2011     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-27-2012     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.2    */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s), and      */
-/*                                            added missing DNS mutex     */
-/*                                            release calls, added check  */
-/*                                            for null IP address input,  */
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */ 
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            added support for disabling */
-/*                                            IPv4 feature,               */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nx_dns_host_by_address_get(NX_DNS *dns_ptr, ULONG dns_address, UCHAR *host_name, UINT host_name_buffer_size, ULONG wait_option)
 {
 
@@ -7602,11 +6806,11 @@ NXD_ADDRESS host_address;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxde_dns_host_by_address_get                       PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function checks for errors in the NetX duo compatible DNS get  */
@@ -7635,27 +6839,11 @@ NXD_ADDRESS host_address;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  06-01-2010     Janet Christiansen       Initial Version 5.0           */ 
-/*  10-31-2011     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-27-2012     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.2    */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s), and      */
-/*                                            added missing DNS mutex     */
-/*                                            release calls,              */
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nxde_dns_host_by_address_get(NX_DNS *dns_ptr, NXD_ADDRESS *host_address, UCHAR *host_name_ptr, UINT host_name_buffer_size, ULONG wait_option)
 {
 
@@ -7685,11 +6873,11 @@ UINT    status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxd_dns_host_by_address_get                        PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function uses DNS to get the host name associated with the     */ 
@@ -7724,34 +6912,11 @@ UINT    status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  06-01-2010     Janet Christiansen       Initial Version 5.0           */ 
-/*  10-31-2011     Janet Christiansen       Modified comment(s), and      */
-/*                                            added dual IPv4 and IPv6    */ 
-/*                                            support, resulting in       */ 
-/*                                            version 5.1                 */
-/*  01-27-2012     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.2    */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s), and      */
-/*                                            added missing DNS mutex     */
-/*                                            release calls, added checks */
-/*                                            for null IP address input   */
-/*                                            and invalid IP address type,*/
-/*                                            added support for           */
-/*                                            exponential backoff on DNS  */
-/*                                            query retransmit timeout,   */
-/*                                            resulting in version 5.3    */ 
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */ 
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
+/*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/**************************************************************************/ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nxd_dns_host_by_address_get(NX_DNS *dns_ptr, NXD_ADDRESS *host_address_ptr, UCHAR *host_name_ptr, 
                                    UINT host_name_buffer_size, ULONG wait_option)
 {
@@ -7767,11 +6932,11 @@ UINT  _nxd_dns_host_by_address_get(NX_DNS *dns_ptr, NXD_ADDRESS *host_address_pt
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_host_by_address_get_internal                PORTABLE C      */
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function uses DNS to get the host name associated with the     */ 
@@ -7804,28 +6969,18 @@ UINT  _nxd_dns_host_by_address_get(NX_DNS *dns_ptr, NXD_ADDRESS *host_address_pt
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-12-2015     Janet Christiansen       Initial Version 5.8           */ 
-/*  02-22-2016     Yuxin Zhou               Modified comment(s), and      */ 
-/*                                            modified the logic to send  */
-/*                                            DNS query,                  */ 
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            added support for disabling */
-/*                                            IPv4 feature,               */
-/*                                            resulting in version 5.11   */
+/*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/**************************************************************************/ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 static UINT  _nx_dns_host_by_address_get_internal(NX_DNS *dns_ptr, NXD_ADDRESS *host_address_ptr, UCHAR *host_name_ptr, 
                                                   UINT host_name_buffer_size, ULONG wait_option)
 {
 
 UINT        retries;
 UINT        status;
-UCHAR       ip_question[NX_DNS_IP_LOOKUP_SIZE];  
+UCHAR       ip_question[NX_DNS_IP_LOOKUP_SIZE + 1];
 UINT        i;
 #ifndef NX_DISABLE_IPV4
 UCHAR       dot = '.';
@@ -8013,11 +7168,11 @@ UINT        length, index;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_new_packet_create                           PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This routine fills in the header and question in a DNS queyr packet,*/ 
@@ -8050,25 +7205,11 @@ UINT        length, index;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */   
-/*  06-01-2010     Janet Christiansen       Initial Version 5.0           */ 
-/*  10-31-2011     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-27-2012     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.2    */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */  
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 static UINT _nx_dns_new_packet_create(NX_DNS *dns_ptr, NX_PACKET *packet_ptr, USHORT id, UCHAR *name, USHORT type)
 {
 
@@ -8114,11 +7255,11 @@ UINT        size;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_header_create                               PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function creates a standard DNS header and returns the size of */ 
@@ -8144,25 +7285,11 @@ UINT        size;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  06-01-2010     Janet Christiansen       Initial Version 5.0           */ 
-/*  10-31-2011     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-27-2012     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.2    */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */ 
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 static UINT  _nx_dns_header_create(UCHAR *buffer_ptr, USHORT id, USHORT flags)
 {
 
@@ -8185,11 +7312,11 @@ static UINT  _nx_dns_header_create(UCHAR *buffer_ptr, USHORT id, USHORT flags)
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_question_add                                PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function adds a question to the packet buffer at the end of    */ 
@@ -8213,7 +7340,6 @@ static UINT  _nx_dns_header_create(UCHAR *buffer_ptr, USHORT id, USHORT flags)
 /*    _nx_dns_name_string_encode            Encode the supplied string    */ 
 /*    _nx_dns_network_to_short_convert      Convert from network to short */ 
 /*    _nx_dns_short_to_network_convert      Convert from short to network */ 
-/*    strlen                                Calculate length of string    */ 
 /*    nx_packet_release                     Release packet                */ 
 /*                                                                        */ 
 /*  CALLED BY                                                             */ 
@@ -8222,36 +7348,32 @@ static UINT  _nx_dns_header_create(UCHAR *buffer_ptr, USHORT id, USHORT flags)
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
+/*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-01-2010     Janet Christiansen       Initial Version 5.0           */ 
-/*  10-31-2011     Janet Christiansen       Modified comment(s),          */
-/*                                            fixed bug with question     */
-/*                                            count, resulting            */
-/*                                            in version 5.1              */
-/*  01-27-2012     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.2    */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */  
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 static UINT  _nx_dns_question_add(NX_PACKET *packet_ptr, UCHAR *name, USHORT type)
 {
 
+UINT    name_size;
 UINT    size;
 USHORT  value;
 
 
+    /* Check for name.  */
+    if (_nx_utility_string_length_check((CHAR *)name, &name_size, NX_DNS_NAME_MAX))
+    {
+
+        /* Name error, release the packet.  */
+        nx_packet_release(packet_ptr);
+
+        /* Return a size of 0 to indicate an error.  */
+        return(0);
+    }
+
     /* The question will take the size of the string plus 6 bytes, is there space?  */
-    if ((strlen((char *) name) + 6) + packet_ptr -> nx_packet_length >= NX_DNS_MESSAGE_MAX)
+    if ((name_size + 6) > (UINT)(packet_ptr -> nx_packet_data_end - packet_ptr -> nx_packet_append_ptr))
     {
 
         /* Size error, release the packet.  */
@@ -8292,11 +7414,11 @@ USHORT  value;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxd_dns_build_an_ipv6_question_string              PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function creates the IP address in text form to go into the DNS*/ 
@@ -8324,27 +7446,9 @@ USHORT  value;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  06-01-2010     Janet Christiansen       Initial Version 5.0           */ 
-/*  10-31-2011     Janet Christiansen       Modified comment(s),          */
-/*                                            added a check for IPv6      */
-/*                                            enabled in NetX Duo,        */
-/*                                            resulting in version 5.1    */
-/*  01-27-2012     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.2    */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s),          */
-/*                                            simplified the logic,       */
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s), and      */
-/*                                            fixed compiler warnings.    */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 static VOID _nxd_dns_build_an_ipv6_question_string(NXD_ADDRESS *ip_address, UCHAR *buffer, UINT len)
@@ -8384,11 +7488,11 @@ ULONG temp;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_name_string_encode                          PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function converts a string containing the name as a list of    */ 
@@ -8416,25 +7520,11 @@ ULONG temp;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  06-01-2010     Janet Christiansen       Initial Version 5.0           */ 
-/*  10-31-2011     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-27-2012     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.2    */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */  
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 static UINT  _nx_dns_name_string_encode(UCHAR *ptr, UCHAR *name)
 {
 
@@ -8496,11 +7586,11 @@ UINT    count =  1;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_name_string_unencode                        PORTABLE C      */ 
-/*                                                           5.11 SP1     */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function converts from the encoded list of labels as specified */ 
@@ -8528,33 +7618,11 @@ UINT    count =  1;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  06-01-2010     Janet Christiansen       Initial Version 5.0           */ 
-/*  10-31-2011     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-27-2012     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.2    */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Yuxin Zhou               Modified comment(s), and      */
-/*                                            modified the return status  */
-/*                                            if the buffer size can not  */
-/*                                            store the all name stinrg,  */
-/*                                            resulting in version 5.8    */   
-/*  02-22-2016     Yuxin Zhou               Modified comment(s), and      */
-/*                                            added check for malformed   */
-/*                                            packet,                     */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*  12-15-2018     Yuxin Zhou               Modified comment(s), and      */
-/*                                            improved internal logic,    */
-/*                                            resulting in version 5.11SP1*/
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 static UINT _nx_dns_name_string_unencode(NX_PACKET *packet_ptr, UCHAR *data, UCHAR *buffer, UINT buffer_size)
 {
 
@@ -8661,11 +7729,11 @@ UINT    length;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_name_size_calculate                         PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function calculates the size of the name.                      */ 
@@ -8690,25 +7758,11 @@ UINT    length;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */  
-/*  06-01-2010     Janet Christiansen       Initial Version 5.0           */ 
-/*  10-31-2011     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-27-2012     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.2    */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */  
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 static UINT  _nx_dns_name_size_calculate(UCHAR *name)
 {
 
@@ -8755,11 +7809,11 @@ UINT size =  0;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_resource_name_real_size_calculate           PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function calculates the real size of the resouce name.         */
@@ -8783,19 +7837,11 @@ UINT size =  0;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-31-2013     Yuxin Zhou               Initial Version 5.3           */ 
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */  
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 static UINT    _nx_dns_resource_name_real_size_calculate(UCHAR *data, UINT start)
 {
 
@@ -8853,11 +7899,11 @@ UINT    length = 0;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_resource_type_get                           PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function retrieves the resource type. It is a wrapper for the  */
@@ -8888,25 +7934,11 @@ UINT    length = 0;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  06-01-2010     Janet Christiansen       Initial Version 5.0           */ 
-/*  10-31-2011     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-27-2012     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.2    */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */  
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 static UINT  _nx_dns_resource_type_get(UCHAR *resource)
 {
 
@@ -8920,11 +7952,11 @@ static UINT  _nx_dns_resource_type_get(UCHAR *resource)
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_resource_time_to_live_get                   PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function retrieves the resource time to live.                  */ 
@@ -8945,17 +7977,11 @@ static UINT  _nx_dns_resource_type_get(UCHAR *resource)
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-12-2015     Janet Christiansen       Initial Version 5.8           */ 
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 static ULONG  _nx_dns_resource_time_to_live_get(UCHAR *resource)
 {
 
@@ -8969,11 +7995,11 @@ static ULONG  _nx_dns_resource_time_to_live_get(UCHAR *resource)
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_resource_data_length_get                    PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function retrieves the resource data length.                   */ 
@@ -8999,25 +8025,11 @@ static ULONG  _nx_dns_resource_time_to_live_get(UCHAR *resource)
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  06-01-2010     Janet Christiansen       Initial Version 5.0           */ 
-/*  10-31-2011     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-27-2012     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.2    */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */ 
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 static UINT  _nx_dns_resource_data_length_get(UCHAR *resource)
 {
 
@@ -9030,11 +8042,11 @@ static UINT  _nx_dns_resource_data_length_get(UCHAR *resource)
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_resource_data_address_get                   PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function retrieves the resource data address.                  */ 
@@ -9058,25 +8070,11 @@ static UINT  _nx_dns_resource_data_length_get(UCHAR *resource)
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
+/*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-01-2010     Janet Christiansen       Initial Version 5.0           */ 
-/*  10-31-2011     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-27-2012     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.2    */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */ 
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 static UCHAR  *_nx_dns_resource_data_address_get(UCHAR *resource)
 {
 
@@ -9089,11 +8087,11 @@ static UCHAR  *_nx_dns_resource_data_address_get(UCHAR *resource)
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_resource_size_get                           PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function retrieves the resource data size.                     */ 
@@ -9117,25 +8115,11 @@ static UCHAR  *_nx_dns_resource_data_address_get(UCHAR *resource)
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
+/*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-01-2010     Janet Christiansen       Initial Version 5.0           */ 
-/*  10-31-2011     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-27-2012     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.2    */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */ 
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 static UINT  _nx_dns_resource_size_get(UCHAR *resource)
 {
 
@@ -9152,11 +8136,11 @@ static UINT  _nx_dns_resource_size_get(UCHAR *resource)
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_short_to_network_convert                    PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function converts an unsigned short to network byte order,     */ 
@@ -9181,25 +8165,11 @@ static UINT  _nx_dns_resource_size_get(UCHAR *resource)
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  06-01-2010     Janet Christiansen       Initial Version 5.0           */ 
-/*  10-31-2011     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-27-2012     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.2    */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */   
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 static void  _nx_dns_short_to_network_convert(UCHAR *ptr, USHORT value)
 {
     
@@ -9212,11 +8182,11 @@ static void  _nx_dns_short_to_network_convert(UCHAR *ptr, USHORT value)
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_network_to_short_convert                    PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function converts an unsigned short in network format, which   */ 
@@ -9240,25 +8210,11 @@ static void  _nx_dns_short_to_network_convert(UCHAR *ptr, USHORT value)
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  06-01-2010     Janet Christiansen       Initial Version 5.0           */ 
-/*  10-31-2011     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-27-2012     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.2    */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */   
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 static USHORT _nx_dns_network_to_short_convert(UCHAR *ptr)
 {
 
@@ -9275,11 +8231,11 @@ USHORT value =  *ptr++;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_network_to_long_convert                     PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function converts an unsigned long in network format, which    */ 
@@ -9303,25 +8259,11 @@ USHORT value =  *ptr++;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */   
-/*  06-01-2010     Janet Christiansen       Initial Version 5.0           */ 
-/*  10-31-2011     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-27-2012     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.2    */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */  
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 static ULONG  _nx_dns_network_to_long_convert(UCHAR *ptr)
 {
 
@@ -9341,10 +8283,10 @@ ULONG value =  *ptr++;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_dns_number_to_ascii_convert                     PORTABLE C      */
-/*                                                           5.11         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    William E. Lamie, Express Logic, Inc.                               */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -9372,24 +8314,8 @@ ULONG value =  *ptr++;
 /*  RELEASE HISTORY                                                       */
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
-/*                                                                        */ 
-/*  06-01-2010     Janet Christiansen       Initial Version 5.0           */ 
-/*  10-31-2011     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-27-2012     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.2    */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s),          */
-/*                                            simplified the logic,       */
-/*                                            resulting in version 5.3    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */  
-/*  02-22-2016     Yuxin Zhou               Modified comment(s), and      */
-/*                                            fixed compiler warnings,    */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 static UINT  _nx_dns_number_to_ascii_convert(UINT number, CHAR *buffstring)
@@ -9439,11 +8365,11 @@ UINT index = 0;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxe_dns_cache_initialize                           PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    Yuxin Zhou, Express Logic, Inc.                                     */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function checks for errors in the DNS cache initialize         */  
@@ -9471,15 +8397,9 @@ UINT index = 0;
 /*                                                                        */ 
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  01-12-2015     Janet Christiansen       Initial Version 5.8           */   
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/                         
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT _nxe_dns_cache_initialize(NX_DNS *dns_ptr, VOID *cache_ptr, UINT cache_size)
 {
 
@@ -9505,7 +8425,7 @@ UINT    status;
     } 
     
     /* Make sure peer cache is 4-byte aligned. */
-    if ((((UINT)cache_ptr & 0x3) != 0) ||
+    if ((((ALIGN_TYPE)cache_ptr & 0x3) != 0) ||
         ((cache_size & 0x3) != 0))
     {
         return(NX_DNS_ERROR);
@@ -9524,11 +8444,11 @@ UINT    status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_cache_initialize                           PORTABLE C       */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    Yuxin Zhou, Express Logic, Inc.                                     */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function initializes the DNS cache.                            */ 
@@ -9555,23 +8475,17 @@ UINT    status;
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
 /*    DATE              NAME                      DESCRIPTION             */
-/*                                                                        */  
-/*  01-12-2015     Janet Christiansen       Initial Version 5.8           */ 
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT _nx_dns_cache_initialize(NX_DNS *dns_ptr, VOID *cache_ptr, UINT cache_size)
 {
-        
-ULONG *head;
-ULONG *tail;
 
-                       
+ALIGN_TYPE *head;
+ALIGN_TYPE *tail;
+
+
     /* Get the mutex.  */
     tx_mutex_get(&(dns_ptr -> nx_dns_mutex), TX_WAIT_FOREVER);
 
@@ -9579,12 +8493,12 @@ ULONG *tail;
     memset(cache_ptr, 0, cache_size);
 
     /* Set the head. */
-    head = (ULONG*)cache_ptr;
-    *head = (ULONG)((ULONG*)cache_ptr + 1);
+    head = (ALIGN_TYPE*)cache_ptr;
+    *head = (ALIGN_TYPE)((ALIGN_TYPE*)cache_ptr + 1);
 
     /* Set the tail. */
-    tail = (ULONG*)cache_ptr + (cache_size >> 2) - 1;
-    *tail = (ULONG)tail;
+    tail = (ALIGN_TYPE*)((UCHAR*)cache_ptr + cache_size) - 1;
+    *tail = (ALIGN_TYPE)tail;
 
     /* Record the info.  */
     dns_ptr -> nx_dns_cache = (UCHAR*)cache_ptr;
@@ -9609,11 +8523,11 @@ ULONG *tail;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxe_dns_cache_notify_set                           PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function checks for errors in the DNS cache full notify        */ 
@@ -9638,17 +8552,11 @@ ULONG *tail;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
+/*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  01-12-2015     Janet Christiansen       Initial Version 5.8           */  
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT _nxe_dns_cache_notify_set(NX_DNS *dns_ptr, VOID (*cache_full_notify_cb)(NX_DNS *dns_ptr))
 {
 
@@ -9680,11 +8588,11 @@ UINT    status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_cache_notify_set                            PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function set the cache full notify function.                   */ 
@@ -9709,17 +8617,11 @@ UINT    status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-12-2015     Janet Christiansen       Initial Version 5.8           */ 
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT _nx_dns_cache_notify_set(NX_DNS *dns_ptr, VOID (*cache_full_notify_cb)(NX_DNS *dns_ptr))
 {
 
@@ -9744,11 +8646,11 @@ UINT _nx_dns_cache_notify_set(NX_DNS *dns_ptr, VOID (*cache_full_notify_cb)(NX_D
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxe_dns_cache_notify_clear                         PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function checks for errors in the DNS cache full notify clear  */ 
@@ -9773,17 +8675,11 @@ UINT _nx_dns_cache_notify_set(NX_DNS *dns_ptr, VOID (*cache_full_notify_cb)(NX_D
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-12-2015     Janet Christiansen       Initial Version 5.8           */  
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT _nxe_dns_cache_notify_clear(NX_DNS *dns_ptr)
 {
 
@@ -9815,11 +8711,11 @@ UINT    status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_cache_notify_clear                          PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function clear the cache full notify function.                 */ 
@@ -9843,17 +8739,11 @@ UINT    status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */  
-/*  01-12-2015     Janet Christiansen       Initial Version 5.8           */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT _nx_dns_cache_notify_clear(NX_DNS *dns_ptr)
 {
 
@@ -9878,11 +8768,11 @@ UINT _nx_dns_cache_notify_clear(NX_DNS *dns_ptr)
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_cache_add_rr                                PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    Yuxin Zhou, Express Logic, Inc.                                     */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function adds the DNS  resource record into record buffer.     */ 
@@ -9904,21 +8794,14 @@ UINT _nx_dns_cache_notify_clear(NX_DNS *dns_ptr)
 /*                                                                        */ 
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  01-12-2015     Janet Christiansen       Initial Version 5.8           */  
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */ 
-/*                                            unified ticks per second,   */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 static UINT _nx_dns_cache_add_rr(NX_DNS *dns_ptr, VOID *cache_ptr, UINT cache_size, NX_DNS_RR *record_ptr, NX_DNS_RR **insert_ptr)
 {
 
-ULONG       *tail;
-ULONG       *head;
+ALIGN_TYPE  *tail;
+ALIGN_TYPE  *head;
 NX_DNS_RR   *p;
 NX_DNS_RR   *rr;       
 ULONG       elapsed_time;
@@ -9935,16 +8818,16 @@ ULONG       max_elapsed_time;
     current_time = tx_time_get();
 
     /* Get head and tail. */
-    tail = (ULONG*)cache_ptr + (cache_size >> 2) - 1;
-    tail = (ULONG*)(*tail);
-    head = (ULONG*)cache_ptr;
-    head = (ULONG*)(*head);
+    tail = (ALIGN_TYPE*)((UCHAR*)cache_ptr + cache_size) - 1;
+    tail = (ALIGN_TYPE*)(*tail);
+    head = (ALIGN_TYPE*)cache_ptr;
+    head = (ALIGN_TYPE*)(*head);
                  
     /* Set the pointer.  */
     rr = NX_NULL;
 
     /* Find an empty entry before head. */
-    for(p = (NX_DNS_RR*)((ULONG*)cache_ptr + 1); p < (NX_DNS_RR*)head; p++)
+    for(p = (NX_DNS_RR*)((ALIGN_TYPE*)cache_ptr + 1); p < (NX_DNS_RR*)head; p++)
     {
         if(!p -> nx_dns_rr_type)
         {
@@ -9957,11 +8840,11 @@ ULONG       max_elapsed_time;
     if (!rr)
     {                                          
         /* Check whether the cache is full. */
-        if((head + (sizeof(NX_DNS_RR) >> 2)) > tail) 
+        if((ALIGN_TYPE*)((UCHAR*)head + sizeof(NX_DNS_RR)) > tail) 
         {
 
             /* Find an aging resource reocrd and repalce it.  */
-            for(p = (NX_DNS_RR*)((ULONG*)cache_ptr + 1); p < (NX_DNS_RR*)head; p++)
+            for(p = (NX_DNS_RR*)((ALIGN_TYPE*)cache_ptr + 1); p < (NX_DNS_RR*)head; p++)
             {
 
                 if (!p -> nx_dns_rr_name)
@@ -9995,8 +8878,8 @@ ULONG       max_elapsed_time;
                 _nx_dns_cache_delete_rr(dns_ptr, cache_ptr, cache_size, rr);
 
                 /* Update the head.  */
-                head = (ULONG*)cache_ptr;
-                head = (ULONG*)(*head);
+                head = (ALIGN_TYPE*)cache_ptr;
+                head = (ALIGN_TYPE*)(*head);
             }
             else
             {
@@ -10022,12 +8905,12 @@ ULONG       max_elapsed_time;
     if(insert_ptr != NX_NULL)
         *insert_ptr = rr;
 
-    if((ULONG*)rr >= head)
+    if((ALIGN_TYPE*)rr >= head)
     {
 
         /* Update HEAD when new record is added. */
-        head = (ULONG*)cache_ptr;
-        *head = (ULONG)(rr + 1);
+        head = (ALIGN_TYPE*)cache_ptr;
+        *head = (ALIGN_TYPE)(rr + 1);
     }
 
     return(NX_DNS_SUCCESS);
@@ -10041,11 +8924,11 @@ ULONG       max_elapsed_time;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_cache_find_answer                           PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function finds the answer of DNS query in record buffer.       */ 
@@ -10073,28 +8956,23 @@ ULONG       max_elapsed_time;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-12-2015     Janet Christiansen       Initial Version 5.8           */  
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            unified ticks per second,   */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 static UINT _nx_dns_cache_find_answer(NX_DNS *dns_ptr, VOID *cache_ptr, UCHAR *query_name, USHORT query_type, UCHAR *buffer, UINT buffer_size, UINT *record_count)
 {
 
-ULONG               *head;
+ALIGN_TYPE          *head;
 NX_DNS_RR           *p;      
 ULONG               current_time;   
 ULONG               elasped_ttl;    
 UINT                old_count;
 UINT                answer_count;
 UCHAR               *buffer_prepend_ptr;
+UINT                 query_name_length;
+UINT                 name_string_length;
 #ifdef NX_DNS_ENABLE_EXTENDED_RR_TYPES     
 UCHAR               *buffer_append_ptr;
 NX_DNS_NS_ENTRY     *nx_dns_ns_entry_ptr;  
@@ -10104,12 +8982,20 @@ NX_DNS_SOA_ENTRY    *nx_dns_soa_entry_ptr;
 UINT                 rname_string_length;
 UINT                 mname_string_length;
 #endif /* NX_DNS_ENABLE_EXTENDED_RR_TYPES  */
-                        
-                                    
+
+
+    /* Check the query name string.  */
+    if (_nx_utility_string_length_check((CHAR *)query_name, &query_name_length, NX_DNS_NAME_MAX))
+    {
+
+        /* Return.  */
+        return(NX_DNS_CACHE_ERROR);
+    }
+
     /* Check the cache.  */
     if (cache_ptr == NX_NULL)
         return(NX_DNS_CACHE_ERROR);
-                                  
+
     /* Initialize the value.  */  
     old_count = 0;
     answer_count = 0;   
@@ -10126,11 +9012,11 @@ UINT                 mname_string_length;
     current_time = tx_time_get();
 
     /* Get head. */
-    head = (ULONG*)cache_ptr;
-    head = (ULONG*)(*head);
+    head = (ALIGN_TYPE*)cache_ptr;
+    head = (ALIGN_TYPE*)(*head);
 
     /* Lookup the cache to delete the expired resource record and find the answer.  */ 
-    for(p = (NX_DNS_RR*)((UCHAR*)cache_ptr + sizeof(ULONG)); (ULONG*)p < head; p++)
+    for(p = (NX_DNS_RR*)((UCHAR*)cache_ptr + sizeof(ALIGN_TYPE)); (ALIGN_TYPE*)p < head; p++)
     {
 
         /* Check whether the resource record is valid. */
@@ -10154,7 +9040,7 @@ UINT                 mname_string_length;
             continue;
 
         /* Check the resource record name.  */
-        if (_nx_dns_name_match(p -> nx_dns_rr_name, query_name, strlen((const char *)query_name)))
+        if (_nx_dns_name_match(p -> nx_dns_rr_name, query_name, query_name_length))
             continue;      
 
         /* Update the elasped time and ttl.  */
@@ -10210,18 +9096,26 @@ UINT                 mname_string_length;
             case NX_DNS_RR_TYPE_TXT:    
 #endif
             {
-                           
+
                 /* PTR, CNAME, TXT record should be only one answer, union: ptr name, cname name, and txt data.  */  
-                /* Check the buffer size.  */
-                if (buffer_size < strlen((const char *)p -> nx_dns_rr_rdata.nx_dns_rr_rdata_ptr.nx_dns_rr_ptr_name))
-                {                
+                /* Check the name string.  */
+                if (_nx_utility_string_length_check((CHAR *)p -> nx_dns_rr_rdata.nx_dns_rr_rdata_ptr.nx_dns_rr_ptr_name, &name_string_length, NX_DNS_NAME_MAX))
+                {
+
+                    /* Return.  */
+                    return(NX_DNS_CACHE_ERROR);
+                }
+
+                /* Make sure there is enough room to store the name and null-terminator.  */
+                if (buffer_size < (name_string_length + 1))
+                {
 
                     /* Return.  */
                     return(NX_DNS_CACHE_ERROR);
                 }
 
                 /* Set the cname string.  */
-                strcpy((char *)buffer_prepend_ptr, (const char *)p -> nx_dns_rr_rdata.nx_dns_rr_rdata_ptr.nx_dns_rr_ptr_name);
+                memcpy((char *)buffer_prepend_ptr, (char *)p -> nx_dns_rr_rdata.nx_dns_rr_rdata_ptr.nx_dns_rr_ptr_name, name_string_length);
 
                 /* Return success.  */
                 return (NX_DNS_SUCCESS);
@@ -10229,36 +9123,49 @@ UINT                 mname_string_length;
 #ifdef NX_DNS_ENABLE_EXTENDED_RR_TYPES
             case NX_DNS_RR_TYPE_NS:   
             {
-                                       
-                /* Check the buffer size.  */
-                if (buffer_size < (sizeof(NX_DNS_NS_ENTRY) + strlen((const char *)p -> nx_dns_rr_rdata.nx_dns_rr_rdata_ns.nx_dns_rr_ns_name) + 1))
+
+                /* Check the name string.  */
+                if (_nx_utility_string_length_check((CHAR *)p -> nx_dns_rr_rdata.nx_dns_rr_rdata_ns.nx_dns_rr_ns_name, &name_string_length, NX_DNS_NAME_MAX))
+                {
+
+                    /* Return.  */
+                    return(NX_DNS_CACHE_ERROR);
+                }
+
+                /* Make sure there is enough room to store the name and null-terminator.  */
+                if (buffer_size < (sizeof(NX_DNS_NS_ENTRY) + name_string_length + 1))
                     break;
 
                 /* Set the ns entry pointer.  */
                 nx_dns_ns_entry_ptr = (NX_DNS_NS_ENTRY *)(buffer_prepend_ptr);
 
                 /* Update the store pointer. include the null flag '\0'.  */
-                buffer_append_ptr -= (strlen((const char *)p -> nx_dns_rr_rdata.nx_dns_rr_rdata_ns.nx_dns_rr_ns_name) + 1);
+                buffer_append_ptr -= (name_string_length + 1);
 
                 /* Set the ns string.  */
-                strcpy((char *)buffer_append_ptr, (const char *)p -> nx_dns_rr_rdata.nx_dns_rr_rdata_ns.nx_dns_rr_ns_name);
+                memcpy((char *)buffer_append_ptr, (char *)p -> nx_dns_rr_rdata.nx_dns_rr_rdata_ns.nx_dns_rr_ns_name, name_string_length);
                 nx_dns_ns_entry_ptr -> nx_dns_ns_hostname_ptr = buffer_append_ptr;   
 
                 /* Update the count and pointer.  */  
                 answer_count++;
-                buffer_size -= (sizeof(NX_DNS_NS_ENTRY) + strlen((const char *)p -> nx_dns_rr_rdata.nx_dns_rr_rdata_ns.nx_dns_rr_ns_name) + 1);
+                buffer_size -= (sizeof(NX_DNS_NS_ENTRY) + name_string_length + 1);
                 buffer_prepend_ptr += sizeof(NX_DNS_NS_ENTRY);  
 
                 break;
             }
             case NX_DNS_RR_TYPE_MX: 
             {
-                                              
-                /* Calculate the name size.  */
-                rname_string_length = strlen((const char *)p -> nx_dns_rr_rdata.nx_dns_rr_rdata_mx.nx_dns_rr_mx_rdata + 2);
-                                
-                /* Check the buffer size.  */
-                if (buffer_size < (sizeof(NX_DNS_MX_ENTRY) + rname_string_length + 1))          
+
+                /* Check the name string.  */
+                if (_nx_utility_string_length_check((CHAR *)(p -> nx_dns_rr_rdata.nx_dns_rr_rdata_mx.nx_dns_rr_mx_rdata + 2), &name_string_length, NX_DNS_NAME_MAX))
+                {
+
+                    /* Return.  */
+                    return(NX_DNS_CACHE_ERROR);
+                }
+
+                /* Make sure there is enough room to store the name and null-terminator.  */
+                if (buffer_size < (sizeof(NX_DNS_MX_ENTRY) + name_string_length + 1))
                     break;
 
                 /* Set the mx entry pointer.  */
@@ -10268,27 +9175,32 @@ UINT                 mname_string_length;
                 nx_dns_mx_entry_ptr -> nx_dns_mx_preference = *(USHORT *)p -> nx_dns_rr_rdata.nx_dns_rr_rdata_mx.nx_dns_rr_mx_rdata;
 
                 /* Update the store pointer. include the null flag '\0'.  */
-                buffer_append_ptr -= (rname_string_length + 1);
+                buffer_append_ptr -= (name_string_length + 1);
 
                 /* Set the mx string.  */
-                strcpy((char *)buffer_append_ptr, (const char *)(p -> nx_dns_rr_rdata.nx_dns_rr_rdata_mx.nx_dns_rr_mx_rdata + 2));
+                memcpy((char *)buffer_append_ptr, (char *)(p -> nx_dns_rr_rdata.nx_dns_rr_rdata_mx.nx_dns_rr_mx_rdata + 2), name_string_length);
                 nx_dns_mx_entry_ptr -> nx_dns_mx_hostname_ptr = buffer_append_ptr;
                                                                                 
                 /* Update the count and pointer.  */        
                 answer_count++;
-                buffer_size -= (sizeof(NX_DNS_MX_ENTRY) + rname_string_length + 1);
+                buffer_size -= (sizeof(NX_DNS_MX_ENTRY) + name_string_length + 1);
                 buffer_prepend_ptr += sizeof(NX_DNS_MX_ENTRY);  
 
                 break;
             }
             case NX_DNS_RR_TYPE_SRV:
-            {                                                                                          
-                
-                /* Calculate the rname size.  */
-                rname_string_length = strlen((const char *)p -> nx_dns_rr_rdata.nx_dns_rr_rdata_srv.nx_dns_rr_srv_rdata + 6);
-                                           
-                /* Check the buffer size.  */
-                if (buffer_size < (sizeof(NX_DNS_SRV_ENTRY) + rname_string_length + 1))   
+            {
+
+                /* Check the name string.  */
+                if (_nx_utility_string_length_check((CHAR *)(p -> nx_dns_rr_rdata.nx_dns_rr_rdata_srv.nx_dns_rr_srv_rdata + 6), &name_string_length, NX_DNS_NAME_MAX))
+                {
+
+                    /* Return.  */
+                    return(NX_DNS_CACHE_ERROR);
+                }
+
+                /* Make sure there is enough room to store the name and null-terminator.  */
+                if (buffer_size < (sizeof(NX_DNS_SRV_ENTRY) + name_string_length + 1))
                     break;
 
                 /* Set the srv entry pointer.  */
@@ -10300,30 +9212,39 @@ UINT                 mname_string_length;
                 nx_dns_srv_entry_ptr -> nx_dns_srv_port_number = *(USHORT *)(p -> nx_dns_rr_rdata.nx_dns_rr_rdata_srv.nx_dns_rr_srv_rdata + 4);  
 
                 /* Update the store pointer. include the null flag '\0'.  */                                                             
-                buffer_append_ptr -= (rname_string_length + 1);
+                buffer_append_ptr -= (name_string_length + 1);
 
                 /* Set the srv string.  */
-                strcpy((char *)buffer_append_ptr, (const char *)p -> nx_dns_rr_rdata.nx_dns_rr_rdata_srv.nx_dns_rr_srv_rdata + 6);
+                memcpy((char *)buffer_append_ptr, (char *)(p -> nx_dns_rr_rdata.nx_dns_rr_rdata_srv.nx_dns_rr_srv_rdata + 6), name_string_length);
                 nx_dns_srv_entry_ptr -> nx_dns_srv_hostname_ptr = buffer_append_ptr;
                                                                         
                 /* Update the count and pointer.  */    
                 answer_count++;
-                buffer_size -= (sizeof(NX_DNS_SRV_ENTRY) + rname_string_length + 1);
+                buffer_size -= (sizeof(NX_DNS_SRV_ENTRY) + name_string_length + 1);
                 buffer_prepend_ptr += sizeof(NX_DNS_SRV_ENTRY);  
 
                 break;
             }       
             case NX_DNS_RR_TYPE_SOA:
-            {                                                                        
-                            
-                /* SOA record should be only one.  */
-                /* Calculate the mname size.  */
-                mname_string_length = strlen((const char *)p -> nx_dns_rr_rdata.nx_dns_rr_rdata_soa.nx_dns_rr_soa_rdata);
+            {
 
-                /* Calculate the rname size.  */
-                rname_string_length = strlen((const char *)p -> nx_dns_rr_rdata.nx_dns_rr_rdata_soa.nx_dns_rr_soa_rdata + mname_string_length + 1);
-                                           
-                /* Check the buffer size.  */
+                /* Check the mname string.  */
+                if (_nx_utility_string_length_check((CHAR *)(p -> nx_dns_rr_rdata.nx_dns_rr_rdata_soa.nx_dns_rr_soa_rdata), &mname_string_length, NX_DNS_NAME_MAX))
+                {
+
+                    /* Return.  */
+                    return(NX_DNS_CACHE_ERROR);
+                }
+
+                /* Check the rname string.  */
+                if (_nx_utility_string_length_check((CHAR *)(p -> nx_dns_rr_rdata.nx_dns_rr_rdata_soa.nx_dns_rr_soa_rdata + mname_string_length + 1), &rname_string_length, NX_DNS_NAME_MAX))
+                {
+
+                    /* Return.  */
+                    return(NX_DNS_CACHE_ERROR);
+                }
+
+                /* Make sure there is enough room to store the name and null-terminator.  */
                 if (buffer_size < (sizeof(NX_DNS_SOA_ENTRY) + mname_string_length + rname_string_length + 2))
                 {                 
 
@@ -10338,11 +9259,11 @@ UINT                 mname_string_length;
                 buffer_append_ptr -= (mname_string_length + rname_string_length + 2);
 
                 /* Set the soa mname string.  */
-                strcpy((char *)(buffer_append_ptr), (const char *)p -> nx_dns_rr_rdata.nx_dns_rr_rdata_soa.nx_dns_rr_soa_rdata);
+                memcpy((char *)(buffer_append_ptr), (char *)p -> nx_dns_rr_rdata.nx_dns_rr_rdata_soa.nx_dns_rr_soa_rdata, mname_string_length);
                 nx_dns_soa_entry_ptr -> nx_dns_soa_host_mname_ptr = buffer_append_ptr;
 
                 /* Set the soa rname string.  */                                                                                           
-                strcpy((char *)(buffer_append_ptr + mname_string_length + 1), (const char *)(p -> nx_dns_rr_rdata.nx_dns_rr_rdata_soa.nx_dns_rr_soa_rdata + mname_string_length + 1));
+                memcpy((char *)(buffer_append_ptr + mname_string_length + 1), (const char *)(p -> nx_dns_rr_rdata.nx_dns_rr_rdata_soa.nx_dns_rr_soa_rdata + mname_string_length + 1), rname_string_length);
                 nx_dns_soa_entry_ptr -> nx_dns_soa_host_rname_ptr = (buffer_append_ptr + mname_string_length + 1);
 
                 /* Set the SOA Serial, Refresh, Retry, Expire, Minmum.  */ 
@@ -10395,11 +9316,11 @@ UINT                 mname_string_length;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_cache_delete_rr                             PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    Yuxin Zhou, Express Logic, Inc.                                     */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function deletes the DNS resource record from cache.           */ 
@@ -10421,21 +9342,15 @@ UINT                 mname_string_length;
 /*                                                                        */ 
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  01-12-2015     Janet Christiansen       Initial Version 5.8           */  
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 static UINT _nx_dns_cache_delete_rr(NX_DNS *dns_ptr, VOID *cache_ptr, UINT cache_size, NX_DNS_RR *record_ptr)
 {
-    
-ULONG       *head;
 
-                                   
+ALIGN_TYPE  *head;
+
+
     /* Check the cache.  */
     if (cache_ptr == NX_NULL)
         return(NX_DNS_CACHE_ERROR);
@@ -10450,8 +9365,8 @@ ULONG       *head;
     dns_ptr -> nx_dns_rr_count --;
             
     /* Get head. */
-    head = (ULONG*)cache_ptr;
-    head = (ULONG*)(*head);
+    head = (ALIGN_TYPE*)cache_ptr;
+    head = (ALIGN_TYPE*)(*head);
 
     /* Move HEAD if the last RR is deleted. */
     if(record_ptr == ((NX_DNS_RR*)head - 1))
@@ -10462,7 +9377,7 @@ ULONG       *head;
             if(record_ptr < (NX_DNS_RR*)cache_ptr)
                 break;
         }
-        *((ULONG*)cache_ptr) = (ULONG)(record_ptr + 1);
+        *((ALIGN_TYPE*)cache_ptr) = (ALIGN_TYPE)(record_ptr + 1);
     }
 
     return(NX_SUCCESS);    
@@ -10476,11 +9391,11 @@ ULONG       *head;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_cache_delete_rr_string                      PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    Yuxin Zhou, Express Logic, Inc.                                     */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function deletes the DNS entry string from the record cache.   */ 
@@ -10501,45 +9416,102 @@ ULONG       *head;
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
 /*    DATE              NAME                      DESCRIPTION             */
-/*                                                                        */ 
-/*  01-12-2015     Janet Christiansen       Initial Version 5.8           */  
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 static UINT _nx_dns_cache_delete_rr_string(NX_DNS *dns_ptr, VOID *cache_ptr, UINT cache_size, NX_DNS_RR *record_ptr)
 {
-    
-                                     
+
+UINT    string_len;
+UINT    size;
+
+
     /* Check the cache.  */
     if (cache_ptr == NX_NULL)
         return(NX_DNS_CACHE_ERROR);
 
     /* Compare the resource record type.  */ 
-    if((record_ptr -> nx_dns_rr_type == NX_DNS_RR_TYPE_PTR) ||
-       (record_ptr -> nx_dns_rr_type == NX_DNS_RR_TYPE_AAAA) 
+    if((record_ptr -> nx_dns_rr_type == NX_DNS_RR_TYPE_PTR)
 #ifdef NX_DNS_ENABLE_EXTENDED_RR_TYPES
        ||
-       (record_ptr -> nx_dns_rr_type == NX_DNS_RR_TYPE_SRV) ||
        (record_ptr -> nx_dns_rr_type == NX_DNS_RR_TYPE_TXT) ||
        (record_ptr -> nx_dns_rr_type == NX_DNS_RR_TYPE_CNAME) ||
-       (record_ptr -> nx_dns_rr_type == NX_DNS_RR_TYPE_NS) ||
-       (record_ptr -> nx_dns_rr_type == NX_DNS_RR_TYPE_MX) ||
-       (record_ptr -> nx_dns_rr_type == NX_DNS_RR_TYPE_SOA)
+       (record_ptr -> nx_dns_rr_type == NX_DNS_RR_TYPE_NS)
 #endif
         )
-    {    
+    {
 
         /* Delete the rdata name string. */                      
-        _nx_dns_cache_delete_string(dns_ptr, cache_ptr, cache_size, record_ptr -> nx_dns_rr_rdata.nx_dns_rr_rdata_ptr.nx_dns_rr_ptr_name);
+        _nx_dns_cache_delete_string(dns_ptr, cache_ptr, cache_size, record_ptr -> nx_dns_rr_rdata.nx_dns_rr_rdata_ptr.nx_dns_rr_ptr_name, 0);
     }
+    else if (record_ptr -> nx_dns_rr_type == NX_DNS_RR_TYPE_AAAA)
+    {
+
+        /* Delete the IPv6 address string. */                      
+        _nx_dns_cache_delete_string(dns_ptr, cache_ptr, cache_size, record_ptr -> nx_dns_rr_rdata.nx_dns_rr_rdata_aaaa.nx_dns_rr_aaaa_address, 16);
+    }
+#ifdef NX_DNS_ENABLE_EXTENDED_RR_TYPES
+    else if (record_ptr -> nx_dns_rr_type == NX_DNS_RR_TYPE_SRV)
+    {
+
+        /* Compute the SRV rdata length.  */
+        if (_nx_utility_string_length_check((CHAR *)(record_ptr -> nx_dns_rr_rdata.nx_dns_rr_rdata_srv.nx_dns_rr_srv_rdata), &size, NX_DNS_NAME_MAX))
+        {
+
+            /* Return.  */
+            return(NX_DNS_CACHE_ERROR);
+        }
+        string_len = (UINT)(size + 6);
+
+        /* Delete the SRV rdata string. */
+        _nx_dns_cache_delete_string(dns_ptr, cache_ptr, cache_size, record_ptr -> nx_dns_rr_rdata.nx_dns_rr_rdata_srv.nx_dns_rr_srv_rdata, string_len);
+    }
+    else if (record_ptr -> nx_dns_rr_type == NX_DNS_RR_TYPE_MX)
+    {
+
+        /* Compute the MX rdata length.  */
+        if (_nx_utility_string_length_check((CHAR *)(record_ptr -> nx_dns_rr_rdata.nx_dns_rr_rdata_mx.nx_dns_rr_mx_rdata), &size, NX_DNS_NAME_MAX))
+        {
+
+            /* Return.  */
+            return(NX_DNS_CACHE_ERROR);
+        }
+        string_len = (UINT)(size + 2);
+
+        /* Delete the MX rdata string. */
+        _nx_dns_cache_delete_string(dns_ptr, cache_ptr, cache_size, record_ptr -> nx_dns_rr_rdata.nx_dns_rr_rdata_mx.nx_dns_rr_mx_rdata, string_len);
+    }
+    else if (record_ptr -> nx_dns_rr_type == NX_DNS_RR_TYPE_SOA)
+    {
+
+        /* Compute the SOA rdata length.  */
+        if (_nx_utility_string_length_check((CHAR *)(record_ptr -> nx_dns_rr_rdata.nx_dns_rr_rdata_soa.nx_dns_rr_soa_rdata), &size, NX_DNS_NAME_MAX))
+        {
+
+            /* Return.  */
+            return(NX_DNS_CACHE_ERROR);
+        }
+        string_len = size; /* MNAME  */
+        string_len += 1; /* '\0'  */
+
+        if (_nx_utility_string_length_check((CHAR *)(record_ptr -> nx_dns_rr_rdata.nx_dns_rr_rdata_soa.nx_dns_rr_soa_rdata + string_len), &size, NX_DNS_NAME_MAX))
+        {
+
+            /* Return.  */
+            return(NX_DNS_CACHE_ERROR);
+        }
+        string_len += size; /* RNAME  */
+        string_len += 1;  /* '\0'  */
+        string_len += 20; /* Serial, Refresh, Retry, Expire, Minmum.  */
+
+        /* Delete the SRV rdata string. */
+        _nx_dns_cache_delete_string(dns_ptr, cache_ptr, cache_size, record_ptr -> nx_dns_rr_rdata.nx_dns_rr_rdata_soa.nx_dns_rr_soa_rdata, string_len);
+    }
+#endif
 
     /* Delete the name string. */                      
-    _nx_dns_cache_delete_string(dns_ptr, cache_ptr, cache_size, record_ptr -> nx_dns_rr_name);
+    _nx_dns_cache_delete_string(dns_ptr, cache_ptr, cache_size, record_ptr -> nx_dns_rr_name, 0);
 
     return(NX_DNS_SUCCESS);
 }     
@@ -10552,11 +9524,11 @@ static UINT _nx_dns_cache_delete_rr_string(NX_DNS *dns_ptr, VOID *cache_ptr, UIN
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_cache_add_string                            PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    Yuxin Zhou, Express Logic, Inc.                                     */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function adds or finds the DNS string in the cache.            */ 
@@ -10578,26 +9550,19 @@ static UINT _nx_dns_cache_delete_rr_string(NX_DNS *dns_ptr, VOID *cache_ptr, UIN
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
 /*    DATE              NAME                      DESCRIPTION             */
-/*                                                                        */ 
-/*  01-12-2015     Janet Christiansen       Initial Version 5.8           */ 
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s), and      */
-/*                                            improved internal logic,    */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 static UINT _nx_dns_cache_add_string(NX_DNS *dns_ptr, VOID *cache_ptr, UINT cache_size, VOID *string_ptr, UINT string_size, VOID **insert_ptr)
 {
 
-ULONG   *tail;
-ULONG   *head;
-UINT    string_len;
-USHORT  len, cnt;
-USHORT  min_len = 0xFFFF;
-UCHAR   *p, *available, *start;
+ALIGN_TYPE  *tail;
+ALIGN_TYPE  *head;
+UINT        string_len;
+USHORT      len, cnt;
+USHORT      min_len = 0xFFFF;
+UCHAR       *p, *available, *start;
                                  
                                      
     /* Check the cache.  */
@@ -10605,11 +9570,11 @@ UCHAR   *p, *available, *start;
         return(NX_DNS_CACHE_ERROR);
 
     /* Get head and tail. */
-    tail = (ULONG*)cache_ptr + (cache_size >> 2) - 1;
+    tail = (ALIGN_TYPE*)((UCHAR*)cache_ptr + cache_size) - 1;
     p = (UCHAR*)tail;
-    tail = (ULONG*)(*tail);
-    head = (ULONG*)cache_ptr;
-    head = (ULONG*)(*head);
+    tail = (ALIGN_TYPE*)(*tail);
+    head = (ALIGN_TYPE*)cache_ptr;
+    head = (ALIGN_TYPE*)(*head);
 
     /* Calculate the amount of memory needed to store this string, including CNT and LEN fields. */
     
@@ -10680,7 +9645,7 @@ UCHAR   *p, *available, *start;
         }
         
         /* Update TAIL. */
-        *((ULONG*)cache_ptr + (cache_size >> 2) - 1) = (ULONG)(available - string_len);
+        *((ALIGN_TYPE*)((UCHAR*)cache_ptr + cache_size) - 1) = (ALIGN_TYPE)(available - string_len);
 
     }
     else if(string_len < min_len)
@@ -10721,11 +9686,11 @@ UCHAR   *p, *available, *start;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_cache_delete_string                         PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    Yuxin Zhou, Express Logic, Inc.                                     */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function deletes the DNS string from the record buffer.        */ 
@@ -10752,23 +9717,15 @@ UCHAR   *p, *available, *start;
 /*                                                                        */ 
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  01-12-2015     Janet Christiansen       Initial Version 5.8           */  
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s), and      */
-/*                                            improved internal logic,    */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
-static UINT _nx_dns_cache_delete_string(NX_DNS *dns_ptr, VOID *cache_ptr, UINT cache_size, VOID *string_ptr)
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
+static UINT _nx_dns_cache_delete_string(NX_DNS *dns_ptr, VOID *cache_ptr, UINT cache_size, VOID *string_ptr, UINT string_len)
 {
 
-ULONG   *tail;
-ULONG   *end;
-USHORT  cnt;
-UINT    string_len;
+ALIGN_TYPE  *tail;
+ALIGN_TYPE  *end;
+USHORT      cnt;
 
 
     /* Check the cache.  */
@@ -10776,28 +9733,30 @@ UINT    string_len;
         return(NX_DNS_CACHE_ERROR);
 
     /* Validate input parameter. */
-    if(string_ptr == NX_NULL)
+    if (string_ptr == NX_NULL)
         return(NX_DNS_PARAM_ERROR);
-    
-    string_len = strlen(string_ptr);
-        
+
+    /* Validate string. */
+    if (_nx_utility_string_length_check((CHAR *)string_ptr, &string_len, NX_DNS_NAME_MAX))
+        return(NX_DNS_SIZE_ERROR);
+
     /* Add the length of CNT and LEN fields.  */
     /* Also make the total length 4 bytes align. */
     string_len = ((string_len & 0xFFFFFFFC) + 8) & 0xFFFFFFFF;
 
-    end = (ULONG*)((UCHAR*)string_ptr + string_len);
+    end = (ALIGN_TYPE*)((UCHAR*)string_ptr + string_len);
 
     /* Get tail. */
 
     /* Validate the string table. */
-    tail = (ULONG*)cache_ptr + (cache_size >> 2) - 1;
+    tail = (ALIGN_TYPE*)((UCHAR*)cache_ptr + cache_size) - 1;
     if(end > tail)
     {
 
         /* The end of string exceeds cache_ptr. */
         return(NX_DNS_SIZE_ERROR);
     }
-    tail = (ULONG*)(*tail);
+    tail = (ALIGN_TYPE*)(*tail);
     if((UCHAR*)string_ptr < (UCHAR*)tail)
     {
 
@@ -10824,13 +9783,16 @@ UINT    string_len;
         {
             tail = end;
         
-            while((end < ((ULONG*)cache_ptr + (cache_size >> 2) - 1)))
+            while(end < ((ALIGN_TYPE*)((UCHAR*)cache_ptr + cache_size) - 1))
             {
                 
                 /* Set the string pt and string length.  */
                 string_ptr = end;
-                string_len = strlen(string_ptr);
-                
+
+                /* Validate string. */
+                if (_nx_utility_string_length_check((CHAR *)string_ptr, &string_len, NX_DNS_NAME_MAX))
+                    return(NX_DNS_SIZE_ERROR);
+
                 /* Check the string length.  */
                 if(string_len == 0)
                 {
@@ -10839,7 +9801,7 @@ UINT    string_len;
                     while(*((ULONG*)string_ptr) == 0)
                         string_ptr = (UCHAR*)string_ptr + 4;
                     
-                    end = (ULONG*)string_ptr + 1;
+                    end = (ALIGN_TYPE*)((UCHAR*)string_ptr + 4);
                     cnt = *((USHORT*)string_ptr);
                 }
                 else
@@ -10847,8 +9809,8 @@ UINT    string_len;
                     
                     /* Make the length 4 bytes align and add the length of CNT and LEN fields.  */
                     string_len = ((string_len & 0xFFFFFFFC) + 8) & 0xFFFFFFFF;
-                    
-                    end = (ULONG*)((UCHAR*)string_ptr + string_len);
+
+                    end = (ALIGN_TYPE*)((UCHAR*)string_ptr + string_len);
                     cnt = *((USHORT*)((UCHAR*)end - 4));
                 }
                 
@@ -10858,7 +9820,7 @@ UINT    string_len;
                 else
                     break;
             }
-            *((ULONG*)cache_ptr + (cache_size >> 2) - 1) = (ULONG)tail;
+            *((ALIGN_TYPE*)((UCHAR*)cache_ptr + cache_size) - 1) = (ALIGN_TYPE)tail;
         }
     }
 
@@ -10873,11 +9835,11 @@ UINT    string_len;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_name_match                                  PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function name string match, the lowercase letters "a" to "z"   */ 
@@ -10901,17 +9863,11 @@ UINT    string_len;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
+/*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  01-12-2015     Janet Christiansen       Initial Version 5.8           */  
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 static UINT  _nx_dns_name_match(UCHAR *src, UCHAR *dst, UINT length)
 {
 

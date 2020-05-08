@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -43,10 +31,10 @@ static UCHAR generated_hash[NX_SECURE_TLS_MAX_HASH_SIZE];
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_tls_process_finished                     PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -81,19 +69,7 @@ static UCHAR generated_hash[NX_SECURE_TLS_MAX_HASH_SIZE];
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-09-2017     Timothy Stapko           Initial Version 5.10          */
-/*  12-15-2017     Timothy Stapko           Modified comment(s),          */
-/*                                            supported renegotiation,    */
-/*                                            resulting in version 5.11   */
-/*  08-15-2019     Timothy Stapko           Modified comment(s)           */
-/*                                            removed server state        */
-/*                                            processing, added check for */
-/*                                            hash generation return,     */
-/*                                            added flexibility of using  */
-/*                                            macros instead of direct C  */
-/*                                            library function calls,     */
-/*                                            updated error return codes, */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 UINT _nx_secure_tls_process_finished(NX_SECURE_TLS_SESSION *tls_session, UCHAR *packet_buffer,
@@ -101,54 +77,88 @@ UINT _nx_secure_tls_process_finished(NX_SECURE_TLS_SESSION *tls_session, UCHAR *
 {
 UCHAR            *finished_label;
 UINT              compare_result, status;
-
-    /* Make sure the length is what we expect. */
-    if (message_length != NX_SECURE_TLS_FINISHED_HASH_SIZE)
-    {
-        return(NX_SECURE_TLS_INCORRECT_MESSAGE_LENGTH);
-    }
-
-    /* If we received a Finished message but the session is not active, error! */
-    if (!tls_session -> nx_secure_tls_remote_session_active)
-    {
-        return(NX_SECURE_TLS_UNEXPECTED_MESSAGE);
-    }
-
-    /* If we have not received credentials from the remote host, we
-       cannot validate the handshake under any circumstances. */
-    if (!tls_session -> nx_secure_tls_received_remote_credentials)
-    {
-        return(NX_SECURE_TLS_HANDSHAKE_FAILURE);
-    }
-
-    /* Select our label for generating the finished hash expansion - we are comparing against
-       the remote hosts hash, so use the opposite label. */
-    if (tls_session -> nx_secure_tls_socket_type == NX_SECURE_TLS_SESSION_TYPE_SERVER)
-    {
-        finished_label = (UCHAR *)"client finished";
-    }
-    else
-    {
-        finished_label = (UCHAR *)"server finished";
-    }
-
-    /* Finally, generate the verification data required by TLS - 12 bytes using the PRF and the data
-       we have collected. */
-    status = _nx_secure_tls_finished_hash_generate(tls_session, finished_label, generated_hash);
-
-    if(status != NX_SUCCESS)
-    {
-        return(status);
-    }
-
-#ifdef NX_SECURE_TLS_ENABLE_SECURE_RENEGOTIATION
-    /* If we are doing secure renegotiation as per RFC 5746, we need to save off the generated
-       verify data now. For TLS 1.0-1.2 this is 12 bytes. If SSLv3 is ever used, it will be 36 bytes. */
-    NX_SECURE_MEMCPY(tls_session -> nx_secure_tls_remote_verify_data, generated_hash, NX_SECURE_TLS_FINISHED_HASH_SIZE);
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+UINT              hash_size = 0;
+UINT              is_server;
 #endif
 
-    /* The finished verify data is always 12 bytes (*except for SSLv3) - compare to see if the Finished hash matches the recevied hash. */
-    compare_result = (UINT)NX_SECURE_MEMCMP(generated_hash, packet_buffer, NX_SECURE_TLS_FINISHED_HASH_SIZE);
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+    /* Make sure the length is what we expect. */
+    if(tls_session -> nx_secure_tls_1_3)
+    {
+        /* TLS 1.3 Finished messages are different from earlier versions
+           and require specific processing. */
+        /* Check if the Finished is from server. */
+        is_server = (tls_session -> nx_secure_tls_socket_type == NX_SECURE_TLS_SESSION_TYPE_CLIENT);
+
+        /* Verify Finished hash. */
+        status = _nx_secure_tls_1_3_finished_hash_generate(tls_session, is_server, &hash_size, generated_hash, sizeof(generated_hash));
+
+        if ((hash_size > message_length) || (hash_size > sizeof(generated_hash)))
+        {
+
+            /* Size error. */
+            compare_result = 1;
+        }
+        else
+        {
+            
+            /* Compare to see if the Finished hash matches the recevied hash. */
+            compare_result = (UINT)NX_SECURE_MEMCMP(generated_hash, packet_buffer, hash_size);
+        }
+    }
+    else
+#endif
+    {
+        /* TLS 1.2 and earlier use the same Finished hash construction. */
+        if (message_length != NX_SECURE_TLS_FINISHED_HASH_SIZE)
+        {
+            return(NX_SECURE_TLS_INCORRECT_MESSAGE_LENGTH);
+        }
+
+        
+        /* If we received a Finished message but the session is not active, error! */
+        if (!tls_session -> nx_secure_tls_remote_session_active)
+        {
+            return(NX_SECURE_TLS_UNEXPECTED_MESSAGE);
+        }
+
+        /* If we have not received credentials from the remote host, we
+           cannot validate the handshake under any circumstances. */
+        if (!tls_session -> nx_secure_tls_received_remote_credentials)
+        {
+            return(NX_SECURE_TLS_HANDSHAKE_FAILURE);
+        }
+
+        /* Select our label for generating the finished hash expansion - we are comparing against
+           the remote hosts hash, so use the opposite label. */
+        if (tls_session -> nx_secure_tls_socket_type == NX_SECURE_TLS_SESSION_TYPE_SERVER)
+        {
+            finished_label = (UCHAR *)"client finished";
+        }
+        else
+        {
+            finished_label = (UCHAR *)"server finished";
+        }
+
+        /* Finally, generate the verification data required by TLS - 12 bytes using the PRF and the data
+           we have collected. */
+        status = _nx_secure_tls_finished_hash_generate(tls_session, finished_label, generated_hash);
+
+        if(status != NX_SUCCESS)
+        {
+            return(status);
+        }
+
+#ifdef NX_SECURE_TLS_ENABLE_SECURE_RENEGOTIATION
+        /* If we are doing secure renegotiation as per RFC 5746, we need to save off the generated
+           verify data now. For TLS 1.0-1.2 this is 12 bytes. If SSLv3 is ever used, it will be 36 bytes. */
+        NX_SECURE_MEMCPY(tls_session -> nx_secure_tls_remote_verify_data, generated_hash, NX_SECURE_TLS_FINISHED_HASH_SIZE);
+#endif
+
+        /* The finished verify data is always 12 bytes (*except for SSLv3) - compare to see if the Finished hash matches the recevied hash. */
+        compare_result = (UINT)NX_SECURE_MEMCMP(generated_hash, packet_buffer, NX_SECURE_TLS_FINISHED_HASH_SIZE);
+    }
 
     if (compare_result != 0)
     {

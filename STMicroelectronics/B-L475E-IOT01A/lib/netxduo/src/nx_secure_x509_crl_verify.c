@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -47,10 +35,10 @@ static UCHAR decrypted_signature[512]; /* This needs to hold the entire decrypte
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_x509_crl_verify                          PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -78,6 +66,8 @@ static UCHAR decrypted_signature[512]; /* This needs to hold the entire decrypte
 /*    _nx_secure_x509_pkcs7_decode          Decode the PKCS#7 signature   */
 /*    _nx_secure_x509_find_certificate_methods                            */
 /*                                          Find certificate methods      */
+/*    _nx_secure_tls_find_curve_method      Find named curve used         */
+/*    _nx_secure_x509_asn1_tlv_block_parse  Parse ASN.1 block             */
 /*                                                                        */
 /*  CALLED BY                                                             */
 /*                                                                        */
@@ -87,44 +77,34 @@ static UCHAR decrypted_signature[512]; /* This needs to hold the entire decrypte
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s), and      */
-/*                                            added extension hook, added */
-/*                                            logic to properly initialize*/
-/*                                            the crypto control blcok,   */
-/*                                            and to clear encryption     */
-/*                                            key and other secret data,  */
-/*                                            fixed the usage of crypto   */
-/*                                            metadata for hash method,   */
-/*                                            fixed compiler errors when  */
-/*                                            CRL was disabled, updated   */
-/*                                            error return checks,        */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 UINT _nx_secure_x509_crl_verify(NX_SECURE_X509_CERT *certificate, NX_SECURE_X509_CRL *crl,
                                 NX_SECURE_X509_CERTIFICATE_STORE *store,
                                 NX_SECURE_X509_CERT *issuer_certificate)
 {
-UINT                   status;
-UINT                   oid_length;
-const UCHAR           *oid;
-UINT                   decrypted_hash_length;
-const UCHAR           *decrypted_hash;
-const UCHAR           *crl_verify_data;
-UINT                   verify_data_length;
-const UCHAR           *signature_data;
-UINT                   signature_length;
-UINT                   compare_result;
-UINT                   hash_length;
-NX_CRYPTO_METHOD      *hash_method;
-NX_CRYPTO_METHOD      *public_cipher_method;
-NX_SECURE_X509_CRYPTO *crypto_methods;
-VOID                  *handler = NX_NULL;
+UINT                    status;
+UINT                    oid_length;
+const UCHAR            *oid;
+UINT                    decrypted_hash_length;
+const UCHAR            *decrypted_hash;
+const UCHAR            *crl_verify_data;
+UINT                    verify_data_length;
+const UCHAR            *signature_data;
+UINT                    signature_length;
+UINT                    compare_result;
+UINT                    hash_length;
+const NX_CRYPTO_METHOD *hash_method;
+const NX_CRYPTO_METHOD *public_cipher_method;
+NX_SECURE_X509_CRYPTO  *crypto_methods;
+VOID                   *handler = NX_NULL;
+#ifdef NX_SECURE_ENABLE_ECC_CIPHERSUITE
+NX_SECURE_EC_PUBLIC_KEY *ec_pubkey;
+const NX_CRYPTO_METHOD  *curve_method;
+#endif /* NX_SECURE_ENABLE_ECC_CIPHERSUITE */
 
     NX_PARAMETER_NOT_USED(store);
-
-    NX_SECURE_X509_CRL_VERIFY_EXTENSION
 
     /* Get working pointers to relevant data. */
     crl_verify_data = crl -> nx_secure_x509_crl_verify_data;
@@ -145,14 +125,14 @@ VOID                  *handler = NX_NULL;
 
     if (hash_method -> nx_crypto_init)
     {
-        status = hash_method -> nx_crypto_init(hash_method,
+        status = hash_method -> nx_crypto_init((NX_CRYPTO_METHOD*)hash_method,
                                       NX_NULL,
                                       0,
                                       &handler,
                                       certificate -> nx_secure_x509_hash_metadata_area,
                                       certificate -> nx_secure_x509_hash_metadata_size);
 
-        if(status != NX_SUCCESS)
+        if(status != NX_CRYPTO_SUCCESS)
         {
             return(status);
         }                                                     
@@ -163,7 +143,7 @@ VOID                  *handler = NX_NULL;
     {
         status = hash_method -> nx_crypto_operation(NX_CRYPTO_VERIFY,
                                            handler,
-                                           hash_method,
+                                           (NX_CRYPTO_METHOD*)hash_method,
                                            NX_NULL,
                                            0,
                                            (UCHAR *)crl_verify_data,
@@ -175,7 +155,7 @@ VOID                  *handler = NX_NULL;
                                            certificate -> nx_secure_x509_hash_metadata_size,
                                            NX_NULL, NX_NULL);
 
-        if(status != NX_SUCCESS)
+        if(status != NX_CRYPTO_SUCCESS)
         {
             return(status);
         }                                                     
@@ -185,7 +165,7 @@ VOID                  *handler = NX_NULL;
     {
         status = hash_method -> nx_crypto_cleanup(certificate -> nx_secure_x509_hash_metadata_area);
 
-        if(status != NX_SUCCESS)
+        if(status != NX_CRYPTO_SUCCESS)
         {
 #ifdef NX_SECURE_KEY_CLEAR
             NX_SECURE_MEMSET(generated_hash, 0, sizeof(generated_hash));
@@ -196,109 +176,228 @@ VOID                  *handler = NX_NULL;
 
     hash_length = (hash_method -> nx_crypto_ICV_size_in_bits >> 3);
 
-
-
     /* Perform a public-key decryption operation on the extracted signature from the CRL.
      * In this case, the operation is doing a "reverse decryption", using the public key to decrypt, rather
      * than the private. This allows us to tie a trusted root certificate to a signature of a CRL
      * signed by that root CA's private key. when combined with a hash method, this is the basic digital
      * signature operation. */
-
-    if (public_cipher_method -> nx_crypto_init != NX_NULL)
+    if (public_cipher_method -> nx_crypto_algorithm == NX_CRYPTO_KEY_EXCHANGE_RSA ||
+        public_cipher_method -> nx_crypto_algorithm == NX_CRYPTO_DIGITAL_SIGNATURE_RSA)
     {
-        /* Initialize the crypto method with public key. */
-        status = public_cipher_method -> nx_crypto_init(public_cipher_method,
-                                               (UCHAR *)issuer_certificate -> nx_secure_x509_public_key.rsa_public_key.nx_secure_rsa_public_modulus,
-                                               (NX_CRYPTO_KEY_SIZE)(issuer_certificate -> nx_secure_x509_public_key.rsa_public_key.nx_secure_rsa_public_modulus_length << 3),
-                                               &handler,
-                                               certificate -> nx_secure_x509_public_cipher_metadata_area,
-                                               certificate -> nx_secure_x509_public_cipher_metadata_size);
-
-        if(status != NX_SUCCESS)
+        /* Make sure the public algorithm of the issuer certificate is RSA. */
+        if (issuer_certificate -> nx_secure_x509_public_algorithm != NX_SECURE_TLS_X509_TYPE_RSA)
         {
 #ifdef NX_SECURE_KEY_CLEAR
             NX_SECURE_MEMSET(generated_hash, 0, sizeof(generated_hash));
+#endif /* NX_SECURE_KEY_CLEAR  */
+
+            return(NX_SECURE_X509_WRONG_SIGNATURE_METHOD);
+        }
+
+        if (public_cipher_method -> nx_crypto_init != NX_NULL)
+        {
+            /* Initialize the crypto method with public key. */
+            status = public_cipher_method -> nx_crypto_init((NX_CRYPTO_METHOD*)public_cipher_method,
+                                                   (UCHAR *)issuer_certificate -> nx_secure_x509_public_key.rsa_public_key.nx_secure_rsa_public_modulus,
+                                                   (NX_CRYPTO_KEY_SIZE)(issuer_certificate -> nx_secure_x509_public_key.rsa_public_key.nx_secure_rsa_public_modulus_length << 3),
+                                                   &handler,
+                                                   certificate -> nx_secure_x509_public_cipher_metadata_area,
+                                                   certificate -> nx_secure_x509_public_cipher_metadata_size);
+
+            if(status != NX_CRYPTO_SUCCESS)
+            {
+#ifdef NX_SECURE_KEY_CLEAR
+                NX_SECURE_MEMSET(generated_hash, 0, sizeof(generated_hash));
 #endif /* NX_SECURE_KEY_CLEAR  */                        
-            return(status);
-        }                                                     
-    }
+                return(status);
+            }
+        }
 
-    if (public_cipher_method -> nx_crypto_operation != NX_NULL)
-    {
-        status = public_cipher_method -> nx_crypto_operation(NX_CRYPTO_DECRYPT,
-                                                    handler,
-                                                    public_cipher_method,
-                                                    (UCHAR *)issuer_certificate -> nx_secure_x509_public_key.rsa_public_key.nx_secure_rsa_public_exponent,
-                                                    (NX_CRYPTO_KEY_SIZE)(issuer_certificate -> nx_secure_x509_public_key.rsa_public_key.nx_secure_rsa_public_exponent_length << 3),
-                                                    (UCHAR *)signature_data,
-                                                    signature_length,
-                                                    NX_NULL,
-                                                    decrypted_signature,
-                                                    sizeof(decrypted_signature),
-                                                    certificate -> nx_secure_x509_public_cipher_metadata_area,
-                                                    certificate -> nx_secure_x509_public_cipher_metadata_size,
-                                                    NX_NULL, NX_NULL);
-
-        if(status != NX_SUCCESS)
+        if (public_cipher_method -> nx_crypto_operation != NX_NULL)
         {
+            status = public_cipher_method -> nx_crypto_operation(NX_CRYPTO_DECRYPT,
+                                                        handler,
+                                                        (NX_CRYPTO_METHOD*)public_cipher_method,
+                                                        (UCHAR *)issuer_certificate -> nx_secure_x509_public_key.rsa_public_key.nx_secure_rsa_public_exponent,
+                                                        (NX_CRYPTO_KEY_SIZE)(issuer_certificate -> nx_secure_x509_public_key.rsa_public_key.nx_secure_rsa_public_exponent_length << 3),
+                                                        (UCHAR *)signature_data,
+                                                        signature_length,
+                                                        NX_NULL,
+                                                        decrypted_signature,
+                                                        sizeof(decrypted_signature),
+                                                        certificate -> nx_secure_x509_public_cipher_metadata_area,
+                                                        certificate -> nx_secure_x509_public_cipher_metadata_size,
+                                                        NX_NULL, NX_NULL);
+
+            if(status != NX_CRYPTO_SUCCESS)
+            {
 #ifdef NX_SECURE_KEY_CLEAR
-            NX_SECURE_MEMSET(generated_hash, 0, sizeof(generated_hash));
+                NX_SECURE_MEMSET(generated_hash, 0, sizeof(generated_hash));
 #endif /* NX_SECURE_KEY_CLEAR  */            
-            return(status);
-        }                                                     
-    }
+                return(status);
+            }
+        }
 
-    if (public_cipher_method -> nx_crypto_cleanup)
-    {
-        status = public_cipher_method -> nx_crypto_cleanup(certificate -> nx_secure_x509_public_cipher_metadata_area);
-
-        if(status != NX_SUCCESS)
+        if (public_cipher_method -> nx_crypto_cleanup)
         {
+            status = public_cipher_method -> nx_crypto_cleanup(certificate -> nx_secure_x509_public_cipher_metadata_area);
+
+            if(status != NX_CRYPTO_SUCCESS)
+            {
 #ifdef NX_SECURE_KEY_CLEAR
+                /* Clear secrets on errors. */
+                NX_SECURE_MEMSET(generated_hash, 0, sizeof(generated_hash));
+                NX_SECURE_MEMSET(decrypted_signature, 0, sizeof(decrypted_signature));
+#endif /* NX_SECURE_KEY_CLEAR  */            
+                return(status);
+            }
+        }
+
+        /* Decode the decrypted signature, which should be in PKCS#7 format. */
+        status = _nx_secure_x509_pkcs7_decode(decrypted_signature, signature_length, &oid, &oid_length,
+                                              &decrypted_hash, &decrypted_hash_length);
+
+#ifdef NX_SECURE_KEY_CLEAR
+        if(status != NX_SUCCESS || decrypted_hash_length != hash_length)
+        {
             /* Clear secrets on errors. */
             NX_SECURE_MEMSET(generated_hash, 0, sizeof(generated_hash));
             NX_SECURE_MEMSET(decrypted_signature, 0, sizeof(decrypted_signature));
-#endif /* NX_SECURE_KEY_CLEAR  */            
-            return(status);
-        }                                                     
-    }
+        }
+#endif /* NX_SECURE_KEY_CLEAR  */
 
-    /* Decode the decrypted signature, which should be in PKCS#7 format. */
-    status = _nx_secure_x509_pkcs7_decode(decrypted_signature, signature_length, &oid, &oid_length,
-                                          &decrypted_hash, &decrypted_hash_length);
+        if (status != NX_SUCCESS)
+        {
+            return(status);
+        }
+
+        if (decrypted_hash_length != hash_length)
+        {
+            return(NX_SECURE_X509_WRONG_SIGNATURE_METHOD);
+        }
+
+        /* Compare generated hash with decrypted hash. */
+        compare_result = (UINT)NX_SECURE_MEMCMP(generated_hash, decrypted_hash, decrypted_hash_length);
 
 #ifdef NX_SECURE_KEY_CLEAR
-    if(status != NX_SUCCESS || decrypted_hash_length != hash_length)
-    {
-        /* Clear secrets on errors. */
         NX_SECURE_MEMSET(generated_hash, 0, sizeof(generated_hash));
         NX_SECURE_MEMSET(decrypted_signature, 0, sizeof(decrypted_signature));
-    }
 #endif /* NX_SECURE_KEY_CLEAR  */
 
-    if (status != NX_SUCCESS)
-    {
-        return(status);
+        /* If the comparision worked, return success. */
+        if (compare_result == 0)
+        {
+            return(NX_SUCCESS);
+        }
     }
-
-    if (decrypted_hash_length != hash_length)
+#ifdef NX_SECURE_ENABLE_ECC_CIPHERSUITE
+    else if (public_cipher_method -> nx_crypto_algorithm == NX_CRYPTO_DIGITAL_SIGNATURE_ECDSA)
     {
-        return(NX_SECURE_X509_WRONG_SIGNATURE_METHOD);
-    }
+        /* Make sure the public algorithm of the issuer certificate is EC. */
+        if (issuer_certificate -> nx_secure_x509_public_algorithm != NX_SECURE_TLS_X509_TYPE_EC)
+        {
+#ifdef NX_SECURE_KEY_CLEAR
+            NX_SECURE_MEMSET(generated_hash, 0, sizeof(generated_hash));
+#endif /* NX_SECURE_KEY_CLEAR  */
+            return(NX_SECURE_X509_WRONG_SIGNATURE_METHOD);
+        }
 
-    /* Compare generated hash with decrypted hash. */
-    compare_result = (UINT)NX_SECURE_MEMCMP(generated_hash, decrypted_hash, decrypted_hash_length);
+        /* Verify the ECDSA signature. */
+
+        ec_pubkey = &issuer_certificate -> nx_secure_x509_public_key.ec_public_key;
+
+        /* Find out which named curve the remote certificate is using. */
+        status = _nx_secure_tls_find_curve_method(NX_NULL, (USHORT)(ec_pubkey -> nx_secure_ec_named_curve), &curve_method);
 
 #ifdef NX_SECURE_KEY_CLEAR
-    NX_SECURE_MEMSET(generated_hash, 0, sizeof(generated_hash));
-    NX_SECURE_MEMSET(decrypted_signature, 0, sizeof(decrypted_signature));
+        if(status != NX_SUCCESS || curve_method == NX_NULL)
+        {
+            /* Clear secrets on errors. */
+            NX_SECURE_MEMSET(generated_hash, 0, sizeof(generated_hash));
+        }
 #endif /* NX_SECURE_KEY_CLEAR  */
 
-    /* If the comparision worked, return success. */
-    if (compare_result == 0)
-    {
-        return(NX_SUCCESS);
+        if(status != NX_SUCCESS)
+        {
+            return(status);
+        }
+
+        if (curve_method == NX_NULL)
+        {
+            /* The issuer certificate is using an unsupported curve. */
+            return(NX_SECURE_TLS_UNSUPPORTED_PUBLIC_CIPHER);
+        }
+
+        if (public_cipher_method -> nx_crypto_init != NX_NULL)
+        {
+            status = public_cipher_method -> nx_crypto_init((NX_CRYPTO_METHOD*)public_cipher_method,
+                                                            (UCHAR *)ec_pubkey -> nx_secure_ec_public_key,
+                                                            (NX_CRYPTO_KEY_SIZE)(ec_pubkey -> nx_secure_ec_public_key_length << 3),
+                                                            &handler,
+                                                            certificate -> nx_secure_x509_public_cipher_metadata_area,
+                                                            certificate -> nx_secure_x509_public_cipher_metadata_size);
+            if (status != NX_CRYPTO_SUCCESS)
+            {
+#ifdef NX_SECURE_KEY_CLEAR
+                NX_SECURE_MEMSET(generated_hash, 0, sizeof(generated_hash));
+#endif /* NX_SECURE_KEY_CLEAR  */
+                return(status);
+            }
+        }
+        if (public_cipher_method -> nx_crypto_operation == NX_NULL)
+        {
+#ifdef NX_SECURE_KEY_CLEAR
+            NX_SECURE_MEMSET(generated_hash, 0, sizeof(generated_hash));
+#endif /* NX_SECURE_KEY_CLEAR  */
+            return(NX_SECURE_TLS_MISSING_CRYPTO_ROUTINE);
+        }
+
+        status = public_cipher_method -> nx_crypto_operation(NX_CRYPTO_EC_CURVE_SET, handler,
+                                                             (NX_CRYPTO_METHOD*)public_cipher_method, NX_NULL, 0,
+                                                             (UCHAR *)curve_method, sizeof(NX_CRYPTO_METHOD *), NX_NULL,
+                                                             NX_NULL, 0,
+                                                             certificate -> nx_secure_x509_public_cipher_metadata_area,
+                                                             certificate -> nx_secure_x509_public_cipher_metadata_size,
+                                                             NX_NULL, NX_NULL);
+        if (status != NX_CRYPTO_SUCCESS)
+        {
+#ifdef NX_SECURE_KEY_CLEAR
+            NX_SECURE_MEMSET(generated_hash, 0, sizeof(generated_hash));
+#endif /* NX_SECURE_KEY_CLEAR  */
+
+            return(status);
+        }
+
+        status = public_cipher_method -> nx_crypto_operation(NX_CRYPTO_VERIFY, handler,
+                                                             (NX_CRYPTO_METHOD*)public_cipher_method,
+                                                             (UCHAR *)ec_pubkey -> nx_secure_ec_public_key,
+                                                             (NX_CRYPTO_KEY_SIZE)(ec_pubkey -> nx_secure_ec_public_key_length << 3),
+                                                             generated_hash,
+                                                             hash_method -> nx_crypto_ICV_size_in_bits >> 3,
+                                                             NX_NULL,
+                                                             (UCHAR *)signature_data,
+                                                             signature_length,
+                                                             certificate -> nx_secure_x509_public_cipher_metadata_area,
+                                                             certificate -> nx_secure_x509_public_cipher_metadata_size,
+                                                             NX_NULL, NX_NULL);
+#ifdef NX_SECURE_KEY_CLEAR
+        NX_SECURE_MEMSET(generated_hash, 0, sizeof(generated_hash));
+#endif /* NX_SECURE_KEY_CLEAR  */
+
+        if (status == NX_CRYPTO_SUCCESS)
+        {
+            return(NX_SUCCESS);
+        }
     }
+#endif /* NX_SECURE_ENABLE_ECC_CIPHERSUITE */
+    else
+    {
+        return(NX_SECURE_TLS_UNSUPPORTED_PUBLIC_CIPHER);
+    }
+
+#ifdef NX_SECURE_KEY_CLEAR
+        NX_SECURE_MEMSET(generated_hash, 0, sizeof(generated_hash));
+#endif /* NX_SECURE_KEY_CLEAR  */
 
     /* Comparison failed, return error. */
     return(NX_SECURE_X509_CRL_SIGNATURE_CHECK_FAILED);

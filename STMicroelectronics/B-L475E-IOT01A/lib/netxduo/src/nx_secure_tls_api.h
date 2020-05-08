@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -38,10 +26,10 @@
 /*  APPLICATION INTERFACE DEFINITION                       RELEASE        */
 /*                                                                        */
 /*    nx_secure_tls_api.h                                 PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -53,15 +41,7 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-09-2017     Timothy Stapko           Initial Version 5.10          */
-/*  12-15-2017     Timothy Stapko           Modified comment(s),          */
-/*                                            sorted the API by alphabet  */
-/*                                            order,                      */
-/*                                            resulting in version 5.11   */
-/*  08-15-2019     Timothy Stapko           Modified comment(s), added    */
-/*                                            APIs for crypto test and to */
-/*                                            get alert value and level,  */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 
@@ -91,6 +71,7 @@ extern   "C" {
 #ifdef NX_SECURE_DISABLE_ERROR_CHECKING
 #define nx_secure_tls_active_certificate_set               _nx_secure_tls_active_certificate_set
 #define nx_secure_tls_initialize                           _nx_secure_tls_initialize
+#define nx_secure_tls_shutdown                             _nx_secure_tls_shutdown
 #define nx_secure_tls_local_certificate_add                _nx_secure_tls_local_certificate_add
 #define nx_secure_tls_local_certificate_find               _nx_secure_tls_local_certificate_find
 #define nx_secure_tls_local_certificate_remove             _nx_secure_tls_local_certificate_remove
@@ -132,6 +113,7 @@ extern   "C" {
 #else /* !NX_SEURE_DISABLE_ERROR_CHECKING */
 #define nx_secure_tls_active_certificate_set               _nxe_secure_tls_active_certificate_set
 #define nx_secure_tls_initialize                           _nx_secure_tls_initialize
+#define nx_secure_tls_shutdown                             _nx_secure_tls_shutdown
 #define nx_secure_tls_local_certificate_add                _nxe_secure_tls_local_certificate_add
 #define nx_secure_tls_local_certificate_find               _nxe_secure_tls_local_certificate_find
 #define nx_secure_tls_local_certificate_remove             _nxe_secure_tls_local_certificate_remove
@@ -173,6 +155,9 @@ extern   "C" {
 #endif /* NX_SECURE_DISABLE_ERROR_CHECKING */
 #define nx_secure_crypto_table_self_test                   _nx_secure_crypto_table_self_test
 #define nx_secure_crypto_rng_self_test                     _nx_secure_crypto_rng_self_test
+#ifdef NX_SECURE_ENABLE_ECC_CIPHERSUITE
+#define nx_secure_tls_ecc_initialize                       _nx_secure_tls_ecc_initialize
+#endif /* NX_SECURE_ENABLE_ECC_CIPHERSUITE */
 
 UINT nx_secure_crypto_table_self_test(const NX_SECURE_TLS_CRYPTO *crypto_table,
                                       VOID *metadata, UINT metadata_size);
@@ -188,6 +173,7 @@ UINT nx_secure_module_hash_compute(NX_CRYPTO_METHOD *hmac_ptr,
 UINT nx_secure_tls_active_certificate_set(NX_SECURE_TLS_SESSION *tls_session,
                                           NX_SECURE_X509_CERT *certificate);
 VOID nx_secure_tls_initialize(VOID);
+UINT nx_secure_tls_shutdown(VOID);
 UINT nx_secure_tls_local_certificate_add(NX_SECURE_TLS_SESSION *tls_session,
                                          NX_SECURE_X509_CERT *certificate);
 UINT nx_secure_tls_local_certificate_find(NX_SECURE_TLS_SESSION *tls_session,
@@ -266,6 +252,11 @@ UINT nx_secure_tls_psk_add(NX_SECURE_TLS_SESSION *tls_session, UCHAR *pre_shared
 UINT nx_secure_tls_client_psk_set(NX_SECURE_TLS_SESSION *tls_session, UCHAR *pre_shared_key, UINT psk_length,
                                   UCHAR *psk_identity, UINT identity_length, UCHAR *hint, UINT hint_length);
 #endif
+#ifdef NX_SECURE_ENABLE_ECC_CIPHERSUITE
+UINT nx_secure_tls_ecc_initialize(NX_SECURE_TLS_SESSION *tls_session,
+                                  const USHORT *supported_groups, USHORT supported_group_count,
+                                  const NX_CRYPTO_METHOD **curves);
+#endif /* NX_SECURE_ENABLE_ECC_CIPHERSUITE */
 #endif /* NX_SECURE_SOURCE_CODE */
 
 

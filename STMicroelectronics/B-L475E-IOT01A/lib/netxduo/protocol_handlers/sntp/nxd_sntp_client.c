@@ -1,23 +1,11 @@
-/**************************************************************************/ 
-/*                                                                        */ 
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */ 
-/*                                                                        */ 
-/*  This software is copyrighted by and is the sole property of Express   */ 
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */ 
-/*  in the software remain the property of Express Logic, Inc.  This      */ 
-/*  software may only be used in accordance with the corresponding        */ 
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */ 
-/*  distribution, or disclosure of this software is expressly forbidden.  */ 
+/**************************************************************************/
 /*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */ 
-/*  written consent of Express Logic, Inc.                                */ 
-/*                                                                        */ 
-/*  Express Logic, Inc. reserves the right to modify this software        */ 
-/*  without notice.                                                       */ 
-/*                                                                        */ 
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
+/*                                                                        */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -35,11 +23,16 @@
 /*                                                                        */
 /*  APPLICATION INTERFACE DEFINITION                       RELEASE        */
 /*                                                                        */
+#ifdef __PRODUCT_NETXDUO__
 /*    nxd_sntp_client.c                                   PORTABLE C      */
-/*                                                           5.11         */
+/*                                                           6.0          */
+#else
+/*    nx_sntp_client.c                                    PORTABLE C      */
+/*                                                           6.0          */
+#endif
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    William E. Lamie, Express Logic, Inc.                               */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -52,17 +45,7 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
                
@@ -77,10 +60,15 @@
 #include "nx_api.h"
 #include "nx_udp.h" 
 
+#ifdef __PRODUCT_NETXDUO__
 #include "nx_ipv4.h"
 #include "nxd_sntp_client.h"
 #ifdef FEATURE_NX_IPV6
 #include "nx_ipv6.h"
+#endif
+#else
+#include "nx_ip.h"
+#include "nx_sntp_client.h"
 #endif
 
 
@@ -91,6 +79,8 @@ extern  TX_THREAD           _tx_timer_thread;
 extern  volatile ULONG      _tx_thread_system_state;
 
 TX_EVENT_FLAGS_GROUP        nx_sntp_client_events;
+
+static UINT _nx_sntp_client_number_to_ascii(CHAR *buffer_ptr, UINT buffer_size, UINT number);
 
 /* Define internal time variables for offsets between
    receipt of SNTP packet and application to 
@@ -105,11 +95,11 @@ static ULONG process_timerticks = 0;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxe_sntp_client_create                             PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function performs error checking on the SNTP client create     */ 
@@ -141,21 +131,11 @@ static ULONG process_timerticks = 0;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nxe_sntp_client_create(NX_SNTP_CLIENT *client_ptr, NX_IP *ip_ptr, UINT iface_index, NX_PACKET_POOL *packet_pool_ptr,   
                                 UINT (*leap_second_handler)(NX_SNTP_CLIENT *client_ptr, UINT indicator), 
                                 UINT (*kiss_of_death_handler)(NX_SNTP_CLIENT *client_ptr, UINT code),
@@ -194,11 +174,11 @@ UINT status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_sntp_client_create                              PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function creates a SNTP client with the input NetX and SNTP    */
@@ -239,24 +219,10 @@ UINT status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s), properly */
-/*                                            delete resource on failure, */ 
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            unified ticks per second,   */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            added support for disabling */
-/*                                            IPv4 feature,               */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
 /**************************************************************************/
 UINT  _nx_sntp_client_create(NX_SNTP_CLIENT *client_ptr, NX_IP *ip_ptr, UINT iface_index, NX_PACKET_POOL *packet_pool_ptr,    
                                 UINT (*leap_second_handler)(NX_SNTP_CLIENT *client_ptr, UINT indicator), 
@@ -271,7 +237,11 @@ UINT status;
     memset(client_ptr, 0, sizeof(NX_SNTP_CLIENT));
 
     /* Set the Client ID to indicate the SNTP client thread is ready.  */
+#ifdef __PRODUCT_NETXDUO__
     client_ptr -> nx_sntp_client_id = NXD_SNTP_ID;
+#else
+    client_ptr -> nx_sntp_client_id = NX_SNTP_ID;
+#endif
 
     /* Set the IP instance.  */
     client_ptr -> nx_sntp_client_ip_ptr   =  ip_ptr;
@@ -280,6 +250,7 @@ UINT status;
     client_ptr -> nx_sntp_client_interface_index = iface_index;
 
     /* Check for minimal packet size requirement. */
+#ifdef __PRODUCT_NETXDUO__
 #ifndef NX_DISABLE_IPV4
     if  (packet_pool_ptr -> nx_packet_pool_payload_size < 
             (sizeof(NX_IPV4_HEADER) + sizeof(NX_UDP_HEADER) + NX_SNTP_CLIENT_PACKET_DATA_SIZE))
@@ -298,6 +269,15 @@ UINT status;
              sizeof(NX_IPV6_HEADER) + sizeof(NX_UDP_HEADER) + NX_SNTP_CLIENT_PACKET_DATA_SIZE)
                   40 bytes                   8 bytes                    48 bytes
     */ 
+#else
+    if  (packet_pool_ptr -> nx_packet_pool_payload_size < 
+            (sizeof(NX_IP_HEADER) + sizeof(NX_UDP_HEADER) + NX_SNTP_CLIENT_PACKET_DATA_SIZE))
+    {
+
+        return NX_SNTP_INSUFFICIENT_PACKET_PAYLOAD;
+    }
+
+#endif
 
     client_ptr -> nx_sntp_client_packet_pool_ptr =  packet_pool_ptr;
 
@@ -424,11 +404,11 @@ UINT status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxe_sntp_client_delete                             PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function checks for errors on the client delete service.       */ 
@@ -452,21 +432,11 @@ UINT status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nxe_sntp_client_delete(NX_SNTP_CLIENT *client_ptr)
 {
 
@@ -474,7 +444,11 @@ UINT status;
 
 
     /* Check for the validity of input parameter.  */
+#ifdef __PRODUCT_NETXDUO__
     if ((client_ptr == NX_NULL) || (client_ptr -> nx_sntp_client_id != NXD_SNTP_ID))
+#else
+    if ((client_ptr == NX_NULL) || (client_ptr -> nx_sntp_client_id != NX_SNTP_ID))
+#endif
     {
 
         /* Return error status.  */
@@ -497,11 +471,11 @@ UINT status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_sntp_client_delete                              PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function deletes a previously created SNTP Client and releases */
@@ -532,23 +506,11 @@ UINT status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s), properly */
-/*                                            release resources when the  */ 
-/*                                            SNTP client is deleted,     */ 
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nx_sntp_client_delete(NX_SNTP_CLIENT *client_ptr)
 {
 
@@ -589,11 +551,11 @@ UINT  _nx_sntp_client_delete(NX_SNTP_CLIENT *client_ptr)
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_sntp_client_update_timeout_entry                PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function decrements the Client's time remaining since it last  */
@@ -617,22 +579,11 @@ UINT  _nx_sntp_client_delete(NX_SNTP_CLIENT *client_ptr)
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            unified ticks per second,   */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 VOID  _nx_sntp_client_update_timeout_entry(ULONG info)
 {
 
@@ -653,6 +604,9 @@ NX_SNTP_CLIENT *client_ptr;
         /* No, set the time remaining to NULL.  */
         client_ptr -> nx_sntp_update_time_remaining = 0;
     }
+
+    /* Update time elapsed. */
+    client_ptr -> nx_sntp_client_local_ntp_time_elapsed += NX_SNTP_UPDATE_TIMEOUT_INTERVAL;
 
     /* Is the client operating in unicast? */
     if (client_ptr -> nx_sntp_client_protocol_mode == UNICAST_MODE)
@@ -679,11 +633,11 @@ NX_SNTP_CLIENT *client_ptr;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_sntp_client_create_time_request_packet          PORTABLE C      */ 
-/*                                                           5.11 SP2     */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function converts NTP time data from the input buffer into a   */
@@ -709,28 +663,11 @@ NX_SNTP_CLIENT *client_ptr;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s), improved */
-/*                                            local memory usage,         */ 
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            modified setting the flags  */ 
-/*                                            bits in the request packet, */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            fixed compiler warnings,    */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*  03-15-2019     Yuxin Zhou               Modified comment(s), improved */
-/*                                            packet length verification, */
-/*                                            resulting in version 5.11SP2*/
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nx_sntp_client_create_time_request_packet(NX_SNTP_CLIENT *client_ptr, NX_PACKET *packet_ptr, 
                                                  NX_SNTP_TIME_MESSAGE *time_message_ptr)
 {
@@ -770,16 +707,17 @@ UINT  _nx_sntp_client_create_time_request_packet(NX_SNTP_CLIENT *client_ptr, NX_
 }
 
 
+#ifdef __PRODUCT_NETXDUO__
 /**************************************************************************/ 
 /*                                                                        */ 
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxde_sntp_client_initialize_unicast                PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function performs error checking for the service that          */
@@ -805,21 +743,11 @@ UINT  _nx_sntp_client_create_time_request_packet(NX_SNTP_CLIENT *client_ptr, NX_
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     Janet Christiansen       Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nxde_sntp_client_initialize_unicast(NX_SNTP_CLIENT *client_ptr, NXD_ADDRESS *unicast_time_server)
 {
 
@@ -843,25 +771,39 @@ UINT  status;
     /* Return completion status.  */
     return status;
 }
+#endif
 
 
 /**************************************************************************/ 
 /*                                                                        */ 
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
+#ifdef __PRODUCT_NETXDUO__
 /*    _nxd_sntp_client_initialize_unicast                 PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+#else
+/*    _nx_sntp_client_initialize_unicast                  PORTABLE C      */ 
+/*                                                           6.0          */
+#endif
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
+#ifdef __PRODUCT_NETXDUO__
 /*    This function sets up the Client to operate in unicast mode with the*/
 /*    supplied IPv4 or IPv6 SNTP server as the primary (current) server.  */
 /*                                                                        */ 
 /*    For adding IPv4 and IPv6 SNTP servers to the unicast server list,   */
 /*    use the nxd_sntp_client_duo_add_unicast_server_to_list service.     */ 
+#else
+/*    This function sets up the Client to operate in unicast mode with the*/
+/*    supplied IPv4 SNTP server as the primary (current) server.          */
+/*                                                                        */ 
+/*    For adding IPv4 SNTP servers to the unicast server list, use the    */
+/*    nx_sntp_client_add_unicast_server_to_list service.                  */ 
+#endif
 /*                                                                        */ 
 /*   INPUT                                                                */ 
 /*                                                                        */ 
@@ -884,25 +826,16 @@ UINT  status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     Janet Christiansen       Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015      Yuxin Zhou              Modified comment(s),          */
-/*                                            fixed address copy when ipv6*/
-/*                                            is disabled,                */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            unified ticks per second,   */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
+#ifdef __PRODUCT_NETXDUO__
 UINT  _nxd_sntp_client_initialize_unicast(NX_SNTP_CLIENT *client_ptr, NXD_ADDRESS *unicast_time_server)
+#else
+UINT  _nx_sntp_client_initialize_unicast(NX_SNTP_CLIENT *client_ptr, ULONG unicast_time_server)
+#endif
 {
 
 
@@ -912,6 +845,7 @@ UINT  _nxd_sntp_client_initialize_unicast(NX_SNTP_CLIENT *client_ptr, NXD_ADDRES
     /* Initialize the number of times we've increased the backoff rate to zero. */
     client_ptr -> nx_sntp_client_backoff_count = 0;
 
+#ifdef __PRODUCT_NETXDUO__
     /* Clear the Client's current server IP.  */
     memset(&client_ptr -> nx_sntp_server_ip_address, 0, sizeof(NXD_ADDRESS));
 
@@ -932,6 +866,16 @@ UINT  _nxd_sntp_client_initialize_unicast(NX_SNTP_CLIENT *client_ptr, NXD_ADDRES
 
 #endif /* FEATURE_NX_IPV6 */
 
+#else
+    /* Clear the Client's current server IP.  */
+    client_ptr -> nx_sntp_server_ip_address = 0;
+
+    /* Set as the Client's unicast server.  */
+    client_ptr -> nx_sntp_unicast_time_server = unicast_time_server;
+
+    /* Set as the Client's current SNTP server.  */
+    client_ptr -> nx_sntp_server_ip_address = client_ptr -> nx_sntp_unicast_time_server;
+#endif
 
     /* Set the Client operational mode to unicast mode.  */
     client_ptr -> nx_sntp_client_protocol_mode = UNICAST_MODE;
@@ -951,11 +895,11 @@ UINT  _nxd_sntp_client_initialize_unicast(NX_SNTP_CLIENT *client_ptr, NXD_ADDRES
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxe_sntp_client_initialize_unicast                 PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function checks for errors on the initialize Client for unicast*/
@@ -982,23 +926,11 @@ UINT  _nxd_sntp_client_initialize_unicast(NX_SNTP_CLIENT *client_ptr, NXD_ADDRES
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            added support for disabling */
-/*                                            IPv4 feature,               */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nxe_sntp_client_initialize_unicast(NX_SNTP_CLIENT *client_ptr, ULONG unicast_time_server)
 {
 
@@ -1036,16 +968,17 @@ UINT status;
 }
 
 
+#ifdef __PRODUCT_NETXDUO__
 /**************************************************************************/ 
 /*                                                                        */ 
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_sntp_client_initialize_unicast                  PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function converts the input address to the NetX Duo address    */
@@ -1071,23 +1004,11 @@ UINT status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            added support for disabling */
-/*                                            IPv4 feature,               */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nx_sntp_client_initialize_unicast(NX_SNTP_CLIENT *client_ptr, ULONG unicast_time_server)
 {
 
@@ -1110,6 +1031,7 @@ NXD_ADDRESS duo_unicast_time_server;
     return(NX_NOT_SUPPORTED);
 #endif /* NX_DISABLE_IPV4 */
 }
+#endif
 
 
 /**************************************************************************/ 
@@ -1117,11 +1039,11 @@ NXD_ADDRESS duo_unicast_time_server;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxe_sntp_client_run_unicast                        PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function performs error checking on the run unicast service.   */
@@ -1144,21 +1066,11 @@ NXD_ADDRESS duo_unicast_time_server;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nxe_sntp_client_run_unicast(NX_SNTP_CLIENT *client_ptr)
 {
 
@@ -1188,11 +1100,11 @@ UINT status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_sntp_client_run_unicast                         PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function starts the SNTP Client for unicast SNTP processing    */
@@ -1221,25 +1133,11 @@ UINT status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s), cleared  */
-/*                                            pool internval value so     */ 
-/*                                            the request can be sent     */ 
-/*                                            out immediately,            */ 
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            unified ticks per second,   */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nx_sntp_client_run_unicast(NX_SNTP_CLIENT *client_ptr)
 {
 
@@ -1365,11 +1263,11 @@ ULONG   startup_ticks;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_sntp_client_run_unicast                         PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*   This function checks if the SNTP client has received a packet, and if*/
@@ -1406,28 +1304,11 @@ ULONG   startup_ticks;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     Janet Christiansen       Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            fixed the logic to check    */
-/*                                            update time remaining, not  */
-/*                                            poll interval remaining to  */
-/*                                            determine if no response has*/
-/*                                            been received and use the   */
-/*                                            backoff algorithm, unified  */
-/*                                            ticks per second,           */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 VOID  _nx_sntp_client_process_unicast(NX_SNTP_CLIENT *client_ptr)
 {
 
@@ -1524,16 +1405,17 @@ ULONG   sntp_events;
 }
 
 
+#ifdef __PRODUCT_NETXDUO__
 /**************************************************************************/ 
 /*                                                                        */ 
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxde_sntp_client_initialize_broadcast              PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function performs error checking on the initialize Client for  */
@@ -1560,22 +1442,11 @@ ULONG   sntp_events;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     Janet Christiansen       Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s), and      */
-/*                                            improved interval logic,    */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nxde_sntp_client_initialize_broadcast(NX_SNTP_CLIENT *client_ptr, NXD_ADDRESS *multicast_server_address, NXD_ADDRESS *broadcast_server_address)
 {
 
@@ -1614,21 +1485,31 @@ UINT status;
     /* Return completion status.  */
     return status;
 }
+#endif
 
 /**************************************************************************/ 
 /*                                                                        */ 
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
+#ifdef __PRODUCT_NETXDUO__
 /*    _nxd_sntp_client_initialize_broadcast               PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+#else
+/*    _nx_sntp_client_initialize_broadcast                PORTABLE C      */ 
+/*                                                           6.0          */
+#endif
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
+#ifdef __PRODUCT_NETXDUO__
 /*    This function sets up the Client to operate in broadcast mode with  */
 /*    either an IPv6 or an IPv4 broadcast server.                         */
+#else
+/*    This function sets up the Client to operate in broadcast mode.      */
+#endif
 /*                                                                        */
 /*   INPUT                                                                */ 
 /*                                                                        */ 
@@ -1649,27 +1530,20 @@ UINT status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     Janet Christiansen       Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Yuxin Zhou               Modified comment(s),          */
-/*                                            fixed address copy when ipv6*/
-/*                                            is disabled,                */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
+#ifdef __PRODUCT_NETXDUO__
 UINT  _nxd_sntp_client_initialize_broadcast(NX_SNTP_CLIENT *client_ptr, NXD_ADDRESS *multicast_server_address, NXD_ADDRESS *broadcast_server_address)
+#else
+UINT  _nx_sntp_client_initialize_broadcast(NX_SNTP_CLIENT *client_ptr, ULONG multicast_server_address, ULONG broadcast_server_address)
+#endif
 {
 
 
+#ifdef __PRODUCT_NETXDUO__
     /* Clear Client's current server IP.  */
     memset(&client_ptr -> nx_sntp_server_ip_address, 0, sizeof(NXD_ADDRESS));
 
@@ -1718,6 +1592,31 @@ UINT  _nxd_sntp_client_initialize_broadcast(NX_SNTP_CLIENT *client_ptr, NXD_ADDR
 
 #endif /* FEATURE_NX_IPV6 */
     }
+#else
+    /* Clear Client's current server IP.  */
+    client_ptr -> nx_sntp_server_ip_address = 0;
+    
+    /* Was a multicast IP was supplied. */
+    if(multicast_server_address != 0)
+    {
+        /* Set the Client multicast server.  */
+        client_ptr -> nx_sntp_multicast_server_address = multicast_server_address;
+
+        /* Set this as the Client's current SNTP server. */
+        client_ptr -> nx_sntp_server_ip_address = multicast_server_address;
+    }
+    /* No multicast address supplied, so was a broadcast address specified? */
+    else if(broadcast_server_address != 0)
+    {
+
+        /* Set the Client broadcast server.  */
+        client_ptr -> nx_sntp_broadcast_time_server = broadcast_server_address;
+
+        /* Set this as the Client's current SNTP server. */
+        client_ptr -> nx_sntp_server_ip_address = broadcast_server_address;
+    }
+
+#endif
 
     /* Set client to work in broadcast (non unicast) mode.  */
     client_ptr -> nx_sntp_client_protocol_mode = BROADCAST_MODE;
@@ -1738,11 +1637,11 @@ UINT  _nxd_sntp_client_initialize_broadcast(NX_SNTP_CLIENT *client_ptr, NXD_ADDR
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxe_sntp_client_initialize_broadcast               PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function performs error checking on the initialize Client for  */
@@ -1771,23 +1670,11 @@ UINT  _nxd_sntp_client_initialize_broadcast(NX_SNTP_CLIENT *client_ptr, NXD_ADDR
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            added support for disabling */
-/*                                            IPv4 feature,               */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nxe_sntp_client_initialize_broadcast(NX_SNTP_CLIENT *client_ptr, ULONG multicast_server_address, ULONG broadcast_server_address)
 {
 
@@ -1827,16 +1714,17 @@ UINT status;
 }
 
 
+#ifdef __PRODUCT_NETXDUO__
 /**************************************************************************/ 
 /*                                                                        */ 
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_sntp_client_initialize_broadcast                PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function converts the IPv4 addresses to the NetX Duo address   */
@@ -1864,23 +1752,11 @@ UINT status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            added support for disabling */
-/*                                            IPv4 feature,               */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nx_sntp_client_initialize_broadcast(NX_SNTP_CLIENT *client_ptr, ULONG multicast_server_address, ULONG broadcast_server_address)
 {
 
@@ -1918,6 +1794,7 @@ NXD_ADDRESS server_address;
     return(NX_NOT_SUPPORTED);
 #endif /* NX_DISABLE_IPV4 */
 }
+#endif
 
 
 /**************************************************************************/ 
@@ -1925,11 +1802,11 @@ NXD_ADDRESS server_address;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxe_sntp_client_stop                               PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function performs error checking on the SNTP client thread stop*/ 
@@ -1953,20 +1830,10 @@ NXD_ADDRESS server_address;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     Janet Christiansen       Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
 /**************************************************************************/
 UINT  _nxe_sntp_client_stop(NX_SNTP_CLIENT *client_ptr)
 {
@@ -1993,11 +1860,11 @@ UINT status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_sntp_client_stop                                PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function halts the SNTP Client thread and returns the SNTP     */
@@ -2026,20 +1893,10 @@ UINT status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     Janet Christiansen       Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
 /**************************************************************************/
 UINT  _nx_sntp_client_stop(NX_SNTP_CLIENT *client_ptr)
 {
@@ -2123,11 +1980,11 @@ UINT    current_preemption;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxe_sntp_client_run_broadcast                      PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function performs error checking on the run broadcast service. */
@@ -2151,21 +2008,11 @@ UINT    current_preemption;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nxe_sntp_client_run_broadcast(NX_SNTP_CLIENT *client_ptr)
 {
 
@@ -2196,11 +2043,11 @@ UINT status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_sntp_client_run_broadcast                       PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function starts the SNTP Client for broadcast SNTP processing  */
@@ -2229,22 +2076,11 @@ UINT status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            unified ticks per second,   */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nx_sntp_client_run_broadcast(NX_SNTP_CLIENT *client_ptr)
 {
 
@@ -2344,11 +2180,11 @@ UINT    status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_sntp_client_process_broadcast                   PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*   This function checks if the SNTP client has received a packet, and if*/
@@ -2383,24 +2219,11 @@ UINT    status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     Janet Christiansen       Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            simplified logic for valid  */
-/*                                            packet processing, unified  */
-/*                                            ticks per second,           */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 VOID _nx_sntp_client_process_broadcast(NX_SNTP_CLIENT *client_ptr)
 {
 
@@ -2429,9 +2252,6 @@ ULONG sntp_events;
             /* Check for error. */
             if (status != NX_SUCCESS)
             {
-
-                /* Increment the number of invalid updates. */
-                client_ptr -> nx_sntp_client_invalid_time_updates++;
 
                 /* Have we exceeded the max number of invalid or missed updates from this server? */
                 if (client_ptr -> nx_sntp_client_invalid_time_updates > NX_SNTP_CLIENT_INVALID_UPDATE_LIMIT)
@@ -2477,11 +2297,11 @@ ULONG sntp_events;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_sntp_client_send_unicast_request                PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function allocates a packet from the Client packet pool,creates*/
@@ -2515,32 +2335,18 @@ ULONG sntp_events;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            removed unnecessary input,  */
-/*                                            moved mutex protection from */
-/*                                            calling function to here,   */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            added support for disabling */
-/*                                            IPv4 feature,               */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nx_sntp_client_send_unicast_request(NX_SNTP_CLIENT *client_ptr)
 {
 
 NX_PACKET   *packet_ptr;
 UINT        status;
 NX_SNTP_TIME_MESSAGE *unicast_request;
+NX_SNTP_TIME local_time;
 
 
     /* Lock access to the SNTP Client while we create a unicast request. */
@@ -2576,6 +2382,7 @@ NX_SNTP_TIME_MESSAGE *unicast_request;
 
     /* Check for minimal packet size requirement. */
 
+#ifdef __PRODUCT_NETXDUO__
 
     /* IPv6 packets require more space for the IPv6 header. */
     if (client_ptr -> nx_sntp_server_ip_address.nxd_ip_version == NX_IP_VERSION_V6)
@@ -2628,10 +2435,27 @@ NX_SNTP_TIME_MESSAGE *unicast_request;
         }
 #endif /* NX_DISABLE_IPV4 */
     }
+#else
+    if  (client_ptr -> nx_sntp_client_packet_pool_ptr -> nx_packet_pool_payload_size < 
+                (sizeof(NX_IP_HEADER) + sizeof(NX_UDP_HEADER) + NX_SNTP_CLIENT_PACKET_DATA_SIZE))
+    {
+
+        /* Release the mutex. */
+        tx_mutex_put(&client_ptr -> nx_sntp_client_mutex);
+    
+        nx_packet_release(packet_ptr);
+
+        return NX_SNTP_INSUFFICIENT_PACKET_PAYLOAD;
+    }
+
+#endif /* __PRODUCT_NETXDUO__ */
 
 
     /* Convert the local time into the request's transmit time stamp field.  */
-    _nx_sntp_client_utility_convert_time_to_UCHAR(&(client_ptr -> nx_sntp_client_local_ntp_time), unicast_request,  TRANSMIT_TIME);
+    local_time.seconds = client_ptr -> nx_sntp_client_local_ntp_time.seconds +
+        client_ptr -> nx_sntp_client_local_ntp_time_elapsed;
+    local_time.fraction = client_ptr -> nx_sntp_client_local_ntp_time.fraction;
+    _nx_sntp_client_utility_convert_time_to_UCHAR(&local_time, unicast_request,  TRANSMIT_TIME);
 
     /* Create the request packet with the unicast request message.  */
     status = _nx_sntp_client_create_time_request_packet(client_ptr, packet_ptr, unicast_request);
@@ -2655,7 +2479,11 @@ NX_SNTP_TIME_MESSAGE *unicast_request;
     tx_mutex_put(&client_ptr -> nx_sntp_client_mutex);
 
     /* Send the time request packet.  */
+#ifdef __PRODUCT_NETXDUO__
     status =  nxd_udp_socket_send(&(client_ptr -> nx_sntp_client_udp_socket), packet_ptr, &client_ptr -> nx_sntp_server_ip_address, NX_SNTP_SERVER_UDP_PORT);
+#else
+    status =  nx_udp_socket_send(&(client_ptr -> nx_sntp_client_udp_socket), packet_ptr, client_ptr -> nx_sntp_server_ip_address, NX_SNTP_SERVER_UDP_PORT);
+#endif
 
 
     /* Check for error.  */
@@ -2680,11 +2508,11 @@ NX_SNTP_TIME_MESSAGE *unicast_request;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_sntp_client_receive_time_update                 PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function receives UDP data on the Client socket with specified */
@@ -2721,30 +2549,11 @@ NX_SNTP_TIME_MESSAGE *unicast_request;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            removed unnecessary input,  */
-/*                                            unified ticks per second,   */
-/*                                            fixed a bug when multiple   */
-/*                                            packets were received and   */
-/*                                            the first one was invalid,  */
-/*                                            other packets were not      */
-/*                                            processed in time,          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            added support for disabling */
-/*                                            IPv4 feature,               */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nx_sntp_client_receive_time_update(NX_SNTP_CLIENT *client_ptr, ULONG timeout)
 {
 
@@ -2753,7 +2562,12 @@ UINT            length;
 NX_PACKET       *receive_packet;
 UINT            sender_port;
 NX_UDP_HEADER   *udp_header_ptr;
+#ifdef __PRODUCT_NETXDUO__
 NXD_ADDRESS     source_ip_address, destination_ip_address;
+#else
+ULONG           source_ip_address, destination_ip_address;
+NX_IP_HEADER    *ip_header_ptr;
+#endif
 
     /* Loop to receive packets. */
     for(;;)
@@ -2789,6 +2603,7 @@ NXD_ADDRESS     source_ip_address, destination_ip_address;
             continue;
         }
 
+#ifdef __PRODUCT_NETXDUO__
 
         /* If this an IPv6 packet? An SNTP client with an IPv6 SNTP server will only accept IPv6 packets.   */
         if ((receive_packet -> nx_packet_ip_version == NX_IP_VERSION_V6) && 
@@ -2949,6 +2764,68 @@ NXD_ADDRESS     source_ip_address, destination_ip_address;
 
             continue;
         }
+#else
+        ip_header_ptr =  (NX_IP_HEADER *) (receive_packet -> nx_packet_prepend_ptr - sizeof(NX_UDP_HEADER) - sizeof(NX_IP_HEADER));
+
+        /* Copy into a local variable. */
+        source_ip_address =  ip_header_ptr -> nx_ip_header_source_ip;
+
+        /* Copy into a local variable. */
+        destination_ip_address =  ip_header_ptr -> nx_ip_header_destination_ip;
+
+        if (client_ptr -> nx_sntp_client_protocol_mode == UNICAST_MODE)
+        {
+            /* Compare the sender address with the Client's current sntp server. */
+            if (source_ip_address != client_ptr -> nx_sntp_server_ip_address)
+            {
+                /* This is an untrusted server or the client had a broadcast server already,
+                   reject this packet and return an error condition.  */
+
+                /* No further need for the receive packet. Release back to the client pool.  */
+                nx_packet_release(receive_packet);
+
+                continue;
+            }
+        }
+        else /* BROADCAST_MODE */
+        {
+
+            ULONG network_mask;
+            UINT  iface_index;
+
+            /* Compare the sender address with the Client's current sntp server. */
+            if (source_ip_address != client_ptr -> nx_sntp_server_ip_address)
+            {
+
+                /* This is an untrusted server or the client had a broadcast server already,
+                   reject this packet and return an error condition.  */
+
+                /* No further need for the receive packet. Release back to the client pool.  */
+                nx_packet_release(receive_packet);
+
+                continue;
+            }
+
+            /* Set a local variable on the SNTP network index. */
+            iface_index = client_ptr -> nx_sntp_client_interface_index;
+
+            /* Set a local variable to the network mask. */
+            network_mask = client_ptr -> nx_sntp_client_ip_ptr -> nx_ip_interface[iface_index].nx_interface_ip_network_mask;
+
+            /* Now verify this is a broadcast packet. */
+            if ((destination_ip_address & ~network_mask) != ~network_mask)
+            {                                        
+
+                /* This is not a broadcast packet on the local network.  */
+
+                /* No further need for the receive packet. Release back to the client pool.  */
+                nx_packet_release(receive_packet);
+
+                continue;
+            }
+        }
+
+#endif
 
         /* Check that the packet has the proper length for an NTP message.  */
         length = receive_packet -> nx_packet_length;
@@ -2983,11 +2860,11 @@ NXD_ADDRESS     source_ip_address, destination_ip_address;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_sntp_client_extract_time_message_from_packet    PORTABLE C      */ 
-/*                                                           5.11 SP2     */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function extracts time data from an SNTP  server packet and    */
@@ -3012,29 +2889,11 @@ NXD_ADDRESS     source_ip_address, destination_ip_address;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s), converted*/
-/*                                            incoming data from network  */ 
-/*                                            byte order to host byte     */ 
-/*                                            order before process data,  */ 
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            removed unnecessary input,  */
-/*                                            fixed compiler warnings,    */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*  03-15-2019     Yuxin Zhou               Modified comment(s), corrected*/
-/*                                            the length of memset,       */
-/*                                            resulting in version 5.11SP2*/
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nx_sntp_client_extract_time_message_from_packet(NX_SNTP_CLIENT *client_ptr, NX_PACKET *packet_ptr) 
 {
 
@@ -3164,11 +3023,11 @@ NX_SNTP_TIME_MESSAGE *time_message_ptr;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_sntp_client_reset_current_time_message          PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function saves the current time message from the server to     */
@@ -3193,21 +3052,11 @@ NX_SNTP_TIME_MESSAGE *time_message_ptr;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nx_sntp_client_reset_current_time_message(NX_SNTP_CLIENT *client_ptr)
 {
 
@@ -3235,11 +3084,11 @@ UINT  _nx_sntp_client_reset_current_time_message(NX_SNTP_CLIENT *client_ptr)
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_sntp_client_process_update_packet               PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function processes SNTP time data received in a server update  */
@@ -3273,28 +3122,11 @@ UINT  _nx_sntp_client_reset_current_time_message(NX_SNTP_CLIENT *client_ptr)
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Janet Christiansen       Modified comment(s), added    */
-/*                                            check if SNTP client is     */
-/*                                            configured to compute root  */
-/*                                            dispersion before doing so, */
-/*                                            simplified logic returning  */
-/*                                            completion status, added    */
-/*                                            support for time update     */
-/*                                            notify,                     */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nx_sntp_client_process_update_packet(NX_SNTP_CLIENT *client_ptr)
 {
 
@@ -3363,11 +3195,11 @@ UINT    status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_sntp_client_duplicate_update_check              PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function performs a comparison of time values between two      */
@@ -3394,21 +3226,11 @@ UINT    status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nx_sntp_client_duplicate_update_check(NX_SNTP_TIME_MESSAGE *timeA_msg_ptr, 
                                             NX_SNTP_TIME_MESSAGE *timeB_msg_ptr, 
                                             UINT *is_a_dupe)
@@ -3443,11 +3265,11 @@ UINT  _nx_sntp_client_duplicate_update_check(NX_SNTP_TIME_MESSAGE *timeA_msg_ptr
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_sntp_client_apply_sanity_checks                 PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function checks for invalid SNTP data received from server.    */
@@ -3482,32 +3304,11 @@ UINT  _nx_sntp_client_duplicate_update_check(NX_SNTP_TIME_MESSAGE *timeA_msg_ptr
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Janet Christiansen       Modified comment(s), and      */
-/*                                            updated for changes to      */
-/*                                            nx_sntp_client_utility_get_ */
-/*                                            msec_diff(), removed        */
-/*                                            unnecessary input arguments,*/
-/*                                            return error if receive KOD */
-/*                                            from the server and no KOD  */
-/*                                            handler is defined,         */
-/*                                            removed a meaningless       */
-/*                                            comparison of client and    */
-/*                                            server time stamps,         */
-/*                                            fixed compiler warnings,    */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */  
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nx_sntp_client_apply_sanity_checks(NX_SNTP_CLIENT *client_ptr)
 {
 
@@ -3728,11 +3529,11 @@ NX_SNTP_TIME_MESSAGE *server_time_msg_ptr;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_sntp_client_check_server_clock_dispersion       PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function checks server clock dispersion extracted from server  */
@@ -3763,47 +3564,20 @@ NX_SNTP_TIME_MESSAGE *server_time_msg_ptr;
 /*                                                                        */
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            fixed a bug that dispersion */
-/*                                            checke is disabled, the     */
-/*                                            return status should be     */
-/*                                            success,                    */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Janet Christiansen       Modified comment(s), and      */
-/*                                            simplified logic to process */
-/*                                            the clock dispersion,       */
-/*                                            removed unnecessary input,  */
-/*                                            fixed compiler warnings,    */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s), and      */
-/*                                            improved internal logic,    */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 
 UINT  _nx_sntp_client_check_server_clock_dispersion(NX_SNTP_CLIENT *client_ptr)
 {
 
+#if (NX_SNTP_CLIENT_MAX_ROOT_DISPERSION != 0)
 UINT    mask = 0x8000;
 UINT    bit = 1;
 ULONG   divisor;
 ULONG   dispersion_usecs;
-
-
-    /* Check if the SNTP Client is configured to compute root dispersion. */
-    if (NX_SNTP_CLIENT_MAX_ROOT_DISPERSION == 0)
-    {
-
-        /* No. Do nothing. */
-        return NX_SUCCESS;
-    }
 
     /* Check for zero clock dispersion reported in server update.  */
     if (client_ptr -> nx_sntp_current_server_time_message.clock_dispersion == 0)
@@ -3851,6 +3625,9 @@ ULONG   dispersion_usecs;
         /* Yes, indicate that server clock dispersion exceeds tolerance.  */
         return NX_SNTP_BAD_SERVER_ROOT_DISPERSION;
     }
+#else
+    NX_PARAMETER_NOT_USED(client_ptr);
+#endif /* (NX_SNTP_CLIENT_MAX_ROOT_DISPERSION != 0) */
 
     /* Return successful computation.  */
     return NX_SUCCESS;
@@ -3862,11 +3639,11 @@ ULONG   dispersion_usecs;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_sntp_client_thread_entry                        PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function is the processing thread for the SNTP Client. It      */
@@ -3896,21 +3673,11 @@ ULONG   dispersion_usecs;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     Janet Christiansen       Initial Version 5.0           */
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 VOID  _nx_sntp_client_thread_entry(ULONG sntp_instance)
 {
 
@@ -3966,11 +3733,11 @@ UINT    current_preemption;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_sntp_client_receive_notify                      PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function sets the socket receive callback for the SNTP Client  */
@@ -3995,21 +3762,10 @@ UINT    current_preemption;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     Janet Christiansen       Initial Version 5.0           */
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            fixed compiler warnings,    */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
 /**************************************************************************/
 VOID  _nx_sntp_client_receive_notify(NX_UDP_SOCKET *socket_ptr)
 {
@@ -4029,11 +3785,11 @@ VOID  _nx_sntp_client_receive_notify(NX_UDP_SOCKET *socket_ptr)
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_sntp_client_process                             PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function is called periodically by the SNTP client thread, and */
@@ -4059,20 +3815,10 @@ VOID  _nx_sntp_client_receive_notify(NX_UDP_SOCKET *socket_ptr)
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     Janet Christiansen       Initial Version 5.0           */
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
 /**************************************************************************/
 VOID  _nx_sntp_client_process(NX_SNTP_CLIENT *client_ptr)
 {
@@ -4100,11 +3846,11 @@ VOID  _nx_sntp_client_process(NX_SNTP_CLIENT *client_ptr)
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_sntp_client_process_time_data                   PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*  This function applies the server time data to client local time taking*/
@@ -4140,28 +3886,11 @@ VOID  _nx_sntp_client_process(NX_SNTP_CLIENT *client_ptr)
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Janet Christiansen       Modified comment(s), and      */
-/*                                            updated for changes to      */
-/*                                            nx_sntp_client_utility_get_ */
-/*                                            _msec_diff(), added status  */
-/*                                            check for adding msec to    */
-/*                                            ntp time, unified ticks per */
-/*                                            second, fixed compiler      */
-/*                                            warnings, resulting in      */
-/*                                            version 5.9                 */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nx_sntp_client_process_time_data(NX_SNTP_CLIENT *client_ptr)
 {
 
@@ -4169,6 +3898,7 @@ UINT            status;
 UINT            ignore_max_adjustment_limit;
 ULONG           elapsed_msecs_difference;
 UINT            adjustment;
+NX_SNTP_TIME    local_time;
 
 
     /* Copy the received time update to the update time just received from the server. */
@@ -4215,7 +3945,10 @@ UINT            adjustment;
         /* Compute difference of server update packet minus the client's local time. It is reasonable
            to assume that the Client time is 'behind' the server time because it is updated by the 
            server time.  */
-        status = _nx_sntp_client_utility_get_msec_diff(&(client_ptr -> nx_sntp_client_local_ntp_time), 
+        local_time.seconds = client_ptr -> nx_sntp_client_local_ntp_time.seconds +
+            client_ptr -> nx_sntp_client_local_ntp_time_elapsed;
+        local_time.fraction = client_ptr -> nx_sntp_client_local_ntp_time.fraction;
+        status = _nx_sntp_client_utility_get_msec_diff(&local_time, 
                                                        &(client_ptr -> nx_sntp_server_update_time), 
                                                        &elapsed_msecs_difference, &pos_diff);
 
@@ -4246,6 +3979,7 @@ UINT            adjustment;
 
     /* Ok to update client local time. */
     memcpy(&client_ptr -> nx_sntp_client_local_ntp_time, &client_ptr -> nx_sntp_current_server_time_message.transmit_time, sizeof(NX_SNTP_TIME));
+    client_ptr -> nx_sntp_client_local_ntp_time_elapsed = 0;
 
      /* Apply a correction to server's time for internal SNTP Client delays e.g. periodic task intervals. */
     adjustment = ((process_timerticks - receive_timerticks) * 1000) / NX_IP_PERIODIC_RATE; 
@@ -4262,11 +3996,11 @@ UINT            adjustment;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_sntp_client_calculate_roundtrip                 PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*   This function computes roundtrip based on the elapsed time from      */
@@ -4291,22 +4025,11 @@ UINT            adjustment;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            fixed compiler warnings,    */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nx_sntp_client_calculate_roundtrip(LONG *roundtrip_time)
 {
 
@@ -4344,11 +4067,11 @@ ULONG x;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxe_sntp_client_get_local_time                      PORTABLE C     */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*   This function performs error checking for the get local time service.*/
@@ -4357,7 +4080,7 @@ ULONG x;
 /*                                                                        */ 
 /*    client_ptr                        Pointer to SNTP Client            */
 /*    seconds                           Pointer to SNTP seconds           */ 
-/*    milliseconds                      Pointer to SNTP msecs             */
+/*    fraction                          Local time fraction component     */
 /*    buffer                            Pointer for time in string format */
 /*                                                                        */ 
 /*  OUTPUT                                                                */ 
@@ -4374,29 +4097,19 @@ ULONG x;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
-UINT  _nxe_sntp_client_get_local_time(NX_SNTP_CLIENT *client_ptr, ULONG *seconds, ULONG *milliseconds, CHAR *buffer)
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
+UINT  _nxe_sntp_client_get_local_time(NX_SNTP_CLIENT *client_ptr, ULONG *seconds, ULONG *fraction, CHAR *buffer)
 {
 
 UINT status;
 
 
     /* Check input pointer parameters.  */
-    if ((client_ptr == NX_NULL) || (seconds == NX_NULL) || (milliseconds == NX_NULL))
+    if ((client_ptr == NX_NULL) || (seconds == NX_NULL) || (fraction == NX_NULL))
     {
 
         /* Return pointer error.  */
@@ -4407,7 +4120,7 @@ UINT status;
     NX_THREADS_ONLY_CALLER_CHECKING
     
     /* Call the actual service.  */
-   status = _nx_sntp_client_get_local_time(client_ptr, seconds, milliseconds, buffer); 
+    status = _nx_sntp_client_get_local_time(client_ptr, seconds, fraction, buffer); 
 
     /* Return completion status.  */
     return status;
@@ -4419,73 +4132,234 @@ UINT status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_sntp_client_get_local_time                      PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*   This function retrieves the current SNTP Client local time and       */
-/*   returns the data in seconds and milliseconds, and if a non zero      */
+/*   returns the data in seconds and fractions, and if a non zero         */
 /*   buffer pointer is supplied, a string containing the data in ASCII.   */
 /*                                                                        */ 
 /*   INPUT                                                                */ 
 /*                                                                        */ 
 /*    client_ptr                        Pointer to SNTP Client            */
 /*    seconds                           Pointer to SNTP seconds           */ 
-/*    milliseconds                      Pointer to SNTP msecs             */
+/*    fraction                          Local time fraction component     */
 /*    buffer                            Pointer for time in string format */
 /*                                                                        */ 
 /*  OUTPUT                                                                */ 
 /*                                                                        */ 
-/*    NX_SUCCESS                         Returning next server in list    */ 
+/*    status                                Completion status             */ 
 /*                                                                        */ 
 /*  CALLS                                                                 */ 
 /*                                                                        */ 
-/*    sprintf                            Copy string data to buffer       */
-/*    _nx_sntp_client_utility_convert_fraction_to_msecs                   */ 
-/*                                       Convert NTP fraction to msecs    */
+/*    _nx_utility_string_length_check       Check string length           */ 
+/*    _nx_sntp_client_get_local_time_extended                             */ 
+/*                                          Get local time service        */
+/*                                                                        */ 
 /*  CALLED BY                                                             */ 
 /*                                                                        */ 
 /*    Application Code                                                    */ 
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015      Yuxin Zhou              Modified comment(s),          */
-/*                                            fixed a compiler warning,   */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
-UINT  _nx_sntp_client_get_local_time(NX_SNTP_CLIENT *client_ptr, ULONG *seconds, ULONG *milliseconds, CHAR *buffer) 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
+UINT  _nx_sntp_client_get_local_time(NX_SNTP_CLIENT *client_ptr, ULONG *seconds, ULONG *fraction, CHAR *buffer) 
 {
 
-ULONG msecs;
+UINT  status;
+    
+    status = _nx_sntp_client_get_local_time_extended(client_ptr, seconds, fraction, buffer, NX_MAX_STRING_LENGTH);
+
+    return status;
+}
+
+/**************************************************************************/ 
+/*                                                                        */ 
+/*  FUNCTION                                               RELEASE        */ 
+/*                                                                        */ 
+/*    _nxe_sntp_client_get_local_time_extended             PORTABLE C     */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
+/*  DESCRIPTION                                                           */ 
+/*                                                                        */ 
+/*   This function performs error checking for the get extended local     */
+/*   time service.                                                        */
+/*                                                                        */ 
+/*   INPUT                                                                */ 
+/*                                                                        */ 
+/*    client_ptr                        Pointer to SNTP Client            */
+/*    seconds                           Pointer to SNTP seconds           */ 
+/*    fraction                          Local time fraction component     */
+/*    buffer                            Pointer for time in string format */
+/*    buffer_size                       Size of buffer                    */
+/*                                                                        */ 
+/*  OUTPUT                                                                */ 
+/*                                                                        */ 
+/*    status                            Completion status                 */ 
+/*                                                                        */ 
+/*  CALLS                                                                 */ 
+/*                                                                        */ 
+/*    _nx_sntp_client_get_local_time_extended                             */ 
+/*                                      Get extended local time service   */
+/*                                                                        */ 
+/*  CALLED BY                                                             */ 
+/*                                                                        */ 
+/*    Application Code                                                    */ 
+/*                                                                        */ 
+/*  RELEASE HISTORY                                                       */ 
+/*                                                                        */ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
+UINT  _nxe_sntp_client_get_local_time_extended(NX_SNTP_CLIENT *client_ptr, ULONG *seconds, ULONG *fraction, CHAR *buffer, UINT buffer_size)
+{
+
+UINT status;
 
 
-    /* Convert SNTP fraction component into milliseconds.  */
-    _nx_sntp_client_utility_convert_fraction_to_msecs(&msecs, &(client_ptr -> nx_sntp_client_local_ntp_time));
+    /* Check input pointer parameters.  */
+    if ((client_ptr == NX_NULL) || (seconds == NX_NULL) || (fraction == NX_NULL))
+    {
 
+        /* Return pointer error.  */
+        return NX_PTR_ERROR;
+    }
+
+    /* Check if this function is called from the appropriate thread.  */
+    NX_THREADS_ONLY_CALLER_CHECKING
+    
+    /* Call the actual service.  */
+    status = _nx_sntp_client_get_local_time_extended(client_ptr, seconds, fraction, buffer, buffer_size); 
+
+    /* Return completion status.  */
+    return status;
+}
+
+
+/**************************************************************************/ 
+/*                                                                        */ 
+/*  FUNCTION                                               RELEASE        */ 
+/*                                                                        */ 
+/*    _nx_sntp_client_get_local_time_extended             PORTABLE C      */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
+/*  DESCRIPTION                                                           */ 
+/*                                                                        */ 
+/*   This function retrieves the current SNTP Client local time and       */
+/*   returns the data in seconds and fractions, and if a non zero         */
+/*   buffer pointer is supplied, a string containing the data in ASCII.   */
+/*                                                                        */ 
+/*   INPUT                                                                */ 
+/*                                                                        */ 
+/*    client_ptr                        Pointer to SNTP Client            */
+/*    seconds                           Pointer to SNTP seconds           */ 
+/*    fraction                          Local time fraction component     */
+/*    buffer                            Pointer for time in string format */
+/*    buffer_size                       Size of buffer                    */
+/*                                                                        */ 
+/*  OUTPUT                                                                */ 
+/*                                                                        */ 
+/*    status                            Completion status                 */ 
+/*                                                                        */ 
+/*  CALLS                                                                 */ 
+/*                                                                        */ 
+/*    _nx_sntp_client_utility_fraction_to_usecs                           */ 
+/*                                       Convert NTP fraction to usecs    */
+/*    _nx_sntp_client_number_to_ascii  Converts number to ascii text      */ 
+/*                                                                        */ 
+/*  CALLED BY                                                             */ 
+/*                                                                        */ 
+/*    Application Code                                                    */ 
+/*                                                                        */ 
+/*  RELEASE HISTORY                                                       */ 
+/*                                                                        */ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
+UINT  _nx_sntp_client_get_local_time_extended(NX_SNTP_CLIENT *client_ptr, ULONG *seconds, ULONG *fraction, CHAR *buffer, UINT buffer_size) 
+{
+
+ULONG usecs;
+UINT offset = 0;
+UINT length = 0;
+    
     *seconds = client_ptr -> nx_sntp_client_local_ntp_time.seconds;
-    *milliseconds = msecs;
+    *fraction = client_ptr -> nx_sntp_client_local_ntp_time.fraction;
 
     if (buffer != NX_NULL)
     {
-        /* Create a string with just the time.  */
-        sprintf(buffer, "Time: %lu.%03lu sec.\r\n", client_ptr -> nx_sntp_client_local_ntp_time.seconds, msecs);
-    }
 
+        /* Convert SNTP fraction component into microseconds.  */
+        _nx_sntp_client_utility_fraction_to_usecs(client_ptr -> nx_sntp_client_local_ntp_time.fraction, &usecs);
+
+        /* Decrease length for terminal zero. */
+        buffer_size--;
+
+        /* Create a string with just the time.  */
+        /* Format: "Time: %lu.%06lu sec.\r\n" */
+        if (buffer_size < 6)
+        {
+            return(NX_SIZE_ERROR);
+        }
+        buffer[offset++] = 'T';
+        buffer[offset++] = 'i';
+        buffer[offset++] = 'm';
+        buffer[offset++] = 'e';
+        buffer[offset++] = ':';
+        buffer[offset++] = ' ';
+        length = _nx_sntp_client_number_to_ascii(&buffer[offset], buffer_size - offset,
+                                                 client_ptr->nx_sntp_client_local_ntp_time.seconds);
+        if (length == 0)
+        {
+            return(NX_SIZE_ERROR);
+        }
+        offset += length;
+        if ((buffer_size - offset) < 14)
+        {
+            return(NX_SIZE_ERROR);
+        }
+        buffer[offset++] = '.';
+        length = _nx_sntp_client_number_to_ascii(&buffer[offset], 6, usecs);
+        if (length == 0)
+        {
+            return(NX_SIZE_ERROR);
+        }
+
+        if (length < 6)
+        {
+
+            /* Append zeroes. */
+            memmove(&buffer[offset + (6 - length)], &buffer[offset], length);
+            memset(&buffer[offset], '0', (6 - length));
+        }
+        buffer[offset++] = ' ';
+        buffer[offset++] = 's';
+        buffer[offset++] = 'e';
+        buffer[offset++] = 'c';
+        buffer[offset++] = '.';
+        buffer[offset++] = '\r';
+        buffer[offset++] = '\n';
+        buffer[offset] = '\0';               
+    }
+    
     return NX_SUCCESS;
 }
 
@@ -4495,11 +4369,11 @@ ULONG msecs;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_sntp_client_utility_convert_time_to_UCHAR       PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function converts time from the ULONG seconds and msecs in the */
@@ -4531,22 +4405,10 @@ ULONG msecs;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            improved code efficiency,   */ 
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            fixed compiler warnings,    */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
 /**************************************************************************/
 UINT  _nx_sntp_client_utility_convert_time_to_UCHAR(NX_SNTP_TIME *time_ptr, 
                                      NX_SNTP_TIME_MESSAGE *time_message_ptr, UINT which_stamp)
@@ -4589,7 +4451,7 @@ ULONG *buffer;
 
 /* The conventional civil timescale used in most parts of the world is based on Coordinated Universal Time (UTC), 
    which replaced Greenwich Mean Time (GMT) many years ago. UTC is based on International Atomic Time (TAI), 
-   which is derived from hundreds of cesium oscillators in the national standards laboratories of many countries. 
+   which is derived from hundreds of cesium oscillators in the national standards laboratories of many regions. 
    Deviations of UTC from TAI are implemented in the form of leap seconds, which occur at intervals from a 
    few months to serveral years. */
 
@@ -4599,11 +4461,11 @@ ULONG *buffer;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_sntp_client_utility_convert_seconds_to_date     PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*  This function computes the month, day, and time in an NTP time based  */
@@ -4638,29 +4500,11 @@ ULONG *buffer;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s), and      */
-/*                                            added logic to handle time  */
-/*                                            stamps in the year after    */
-/*                                            NX_SNTP_CURRENT_YEAR,       */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Janet Christiansen       Modified comment(s),          */
-/*                                            fixed a bug causing the     */
-/*                                            computed date to be off by  */
-/*                                            one after a leap year,      */
-/*                                            removed useless code,       */
-/*                                            improved internal logic,    */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT _nx_sntp_client_utility_convert_seconds_to_date(NX_SNTP_TIME *current_NTP_time_ptr, UINT current_year, 
                                                      NX_SNTP_DATE_TIME *current_date_time_ptr)
 {
@@ -4873,11 +4717,11 @@ UINT seconds_into_currenthour;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxe_sntp_client_utility_display_date_time          PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*  This function performs error checking services on the display date    */
@@ -4906,21 +4750,11 @@ UINT seconds_into_currenthour;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT _nxe_sntp_client_utility_display_date_time(NX_SNTP_CLIENT *client_ptr, CHAR *buffer, UINT length)
 {
 
@@ -4957,11 +4791,11 @@ UINT status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxe_sntp_client_request_unicast_time               PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function performs error checking for the service that          */
@@ -4983,15 +4817,11 @@ UINT status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  02-22-2016     Janet Christiansen       Initial Version 5.9           */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT _nxe_sntp_client_request_unicast_time(NX_SNTP_CLIENT *client_ptr, UINT wait_option)
 {
 
@@ -5014,11 +4844,11 @@ UINT status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_sntp_client_request_unicast_time                PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function sends a unicast request regardless if the SNTP Client */
@@ -5048,15 +4878,11 @@ UINT status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  02-22-2016     Janet Christiansen       Initial Version 5.9           */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT _nx_sntp_client_request_unicast_time(NX_SNTP_CLIENT *client_ptr, UINT wait_option)
 {
 
@@ -5098,11 +4924,11 @@ UINT status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_sntp_client_utility_display_date_time           PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*  This function converts an NTP time data into a month-date-year time,  */
@@ -5128,7 +4954,7 @@ UINT status;
 /*  CALLS                                                                 */ 
 /*    _nx_sntp_client_utility_convert_seconds_to_date                     */ 
 /*                                     Converts seconds to year, month    */
-/*    sprintf                          Write string with varargs to buffer*/ 
+/*    _nx_sntp_client_number_to_ascii  Converts number to ascii text      */ 
 /*                                                                        */ 
 /*  CALLED BY                                                             */ 
 /*                                                                        */ 
@@ -5136,39 +4962,25 @@ UINT status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT _nx_sntp_client_utility_display_date_time(NX_SNTP_CLIENT *client_ptr, CHAR *buffer, UINT length)
 {
 
 UINT                status;
+UINT                offset;
+UINT                return_length;
 NX_SNTP_DATE_TIME   DisplayTime;
+const CHAR         *months[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                                  "Jul", "Aud", "Sep", "Oct", "Nov", "Dec"};
 
 
 #ifndef  NX_SNTP_CURRENT_YEAR  
     return NX_SNTP_ERROR_CONVERTING_DATETIME;
 #else
-
-    /* Check if we have a long enough buffer. */
-    if (length < 35) 
-    {
-
-        /* Return the error status. */
-        return NX_SNTP_INVALID_DATETIME_BUFFER;
-    }
 
     /* Verify the client has set a local time. */
     if (client_ptr -> nx_sntp_client_local_ntp_time.seconds == 0)
@@ -5182,67 +4994,77 @@ NX_SNTP_DATE_TIME   DisplayTime;
         return status;
     }
 
-    /* Substitute numeric month to name of the month. */
-    switch (DisplayTime.month)
+    /* Check if we have a long enough buffer. */
+    if (length < 5) 
     {
 
-        case JANUARY:
-            sprintf(buffer, "%s ", "Jan");
-
-        break;
-
-        case FEBRUARY:
-            sprintf(buffer, "%s ", "Feb");
-        break;
-
-        case MARCH:
-            sprintf(buffer, "%s ", "Mar");
-        break;
-
-        case APRIL:
-            sprintf(buffer, "%s ", "Apr");
-        break;
-
-        case MAY:
-            sprintf(buffer, "%s ", "May");
-        break;
-
-        case JUNE:
-            sprintf(buffer, "%s ", "Jun");
-        break;
-
-        case JULY:
-            sprintf(buffer, "%s ", "Jul");
-        break;
-
-        case AUGUST:
-            sprintf(buffer, "%s ", "Aug");
-        break;
-
-        case SEPTEMBER:
-            sprintf(buffer, "%s ", "Sep");
-        break;
-
-        case OCTOBER:
-            sprintf(buffer, "%s ", "Oct");
-        break;
-
-        case NOVEMBER:
-            sprintf(buffer, "%s ", "Nov");
-        break;
-
-        case DECEMBER:
-            sprintf(buffer, "%s ", "Dec");
-        break;
-
-        /* Check for invalid month. */
-        default:
-            return NX_SNTP_ERROR_CONVERTING_DATETIME;
+        /* Return the error status. */
+        return NX_SNTP_INVALID_DATETIME_BUFFER;
     }
 
+    /* Decrease length for terminal zero. */
+    length--;
+
+    /* Substitute numeric month to name of the month. */
+    if ((DisplayTime.month < JANUARY) || (DisplayTime.month > DECEMBER))
+    {
+       return NX_SNTP_ERROR_CONVERTING_DATETIME;
+    }
+    buffer[0] = months[DisplayTime.month - JANUARY][0];
+    buffer[1] = months[DisplayTime.month - JANUARY][1];
+    buffer[2] = months[DisplayTime.month - JANUARY][2];
+    buffer[3] = ' ';
+    offset = 4;
+
     /* Write in the rest of the data as numeric from the Date Time objext. */
-    sprintf(buffer + 4, "%d, %d %d:%d:%d.%d UTC ", DisplayTime.day, DisplayTime.year,
-            DisplayTime.hour, DisplayTime.minute, DisplayTime.second, DisplayTime.millisecond);
+    return_length = _nx_sntp_client_number_to_ascii(&buffer[offset], length - offset, DisplayTime.day);
+    if ((return_length == 0) || ((length - offset) < 2))
+    {
+       return NX_SNTP_ERROR_CONVERTING_DATETIME;
+    }
+    offset += return_length;
+    buffer[offset++] = ',';
+    buffer[offset++] = ' ';
+    return_length = _nx_sntp_client_number_to_ascii(&buffer[offset], length - offset, DisplayTime.year);
+    if ((return_length == 0) || ((length - offset) < 1))
+    {
+       return NX_SNTP_ERROR_CONVERTING_DATETIME;
+    }
+    offset += return_length;
+    buffer[offset++] = ' ';
+    return_length = _nx_sntp_client_number_to_ascii(&buffer[offset], length - offset, DisplayTime.hour);
+    if ((return_length == 0) || ((length - offset) < 1))
+    {
+       return NX_SNTP_ERROR_CONVERTING_DATETIME;
+    }
+    offset += return_length;
+    buffer[offset++] = ':';
+    return_length = _nx_sntp_client_number_to_ascii(&buffer[offset], length - offset, DisplayTime.minute);
+    if ((return_length == 0) || ((length - offset) < 1))
+    {
+       return NX_SNTP_ERROR_CONVERTING_DATETIME;
+    }
+    offset += return_length;
+    buffer[offset++] = ':';
+    return_length = _nx_sntp_client_number_to_ascii(&buffer[offset], length - offset, DisplayTime.second);
+    if ((return_length == 0) || ((length - offset) < 1))
+    {
+       return NX_SNTP_ERROR_CONVERTING_DATETIME;
+    }
+    offset += return_length;
+    buffer[offset++] = '.';
+    return_length = _nx_sntp_client_number_to_ascii(&buffer[offset], length - offset, DisplayTime.millisecond);
+    if ((return_length == 0) || ((length - offset) < 5))
+    {
+       return NX_SNTP_ERROR_CONVERTING_DATETIME;
+    }
+    offset += return_length;
+    buffer[offset++] = ' ';
+    buffer[offset++] = 'U';
+    buffer[offset++] = 'T';
+    buffer[offset++] = 'C';
+    buffer[offset++] = ' ';
+    buffer[offset] = '\0';
 
 #endif
 
@@ -5255,11 +5077,11 @@ NX_SNTP_DATE_TIME   DisplayTime;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_sntp_client_utility_add_msecs_to_ntp_time       PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*   This function adds msecs (not necessarily a positive value and not   */
@@ -5292,35 +5114,24 @@ NX_SNTP_DATE_TIME   DisplayTime;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            fixed compiler warnings,    */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
 /**************************************************************************/
 
 UINT  _nx_sntp_client_utility_add_msecs_to_ntp_time(NX_SNTP_TIME *timeA_ptr, LONG msecs_to_add) 
 {
 
 UINT  status;
-ULONG timeA_msec;
+ULONG timeA_usec;
 LONG  seconds;
-LONG  msecs;
+LONG  usecs;
 
 
     /* Separate msecs_to_add into seconds and milliseconds.  */
     seconds = msecs_to_add / 1000;
-    msecs = msecs_to_add % 1000;
+    usecs = (msecs_to_add % 1000) * 1000;
 
     /* Are we adding a positive number?  */
     if (msecs_to_add > 0)
@@ -5347,24 +5158,24 @@ LONG  msecs;
     /* Ok to add seconds to the NTP time seconds.  */
     timeA_ptr -> seconds += (ULONG)seconds;
 
-    /* Next get the msecs from the timeA operand (always positive and < 1000).  */
-    _nx_sntp_client_utility_convert_fraction_to_msecs(&timeA_msec, timeA_ptr);
+    /* Next get the usecs from the timeA operand (always positive and < 1000000).  */
+    _nx_sntp_client_utility_fraction_to_usecs(timeA_ptr -> fraction, &timeA_usec);
 
-    /* In case mesecs is < 0, we might have to perform a carry.  */
-    if ((msecs + (LONG)timeA_msec) < 0)
+    /* In case usecs is < 0, we might have to perform a carry.  */
+    if ((usecs + (LONG)timeA_usec) < 0)
     {
         /* Perform a carry by subtracting a second from timeA seconds...*/
         timeA_ptr -> seconds--;
 
-        /* And adding it to the msecs of timeA.  */
-        timeA_msec += 1000;
+        /* And adding it to the usecs of timeA.  */
+        timeA_usec += 1000000;
     }
 
-    /* OK to add the msecs up.  */
-    msecs += (LONG)timeA_msec;
+    /* OK to add the usecs up.  */
+    usecs += (LONG)timeA_usec;
 
     /* Check for a positive carry over into seconds.  */
-    if (msecs >= 1000)
+    if (usecs >= 1000000)
     {
         /* Yes there's a carry; check for possibility of overflow 
            before adding carry (unlikely for another 30 years).  */
@@ -5378,11 +5189,11 @@ LONG  msecs;
         timeA_ptr -> seconds++;
 
         /* Set milliseconds to remainder.  */
-        msecs = msecs % 1000; 
+        usecs = usecs % 1000000; 
     }
 
-    /* Convert msecs to the fixed point notation fraction and store in TimeA fraction.  */
-    status = _nx_sntp_client_utility_msecs_to_fraction((ULONG)msecs, &(timeA_ptr ->fraction));
+    /* Convert usecs to the fixed point notation fraction and store in TimeA fraction.  */
+    status = _nx_sntp_client_utility_usecs_to_fraction((ULONG)usecs, &(timeA_ptr ->fraction));
 
     /* Return completion status.  */
     return status;    
@@ -5394,11 +5205,11 @@ LONG  msecs;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxe_sntp_client_receiving_updates                  PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*   This function performs error checking for the get SNTP get receive   */
@@ -5425,20 +5236,10 @@ LONG  msecs;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     Janet Christiansen       Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
 /**************************************************************************/
 UINT _nxe_sntp_client_receiving_updates(NX_SNTP_CLIENT *client_ptr, UINT *receive_status)
 {
@@ -5463,11 +5264,11 @@ UINT status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_sntp_client_receiving_updates                   PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*   This function returns the status of the Client SNTP server. If the   */
@@ -5501,20 +5302,10 @@ UINT status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     Janet Christiansen       Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
 /**************************************************************************/
 UINT _nx_sntp_client_receiving_updates(NX_SNTP_CLIENT *client_ptr, UINT *receive_status)
 {
@@ -5540,11 +5331,11 @@ UINT _nx_sntp_client_receiving_updates(NX_SNTP_CLIENT *client_ptr, UINT *receive
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxe_sntp_client_set_local_time                     PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*   This function performs error checking for the set client local time  */
@@ -5571,20 +5362,10 @@ UINT _nx_sntp_client_receiving_updates(NX_SNTP_CLIENT *client_ptr, UINT *receive
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
 /**************************************************************************/
 UINT  _nxe_sntp_client_set_local_time(NX_SNTP_CLIENT *client_ptr, ULONG seconds, ULONG fraction) 
 {
@@ -5611,20 +5392,31 @@ UINT status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_sntp_client_set_local_time                      PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*   This function takes the seconds and fraction input from the caller   */
-/*   and applies to the client local time. It is intended as a base time  */
-/*   for starting the SNTP Client. If the host application cannot obtain  */
-/*   a base time the SNTP Client will take the first SNTP update as the   */
-/*   absolute time. If the host application does have a base NTP time, the*/
-/*   SNTP client can apply a max adjustment to the first update as a      */
-/*   sanity check against untrusted SNTP servers.                         */
+/*   (or more accurately the independent time clock source, and applies it*/
+/*   to the SNTP client local time.                                       */
+/*                                                                        */
+/*   In between SNTP server updates, it is expected that the SNTP Client  */
+/*   host application will update the SNTP client local time from the     */
+/*   independent time source (e.g. real time clock on board) and then     */
+/*   use the SNTP Server time updates to correct the local time for drifts*/
+/*   from the correct time.                                               */
+/*                                                                        */ 
+/*   It can also set the SNTP Client's base time before starting up the   */
+/*   SNTP Client. If the host application cannot obtain a base time, the  */
+/*   SNTP Client will take the first SNTP update as the absolute time. If */
+/*   the host application does have a real time clock or independent time */
+/*   keeper, the SNTP client can set a large enough max adjustment that   */
+/*   any Server time udpate will be accepted to the SNTP Client. This     */
+/*   leaves the SNTP Client completely dependent on the network and SNTP  */
+/*   Server, plus it is vulnerable to rogue SNTP packets.                 */
 /*                                                                        */ 
 /*   INPUT                                                                */ 
 /*                                                                        */ 
@@ -5646,20 +5438,10 @@ UINT status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
 /**************************************************************************/
 UINT  _nx_sntp_client_set_local_time(NX_SNTP_CLIENT *client_ptr, ULONG seconds, ULONG fraction) 
 {
@@ -5667,6 +5449,7 @@ UINT  _nx_sntp_client_set_local_time(NX_SNTP_CLIENT *client_ptr, ULONG seconds, 
 
     client_ptr -> nx_sntp_client_local_ntp_time.seconds = seconds;
     client_ptr -> nx_sntp_client_local_ntp_time.fraction = fraction;
+    client_ptr -> nx_sntp_client_local_ntp_time_elapsed = 0;
 
     /* Return completion status.  */
     return NX_SUCCESS;    
@@ -5678,11 +5461,11 @@ UINT  _nx_sntp_client_set_local_time(NX_SNTP_CLIENT *client_ptr, ULONG seconds, 
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nxe_sntp_client_set_time_update_notify             PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function performs error checking for the set time update       */
@@ -5709,15 +5492,11 @@ UINT  _nx_sntp_client_set_local_time(NX_SNTP_CLIENT *client_ptr, ULONG seconds, 
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  02-22-2016     Janet Christiansen        Initial Version 5.9          */ 
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT    _nxe_sntp_client_set_time_update_notify(NX_SNTP_CLIENT *client_ptr, 
                        VOID (time_update_cb)(NX_SNTP_TIME_MESSAGE *time_update_ptr, NX_SNTP_TIME *local_time))
 {
@@ -5741,11 +5520,11 @@ UINT status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_sntp_client_set_time_update_notify              PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function notifies the application of a valid SNTP time update. */
@@ -5770,15 +5549,11 @@ UINT status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  02-22-2016     Janet Christianse        Initial Version 5.9           */ 
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT    _nx_sntp_client_set_time_update_notify(NX_SNTP_CLIENT *client_ptr, 
                              VOID (time_update_cb)(NX_SNTP_TIME_MESSAGE *time_update_ptr, NX_SNTP_TIME *local_time))
 {
@@ -5797,11 +5572,11 @@ UINT    _nx_sntp_client_set_time_update_notify(NX_SNTP_CLIENT *client_ptr,
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_sntp_client_utility_get_msec_diff               PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This function computes the difference in milliseconds between two   */ 
@@ -5848,27 +5623,11 @@ UINT    _nx_sntp_client_set_time_update_notify(NX_SNTP_CLIENT *client_ptr,
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s), improved */
-/*                                            precision by diffing time   */ 
-/*                                            stamps at usec level,       */ 
-/*                                            resulting in version 5.1    */
-/*  01-12-2015      Yuxin Zhou              Modified comment(s),          */
-/*                                            fixed a compiler warning,   */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Janet Christiansen       Modified comment(s), and      */
-/*                                            simplified the logic        */
-/*                                            comparing time received and */
-/*                                            time transmitted,           */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nx_sntp_client_utility_get_msec_diff(NX_SNTP_TIME *timeReceived_ptr, NX_SNTP_TIME *timeTransmit_ptr, ULONG *total_difference_msecs, UINT *pos_diff)
 {
 
@@ -5990,11 +5749,11 @@ ULONG    temp;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_sntp_client_utility_is_zero_data                PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*   This function tests each byte (UCHAR) of data to be non zero.  The   */
@@ -6020,21 +5779,11 @@ ULONG    temp;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT _nx_sntp_client_utility_is_zero_data(UCHAR *data, UINT size)
 {
 
@@ -6069,11 +5818,11 @@ UINT is_zero;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_sntp_client_utility_convert_fraction_to_msecs   PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*   This function converts the fraction in an NTP time to milliseconds.  */
@@ -6099,20 +5848,10 @@ UINT is_zero;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
 /**************************************************************************/
 UINT  _nx_sntp_client_utility_convert_fraction_to_msecs(ULONG *milliseconds, NX_SNTP_TIME *time_ptr)
 {
@@ -6142,12 +5881,71 @@ ULONG usecs;
 /*                                                                        */ 
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
-/*    _nx_sntp_client_utility_usec_to_fraction            PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
+/*    _nxe_sntp_client_utility_usecs_to_fraction          PORTABLE C      */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
+/*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
+/*   This function performs error checking on the utility to convert      */
+/*   microseconds to fraction.                                            */
 /*                                                                        */ 
+/*   INPUT                                                                */ 
+/*                                                                        */ 
+/*    usecs                            Microseconds to convert            */
+/*    fraction                         Pointer to converted fraction      */
+/*                                                                        */
+/*  OUTPUT                                                                */ 
+/*                                                                        */ 
+/*    NX_SNTP_INVALID_TIME             Invalid SNTP data input            */ 
+/*    status                           Actual completion status           */
+/*                                                                        */ 
+/*  CALLS                                                                 */ 
+/*                                                                        */ 
+/*    _nx_sntp_client_utility_usecs_to_fraction                           */ 
+/*                                     Actual usecs conversion service    */
+/*                                                                        */ 
+/*  CALLED BY                                                             */ 
+/*                                                                        */ 
+/*   Application code                                                     */
+/*                                                                        */ 
+/*  RELEASE HISTORY                                                       */ 
+/*                                                                        */ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
+UINT    _nxe_sntp_client_utility_usecs_to_fraction(ULONG usecs, ULONG *fraction)
+{
+
+UINT status;
+
+
+    if ((usecs == 0) || (fraction == NX_NULL))
+    {
+
+        return NX_SNTP_INVALID_TIME;
+    }
+
+    status = _nx_sntp_client_utility_usecs_to_fraction(usecs, fraction);
+
+    return status;
+}
+
+
+/**************************************************************************/ 
+/*                                                                        */ 
+/*  FUNCTION                                               RELEASE        */ 
+/*                                                                        */ 
+/*    _nx_sntp_client_utility_usecs_to_fraction           PORTABLE C      */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*   This function converts microseconds to a time stamp fraction.  It is */
@@ -6177,24 +5975,12 @@ ULONG usecs;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s), modified */
-/*                                            the algorithm for converting*/ 
-/*                                            microseconds to fraction,   */ 
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
-UINT  _nx_sntp_client_utility_usec_to_fraction(ULONG usecs, ULONG *fraction)
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
+UINT  _nx_sntp_client_utility_usecs_to_fraction(ULONG usecs, ULONG *fraction)
 {
 
 ULONG _frac = usecs * 3962;
@@ -6214,12 +6000,12 @@ ULONG _frac = usecs * 3962;
 /*                                                                        */ 
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
-/*    _nxd_sntp_client_utility_msecs_to_fraction          PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*    _nxe_sntp_client_utility_msecs_to_fraction          PORTABLE C      */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*   This function performs error checking on the utility to convert      */
@@ -6246,21 +6032,11 @@ ULONG _frac = usecs * 3962;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT    _nxe_sntp_client_utility_msecs_to_fraction(ULONG msecs, ULONG *fraction)
 {
 
@@ -6284,11 +6060,11 @@ UINT status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_sntp_client_utility_msecs_to_fraction           PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*   This function converts milliseconds to fixed point notation used in  */
@@ -6308,7 +6084,7 @@ UINT status;
 /*                                                                        */ 
 /*  CALLS                                                                 */ 
 /*                                                                        */ 
-/*    _nx_sntp_client_utility_usec_to_fraction                            */ 
+/*    _nx_sntp_client_utility_usecs_to_fraction                           */ 
 /*                                     Convert usecs to fixed point       */
 /*                                                                        */ 
 /*  CALLED BY                                                             */ 
@@ -6320,23 +6096,11 @@ UINT status;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s), fixed    */
-/*                                            an error checking on the    */ 
-/*                                            maximum value of msecs,     */ 
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nx_sntp_client_utility_msecs_to_fraction(ULONG msecs, ULONG *fraction)
 {
 
@@ -6356,7 +6120,7 @@ ULONG   usecs;
     usecs = msecs * 1000;
 
     /* Convert usecs to fraction.  */
-    status = _nx_sntp_client_utility_usec_to_fraction(usecs, fraction);
+    status = _nx_sntp_client_utility_usecs_to_fraction(usecs, fraction);
 
     /* Check for error.  */
     if (status != NX_SUCCESS)
@@ -6375,12 +6139,69 @@ ULONG   usecs;
 /*                                                                        */ 
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
+/*    _nxe_sntp_client_utility_fraction_to_usecs          PORTABLE C      */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
+/*  DESCRIPTION                                                           */ 
+/*                                                                        */ 
+/*   This function performs error checking on the utility to convert      */
+/*   fraction to microseconds.                                            */
+/*                                                                        */ 
+/*   INPUT                                                                */ 
+/*                                                                        */ 
+/*    fraction                         Fraction to convert                */
+/*    usecs                            Pointer to converted microseconds  */
+/*                                                                        */
+/*  OUTPUT                                                                */ 
+/*                                                                        */ 
+/*    status                           Actual completion status           */
+/*                                                                        */ 
+/*  CALLS                                                                 */ 
+/*                                                                        */ 
+/*    _nx_sntp_client_utility_fraction_to_usecs                           */ 
+/*                                     Actual usecs conversion service    */
+/*                                                                        */ 
+/*  CALLED BY                                                             */ 
+/*                                                                        */ 
+/*   Application code                                                     */
+/*                                                                        */ 
+/*  RELEASE HISTORY                                                       */ 
+/*                                                                        */ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
+UINT    _nxe_sntp_client_utility_fraction_to_usecs(ULONG fraction, ULONG *usecs)
+{
+
+UINT status;
+
+
+    if (usecs == NX_NULL)
+    {
+        return NX_SNTP_INVALID_TIME;
+    }
+
+    status = _nx_sntp_client_utility_fraction_to_usecs(fraction, usecs);
+
+    return status;
+}
+
+
+/**************************************************************************/ 
+/*                                                                        */ 
+/*  FUNCTION                                               RELEASE        */ 
+/*                                                                        */ 
 /*    _nx_sntp_client_utility_fraction_to_usecs           PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*   This function converts a time stamp fraction to microseconds.  It is */
@@ -6402,29 +6223,19 @@ ULONG   usecs;
 /*                                                                        */ 
 /*  CALLED BY                                                             */ 
 /*                                                                        */ 
+/*   _nx_sntp_client_get_local_time_extended                              */ 
+/*                                     Get extended local time            */ 
 /*   _nx_sntp_client_utility_convert_fraction_to_msecs                    */ 
 /*                                     Convert time fraction to msecs     */
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s), improved */
-/*                                            the calculation so the      */ 
-/*                                            results are more accurate,  */ 
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
-VOID  _nx_sntp_client_utility_fraction_to_usecs(ULONG fraction, ULONG *usecs) 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
+UINT  _nx_sntp_client_utility_fraction_to_usecs(ULONG fraction, ULONG *usecs) 
 {
 
 ULONG value, segment;
@@ -6443,7 +6254,7 @@ int i;
     } 
     *usecs = value;
 
-    return;
+    return(NX_SUCCESS);
 }
 
 
@@ -6452,11 +6263,11 @@ int i;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_sntp_client_utility_convert_refID_KOD_code      PORTABLE C      */
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
 /*  This function converts the reference ID field in a NTP time message   */
@@ -6484,21 +6295,11 @@ int i;
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 UINT  _nx_sntp_client_utility_convert_refID_KOD_code(UCHAR *reference_id, UINT *code_id)
 {
 
@@ -6578,11 +6379,11 @@ UINT  _nx_sntp_client_utility_convert_refID_KOD_code(UCHAR *reference_id, UINT *
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_sntp_client_utility_addition_overflow_check     PORTABLE C      */ 
-/*                                                           5.11         */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*   This function performs a simple platform independent check for       */
@@ -6611,20 +6412,10 @@ UINT  _nx_sntp_client_utility_convert_refID_KOD_code(UCHAR *reference_id, UINT *
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  01-27-2012     William E. Lamie         Initial Version 5.0           */ 
-/*  01-31-2013     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  01-12-2015     Janet Christiansen       Modified comment(s),          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*                                                                        */ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
 /**************************************************************************/
 UINT  _nx_sntp_client_utility_addition_overflow_check(ULONG temp1, ULONG temp2)
 {
@@ -6661,3 +6452,101 @@ UINT  carry;
     return NX_SUCCESS;
 }
 
+
+/**************************************************************************/ 
+/*                                                                        */ 
+/*  FUNCTION                                               RELEASE        */ 
+/*                                                                        */ 
+/*    _nx_sntp_client_number_to_ascii                     PORTABLE C      */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
+/*  DESCRIPTION                                                           */ 
+/*                                                                        */ 
+/*   This function converts a number to ascii text.                       */
+/*                                                                        */ 
+/*   INPUT                                                                */ 
+/*                                                                        */ 
+/*    buffer_ptr                     Pointer to output string buffer      */
+/*    buffer_size                    Size of output buffer                */
+/*    number                         Number to convert to ASCII           */
+/*                                                                        */
+/*  OUTPUT                                                                */ 
+/*                                                                        */ 
+/*    size                           Size of converted string             */ 
+/*                                                                        */ 
+/*  CALLS                                                                 */ 
+/*                                                                        */ 
+/*    None                                                                */ 
+/*                                                                        */ 
+/*  CALLED BY                                                             */ 
+/*                                                                        */ 
+/*    _nx_sntp_client_utility_display_date_time                           */ 
+/*                                     Convert an NTP time                */
+/*                                                                        */ 
+/*  RELEASE HISTORY                                                       */ 
+/*                                                                        */ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
+static UINT _nx_sntp_client_number_to_ascii(CHAR *buffer_ptr, UINT buffer_size, UINT number)
+{
+
+UINT    i;
+UINT    digit;
+UINT    size;
+
+    /* Initialize counters.  */
+    size = 0;
+
+    /* Loop to convert the number to ASCII.  */
+    while (size < buffer_size)
+    {
+
+        /* Shift the current digits over one.  */
+        for (i = size; i != 0; i--)
+        {
+
+            /* Move each digit over one place.  */
+            buffer_ptr[i] =  buffer_ptr[i - 1];
+        }
+
+        /* Compute the next decimal digit.  */
+        digit = (number % 10);
+
+        /* Update the input number.  */
+        number = (number / 10);
+
+        /* Store the new digit in ASCII form.  */
+        if (digit < 10)
+        {
+            buffer_ptr[0] = (CHAR)(digit + '0');
+        }
+        else
+        {
+            buffer_ptr[0] = (CHAR)((digit - 10) + 'a');
+        }
+
+        /* Increment the size.  */
+        size++;
+
+        /* Determine if the number is now zero.  */
+        if (number == 0)
+            break;
+    }
+
+    /* Determine if there is an overflow error.  */
+    if (number)
+    {
+
+        /* Error, return bad values to user.  */
+        return(0);
+    }
+
+    /* Return size to caller.  */
+    return(size);
+}

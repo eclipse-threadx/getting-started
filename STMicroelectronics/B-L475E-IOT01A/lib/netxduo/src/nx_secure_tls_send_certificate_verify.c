@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -39,7 +27,7 @@
 #include "nx_secure_dtls.h"
 #endif /* NX_SECURE_ENABLE_DTLS */
 
-static UCHAR handshake_hash[16 + 20]; /* We concatenate MD5 and SHA-1 hashes into this buffer, OR SHA-256. */
+static UCHAR handshake_hash[64 + 34 + 32]; /* We concatenate MD5 and SHA-1 hashes into this buffer, OR SHA-256. */
 static UCHAR _nx_secure_padded_signature[600];
 
 #if (NX_SECURE_TLS_TLS_1_2_ENABLED)
@@ -52,10 +40,10 @@ static const UCHAR _NX_SECURE_OID_SHA256[] = {0x30, 0x31, 0x30, 0x0d, 0x06, 0x09
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_tls_send_certificate_verify              PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -82,6 +70,9 @@ static const UCHAR _NX_SECURE_OID_SHA256[] = {0x30, 0x31, 0x30, 0x0d, 0x06, 0x09
 /*                                            operation                   */
 /*    _nx_secure_x509_local_device_certificate_get                        */
 /*                                          Get the local certificate     */
+/*    _nx_secure_x509_find_certificate_methods                            */
+/*                                          Find signature crypto methods */
+/*    _nx_secure_tls_find_curve_method      Find named curve used         */
 /*                                                                        */
 /*  CALLED BY                                                             */
 /*                                                                        */
@@ -92,46 +83,40 @@ static const UCHAR _NX_SECURE_OID_SHA256[] = {0x30, 0x31, 0x30, 0x0d, 0x06, 0x09
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-09-2017     Timothy Stapko           Initial Version 5.10          */
-/*  12-15-2017     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic to support      */
-/*                                            vendor-defined private key  */
-/*                                            type, supported empty       */
-/*                                            certificate messages,       */
-/*                                            supported more ciphersuites,*/
-/*                                            supported DTLS, optimize    */
-/*                                            the logic,                  */
-/*                                            resulting in version 5.11   */
-/*  08-15-2019     Timothy Stapko           Modified comment(s), and      */
-/*                                            optimized internl logic,    */
-/*                                            added flexibility of using  */
-/*                                            macros instead of direct C  */
-/*                                            library function calls,     */
-/*                                            update buffer for 4096 RSA, */
-/*                                            improved packet length      */
-/*                                            verification, updated error */
-/*                                            return checks, removed      */
-/*                                            cipher suite lookup,        */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 UINT _nx_secure_tls_send_certificate_verify(NX_SECURE_TLS_SESSION *tls_session,
                                             NX_PACKET *send_packet)
 {
-UINT                                  length = 0;
-UINT                                  data_size = 0;
-UINT                                  signature_length = 0;
-UINT                                  i;
-UCHAR                                *current_buffer;
-UCHAR                                *working_ptr;
-NX_CRYPTO_METHOD                     *public_cipher_method;
-NX_CRYPTO_METHOD                     *hash_method = NX_NULL;
-NX_SECURE_X509_CERT                  *local_certificate;
-UINT                                  status;
-UINT                                  user_defined_key;
-VOID                                 *handler = NX_NULL;
+UINT                       length = 0;
+UINT                       data_size = 0;
+USHORT                     signature_algorithm;
+UINT                       signature_length = 0;
+UINT                       i;
+UCHAR                     *current_buffer;
+UCHAR                     *working_ptr;
+const NX_CRYPTO_METHOD    *public_cipher_method;
+const NX_CRYPTO_METHOD    *hash_method = NX_NULL;
+NX_SECURE_X509_CERT       *local_certificate;
+NX_SECURE_X509_CRYPTO     *crypto_methods;
+UINT                       status;
+UINT                       user_defined_key;
+VOID                      *handler = NX_NULL;
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+UINT handshake_hash_length = 0;
+CHAR *metadata;
+ULONG metadata_size;
+const CHAR server_context[] = "TLS 1.3, server CertificateVerify\0"; /* Includes 0-byte separator. */
+const CHAR client_context[] = "TLS 1.3, client CertificateVerify\0"; /* Includes 0-byte separator. */
+#endif
 
-    NX_SECURE_SEND_CERTIFICATE_VERIFY_EXTENSION
+#ifdef NX_SECURE_ENABLE_ECC_CIPHERSUITE
+const NX_CRYPTO_METHOD    *curve_method_cert;
+NX_SECURE_EC_PRIVATE_KEY  *ec_privkey;
+NX_SECURE_EC_PUBLIC_KEY   *ec_pubkey;
+NX_CRYPTO_EXTENDED_OUTPUT  extended_output;
+#endif /* NX_SECURE_ENABLE_ECC_CIPHERSUITE */
 
     /*
        ==== TLS 1.0/1.1 structure (hashes are of all handshake messages to this point) ====
@@ -166,15 +151,14 @@ VOID                                 *handler = NX_NULL;
              SignatureAndHashAlgorithm algorithm;
              opaque signature<0..2^16-1>;
         } DigitallySigned
+
+      ==== TLS 1.3 structure  ====
+          struct {
+              SignatureScheme algorithm;
+              opaque signature<0..2^16-1>;
+          } CertificateVerify;
      */
 
-
-    if (tls_session -> nx_secure_tls_session_ciphersuite == NX_NULL)
-    {
-
-        /* Likely internal error since at this point ciphersuite negotiation was theoretically completed. */
-        return(NX_SECURE_TLS_UNKNOWN_CIPHERSUITE);
-    }
 
     /* Get reference to local device certificate. NX_NULL is passed for name to get default entry. */
     status = _nx_secure_x509_local_device_certificate_get(&tls_session -> nx_secure_tls_credentials.nx_secure_tls_certificate_store,
@@ -188,6 +172,177 @@ VOID                                 *handler = NX_NULL;
         /* The local certificate was not found. */
         return(status);
     }
+
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+    if (tls_session -> nx_secure_tls_1_3)
+    {
+        /* Signature algorithm is set when processing CertificateRequest or SignatureAlgorithm extension. */
+        switch (tls_session -> nx_secure_tls_signature_algorithm)
+        {
+        case NX_SECURE_TLS_SIGNATURE_ECDSA_SHA256:
+            signature_algorithm = NX_SECURE_TLS_X509_TYPE_ECDSA_SHA_256;
+            break;
+        case NX_SECURE_TLS_SIGNATURE_ECDSA_SHA384:
+            signature_algorithm = NX_SECURE_TLS_X509_TYPE_ECDSA_SHA_384;
+            break;
+        case NX_SECURE_TLS_SIGNATURE_ECDSA_SHA512:
+            signature_algorithm = NX_SECURE_TLS_X509_TYPE_ECDSA_SHA_512;
+            break;
+        default:
+            return(NX_SECURE_TLS_UNSUPPORTED_CERT_SIGN_ALG);
+        }
+    }
+    else
+#endif
+    {
+        signature_algorithm = NX_SECURE_TLS_X509_TYPE_RSA_SHA_256;
+#ifdef NX_SECURE_ENABLE_ECC_CIPHERSUITE
+        if (local_certificate -> nx_secure_x509_public_algorithm == NX_SECURE_TLS_X509_TYPE_EC)
+        {
+
+            /* Only support SHA256 in TLS 1.2. */
+            signature_algorithm = NX_SECURE_TLS_X509_TYPE_ECDSA_SHA_256;
+        }
+#endif /* NX_SECURE_ENABLE_ECC_CIPHERSUITE */
+    }
+
+    /* Find certificate crypto methods for the local certificate. */
+    status = _nx_secure_x509_find_certificate_methods(local_certificate, signature_algorithm, &crypto_methods);
+    if (status != NX_SUCCESS)
+    {
+        return(status);
+    }
+
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+    if(tls_session->nx_secure_tls_1_3)
+    {
+        /* TLS 1.3 certificate verify uses a different scheme. The signature is calculated over
+           a concatenation of the following (RFC 8446):
+              -  A string that consists of octet 32 (0x20) repeated 64 times
+              -  The context string
+              -  A single 0 byte which serves as the separator
+              -  The content to be signed
+         */
+
+         UCHAR *transcript_hash = tls_session->nx_secure_tls_key_material.nx_secure_tls_transcript_hashes[NX_SECURE_TLS_TRANSCRIPT_IDX_CERTIFICATE];
+
+         /* Set octet padding bytes. */
+         NX_SECURE_MEMSET(&handshake_hash[0], 0x20, 64);
+
+         if (tls_session -> nx_secure_tls_socket_type == NX_SECURE_TLS_SESSION_TYPE_CLIENT)
+         {
+             /* Copy in context string and 0-byte separator. */
+             NX_SECURE_MEMCPY(&handshake_hash[64], client_context, 34);
+         }
+         else
+         {
+             /* Copy in context string and 0-byte separator. */
+             NX_SECURE_MEMCPY(&handshake_hash[64], server_context, 34);
+         }
+
+         /* Copy in transcript hash. */
+         NX_SECURE_MEMCPY(&handshake_hash[64 + 34], transcript_hash, 32);
+
+         handshake_hash_length = 130;
+
+
+         /* Generate a hash of the data we just produced. */
+         /* Use SHA-256 for now... */
+         hash_method = crypto_methods -> nx_secure_x509_hash_method;
+
+         metadata = tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_scratch;
+         metadata_size = tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_scratch_size;
+
+
+         if (hash_method -> nx_crypto_init)
+         {
+             status = hash_method -> nx_crypto_init((NX_CRYPTO_METHOD*)hash_method,
+                                          NX_NULL,
+                                          0,
+                                          &handler,
+                                          metadata,
+                                          metadata_size);
+
+             if(status != NX_CRYPTO_SUCCESS)
+             {
+                 return(status);
+             }
+         }
+
+         if (hash_method -> nx_crypto_operation != NX_NULL)
+         {
+             status = hash_method -> nx_crypto_operation(NX_CRYPTO_HASH_INITIALIZE,
+                                               handler,
+                                               (NX_CRYPTO_METHOD*)hash_method,
+                                               NX_NULL,
+                                               0,
+                                               NX_NULL,
+                                               0,
+                                               NX_NULL,
+                                               NX_NULL,
+                                               0,
+                                               metadata,
+                                               metadata_size,
+                                               NX_NULL,
+                                               NX_NULL);
+
+             if(status != NX_CRYPTO_SUCCESS)
+             {
+                 return(status);
+             }
+         }
+
+         if (hash_method -> nx_crypto_operation != NX_NULL)
+         {
+             status = hash_method -> nx_crypto_operation(NX_CRYPTO_HASH_UPDATE,
+                                                        tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_sha256_handler,
+                                                        (NX_CRYPTO_METHOD*)hash_method,
+                                                        NX_NULL,
+                                                        0,
+                                                        handshake_hash,
+                                                        handshake_hash_length,
+                                                        NX_NULL,
+                                                        NX_NULL,
+                                                        0,
+                                                        metadata,
+                                                        metadata_size,
+                                                        NX_NULL,
+                                                        NX_NULL);
+
+             if(status != NX_CRYPTO_SUCCESS)
+             {
+                 return(status);
+             }
+         }
+
+
+         if (hash_method -> nx_crypto_operation != NX_NULL)
+         {
+             status = hash_method -> nx_crypto_operation(NX_CRYPTO_HASH_CALCULATE,
+                                                tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_sha256_handler,
+                                                (NX_CRYPTO_METHOD*)hash_method,
+                                                NX_NULL,
+                                                0,
+                                                NX_NULL,
+                                                0,
+                                                NX_NULL,
+                                                &handshake_hash[0],
+                                                sizeof(handshake_hash),
+                                                metadata,
+                                                metadata_size,
+                                                NX_NULL,
+                                                NX_NULL);
+
+             if(status != NX_CRYPTO_SUCCESS)
+             {
+                 return(status);
+             }
+         }
+
+         handshake_hash_length = (hash_method -> nx_crypto_ICV_size_in_bits) >> 3;
+    }
+    else
+#endif
 
 #if (NX_SECURE_TLS_TLS_1_2_ENABLED)
 #ifdef NX_SECURE_ENABLE_DTLS
@@ -210,7 +365,7 @@ VOID                                 *handler = NX_NULL;
         {
             status = hash_method -> nx_crypto_operation(NX_CRYPTO_HASH_CALCULATE,
                                                tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_sha256_handler,
-                                               hash_method,
+                                               (NX_CRYPTO_METHOD*)hash_method,
                                                NX_NULL,
                                                0,
                                                NX_NULL,
@@ -224,7 +379,7 @@ VOID                                 *handler = NX_NULL;
                                                NX_NULL);
         }
 
-        if(status != NX_SUCCESS)
+        if(status != NX_CRYPTO_SUCCESS)
         {
             return(status);
         }                                                     
@@ -258,7 +413,7 @@ VOID                                 *handler = NX_NULL;
         {
             status = hash_method -> nx_crypto_operation(NX_CRYPTO_HASH_CALCULATE,
                                                tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_md5_handler,
-                                               hash_method,
+                                               (NX_CRYPTO_METHOD*)hash_method,
                                                NX_NULL,
                                                0,
                                                NX_NULL,
@@ -272,7 +427,7 @@ VOID                                 *handler = NX_NULL;
                                                NX_NULL,
                                                NX_NULL);
 
-            if(status != NX_SUCCESS)
+            if(status != NX_CRYPTO_SUCCESS)
             {
                 return(status);
             }                                                     
@@ -283,7 +438,7 @@ VOID                                 *handler = NX_NULL;
         {
             status = hash_method -> nx_crypto_operation(NX_CRYPTO_HASH_CALCULATE,
                                                tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_sha1_handler,
-                                               hash_method,
+                                               (NX_CRYPTO_METHOD*)hash_method,
                                                NX_NULL,
                                                0,
                                                NX_NULL,
@@ -296,7 +451,7 @@ VOID                                 *handler = NX_NULL;
                                                NX_NULL,
                                                NX_NULL);
 
-            if(status != NX_SUCCESS)
+            if(status != NX_CRYPTO_SUCCESS)
             {
                 return(status);
             }                                                     
@@ -307,6 +462,7 @@ VOID                                 *handler = NX_NULL;
     /* Make sure we found a supported version (essentially an assertion check). */
     if (hash_method == NX_NULL)
     {
+        /* No hash method means no secrets to clear. */
         return(NX_SECURE_TLS_UNSUPPORTED_TLS_VERSION);
     }
 
@@ -318,11 +474,10 @@ VOID                                 *handler = NX_NULL;
     }
 
     /* Get our actual public cipher method. */
-    public_cipher_method = tls_session -> nx_secure_tls_session_ciphersuite -> nx_secure_tls_public_cipher;
+    public_cipher_method = crypto_methods -> nx_secure_x509_public_cipher_method;
 
     /* See if we are using RSA. Separate from other methods (e.g. ECC, DH) for proper handling of padding. */
-    if (public_cipher_method -> nx_crypto_algorithm == NX_CRYPTO_KEY_EXCHANGE_RSA &&
-        local_certificate -> nx_secure_x509_public_algorithm == NX_SECURE_TLS_X509_TYPE_RSA)
+    if (local_certificate -> nx_secure_x509_public_algorithm == NX_SECURE_TLS_X509_TYPE_RSA)
     {
         /* If using RSA, the length is equal to the key size. */
         data_size = local_certificate -> nx_secure_x509_public_key.rsa_public_key.nx_secure_rsa_public_modulus_length;
@@ -446,7 +601,7 @@ VOID                                 *handler = NX_NULL;
             /* A user-defined key is passed directly into the crypto routine. */
             status = public_cipher_method -> nx_crypto_operation(local_certificate -> nx_secure_x509_private_key_type,
                                                         NX_NULL,
-                                                        public_cipher_method,
+                                                        (NX_CRYPTO_METHOD*)public_cipher_method,
                                                         (UCHAR *)local_certificate -> nx_secure_x509_private_key.user_key.key_data,
                                                         (NX_CRYPTO_KEY_SIZE)(local_certificate -> nx_secure_x509_private_key.user_key.key_length),
                                                         _nx_secure_padded_signature,
@@ -454,11 +609,11 @@ VOID                                 *handler = NX_NULL;
                                                         NX_NULL,
                                                         &current_buffer[length],
                                                         sizeof(_nx_secure_padded_signature),
-                                                        tls_session -> nx_secure_public_cipher_metadata_area,
-                                                        tls_session -> nx_secure_public_cipher_metadata_size,
+                                                        local_certificate -> nx_secure_x509_public_cipher_metadata_area,
+                                                        local_certificate -> nx_secure_x509_public_cipher_metadata_size,
                                                         NX_NULL, NX_NULL);
 
-            if(status != NX_SUCCESS)
+            if(status != NX_CRYPTO_SUCCESS)
             {
 #ifdef NX_SECURE_KEY_CLEAR
                 NX_SECURE_MEMSET(_nx_secure_padded_signature, 0, sizeof(_nx_secure_padded_signature));
@@ -473,14 +628,14 @@ VOID                                 *handler = NX_NULL;
             if (public_cipher_method -> nx_crypto_init != NX_NULL)
             {
                 /* Initialize the crypto method with public key. */
-                status = public_cipher_method -> nx_crypto_init(public_cipher_method,
+                status = public_cipher_method -> nx_crypto_init((NX_CRYPTO_METHOD*)public_cipher_method,
                                                        (UCHAR *)local_certificate -> nx_secure_x509_public_key.rsa_public_key.nx_secure_rsa_public_modulus,
                                                        (NX_CRYPTO_KEY_SIZE)(local_certificate -> nx_secure_x509_public_key.rsa_public_key.nx_secure_rsa_public_modulus_length << 3),
                                                        &handler,
-                                                       tls_session -> nx_secure_public_cipher_metadata_area,
-                                                       tls_session -> nx_secure_public_cipher_metadata_size);
+                                                       local_certificate -> nx_secure_x509_public_cipher_metadata_area,
+                                                       local_certificate -> nx_secure_x509_public_cipher_metadata_size);
 
-                if(status != NX_SUCCESS)
+                if(status != NX_CRYPTO_SUCCESS)
                 {
 #ifdef NX_SECURE_KEY_CLEAR
                     NX_SECURE_MEMSET(_nx_secure_padded_signature, 0, sizeof(_nx_secure_padded_signature));
@@ -494,7 +649,7 @@ VOID                                 *handler = NX_NULL;
                 /* Sign the hash we just generated using our local RSA private key (associated with our local cert). */
                 status = public_cipher_method -> nx_crypto_operation(NX_CRYPTO_DECRYPT,
                                                             handler,
-                                                            public_cipher_method,
+                                                            (NX_CRYPTO_METHOD*)public_cipher_method,
                                                             (UCHAR *)local_certificate -> nx_secure_x509_private_key.rsa_private_key.nx_secure_rsa_private_exponent,
                                                             (NX_CRYPTO_KEY_SIZE)(local_certificate -> nx_secure_x509_private_key.rsa_private_key.nx_secure_rsa_private_exponent_length << 3),
                                                             _nx_secure_padded_signature,
@@ -502,11 +657,11 @@ VOID                                 *handler = NX_NULL;
                                                             NX_NULL,
                                                             &current_buffer[length],
                                                             sizeof(_nx_secure_padded_signature),
-                                                            tls_session -> nx_secure_public_cipher_metadata_area,
-                                                            tls_session -> nx_secure_public_cipher_metadata_size,
+                                                            local_certificate -> nx_secure_x509_public_cipher_metadata_area,
+                                                            local_certificate -> nx_secure_x509_public_cipher_metadata_size,
                                                             NX_NULL, NX_NULL);
 
-                if(status != NX_SUCCESS)
+                if(status != NX_CRYPTO_SUCCESS)
                 {
 #ifdef NX_SECURE_KEY_CLEAR
                     NX_SECURE_MEMSET(_nx_secure_padded_signature, 0, sizeof(_nx_secure_padded_signature));
@@ -517,9 +672,9 @@ VOID                                 *handler = NX_NULL;
 
             if (public_cipher_method -> nx_crypto_cleanup)
             {
-                status = public_cipher_method -> nx_crypto_cleanup(tls_session -> nx_secure_public_cipher_metadata_area);
+                status = public_cipher_method -> nx_crypto_cleanup(local_certificate -> nx_secure_x509_public_cipher_metadata_area);
 
-                if(status != NX_SUCCESS)
+                if(status != NX_CRYPTO_SUCCESS)
                 {
 #ifdef NX_SECURE_KEY_CLEAR
                     NX_SECURE_MEMSET(_nx_secure_padded_signature, 0, sizeof(_nx_secure_padded_signature));
@@ -528,14 +683,181 @@ VOID                                 *handler = NX_NULL;
                 }                                                     
             }
         }
+
+        /* Add the length of our encrypted signature to the total. */
+        length += data_size;
     }
+#ifdef NX_SECURE_ENABLE_ECC_CIPHERSUITE
+    else if (local_certificate -> nx_secure_x509_public_algorithm == NX_SECURE_TLS_X509_TYPE_EC)
+    {
+        /* Pointer to where we are going to place our data. */
+        current_buffer = send_packet -> nx_packet_append_ptr;
+
+        length = 0;
+        data_size = 0;
+
+#if (NX_SECURE_TLS_TLS_1_2_ENABLED)
+#ifdef NX_SECURE_ENABLE_DTLS
+        if (tls_session -> nx_secure_tls_protocol_version == NX_SECURE_TLS_VERSION_TLS_1_2 ||
+            tls_session -> nx_secure_tls_protocol_version == NX_SECURE_DTLS_VERSION_1_2)
+#else
+        if (tls_session -> nx_secure_tls_protocol_version == NX_SECURE_TLS_VERSION_TLS_1_2)
+#endif /* NX_SECURE_ENABLE_DTLS */
+        {
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+            /* Signature algorithm used. */
+            if (tls_session -> nx_secure_tls_1_3)
+            {
+                data_size = handshake_hash_length;
+                current_buffer[length] = (UCHAR)((tls_session -> nx_secure_tls_signature_algorithm) >> 8);
+            }
+            else
+#endif
+            {
+                /* Hash size is SHA-256 hash size (32). */
+                data_size = 32;
+                current_buffer[length] = NX_SECURE_TLS_HASH_ALGORITHM_SHA256;   /* We only support SHA-256 right now. */
+            }
+            current_buffer[length + 1] = NX_SECURE_TLS_SIGNATURE_ALGORITHM_ECDSA; /* ECDSA */
+            length += 2;
+        }
+#endif
+
+
+#if (NX_SECURE_TLS_TLS_1_0_ENABLED || NX_SECURE_TLS_TLS_1_1_ENABLED)
+#ifdef NX_SECURE_ENABLE_DTLS
+        if (tls_session -> nx_secure_tls_protocol_version == NX_SECURE_TLS_VERSION_TLS_1_0 ||
+            tls_session -> nx_secure_tls_protocol_version == NX_SECURE_TLS_VERSION_TLS_1_1 ||
+            tls_session -> nx_secure_tls_protocol_version == NX_SECURE_DTLS_VERSION_1_0)
+#else
+        if (tls_session -> nx_secure_tls_protocol_version == NX_SECURE_TLS_VERSION_TLS_1_0 ||
+            tls_session -> nx_secure_tls_protocol_version == NX_SECURE_TLS_VERSION_TLS_1_1)
+#endif /* NX_SECURE_ENABLE_DTLS */
+        {
+
+            /* Hash size is the size of SHA-1 (20) + MD5 (16). */
+            data_size = 36;
+
+        }
+#endif
+
+        ec_privkey = &local_certificate -> nx_secure_x509_private_key.ec_private_key;
+        ec_pubkey = &local_certificate -> nx_secure_x509_public_key.ec_public_key;
+
+        /* Find out which named curve the local certificate is using. */
+        status = _nx_secure_tls_find_curve_method(tls_session, (USHORT)(ec_privkey -> nx_secure_ec_named_curve), &curve_method_cert);
+
+#ifdef NX_SECURE_KEY_CLEAR
+        if(status != NX_SUCCESS || curve_method_cert == NX_NULL)
+        {
+            /* Clear secrets on errors. */
+            NX_SECURE_MEMSET(handshake_hash, 0, sizeof(handshake_hash));
+            NX_SECURE_MEMSET(_nx_secure_padded_signature, 0, sizeof(_nx_secure_padded_signature));
+        }
+#endif /* NX_SECURE_KEY_CLEAR  */
+
+
+        if(status != NX_SUCCESS)
+        {
+            return(status);
+        }
+        if (curve_method_cert == NX_NULL)
+        {
+            /* The local certificate is using an unsupported curve. */
+            return(NX_SECURE_TLS_UNSUPPORTED_ECC_CURVE);
+        }
+
+        if (public_cipher_method -> nx_crypto_init != NX_NULL)
+        {
+            status = public_cipher_method -> nx_crypto_init((NX_CRYPTO_METHOD*)public_cipher_method,
+                                                            (UCHAR *)ec_pubkey -> nx_secure_ec_public_key,
+                                                            (NX_CRYPTO_KEY_SIZE)(ec_pubkey -> nx_secure_ec_public_key_length << 3),
+                                                            &handler,
+                                                            local_certificate -> nx_secure_x509_public_cipher_metadata_area,
+                                                            local_certificate -> nx_secure_x509_public_cipher_metadata_size);
+            if (status != NX_CRYPTO_SUCCESS)
+            {
+#ifdef NX_SECURE_KEY_CLEAR
+                NX_SECURE_MEMSET(handshake_hash, 0, sizeof(handshake_hash));
+                NX_SECURE_MEMSET(_nx_secure_padded_signature, 0, sizeof(_nx_secure_padded_signature));
+#endif /* NX_SECURE_KEY_CLEAR  */
+
+                return(status);
+            }
+        }
+        if (public_cipher_method -> nx_crypto_operation == NX_NULL)
+        {
+            return(NX_SECURE_TLS_MISSING_CRYPTO_ROUTINE);
+        }
+
+        status = public_cipher_method -> nx_crypto_operation(NX_CRYPTO_EC_CURVE_SET, handler,
+                                                             (NX_CRYPTO_METHOD*)public_cipher_method, NX_NULL, 0,
+                                                             (UCHAR *)curve_method_cert, sizeof(NX_CRYPTO_METHOD *), NX_NULL,
+                                                             NX_NULL, 0,
+                                                             local_certificate -> nx_secure_x509_public_cipher_metadata_area,
+                                                             local_certificate -> nx_secure_x509_public_cipher_metadata_size,
+                                                             NX_NULL, NX_NULL);
+        if (status != NX_CRYPTO_SUCCESS)
+        {
+#ifdef NX_SECURE_KEY_CLEAR
+            NX_SECURE_MEMSET(handshake_hash, 0, sizeof(handshake_hash));
+            NX_SECURE_MEMSET(_nx_secure_padded_signature, 0, sizeof(_nx_secure_padded_signature));
+#endif /* NX_SECURE_KEY_CLEAR  */
+
+            return(status);
+        }
+
+        /* Generate the signature and put it in the packet. */
+        extended_output.nx_crypto_extended_output_data = &current_buffer[length + 2];
+        extended_output.nx_crypto_extended_output_length_in_byte =
+            (ULONG)send_packet -> nx_packet_data_end - (ULONG)&current_buffer[length + 2];
+        extended_output.nx_crypto_extended_output_actual_size = 0;
+        status = public_cipher_method -> nx_crypto_operation(NX_CRYPTO_AUTHENTICATE, handler,
+                                                             (NX_CRYPTO_METHOD*)public_cipher_method,
+                                                             (UCHAR *)ec_privkey -> nx_secure_ec_private_key,
+                                                             (NX_CRYPTO_KEY_SIZE)(ec_privkey -> nx_secure_ec_private_key_length << 3),
+                                                             handshake_hash,
+                                                             data_size, NX_NULL,
+                                                             (UCHAR *)&extended_output,
+                                                             sizeof(extended_output),
+                                                             local_certificate -> nx_secure_x509_public_cipher_metadata_area,
+                                                             local_certificate -> nx_secure_x509_public_cipher_metadata_size,
+                                                             NX_NULL, NX_NULL);
+        if (status != NX_CRYPTO_SUCCESS)
+        {
+#ifdef NX_SECURE_KEY_CLEAR
+            NX_SECURE_MEMSET(handshake_hash, 0, sizeof(handshake_hash));
+            NX_SECURE_MEMSET(_nx_secure_padded_signature, 0, sizeof(_nx_secure_padded_signature));
+#endif /* NX_SECURE_KEY_CLEAR  */
+
+            return(status);
+        }
+
+        if (public_cipher_method -> nx_crypto_cleanup)
+        {
+            status = public_cipher_method -> nx_crypto_cleanup(local_certificate -> nx_secure_x509_public_cipher_metadata_area);
+            if(status != NX_CRYPTO_SUCCESS)
+            {
+#ifdef NX_SECURE_KEY_CLEAR
+                NX_SECURE_MEMSET(handshake_hash, 0, sizeof(handshake_hash));
+                NX_SECURE_MEMSET(_nx_secure_padded_signature, 0, sizeof(_nx_secure_padded_signature));
+#endif /* NX_SECURE_KEY_CLEAR  */
+
+                return(status);
+            }
+        }
+
+        /* Signature Length */
+        current_buffer[length] = (UCHAR)((extended_output.nx_crypto_extended_output_actual_size & 0xFF00) >> 8);
+        current_buffer[length + 1] = (UCHAR)(extended_output.nx_crypto_extended_output_actual_size & 0x00FF);
+        length += extended_output.nx_crypto_extended_output_actual_size + 2;
+    }
+#endif /* NX_SECURE_ENABLE_ECC_CIPHERSUITE */
 
 #ifdef NX_SECURE_KEY_CLEAR
     NX_SECURE_MEMSET(_nx_secure_padded_signature, 0, sizeof(_nx_secure_padded_signature));
 #endif /* NX_SECURE_KEY_CLEAR  */
 
-    /* Add the length of our encrypted signature to the total. */
-    length += data_size;
 
     /* Set the return size and adjust length. */
     send_packet -> nx_packet_append_ptr = send_packet -> nx_packet_append_ptr + (USHORT)(length);
