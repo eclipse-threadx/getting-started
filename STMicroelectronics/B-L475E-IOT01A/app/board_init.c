@@ -48,8 +48,6 @@ static void UART_Console_Init(void);
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
 void SPI3_IRQHandler(void);
-void EXTI1_IRQHandler(void);
-void EXTI15_10_IRQHandler(void);
 
 bool board_init(void)
 {
@@ -335,14 +333,4 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 void SPI3_IRQHandler(void)
 {
     HAL_SPI_IRQHandler(&hspi);
-}
-
-void EXTI1_IRQHandler(void)
-{
-    HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_1);
-}
-
-void EXTI15_10_IRQHandler(void)
-{
-    HAL_GPIO_EXTI_IRQHandler(USER_BUTTON_PIN);
 }

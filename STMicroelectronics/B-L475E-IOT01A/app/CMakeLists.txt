@@ -5,6 +5,8 @@ set(SOURCES
     libc/syscalls.c
     startup/system_stm32l4xx.c
     startup/startup.s
+    stm32cubel4/stm32l4xx_hal_msp.c
+    stm32cubel4/stm32l4xx_it.c
 
     azure_config.c
     board_init.c
@@ -30,7 +32,7 @@ target_link_options(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME}
     PUBLIC
         .
-        stm32cubel4_conf
+        stm32cubel4
 )
 
 target_link_libraries(${PROJECT_NAME}

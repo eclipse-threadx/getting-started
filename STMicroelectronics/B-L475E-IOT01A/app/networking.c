@@ -15,7 +15,7 @@
 #define THREADX_PACKET_SIZE  (1200)  /* Set the default value to 1200 since WIFI payload size (ES_WIFI_PAYLOAD_SIZE) is 1200.  */
 #define THREADX_POOL_SIZE    ((THREADX_PACKET_SIZE + sizeof(NX_PACKET)) * THREADX_PACKET_COUNT)
 
-#define WIFI_CONNECT_MAX_ATTEMPT_COUNT 3
+#define WIFI_CONNECT_MAX_ATTEMPT_COUNT 5
 
 static UCHAR threadx_ip_pool[THREADX_POOL_SIZE];
 
@@ -56,7 +56,14 @@ static bool wifi_init()
     WIFI_Status_t result;
 
     printf("Initializing WiFi\r\n");
-    printf("\tSSID %s\r\n", wifi_ssid);
+
+    if (wifi_ssid[0] == '\0')
+    {
+        printf("ERROR: wifi_ssid is empty\r\n");
+        return false;
+    }
+
+    printf("\tSSID is '%s'\r\n", wifi_ssid);
 
     if (WIFI_Init() != WIFI_STATUS_OK)
     {
@@ -70,13 +77,13 @@ static bool wifi_init()
     // Connect to the specified SSID
     while ((result = WIFI_Connect(wifi_ssid, wifi_password, security_mode)) != WIFI_STATUS_OK)
     {
-        printf("WiFi us not able connect to AP, attempt = %ld\r\n", wifiConnectCounter++);
+        printf("\tWiFi is not able connect to '%s', attempt = %ld\r\n", wifi_ssid, wifiConnectCounter++);
         HAL_Delay(1000);
 
         // Max number of attempts
         if (wifiConnectCounter == WIFI_CONNECT_MAX_ATTEMPT_COUNT)
         {
-            printf("ERROR: WiFi is not able to connected to the AP %s, with error %d\r\n", wifi_ssid, result);
+            printf("ERROR: WiFi is not able to connected to the '%s', with error %d\r\n", wifi_ssid, result);
             return false;
         }
     }
@@ -115,7 +122,7 @@ static UINT dns_create()
 
     if (WIFI_GetDNS_Address(dns_address_1, dns_address_2) != WIFI_STATUS_OK)
     {
-        printf("Failed to create DNS\r\n");
+        printf("ERROR: Failed to create DNS\r\n");
         return 1;
     }
     
@@ -154,7 +161,10 @@ int stm32_network_init(void)
     UINT status;
 
     // Intialize Wifi
-    wifi_init();
+    if (!wifi_init())
+    {
+        return 1;
+    }
 
     // Initialize the NetX system.
     nx_system_initialize();
@@ -165,7 +175,7 @@ int stm32_network_init(void)
         threadx_ip_pool, THREADX_POOL_SIZE);
     if (status != NX_SUCCESS)
     {
-        printf("THREADX platform initialize fail: PACKET POOL CREATE FAIL.\r\n");
+        printf("ERROR: PACKET POOL CREATE FAIL.\r\n");
         return status;
     }
 
@@ -177,7 +187,7 @@ int stm32_network_init(void)
     if (status != NX_SUCCESS)
     {
         nx_packet_pool_delete(&main_pool);
-        printf("THREADX platform initialize fail: IP CREATE FAIL.\r\n");
+        printf("ERROR: IP CREATE FAIL.\r\n");
         return status;
     }
     
@@ -187,7 +197,7 @@ int stm32_network_init(void)
     {
         nx_ip_delete(&ip_0);
         nx_packet_pool_delete(&main_pool);
-        printf("THREADX platform initialize fail: WIFI INITIALIZE FAIL.\r\n");
+        printf("ERROR: WIFI INITIALIZE FAIL.\r\n");
         return status;
     }
 
@@ -197,7 +207,7 @@ int stm32_network_init(void)
     {
         nx_ip_delete(&ip_0);
         nx_packet_pool_delete(&main_pool);
-        printf("THREADX platform initialize fail: DNS CREATE FAIL.\r\n");
+        printf("ERROR: DNS CREATE FAIL.\r\n");
         return status;
     }
 
