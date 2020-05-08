@@ -91,13 +91,13 @@ static UINT dns_create()
         return status;
     }
 
-    // Use the packet pool here
-    status = nx_dns_packet_pool_set(&dns_client, ip_0.nx_ip_default_packet_pool);
-    if (status != NX_SUCCESS)
-    {
-        nx_dns_delete(&dns_client);
-        return(status);
-    }
+//    // Use the packet pool here
+//    status = nx_dns_packet_pool_set(&dns_client, ip_0.nx_ip_default_packet_pool);
+//    if (status != NX_SUCCESS)
+//    {
+//        nx_dns_delete(&dns_client);
+//        return(status);
+//    }
 
     // Retrieve DNS server address
     nx_dhcp_interface_user_option_retrieve(&dhcp_client, 0, NX_DHCP_OPTION_DNS_SVR, (UCHAR*)dns_server_address, &dns_server_address_size); 
