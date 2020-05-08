@@ -1,6 +1,6 @@
 #include "board_init.h"
 
-#include <stdlib.h>
+#include <stdio.h>
 
 #include "tx_api.h"
 
@@ -12,7 +12,6 @@
 #include "stm32l475e_iot01_tsensor.h"
 #include "stm32l475e_iot01_magneto.h"
 
-#include "azure_config.h"
 #include "wifi.h"
 
 UART_HandleTypeDef UartHandle;
@@ -32,8 +31,6 @@ static uint32_t t_TIM_CC1_Pulse;
 #define RTC_ASYNCH_PREDIV 0x7F  // LSE as RTC clock
 #define RTC_SYNCH_PREDIV 0x00FF // LSE as RTC clock
 
-#define WIFI_CONNECT_MAX_ATTEMPT_COUNT 3
-
 #define CFG_HW_UART1_BAUDRATE 115200
 #define CFG_HW_UART1_WORDLENGTH UART_WORDLENGTH_8B
 #define CFG_HW_UART1_STOPBITS UART_STOPBITS_1
@@ -47,9 +44,12 @@ static void Init_MEM1_Sensors(void);
 static void SystemClock_Config(void);
 static void InitTimers(void);
 static void InitRTC(void);
-void SPI3_IRQHandler(void);
 static void UART_Console_Init(void);
-static bool network_init();
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
+void SPI3_IRQHandler(void);
+void EXTI1_IRQHandler(void);
+void EXTI15_10_IRQHandler(void);
 
 bool board_init(void)
 {
@@ -77,111 +77,7 @@ bool board_init(void)
     // Initialize timers
     InitTimers();
 
-    // Initialize the WIFI module
-    if (!network_init(NULL))
-    {
-        return false;
-    }
-
     return 0;
-}
-
-static bool network_init()
-{
-    uint8_t macAddress[6];
-    char moduleinfo[ES_WIFI_MAX_SSID_NAME_SIZE];
-    WIFI_Ecn_t security_mode;
-
-    switch (wifi_mode)
-    {
-    case None:
-        security_mode = WIFI_ECN_OPEN;
-        break;
-    case WEP:
-        security_mode = WIFI_ECN_WEP;
-        break;
-    case WPA_Personal:
-    default:
-        security_mode = WIFI_ECN_WPA2_PSK;
-        break;
-    };
-
-    int32_t wifiConnectCounter = 1;
-    WIFI_Status_t result;
-
-    if (WIFI_Init() != WIFI_STATUS_OK)
-    {
-        printf("Failed to initialize WIFI module\r\n");
-        return false;
-    }
-    else
-    {
-        printf("WIFI module initialized\r\n");
-    }
-
-    // Retrieve the WiFi module mac address to confirm that it is detected and communicating.
-    WIFI_GetModuleName(moduleinfo);
-    printf("Module initialized successfully: %s\r\n", moduleinfo);
-
-    WIFI_GetModuleID(moduleinfo);
-    printf("\t%s\r\n", moduleinfo);
-
-    WIFI_GetModuleFwRevision(moduleinfo);
-    printf("\t%s\r\n", moduleinfo);
-
-    if (WIFI_GetMAC_Address((uint8_t *)macAddress) != WIFI_STATUS_OK)
-    {
-        printf("Failed to get MAC address\r\n");
-        return false;
-    }
-    else
-    {
-        printf("WiFi MAC Address is: %02x:%02x:%02x:%02x:%02x:%02x\r\n",
-            macAddress[0], macAddress[1], macAddress[2],
-            macAddress[3], macAddress[4], macAddress[5]);
-    }
-
-    // Connect to the specified SSID
-    printf("Connecting WIFI; SSID=%s\r\n", wifi_ssid);
-    while ((result = WIFI_Connect(wifi_ssid, wifi_password, security_mode)) != WIFI_STATUS_OK)
-    {
-        printf("WiFi us not able connect to AP, attempt = %ld\r\n", wifiConnectCounter++);
-        HAL_Delay(1000);
-        // Max number of attempts
-        if (wifiConnectCounter == WIFI_CONNECT_MAX_ATTEMPT_COUNT)
-        {
-            printf("ERROR: WiFi is not able to connected to the AP %s, with error %d\r\n", wifi_ssid, result);
-            return false;
-        }
-    }
-    printf("WiFi connected to the AP %s\r\n", wifi_ssid);
-
-    uint8_t IP_Addr[4];
-    if (WIFI_GetIP_Address(IP_Addr) == WIFI_STATUS_OK)
-    {
-        printf("\tIP Address: %d.%d.%d.%d\r\n",
-            IP_Addr[0], IP_Addr[1], IP_Addr[2], IP_Addr[3]);
-    }
-
-    uint8_t Gateway_Addr[4];
-    if (WIFI_GetGateway_Address(Gateway_Addr) == WIFI_STATUS_OK)
-    {
-        printf("\tGateway Address: %d.%d.%d.%d\r\n",
-            Gateway_Addr[0], Gateway_Addr[1], Gateway_Addr[2], Gateway_Addr[3]);
-    }
-
-    uint8_t DNS1_Addr[4];
-    uint8_t DNS2_Addr[4];
-    if (WIFI_GetDNS_Address(DNS1_Addr, DNS2_Addr) == WIFI_STATUS_OK)
-    {
-        printf("\tDNS1 Address: %d.%d.%d.%d\r\n",
-            DNS1_Addr[0], DNS1_Addr[1], DNS1_Addr[2], DNS1_Addr[3]);
-
-        printf("\tDNS2 Address: %d.%d.%d.%d\r\n",
-            DNS2_Addr[0], DNS2_Addr[1], DNS2_Addr[2], DNS2_Addr[3]);
-    }
-
-    return true;
 }
 
 static void Init_MEM1_Sensors(void)
@@ -401,29 +297,7 @@ void STM32_Error_Handler(void)
     }
 }
 
-/**
- * @brief  EXTI line detection callback.
- * @param  uint16_t GPIO_Pin Specifies the pins connected EXTI line
- * @retval None
- */
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
-{
-    switch (GPIO_Pin)
-    {
-        case USER_BUTTON_PIN:
-            ButtonPressed = 1;
-            break;
-        case GPIO_PIN_1:
-            SPI_WIFI_ISR();
-            break;
-    }
-}
 
-// WiFi interrupt handle
-void SPI3_IRQHandler(void)
-{
-    HAL_SPI_IRQHandler(&hspi);
-}
 
 /**
  * @brief  Configures UART interface
@@ -443,24 +317,32 @@ static void UART_Console_Init(void)
     BSP_COM_Init(COM1, &UartHandle);
 }
 
-/**
-  * @brief This function provides accurate delay (in milliseconds) based
-  *        on variable incremented.
-  * @note This is a user implementation using WFI state
-  * @param Delay specifies the delay time length, in milliseconds.
-  * @retval None
-  */
-void HAL_Delay(__IO uint32_t Delay)
+// EXTI line detection callback
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-    uint32_t tickstart = 0;
-    tickstart = HAL_GetTick();
-    while ((HAL_GetTick() - tickstart) < Delay)
+    switch (GPIO_Pin)
     {
-        __WFI();
+        case USER_BUTTON_PIN:
+            ButtonPressed = 1;
+            break;
+        case GPIO_PIN_1:
+            SPI_WIFI_ISR();
+            break;
     }
 }
 
-uint32_t HAL_GetTick(void)
+// WiFi interrupt handle
+void SPI3_IRQHandler(void)
 {
-    return tx_time_get() * (100 / TX_TIMER_TICKS_PER_SECOND);
+    HAL_SPI_IRQHandler(&hspi);
+}
+
+void EXTI1_IRQHandler(void)
+{
+    HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_1);
+}
+
+void EXTI15_10_IRQHandler(void)
+{
+    HAL_GPIO_EXTI_IRQHandler(USER_BUTTON_PIN);
 }

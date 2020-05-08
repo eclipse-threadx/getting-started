@@ -480,7 +480,7 @@ bool azure_mqtt_start()
         }
     }
 
-    printf("SUCCESS: MQTT client initialized\r\n");
+    printf("SUCCESS: MQTT client initialized\r\n\r\n");
 
     return true;
 }

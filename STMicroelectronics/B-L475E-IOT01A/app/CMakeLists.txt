@@ -5,8 +5,6 @@ set(SOURCES
     libc/syscalls.c
     startup/system_stm32l4xx.c
     startup/startup.s
-    stm32cubel4_conf/stm32l4xx_it.c
-    stm32cubel4_conf/stm32l4xx_hal_msp.c
 
     azure_config.c
     board_init.c

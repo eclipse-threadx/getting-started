@@ -41,21 +41,25 @@ void mqtt_thread_entry(ULONG info)
 void azure_thread_entry(ULONG parameter)
 {
     // Initialize the network
-    threadx_net_init();
+    if (stm32_network_init() != NX_SUCCESS)
+    {
+        printf("Failed to initialize the network\r\n");
+        return;
+    }
 
-//    // Start the SNTP client
-//    if (!sntp_start())
-//    {
-//        printf("Failed to start the SNTP client\r\n");
-//        return;
-//    }
-//
-//    // Wait for an SNTP sync
-//    if (!sntp_wait_for_sync())
-//    {
-//        printf("Failed to start sync SNTP time\r\n");
-//        return;
-//    }
+    // Start the SNTP client
+/*    if (!sntp_start())
+    {
+        printf("Failed to start the SNTP client\r\n");
+        return;
+    }
+
+    // Wait for an SNTP sync
+    if (!sntp_wait_for_sync())
+    {
+        printf("Failed to start sync SNTP time\r\n");
+        return;
+    }*/
 
     if(!azure_mqtt_register_main_thread_callback(mqtt_thread_entry))
     {
