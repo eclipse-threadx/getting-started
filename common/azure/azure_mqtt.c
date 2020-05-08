@@ -79,6 +79,7 @@ static UINT mqtt_publish(CHAR *topic, CHAR *message);
 static UINT mqtt_publish_float(CHAR  *topic, CHAR *label, float value);
 static UINT mqtt_publish_bool(CHAR  *topic, CHAR *label, bool value);
 static UINT mqtt_publish_string(CHAR  *topic, CHAR *label, CHAR *value);
+static UINT mqtt_respond_direct_method(CHAR *topic, CHAR *request_id, MQTT_DIRECT_METHOD_RESPONSE *response);
 static VOID process_device_twin_response(CHAR *topic);
 static VOID process_direct_method(CHAR *topic, CHAR *message);
 static VOID process_c2d_message(CHAR *topic);
@@ -218,12 +219,6 @@ UINT azure_mqtt_publish_string_twin(CHAR* label, CHAR *value)
     printf("Sending device twin update with string value\r\n");
 
     return mqtt_publish_string(mqtt_publish_topic, label, value);
-}
-
-UINT azure_mqtt_respond_direct_method(CHAR *topic, CHAR *request_id, CHAR *message, int status)
-{
-    snprintf(topic, MQTT_TOPIC_NAME_LENGTH, DIRECT_METHOD_RESPONSE, status, request_id);
-    return mqtt_publish(topic, message);
 }
 
 // Azure MQTT private methods
@@ -494,6 +489,12 @@ static UINT mqtt_publish(CHAR *topic, CHAR *message)
     return status;
 }
 
+static UINT mqtt_respond_direct_method(CHAR *topic, CHAR *request_id, MQTT_DIRECT_METHOD_RESPONSE *response)
+{
+    snprintf(topic, MQTT_TOPIC_NAME_LENGTH, DIRECT_METHOD_RESPONSE, response->status, request_id);
+    return mqtt_publish(topic, response->message);
+}
+
 static VOID process_device_twin_response(CHAR *topic)
 {
     CHAR device_twin_res_status[16] = { 0 };
@@ -535,6 +536,8 @@ static VOID process_device_twin_response(CHAR *topic)
 
 static VOID process_direct_method(CHAR *topic, CHAR *message)
 {
+    MQTT_DIRECT_METHOD_RESPONSE response = { 0, { 0 } };
+    
     CHAR direct_method_name[64] = { 0 };
     CHAR request_id[16] = { 0 };
 
@@ -569,7 +572,9 @@ static VOID process_direct_method(CHAR *topic, CHAR *message)
         return;
     }
     
-    cb_ptr_mqtt_invoke_direct_method(topic, request_id, direct_method_name, message);
+    cb_ptr_mqtt_invoke_direct_method(direct_method_name, message, &response);
+
+    mqtt_respond_direct_method(topic, request_id, &response);
 }
 
 static VOID process_c2d_message(CHAR *topic)

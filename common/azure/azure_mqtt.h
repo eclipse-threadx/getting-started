@@ -4,8 +4,14 @@
 #include <stdbool.h>
 #include <tx_port.h>
 
+typedef struct MQTT_DIRECT_METHOD_RESPONSE_STRUCT
+{
+    int                           status;
+    CHAR                          message[16];
+} MQTT_DIRECT_METHOD_RESPONSE;
+
 typedef void(*func_ptr_main_thread)(ULONG);
-typedef void(*func_ptr_direct_method)(CHAR *, CHAR *, CHAR *, CHAR *);
+typedef void(*func_ptr_direct_method)(CHAR *, CHAR *, MQTT_DIRECT_METHOD_RESPONSE *);
 typedef void(*func_ptr_c2d_message)(CHAR *, CHAR *);
 
 bool azure_mqtt_register_main_thread_callback(func_ptr_main_thread mqtt_main_thread_callback);
@@ -17,6 +23,5 @@ UINT azure_mqtt_publish_float_twin(CHAR* label, float value);
 UINT azure_mqtt_publish_bool_twin(CHAR* label, bool value);
 UINT azure_mqtt_publish_string_twin(CHAR* label, CHAR *value);
 UINT azure_mqtt_publish_float_telemetry(CHAR* label, float value);
-UINT azure_mqtt_respond_direct_method(CHAR *topic, CHAR *request_id, CHAR *message, int status);
 
 #endif // _AZURE_MQTT_H
