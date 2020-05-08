@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -37,6 +25,7 @@
 #include "nx_crypto_tls_prf_sha256.h"
 #include "nx_crypto_tls_prf_sha384.h"
 #include "nx_crypto_tls_prf_sha512.h"
+#include "nx_crypto_hkdf.h"
 #include "nx_crypto_3des.h"
 #include "nx_crypto.h"
 #include "nx_crypto_md5.h"
@@ -62,10 +51,10 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    nx_crypto_methods                                   PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -94,7 +83,7 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  08-15-2019     Timothy Stapko           Initial Version 5.12          */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 
@@ -109,9 +98,9 @@ NX_CRYPTO_METHOD crypto_method_none =
     0,                                        /* ICV size in bits, not used            */
     0,                                        /* Block size in bytes                   */
     0,                                        /* Metadata size in bytes                */
-    NX_NULL,                                  /* Initialization routine, not used      */
-    NX_NULL,                                  /* Cleanup routine, not used             */
-    NX_NULL                                   /* NULL operation                        */
+    NX_CRYPTO_NULL,                           /* Initialization routine, not used      */
+    NX_CRYPTO_NULL,                           /* Cleanup routine, not used             */
+    NX_CRYPTO_NULL                            /* NULL operation                        */
 };
 
 
@@ -124,9 +113,9 @@ NX_CRYPTO_METHOD crypto_method_null =
     0,                                        /* ICV size in bits, not used            */
     4,                                        /* Block size in bytes                   */
     0,                                        /* Metadata size in bytes                */
-    NX_NULL,                                  /* Initialization routine, not used      */
-    NX_NULL,                                  /* Cleanup routine, not used             */
-    NX_NULL                                   /* NULL operation                        */
+    NX_CRYPTO_NULL,                           /* Initialization routine, not used      */
+    NX_CRYPTO_NULL,                           /* Cleanup routine, not used             */
+    NX_CRYPTO_NULL                            /* NULL operation                        */
 };
 
 /* Declare the AES-CBC 128 encrytion method. */
@@ -186,6 +175,48 @@ NX_CRYPTO_METHOD crypto_method_aes_ccm_8 =
     _nx_crypto_method_aes_ccm_operation          /* AES-CCM8 operation                     */
 };
 
+/* Declare the AES-CCM-16 encrytion method. */
+NX_CRYPTO_METHOD crypto_method_aes_ccm_16 =
+{
+    NX_CRYPTO_ENCRYPTION_AES_CCM_16,             /* AES crypto algorithm                   */
+    NX_CRYPTO_AES_128_KEY_LEN_IN_BITS,           /* Key size in bits                       */
+    32,                                          /* IV size in bits                        */
+    128,                                         /* ICV size in bits                       */
+    (NX_CRYPTO_AES_BLOCK_SIZE_IN_BITS >> 3),     /* Block size in bytes.                   */
+    sizeof(NX_CRYPTO_AES),                       /* Metadata size in bytes                 */
+    _nx_crypto_method_aes_init,                  /* AES-CCM16 initialization routine.      */
+    _nx_crypto_method_aes_cleanup,               /* AES-CCM16 cleanup routine.             */
+    _nx_crypto_method_aes_ccm_operation          /* AES-CCM16 operation                    */
+};
+
+/* Declare the AES-GCM encrytion method. */
+NX_CRYPTO_METHOD crypto_method_aes_128_gcm_16 =
+{
+    NX_CRYPTO_ENCRYPTION_AES_GCM_16,             /* AES crypto algorithm                   */
+    NX_CRYPTO_AES_128_KEY_LEN_IN_BITS,           /* Key size in bits                       */
+    32,                                          /* IV size in bits                        */
+    128,                                         /* ICV size in bits                       */
+    (NX_CRYPTO_AES_BLOCK_SIZE_IN_BITS >> 3),     /* Block size in bytes.                   */
+    sizeof(NX_CRYPTO_AES),                       /* Metadata size in bytes                 */
+    _nx_crypto_method_aes_init,                  /* AES-GCM initialization routine.        */
+    _nx_crypto_method_aes_cleanup,               /* AES-GCM cleanup routine.               */
+    _nx_crypto_method_aes_gcm_operation,         /* AES-GCM operation                      */
+};
+
+/* Declare the AES-GCM encrytion method. */
+NX_CRYPTO_METHOD crypto_method_aes_256_gcm_16 =
+{
+    NX_CRYPTO_ENCRYPTION_AES_GCM_16,             /* AES crypto algorithm                   */
+    NX_CRYPTO_AES_256_KEY_LEN_IN_BITS,           /* Key size in bits                       */
+    32,                                          /* IV size in bits                        */
+    128,                                         /* ICV size in bits                       */
+    (NX_CRYPTO_AES_BLOCK_SIZE_IN_BITS >> 3),     /* Block size in bytes.                   */
+    sizeof(NX_CRYPTO_AES),                       /* Metadata size in bytes                 */
+    _nx_crypto_method_aes_init,                  /* AES-GCM initialization routine.        */
+    _nx_crypto_method_aes_cleanup,               /* AES-GCM cleanup routine.               */
+    _nx_crypto_method_aes_gcm_operation,         /* AES-GCM operation                      */
+};
+
 /* Declare the AES-XCBC-MAC encrytion method. */
 NX_CRYPTO_METHOD crypto_method_aes_xcbc_mac_96 =
 {
@@ -217,7 +248,7 @@ NX_CRYPTO_METHOD crypto_method_drbg =
 /* Declare the ECDSA crypto method */
 NX_CRYPTO_METHOD crypto_method_ecdsa =
 {
-    NX_CRYPTO_DIGITAL_SIGNATRUE_ECDSA,           /* ECDSA crypto algorithm                 */
+    NX_CRYPTO_DIGITAL_SIGNATURE_ECDSA,           /* ECDSA crypto algorithm                 */
     0,                                           /* Key size in bits                       */
     0,                                           /* IV size in bits                        */
     0,                                           /* ICV size in bits, not used             */
@@ -391,9 +422,9 @@ NX_CRYPTO_METHOD crypto_method_auth_psk =
     0,                                        /* ICV size in bits, not used.            */
     0,                                        /* Block size in bytes.                   */
     0,                                        /* Metadata size in bytes                 */
-    NX_NULL,                                  /* Initialization routine.                */
-    NX_NULL,                                  /* Cleanup routine, not used.             */
-    NX_NULL                                   /* Operation                              */
+    NX_CRYPTO_NULL,                           /* Initialization routine.                */
+    NX_CRYPTO_NULL,                           /* Cleanup routine, not used.             */
+    NX_CRYPTO_NULL                            /* Operation                              */
 };
 
 /* Declare a placeholder for ECJ-PAKE. */
@@ -419,8 +450,8 @@ NX_CRYPTO_METHOD crypto_method_ec_secp192 =
     0,                                        /* ICV size in bits, not used.            */
     0,                                        /* Block size in bytes.                   */
     0,                                        /* Metadata size in bytes                 */
-    NX_NULL,                                  /* Initialization routine.                */
-    NX_NULL,                                  /* Cleanup routine, not used.             */
+    NX_CRYPTO_NULL,                           /* Initialization routine.                */
+    NX_CRYPTO_NULL,                           /* Cleanup routine, not used.             */
     _nx_crypto_method_ec_secp192r1_operation, /* Operation                              */
 };
 
@@ -433,8 +464,8 @@ NX_CRYPTO_METHOD crypto_method_ec_secp224 =
     0,                                        /* ICV size in bits, not used.            */
     0,                                        /* Block size in bytes.                   */
     0,                                        /* Metadata size in bytes                 */
-    NX_NULL,                                  /* Initialization routine.                */
-    NX_NULL,                                  /* Cleanup routine, not used.             */
+    NX_CRYPTO_NULL,                           /* Initialization routine.                */
+    NX_CRYPTO_NULL,                           /* Cleanup routine, not used.             */
     _nx_crypto_method_ec_secp224r1_operation, /* Operation                              */
 };
 
@@ -447,8 +478,8 @@ NX_CRYPTO_METHOD crypto_method_ec_secp256 =
     0,                                        /* ICV size in bits, not used.            */
     0,                                        /* Block size in bytes.                   */
     0,                                        /* Metadata size in bytes                 */
-    NX_NULL,                                  /* Initialization routine.                */
-    NX_NULL,                                  /* Cleanup routine, not used.             */
+    NX_CRYPTO_NULL,                           /* Initialization routine.                */
+    NX_CRYPTO_NULL,                           /* Cleanup routine, not used.             */
     _nx_crypto_method_ec_secp256r1_operation, /* Operation                              */
 };
 
@@ -461,8 +492,8 @@ NX_CRYPTO_METHOD crypto_method_ec_secp384 =
     0,                                        /* ICV size in bits, not used.            */
     0,                                        /* Block size in bytes.                   */
     0,                                        /* Metadata size in bytes                 */
-    NX_NULL,                                  /* Initialization routine.                */
-    NX_NULL,                                  /* Cleanup routine, not used.             */
+    NX_CRYPTO_NULL,                           /* Initialization routine.                */
+    NX_CRYPTO_NULL,                           /* Cleanup routine, not used.             */
     _nx_crypto_method_ec_secp384r1_operation, /* Operation                              */
 };
 
@@ -475,8 +506,8 @@ NX_CRYPTO_METHOD crypto_method_ec_secp521 =
     0,                                        /* ICV size in bits, not used.            */
     0,                                        /* Block size in bytes.                   */
     0,                                        /* Metadata size in bytes                 */
-    NX_NULL,                                  /* Initialization routine.                */
-    NX_NULL,                                  /* Cleanup routine, not used.             */
+    NX_CRYPTO_NULL,                           /* Initialization routine.                */
+    NX_CRYPTO_NULL,                           /* Cleanup routine, not used.             */
     _nx_crypto_method_ec_secp521r1_operation, /* Operation                              */
 };
 
@@ -670,6 +701,35 @@ NX_CRYPTO_METHOD crypto_method_tls_prf_sha512 =
     _nx_crypto_method_prf_sha512_operation         /* TLS PRF SHA512 operation              */
 };
 
+/* Define generic HMAC cryptographic routine. */
+NX_CRYPTO_METHOD crypto_method_hmac =
+{
+    NX_CRYPTO_HASH_HMAC,                            /* HMAC algorithm                        */
+    0,                                              /* Key size in bits, not used            */
+    0,                                              /* IV size in bits, not used             */
+    0,                                              /* Transmitted ICV size in bits, not used*/
+    0,                                              /* Block size in bytes, not used         */
+    sizeof(NX_CRYPTO_HMAC),                         /* Metadata size in bytes                */
+    _nx_crypto_method_hmac_init,                    /* HKDF initialization routine           */
+    _nx_crypto_method_hmac_cleanup,                 /* HKDF cleanup routine                  */
+    _nx_crypto_method_hmac_operation                /* HKDF operation                        */
+};
+
+
+/* Define generic HMAC-based Key Derivation Function method. */
+NX_CRYPTO_METHOD crypto_method_hkdf =
+{
+    NX_CRYPTO_HKDF_METHOD,                          /* HKDF algorithm                        */
+    0,                                              /* Key size in bits, not used            */
+    0,                                              /* IV size in bits, not used             */
+    0,                                              /* Transmitted ICV size in bits, not used*/
+    0,                                              /* Block size in bytes, not used         */
+    sizeof(NX_CRYPTO_HKDF) + sizeof(NX_CRYPTO_HMAC),/* Metadata size in bytes                */
+    _nx_crypto_method_hkdf_init,                    /* HKDF initialization routine           */
+    _nx_crypto_method_hkdf_cleanup,                 /* HKDF cleanup routine                  */
+    _nx_crypto_method_hkdf_operation                /* HKDF operation                        */
+};
+
 /* Declare the 3DES-CBC 128 encrytion method. */
 NX_CRYPTO_METHOD crypto_method_des =
 {
@@ -702,7 +762,7 @@ NX_CRYPTO_METHOD crypto_method_3des =
 /* Declare the PKCS#1v1.5 encrytion method. */
 NX_CRYPTO_METHOD crypto_method_pkcs1 =
 {
-    NX_CRYPTO_DIGITAL_SIGNATRUE_RSA,             /* PKCS#1v1.5 crypto algorithm            */
+    NX_CRYPTO_DIGITAL_SIGNATURE_RSA,             /* PKCS#1v1.5 crypto algorithm            */
     0,                                           /* Key size in bits, not used             */
     0,                                           /* IV size in bits, not used              */
     0,                                           /* ICV size in bits, not used             */

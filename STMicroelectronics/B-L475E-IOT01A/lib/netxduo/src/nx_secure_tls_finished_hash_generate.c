@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -45,10 +33,10 @@ static UCHAR handshake_hash[16 + 20]; /* We concatenate MD5 and SHA-1 hashes int
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_tls_finished_hash_generate               PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -80,25 +68,7 @@ static UCHAR handshake_hash[16 + 20]; /* We concatenate MD5 and SHA-1 hashes int
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-09-2017     Timothy Stapko           Initial Version 5.10          */
-/*  12-15-2017     Timothy Stapko           Modified comment(s),          */
-/*                                            supported DTLS, optimized   */
-/*                                            the logic,                  */
-/*                                            resulting in version 5.11   */
-/*  08-15-2019     Timothy Stapko           Modified comment(s), added    */
-/*                                            logic to clear encryption   */
-/*                                            key and other secret data,  */
-/*                                            fixed the function pointer  */
-/*                                            checking, added new error   */
-/*                                            return for NULL operations, */
-/*                                            added flexibility of using  */
-/*                                            macros instead of direct C  */
-/*                                            library function calls,     */
-/*                                            passed crypto handle into   */
-/*                                            crypto internal functions,  */
-/*                                            updated error return checks,*/
-/*                                            removed cipher suite lookup,*/
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 UINT _nx_secure_tls_finished_hash_generate(NX_SECURE_TLS_SESSION *tls_session,
@@ -106,7 +76,7 @@ UINT _nx_secure_tls_finished_hash_generate(NX_SECURE_TLS_SESSION *tls_session,
 {
 UINT                                  status;
 UCHAR                                *master_sec;
-NX_CRYPTO_METHOD                     *method_ptr = NX_NULL;
+const NX_CRYPTO_METHOD                     *method_ptr = NX_NULL;
 VOID                                 *handler = NX_NULL;
 #if (NX_SECURE_TLS_TLS_1_0_ENABLED || NX_SECURE_TLS_TLS_1_1_ENABLED)
 VOID                                 *metadata;
@@ -172,7 +142,7 @@ UINT                                  hash_size = 0;
         {
             status = method_ptr -> nx_crypto_operation(NX_CRYPTO_HASH_CALCULATE,
                                               handler,
-                                              method_ptr,
+                                              (NX_CRYPTO_METHOD*)method_ptr,
                                               NX_NULL,
                                               0,
                                               NX_NULL,
@@ -185,7 +155,7 @@ UINT                                  hash_size = 0;
                                               NX_NULL,
                                               NX_NULL);
 
-            if(status != NX_SUCCESS)
+            if(status != NX_CRYPTO_SUCCESS)
             {
                 return(status);
             }                                                     
@@ -233,7 +203,7 @@ UINT                                  hash_size = 0;
         {
             status = method_ptr -> nx_crypto_operation(NX_CRYPTO_HASH_CALCULATE,
                                               handler,
-                                              method_ptr,
+                                              (NX_CRYPTO_METHOD*)method_ptr,
                                               NX_NULL,
                                               0,
                                               NX_NULL,
@@ -246,7 +216,7 @@ UINT                                  hash_size = 0;
                                               NX_NULL,
                                               NX_NULL);
 
-            if(status != NX_SUCCESS)
+            if(status != NX_CRYPTO_SUCCESS)
             {
                 return(status);
             }                                                     
@@ -265,7 +235,7 @@ UINT                                  hash_size = 0;
         {
             status = method_ptr -> nx_crypto_operation(NX_CRYPTO_HASH_CALCULATE,
                                               handler,
-                                              method_ptr,
+                                              (NX_CRYPTO_METHOD*)method_ptr,
                                               NX_NULL,
                                               0,
                                               NX_NULL,
@@ -278,7 +248,7 @@ UINT                                  hash_size = 0;
                                               NX_NULL,
                                               NX_NULL);
 
-            if(status != NX_SUCCESS)
+            if(status != NX_CRYPTO_SUCCESS)
             {
                 return(status);
             }                                                     
@@ -303,13 +273,13 @@ UINT                                  hash_size = 0;
     /* Do the final PRF encoding of the finished hash. */
     if (method_ptr -> nx_crypto_init != NX_NULL)
     {
-        status = method_ptr -> nx_crypto_init(method_ptr,
+        status = method_ptr -> nx_crypto_init((NX_CRYPTO_METHOD*)method_ptr,
                                      master_sec, 48,
                                      &handler,
                                      tls_session -> nx_secure_tls_prf_metadata_area,
                                      tls_session -> nx_secure_tls_prf_metadata_size);
 
-        if(status != NX_SUCCESS)
+        if(status != NX_CRYPTO_SUCCESS)
         {
             return(status);
         }                                                     
@@ -323,7 +293,7 @@ UINT                                  hash_size = 0;
     {
         status = method_ptr -> nx_crypto_operation(NX_CRYPTO_PRF,
                                           handler,
-                                          method_ptr,
+                                          (NX_CRYPTO_METHOD*)method_ptr,
                                           finished_label,
                                           15,
                                           handshake_hash,
@@ -336,7 +306,7 @@ UINT                                  hash_size = 0;
                                           NX_NULL,
                                           NX_NULL);
 
-        if(status != NX_SUCCESS)
+        if(status != NX_CRYPTO_SUCCESS)
         {
             return(status);
         }                                                     
@@ -350,7 +320,7 @@ UINT                                  hash_size = 0;
     {
         status = method_ptr -> nx_crypto_cleanup(tls_session -> nx_secure_tls_prf_metadata_area);
 
-        if(status != NX_SUCCESS)
+        if(status != NX_CRYPTO_SUCCESS)
         {
             return(status);
         }                                                     

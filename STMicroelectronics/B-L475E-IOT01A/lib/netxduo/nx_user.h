@@ -157,19 +157,33 @@
 #ifndef NX_USER_H
 #define NX_USER_H
 
-#define NX_DISABLE_IPV6
-#define NX_DISABLE_INCLUDE_SOURCE_CODE
-
 #define NX_FTP_NO_FILEX
 #define NX_HTTP_NO_FILEX
 #define NX_TFTP_NO_FILEX
 #define NX_WEB_HTTP_NO_FILEX
 
+#define NX_DISABLE_IPV6
+#define NX_DISABLE_INCLUDE_SOURCE_CODE
+#define NX_DNS_CLIENT_USER_CREATE_PACKET_POOL
+
 #define NX_SECURE_ENABLE
 
-#define NXD_MQTT_REQUIRE_TLS
 #define NXD_MQTT_MAX_TOPIC_NAME_LENGTH  200
 #define NXD_MQTT_MAX_MESSAGE_LENGTH     200
+
+#define NX_PACKET_ALIGNMENT             32
+#define NX_PACKET_HEADER_PAD
+#define NX_PACKET_HEADER_PAD_SIZE       2
+
+#define NX_DISABLE_ICMPV4_RX_CHECKSUM
+#define NX_DISABLE_ICMPV4_TX_CHECKSUM  
+#define NX_DISABLE_IP_RX_CHECKSUM
+#define NX_DISABLE_IP_TX_CHECKSUM
+#define NX_DISABLE_TCP_RX_CHECKSUM
+#define NX_DISABLE_TCP_TX_CHECKSUM
+#define NX_DISABLE_UDP_RX_CHECKSUM
+#define NX_DISABLE_UDP_TX_CHECKSUM
+
 
 /* Define various build options for the NetX Duo port.  The application should either make changes
    here by commenting or un-commenting the conditional compilation defined OR supply the defines

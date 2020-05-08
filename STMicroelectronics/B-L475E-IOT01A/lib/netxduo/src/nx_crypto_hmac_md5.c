@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -32,7 +20,6 @@
 /**************************************************************************/
 /**************************************************************************/
 
-#include "nx_api.h"
 #include "nx_crypto_md5.h"
 #include "nx_crypto_hmac_md5.h"
 #include "nx_crypto_hmac.h"
@@ -43,10 +30,10 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_method_hmac_md5_init                     PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -78,7 +65,7 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  08-15-2019     Timothy Stapko           Initial Version 5.12          */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP UINT  _nx_crypto_method_hmac_md5_init(struct  NX_CRYPTO_METHOD_STRUCT *method,
@@ -90,23 +77,23 @@ NX_CRYPTO_KEEP UINT  _nx_crypto_method_hmac_md5_init(struct  NX_CRYPTO_METHOD_ST
 
     NX_CRYPTO_STATE_CHECK
 
-    NX_PARAMETER_NOT_USED(key_size_in_bits);
-    NX_PARAMETER_NOT_USED(handle);
+    NX_CRYPTO_PARAMETER_NOT_USED(key_size_in_bits);
+    NX_CRYPTO_PARAMETER_NOT_USED(handle);
 
-    if ((method == NX_NULL) || (key == NX_NULL) || (crypto_metadata == NX_NULL))
+    if ((method == NX_CRYPTO_NULL) || (key == NX_CRYPTO_NULL) || (crypto_metadata == NX_CRYPTO_NULL))
     {
-        return(NX_PTR_ERROR);
+        return(NX_CRYPTO_PTR_ERROR);
     }
   
     /* Verify the metadata addrsss is 4-byte aligned. */
     if((((ULONG)crypto_metadata) & 0x3) != 0)
     {
-        return(NX_PTR_ERROR);
+        return(NX_CRYPTO_PTR_ERROR);
     }
 
     if(crypto_metadata_size < sizeof(NX_CRYPTO_MD5_HMAC))
     {
-        return(NX_PTR_ERROR);
+        return(NX_CRYPTO_PTR_ERROR);
     }
 
     return(NX_CRYPTO_SUCCESS);
@@ -118,10 +105,10 @@ NX_CRYPTO_KEEP UINT  _nx_crypto_method_hmac_md5_init(struct  NX_CRYPTO_METHOD_ST
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_method_hmac_md5_cleanup                  PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -147,7 +134,7 @@ NX_CRYPTO_KEEP UINT  _nx_crypto_method_hmac_md5_init(struct  NX_CRYPTO_METHOD_ST
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  08-15-2019     Timothy Stapko           Initial Version 5.12          */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP UINT  _nx_crypto_method_hmac_md5_cleanup(VOID *crypto_metadata)
@@ -162,7 +149,7 @@ NX_CRYPTO_KEEP UINT  _nx_crypto_method_hmac_md5_cleanup(VOID *crypto_metadata)
     /* Clean up the crypto metadata.  */
     NX_CRYPTO_MEMSET(crypto_metadata, 0, sizeof(NX_CRYPTO_MD5_HMAC));
 #else
-    NX_PARAMETER_NOT_USED(crypto_metadata);
+    NX_CRYPTO_PARAMETER_NOT_USED(crypto_metadata);
 #endif/* NX_SECURE_KEY_CLEAR  */
 
     return(NX_CRYPTO_SUCCESS);
@@ -174,10 +161,10 @@ NX_CRYPTO_KEEP UINT  _nx_crypto_method_hmac_md5_cleanup(VOID *crypto_metadata)
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_method_hmac_md5_operation                PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -221,11 +208,7 @@ NX_CRYPTO_KEEP UINT  _nx_crypto_method_hmac_md5_cleanup(VOID *crypto_metadata)
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP UINT  _nx_crypto_method_hmac_md5_operation(UINT op,      /* Encrypt, Decrypt, Authenticate */
@@ -244,31 +227,31 @@ NX_CRYPTO_KEEP UINT  _nx_crypto_method_hmac_md5_operation(UINT op,      /* Encry
                                                           VOID (*nx_crypto_hw_process_callback)(VOID *packet_ptr, UINT status))
 {
 NX_CRYPTO_MD5_HMAC *ctx;
-NX_CRYPTO_HMAC      hmac_metadata;
+NX_CRYPTO_HMAC     *hmac_metadata;
 
-    NX_PARAMETER_NOT_USED(handle);
-    NX_PARAMETER_NOT_USED(iv_ptr);
-    NX_PARAMETER_NOT_USED(packet_ptr);
-    NX_PARAMETER_NOT_USED(nx_crypto_hw_process_callback);
+    NX_CRYPTO_PARAMETER_NOT_USED(handle);
+    NX_CRYPTO_PARAMETER_NOT_USED(iv_ptr);
+    NX_CRYPTO_PARAMETER_NOT_USED(packet_ptr);
+    NX_CRYPTO_PARAMETER_NOT_USED(nx_crypto_hw_process_callback);
 
     NX_CRYPTO_STATE_CHECK
 
     /* Verify the metadata addrsss is 4-byte aligned. */
-    if((method == NX_NULL) || (crypto_metadata == NX_NULL) || ((((ULONG)crypto_metadata) & 0x3) != 0))
+    if((method == NX_CRYPTO_NULL) || (crypto_metadata == NX_CRYPTO_NULL) || ((((ULONG)crypto_metadata) & 0x3) != 0))
     {
-        return(NX_PTR_ERROR);
+        return(NX_CRYPTO_PTR_ERROR);
     }
 
     if(crypto_metadata_size < sizeof(NX_CRYPTO_MD5_HMAC))
     {
-        return(NX_PTR_ERROR);
+        return(NX_CRYPTO_PTR_ERROR);
     }
 
     ctx = (NX_CRYPTO_MD5_HMAC *)crypto_metadata;
-    _nx_crypto_hmac_metadata_set(&hmac_metadata,
+    hmac_metadata = &ctx->nx_md5_hmac_metadata;
+
+    _nx_crypto_hmac_metadata_set(hmac_metadata,
                                  &(ctx -> nx_md5_hmac_context),
-                                 ctx -> nx_md5_hmac_k_ipad,
-                                 ctx -> nx_md5_hmac_k_opad,
                                  method -> nx_crypto_algorithm,
                                  NX_CRYPTO_MD5_BLOCK_SIZE_IN_BYTES,
                                  NX_CRYPTO_HMAC_MD5_ICV_FULL_LEN_IN_BITS >> 3,
@@ -279,16 +262,16 @@ NX_CRYPTO_HMAC      hmac_metadata;
     switch (op)
     {
     case NX_CRYPTO_HASH_INITIALIZE:
-        if(key == NX_NULL)
+        if(key == NX_CRYPTO_NULL)
         {
-            return(NX_PTR_ERROR);
+            return(NX_CRYPTO_PTR_ERROR);
         }
 
-        _nx_crypto_hmac_initialize(&hmac_metadata, key, key_size_in_bits >> 3);
+        _nx_crypto_hmac_initialize(hmac_metadata, key, key_size_in_bits >> 3);
         break;
 
     case NX_CRYPTO_HASH_UPDATE:
-        _nx_crypto_hmac_update(&hmac_metadata, input, input_length_in_byte);
+        _nx_crypto_hmac_update(hmac_metadata, input, input_length_in_byte);
         break;
 
     case NX_CRYPTO_HASH_CALCULATE:
@@ -297,15 +280,15 @@ NX_CRYPTO_HMAC      hmac_metadata;
             return(NX_CRYPTO_INVALID_BUFFER_SIZE);
         }
 
-        _nx_crypto_hmac_digest_calculate(&hmac_metadata, output, 
+        _nx_crypto_hmac_digest_calculate(hmac_metadata, output,
                                          (output_length_in_byte > (ULONG)((method -> nx_crypto_ICV_size_in_bits) >> 3) ? 
                                          ((method -> nx_crypto_ICV_size_in_bits) >> 3) : output_length_in_byte));
         break;
 
     default:
-        if(key == NX_NULL)
+        if(key == NX_CRYPTO_NULL)
         {
-            return(NX_PTR_ERROR);
+            return(NX_CRYPTO_PTR_ERROR);
         }
 
         if(output_length_in_byte == 0)
@@ -313,7 +296,7 @@ NX_CRYPTO_HMAC      hmac_metadata;
             return(NX_CRYPTO_INVALID_BUFFER_SIZE);
         }
 
-        _nx_crypto_hmac(&hmac_metadata, input, input_length_in_byte, key, (key_size_in_bits >> 3), output, 
+        _nx_crypto_hmac(hmac_metadata, input, input_length_in_byte, key, (key_size_in_bits >> 3), output,
                         (output_length_in_byte > (ULONG)((method -> nx_crypto_ICV_size_in_bits) >> 3) ? 
                         ((method -> nx_crypto_ICV_size_in_bits) >> 3) : output_length_in_byte));
         break;

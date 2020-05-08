@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -42,10 +30,10 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_tls_session_keys_set                     PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -84,19 +72,7 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s), and      */
-/*                                            added flexibility of using  */
-/*                                            macros instead of direct C  */
-/*                                            library function calls,     */
-/*                                            rearranged code sequence    */
-/*                                            for static analysis,        */
-/*                                            improved packet length      */
-/*                                            verificaiton, updated error */
-/*                                            return checks and return    */
-/*                                            return codes, removed       */
-/*                                            cipher suite lookup,        */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 #define NX_SECURE_SOURCE_CODE
@@ -109,7 +85,7 @@ UINT                                  hash_size;
 UINT                                  iv_size;
 UINT                                  key_offset;
 UINT                                  is_client;
-NX_CRYPTO_METHOD                     *session_cipher_method = NX_NULL;
+const NX_CRYPTO_METHOD               *session_cipher_method = NX_NULL;
 
     /* The key material should have already been generated by nx_secure_tls_generate_keys once all
      * key generation data was available. This simply switches the appropriate key data over to the active
@@ -244,7 +220,7 @@ NX_CRYPTO_METHOD                     *session_cipher_method = NX_NULL;
         /* Set client write key. */
         if (is_client)
         {
-            status = session_cipher_method -> nx_crypto_init(session_cipher_method,
+            status = session_cipher_method -> nx_crypto_init((NX_CRYPTO_METHOD*)session_cipher_method,
                                                     tls_session -> nx_secure_tls_key_material.nx_secure_tls_client_write_key,
                                                     session_cipher_method -> nx_crypto_key_size_in_bits,
                                                     &tls_session -> nx_secure_session_cipher_handler_client,
@@ -254,14 +230,14 @@ NX_CRYPTO_METHOD                     *session_cipher_method = NX_NULL;
         else
         {
             /* Set server write key. */
-            status = session_cipher_method -> nx_crypto_init(session_cipher_method,
+            status = session_cipher_method -> nx_crypto_init((NX_CRYPTO_METHOD*)session_cipher_method,
                                                     tls_session -> nx_secure_tls_key_material.nx_secure_tls_server_write_key,
                                                     session_cipher_method -> nx_crypto_key_size_in_bits,
                                                     &tls_session -> nx_secure_session_cipher_handler_server,
                                                     tls_session -> nx_secure_session_cipher_metadata_area_server,
                                                     tls_session -> nx_secure_session_cipher_metadata_size);
         }
-        if(status != NX_SUCCESS)
+        if(status != NX_CRYPTO_SUCCESS)
         {
             return(status);
         }

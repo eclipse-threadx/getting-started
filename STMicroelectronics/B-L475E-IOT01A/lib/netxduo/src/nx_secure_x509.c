@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -62,7 +50,7 @@ static UINT _nx_secure_x509_parse_extensions(const UCHAR *buffer, ULONG length,
                                              UINT *bytes_processed, NX_SECURE_X509_CERT *cert);
 static UINT _nx_secure_x509_parse_signature_data(const UCHAR *buffer, ULONG length,
                                                  UINT *bytes_processed, NX_SECURE_X509_CERT *cert);
-static UINT _nx_secure_x509_extract_oid_data(const UCHAR *buffer, UINT oid, ULONG length,
+static UINT _nx_secure_x509_extract_oid_data(const UCHAR *buffer, UINT oid, UINT oid_param, ULONG length,
                                              UINT *bytes_processed, NX_SECURE_X509_CERT *cert);
 
 /**************************************************************************/
@@ -70,10 +58,10 @@ static UINT _nx_secure_x509_extract_oid_data(const UCHAR *buffer, UINT oid, ULON
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_x509_certificate_parse                   PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -114,12 +102,7 @@ static UINT _nx_secure_x509_extract_oid_data(const UCHAR *buffer, UINT oid, ULON
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-09-2017     Timothy Stapko           Initial Version 5.10          */
-/*  12-15-2017     Timothy Stapko           Modified comment(s)           */
-/*                                            added buffer size checking, */
-/*                                            resulting in version 5.11   */
-/*  08-15-2019     Timothy Stapko           Modified comment(s)           */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 UINT _nx_secure_x509_certificate_parse(const UCHAR *buffer, UINT length, UINT *bytes_processed,
@@ -133,20 +116,18 @@ const UCHAR *tlv_data;
 ULONG        header_length;
 UINT         status;
 
-    NX_SECURE_X509_PARSE_CERTIFICATE_EXTENSION
-
     /* X509 Certificate structure:
      * ASN.1 sequence: Certificate
      *     Sequence: Certificate data
      *         Version (e.g. X509v3)
      *         Serial Number
-     *         Sequence: Signature algorithm (NULL-terminated)
+     *         Sequence: Signature algorithm
      *             Signature Algorithms (e.g. RSA_SHA-256)
      *             NULL
      *         Sequence: Issuer
      *             Set: Issuer information (multiple sets here - one per OID)
      *                 Sequence: Information (multiple sequences here?)
-     *                     ASN.1 OID    (e.g. Country)
+     *                     ASN.1 OID    (e.g. Country/Region)
      *                     ASN.1 String (e.g. "US")
      *             ...
      *         Sequence: Validity Period
@@ -155,11 +136,11 @@ UINT         status;
      *         Sequence: Subject info (Common Name, etc. for this certificate)
      *             Set: Subject information (multiple sets here - one per OID)
      *                 Sequence: Information (multiple sequences here?)
-     *                     ASN.1 OID    (e.g. Country)
+     *                     ASN.1 OID    (e.g. Country/Region)
      *                     ASN.1 String (e.g. "US")
      *             ...
      *         Sequence: Public Key
-     *             Sequence: Public key data (NULL-terminated sequence)
+     *             Sequence: Public key data
      *                 ASN.1 OID (e.g. RSA)
      *                 NULL
      *             ASN.1 Bit string - contains embedded key data in ASN.1 format:
@@ -172,7 +153,7 @@ UINT         status;
      *              {
      *                  ASN.1-encoded data for extensions
      *              }
-     *    Sequence: Signature algorithm data (NULL-terminated)
+     *    Sequence: Signature algorithm data
      *        ASN.1 OID (E.g RSA_SHA256)
      *        NULL
      *    ASN.1 Bit string: Signature data
@@ -236,7 +217,11 @@ UINT         status;
     /* Return the number of bytes we processed. */
     *bytes_processed += bytes;
 
-    if (cert -> nx_secure_x509_public_algorithm != NX_SECURE_TLS_X509_TYPE_RSA)
+    if (cert -> nx_secure_x509_public_algorithm != NX_SECURE_TLS_X509_TYPE_RSA
+#ifdef NX_SECURE_ENABLE_ECC_CIPHERSUITE
+        && cert -> nx_secure_x509_public_algorithm != NX_SECURE_TLS_X509_TYPE_EC
+#endif /* NX_SECURE_ENABLE_ECC_CIPHERSUITE */
+        )
     {
         /* Release the protection. */
         return(NX_SECURE_TLS_UNSUPPORTED_PUBLIC_CIPHER);
@@ -254,10 +239,10 @@ UINT         status;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_x509_extract_oid_data                    PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -269,8 +254,9 @@ UINT         status;
 /*  INPUT                                                                 */
 /*                                                                        */
 /*    buffer                                Pointer data to be parsed     */
-/*    oid                                   Length of data in buffer      */
-/*    length                                Return bytes processed        */
+/*    oid                                   Data type in OID              */
+/*    oid_param                             Public key parameter OID      */
+/*    length                                Length of data in buffer      */
 /*    bytes_processed                       Number of bytes being         */
 /*                                            consumed by the oid         */
 /*    cert                                  The certificate               */
@@ -291,16 +277,10 @@ UINT         status;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-09-2017     Timothy Stapko           Initial Version 5.10          */
-/*  12-15-2017     Timothy Stapko           Modified comment(s)           */
-/*                                            resulting in version 5.11   */
-/*  08-15-2019     Timothy Stapko           Modified comment(s)           */
-/*                                            optimized the logic,        */
-/*                                            added buffer size checking, */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
-static UINT _nx_secure_x509_extract_oid_data(const UCHAR *buffer, UINT oid, ULONG length,
+static UINT _nx_secure_x509_extract_oid_data(const UCHAR *buffer, UINT oid, UINT oid_param, ULONG length,
                                              UINT *bytes_processed, NX_SECURE_X509_CERT *cert)
 {
 USHORT       tlv_type;
@@ -310,6 +290,11 @@ const UCHAR *tlv_data;
 const UCHAR *sequence_data;
 ULONG        header_length;
 UINT         status;
+#ifdef NX_SECURE_ENABLE_ECC_CIPHERSUITE
+NX_SECURE_EC_PUBLIC_KEY *ec_pubkey;
+#else
+    NX_PARAMETER_NOT_USED(oid_param);
+#endif /* NX_SECURE_ENABLE_ECC_CIPHERSUITE */
 
     NX_ASSERT(cert != NX_NULL);
 
@@ -385,6 +370,24 @@ UINT         status;
         cert -> nx_secure_x509_public_key.rsa_public_key.nx_secure_rsa_public_exponent = tlv_data;
         cert -> nx_secure_x509_public_key.rsa_public_key.nx_secure_rsa_public_exponent_length = (USHORT)tlv_length;
     }
+#ifdef NX_SECURE_ENABLE_ECC_CIPHERSUITE
+    else if (oid == NX_SECURE_TLS_X509_TYPE_EC)
+    {
+        /*  EC public key. */
+
+        /*  Parse the EC bitstring - it is preceeded by a byte indicating the number of padding bytes
+         *  added. Should always be 0. */
+        if (tlv_data[0] != 0)
+        {
+            return(NX_SECURE_X509_FOUND_NON_ZERO_PADDING);
+        }
+
+        ec_pubkey = &cert -> nx_secure_x509_public_key.ec_public_key;
+        ec_pubkey -> nx_secure_ec_public_key = &tlv_data[1];
+        ec_pubkey -> nx_secure_ec_public_key_length = (USHORT)(tlv_length - 1);
+        ec_pubkey -> nx_secure_ec_named_curve = oid_param;
+    }
+#endif /* NX_SECURE_ENABLE_ECC_CIPHERSUITE */
 
     /* Any additional special-case handling should go here. */
     switch (oid)
@@ -422,10 +425,10 @@ UINT         status;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_x509_parse_cert_data                     PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -471,12 +474,7 @@ UINT         status;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-09-2017     Timothy Stapko           Initial Version 5.10          */
-/*  12-15-2017     Timothy Stapko           Modified comment(s)           */
-/*                                            resulting in version 5.11   */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added buffer size checking, */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 static UINT _nx_secure_x509_parse_cert_data(const UCHAR *buffer, ULONG length,
@@ -645,10 +643,10 @@ UINT         status;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_x509_parse_version                       PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -680,12 +678,7 @@ UINT         status;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-09-2017     Timothy Stapko           Initial Version 5.10          */
-/*  12-15-2017     Timothy Stapko           Modified comment(s)           */
-/*                                            resulting in version 5.11   */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added buffer size checking, */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 static UINT _nx_secure_x509_parse_version(const UCHAR *buffer, ULONG length, UINT *bytes_processed,
@@ -739,10 +732,10 @@ UINT         status;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_x509_parse_serial_num                    PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -773,12 +766,7 @@ UINT         status;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-09-2017     Timothy Stapko           Initial Version 5.10          */
-/*  12-15-2017     Timothy Stapko           Modified comment(s)           */
-/*                                            resulting in version 5.11   */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added buffer size checking, */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 static UINT _nx_secure_x509_parse_serial_num(const UCHAR *buffer, ULONG length,
@@ -826,10 +814,10 @@ UINT         status;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_x509_parse_signature_algorithm           PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -863,12 +851,7 @@ UINT         status;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-09-2017     Timothy Stapko           Initial Version 5.10          */
-/*  12-15-2017     Timothy Stapko           Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added buffer size checking, */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 static UINT _nx_secure_x509_parse_signature_algorithm(const UCHAR *buffer, ULONG length,
@@ -884,7 +867,7 @@ ULONG        header_length;
 UINT         status;
 UCHAR        oid_found = NX_FALSE;
 
-    /* The signature algorithm is a sequence of OIDs that is terminated by a NULL ASN.1 tag. */
+    /* The signature algorithm is an OID and has optionally associated parameters. */
     *bytes_processed = 0;
 
     /*  First, parse the sequence. */
@@ -928,14 +911,7 @@ UCHAR        oid_found = NX_FALSE;
         }
         else if (tlv_type == NX_SECURE_ASN_TAG_NULL)
         {
-            if (oid_found == NX_TRUE)
-            {
-                return(NX_SECURE_X509_SUCCESS);
-            }
-            else
-            {
-                break;
-            }
+            break;
         }
         else
         {
@@ -944,6 +920,11 @@ UCHAR        oid_found = NX_FALSE;
 
         /* Advance the data pointer. */
         tlv_data = &tlv_data[tlv_length];
+    }
+
+    if (oid_found == NX_TRUE)
+    {
+        return(NX_SECURE_X509_SUCCESS);
     }
 
     /* We were expecting a signature algorithm OID but didn't find one. */
@@ -956,10 +937,10 @@ UCHAR        oid_found = NX_FALSE;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_x509_parse_issuer                        PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -993,12 +974,7 @@ UCHAR        oid_found = NX_FALSE;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-09-2017     Timothy Stapko           Initial Version 5.10          */
-/*  12-15-2017     Timothy Stapko           Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added buffer size checking, */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 static UINT _nx_secure_x509_parse_issuer(const UCHAR *buffer, ULONG length, UINT *bytes_processed,
@@ -1042,10 +1018,10 @@ UINT         status;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_x509_parse_validity                      PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -1079,12 +1055,7 @@ UINT         status;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-09-2017     Timothy Stapko           Initial Version 5.10          */
-/*  12-15-2017     Timothy Stapko           Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added buffer size checking, */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 static UINT _nx_secure_x509_parse_validity(const UCHAR *buffer, ULONG length, UINT *bytes_processed,
@@ -1168,10 +1139,10 @@ const UCHAR *current_buffer;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_x509_parse_subject                       PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -1205,12 +1176,7 @@ const UCHAR *current_buffer;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-09-2017     Timothy Stapko           Initial Version 5.10          */
-/*  12-15-2017     Timothy Stapko           Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added buffer size checking, */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 static UINT _nx_secure_x509_parse_subject(const UCHAR *buffer, ULONG length, UINT *bytes_processed,
@@ -1255,10 +1221,10 @@ UINT         status;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_x509_parse_public_key                    PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -1293,13 +1259,7 @@ UINT         status;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-09-2017     Timothy Stapko           Initial Version 5.10          */
-/*  12-15-2017     Timothy Stapko           Modified comment(s),          */
-/*                                            checked OID parsing return, */
-/*                                            resulting in version 5.11   */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added buffer size checking, */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 static UINT _nx_secure_x509_parse_public_key(const UCHAR *buffer, ULONG length,
@@ -1314,13 +1274,14 @@ const UCHAR *bitstring_ptr;
 ULONG        bitstring_len;
 ULONG        header_length;
 UINT         oid;
+UINT         oid_parameter;
 UINT         status;
 
     /* Extract public key information, encoded as ASN.1 in an ASN.1 bitstring, and populate the certificate. */
     /*         Sequence: Public Key
-     *             Sequence: Public key data (NULL-terminated sequence)
+     *             Sequence: Public key data
      *                 ASN.1 OID (e.g. RSA)
-     *                 NULL
+     *                 NULL or parameters
      *             ASN.1 Bit string - contains embedded key data in ASN.1 format:
      *                {
      *                  1 byte: padding (always 0?)
@@ -1395,7 +1356,7 @@ UINT         status;
         _nx_secure_x509_oid_parse(tlv_data, tlv_length, &oid);
         cert -> nx_secure_x509_public_algorithm = oid;
 
-        /* The OID is followed by a NULL */
+        /* The OID is followed by a NULL or a parameter OID. */
         tlv_data = &tlv_data[tlv_length];
         status = _nx_secure_x509_asn1_tlv_block_parse(tlv_data, &length, &tlv_type, &tlv_type_class, &tlv_length, &tlv_data, &header_length);
         if (status != 0)
@@ -1403,7 +1364,15 @@ UINT         status;
             return status;
         }
 
-        if (tlv_type != NX_SECURE_ASN_TAG_NULL || tlv_type_class != NX_SECURE_ASN_TAG_CLASS_UNIVERSAL)
+        oid_parameter = 0;
+
+        if (tlv_type == NX_SECURE_ASN_TAG_OID)
+        {
+            /* The OID is in the data we extracted. */
+            _nx_secure_x509_oid_parse(tlv_data, tlv_length, &oid_parameter);
+
+        }
+        else if (tlv_type != NX_SECURE_ASN_TAG_NULL || tlv_type_class != NX_SECURE_ASN_TAG_CLASS_UNIVERSAL)
         {
             return(NX_SECURE_X509_UNEXPECTED_ASN1_TAG);
         }
@@ -1414,7 +1383,7 @@ UINT         status;
 
         /* Extract the data in the block following the OID sequence. Use the calculated remaining
          * length for the length of the data going in. */
-        status = _nx_secure_x509_extract_oid_data(bitstring_ptr, oid, bitstring_len, &bytes, cert);
+        status = _nx_secure_x509_extract_oid_data(bitstring_ptr, oid, oid_parameter, bitstring_len, &bytes, cert);
         if (status != 0)
         {
             return status;
@@ -1438,10 +1407,10 @@ UINT         status;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_x509_parse_unique_ids                    PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -1472,14 +1441,7 @@ UINT         status;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-09-2017     Timothy Stapko           Initial Version 5.10          */
-/*  12-15-2017     Timothy Stapko           Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            fixed issues with parsing   */
-/*                                            offsets and version check,  */
-/*                                            added buffer size checking, */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 static UINT _nx_secure_x509_parse_unique_ids(const UCHAR *buffer, ULONG length,
@@ -1586,10 +1548,10 @@ UINT         processed_id;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_x509_parse_extensions                    PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -1623,12 +1585,7 @@ UINT         processed_id;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-09-2017     Timothy Stapko           Initial Version 5.10          */
-/*  12-15-2017     Timothy Stapko           Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added buffer size checking, */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 static UINT _nx_secure_x509_parse_extensions(const UCHAR *buffer, ULONG length,
@@ -1709,10 +1666,10 @@ UINT         status;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_x509_parse_signature_data                PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -1747,12 +1704,7 @@ UINT         status;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-09-2017     Timothy Stapko           Initial Version 5.10          */
-/*  12-15-2017     Timothy Stapko           Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added buffer size checking, */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 static UINT _nx_secure_x509_parse_signature_data(const UCHAR *buffer, ULONG length,

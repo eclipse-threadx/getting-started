@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -27,42 +15,65 @@
 /**                                                                       */
 /** NetX Secure Component                                                 */
 /**                                                                       */
-/**    Transport Layer Security (TLS) - Generate Session Keys             */
+/**    Transport Layer Security (TLS)                                     */
 /**                                                                       */
 /**************************************************************************/
 /**************************************************************************/
 
 #define NX_SECURE_SOURCE_CODE
 
-#include "nx_secure_tls_ecc.h"
 #include "nx_secure_tls.h"
 #ifdef NX_SECURE_ENABLE_DTLS
 #include "nx_secure_dtls.h"
 #endif /* NX_SECURE_ENABLE_DTLS */
 
-/* This local static buffer needs to be large enough to hold both the server random and the client random. */
-static UCHAR _nx_secure_tls_gen_keys_random[NX_SECURE_TLS_RANDOM_SIZE + NX_SECURE_TLS_RANDOM_SIZE];
+#ifdef NX_SECURE_ENABLE_ECC_CIPHERSUITE
+
+static UCHAR hash[64]; /* We concatenate MD5 and SHA-1 hashes into this buffer, OR SHA-256, SHA-384, SHA512. */
+static UCHAR _nx_secure_padded_signature[512];
+/* DER encodings (with OIDs for common algorithms) from RFC 8017.
+ * NOTE: This is the equivalent DER-encoding for the value "T" described in RFC 8017 section 9.2. */
+static const UCHAR _NX_CRYPTO_DER_OID_MD5[]         =  {0x30, 0x20, 0x30, 0x0c, 0x06, 0x08, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x02, 0x02, 0x05, 0x00, 0x04, 0x10};
+static const UCHAR _NX_CRYPTO_DER_OID_SHA_1[]       =  {0x30, 0x21, 0x30, 0x09, 0x06, 0x05, 0x2b, 0x0e, 0x03, 0x02, 0x1a, 0x05, 0x00, 0x04, 0x14};
+static const UCHAR _NX_CRYPTO_DER_OID_SHA_224[]     =  {0x30, 0x2d, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x04, 0x05, 0x00, 0x04, 0x1c};
+static const UCHAR _NX_CRYPTO_DER_OID_SHA_256[]     =  {0x30, 0x31, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x01, 0x05, 0x00, 0x04, 0x20};
+static const UCHAR _NX_CRYPTO_DER_OID_SHA_384[]     =  {0x30, 0x41, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x02, 0x05, 0x00, 0x04, 0x30};
+static const UCHAR _NX_CRYPTO_DER_OID_SHA_512[]     =  {0x30, 0x51, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x03, 0x05, 0x00, 0x04, 0x40};
+
+
 
 /**************************************************************************/
 /*                                                                        */
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_tls_ecc_generate_keys                    PORTABLE C      */
-/*                                                          5.12          */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
-/*    This function generates the session keys used by TLS to encrypt     */
-/*    the data being transmitted. It uses data gathered during the TLS    */
-/*    handshake to generate a block of "key material" that is split into  */
-/*    the various keys needed for each session.                           */
+/*    This function is used to generate ECC key pairs (public, private)   */
+/*    for use in TLS. TLS ECC keys need to be signed using a trusted      */
+/*    certificate or other mechanism - this function handles the signature*/
+/*    generation and outputs the public key and it's signature in the     */
+/*    proper over-the-wire format for TLS. The private key is also        */
+/*    exported (conditionally) for later use (usually when used to        */
+/*    calculate the shared secret.                                        */
+/*                                                                        */
+/*    NOTE: The key sizes should contain the size of their respective     */
+/*          buffers as input. The value will be replaced with the actual  */
+/*          size of the generated key.                                    */
 /*                                                                        */
 /*  INPUT                                                                 */
 /*                                                                        */
 /*    tls_session                           TLS control block             */
+/*    ecc_named_curve                       IANA ECC curve identifier     */
+/*    sign_key                              True/False generate signature */
+/*    public_key                            Signed ECC public key         */
+/*    public_key_size                       Size of public key            */
+/*    ecc_data                              ECC data (incl. private key)  */
 /*                                                                        */
 /*  OUTPUT                                                                */
 /*                                                                        */
@@ -70,286 +81,803 @@ static UCHAR _nx_secure_tls_gen_keys_random[NX_SECURE_TLS_RANDOM_SIZE + NX_SECUR
 /*                                                                        */
 /*  CALLS                                                                 */
 /*                                                                        */
-/*    [nx_crypto_init]                      Initialize crypto             */
-/*    [nx_crypto_operation]                 Crypto operation              */
+/*    None                                                                */
 /*                                                                        */
 /*  CALLED BY                                                             */
 /*                                                                        */
+/*    Application Code                                                    */
 /*                                                                        */
 /*  RELEASE HISTORY                                                       */
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  08-15-2019     Timothy Stapko           Initial Version 5.12          */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
-UINT _nx_secure_tls_ecc_generate_keys(struct NX_SECURE_TLS_SESSION_STRUCT *tls_session)
+UINT _nx_secure_tls_ecc_generate_keys(NX_SECURE_TLS_SESSION *tls_session, UINT ecc_named_curve, USHORT sign_key,
+                                      UCHAR *public_key, UINT *public_key_size, NX_SECURE_TLS_ECDHE_HANDSHAKE_DATA *ecc_data)
 {
-UCHAR                                *pre_master_sec;
-UINT                                  pre_master_sec_size;
-UCHAR                                *master_sec;
-UCHAR                                *key_block; /* Maximum ciphersuite key size - AES_256_CBC_SHA, 2x32 byte keys + 2x20 byte MAC secrets + 2x16 IVs. */
-UINT                                  key_block_size;
-UINT                                  key_size;
-UINT                                  hash_size;
-UINT                                  iv_size;
+UINT                                  length;
+UINT                                  output_size;
 UINT                                  status;
-NX_CRYPTO_METHOD                     *session_cipher_method = NX_NULL;
-NX_CRYPTO_METHOD                     *session_prf_method = NX_NULL;
+NX_CRYPTO_EXTENDED_OUTPUT extended_output;
+USHORT                                signature_length;
+UINT                                  signature_offset;
+const UCHAR                          *der_encoding = NX_NULL;
+UINT                                  der_encoding_length = 0;
+UINT                                  hash_length;
+const NX_CRYPTO_METHOD               *curve_method;
+const NX_CRYPTO_METHOD               *curve_method_cert;
+const NX_CRYPTO_METHOD               *ecdhe_method;
+const NX_CRYPTO_METHOD               *hash_method;
+const NX_CRYPTO_METHOD               *auth_method;
 VOID                                 *handler = NX_NULL;
-
-    /* Generate the session keys using the parameters obtained in the handshake.
-       By this point all the information needed to generate the TLS session key
-       material should have been gathered and stored in the TLS socket structure. */
-
-    key_block_size = 0;
-
-    /* Working pointer into our new key material block since we are generating new keys. */
-    key_block = tls_session -> nx_secure_tls_key_material.nx_secure_tls_new_key_material_data;
+NX_SECURE_X509_CERT                  *certificate;
+NX_SECURE_X509_CRYPTO                *crypto_methods;
+NX_SECURE_EC_PRIVATE_KEY             *ec_privkey;
+NX_SECURE_EC_PUBLIC_KEY              *ec_pubkey;
+USHORT                                signature_algorithm_id;
 
 
-    /* Generate the Master Secret from the Pre-Master Secret.
-       From the RFC (TLS 1.1, TLS 1.2):
-
-        master_secret = PRF(pre_master_secret, "master secret",
-                        ClientHello.random + ServerHello.random) [0..47];
-
-        The master secret is always exactly 48 bytes in length.  The length
-        of the premaster secret will vary depending on key exchange method.
-     */
-
-    if (tls_session -> nx_secure_tls_session_ciphersuite == NX_NULL)
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+    if(tls_session->nx_secure_tls_1_3)
     {
-
-        /* Likely internal error since at this point ciphersuite negotiation was theoretically completed. */
-        return(NX_SECURE_TLS_UNKNOWN_CIPHERSUITE);
-    }
-
-    /* Get our session cipher method so we can get key sizes. */
-    session_cipher_method = tls_session -> nx_secure_tls_session_ciphersuite -> nx_secure_tls_session_cipher;
-
-    /* The generation of key material is different between RSA and DH. */
-    if (tls_session -> nx_secure_tls_session_ciphersuite -> nx_secure_tls_public_cipher -> nx_crypto_algorithm == NX_CRYPTO_KEY_EXCHANGE_ECDHE ||
-        tls_session -> nx_secure_tls_session_ciphersuite -> nx_secure_tls_public_cipher -> nx_crypto_algorithm == NX_CRYPTO_KEY_EXCHANGE_ECDH)
-    {
-        pre_master_sec = tls_session -> nx_secure_tls_key_material.nx_secure_tls_pre_master_secret;
-        pre_master_sec_size = tls_session -> nx_secure_tls_key_material.nx_secure_tls_pre_master_secret_size;
-        master_sec = tls_session -> nx_secure_tls_key_material.nx_secure_tls_master_secret;
-
-        /* Concatenate random values to feed into PRF. */
-        NX_SECURE_MEMCPY(_nx_secure_tls_gen_keys_random, tls_session -> nx_secure_tls_key_material.nx_secure_tls_client_random,
-                         NX_SECURE_TLS_RANDOM_SIZE);
-        NX_SECURE_MEMCPY(&_nx_secure_tls_gen_keys_random[NX_SECURE_TLS_RANDOM_SIZE],
-                         tls_session -> nx_secure_tls_key_material.nx_secure_tls_server_random, NX_SECURE_TLS_RANDOM_SIZE);
-
-        /* Generate the master secret using the pre-master secret, the defined TLS label, and the concatenated
-           random values. */
-#if (NX_SECURE_TLS_TLS_1_2_ENABLED)
-#ifdef NX_SECURE_ENABLE_DTLS
-        if (tls_session -> nx_secure_tls_protocol_version == NX_SECURE_TLS_VERSION_TLS_1_2 ||
-            tls_session -> nx_secure_tls_protocol_version == NX_SECURE_DTLS_VERSION_1_2)
-#else
-        if (tls_session -> nx_secure_tls_protocol_version == NX_SECURE_TLS_VERSION_TLS_1_2)
-#endif /* NX_SECURE_ENABLE_DTLS */
-        {
-            /* For TLS 1.2, the PRF is defined by the ciphersuite. However, if we are using an older ciphersuite,
-             * default to the TLS 1.2 default PRF, which uses SHA-256-HMAC. */
-            session_prf_method = tls_session -> nx_secure_tls_session_ciphersuite -> nx_secure_tls_prf;
-        }
-
-#endif
-#if (NX_SECURE_TLS_TLS_1_0_ENABLED || NX_SECURE_TLS_TLS_1_1_ENABLED)
-#ifdef NX_SECURE_ENABLE_DTLS
-        if (tls_session -> nx_secure_tls_protocol_version == NX_SECURE_TLS_VERSION_TLS_1_0 ||
-            tls_session -> nx_secure_tls_protocol_version == NX_SECURE_TLS_VERSION_TLS_1_1 ||
-            tls_session -> nx_secure_tls_protocol_version == NX_SECURE_DTLS_VERSION_1_0)
-#else
-        if (tls_session -> nx_secure_tls_protocol_version == NX_SECURE_TLS_VERSION_TLS_1_0 ||
-            tls_session -> nx_secure_tls_protocol_version == NX_SECURE_TLS_VERSION_TLS_1_1)
-#endif /* NX_SECURE_ENABLE_DTLS */
-        {
-            /* TLS 1.0 and TLS 1.1 use the same PRF. */
-            session_prf_method = tls_session -> nx_secure_tls_crypto_table -> nx_secure_tls_prf_1_method;
-        }
-#endif
-        /* If we don't have a PRF method, the version is wrong! */
-        if (session_prf_method == NX_NULL)
-        {
-#ifdef NX_SECURE_KEY_CLEAR
-            NX_SECURE_MEMSET(_nx_secure_tls_gen_keys_random, 0, sizeof(_nx_secure_tls_gen_keys_random));
-#endif /* NX_SECURE_KEY_CLEAR  */
-
-            return(NX_SECURE_TLS_PROTOCOL_VERSION_CHANGED);
-        }
-
-        /* Use the PRF to generate the master secret. */
-        if (session_prf_method -> nx_crypto_init != NX_NULL)
-        {
-            status = session_prf_method -> nx_crypto_init(session_prf_method,
-                                                 pre_master_sec, (NX_CRYPTO_KEY_SIZE)pre_master_sec_size,
-                                                 &handler,
-                                                 tls_session -> nx_secure_tls_prf_metadata_area,
-                                                 tls_session -> nx_secure_tls_prf_metadata_size);
-
-            if(status != NX_SUCCESS)
-            {
-#ifdef NX_SECURE_KEY_CLEAR
-                NX_SECURE_MEMSET(_nx_secure_tls_gen_keys_random, 0, sizeof(_nx_secure_tls_gen_keys_random));
-#endif /* NX_SECURE_KEY_CLEAR  */
-
-                return(status);
-            }                                                     
-        }
-
-        if (session_prf_method -> nx_crypto_operation != NX_NULL)
-        {
-            status = session_prf_method -> nx_crypto_operation(NX_CRYPTO_PRF,
-                                                      handler,
-                                                      session_prf_method,
-                                                      (UCHAR *)"master secret",
-                                                      13,
-                                                      _nx_secure_tls_gen_keys_random,
-                                                      64,
-                                                      NX_NULL,
-                                                      master_sec,
-                                                      48,
-                                                      tls_session -> nx_secure_tls_prf_metadata_area,
-                                                      tls_session -> nx_secure_tls_prf_metadata_size,
-                                                      NX_NULL,
-                                                      NX_NULL);
-
-#ifdef NX_SECURE_KEY_CLEAR
-            NX_SECURE_MEMSET(_nx_secure_tls_gen_keys_random, 0, sizeof(_nx_secure_tls_gen_keys_random));
-#endif /* NX_SECURE_KEY_CLEAR  */
-
-            if(status != NX_SUCCESS)
-            {
-                /* Secrets cleared above. */
-                return(status);
-            }                                                     
-        }
-
-        if (session_prf_method -> nx_crypto_cleanup)
-        {
-            status = session_prf_method -> nx_crypto_cleanup(tls_session -> nx_secure_tls_prf_metadata_area);
-
-            if(status != NX_SUCCESS)
-            {
-                /* All secrets cleared above. */
-                return(status);
-            }                                                     
-        }
+        ecdhe_method = tls_session->nx_secure_tls_crypto_table->nx_secure_tls_ecdhe_method;
     }
     else
+#endif
     {
-        /* The chosen cipher is not supported. Likely an internal error since negotiation has already finished. */
-        return(NX_CONTINUE);
-    }
-
-    /* Clear out the Pre-Master Secret (we don't need it anymore and keeping it in memory is dangerous). */
-#ifdef NX_SECURE_KEY_CLEAR
-    NX_SECURE_MEMSET(pre_master_sec, 0x0, sizeof(tls_session -> nx_secure_tls_key_material.nx_secure_tls_pre_master_secret));
-#endif /* NX_SECURE_KEY_CLEAR  */
-
-    /* Lookup ciphersuite data for key size. We need 2 keys for each session. */
-    key_size = session_cipher_method -> nx_crypto_key_size_in_bits >> 3;
-
-    /* Lookup ciphersuite data for hash size - used for the MAC secret. */
-    hash_size = tls_session -> nx_secure_tls_session_ciphersuite -> nx_secure_tls_hash_size;
-
-    /* Lookup initialization vector size.  */
-    iv_size = session_cipher_method -> nx_crypto_IV_size_in_bits >> 3;
-
-    /* Now calculate block size. Need client and server for each key, hash, and iv. Note that
-       key size and iv size may be zero depending on the ciphersuite, particularly when using
-       the NULL ciphers. */
-    key_block_size = 2 * (key_size + hash_size + iv_size);
-
-    /* Now generate keys from the master secret we obtained above. */
-    /* From the RFC (TLS 1.1):
-       To generate the key material, compute
-
-       key_block = PRF(SecurityParameters.master_secret,
-                          "key expansion",
-                          SecurityParameters.server_random +
-             SecurityParameters.client_random);
-
-       until enough output has been generated.  Then the key_block is
-       partitioned as follows:
-
-       client_write_MAC_secret[SecurityParameters.hash_size]
-       server_write_MAC_secret[SecurityParameters.hash_size]
-       client_write_key[SecurityParameters.key_material_length]
-       server_write_key[SecurityParameters.key_material_length]
-     */
-
-    /* The order of the randoms is reversed from that used for the master secret
-       when generating the key block.  */
-    NX_SECURE_MEMCPY(_nx_secure_tls_gen_keys_random, tls_session -> nx_secure_tls_key_material.nx_secure_tls_server_random,
-                     NX_SECURE_TLS_RANDOM_SIZE);
-    NX_SECURE_MEMCPY(&_nx_secure_tls_gen_keys_random[NX_SECURE_TLS_RANDOM_SIZE],
-                     tls_session -> nx_secure_tls_key_material.nx_secure_tls_client_random, NX_SECURE_TLS_RANDOM_SIZE);
-
-    /* Key expansion uses the PRF to generate a block of key material from the master secret (generated
-       above) and the client and server random values transmitted during the initial hello negotiation. */
-    if (session_prf_method -> nx_crypto_init != NX_NULL)
-    {
-        status = session_prf_method -> nx_crypto_init(session_prf_method,
-                                             master_sec, 48,
-                                             &handler,
-                                             tls_session -> nx_secure_tls_prf_metadata_area,
-                                             tls_session -> nx_secure_tls_prf_metadata_size);
-
-        if(status != NX_SUCCESS)
+        if (tls_session -> nx_secure_tls_session_ciphersuite == NX_NULL)
         {
-#ifdef NX_SECURE_KEY_CLEAR
-            NX_SECURE_MEMSET(_nx_secure_tls_gen_keys_random, 0, sizeof(_nx_secure_tls_gen_keys_random));
-#endif /* NX_SECURE_KEY_CLEAR  */
 
-            return(status);
-        }                                                     
+            /* Likely internal error since at this point ciphersuite negotiation was theoretically completed. */
+            return(NX_SECURE_TLS_UNKNOWN_CIPHERSUITE);
+        }
+
+        /* Generate ECDHE key pair using ECDHE crypto method. */
+        ecdhe_method = tls_session -> nx_secure_tls_session_ciphersuite -> nx_secure_tls_public_cipher;
     }
 
-    if (session_prf_method -> nx_crypto_operation != NX_NULL)
+    /* Make sure we have a method to use. */
+    if (ecdhe_method == NX_NULL || ecdhe_method -> nx_crypto_operation == NX_NULL)
     {
-        status = session_prf_method -> nx_crypto_operation(NX_CRYPTO_PRF,
-                                                  handler,
-                                                  session_prf_method,
-                                                  (UCHAR *)"key expansion",
-                                                  13,
-                                                  _nx_secure_tls_gen_keys_random,
-                                                  64,
-                                                  NX_NULL,
-                                                  key_block,
-                                                  key_block_size,
-                                                  tls_session -> nx_secure_tls_prf_metadata_area,
-                                                  tls_session -> nx_secure_tls_prf_metadata_size,
-                                                  NX_NULL,
-                                                  NX_NULL);
-
-#ifdef NX_SECURE_KEY_CLEAR
-        /* We now have a key block, clear our temporary secrets buffer. */
-        NX_SECURE_MEMSET(_nx_secure_tls_gen_keys_random, 0, sizeof(_nx_secure_tls_gen_keys_random));
-#endif /* NX_SECURE_KEY_CLEAR  */
-
-        if(status != NX_SUCCESS)
-        {
-            /* Secrets cleared above. */
-            return(status);
-        }       
+        return(NX_SECURE_TLS_MISSING_CRYPTO_ROUTINE);
     }
 
-    if (session_prf_method -> nx_crypto_cleanup)
+    /* Set the curve we are using. */
+    ecc_data->nx_secure_tls_ecdhe_named_curve = ecc_named_curve;
+
+    /* Find out which named curve the we are using. */
+    status = _nx_secure_tls_find_curve_method(tls_session, (USHORT)ecc_named_curve, &curve_method);
+    if(status != NX_SUCCESS)
     {
-        status = session_prf_method -> nx_crypto_cleanup(tls_session -> nx_secure_tls_prf_metadata_area);
-
-        if(status != NX_SUCCESS)
-        {
-            /* Secrets cleared above. */
-            return(status);
-        }                                                     
+        return(status);
+    }
+    if (curve_method == NX_NULL)
+    {
+        return(NX_SECURE_TLS_UNSUPPORTED_ECC_CURVE);
     }
 
-    return(NX_SECURE_TLS_SUCCESS);
+
+    if (ecdhe_method -> nx_crypto_init != NX_NULL)
+    {
+        status = ecdhe_method -> nx_crypto_init((NX_CRYPTO_METHOD*)ecdhe_method,
+                                       NX_NULL,
+                                       0,
+                                       &handler,
+                                       tls_session -> nx_secure_public_cipher_metadata_area,
+                                       tls_session -> nx_secure_public_cipher_metadata_size);
+        if(status != NX_CRYPTO_SUCCESS)
+        {
+            return(status);
+        }
+    }
+
+    status = ecdhe_method -> nx_crypto_operation(NX_CRYPTO_EC_CURVE_SET, handler,
+                                                 (NX_CRYPTO_METHOD*)ecdhe_method, NX_NULL, 0,
+                                                 (UCHAR *)curve_method, sizeof(NX_CRYPTO_METHOD *), NX_NULL,
+                                                 NX_NULL, 0,
+                                                 tls_session -> nx_secure_public_cipher_metadata_area,
+                                                 tls_session -> nx_secure_public_cipher_metadata_size,
+                                                 NX_NULL, NX_NULL);
+    if (status != NX_CRYPTO_SUCCESS)
+    {
+        return(status);
+    }
+
+
+    /* Start to fill the public key buffer. */
+    length = 0;
+    output_size = *public_key_size;
+    *public_key_size = 0;
+
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+    if(!tls_session->nx_secure_tls_1_3)
+#endif
+    {
+        /* ECCurveType: named_curve (3). */
+        public_key[length] = 3;
+        length += 1;
+
+        /* NamedCurve */
+        public_key[length] = (UCHAR)((ecc_data -> nx_secure_tls_ecdhe_named_curve & 0xFF00) >> 8);
+        public_key[length + 1] = (UCHAR)(ecc_data -> nx_secure_tls_ecdhe_named_curve & 0x00FF);
+        length += 2;
+    }
+
+
+    /* Generate the key pair and output the public key. */
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+    if(tls_session->nx_secure_tls_1_3)
+    {
+        extended_output.nx_crypto_extended_output_data = &public_key[length];
+        extended_output.nx_crypto_extended_output_length_in_byte = output_size - length;
+    }
+    else
+#endif
+    {
+        extended_output.nx_crypto_extended_output_data = &public_key[length + 1];
+        extended_output.nx_crypto_extended_output_length_in_byte = output_size - (length + 1);
+    }
+    extended_output.nx_crypto_extended_output_actual_size = 0;
+    status = ecdhe_method -> nx_crypto_operation(NX_CRYPTO_DH_SETUP, handler,
+                                                 (NX_CRYPTO_METHOD*)ecdhe_method, NX_NULL, 0,
+                                                 NX_NULL, 0, NX_NULL,
+                                                 (UCHAR *)&extended_output,
+                                                 sizeof(extended_output),
+                                                 tls_session -> nx_secure_public_cipher_metadata_area,
+                                                 tls_session -> nx_secure_public_cipher_metadata_size,
+                                                 NX_NULL, NX_NULL);
+    if (status != NX_CRYPTO_SUCCESS)
+    {
+        return(status);
+    }
+
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+    if(!tls_session->nx_secure_tls_1_3)
+#endif
+    {
+        /* Put the length into the buffer before the key data. */
+        public_key[length] = (UCHAR)extended_output.nx_crypto_extended_output_actual_size;
+        length += 1;
+
+    }
+
+    length += (UINT)(extended_output.nx_crypto_extended_output_actual_size);
+
+    /* Export the private key for later use. */
+    extended_output.nx_crypto_extended_output_data = ecc_data -> nx_secure_tls_ecdhe_private_key;
+    extended_output.nx_crypto_extended_output_length_in_byte =
+        sizeof(ecc_data -> nx_secure_tls_ecdhe_private_key);
+    extended_output.nx_crypto_extended_output_actual_size = 0;
+    status = ecdhe_method -> nx_crypto_operation(NX_CRYPTO_DH_PRIVATE_KEY_EXPORT, handler,
+                                                 (NX_CRYPTO_METHOD*)ecdhe_method, NX_NULL, 0,
+                                                 NX_NULL, 0, NX_NULL,
+                                                 (UCHAR *)&extended_output,
+                                                 sizeof(extended_output),
+                                                 tls_session -> nx_secure_public_cipher_metadata_area,
+                                                 tls_session -> nx_secure_public_cipher_metadata_size,
+                                                 NX_NULL, NX_NULL);
+    if (status != NX_CRYPTO_SUCCESS)
+    {
+        return(status);
+    }
+
+    /* Set the private key length. */
+    ecc_data -> nx_secure_tls_ecdhe_private_key_length = (USHORT)extended_output.nx_crypto_extended_output_actual_size;
+
+    /* Cleanup the ECC crypto state. */
+    if (ecdhe_method -> nx_crypto_cleanup)
+    {
+        status = ecdhe_method -> nx_crypto_cleanup(tls_session -> nx_secure_public_cipher_metadata_area);
+        if(status != NX_CRYPTO_SUCCESS)
+        {
+            return(status);
+        }
+    }
+
+    /* If signing the key, generate the signature now using the local device certificate (if available). */
+    if(sign_key == NX_TRUE)
+    {
+        /* Get the local certificate. */
+        if (tls_session -> nx_secure_tls_credentials.nx_secure_tls_active_certificate != NX_NULL)
+        {
+            certificate = tls_session -> nx_secure_tls_credentials.nx_secure_tls_active_certificate;
+        }
+        else
+        {
+            /* Get reference to local device certificate. NX_NULL is passed for name to get default entry. */
+            status = _nx_secure_x509_local_device_certificate_get(&tls_session -> nx_secure_tls_credentials.nx_secure_tls_certificate_store,
+                                                                  NX_NULL, &certificate);
+            if (status != NX_SUCCESS)
+            {
+                certificate = NX_NULL;
+            }
+        }
+
+        if (certificate == NX_NULL)
+        {
+            /* No certificate found, error! */
+            return(NX_SECURE_TLS_CERTIFICATE_NOT_FOUND);
+        }
+
+
+        /* Find out the hash algorithm used for the signature. */
+        /* Map signature algorithm to internal ID. */
+        _nx_secure_tls_get_signature_algorithm_id((UINT)(ecc_data -> nx_secure_tls_ecdhe_signature_algorithm),
+                                                  &signature_algorithm_id);
+
+        /* Get the crypto method. */
+        status = _nx_secure_x509_find_certificate_methods(certificate,
+                                                          signature_algorithm_id,
+                                                          &crypto_methods);
+        if (status)
+        {
+            return(NX_SECURE_TLS_UNSUPPORTED_SIGNATURE_ALGORITHM);
+        }
+
+#if (NX_SECURE_TLS_TLS_1_0_ENABLED || NX_SECURE_TLS_TLS_1_1_ENABLED)
+#ifdef NX_SECURE_ENABLE_DTLS
+        if ((ecc_data -> nx_secure_tls_ecdhe_signature_algorithm & 0xFF) == NX_SECURE_TLS_SIGNATURE_ALGORITHM_RSA &&
+           (tls_session -> nx_secure_tls_protocol_version == NX_SECURE_TLS_VERSION_TLS_1_0 ||
+            tls_session -> nx_secure_tls_protocol_version == NX_SECURE_TLS_VERSION_TLS_1_1 ||
+            tls_session -> nx_secure_tls_protocol_version == NX_SECURE_DTLS_VERSION_1_0))
+#else
+        if ((ecc_data -> nx_secure_tls_ecdhe_signature_algorithm & 0xFF) == NX_SECURE_TLS_SIGNATURE_ALGORITHM_RSA &&
+           (tls_session -> nx_secure_tls_protocol_version == NX_SECURE_TLS_VERSION_TLS_1_0 ||
+            tls_session -> nx_secure_tls_protocol_version == NX_SECURE_TLS_VERSION_TLS_1_1))
+#endif /* NX_SECURE_ENABLE_DTLS */
+        {
+
+            /* TLS 1.0 and TLS 1.1 use MD5 + SHA1 hash for RSA signatures. */
+            hash_method = tls_session -> nx_secure_tls_crypto_table -> nx_secure_tls_handshake_hash_md5_method;
+        }
+        else
+#endif /* NX_SECURE_TLS_TLS_1_0_ENABLED || NX_SECURE_TLS_TLS_1_1_ENABLED */
+        {
+            hash_method = crypto_methods -> nx_secure_x509_hash_method;
+        }
+
+        hash_length = hash_method -> nx_crypto_ICV_size_in_bits >> 3;
+
+        /* Calculate the hash: SHA(ClientHello.random + ServerHello.random +
+                                    ServerKeyExchange.params); */
+        if (hash_method -> nx_crypto_init)
+        {
+            status = hash_method -> nx_crypto_init((NX_CRYPTO_METHOD*)hash_method,
+                                          NX_NULL,
+                                          0,
+                                          &handler,
+                                          tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_scratch,
+                                          tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_scratch_size);
+
+            if(status != NX_CRYPTO_SUCCESS)
+            {
+                return(status);
+            }
+        }
+
+        if (hash_method -> nx_crypto_operation != NX_NULL)
+        {
+            status = hash_method -> nx_crypto_operation(NX_CRYPTO_HASH_INITIALIZE,
+                                               handler,
+                                               (NX_CRYPTO_METHOD*)hash_method,
+                                               NX_NULL,
+                                               0,
+                                               NX_NULL,
+                                               0,
+                                               NX_NULL,
+                                               NX_NULL,
+                                               0,
+                                               tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_scratch,
+                                               tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_scratch_size,
+                                               NX_NULL,
+                                               NX_NULL);
+
+            if(status != NX_CRYPTO_SUCCESS)
+            {
+                return(status);
+            }
+        }
+        else
+        {
+            return(NX_SECURE_TLS_MISSING_CRYPTO_ROUTINE);
+        }
+
+        status = hash_method -> nx_crypto_operation(NX_CRYPTO_HASH_UPDATE,
+                                           handler,
+                                           (NX_CRYPTO_METHOD*)hash_method,
+                                           NX_NULL,
+                                           0,
+                                           tls_session -> nx_secure_tls_key_material.nx_secure_tls_client_random,
+                                           32,
+                                           NX_NULL,
+                                           NX_NULL,
+                                           0,
+                                           tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_scratch,
+                                           tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_scratch_size,
+                                           NX_NULL,
+                                           NX_NULL);
+
+        if(status != NX_CRYPTO_SUCCESS)
+        {
+            return(status);
+        }
+
+        status = hash_method -> nx_crypto_operation(NX_CRYPTO_HASH_UPDATE,
+                                           handler,
+                                           (NX_CRYPTO_METHOD*)hash_method,
+                                           NX_NULL,
+                                           0,
+                                           tls_session -> nx_secure_tls_key_material.nx_secure_tls_server_random,
+                                           32,
+                                           NX_NULL,
+                                           NX_NULL,
+                                           0,
+                                           tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_scratch,
+                                           tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_scratch_size,
+                                           NX_NULL,
+                                           NX_NULL);
+
+        if(status != NX_CRYPTO_SUCCESS)
+        {
+            return(status);
+        }
+
+        status = hash_method -> nx_crypto_operation(NX_CRYPTO_HASH_UPDATE,
+                                           handler,
+                                           (NX_CRYPTO_METHOD*)hash_method,
+                                           NX_NULL,
+                                           0,
+                                           public_key,
+                                           length,
+                                           NX_NULL,
+                                           NX_NULL,
+                                           0,
+                                           tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_scratch,
+                                           tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_scratch_size,
+                                           NX_NULL,
+                                           NX_NULL);
+
+        if(status != NX_CRYPTO_SUCCESS)
+        {
+            return(status);
+        }
+
+        status = hash_method -> nx_crypto_operation(NX_CRYPTO_HASH_CALCULATE,
+                                           handler,
+                                           (NX_CRYPTO_METHOD*)hash_method,
+                                           NX_NULL,
+                                           0,
+                                           NX_NULL,
+                                           0,
+                                           NX_NULL,
+                                           hash,
+                                           hash_length,
+                                           tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_scratch,
+                                           tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_scratch_size,
+                                           NX_NULL,
+                                           NX_NULL);
+
+        if(status != NX_CRYPTO_SUCCESS)
+        {
+            return(status);
+        }
+
+        if (hash_method -> nx_crypto_cleanup)
+        {
+            status = hash_method -> nx_crypto_cleanup(tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_scratch);
+
+            if(status != NX_CRYPTO_SUCCESS)
+            {
+                return(status);
+            }
+        }
+        handler = NX_NULL;
+
+#if (NX_SECURE_TLS_TLS_1_0_ENABLED || NX_SECURE_TLS_TLS_1_1_ENABLED)
+#ifdef NX_SECURE_ENABLE_DTLS
+        if ((ecc_data -> nx_secure_tls_ecdhe_signature_algorithm & 0xFF) == NX_SECURE_TLS_SIGNATURE_ALGORITHM_RSA &&
+           (tls_session -> nx_secure_tls_protocol_version == NX_SECURE_TLS_VERSION_TLS_1_0 ||
+            tls_session -> nx_secure_tls_protocol_version == NX_SECURE_TLS_VERSION_TLS_1_1 ||
+            tls_session -> nx_secure_tls_protocol_version == NX_SECURE_DTLS_VERSION_1_0))
+#else
+        if ((ecc_data -> nx_secure_tls_ecdhe_signature_algorithm & 0xFF) == NX_SECURE_TLS_SIGNATURE_ALGORITHM_RSA &&
+           (tls_session -> nx_secure_tls_protocol_version == NX_SECURE_TLS_VERSION_TLS_1_0 ||
+            tls_session -> nx_secure_tls_protocol_version == NX_SECURE_TLS_VERSION_TLS_1_1))
+#endif /* NX_SECURE_ENABLE_DTLS */
+        {
+            hash_method = tls_session -> nx_secure_tls_crypto_table -> nx_secure_tls_handshake_hash_sha1_method;;
+
+            /* Calculate the hash: SHA(ClientHello.random + ServerHello.random +
+                                       ServerKeyExchange.params); */
+            if (hash_method -> nx_crypto_init)
+            {
+                status = hash_method -> nx_crypto_init((NX_CRYPTO_METHOD*)hash_method,
+                                              NX_NULL,
+                                              0,
+                                              &handler,
+                                              tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_scratch,
+                                              tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_scratch_size);
+
+                if(status != NX_CRYPTO_SUCCESS)
+                {
+                    return(status);
+                }
+            }
+
+            if (hash_method -> nx_crypto_operation != NX_NULL)
+            {
+                status = hash_method -> nx_crypto_operation(NX_CRYPTO_HASH_INITIALIZE,
+                                                   handler,
+                                                   (NX_CRYPTO_METHOD*)hash_method,
+                                                   NX_NULL,
+                                                   0,
+                                                   NX_NULL,
+                                                   0,
+                                                   NX_NULL,
+                                                   NX_NULL,
+                                                   0,
+                                                   tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_scratch,
+                                                   tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_scratch_size,
+                                                   NX_NULL,
+                                                   NX_NULL);
+
+                if(status != NX_CRYPTO_SUCCESS)
+                {
+                    return(status);
+                }
+            }
+            else
+            {
+                return(NX_SECURE_TLS_MISSING_CRYPTO_ROUTINE);
+            }
+
+            status = hash_method -> nx_crypto_operation(NX_CRYPTO_HASH_UPDATE,
+                                               handler,
+                                               (NX_CRYPTO_METHOD*)hash_method,
+                                               NX_NULL,
+                                               0,
+                                               tls_session -> nx_secure_tls_key_material.nx_secure_tls_client_random,
+                                               32,
+                                               NX_NULL,
+                                               NX_NULL,
+                                               0,
+                                               tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_scratch,
+                                               tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_scratch_size,
+                                               NX_NULL,
+                                               NX_NULL);
+
+            if(status != NX_CRYPTO_SUCCESS)
+            {
+                return(status);
+            }
+
+            status = hash_method -> nx_crypto_operation(NX_CRYPTO_HASH_UPDATE,
+                                               handler,
+                                               (NX_CRYPTO_METHOD*)hash_method,
+                                               NX_NULL,
+                                               0,
+                                               tls_session -> nx_secure_tls_key_material.nx_secure_tls_server_random,
+                                               32,
+                                               NX_NULL,
+                                               NX_NULL,
+                                               0,
+                                               tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_scratch,
+                                               tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_scratch_size,
+                                               NX_NULL,
+                                               NX_NULL);
+
+            if(status != NX_CRYPTO_SUCCESS)
+            {
+                return(status);
+            }
+
+            status = hash_method -> nx_crypto_operation(NX_CRYPTO_HASH_UPDATE,
+                                               handler,
+                                               (NX_CRYPTO_METHOD*)hash_method,
+                                               NX_NULL,
+                                               0,
+                                               public_key,
+                                               length,
+                                               NX_NULL,
+                                               NX_NULL,
+                                               0,
+                                               tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_scratch,
+                                               tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_scratch_size,
+                                               NX_NULL,
+                                               NX_NULL);
+
+            if(status != NX_CRYPTO_SUCCESS)
+            {
+                return(status);
+            }
+
+            status = hash_method -> nx_crypto_operation(NX_CRYPTO_HASH_CALCULATE,
+                                               handler,
+                                               (NX_CRYPTO_METHOD*)hash_method,
+                                               NX_NULL,
+                                               0,
+                                               NX_NULL,
+                                               0,
+                                               NX_NULL,
+                                               &hash[16],
+                                               hash_method -> nx_crypto_ICV_size_in_bits >> 3,
+                                               tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_scratch,
+                                               tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_scratch_size,
+                                               NX_NULL,
+                                               NX_NULL);
+
+            if(status != NX_CRYPTO_SUCCESS)
+            {
+                return(status);
+            }
+
+            if (hash_method -> nx_crypto_cleanup)
+            {
+                status = hash_method -> nx_crypto_cleanup(tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_scratch);
+
+                if(status != NX_CRYPTO_SUCCESS)
+                {
+                    return(status);
+                }
+            }
+            handler = NX_NULL;
+        }
+#endif /* NX_SECURE_TLS_TLS_1_0_ENABLED || NX_SECURE_TLS_TLS_1_1_ENABLED */
+
+#if (NX_SECURE_TLS_TLS_1_0_ENABLED || NX_SECURE_TLS_TLS_1_1_ENABLED)
+#ifdef NX_SECURE_ENABLE_DTLS
+        if (tls_session -> nx_secure_tls_protocol_version != NX_SECURE_TLS_VERSION_TLS_1_0 &&
+            tls_session -> nx_secure_tls_protocol_version != NX_SECURE_TLS_VERSION_TLS_1_1 &&
+            tls_session -> nx_secure_tls_protocol_version != NX_SECURE_DTLS_VERSION_1_0)
+#else
+        if (tls_session -> nx_secure_tls_protocol_version != NX_SECURE_TLS_VERSION_TLS_1_0 &&
+            tls_session -> nx_secure_tls_protocol_version != NX_SECURE_TLS_VERSION_TLS_1_1)
+#endif /* NX_SECURE_ENABLE_DTLS */
+#endif /* NX_SECURE_TLS_TLS_1_0_ENABLED || NX_SECURE_TLS_TLS_1_1_ENABLED */
+        {
+
+            /* Signature Hash Algorithm. */
+            public_key[length] = (UCHAR)((ecc_data -> nx_secure_tls_ecdhe_signature_algorithm & 0xFF00) >> 8);
+            public_key[length + 1] = (UCHAR)(ecc_data -> nx_secure_tls_ecdhe_signature_algorithm & 0x00FF);
+            length += 2;
+        }
+
+        /* Sign the hash. */
+        auth_method = tls_session -> nx_secure_tls_session_ciphersuite -> nx_secure_tls_public_auth;
+        if ((ecc_data -> nx_secure_tls_ecdhe_signature_algorithm & 0xFF) == NX_SECURE_TLS_SIGNATURE_ALGORITHM_RSA &&
+            (auth_method -> nx_crypto_algorithm == NX_CRYPTO_DIGITAL_SIGNATURE_RSA ||
+            auth_method -> nx_crypto_algorithm == NX_CRYPTO_KEY_EXCHANGE_RSA))
+        {
+            signature_length = certificate -> nx_secure_x509_public_key.rsa_public_key.nx_secure_rsa_public_modulus_length;
+
+            /* Signature Length */
+            public_key[length] = (UCHAR)((signature_length & 0xFF00) >> 8);
+            public_key[length + 1] = (UCHAR)(signature_length & 0x00FF);
+            length += 2;
+
+#if (NX_SECURE_TLS_TLS_1_0_ENABLED || NX_SECURE_TLS_TLS_1_1_ENABLED)
+#ifdef NX_SECURE_ENABLE_DTLS
+            if ((ecc_data -> nx_secure_tls_ecdhe_signature_algorithm & 0xFF) == NX_SECURE_TLS_SIGNATURE_ALGORITHM_RSA &&
+               (tls_session -> nx_secure_tls_protocol_version == NX_SECURE_TLS_VERSION_TLS_1_0 ||
+                tls_session -> nx_secure_tls_protocol_version == NX_SECURE_TLS_VERSION_TLS_1_1 ||
+                tls_session -> nx_secure_tls_protocol_version == NX_SECURE_DTLS_VERSION_1_0))
+#else
+            if ((ecc_data -> nx_secure_tls_ecdhe_signature_algorithm & 0xFF) == NX_SECURE_TLS_SIGNATURE_ALGORITHM_RSA &&
+               (tls_session -> nx_secure_tls_protocol_version == NX_SECURE_TLS_VERSION_TLS_1_0 ||
+                tls_session -> nx_secure_tls_protocol_version == NX_SECURE_TLS_VERSION_TLS_1_1))
+#endif /* NX_SECURE_ENABLE_DTLS */
+            {
+                hash_length += hash_method -> nx_crypto_ICV_size_in_bits >> 3;
+                der_encoding_length = 0;
+            }
+            else
+#endif /* NX_SECURE_TLS_TLS_1_0_ENABLED || NX_SECURE_TLS_TLS_1_1_ENABLED */
+            {
+                switch ((ecc_data -> nx_secure_tls_ecdhe_signature_algorithm & 0xFF00) >> 8)
+                {
+                case NX_SECURE_TLS_HASH_ALGORITHM_MD5:
+                    der_encoding = _NX_CRYPTO_DER_OID_MD5;
+                    der_encoding_length = sizeof(_NX_CRYPTO_DER_OID_MD5);
+                    break;
+                case NX_SECURE_TLS_HASH_ALGORITHM_SHA1:
+                    der_encoding = _NX_CRYPTO_DER_OID_SHA_1;
+                    der_encoding_length = sizeof(_NX_CRYPTO_DER_OID_SHA_1);
+                    break;
+                case NX_SECURE_TLS_HASH_ALGORITHM_SHA224:
+                    der_encoding = _NX_CRYPTO_DER_OID_SHA_224;
+                    der_encoding_length = sizeof(_NX_CRYPTO_DER_OID_SHA_224);
+                    break;
+                case NX_SECURE_TLS_HASH_ALGORITHM_SHA256:
+                    der_encoding = _NX_CRYPTO_DER_OID_SHA_256;
+                    der_encoding_length = sizeof(_NX_CRYPTO_DER_OID_SHA_256);
+                    break;
+                case NX_SECURE_TLS_HASH_ALGORITHM_SHA384:
+                    der_encoding = _NX_CRYPTO_DER_OID_SHA_384;
+                    der_encoding_length = sizeof(_NX_CRYPTO_DER_OID_SHA_384);
+                    break;
+                case NX_SECURE_TLS_HASH_ALGORITHM_SHA512:
+                    der_encoding = _NX_CRYPTO_DER_OID_SHA_512;
+                    der_encoding_length = sizeof(_NX_CRYPTO_DER_OID_SHA_512);
+                    break;
+                default:
+                    return(NX_SECURE_TLS_UNSUPPORTED_SIGNATURE_ALGORITHM);
+                }
+            }
+
+            /* Build the RSA signature. */
+            /* C-STAT: If signature_length is ever exactly equal to (der_encoding_length + hash_length)
+                       then signature_offset will be 0 and the (signature_offset - 1) expression below
+                       would result in a negative array subscript. Thus, also check for equality in the
+                       second condition (a zero-length signature offset). */
+            signature_offset = signature_length - (der_encoding_length + hash_length);
+            if ((signature_offset > sizeof(_nx_secure_padded_signature)) ||
+                (signature_length > sizeof(_nx_secure_padded_signature)) ||
+                (signature_offset == 0))
+            {
+
+                /* Buffer too small. */
+                return(NX_SECURE_TLS_PACKET_BUFFER_TOO_SMALL);
+            }
+            NX_CRYPTO_MEMSET(_nx_secure_padded_signature, 0xff, signature_offset);
+            _nx_secure_padded_signature[0] = 0x0;
+            _nx_secure_padded_signature[1] = 0x1;
+            _nx_secure_padded_signature[signature_offset - 1] = 0x0;
+            if (der_encoding_length > 0)
+            {
+                NX_CRYPTO_MEMCPY(&_nx_secure_padded_signature[signature_offset], der_encoding, der_encoding_length);
+                signature_offset += der_encoding_length;
+            }
+            NX_CRYPTO_MEMCPY(&_nx_secure_padded_signature[signature_offset], hash, hash_length);
+
+            if (auth_method -> nx_crypto_init != NX_NULL)
+            {
+                /* Initialize the crypto method with public key. */
+                status = auth_method -> nx_crypto_init((NX_CRYPTO_METHOD*)auth_method,
+                                                       (UCHAR *)certificate -> nx_secure_x509_public_key.rsa_public_key.nx_secure_rsa_public_modulus,
+                                                       (NX_CRYPTO_KEY_SIZE)(certificate -> nx_secure_x509_public_key.rsa_public_key.nx_secure_rsa_public_modulus_length << 3),
+                                                       &handler,
+                                                       tls_session -> nx_secure_public_auth_metadata_area,
+                                                       tls_session -> nx_secure_public_auth_metadata_size);
+                if (status != NX_CRYPTO_SUCCESS)
+                {
+                    return(status);
+                }
+            }
+
+            if (auth_method -> nx_crypto_operation != NX_NULL)
+            {
+                /* Sign the hash we just generated using our local RSA private key (associated with our local cert). */
+                status = auth_method -> nx_crypto_operation(NX_CRYPTO_DECRYPT,
+                                                            handler,
+                                                            (NX_CRYPTO_METHOD*)auth_method,
+                                                            (UCHAR *)certificate -> nx_secure_x509_private_key.rsa_private_key.nx_secure_rsa_private_exponent,
+                                                            (NX_CRYPTO_KEY_SIZE)(certificate -> nx_secure_x509_private_key.rsa_private_key.nx_secure_rsa_private_exponent_length << 3),
+                                                            _nx_secure_padded_signature,
+                                                            signature_length,
+                                                            NX_NULL,
+                                                            &public_key[length],
+                                                            signature_length,
+                                                            tls_session -> nx_secure_public_auth_metadata_area,
+                                                            tls_session -> nx_secure_public_auth_metadata_size,
+                                                            NX_NULL, NX_NULL);
+                if (status != NX_CRYPTO_SUCCESS)
+                {
+                    return(status);
+                }
+            }
+
+            length += signature_length;
+
+            if (auth_method -> nx_crypto_cleanup)
+            {
+                status = auth_method -> nx_crypto_cleanup(tls_session -> nx_secure_public_auth_metadata_area);
+
+                if(status != NX_CRYPTO_SUCCESS)
+                {
+                    return(status);
+                }
+            }
+        }
+        else if ((ecc_data -> nx_secure_tls_ecdhe_signature_algorithm & 0xFF) == NX_SECURE_TLS_SIGNATURE_ALGORITHM_ECDSA &&
+                 auth_method -> nx_crypto_algorithm == NX_CRYPTO_DIGITAL_SIGNATURE_ECDSA)
+        {
+            ec_privkey = &certificate -> nx_secure_x509_private_key.ec_private_key;
+            ec_pubkey = &certificate -> nx_secure_x509_public_key.ec_public_key;
+
+            /* Find out which named curve the local certificate is using. */
+            status = _nx_secure_tls_find_curve_method(tls_session, (USHORT)(ec_privkey -> nx_secure_ec_named_curve), &curve_method_cert);
+            if(status != NX_SUCCESS)
+            {
+                return(status);
+            }
+            if (curve_method_cert == NX_NULL)
+            {
+
+                /* The local certificate is using an unsupported curve. */
+                return(NX_SECURE_TLS_UNSUPPORTED_ECC_CURVE);
+            }
+
+            if (auth_method -> nx_crypto_init != NX_NULL)
+            {
+                status = auth_method -> nx_crypto_init((NX_CRYPTO_METHOD*)auth_method,
+                                                        (UCHAR *)ec_pubkey -> nx_secure_ec_public_key,
+                                                        (NX_CRYPTO_KEY_SIZE)(ec_pubkey -> nx_secure_ec_public_key_length << 3),
+                                                        &handler,
+                                                        tls_session -> nx_secure_public_auth_metadata_area,
+                                                        tls_session -> nx_secure_public_auth_metadata_size);
+                if (status != NX_CRYPTO_SUCCESS)
+                {
+                    return(status);
+                }
+            }
+            if (auth_method -> nx_crypto_operation == NX_NULL)
+            {
+                return(NX_SECURE_TLS_MISSING_CRYPTO_ROUTINE);
+            }
+
+            status = auth_method -> nx_crypto_operation(NX_CRYPTO_EC_CURVE_SET, handler,
+                                                        (NX_CRYPTO_METHOD*)auth_method, NX_NULL, 0,
+                                                        (UCHAR *)curve_method_cert, sizeof(NX_CRYPTO_METHOD *), NX_NULL,
+                                                        NX_NULL, 0,
+                                                        tls_session -> nx_secure_public_auth_metadata_area,
+                                                        tls_session -> nx_secure_public_auth_metadata_size,
+                                                        NX_NULL, NX_NULL);
+            if (status != NX_CRYPTO_SUCCESS)
+            {
+                return(status);
+            }
+
+            /* Generate the signature and put it in the packet. */
+            extended_output.nx_crypto_extended_output_data = &public_key[length + 2];
+            extended_output.nx_crypto_extended_output_length_in_byte = output_size - length;
+            extended_output.nx_crypto_extended_output_actual_size = 0;
+            status = auth_method -> nx_crypto_operation(NX_CRYPTO_AUTHENTICATE, handler,
+                                                        (NX_CRYPTO_METHOD*)auth_method,
+                                                        (UCHAR *)ec_privkey -> nx_secure_ec_private_key,
+                                                        (NX_CRYPTO_KEY_SIZE)(ec_privkey -> nx_secure_ec_private_key_length << 3),
+                                                        hash,
+                                                        hash_method -> nx_crypto_ICV_size_in_bits >> 3, NX_NULL,
+                                                        (UCHAR *)&extended_output,
+                                                        sizeof(extended_output),
+                                                        tls_session -> nx_secure_public_auth_metadata_area,
+                                                        tls_session -> nx_secure_public_auth_metadata_size,
+                                                        NX_NULL, NX_NULL);
+            if (status != NX_CRYPTO_SUCCESS)
+            {
+                return(status);
+            }
+
+            if (auth_method -> nx_crypto_cleanup)
+            {
+                status = auth_method -> nx_crypto_cleanup(tls_session -> nx_secure_public_auth_metadata_area);
+
+                if(status != NX_CRYPTO_SUCCESS)
+                {
+                    return(status);
+                }
+            }
+
+            /* Signature Length */
+            public_key[length] = (UCHAR)((extended_output.nx_crypto_extended_output_actual_size & 0xFF00) >> 8);
+            public_key[length + 1] = (UCHAR)(extended_output.nx_crypto_extended_output_actual_size & 0x00FF);
+
+            length += extended_output.nx_crypto_extended_output_actual_size + 2;
+        }
+        else
+        {
+            /* The signature algorithm is not supported. */
+            *public_key_size = 0;
+            return(NX_SECURE_TLS_UNSUPPORTED_SIGNATURE_ALGORITHM);
+        }
+    }
+
+    /* Return the length of our generated data. */
+    *public_key_size = length;
+
+    return(NX_SUCCESS);
 }
+#endif /* NX_SECURE_ENABLE_ECC_CIPHERSUITE */
+
 

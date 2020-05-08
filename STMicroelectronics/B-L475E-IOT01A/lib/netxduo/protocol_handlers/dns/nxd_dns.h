@@ -1,23 +1,11 @@
-/**************************************************************************/ 
-/*                                                                        */ 
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */ 
-/*                                                                        */ 
-/*  This software is copyrighted by and is the sole property of Express   */ 
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */ 
-/*  in the software remain the property of Express Logic, Inc.  This      */ 
-/*  software may only be used in accordance with the corresponding        */ 
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */ 
-/*  distribution, or disclosure of this software is expressly forbidden.  */ 
+/**************************************************************************/
 /*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */ 
-/*  written consent of Express Logic, Inc.                                */ 
-/*                                                                        */ 
-/*  Express Logic, Inc. reserves the right to modify this software        */ 
-/*  without notice.                                                       */ 
-/*                                                                        */ 
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
+/*                                                                        */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -38,11 +26,11 @@
 /*  APPLICATION INTERFACE DEFINITION                       RELEASE        */ 
 /*                                                                        */  
 /*    nxd_dns.h                                           PORTABLE C      */
-/*                                                           5.11 SP2     */
-/*  AUTHOR                                                                */ 
-/*                                                                        */ 
-/*    Janet Christiansen, Express Logic, Inc.                             */ 
-/*                                                                        */ 
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
 /*    This file defines the NetX Domain Name System Protocol (DNS)        */ 
@@ -52,43 +40,11 @@
 /*                                                                        */ 
 /*  RELEASE HISTORY                                                       */ 
 /*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */  
-/*  06-01-2010     Janet Christiansen       Initial Version 5.0           */ 
-/*  10-31-2011     Janet Christiansen       Modified comment(s),          */ 
-/*                                            resulting in version 5.1    */ 
-/*  01-27-2012     Janet Christiansen       Modified comment(s),          */ 
-/*                                            added support for the       */
-/*                                            NX_DNS_CLIENT_USER_CREATE_  */
-/*                                            PACKET_POOL option,         */
-/*                                            resulting in version 5.2    */ 
-/*  01-31-2013     Yuxin Zhou               Modified comment(s), added    */ 
-/*                                            support for the following   */
-/*                                            record types: TEXT, CNAME,  */  
-/*                                            SRV, MX, NS, allowed        */ 
-/*                                            multiple recoreds to be     */ 
-/*                                            returned to the caller,     */
-/*                                            added support for           */
-/*                                            exponential retransmit      */
-/*                                            timeout on DNS queries,     */
-/*                                            resulting in version 5.3    */ 
-/*  01-12-2015     Janet Christiansen       Modified comment(s), and      */  
-/*                                            added DNS Cache feature,    */
-/*                                            resulting in version 5.8    */ 
-/*  02-22-2016     Yuxin Zhou               Modified comment(s), and      */
-/*                                            unified ticks per second,   */
-/*                                            removed the symbol NX_DNS_  */
-/*                                            CLIENT_IP_GATEWAY_ADDRESS,  */
-/*                                            resulting in version 5.9    */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*  03-15-2019     Yuxin Zhou               Modified comment(s), and      */
-/*                                            improved internal logic,    */
-/*                                            resulting in version 5.11SP2*/
-/*                                                                        */ 
-/**************************************************************************/ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
           
 #ifndef NXD_DNS_H
 #define NXD_DNS_H

@@ -15,7 +15,7 @@
 /**                                                                       */ 
 /** NetX Component                                                        */
 /**                                                                       */
-/**   Port Specific for STM32L475E-IOT01A1                                */
+/**   Port Specific                                                       */
 /**                                                                       */
 /**************************************************************************/
 /**************************************************************************/
@@ -25,7 +25,7 @@
 /*                                                                        */ 
 /*  PORT SPECIFIC C INFORMATION                            RELEASE        */ 
 /*                                                                        */ 
-/*    nx_port.h                                         Cortex-M4/IAR     */  
+/*    nx_port.h                                         Cortex-M4/GNU     */ 
 /*                                                           6.0          */
 /*                                                                        */
 /*  AUTHOR                                                                */
@@ -49,12 +49,8 @@
 #ifndef NX_PORT_H
 #define NX_PORT_H
 
-
 /* Determine if the optional NetX user define file should be used.  */
 
-/* 
-#define NX_INCLUDE_USER_DEFINE_FILE
-*/
 #ifdef NX_INCLUDE_USER_DEFINE_FILE
 
 
@@ -64,30 +60,21 @@
 #include "nx_user.h"
 #endif
 
-#define NX_DISABLE_ERROR_CHECKING
-
-#define NX_SECURE_ENABLE
-#define NXD_MQTT_MAX_TOPIC_NAME_LENGTH  200
-#define NXD_MQTT_MAX_MESSAGE_LENGTH     200
-#define NX_PACKET_ALIGNMENT             32
-
-#define NX_DISABLE_ICMPV4_RX_CHECKSUM
-#define NX_DISABLE_ICMPV4_TX_CHECKSUM  
-#define NX_DISABLE_IP_RX_CHECKSUM
-#define NX_DISABLE_IP_TX_CHECKSUM
-#define NX_DISABLE_TCP_RX_CHECKSUM
-#define NX_DISABLE_TCP_TX_CHECKSUM
-#define NX_DISABLE_UDP_RX_CHECKSUM
-#define NX_DISABLE_UDP_TX_CHECKSUM
-
-
-#define NX_ASSERT_FAIL for(;;){}
- 
 
 /* Default to little endian, since this is what most ARM targets are.  */
 
 #define NX_LITTLE_ENDIAN    1
 
+
+/* By default IPv6 is enabled. */
+
+#ifndef FEATURE_NX_IPV6
+#define FEATURE_NX_IPV6
+#endif /* FEATURE_NX_IPV6 */
+
+#ifdef NX_DISABLE_IPV6 
+#undef FEATURE_NX_IPV6 
+#endif /* !NX_DISABLE_IPV6 */
 
 #include <stdio.h>
 #include <string.h>
@@ -107,40 +94,23 @@
 
 /* Define macros that swap the endian for little endian ports.  */
 #ifdef NX_LITTLE_ENDIAN
-#define NX_CHANGE_ULONG_ENDIAN(arg)                         \
-    {                                                       \
-        ULONG i;                                            \
-        ULONG tmp;                                          \
-        i = (UINT)arg;                                      \
-        /* i = A, B, C, D */                                \
-        tmp = i ^ (((i) >> 16) | (i << 16));                \
-        /* tmp = i ^ (i ROR 16) = A^C, B^D, C^A, D^B */     \
-        tmp &= 0xff00ffff;                                  \
-        /* tmp = A^C, 0, C^A, D^B */                        \
-        i = ((i) >> 8) | (i<<24);                           \
-        /* i = D, A, B, C */                                \
-        i = i ^ ((tmp) >> 8);                               \
-        /* i = D, C, B, A */                                \
-        arg = i;                                            \
-    }
-#define NX_CHANGE_USHORT_ENDIAN(a)      a = (((a >> 8) | (a << 8)) & 0xFFFF)
-
-
+#define NX_CHANGE_ULONG_ENDIAN(arg)       (arg) = __builtin_bswap32(arg)
+#define NX_CHANGE_USHORT_ENDIAN(arg)      (arg) = __builtin_bswap16(arg)
 
 
 #ifndef htonl
-#define htonl(val)  __REV(val)
+#define htonl(val)  __builtin_bswap32(val)
 #endif /* htonl */
 #ifndef ntohl
-#define ntohl(val)  __REV(val)
+#define ntohl(val)  __builtin_bswap32(val)
 #endif /* htonl */
 
 #ifndef htons
-#define htons(val)  __REV16(val)
+#define htons(val)  __builtin_bswap16(val)
 #endif /*htons */
 
 #ifndef ntohs
-#define ntohs(val)  __REV16(val)
+#define ntohs(val)  __builtin_bswap16(val)
 #endif /*htons */
 
 
@@ -220,7 +190,7 @@
 
 #ifdef NX_SYSTEM_INIT
 CHAR                            _nx_version_id[] = 
-                                    "Copyright (c) Microsoft Corporation. All rights reserved.  *  NetX Duo Cortex-M4/IAR Version 6.0 *";
+                                    "Copyright (c) Microsoft Corporation. All rights reserved.  *  NetX Duo Cortex-M4/GNU Version 6.0 *";
 #else
 extern  CHAR                    _nx_version_id[];
 #endif

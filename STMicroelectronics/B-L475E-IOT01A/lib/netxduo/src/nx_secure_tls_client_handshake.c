@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -42,10 +30,10 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_tls_client_handshake                     PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -112,24 +100,7 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-09-2017     Timothy Stapko           Initial Version 5.10          */
-/*  12-15-2017     Timothy Stapko           Modified comment(s),          */
-/*                                            handled the return values,  */
-/*                                            fixed packet leak issue,    */
-/*                                            supported renegotiation,    */
-/*                                            optimized the logic,        */
-/*                                            resulting in version 5.11   */
-/*  08-15-2019     Timothy Stapko           Modified comment(s), added    */
-/*                                            logic to clear encryption   */
-/*                                            key and other secret data,  */
-/*                                            added flexibility of using  */
-/*                                            macros instead of direct C  */
-/*                                            library function calls,     */
-/*                                            optimized the logic,        */
-/*                                            added wait_option to _nx_   */
-/*                                            secure_tls_send_certificate,*/
-/*                                            updated error return checks,*/
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 UINT _nx_secure_tls_client_handshake(NX_SECURE_TLS_SESSION *tls_session, UCHAR *packet_buffer,
@@ -147,7 +118,7 @@ NX_PACKET_POOL *packet_pool;
 UINT            error_number;
 UINT            alert_number;
 UINT            alert_level;
-NX_CRYPTO_METHOD
+const NX_CRYPTO_METHOD
                *method_ptr = NX_NULL;
 
     /* Basic state machine for handshake:
@@ -167,6 +138,14 @@ NX_CRYPTO_METHOD
         /* First, process the handshake message to get our state and any data therein. */
         _nx_secure_tls_process_handshake_header(packet_buffer, &message_type, &header_bytes, &message_length);
 
+        /* Check for fragmented records. */
+        if((message_length + header_bytes) > data_length)
+        {
+            /* Incomplete record! We need to obtain the next fragment. */
+            return(NX_SECURE_TLS_HANDSHAKE_FRAGMENT_RECEIVED);
+        }
+
+
         /* Advance the buffer pointer past the handshake header. */
         packet_buffer += header_bytes;
 
@@ -176,7 +155,7 @@ NX_CRYPTO_METHOD
         /* Hash this handshake message. We do not hash HelloRequest messages.
            Hashes include the handshake layer header but not the record layer header. */
         if (message_type != NX_SECURE_TLS_HELLO_REQUEST && message_type != NX_SECURE_TLS_FINISHED &&
-            message_type != NX_SECURE_TLS_HELLO_VERIFY_REQUEST)
+            message_type != NX_SECURE_TLS_HELLO_VERIFY_REQUEST && message_type != NX_SECURE_TLS_SERVER_HELLO)
         {
             _nx_secure_tls_handshake_hash_update(tls_session, packet_start, message_length + header_bytes);
         }
@@ -224,7 +203,7 @@ NX_CRYPTO_METHOD
             if (method_ptr -> nx_crypto_cleanup != NX_NULL)
             {
                 temp_status = method_ptr -> nx_crypto_cleanup(tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_sha256_metadata);
-                if(temp_status != NX_SUCCESS)
+                if(temp_status != NX_CRYPTO_SUCCESS)
                 {
                     status = temp_status;
                 }
@@ -234,20 +213,20 @@ NX_CRYPTO_METHOD
 
 #if (NX_SECURE_TLS_TLS_1_0_ENABLED || NX_SECURE_TLS_TLS_1_1_ENABLED)
             method_ptr = tls_session -> nx_secure_tls_crypto_table -> nx_secure_tls_handshake_hash_md5_method;
-            if (method_ptr -> nx_crypto_cleanup != NX_NULL)
+            if (method_ptr != NX_NULL && method_ptr -> nx_crypto_cleanup != NX_NULL)
             {
                 temp_status = method_ptr -> nx_crypto_cleanup(tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_md5_metadata);
-                if(temp_status != NX_SUCCESS)
+                if(temp_status != NX_CRYPTO_SUCCESS)
                 {
                     status = temp_status;
                 }
             }
 
             method_ptr = tls_session -> nx_secure_tls_crypto_table -> nx_secure_tls_handshake_hash_sha1_method;
-            if (method_ptr -> nx_crypto_cleanup != NX_NULL)
+            if (method_ptr != NX_NULL && method_ptr -> nx_crypto_cleanup != NX_NULL)
             {
                 temp_status = method_ptr -> nx_crypto_cleanup(tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_sha1_metadata);
-                if(temp_status != NX_SUCCESS)
+                if(temp_status != NX_CRYPTO_SUCCESS)
                 {
                     status = temp_status;
                 }
@@ -388,7 +367,24 @@ NX_CRYPTO_METHOD
             /* If we are still in a handshake (session is not active) then ignore the message. */
             break;
         case NX_SECURE_TLS_CLIENT_STATE_SERVERHELLO:
-            /* We processed a serverhello above. Nothing to do yet. */
+            /* We received a serverhello above. It is time to update the hash for the handshake. */
+
+            if(tls_session->nx_secure_tls_key_material.nx_secure_tls_handshake_cache_length > 0)
+            {
+                /* We have some cached messages from earlier in the handshake that we need to process. Generally
+                   this will just be the ClientHello. */
+                status = _nx_secure_tls_handshake_hash_update(tls_session, tls_session->nx_secure_tls_key_material.nx_secure_tls_handshake_cache,
+                                                              tls_session->nx_secure_tls_key_material.nx_secure_tls_handshake_cache_length);
+                if(status != NX_SUCCESS)
+                {
+                    return(status);
+                }
+
+                /* Indicate that all cached messages have been hashed. */
+                tls_session->nx_secure_tls_key_material.nx_secure_tls_handshake_cache_length = 0;
+
+                _nx_secure_tls_handshake_hash_update(tls_session, packet_start, message_length + header_bytes);
+            }
             break;
         case NX_SECURE_TLS_CLIENT_STATE_SERVER_CERTIFICATE:
             /* Processed a server certificate above. Here, we extract the public key and do any verification
@@ -432,7 +428,7 @@ NX_CRYPTO_METHOD
             }
 
             /* Now, generate the pre-master secret that is used to generate keys for our session. */
-            status = _nx_secure_tls_generate_premaster_secret(tls_session);
+            status = _nx_secure_tls_generate_premaster_secret(tls_session, NX_SECURE_TLS);
             if (status != NX_SUCCESS)
             {
                 break;

@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -42,10 +30,10 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_tls_session_iv_size_get                  PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -78,16 +66,13 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            fixed IV size for TLS 1.0,  */
-/*                                            removed cipher suite lookup,*/
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 UINT _nx_secure_tls_session_iv_size_get(NX_SECURE_TLS_SESSION *tls_session, USHORT *iv_size)
 {
-NX_CRYPTO_METHOD                     *session_cipher_method;
+const NX_CRYPTO_METHOD               *session_cipher_method;
+UINT                                  algorithm;
 
 
     /* If TLS session is active, allocate space for the IV that precedes the data in
@@ -104,9 +89,18 @@ NX_CRYPTO_METHOD                     *session_cipher_method;
         /* Select the encryption algorithm based on the ciphersuite. If the ciphersuite needs extra space
            for an IV or other data before the payload, this will return the number of bytes needed. */
         session_cipher_method = tls_session -> nx_secure_tls_session_ciphersuite -> nx_secure_tls_session_cipher;
+        algorithm = session_cipher_method -> nx_crypto_algorithm;
+
+#ifdef NX_SECURE_ENABLE_AEAD_CIPHER
+        /* For customer AEAD algorithms, convert it to AES_GCM. */
+        if (NX_SECURE_AEAD_CIPHER_CHECK(algorithm))
+        {
+            algorithm = NX_CRYPTO_ENCRYPTION_AES_GCM_16;
+        }
+#endif /* NX_SECURE_ENABLE_AEAD_CIPHER */
 
         /* Check the crypto algorithm for any special processing. */
-        switch (session_cipher_method -> nx_crypto_algorithm)
+        switch (algorithm)
         {
         case NX_CRYPTO_ENCRYPTION_AES_CBC:
             /* TLS 1.0 does not use an explicit IV in CBC-mode ciphers, so don't include it
@@ -121,6 +115,26 @@ NX_CRYPTO_METHOD                     *session_cipher_method;
                 *iv_size = 0;
             }
             break;
+#ifdef NX_SECURE_ENABLE_AEAD_CIPHER
+        case NX_CRYPTO_ENCRYPTION_AES_CCM_8:
+        /* fallthrough */
+        case NX_CRYPTO_ENCRYPTION_AES_CCM_12:
+        /* fallthrough */
+        case NX_CRYPTO_ENCRYPTION_AES_CCM_16:
+        /* fallthrough */
+        case NX_CRYPTO_ENCRYPTION_AES_GCM_16:
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+            if (tls_session -> nx_secure_tls_1_3)
+            {
+                *iv_size = 0;
+            }
+            else
+#endif
+            {
+                *iv_size = 8;
+            }
+            break;
+#endif /* NX_SECURE_ENABLE_AEAD_CIPHER */
         default:
             /* Default, do nothing - only allocate space for ciphers that need it. */
             *iv_size = 0;

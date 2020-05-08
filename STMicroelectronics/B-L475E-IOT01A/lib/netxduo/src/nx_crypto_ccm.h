@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -38,10 +26,10 @@
 /*  APPLICATION INTERFACE DEFINITION                       RELEASE        */
 /*                                                                        */
 /*    nx_crypto_ccm.h                                     PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -52,11 +40,7 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 
@@ -74,30 +58,44 @@ extern   "C" {
 
 /* Include the ThreadX and port-specific data type file.  */
 
-#include "nx_api.h"
 #include "nx_crypto.h"
 
 #define NX_CRYPTO_CCM_BLOCK_SIZE 16
 
-UINT _nx_crypto_ccm_authentication_add(VOID *crypto_metadata, UINT (*crypto_function)(VOID *, UCHAR *, UCHAR *, UINT),
-                                       UINT (*key_set_function)(VOID *, UCHAR *, UINT),
-                                       VOID *additional_data, UINT additional_len,
-                                       UCHAR *input, UCHAR *output, UINT length,
-                                       UCHAR *iv, UCHAR icv_len, UINT block_size);
+typedef struct NX_CRYPTO_CCM_STRUCT
+{
 
-UINT _nx_crypto_ccm_authentication_check(VOID *crypto_metadata, UINT (*crypto_function)(VOID *, UCHAR *, UCHAR *, UINT),
-                                         UINT (*key_set_function)(VOID *, UCHAR *, UINT),
-                                         VOID *additional_data, UINT additional_len,
-                                         UCHAR *input, UCHAR *output, UINT length,
-                                         UCHAR *iv, UCHAR icv_len, UINT block_size);
+    /* Internal context of CCM mode. */
+    USHORT nx_crypto_ccm_icv_length;
+    UCHAR nx_crypto_ccm_reserved[2];
+    UCHAR nx_crypto_ccm_A[NX_CRYPTO_CCM_BLOCK_SIZE];
+    UCHAR nx_crypto_ccm_X[NX_CRYPTO_CCM_BLOCK_SIZE];
 
-UINT _nx_crypto_ccm_encrypt(VOID *crypto_metadata, UINT (*crypto_function)(VOID *, UCHAR *, UCHAR *, UINT),
-                            UINT (*key_set_function)(VOID *, UCHAR *, UINT),
-                            VOID *additional_data, UINT additional_len,
-                            UCHAR *input, UCHAR *output, UINT length,
-                            UCHAR *iv, UCHAR icv_len, UINT block_size);
+    /* Pointer of additional data. */
+    VOID *nx_crypto_ccm_additional_data;
 
-#define _nx_crypto_ccm_decrypt _nx_crypto_ccm_encrypt
+    /* Length of additional data. */
+    UINT nx_crypto_ccm_additional_data_len;
+} NX_CRYPTO_CCM;
+
+NX_CRYPTO_KEEP UINT _nx_crypto_ccm_encrypt_init(VOID *crypto_metadata, NX_CRYPTO_CCM *ccm_metadata,
+                                                UINT (*crypto_function)(VOID *, UCHAR *, UCHAR *, UINT),
+                                                VOID *additional_data, UINT additional_len,
+                                                UINT length, UCHAR *iv, USHORT icv_len, USHORT block_size);
+
+NX_CRYPTO_KEEP UINT _nx_crypto_ccm_encrypt_update(UINT op, VOID *crypto_metadata, NX_CRYPTO_CCM *ccm_metadata,
+                                                  UINT (*crypto_function)(VOID *, UCHAR *, UCHAR *, UINT),
+                                                  UCHAR *input, UCHAR *output, UINT length, UINT block_size);
+
+NX_CRYPTO_KEEP UINT _nx_crypto_ccm_encrypt_calculate(VOID *crypto_metadata, NX_CRYPTO_CCM *ccm_metadata,
+                                                     UINT (*crypto_function)(VOID *, UCHAR *, UCHAR *, UINT),
+                                                     UCHAR *icv, UINT block_size);
+NX_CRYPTO_KEEP UINT _nx_crypto_ccm_decrypt_calculate(VOID *crypto_metadata, NX_CRYPTO_CCM *ccm_metadata,
+                                                     UINT (*crypto_function)(VOID *, UCHAR *, UCHAR *, UINT),
+                                                     UCHAR *icv, UINT block_size);
+
+#define _nx_crypto_ccm_decrypt_init         _nx_crypto_ccm_encrypt_init
+#define _nx_crypto_ccm_decrypt_update       _nx_crypto_ccm_encrypt_update
 
 
 #ifdef __cplusplus

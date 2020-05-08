@@ -20,7 +20,7 @@ target_include_directories(${PROJECT}
 
 target_link_libraries(${PROJECT}
     INTERFACE
-        threadx
-        netxduo
+        azrtos::threadx
+        azrtos::netxduo
         stm32cubel4
 )

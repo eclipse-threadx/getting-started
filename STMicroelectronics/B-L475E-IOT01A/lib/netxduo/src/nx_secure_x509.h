@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -38,10 +26,10 @@
 /*  COMPONENT DEFINITION                                   RELEASE        */
 /*                                                                        */
 /*    nx_secure_x509.h                                    PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -52,25 +40,7 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-09-2017     Timothy Stapko           Initial Version 5.10          */
-/*  12-15-2017     Timothy Stapko           Modified comment(s),          */
-/*                                            added support for extension */
-/*                                            parsing, added compare bit  */
-/*                                            fields, matched the         */
-/*                                            certificate ID, fixed typos */
-/*                                            for API names,              */
-/*                                            resulting in version 5.11   */
-/*  08-15-2019     Timothy Stapko           Modified comment(s), and      */
-/*                                            fixed the usage of crypto   */
-/*                                            metadata for hash method,   */
-/*                                            added extension hook,       */
-/*                                            fixed compiler warnings,    */
-/*                                            fixed compiler errors when  */
-/*                                            CRL was disabled,           */
-/*                                            added buffer size checking, */
-/*                                            add remote certificate      */
-/*                                            memory optimization,        */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 
@@ -150,6 +120,7 @@ extern   "C" {
 /* Private key type defines for initializing private key data associated with an X.509 certificate. */
 #define NX_SECURE_X509_KEY_TYPE_NONE                              0x00000000 /* Default value for no key. */
 #define NX_SECURE_X509_KEY_TYPE_RSA_PKCS1_DER                     0x00000001 /* DER-encoded PKCS-1 RSA private key. */
+#define NX_SECURE_X509_KEY_TYPE_EC_DER                            0x00000002 /* DER-encoded EC private key. */
 
 
 /*  ASN.1 Format:
@@ -313,6 +284,38 @@ extern   "C" {
 #define NX_SECURE_TLS_X509_TYPE_PKIX_KP_EMAIL_PROTECT             54
 #define NX_SECURE_TLS_X509_TYPE_PKIX_KP_TIME_STAMPING             55
 #define NX_SECURE_TLS_X509_TYPE_PKIX_KP_OCSP_SIGNING              56
+#define NX_SECURE_TLS_X509_TYPE_EC                                57
+#define NX_SECURE_TLS_X509_TYPE_ECDSA_SHA_1                       58
+#define NX_SECURE_TLS_X509_TYPE_ECDSA_SHA_224                     59
+#define NX_SECURE_TLS_X509_TYPE_ECDSA_SHA_256                     60
+#define NX_SECURE_TLS_X509_TYPE_ECDSA_SHA_384                     61
+#define NX_SECURE_TLS_X509_TYPE_ECDSA_SHA_512                     62
+
+#define NX_SECURE_TLS_X509_EC_SECT163K1                           0x00060001
+#define NX_SECURE_TLS_X509_EC_SECT163R1                           0x00060002
+#define NX_SECURE_TLS_X509_EC_SECT163R2                           0x00060003
+#define NX_SECURE_TLS_X509_EC_SECT193R1                           0x00060004
+#define NX_SECURE_TLS_X509_EC_SECT193R2                           0x00060005
+#define NX_SECURE_TLS_X509_EC_SECT233K1                           0x00060006
+#define NX_SECURE_TLS_X509_EC_SECT233R1                           0x00060007
+#define NX_SECURE_TLS_X509_EC_SECT239K1                           0x00060008
+#define NX_SECURE_TLS_X509_EC_SECT283K1                           0x00060009
+#define NX_SECURE_TLS_X509_EC_SECT283R1                           0x0006000A
+#define NX_SECURE_TLS_X509_EC_SECT409K1                           0x0006000B
+#define NX_SECURE_TLS_X509_EC_SECT409R1                           0x0006000C
+#define NX_SECURE_TLS_X509_EC_SECT571K1                           0x0006000D
+#define NX_SECURE_TLS_X509_EC_SECT571R1                           0x0006000E
+#define NX_SECURE_TLS_X509_EC_SECP160K1                           0x0006000F
+#define NX_SECURE_TLS_X509_EC_SECP160R1                           0x00060010
+#define NX_SECURE_TLS_X509_EC_SECP160R2                           0x00060011
+#define NX_SECURE_TLS_X509_EC_SECP192K1                           0x00060012
+#define NX_SECURE_TLS_X509_EC_SECP192R1                           0x00060013
+#define NX_SECURE_TLS_X509_EC_SECP224K1                           0x00060014
+#define NX_SECURE_TLS_X509_EC_SECP224R1                           0x00060015
+#define NX_SECURE_TLS_X509_EC_SECP256K1                           0x00060016
+#define NX_SECURE_TLS_X509_EC_SECP256R1                           0x00060017
+#define NX_SECURE_TLS_X509_EC_SECP384R1                           0x00060018
+#define NX_SECURE_TLS_X509_EC_SECP521R1                           0x00060019
 
 /* Bitfield mappings for Distinguished name comparison. When using nx_secure_x509_distinguished_name_compare,
    these values are used for the "compare_fields" parameter - bitwise OR these values together to compare
@@ -341,7 +344,7 @@ typedef struct NX_SECURE_X509_DISTINGUISHED_NAME_STRUCT
        X509 Distinguished Names consist of attributes.
        Must contain the following items:
 
-     * country,
+     * country/region,
      * organization,
      * organizational unit,
      * distinguished name qualifier,
@@ -449,6 +452,43 @@ typedef struct NX_SECURE_RSA_PRIVATE_KEY_STRUCT
     USHORT       nx_secure_rsa_private_prime_p_length;
 } NX_SECURE_RSA_PRIVATE_KEY;
 
+#ifdef NX_SECURE_ENABLE_ECC_CIPHERSUITE
+/* EC public key information. */
+typedef struct NX_SECURE_EC_PUBLIC_KEY_STRUCT
+{
+    /* Public key for EC. */
+    const UCHAR *nx_secure_ec_public_key;
+
+    /* Size of the key used by the algorithm. */
+    USHORT nx_secure_ec_public_key_length;
+
+    /* Named curve used. */
+    UINT nx_secure_ec_named_curve;
+
+} NX_SECURE_EC_PUBLIC_KEY;
+
+/* EC private key information. */
+typedef struct NX_SECURE_EC_PRIVATE_KEY_STRUCT
+{
+    /* Private key for EC. */
+    const UCHAR *nx_secure_ec_private_key;
+
+    /* Size of the EC private key. */
+    USHORT nx_secure_ec_private_key_length;
+
+    /* Public key for EC. */
+    /* This field is optional and it can be NX_NULL. */
+    const UCHAR *nx_secure_ec_public_key;
+
+    /* Size of the key used by the algorithm. */
+    USHORT nx_secure_ec_public_key_length;
+
+    /* Named curve used. */
+    UINT nx_secure_ec_named_curve;
+
+} NX_SECURE_EC_PRIVATE_KEY;
+#endif /* NX_SECURE_ENABLE_ECC_CIPHERSUITE */
+
 /* Structure to hold X.509 cryptographic routine information. */
 typedef struct NX_SECURE_X509_CRYPTO_STRUCT
 {
@@ -457,10 +497,10 @@ typedef struct NX_SECURE_X509_CRYPTO_STRUCT
     USHORT nx_secure_x509_crypto_identifier;
 
     /* Public-Key Cryptographic method used by certificates. */
-    NX_CRYPTO_METHOD *nx_secure_x509_public_cipher_method;
+    const NX_CRYPTO_METHOD *nx_secure_x509_public_cipher_method;
 
     /* Hash method used by certificates. */
-    NX_CRYPTO_METHOD *nx_secure_x509_hash_method;
+    const NX_CRYPTO_METHOD *nx_secure_x509_hash_method;
 } NX_SECURE_X509_CRYPTO;
 
 /* Structure to hold policy qualifiers for the certificatePolicies extension. */
@@ -661,6 +701,10 @@ typedef struct NX_SECURE_X509_CERT_STRUCT
     union
     {
         NX_SECURE_RSA_PUBLIC_KEY rsa_public_key;
+
+#ifdef NX_SECURE_ENABLE_ECC_CIPHERSUITE
+        NX_SECURE_EC_PUBLIC_KEY ec_public_key;
+#endif /* NX_SECURE_ENABLE_ECC_CIPHERSUITE */
     } nx_secure_x509_public_key;
 
     /* Private key associated with this certificate. A tagged union represents the key data in parsed form
@@ -673,6 +717,11 @@ typedef struct NX_SECURE_X509_CERT_STRUCT
     {
         /* RSA key type. */
         NX_SECURE_RSA_PRIVATE_KEY rsa_private_key;
+
+#ifdef NX_SECURE_ENABLE_ECC_CIPHERSUITE
+        /* EC key type. */
+        NX_SECURE_EC_PRIVATE_KEY ec_private_key;
+#endif /* NX_SECURE_ENABLE_ECC_CIPHERSUITE */
 
         /* User-defined key type. */
         struct
@@ -703,6 +752,11 @@ UINT _nx_secure_x509_certificate_parse(const UCHAR *buffer, UINT length, UINT *b
 UINT _nx_secure_x509_asn1_tlv_block_parse(const UCHAR *buffer, ULONG *buffer_length, USHORT *tlv_type, USHORT *tlv_tag_class, ULONG *tlv_length, const UCHAR **tlv_data, ULONG *header_length);
 
 UINT _nx_secure_x509_pkcs1_rsa_private_key_parse(const UCHAR *buffer, UINT length, UINT *bytes_processed, NX_SECURE_RSA_PRIVATE_KEY *rsa_key);
+#ifdef NX_SECURE_ENABLE_ECC_CIPHERSUITE
+UINT _nx_secure_x509_ec_private_key_parse(const UCHAR *buffer, UINT length,
+                                          UINT *bytes_processed,
+                                          NX_SECURE_EC_PRIVATE_KEY *ec_key);
+#endif /* NX_SECURE_ENABLE_ECC_CIPHERSUITE */
 
 /* CRL parsing. */
 #ifndef NX_SECURE_X509_DISABLE_CRL

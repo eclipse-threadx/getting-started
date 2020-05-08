@@ -8,6 +8,7 @@ extern NX_IP ip_0;
 extern NX_PACKET_POOL main_pool;
 extern NX_DNS dns_client;
 
-int threadx_net_init(void);
+int stm32_network_init(void);
+unsigned long sntp_get_time(void);
 
 #endif // _NETWORKING_H

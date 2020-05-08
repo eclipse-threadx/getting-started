@@ -300,7 +300,7 @@ ES_WIFI_Status_t  ES_WIFI_ResetModule(ES_WIFIObject_t *Obj);
 ES_WIFI_Status_t ES_WIFI_HardResetModule(ES_WIFIObject_t *Obj);
 ES_WIFI_Status_t  ES_WIFI_SetProductName(ES_WIFIObject_t *Obj, uint8_t *ProductName);
 #if (ES_WIFI_USE_PING == 1)
-ES_WIFI_Status_t  ES_WIFI_Ping(ES_WIFIObject_t *Obj, uint8_t *address, uint16_t count, uint16_t interval_ms); //, int32_t res[]);
+ES_WIFI_Status_t  ES_WIFI_Ping(ES_WIFIObject_t *Obj, uint8_t *address, uint16_t count, uint16_t interval_ms, int32_t res[]);
 #endif
 ES_WIFI_Status_t  ES_WIFI_DNS_LookUp(ES_WIFIObject_t *Obj, const char *url, uint8_t *ipaddress);
 ES_WIFI_Status_t  ES_WIFI_StartClientConnection(ES_WIFIObject_t *Obj, ES_WIFI_Conn_t *conn);
@@ -311,7 +311,7 @@ ES_WIFI_Status_t  ES_WIFI_StartAWSClientConnection(ES_WIFIObject_t *Obj, ES_WIFI
 ES_WIFI_Status_t  ES_WIFI_StartServerSingleConn(ES_WIFIObject_t *Obj, ES_WIFI_Conn_t *conn);
 ES_WIFI_Status_t  ES_WIFI_WaitServerConnection(ES_WIFIObject_t *Obj,uint32_t Timeout,ES_WIFI_Conn_t *);
 ES_WIFI_Status_t  ES_WIFI_CloseServerConnection(ES_WIFIObject_t *Obj,int socket);
-ES_WIFI_Status_t  ES_WIFI_StopServerSingleConn(ES_WIFIObject_t *Obj); //, int socket);
+ES_WIFI_Status_t  ES_WIFI_StopServerSingleConn(ES_WIFIObject_t *Obj, int socket);
 
 
 ES_WIFI_Status_t  ES_WIFI_StartServerMultiConn(ES_WIFIObject_t *Obj, ES_WIFI_Conn_t *conn);

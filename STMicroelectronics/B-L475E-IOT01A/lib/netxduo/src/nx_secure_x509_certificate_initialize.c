@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -42,10 +30,10 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_x509_certificate_initialize              PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -95,6 +83,7 @@
 /*    _nx_secure_x509_certificate_parse     Extract public key data       */
 /*    _nx_secure_x509_pkcs1_rsa_private_key_parse                         */
 /*                                          Parse RSA key (PKCS#1 format) */
+/*    _nx_secure_x509_ec_private_key_parse  Parse EC key                  */
 /*    tx_mutex_get                          Get protection mutex          */
 /*    tx_mutex_put                          Put protection mutex          */
 /*                                                                        */
@@ -106,17 +95,7 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-09-2017     Timothy Stapko           Initial Version 5.10          */
-/*  12-15-2017     Timothy Stapko           Modified comment(s), added    */
-/*                                            logic to support vendor-    */
-/*                                            defined private key type,   */
-/*                                            resulting in version 5.11   */
-/*  08-15-2019     Timothy Stapko           Modified comment(s), and      */
-/*                                            added flexibility of using  */
-/*                                            macros instead of direct C  */
-/*                                            library function calls,     */
-/*                                            released mutex when return, */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 UINT _nx_secure_x509_certificate_initialize(NX_SECURE_X509_CERT *certificate,
@@ -128,8 +107,9 @@ UINT _nx_secure_x509_certificate_initialize(NX_SECURE_X509_CERT *certificate,
 {
 UINT status;
 UINT bytes_processed;
-
-    NX_SECURE_X509_CERTIFICATE_INITIALIZE_EXTENSION
+#ifdef NX_SECURE_ENABLE_ECC_CIPHERSUITE
+NX_SECURE_EC_PRIVATE_KEY *ec_key;
+#endif /* NX_SECURE_ENABLE_ECC_CIPHERSUITE */
 
     /* Get the protection. */
     tx_mutex_get(&_nx_secure_tls_protection, TX_WAIT_FOREVER);
@@ -195,6 +175,12 @@ UINT bytes_processed;
             case NX_SECURE_X509_KEY_TYPE_RSA_PKCS1_DER:
                 status = _nx_secure_x509_pkcs1_rsa_private_key_parse(private_key, priv_len, &bytes_processed, &certificate -> nx_secure_x509_private_key.rsa_private_key);
                 break;
+#ifdef NX_SECURE_ENABLE_ECC_CIPHERSUITE
+            case NX_SECURE_X509_KEY_TYPE_EC_DER:
+                ec_key = &certificate -> nx_secure_x509_private_key.ec_private_key;
+                status = _nx_secure_x509_ec_private_key_parse(private_key, priv_len, &bytes_processed, ec_key);
+                break;
+#endif /* NX_SECURE_ENABLE_ECC_CIPHERSUITE */
             case NX_SECURE_X509_KEY_TYPE_NONE:
             default:
                 /* Unknown or invalid key type, return error. */
