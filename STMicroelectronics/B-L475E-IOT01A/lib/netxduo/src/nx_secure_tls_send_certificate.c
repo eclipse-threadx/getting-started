@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -41,10 +29,10 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_tls_send_certificate                     PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -82,20 +70,7 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-09-2017     Timothy Stapko           Initial Version 5.10          */
-/*  12-15-2017     Timothy Stapko           Modified comment(s),          */
-/*                                            fixed compiler warnings,    */
-/*                                            supported empty certificate */
-/*                                            messages, released mutex    */
-/*                                            before block operation,     */
-/*                                            optimized the logic, added  */
-/*                                            compare bit fields,         */
-/*                                            resulting in version 5.11   */
-/*  08-15-2019     Timothy Stapko           Modified comment(s), and      */
-/*                                            improved internal logic,    */
-/*                                            added wait_option, improved */
-/*                                            packet length verification, */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 UINT _nx_secure_tls_send_certificate(NX_SECURE_TLS_SESSION *tls_session, NX_PACKET *send_packet,
@@ -108,7 +83,22 @@ UINT                 status = NX_SECURE_TLS_SUCCESS;
 NX_SECURE_X509_CERT *cert;
 INT                  compare_result = 0;
 UCHAR               *record_start;
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+UINT                 extensions_length;
+#endif
 
+
+    /* Structure:
+     * |      3       |                     <Total Length>                      |
+     * | Total length |       3        |   <Cert[0] Length> | 3 + <Cert[x] Len> |
+     * |              | Cert[0] Length |   Certificate[0]   |    More certs...  |
+     */
+
+    /* TLS 1.3 Structure:
+     * |    1    | <Ctx Len> |      3       |                     <Total Length>                         |
+     * | Ctx Len | Context   | Total length |       3        |   <Cert[x] Length> |   2    |   <ExtLen>  |
+     * |                                    | Cert[x] Length |   Certificate[x]   | ExtLen |  Extensions |
+     */
 
     /* See if the local certificate has been overridden. If so, use that instead. */
     if (tls_session -> nx_secure_tls_credentials.nx_secure_tls_active_certificate != NX_NULL)
@@ -152,6 +142,16 @@ UCHAR               *record_start;
         /* Packet buffer is too small to hold random and ID. */
         return(NX_SECURE_TLS_PACKET_BUFFER_TOO_SMALL);
     }
+
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+    /* In TLS 1.3, the context length is the first field, followed by the context itself (if necessary). */
+    if(tls_session->nx_secure_tls_1_3)
+    {
+        send_packet -> nx_packet_append_ptr[0] = 0;
+        send_packet -> nx_packet_append_ptr = send_packet -> nx_packet_append_ptr + 1;
+        send_packet -> nx_packet_length = send_packet -> nx_packet_length + (USHORT)(1);
+    }
+#endif
 
     /* Save a reference to the start of our record. */
     record_start = send_packet -> nx_packet_append_ptr;
@@ -204,6 +204,24 @@ UCHAR               *record_start;
 
         /* Get the protection after nx_packet_data_append. */
         tx_mutex_get(&_nx_secure_tls_protection, TX_WAIT_FOREVER);
+
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+        /* Check for TLS 1.3 extensions following each certificate. */
+        if(tls_session->nx_secure_tls_1_3)
+        {
+            extensions_length = 0;
+
+            /* Add extension length to packet. */
+            send_packet -> nx_packet_append_ptr[0] = (UCHAR)((extensions_length & 0xFF00) >> 8);
+            send_packet -> nx_packet_append_ptr[1] = (UCHAR)(extensions_length & 0x00FF);
+
+            /* Adjust pointer and length in packet according to extensions sent. */
+            send_packet -> nx_packet_append_ptr = send_packet -> nx_packet_append_ptr + 2;
+            send_packet -> nx_packet_length = send_packet -> nx_packet_length + (USHORT)(2);
+            total_length += 2;
+        }
+#endif
+
 
         if (status != NX_SUCCESS)
         {

@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -34,8 +22,9 @@
 
 #define NX_SECURE_SOURCE_CODE
 
-#include "nx_secure_tls_ecc.h"
 #include "nx_secure_tls.h"
+
+#ifdef NX_SECURE_ENABLE_ECC_CIPHERSUITE
 
 NX_SECURE_TLS_ECC _nx_secure_tls_ecc_info;
 
@@ -44,10 +33,10 @@ NX_SECURE_TLS_ECC _nx_secure_tls_ecc_info;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_tls_ecc_initialize                       PORTABLE C      */
-/*                                                          5.12          */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -76,12 +65,12 @@ NX_SECURE_TLS_ECC _nx_secure_tls_ecc_info;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  08-15-2019     Timothy Stapko           Initial Version 5.12          */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
-UINT _nx_secure_tls_ecc_initialize(struct NX_SECURE_TLS_SESSION_STRUCT *tls_session,
+UINT _nx_secure_tls_ecc_initialize(NX_SECURE_TLS_SESSION *tls_session,
                                    const USHORT *supported_groups, USHORT supported_group_count,
-                                   const VOID *curves)
+                                   const NX_CRYPTO_METHOD **curves)
 {
 
     tls_session -> nx_secure_tls_ecc.nx_secure_tls_ecc_supported_groups = supported_groups;
@@ -90,9 +79,10 @@ UINT _nx_secure_tls_ecc_initialize(struct NX_SECURE_TLS_SESSION_STRUCT *tls_sess
 
     _nx_secure_tls_ecc_info.nx_secure_tls_ecc_supported_groups = supported_groups;
     _nx_secure_tls_ecc_info.nx_secure_tls_ecc_supported_groups_count = supported_group_count;
-    _nx_secure_tls_ecc_info.nx_secure_tls_ecc_curves = (NX_CRYPTO_METHOD **)curves;
+    _nx_secure_tls_ecc_info.nx_secure_tls_ecc_curves = curves;
 
     return(NX_SUCCESS);
 }
+#endif /* NX_SECURE_ENABLE_ECC_CIPHERSUITE */
 
 

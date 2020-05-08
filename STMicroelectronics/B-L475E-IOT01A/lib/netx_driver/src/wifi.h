@@ -2,40 +2,22 @@
   ******************************************************************************
   * @file    wifi.h
   * @author  MCD Application Team
-  * @version V4.0.0
-  * @date    30-Nov-2018
-  * @brief   This file contains the diffrent wifi core resources definitions.
+  * @brief   This file contains the different WiFi core resources definitions.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2018 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics International N.V. 
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * This software component is licensed by ST under Ultimate Liberty license
+  * SLA0044, the "License"; You may not use this file except in compliance with
+  * the License. You may obtain a copy of the License at:
+  *                             www.st.com/SLA0044
   *
   ******************************************************************************
   */
-#ifndef __WIFI_H_
-#define __WIFI_H_
+#ifndef WIFI_H
+#define WIFI_H
 
 #ifdef __cplusplus
  extern "C" {
@@ -48,12 +30,12 @@
 /* Exported constants --------------------------------------------------------*/
 #define WIFI_MAX_SSID_NAME            100
 #define WIFI_MAX_PSWD_NAME            100
-#define WIFI_MAX_APS                  100
+#define WIFI_MAX_APS                  20
 #define WIFI_MAX_CONNECTIONS          4
 #define WIFI_MAX_MODULE_NAME          100
 #define WIFI_MAX_CONNECTED_STATIONS   2
-#define WIFI_MSG_JOINED      1
-#define WIFI_MSG_ASSIGNED    2
+#define  WIFI_MSG_JOINED      1
+#define  WIFI_MSG_ASSIGNED    2
 
 
 /* Exported types ------------------------------------------------------------*/
@@ -81,6 +63,7 @@ typedef enum {
   WIFI_STATUS_NOT_SUPPORTED  = 2,
   WIFI_STATUS_JOINED         = 3,
   WIFI_STATUS_ASSIGNED       = 4,
+  WIFI_STATUS_TIMEOUT        = 5,
 }WIFI_Status_t;
 
 typedef struct {
@@ -140,11 +123,10 @@ WIFI_Status_t       WIFI_Connect(
                              const char* SSID,
                              const char* Password,
                              WIFI_Ecn_t ecn);
-WIFI_Status_t       WIFI_GetMAC_Address(uint8_t *mac);
-WIFI_Status_t       WIFI_GetIP_Address(uint8_t *ipaddr);
-
-WIFI_Status_t       WIFI_GetGateway_Address (uint8_t *Gateway_addr);
-WIFI_Status_t       WIFI_GetDNS_Address (uint8_t *DNS1addr,uint8_t *DNS2addr);
+WIFI_Status_t       WIFI_GetIP_Address(uint8_t  *ipaddr);
+WIFI_Status_t       WIFI_GetDNS_Address (uint8_t  *DNS1addr,uint8_t  *DNS2addr);
+WIFI_Status_t       WIFI_GetGateway_Address (uint8_t  *Gateway_addr);
+WIFI_Status_t       WIFI_GetMAC_Address(uint8_t  *mac);
 
 WIFI_Status_t       WIFI_Disconnect(void);
 WIFI_Status_t       WIFI_ConfigureAP(
@@ -155,12 +137,14 @@ WIFI_Status_t       WIFI_ConfigureAP(
                                         uint8_t max_conn);
 
 WIFI_Status_t       WIFI_HandleAPEvents(WIFI_APSettings_t *setting);
-WIFI_Status_t       WIFI_Ping(uint8_t *ipaddr, uint16_t count, uint16_t interval_ms);
+WIFI_Status_t       WIFI_Ping(uint8_t *ipaddr, uint16_t count, uint16_t interval_ms,int32_t result[]);
 WIFI_Status_t       WIFI_GetHostAddress(const char *location, uint8_t *ipaddr);
 WIFI_Status_t       WIFI_OpenClientConnection(uint32_t socket, WIFI_Protocol_t type, const char *name, uint8_t *ipaddr, uint16_t port, uint16_t local_port);
 WIFI_Status_t       WIFI_CloseClientConnection(uint32_t socket);
 
-WIFI_Status_t       WIFI_StartServer(uint32_t socket, WIFI_Protocol_t type, const char *name, uint16_t port);
+WIFI_Status_t       WIFI_StartServer(uint32_t socket, WIFI_Protocol_t type, uint16_t backlog, const char *name, uint16_t port);
+WIFI_Status_t       WIFI_WaitServerConnection(int socket,uint32_t Timeout,uint8_t *remoteipaddr, uint16_t *remoteport);
+WIFI_Status_t       WIFI_CloseServerConnection(int socket);
 WIFI_Status_t       WIFI_StopServer(uint32_t socket);
 
 WIFI_Status_t       WIFI_SendData(uint8_t socket, uint8_t *pdata, uint16_t Reqlen, uint16_t *SentDatalen, uint32_t Timeout);
@@ -181,6 +165,6 @@ WIFI_Status_t       WIFI_GetModuleName(char *ModuleName);
 }
 #endif
 
-#endif /* __WIFI_H_ */
+#endif /* WIFI_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -161,7 +161,7 @@ void sntp_thread_entry(ULONG info)
     return;
 }
 
-unsigned long sntp_get_time(void)
+__attribute__((weak)) unsigned long sntp_get_time(void)
 {
     tx_mutex_get(&time_mutex, TX_WAIT_FOREVER);
 

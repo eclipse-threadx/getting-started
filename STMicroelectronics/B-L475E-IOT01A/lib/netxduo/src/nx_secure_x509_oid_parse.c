@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -143,6 +131,21 @@ static const UCHAR NX_SECURE_X509_OID_PKIX_KP_OCSP_SIGNING[] =  {0x2B, 0x06, 0x0
 /* Miscellaneous OIDs. */
 static const UCHAR NX_SECURE_X509_OID_NETSCAPE_COMMENT[] = {0x60, 0x86, 0x48, 0x01, 0x86, 0xf8, 0x42, 0x01, 0x0d};
 
+#ifdef NX_SECURE_ENABLE_ECC_CIPHERSUITE
+/* RFC 5480 OIDs. */
+static const UCHAR NX_SECURE_X509_OID_EC[]               = {0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x02, 0x01};         /* ISO.USA.10045.2.1 - ANSI X9.62 EC public key. */
+static const UCHAR NX_SECURE_X509_OID_SECP192R1[]        = {0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x03, 0x01, 0x01};   /* ISO.USA.10045.3.1.1 - Named curve: secp192r1. */
+static const UCHAR NX_SECURE_X509_OID_SECP224R1[]        = {0x2B, 0x81, 0x04, 0x00, 0x21};                     /* ISO.Identified Organization.Certicom.curve.33 - Named curve: secp224r1. */
+static const UCHAR NX_SECURE_X509_OID_SECP256R1[]        = {0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x03, 0x01, 0x07};   /* ISO.USA.10045.3.1.7 - Named curve: secp256r1. */
+static const UCHAR NX_SECURE_X509_OID_SECP384R1[]        = {0x2B, 0x81, 0x04, 0x00, 0x22};                     /* ISO.Identified Organization.Certicom.curve.34 - Named curve: secp384r1. */
+static const UCHAR NX_SECURE_X509_OID_SECP521R1[]        = {0x2B, 0x81, 0x04, 0x00, 0x23};                     /* ISO.Identified Organization.Certicom.curve.35 - Named curve: secp521r1. */
+static const UCHAR NX_SECURE_X509_OID_ECDSA_SHA1[]       = {0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x04, 0x01};         /* ISO.USA.10045.4.1 - ecdsa-with-SHA1. */
+static const UCHAR NX_SECURE_X509_OID_ECDSA_SHA224[]     = {0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x04, 0x03, 0x01};   /* ISO.USA.10045.4.3.1 - ecdsa-with-SHA224. */
+static const UCHAR NX_SECURE_X509_OID_ECDSA_SHA256[]     = {0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x04, 0x03, 0x02};   /* ISO.USA.10045.4.3.2 - ecdsa-with-SHA256. */
+static const UCHAR NX_SECURE_X509_OID_ECDSA_SHA384[]     = {0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x04, 0x03, 0x03};   /* ISO.USA.10045.4.3.3 - ecdsa-with-SHA384. */
+static const UCHAR NX_SECURE_X509_OID_ECDSA_SHA512[]     = {0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x04, 0x03, 0x04};   /* ISO.USA.10045.4.3.4 - ecdsa-with-SHA512. */
+#endif /* NX_SECURE_ENABLE_ECC_CIPHERSUITE */
+
 /*  Lookup table for OID to type mapping. */
 typedef struct NX_SECURE_X509_OID_MAP_STRUCT
 {
@@ -209,6 +212,19 @@ NX_SECURE_X509_OID_MAP _nx_secure_x509_oid_map[] =
     {NX_SECURE_TLS_X509_TYPE_PKIX_KP_EMAIL_PROTECT , NX_SECURE_X509_OID_PKIX_KP_EMAIL_PROTECT ,  sizeof(NX_SECURE_X509_OID_PKIX_KP_EMAIL_PROTECT)},
     {NX_SECURE_TLS_X509_TYPE_PKIX_KP_TIME_STAMPING , NX_SECURE_X509_OID_PKIX_KP_TIME_STAMPING ,  sizeof(NX_SECURE_X509_OID_PKIX_KP_TIME_STAMPING)},
     {NX_SECURE_TLS_X509_TYPE_PKIX_KP_OCSP_SIGNING  , NX_SECURE_X509_OID_PKIX_KP_OCSP_SIGNING  ,  sizeof(NX_SECURE_X509_OID_PKIX_KP_OCSP_SIGNING)},
+#ifdef NX_SECURE_ENABLE_ECC_CIPHERSUITE
+    {NX_SECURE_TLS_X509_TYPE_EC                    , NX_SECURE_X509_OID_EC                    ,  sizeof(NX_SECURE_X509_OID_EC)},
+    {NX_SECURE_TLS_X509_EC_SECP192R1               , NX_SECURE_X509_OID_SECP192R1             ,  sizeof(NX_SECURE_X509_OID_SECP192R1)},
+    {NX_SECURE_TLS_X509_EC_SECP224R1               , NX_SECURE_X509_OID_SECP224R1             ,  sizeof(NX_SECURE_X509_OID_SECP224R1)},
+    {NX_SECURE_TLS_X509_EC_SECP256R1               , NX_SECURE_X509_OID_SECP256R1             ,  sizeof(NX_SECURE_X509_OID_SECP256R1)},
+    {NX_SECURE_TLS_X509_EC_SECP384R1               , NX_SECURE_X509_OID_SECP384R1             ,  sizeof(NX_SECURE_X509_OID_SECP384R1)},
+    {NX_SECURE_TLS_X509_EC_SECP521R1               , NX_SECURE_X509_OID_SECP521R1             ,  sizeof(NX_SECURE_X509_OID_SECP521R1)},
+    {NX_SECURE_TLS_X509_TYPE_ECDSA_SHA_1           , NX_SECURE_X509_OID_ECDSA_SHA1            ,  sizeof(NX_SECURE_X509_OID_ECDSA_SHA1)},
+    {NX_SECURE_TLS_X509_TYPE_ECDSA_SHA_224         , NX_SECURE_X509_OID_ECDSA_SHA224          ,  sizeof(NX_SECURE_X509_OID_ECDSA_SHA224)},
+    {NX_SECURE_TLS_X509_TYPE_ECDSA_SHA_256         , NX_SECURE_X509_OID_ECDSA_SHA256          ,  sizeof(NX_SECURE_X509_OID_ECDSA_SHA256)},
+    {NX_SECURE_TLS_X509_TYPE_ECDSA_SHA_384         , NX_SECURE_X509_OID_ECDSA_SHA384          ,  sizeof(NX_SECURE_X509_OID_ECDSA_SHA384)},
+    {NX_SECURE_TLS_X509_TYPE_ECDSA_SHA_512         , NX_SECURE_X509_OID_ECDSA_SHA512          ,  sizeof(NX_SECURE_X509_OID_ECDSA_SHA512)},
+#endif /* NX_SECURE_ENABLE_ECC_CIPHERSUITE */
 };
 
 static const UINT _nx_secure_x509_oid_map_size = sizeof(_nx_secure_x509_oid_map) / sizeof(NX_SECURE_X509_OID_MAP);
@@ -218,10 +234,10 @@ static const UINT _nx_secure_x509_oid_map_size = sizeof(_nx_secure_x509_oid_map)
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_x509_oid_parse                           PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -264,12 +280,7 @@ static const UINT _nx_secure_x509_oid_map_size = sizeof(_nx_secure_x509_oid_map)
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s), and      */
-/*                                            added flexibility of using  */
-/*                                            macros instead of direct C  */
-/*                                            library function calls,     */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 VOID _nx_secure_x509_oid_parse(const UCHAR *oid, ULONG length, UINT *oid_value)

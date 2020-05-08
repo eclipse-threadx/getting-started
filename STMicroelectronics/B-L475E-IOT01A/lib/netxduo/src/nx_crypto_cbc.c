@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -39,10 +27,10 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_cbc_xor                                  PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -72,18 +60,13 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 NX_CRYPTO_KEEP static VOID _nx_crypto_cbc_xor(UCHAR *plaintext, UCHAR *key, UCHAR *ciphertext, UCHAR block_size)
 {
 UINT i;
 
-    /* FIXME: Operate 32 bits in each round. */
     for (i = 0; i < block_size; i++)
     {
         ciphertext[i] = plaintext[i] ^ key[i];
@@ -95,10 +78,10 @@ UINT i;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_cbc_encrypt                              PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -107,18 +90,14 @@ UINT i;
 /*  INPUT                                                                 */
 /*                                                                        */
 /*    crypto_metadata                       Pointer to crypto metadata    */
+/*    cbc_metadata                          Pointer to CBC metadata       */
 /*    crypto_function                       Pointer to crypto function    */
-/*    key_set_function                      Pointer to key set function   */
-/*    additional_data                       Pointer to the additional data*/
-/*    additional_len                        Length of additional data     */
 /*    input                                 Pointer to clear text input   */
 /*    output                                Pointer to encrypted output   */
 /*                                            The size of the output      */
 /*                                            buffer must be at least     */
 /*                                            the size of input message.  */
 /*    length                                Length of the input message.  */
-/*    iv                                    Nonce length + Nonce          */
-/*    icv_len                               ICV length                    */
 /*    block_size                            Block size                    */
 /*                                                                        */
 /*  OUTPUT                                                                */
@@ -131,8 +110,7 @@ UINT i;
 /*                                                                        */
 /*  CALLED BY                                                             */
 /*                                                                        */
-/*    Application Code                                                    */
-/*    _nx_crypto_method_aes_operation       Handle AES encrypt or decrypt */
+/*    _nx_crypto_method_aes_cbc_operation   Handle AES encrypt or decrypt */
 /*    _nx_crypto_method_des_operation       Handle DES encrypt or decrypt */
 /*    _nx_crypto_method_3des_operation      Handle 3DES encrypt or decrypt*/
 /*                                                                        */
@@ -140,28 +118,15 @@ UINT i;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            static analysis fixes,      */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
-NX_CRYPTO_KEEP UINT _nx_crypto_cbc_encrypt(VOID *crypto_metadata,
+NX_CRYPTO_KEEP UINT _nx_crypto_cbc_encrypt(VOID *crypto_metadata, NX_CRYPTO_CBC *cbc_metadata,
                                            UINT (*crypto_function)(VOID *, UCHAR *, UCHAR *, UINT),
-                                           UINT (*key_set_function)(VOID *, UCHAR *, UINT),
-                                           VOID *additional_data, UINT additional_len,
-                                           UCHAR *input, UCHAR *output, UINT length,
-                                           UCHAR *iv, UCHAR icv_len, UCHAR block_size)
+                                           UCHAR *input, UCHAR *output, UINT length, UCHAR block_size)
 {
 UCHAR *last_cipher;
 UINT   i;
-
-    NX_PARAMETER_NOT_USED(key_set_function);
-    NX_PARAMETER_NOT_USED(additional_data);
-    NX_PARAMETER_NOT_USED(additional_len);
-    NX_PARAMETER_NOT_USED(icv_len);
 
     if (block_size == 0)
     {
@@ -171,10 +136,17 @@ UINT   i;
     /* Determine if data length is multiple of block size. */
     if (length % block_size)
     {
-        return(NX_PTR_ERROR);
+        return(NX_CRYPTO_PTR_ERROR);
     }
 
-    last_cipher = iv;
+    /* Determine if block size is larger than the size of save_input. */
+    if (block_size > sizeof(cbc_metadata -> nx_crypto_cbc_last_block))
+    {
+        return(NX_CRYPTO_PTR_ERROR);
+    }
+
+    /* Pick up last cipher. */
+    last_cipher = cbc_metadata -> nx_crypto_cbc_last_block;
 
     for (i = 0; i < length; i += block_size)
     {
@@ -191,6 +163,9 @@ UINT   i;
         output += block_size;
     }
 
+    /* Store the last cipher for next round. */
+    NX_CRYPTO_MEMCPY(cbc_metadata -> nx_crypto_cbc_last_block, last_cipher, block_size);
+
     return(NX_CRYPTO_SUCCESS);
 }
 
@@ -200,10 +175,10 @@ UINT   i;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_crypto_cbc_decrypt                              PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -212,18 +187,14 @@ UINT   i;
 /*  INPUT                                                                 */
 /*                                                                        */
 /*    crypto_metadata                       Pointer to crypto metadata    */
+/*    cbc_metadata                          Pointer to CBC metadata       */
 /*    crypto_function                       Pointer to crypto function    */
-/*    key_set_function                      Pointer to key set function   */
-/*    additional_data                       Pointer to the additional data*/
-/*    additional_len                        Length of additional data     */
 /*    input                                 Pointer to clear text input   */
 /*    output                                Pointer to encrypted output   */
 /*                                            The size of the output      */
 /*                                            buffer must be at least     */
 /*                                            the size of input message.  */
 /*    length                                Length of the input message.  */
-/*    iv                                    Nonce length + Nonce          */
-/*    icv_len                               ICV length                    */
 /*    block_size                            Block size                    */
 /*                                                                        */
 /*  OUTPUT                                                                */
@@ -236,8 +207,7 @@ UINT   i;
 /*                                                                        */
 /*  CALLED BY                                                             */
 /*                                                                        */
-/*    Application Code                                                    */
-/*    _nx_crypto_method_aes_operation       Handle AES encrypt or decrypt */
+/*    _nx_crypto_method_aes_cbc_operation   Handle AES encrypt or decrypt */
 /*    _nx_crypto_method_des_operation       Handle DES encrypt or decrypt */
 /*    _nx_crypto_method_3des_operation      Handle 3DES encrypt or decrypt*/
 /*                                                                        */
@@ -245,29 +215,16 @@ UINT   i;
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            added logic so NetX Crypto  */
-/*                                            is FIPS 140-2 compliant,    */
-/*                                            static analysis fixes,      */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
-NX_CRYPTO_KEEP UINT _nx_crypto_cbc_decrypt(VOID *crypto_metadata,
+NX_CRYPTO_KEEP UINT _nx_crypto_cbc_decrypt(VOID *crypto_metadata, NX_CRYPTO_CBC *cbc_metadata,
                                            UINT (*crypto_function)(VOID *, UCHAR *, UCHAR *, UINT),
-                                           UINT (*key_set_function)(VOID *, UCHAR *, UINT),
-                                           VOID *additional_data, UINT additional_len,
-                                           UCHAR *input, UCHAR *output, UINT length,
-                                           UCHAR *iv, UCHAR icv_len, UCHAR block_size)
+                                           UCHAR *input, UCHAR *output, UINT length, UCHAR block_size)
 {
-UCHAR last_cipher[16];
+UCHAR *last_cipher;
 UCHAR save_input[16];
 UINT  i;
-
-    NX_PARAMETER_NOT_USED(key_set_function);
-    NX_PARAMETER_NOT_USED(additional_data);
-    NX_PARAMETER_NOT_USED(additional_len);
-    NX_PARAMETER_NOT_USED(icv_len);
 
     if (block_size == 0)
     {
@@ -277,16 +234,16 @@ UINT  i;
     /* Determine if data length is multiple of block size. */
     if (length % block_size)
     {
-        return(NX_PTR_ERROR);
+        return(NX_CRYPTO_PTR_ERROR);
     }
 
     /* Determine if block size is larger than the size of save_input. */
-    if (block_size > sizeof(save_input))
+    if (block_size > sizeof(cbc_metadata -> nx_crypto_cbc_last_block))
     {
-        return(NX_PTR_ERROR);
+        return(NX_CRYPTO_PTR_ERROR);
     }
 
-    NX_CRYPTO_MEMCPY(last_cipher, iv, block_size);
+    last_cipher = cbc_metadata -> nx_crypto_cbc_last_block;
 
     for (i = 0; i < length; i += block_size)
     {
@@ -304,10 +261,65 @@ UINT  i;
     }
 
 #ifdef NX_SECURE_KEY_CLEAR
-    NX_CRYPTO_MEMSET(last_cipher, 0, sizeof(last_cipher));
     NX_CRYPTO_MEMSET(save_input, 0, sizeof(save_input));
 #endif /* NX_SECURE_KEY_CLEAR  */
 
     return(NX_CRYPTO_SUCCESS);
 }
 
+
+/**************************************************************************/
+/*                                                                        */
+/*  FUNCTION                                               RELEASE        */
+/*                                                                        */
+/*    _nx_crypto_cbc_encrypt_init                         PORTABLE C      */
+/*                                                           6.0          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Timothy Stapko, Microsoft Corporation                               */
+/*                                                                        */
+/*  DESCRIPTION                                                           */
+/*                                                                        */
+/*    This function performs CBC mode initialization.                     */
+/*                                                                        */
+/*  INPUT                                                                 */
+/*                                                                        */
+/*    cbc_metadata                          Pointer to CBC metadata       */
+/*    iv                                    Pointer to Initial Vector     */
+/*    iv_len                                Length of Initial Vector      */
+/*                                                                        */
+/*  OUTPUT                                                                */
+/*                                                                        */
+/*    status                                Completion status             */
+/*                                                                        */
+/*  CALLS                                                                 */
+/*                                                                        */
+/*    None                                                                */
+/*                                                                        */
+/*  CALLED BY                                                             */
+/*                                                                        */
+/*    _nx_crypto_method_aes_cbc_operation   Handle AES encrypt or decrypt */
+/*    _nx_crypto_method_des_operation       Handle DES encrypt or decrypt */
+/*    _nx_crypto_method_3des_operation      Handle 3DES encrypt or decrypt*/
+/*                                                                        */
+/*  RELEASE HISTORY                                                       */
+/*                                                                        */
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
+NX_CRYPTO_KEEP UINT _nx_crypto_cbc_encrypt_init(NX_CRYPTO_CBC *cbc_metadata, UCHAR *iv, UINT iv_len)
+{
+
+    /* Determine if IV size is larger than the size of save_input. */
+    if (iv_len > sizeof(cbc_metadata -> nx_crypto_cbc_last_block))
+    {
+        return(NX_CRYPTO_PTR_ERROR);
+    }
+
+    /* Copy IV to last cipher. */
+    NX_CRYPTO_MEMCPY(cbc_metadata -> nx_crypto_cbc_last_block, iv, iv_len);
+
+    return(NX_CRYPTO_SUCCESS);
+}

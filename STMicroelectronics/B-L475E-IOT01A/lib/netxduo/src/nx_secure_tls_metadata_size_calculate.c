@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -41,10 +29,10 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_tls_metadata_size_calculate              PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -74,13 +62,7 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-09-2017     Timothy Stapko           Initial Version 5.10          */
-/*  12-15-2017     Timothy Stapko           Modified comment(s),          */
-/*                                            resulting in version 5.11   */
-/*  08-15-2019     Timothy Stapko           Modified comment(s),          */
-/*                                            fixed the usage of crypto   */
-/*                                            metadata for hash method,   */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 UINT _nx_secure_tls_metadata_size_calculate(const NX_SECURE_TLS_CRYPTO *crypto_table,
@@ -103,12 +85,12 @@ USHORT                          cert_crypto_size;
 
 
 #if (NX_SECURE_TLS_TLS_1_0_ENABLED || NX_SECURE_TLS_TLS_1_1_ENABLED)
-NX_CRYPTO_METHOD *crypto_method_md5;
-NX_CRYPTO_METHOD *crypto_method_sha1;
+const NX_CRYPTO_METHOD *crypto_method_md5;
+const NX_CRYPTO_METHOD *crypto_method_sha1;
 #endif
 
 #if (NX_SECURE_TLS_TLS_1_2_ENABLED)
-NX_CRYPTO_METHOD *crypto_method_sha256;
+const NX_CRYPTO_METHOD *crypto_method_sha256;
 #endif
 
     if (crypto_table == NX_NULL)
@@ -185,16 +167,19 @@ NX_CRYPTO_METHOD *crypto_method_sha256;
        We need some scratch space to copy the handshake hash metadata during final hash generation
        so figure out the largest metadata between SHA-1+MD5 (TLSv1.0, 1.1) and SHA256 (TLSv1.2). */
 #if (NX_SECURE_TLS_TLS_1_0_ENABLED || NX_SECURE_TLS_TLS_1_1_ENABLED)
-    max_handshake_hash_metadata_size += (crypto_method_md5 -> nx_crypto_metadata_area_size +
-                                         crypto_method_sha1 -> nx_crypto_metadata_area_size);
-    if (max_handshake_hash_scratch_size < crypto_method_md5 -> nx_crypto_metadata_area_size + crypto_method_sha1 -> nx_crypto_metadata_area_size)
+    if (crypto_method_md5 != NX_NULL && crypto_method_sha1 != NX_NULL)
     {
-        max_handshake_hash_scratch_size = crypto_method_md5 -> nx_crypto_metadata_area_size + crypto_method_sha1 -> nx_crypto_metadata_area_size;
-    }
+        max_handshake_hash_metadata_size += (crypto_method_md5 -> nx_crypto_metadata_area_size +
+                                             crypto_method_sha1 -> nx_crypto_metadata_area_size);
+        if (max_handshake_hash_scratch_size < crypto_method_md5 -> nx_crypto_metadata_area_size + crypto_method_sha1 -> nx_crypto_metadata_area_size)
+        {
+            max_handshake_hash_scratch_size = crypto_method_md5 -> nx_crypto_metadata_area_size + crypto_method_sha1 -> nx_crypto_metadata_area_size;
+        }
 
-    if (max_tls_prf_metadata_size < crypto_table -> nx_secure_tls_prf_1_method -> nx_crypto_metadata_area_size)
-    {
-        max_tls_prf_metadata_size = crypto_table -> nx_secure_tls_prf_1_method -> nx_crypto_metadata_area_size;
+        if (max_tls_prf_metadata_size < crypto_table -> nx_secure_tls_prf_1_method -> nx_crypto_metadata_area_size)
+        {
+            max_tls_prf_metadata_size = crypto_table -> nx_secure_tls_prf_1_method -> nx_crypto_metadata_area_size;
+        }
     }
 #endif
 #if (NX_SECURE_TLS_TLS_1_2_ENABLED)
@@ -209,6 +194,14 @@ NX_CRYPTO_METHOD *crypto_method_sha256;
     if (max_tls_prf_metadata_size < crypto_table -> nx_secure_tls_prf_sha256_method -> nx_crypto_metadata_area_size)
     {
         max_tls_prf_metadata_size = crypto_table -> nx_secure_tls_prf_sha256_method -> nx_crypto_metadata_area_size;
+    }
+#endif
+
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+    max_handshake_hash_scratch_size += crypto_table -> nx_secure_tls_hmac_method -> nx_crypto_metadata_area_size;
+    if (max_tls_prf_metadata_size < crypto_table -> nx_secure_tls_hkdf_method -> nx_crypto_metadata_area_size)
+    {
+        max_tls_prf_metadata_size = crypto_table -> nx_secure_tls_hkdf_method -> nx_crypto_metadata_area_size;
     }
 #endif
 

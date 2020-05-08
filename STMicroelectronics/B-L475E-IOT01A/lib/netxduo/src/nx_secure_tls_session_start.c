@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -41,10 +29,10 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_tls_session_start                        PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -85,15 +73,7 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-09-2017      Timothy Stapko          Initial Version 5.10          */
-/*  12-15-2017     Timothy Stapko           Modified comment(s),          */
-/*                                            optimized the logic,        */
-/*                                            resulting in version 5.11   */
-/*  08-15-2019     Timothy Stapko           Modified comment(s), reset    */
-/*                                            TLS session state if errors */
-/*                                            are encountered, reset      */
-/*                                            alert tracking fields,      */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 UINT _nx_secure_tls_session_start(NX_SECURE_TLS_SESSION *tls_session, NX_TCP_SOCKET *tcp_socket,
@@ -142,6 +122,22 @@ NX_PACKET *send_packet;
         tls_session -> nx_secure_tls_socket_type = NX_SECURE_TLS_SESSION_TYPE_SERVER;
     }
 
+#if (NX_SECURE_TLS_TLS_1_3_ENABLED)
+    /* Initialize TLS 1.3 cryptographic primitives. */
+    if(tls_session->nx_secure_tls_1_3)
+    {
+        status = _nx_secure_tls_1_3_crypto_init(tls_session);
+
+        if(status != NX_SUCCESS)
+        {
+
+            /* Release the protection. */
+            tx_mutex_put(&_nx_secure_tls_protection);
+            return(status);
+        }
+    }
+#endif
+
     /* Now process the handshake depending on the TLS session type. */
 #ifndef NX_SECURE_TLS_CLIENT_DISABLED
     if (tls_session -> nx_secure_tls_socket_type == NX_SECURE_TLS_SESSION_TYPE_CLIENT)
@@ -186,6 +182,13 @@ NX_PACKET *send_packet;
     /* Now handle our incoming handshake messages. Continue processing until the handshake is complete
        or an error/timeout occurs. */
     status = _nx_secure_tls_handshake_process(tls_session, wait_option);
+
+    if ((status == NX_CONTINUE) && (wait_option == 0))
+    {
+        
+        /* It is non blocking mode. */
+        return(NX_CONTINUE);
+    }
 
     if(status != NX_SUCCESS)
     {

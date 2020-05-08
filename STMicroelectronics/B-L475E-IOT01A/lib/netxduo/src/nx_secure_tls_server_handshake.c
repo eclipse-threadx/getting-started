@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -43,10 +31,10 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_secure_tls_server_handshake                     PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -105,29 +93,11 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-09-2017     Timothy Stapko           Initial Version 5.10          */
-/*  12-15-2017     Timothy Stapko           Modified comment(s),          */
-/*                                            added support for server    */
-/*                                            side client certificate     */
-/*                                            verification, optimized     */
-/*                                            the logic, released packet  */
-/*                                            on send failed,             */
-/*                                            resulting in version 5.11   */
-/*  08-15-2019     Timothy Stapko           Modified comment(s)           */
-/*                                            optimized the logic,        */
-/*                                            added wait_option to _nx_   */
-/*                                            secure_tls_send_certificate,*/
-/*                                            processed the server state, */
-/*                                            fix issues with proper      */
-/*                                            CertificateVerify handling, */
-/*                                            updated error return codes, */
-/*                                            updated error return checks,*/
-/*                                            removed cipher suite lookup,*/
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 UINT _nx_secure_tls_server_handshake(NX_SECURE_TLS_SESSION *tls_session, UCHAR *packet_buffer,
-                                     ULONG wait_option)
+                                     UINT data_length, ULONG wait_option)
 {
 #ifndef NX_SECURE_TLS_SERVER_DISABLED
 UINT                                  status;
@@ -141,7 +111,7 @@ UCHAR                                *packet_start;
 UINT                                  error_number;
 UINT                                  alert_number;
 UINT                                  alert_level;
-NX_CRYPTO_METHOD                     *method_ptr = NX_NULL;
+const NX_CRYPTO_METHOD               *method_ptr = NX_NULL;
 
     /* Basic state machine for handshake:
      * 1. We have received a handshake message, now process the header.
@@ -153,6 +123,13 @@ NX_CRYPTO_METHOD                     *method_ptr = NX_NULL;
     packet_start = packet_buffer;
 
     _nx_secure_tls_process_handshake_header(packet_buffer, &message_type, &header_bytes, &message_length);
+
+    /* Check for fragmented records. */
+    if((message_length + header_bytes) > data_length)
+    {
+        /* Incomplete record! We need to obtain the next fragment. */
+        return(NX_SECURE_TLS_HANDSHAKE_FRAGMENT_RECEIVED);
+    }
 
     /* Advance the buffer pointer past the handshake header. */
     packet_buffer += header_bytes;
@@ -200,7 +177,7 @@ NX_CRYPTO_METHOD                     *method_ptr = NX_NULL;
 #endif /* NX_SECURE_ENABLE_CLIENT_CERTIFICATE_VERIFY */
     case NX_SECURE_TLS_CLIENT_KEY_EXCHANGE:
         /* Received a client key exchange message, meaning it is time to generate keys if we can. */
-        status = _nx_secure_tls_process_client_key_exchange(tls_session, packet_buffer, message_length);
+        status = _nx_secure_tls_process_client_key_exchange(tls_session, packet_buffer, message_length, NX_SECURE_TLS);
         tls_session -> nx_secure_tls_server_state = NX_SECURE_TLS_SERVER_STATE_KEY_EXCHANGE;
 
         if (status == NX_SECURE_TLS_SUCCESS)
@@ -290,12 +267,21 @@ NX_CRYPTO_METHOD                     *method_ptr = NX_NULL;
                 break;
             }
 
-        NX_SECURE_SEND_SERVER_KEY_EXCHANGE_EXTENSION
 #ifdef NX_SECURE_ENABLE_PSK_CIPHERSUITES
         }
-        else
+#endif /* NX_SECURE_ENABLE_PSK_CIPHERSUITES */
+
+#if defined(NX_SECURE_ENABLE_ECC_CIPHERSUITE) || defined(NX_SECURE_ENABLE_PSK_CIPHERSUITES)
+        if (NX_FALSE
+#ifdef NX_SECURE_ENABLE_ECC_CIPHERSUITE
+            || tls_session -> nx_secure_tls_session_ciphersuite -> nx_secure_tls_public_cipher -> nx_crypto_algorithm == NX_CRYPTO_KEY_EXCHANGE_ECDHE
+#endif /* NX_SECURE_ENABLE_ECC_CIPHERSUITE */
+#ifdef NX_SECURE_ENABLE_PSK_CIPHERSUITES
+            || tls_session -> nx_secure_tls_session_ciphersuite -> nx_secure_tls_public_auth -> nx_crypto_algorithm == NX_CRYPTO_KEY_EXCHANGE_PSK
+#endif /* NX_SECURE_ENABLE_PSK_CIPHERSUITES */
+            )
         {
-            /* PSK ciphersuites use the ServerKeyExchange message to send  */
+            /* PSK and ECDHE ciphersuites use the ServerKeyExchange message to send cryptographic information. */
             status = _nx_secure_tls_allocate_handshake_packet(tls_session, packet_pool, &send_packet, wait_option);
 
             if (status != NX_SUCCESS)
@@ -316,7 +302,7 @@ NX_CRYPTO_METHOD                     *method_ptr = NX_NULL;
                 break;
             }
         }
-#endif
+#endif /* NX_SECURE_ENABLE_ECC_CIPHERSUITE || NX_CRYPTO_KEY_EXCHANGE_PSK */
 
 #ifdef NX_SECURE_ENABLE_CLIENT_CERTIFICATE_VERIFY
         /* Application has requested that we request and verify the remote Client certificate. */
@@ -439,7 +425,7 @@ NX_CRYPTO_METHOD                     *method_ptr = NX_NULL;
         if (method_ptr -> nx_crypto_cleanup != NX_NULL)
         {
             temp_status = method_ptr -> nx_crypto_cleanup(tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_sha256_metadata);
-            if(temp_status != NX_SUCCESS)
+            if(temp_status != NX_CRYPTO_SUCCESS)
             {
                 status = temp_status;
             }
@@ -449,10 +435,10 @@ NX_CRYPTO_METHOD                     *method_ptr = NX_NULL;
 
 #if (NX_SECURE_TLS_TLS_1_0_ENABLED || NX_SECURE_TLS_TLS_1_1_ENABLED)
         method_ptr = tls_session -> nx_secure_tls_crypto_table -> nx_secure_tls_handshake_hash_md5_method;
-        if (method_ptr -> nx_crypto_cleanup != NX_NULL)
+        if (method_ptr != NX_NULL && method_ptr -> nx_crypto_cleanup != NX_NULL)
         {
             temp_status = method_ptr -> nx_crypto_cleanup(tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_md5_metadata);
-            if(temp_status != NX_SUCCESS)
+            if(temp_status != NX_CRYPTO_SUCCESS)
             {
                 status = temp_status;
             }
@@ -460,10 +446,10 @@ NX_CRYPTO_METHOD                     *method_ptr = NX_NULL;
         }
 
         method_ptr = tls_session -> nx_secure_tls_crypto_table -> nx_secure_tls_handshake_hash_sha1_method;
-        if (method_ptr -> nx_crypto_cleanup != NX_NULL)
+        if (method_ptr != NX_NULL && method_ptr -> nx_crypto_cleanup != NX_NULL)
         {
             temp_status = method_ptr -> nx_crypto_cleanup(tls_session -> nx_secure_tls_handshake_hash.nx_secure_tls_handshake_hash_sha1_metadata);
-            if(temp_status != NX_SUCCESS)
+            if(temp_status != NX_CRYPTO_SUCCESS)
             {
                 status = temp_status;
             }
@@ -522,6 +508,7 @@ NX_CRYPTO_METHOD                     *method_ptr = NX_NULL;
     /* We don't use the parameters since this is an error case. */
     NX_PARAMETER_NOT_USED(packet_buffer);
     NX_PARAMETER_NOT_USED(wait_option);
+    NX_PARAMETER_NOT_USED(data_length);
 
     /* If TLS Server is disabled and we are in the server state machine, something is wrong... */
     tls_session -> nx_secure_tls_client_state = NX_SECURE_TLS_CLIENT_STATE_ERROR;

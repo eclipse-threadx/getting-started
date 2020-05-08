@@ -24,7 +24,7 @@ NX_IP ip_0;
 NX_DNS dns_client;
 NX_DHCP dhcp_client;
 
-/* Output DNS Server address.  */
+// Print IPv4 address
 static void print_address(CHAR* preable, ULONG address)
 {
     printf("\t%s: %d.%d.%d.%d\r\n",
@@ -122,13 +122,13 @@ bool network_init(VOID (*ip_link_driver)(struct NX_IP_DRIVER_STRUCT *))
 {
     UINT status;
 
+    // Initialize the NetX system.
+    nx_system_initialize();
+
     // Create a packet pool.
     status = nx_packet_pool_create(&main_pool, "NetX Packet Pool",
         THREADX_PACKET_SIZE, 
         threadx_ip_pool, THREADX_POOL_SIZE);
-    
-    // Initialize the NetX system.
-    nx_system_initialize();
     if (status != NX_SUCCESS)
     {
         printf("THREADX platform initialize fail: PACKET POOL CREATE FAIL.\r\n");

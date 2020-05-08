@@ -1564,12 +1564,12 @@ ES_WIFI_Status_t ES_WIFI_GetSystemConfig(ES_WIFIObject_t *Obj, ES_WIFI_SystemCon
   * @param  Ping: ping structure.
   * @retval Operation Status.
   */
-ES_WIFI_Status_t ES_WIFI_Ping(ES_WIFIObject_t *Obj, uint8_t *address, uint16_t count, uint16_t interval_ms) //, int32_t result[])
+ES_WIFI_Status_t ES_WIFI_Ping(ES_WIFIObject_t *Obj, uint8_t *address, uint16_t count, uint16_t interval_ms, int32_t result[])
 {
   ES_WIFI_Status_t ret;
   LOCK_WIFI();
 
-  //memset(result,-1,sizeof(int)*count);
+  memset(result,-1,sizeof(int)*count);
   sprintf((char*)Obj->CmdData,"T1=%d.%d.%d.%d\r", address[0],address[1],
           address[2],address[3]);
   ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
@@ -1589,10 +1589,10 @@ ES_WIFI_Status_t ES_WIFI_Ping(ES_WIFIObject_t *Obj, uint8_t *address, uint16_t c
       {
         sprintf((char*)Obj->CmdData,"T0=\r");
         ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
-        //if (ret == ES_WIFI_STATUS_OK)
-        //{
-        // AT_ParsePing(result,count,(char*)Obj->CmdData);
-        //}
+        if (ret == ES_WIFI_STATUS_OK)
+        {
+         AT_ParsePing(result,count,(char*)Obj->CmdData);
+        }
       }
     }
   }
@@ -1971,18 +1971,18 @@ ES_WIFI_Status_t ES_WIFI_CloseServerConnection(ES_WIFIObject_t *Obj, int socket)
   * @param  Obj: pointer to module handle
   * @retval Operation Status.
   */
-ES_WIFI_Status_t ES_WIFI_StopServerSingleConn(ES_WIFIObject_t *Obj) //, int socket)
+ES_WIFI_Status_t ES_WIFI_StopServerSingleConn(ES_WIFIObject_t *Obj, int socket)
 {
   ES_WIFI_Status_t ret;
   LOCK_WIFI();
-//  sprintf((char*)Obj->CmdData,"P0=%d\r", socket);
-//  ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
-//  if(ret != ES_WIFI_STATUS_OK)
-//  {
-//    DEBUG("Selecting socket failed: %s\r\n", Obj->CmdData);
-//    UNLOCK_WIFI();
-//    return ret;
-//  }
+  sprintf((char*)Obj->CmdData,"P0=%d\r", socket);
+  ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
+  if(ret != ES_WIFI_STATUS_OK)
+  {
+    DEBUG("Selecting socket failed: %s\r\n", Obj->CmdData);
+    UNLOCK_WIFI();
+    return ret;
+  }
 
   sprintf((char*)Obj->CmdData,"P5=0\r");
   ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);

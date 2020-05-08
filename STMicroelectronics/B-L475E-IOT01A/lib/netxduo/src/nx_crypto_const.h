@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -38,10 +26,10 @@
 /*  COMPONENT DEFINITION                                   RELEASE        */
 /*                                                                        */
 /*    nx_crypto_const.h                                  PORTABLE C       */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    Timothy Stapko, Express Logic, Inc.                                 */
+/*    Timothy Stapko, Microsoft Corporation                               */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -51,15 +39,7 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-15-2017     Timothy Stapko           Initial Version 5.11          */
-/*  08-15-2019     Timothy Stapko           Modified comment(s), added    */
-/*                                            macros for ECC, set unique  */
-/*                                            algorithm IDs values, added */
-/*                                            logic be compliant with FIPS*/
-/*                                            140-2, added C++ extern     */
-/*                                            wrapper, added return code  */
-/*                                            NX_CRYPTO_MISSING_ECC_CURVE */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Timothy Stapko           Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 
@@ -134,7 +114,8 @@ extern   "C" {
 
 /* Define the Pseudorandom Function algorithm */
 /* These values are used in nx_crypto_algorithm field. */
-/* Values of 16 least significant bits are the same as defined in RFC 5996 3.3.2 */
+/* Values of 16 least significant bits are the same as defined in RFC 5996 3.3.2,
+ * except for algorithms not found in that RFC such as the HKDF. */
 #define NX_CRYPTO_PRF_MASK                       0x00020000
 #define NX_CRYPTO_PRF_HMAC_MD5                   0x00020001
 #define NX_CRYPTO_PRF_HMAC_SHA1                  0x00020002
@@ -143,6 +124,7 @@ extern   "C" {
 #define NX_CRYPTO_PRF_HMAC_SHA2_256              0x00020005
 #define NX_CRYPTO_PRF_HMAC_SHA2_384              0x00020006
 #define NX_CRYPTO_PRF_HMAC_SHA2_512              0x00020007
+#define NX_CRYPTO_HKDF_METHOD                    0x00020008
 
 /* Define the hash algorithm */
 #define NX_CRYPTO_HASH_MASK                      0x00030000
@@ -155,6 +137,7 @@ extern   "C" {
 #define NX_CRYPTO_HASH_SHA512                    0x00030007
 #define NX_CRYPTO_HASH_SHA512_224                0x00030008
 #define NX_CRYPTO_HASH_SHA512_256                0x00030009
+#define NX_CRYPTO_HASH_HMAC                      0x0003000A /* Generic HMAC wrapper. */
 
 /* Define the key exchange algorithm */
 #define NX_CRYPTO_KEY_EXCHANGE_MASK              0x00040000
@@ -168,11 +151,11 @@ extern   "C" {
 #define NX_CRYPTO_KEY_EXCHANGE_ECJPAKE           0x00040007
 
 /*Define the digital signature algorithm */
-#define NX_CRYPTO_DIGITAL_SIGNATRUE_MASK         0x00050000
-#define NX_CRYPTO_DIGITAL_SIGNATRUE_ANONYMOUS    0x00050000
-#define NX_CRYPTO_DIGITAL_SIGNATRUE_RSA          0x00050001
-#define NX_CRYPTO_DIGITAL_SIGNATRUE_DSA          0x00050002
-#define NX_CRYPTO_DIGITAL_SIGNATRUE_ECDSA        0x00050003
+#define NX_CRYPTO_DIGITAL_SIGNATURE_MASK         0x00050000
+#define NX_CRYPTO_DIGITAL_SIGNATURE_ANONYMOUS    0x00050000
+#define NX_CRYPTO_DIGITAL_SIGNATURE_RSA          0x00050001
+#define NX_CRYPTO_DIGITAL_SIGNATURE_DSA          0x00050002
+#define NX_CRYPTO_DIGITAL_SIGNATURE_ECDSA        0x00050003
 
 /*Define the elliptic curve algorithm */
 /* Values of 16 least significant bits are the same as named curve defined in RFC 4492, section 5.1.1 */
@@ -225,6 +208,18 @@ extern   "C" {
 #define NX_CRYPTO_MAX_IV_SIZE_IN_BITS            192
 #endif /* NX_CRYPTO_MAX_IV_SIZE_IN_BYTES */
 
+/* NX_CRYPTO_ROLE_xxx - used to identify the "role of a crypto algorithm
+   in a ciphersuite/X.509 mapping. */
+#define NX_CRYPTO_ROLE_NONE                      0    /* Used to indicate the end of a list. */
+#define NX_CRYPTO_ROLE_KEY_EXCHANGE              1    /* Cipher is used for key exchange (e.g. RSA, ECDHE) */
+#define NX_CRYPTO_ROLE_SIGNATURE_CRYPTO          2    /* Cipher is used for encrypting a signature (e.g. RSA, DSA) */
+#define NX_CRYPTO_ROLE_SIGNATURE_HASH            3    /* Cipher is used to generate a signature hash (e.g. SHA-1, SHA-256) */
+#define NX_CRYPTO_ROLE_SYMMETRIC                 4    /* Cipher is used for symmetric encryption (e.g. AES, RC4) */
+#define NX_CRYPTO_ROLE_MAC_HASH                  5    /* Cipher is used for hash MAC generation (e.g. HMAC-SHA-1, HMAC-SHA-256) */
+#define NX_CRYPTO_ROLE_PRF                       6    /* Cipher is used for TLS PRF (key generation). */
+#define NX_CRYPTO_ROLE_HMAC                      7    /* Generic HMAC wrapper to be used with a "raw" hash function. */
+#define NX_CRYPTO_ROLE_RAW_HASH                  8    /* A "raw" hash function is the cryptographic primitive without a wrapper (e.g. SHA-256, no HMAC). */
+
 /* Define values used for nx_crypto_type. */
 #define NX_CRYPTO_ENCRYPT                        1    /* ESP Encrypt (egress) */
 #define NX_CRYPTO_DECRYPT                        2    /* ESP Decrypt (ingress) */
@@ -236,10 +231,14 @@ extern   "C" {
 #define NX_CRYPTO_PRF                            8    /* For the TLS PRF function. */
 #define NX_CRYPTO_SET_PRIME_P                    9    /* Set Prime number P.  This is used in software RSA implementation. */
 #define NX_CRYPTO_SET_PRIME_Q                    10   /* Set Prime number Q.  This is used in software RSA implementation. */
-#define NX_CRYPTO_SET_ADDITIONAL_DATA            11   /* Set additional data pointer and length.*/
+#define NX_CRYPTO_SET_ADDITIONAL_DATA            11   /* Set additional data pointer and length. */
+#define NX_CRYPTO_HASH_METHOD_SET                12   /* Set hash method. */
+#define NX_CRYPTO_SIGNATURE_GENERATE             13   /* Signature generation. */
+#define NX_CRYPTO_SIGNATURE_VERIFY               14   /* Signature verification. */
+#define NX_CRYPTO_PRF_SET_HASH                   NX_CRYPTO_HASH_METHOD_SET
 
 /* ECJPAKE operations. */
-#define NX_CRYPTO_ECJPAKE_HASH_METHOD_SET               20
+#define NX_CRYPTO_ECJPAKE_HASH_METHOD_SET               NX_CRYPTO_HASH_METHOD_SET
 #define NX_CRYPTO_ECJPAKE_CURVE_SET                     21
 #define NX_CRYPTO_ECJPAKE_CLIENT_HELLO_GENERATE         22
 #define NX_CRYPTO_ECJPAKE_SERVER_HELLO_GENERATE         23
@@ -249,6 +248,13 @@ extern   "C" {
 #define NX_CRYPTO_ECJPAKE_SERVER_KEY_EXCHANGE_GENERATE  27
 #define NX_CRYPTO_ECJPAKE_CLIENT_KEY_EXCHANGE_PROCESS   28
 #define NX_CRYPTO_ECJPAKE_SERVER_KEY_EXCHANGE_PROCESS   29
+
+#define NX_CRYPTO_ENCRYPT_INITIALIZE             30   /* Encrypt initialize  */
+#define NX_CRYPTO_DECRYPT_INITIALIZE             31   /* Decrypt initialize  */
+#define NX_CRYPTO_ENCRYPT_UPDATE                 32   /* Encrypt update */
+#define NX_CRYPTO_DECRYPT_UPDATE                 33   /* Decrypt update */
+#define NX_CRYPTO_ENCRYPT_CALCULATE              34   /* Final encrypt calculation */
+#define NX_CRYPTO_DECRYPT_CALCULATE              35   /* Final decrypt calculation */
 
 /* EC operations. */
 #define NX_CRYPTO_EC_CURVE_GET                   40
@@ -267,6 +273,14 @@ extern   "C" {
 #define NX_CRYPTO_DRBG_RESEED                    62
 #define NX_CRYPTO_DRBG_GENERATE                  63
 
+/* HKDF operations. */
+#define NX_CRYPTO_HKDF_SET_HASH                  NX_CRYPTO_HASH_METHOD_SET   /* Set the generic hash routine to be used for HKDF. */
+#define NX_CRYPTO_HKDF_EXTRACT                   70   /* Perform an HKDF-extract operation. */
+#define NX_CRYPTO_HKDF_EXPAND                    71   /* Perform an HKDF-expand operation. */
+#define NX_CRYPTO_HKDF_SET_PRK                   72   /* Set the Pseudo-Random Key for an HKDF-expand operation. */
+#define NX_CRYPTO_HKDF_SET_HMAC                  73   /* Set the generic HMAC routine to be used for HKDF. */
+#define NX_CRYPTO_HMAC_SET_HASH                  74   /* Set the generic hash routine to be used for HMAC operations. */
+
 /* Define align MACRO to a byte boundry. */
 #define NX_CRYPTO_ALIGN8(len)                    (((len) + 7) & ~7)
 
@@ -284,7 +298,19 @@ typedef UINT NX_CRYPTO_KEY_SIZE;
 #define NX_CRYPTO_INVALID_ALGORITHM              0x20004
 #define NX_CRYPTO_INVALID_KEY                    0x20005
 #define NX_CRYPTO_INVALID_BUFFER_SIZE            0x20006
-#define NX_CRYTPO_MISSING_ECC_CURVE              0x20007      /* ECC curve lookup failed to return a matching curve. */
+#define NX_CRYPTO_PTR_ERROR                      0x20007
+#define NX_CRYPTO_SIZE_ERROR                     0x20008
+#define NX_CRYPTO_NOT_SUCCESSFUL                 0x20009
+#define NX_CRYPTO_INVALID_PARAMETER              0x2000A
+#define NX_CRYPTO_NO_INSTANCE                    0x2000B
+#define NX_CRYPTO_METHOD_INITIALIZATION_FAILURE  0x2000C       /* A method was not properly initialized before use. */
+#define NX_CRYPTO_METADATA_UNALIGNED             0x2000D       /* Crypto metadata must be 4-byte aligned. */
+#define NX_CRYPTO_POINTER_ERROR                  0x2000E       /* An invalid (NULL?) pointer was passed into a crypto method. */
+#define NX_CRYTPO_MISSING_ECC_CURVE              0x2000F       /* ECC curve lookup failed to return a matching curve. */
+
+#define NX_CRYPTO_NULL                           0
+#define NX_CRYPTO_FALSE                          0
+#define NX_CRYPTO_TRUE                           1
 
 /* The following symbols are mapped to the error code for backward compatibility. */
 #define NX_CRYPTO_AES_UNSUPPORTED_KEY_SIZE       NX_CRYPTO_UNSUPPORTED_KEY_SIZE
