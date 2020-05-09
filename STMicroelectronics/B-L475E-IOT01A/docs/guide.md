@@ -62,7 +62,7 @@ To install the remaining tools:
 
 1. Download and install [ST-LINK](https://www.st.com/en/development-tools/stsw-link004.html). You use this utility to flash the device.
 
-    >Note: After you click the button to accept the license, the page prompts you to log in or register. Register for a free account, if you don't have one. Then return to the page and log in to complete the installation.
+    >Note: If the download won't start after you log in or provide an email address to get a download link, make sure you enable cookies for the website, and disable your ad blocker.
 
 1. Install [Termite](https://www.compuphase.com/software_termite.htm). You use this utility to monitor your device.
 
