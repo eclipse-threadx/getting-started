@@ -9,6 +9,7 @@ set(SOURCES
     stm32cubel4/stm32l4xx_it.c
 
     azure_config.c
+    azure_iothub.c
     board_init.c
     console.c
     main.c

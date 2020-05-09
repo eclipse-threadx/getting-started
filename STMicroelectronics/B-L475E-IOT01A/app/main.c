@@ -3,11 +3,10 @@
 
 #include "tx_api.h"
 
+#include "azure_iothub.h"
 #include "networking.h"
 #include "board_init.h"
 #include "sntp_client.h"
-
-#include "azure/azure_mqtt.h"
 
 #define AZURE_THREAD_STACK_SIZE 4096
 #define AZURE_THREAD_PRIORITY 4
@@ -18,25 +17,6 @@ TX_THREAD azure_thread;
 
 void mqtt_thread_entry(ULONG info);
 void azure_thread_entry(ULONG parameter);
-
-void mqtt_thread_entry(ULONG info)
-{
-    printf("Starting MQTT thread\r\n");
-
-    while (true)
-    {
-        float tempDegC = 25.0;
-
-        // Send the compensated temperature as a telemetry event
-        azure_mqtt_publish_float_twin("temperature(C)", tempDegC);
-
-        // Send the compensated temperature as a device twin update
-        azure_mqtt_publish_float_telemetry("temperature(C)", tempDegC);
-
-        // Sleep for 1 minute
-        tx_thread_sleep(60 * TX_TIMER_TICKS_PER_SECOND);
-    }
-}
 
 void azure_thread_entry(ULONG parameter)
 {
@@ -61,16 +41,11 @@ void azure_thread_entry(ULONG parameter)
         return;
     }*/
 
-    if(!azure_mqtt_register_main_thread_callback(mqtt_thread_entry))
-    {
-        printf("Failed to register MQTT main thread callback\r\n");
-        return;
-    }
 
-    // Start the Azure MQTT client
-    if (!azure_mqtt_start())
+    // Start the Azure IoT hub thread
+    if (!azure_iothub_start())
     {
-        printf("Failed to start MQTT client thread\r\n");
+        printf("Failed to start Azure Iot Hub thread\r\n");
         return;
     }
 
