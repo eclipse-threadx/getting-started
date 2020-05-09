@@ -2,7 +2,7 @@
 
 **Total completion time**:  45 minutes
 
-In this tutorial you use Azure RTOS to connect the STMicroelectronics B-L475E-IOT01 (hereafter, the STM  DevKit) to Azure IoT.  The article is part of the series [Getting Started with Azure RTOS](https://review.docs.microsoft.com/azure/rtos/getting-started?branch=master). The series introduces device developers to Azure RTOS, and shows how to connect several micro-controller units (MCU) to Azure IoT.
+In this tutorial you use Azure RTOS to connect the STMicroelectronics B-L475E-IOT01 (hereafter, the STM  DevKit) to Azure IoT.  The article is part of the series [Getting Started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=212982). The series introduces device developers to Azure RTOS, and shows how to connect several micro-controller units (MCU) to Azure IoT.
 
 You will complete the following tasks:
 
@@ -28,7 +28,7 @@ To set up your development environment, first you clone a GitHub repo that conta
 
 ### Clone the repo for the tutorial
 
-Clone the following repo to download all sample device code, setup scripts, and offline versions of the documentation for the series [Getting Started with Azure RTOS](https://review.docs.microsoft.com/azure/rtos/getting-started?branch=master). If you previously cloned this repo, you don't need to do it again.
+Clone the following repo to download all sample device code, setup scripts, and offline versions of the documentation. If you previously cloned this repo in another tutorial, you don't need to do it again
 
 To clone the repo, run the following command:
 
@@ -305,7 +305,7 @@ To call a direct method on your device:
 
 If you no longer need the Azure resources created in this tutorial, you can use the Azure CLI to delete them.
 
-If you continue to another tutorial in the series [Getting Started with Azure RTOS](https://review.docs.microsoft.com/azure/rtos/getting-started?branch=master), you can keep the resources you've already created and reuse them.
+If you continue to another tutorial in this Getting Started guide, you can keep the resources you've already created and reuse them.
 
 > **Important**: Deleting a resource group is irreversible. The resource group and all the resources contained in it are permanently deleted. Make sure that you do not accidentally delete the wrong resource group or resources.
 
