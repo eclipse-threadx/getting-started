@@ -4,7 +4,7 @@
 
 **Total completion time**:  45 minutes
 
-In this tutorial you use Azure RTOS to connect the NXP MIMXRT1060-EVK: i.MX RT1060 Evaluation Kit (hereafter, the NXP EVK) to Azure IoT.  The article is part of the series [Getting Started with Azure RTOS](https://review.docs.microsoft.com/azure/rtos/getting-started?branch=master). The series introduces device developers to Azure RTOS, and shows how to connect several micro-controller units (MCU) to Azure IoT.
+In this tutorial you use Azure RTOS to connect the NXP MIMXRT1060-EVK: i.MX RT1060 Evaluation Kit (hereafter, the NXP EVK) to Azure IoT.  The article is part of the series [Getting Started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824). The series introduces device developers to Azure RTOS, and shows how to connect several micro-controller units (MCU) to Azure IoT.
 
 You will complete the following tasks:
 
@@ -31,7 +31,7 @@ To set up your development environment, first you clone a GitHub repo that conta
 
 ### Clone the repo for the tutorial
 
-Clone the following repo to download all sample device code, setup scripts, and offline versions of the documentation for the series [Getting Started with Azure RTOS](https://review.docs.microsoft.com/azure/rtos/getting-started?branch=master). If you previously cloned this repo, you don't need to do it again.
+Clone the following repo to download all sample device code, setup scripts, and offline versions of the documentation. If you previously cloned this repo in another tutorial, you don't need to do it again.
 
 To clone the repo, run the following command:
 
@@ -166,13 +166,10 @@ After the build completes, confirm that a binary file was created in the followi
 
 1. On the NXP EVK, locate the **Reset** button, the Micro USB port, and the Ethernet port. You use these components in the following steps.
 
-    ![NXP EVK board](images/stm-devkit-board.png)
+    ![NXP EVK board](images/nxp-evk-board.png)
 
 1. Connect the Micro USB cable to the Micro USB port on the NXP EVK, and then connect it to your computer. After the board powers up, a solid green LED shows the power status.
 1. In File Explorer, find the NXP EVK device connected to your computer.
-
-    ![NXP EVK connected to computer](images/stm-devkit-board.png)
-
 1. Copy the image file *mimxrt1060_azure_iot_flash.bin* that you created in the previous section, and paste it into the root folder of the NXP EVK. The flashing process starts automatically.
 
     > Note: During the flashing process, a red LED blinks rapidly on the NXP EVK. The process completes in a few seconds without further notification.
@@ -185,7 +182,7 @@ You can use the **Termite** utility to monitor communication and confirm that yo
 1. Select **Settings**.
 1. In the **Serial port settings** dialog, check the following settings and update if needed:
     * **Baud rate**: 115,000
-    * **Port**: The port that your STM DevKit is connected to. If there are multiple port options in the dropdown, you can find the correct port to use. Open Windows **Device Manager**, and view **Ports > STMicroelectronics STLink Virtual COM Port** to identify which port to use.
+    * **Port**: The port that your NXP EVK is connected to. If there are multiple port options in the dropdown, you can find the correct port to use. Open Windows **Device Manager**, and view **Ports** to confirm which port to use.
 1. Press the **Reset** button on the board. The button is black and is labeled on the board.
 1. In the **Termite** console, check the following checkpoint values to confirm that the device is initialized and connected to Azure IoT. If a checkpoint value is missing or incorrect and you can't resolve the issue, see [Troubleshooting](#troubleshooting).
 
@@ -214,7 +211,7 @@ You can use Azure CLI to inspect the flow of telemetry from the device to Azure 
     az iot hub monitor-events --device-id MyNXPDevice --hub-name {YourIoTHubName}
     ```
 
-1. To force the STM DevKit to reconnect and resend telemetry, press **Reset**.
+1. To force the NXP EVK to reconnect and resend telemetry, press **Reset**.
 
     View the telemetry in the console's JSON output.
 
@@ -296,7 +293,7 @@ To call a direct method on your device:
 
 If you no longer need the Azure resources created in this tutorial, you can use the Azure CLI to delete them.
 
-If you continue to another tutorial in the series [Getting Started with Azure RTOS](https://review.docs.microsoft.com/azure/rtos/getting-started?branch=master), you can keep the resources you've already created and reuse them.
+If you continue to another tutorial in this Getting Started guide, you can keep the resources you've already created and reuse them.
 
 > **Important**: Deleting a resource group is irreversible. The resource group and all the resources contained in it are permanently deleted. Make sure that you do not accidentally delete the wrong resource group or resources.
 
