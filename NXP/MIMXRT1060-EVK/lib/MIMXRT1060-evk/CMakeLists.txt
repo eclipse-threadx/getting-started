@@ -1,11 +1,8 @@
 set(TARGET MIMXRT1060-evk)
 
 set(SOURCES
-    boards/evkmimxrt1060/project_template/board.c
-    boards/evkmimxrt1060/project_template/clock_config.c
-    boards/evkmimxrt1060/project_template/peripherals.c
-    boards/evkmimxrt1060/project_template/pin_mux.c
     boards/evkmimxrt1060/xip/evkmimxrt1060_flexspi_nor_config.c
+    boards/evkmimxrt1060/xip/evkmimxrt1060_sdram_ini_dcd.c
 
     components/phyksz8081/fsl_phy.c
     components/phyksz8081/fsl_phy.h
@@ -34,17 +31,18 @@ target_sources(${TARGET}
 target_compile_definitions(${TARGET}
     INTERFACE 
         CPU_MIMXRT1062DVL6A
-        SERIAL_PORT_TYPE_UART=1
-        FSL_FEATURE_PHYKSZ8081_USE_RMII50M_MODE
+        CPU_MIMXRT1052CVL6A_cm7
         SKIP_SYSCLK_INIT
         __USE_CMSIS
+        FSL_FEATURE_PHYKSZ8081_USE_RMII50M_MODE
+        SERIAL_PORT_TYPE_UART=1
         XIP_EXTERNAL_FLASH=1
         XIP_BOOT_HEADER_ENABLE=1
+        XIP_BOOT_HEADER_DCD_ENABLE=1
 )
 
 target_include_directories(${TARGET}
     INTERFACE
-        boards/evkmimxrt1060/project_template/
         components/phyksz8081
         components/serial_manager
         components/uart

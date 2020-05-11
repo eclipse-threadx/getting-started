@@ -2,10 +2,9 @@
 #include <time.h>
 
 #include "tx_api.h"
-#include "board.h"
 #include "nx_driver_imxrt1062.h"
 
-#include "azure/azure_mqtt.h"
+#include "azure_iothub.h"
 #include "board_init.h"
 #include "networking.h"
 #include "sntp_client.h"
@@ -24,6 +23,7 @@ void tx_application_define(void* first_unused_memory);
 void azure_thread_entry(ULONG parameter)
 {
     printf("\r\nStarting Azure thread. Built %s, %s\r\n\r\n", __DATE__, __TIME__);
+    printf("float test %f\r\n", 1.23);
 
     // Initialize the network
     if (!network_init(nx_driver_imx))
@@ -31,7 +31,7 @@ void azure_thread_entry(ULONG parameter)
         printf("Failed to initialize the network\r\n");
         return;
     }
-  
+    
     // Start the SNTP client
     if (!sntp_start())
     {
@@ -46,25 +46,22 @@ void azure_thread_entry(ULONG parameter)
         return;
     }
 
-    // Start the Azure MQTT client
-//    if (!azure_mqtt_start())
-//    {
-//        printf("Failed to start MQTT client\r\n");
-//        return;
-//    }
+    // Start the Azure IoT hub thread
+    if (!azure_iothub_start())
+    {
+        printf("Failed to start Azure Iot Hub thread\r\n");
+        return;
+    }
 
-    bool pin_set = false;
     while (true)
     {
-        tx_thread_sleep(10 * TX_TIMER_TICKS_PER_SECOND);
+        tx_thread_sleep(60 * TX_TIMER_TICKS_PER_SECOND);
 
         time_t current = time(NULL);
         printf("Time %ld\r\n", (long)current);
-
-        GPIO_PinWrite(BOARD_USER_LED_GPIO, BOARD_USER_LED_GPIO_PIN, pin_set ? (0U) : (1U));
-        pin_set = !pin_set;
     }
 }
+
 
 void tx_application_define(void* first_unused_memory)
 {
@@ -87,6 +84,8 @@ void tx_application_define(void* first_unused_memory)
 
 int main(void)
 {
+//    __disable_irq();
     tx_kernel_enter();
+
     return 0;
 }

@@ -8,10 +8,10 @@ void board_init()
 {
 	// init board hardware
     BOARD_InitBootPins();
-	BOARD_InitENET();
-	BOARD_InitBootClocks();
-	BOARD_InitBootPeripherals();
+    BOARD_InitENET();
+    BOARD_InitBootClocks();
+    BOARD_InitBootPeripherals();
 
-	// init fsl debug console
+    // init fsl debug console
     BOARD_InitDebugConsole();
 }

@@ -8,9 +8,14 @@ set(SOURCES
     newlibc/console.c
     startup/startup_mimxrt1062.s
 
-    azure_config.c
-    board_init.c
+    board/board.c
+    board/clock_config.c
+    board/peripherals.c
+    board/pin_mux.c
 
+    azure_config.c
+    azure_iothub.c
+    board_init.c
     main.c
 )
 
@@ -22,7 +27,11 @@ set(LIBRARIES
     app_common
 )
 
-set(BUILD_RAM true)
+set(INCLUDES
+    .
+    board)
+
+#set(BUILD_RAM true)
 set(BUILD_FLASH true)
 
 if(BUILD_RAM)
@@ -42,7 +51,7 @@ if(BUILD_RAM)
 
     target_include_directories(${TARGET_RAM}
         PUBLIC
-            .
+            ${INCLUDES}
     )
 
     create_bin_output(${TARGET_RAM})
@@ -66,12 +75,9 @@ if(BUILD_FLASH)
 
     target_include_directories(${TARGET_FLASH}
         PUBLIC
-            .
+            ${INCLUDES}
     )
 
     create_bin_output(${TARGET_FLASH})
     firmware_size(${TARGET_FLASH})
 endif()
-
-add_custom_target(invalidate_files ALL
-    COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_LIST_DIR}/main.c)
