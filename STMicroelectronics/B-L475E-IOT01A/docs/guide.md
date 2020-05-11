@@ -74,7 +74,7 @@ Use one of the following options to run Azure CLI.
 
 If you prefer to run Azure CLI locally:
 
-1. If you already have Azure CLI installed locally, run `az --version` to check the version. This tutorial uses Azure CLI 2.5.1 or later.
+1. If you already have Azure CLI installed locally, run `az --version` to check the version. This tutorial requires Azure CLI 2.5.1 or later.
 1. To install or upgrade, see [Install Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest). If you install Azure CLI locally, you can run CLI commands in the **GCC Command Prompt**, Git Bash for Windows, or Powershell.
 
 If you prefer to run Azure CLI in the browser-based Azure Cloud Shell:
