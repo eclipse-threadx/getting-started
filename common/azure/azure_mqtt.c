@@ -43,8 +43,6 @@
 #define TLS_REMOTE_CERTIFICATE_BUFFER 4096
 #define TLS_PACKET_BUFFER (4 * 1024)
 
-#define MQTT_MEMORY_SIZE (10 * sizeof(MQTT_MESSAGE_BLOCK))
-
 #define MQTT_TIMEOUT (30 * TX_TIMER_TICKS_PER_SECOND)
 #define MQTT_KEEP_ALIVE 240
 
@@ -59,7 +57,6 @@ static NXD_MQTT_CLIENT mqtt_client;
 static TX_THREAD mqtt_thread;
 static UCHAR mqtt_client_stack[MQTT_CLIENT_STACK_SIZE];
 static UCHAR mqtt_thread_stack[MQTT_THREAD_STACK_SIZE];
-static UCHAR mqtt_memory_block[MQTT_MEMORY_SIZE];
 
 static UCHAR tls_metadata_buffer[TLS_METADATA_BUFFER_SIZE];
 static NX_SECURE_X509_CERT tls_remote_certificate[TLS_REMOTE_CERTIFICATE_COUNT];
@@ -328,13 +325,12 @@ static UINT mqtt_init()
     UINT status;
 
     status = nxd_mqtt_client_create(
-        &mqtt_client,
-        "MQTT client",
+        &mqtt_client, "MQTT client",
         (CHAR *)iot_device_id, strlen(iot_device_id),
         &ip_0, &main_pool,
-        mqtt_client_stack, MQTT_CLIENT_STACK_SIZE,
+        mqtt_client_stack, MQTT_CLIENT_STACK_SIZE, 
         MQTT_CLIENT_PRIORITY,
-        &mqtt_memory_block, MQTT_MEMORY_SIZE);
+        NX_NULL, 0);
     if (status != NXD_MQTT_SUCCESS)
     {
         printf("Failed to create MQTT Client\r\n");
