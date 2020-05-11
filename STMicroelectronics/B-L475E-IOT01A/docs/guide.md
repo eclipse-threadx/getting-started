@@ -217,7 +217,7 @@ You can use Azure CLI to inspect the flow of telemetry from the device to Azure 
 
 1. In your CLI console, run the [az iot hub monitor-events](https://docs.microsoft.com/cli/azure/ext/azure-cli-iot-ext/iot/hub?view=azure-cli-latest#ext-azure-cli-iot-ext-az-iot-hub-monitor-events) command to monitor telemetry from your device. Use the names that you created previously in Azure IoT for your device and IoT hub.
 
-    > Note: The first time you run this command, Azure CLI might prompt to install a *Dependency update (uamqp 1.2) required for IoT extension version: 0.9.1*. Select *y* to install the update. If the CLI also prompts to install the older `azure-iot-cli-ext` version of the Azure IoT CLI extension, select *no*.
+    > Note: The first time you run this command, Azure CLI might prompt to install a *Dependency update (uamqp 1.2) required for IoT extension version: 0.9.1*. Select *y* to install the update.
 
     ```azurecli
     az iot hub monitor-events --device-id MySTMDevice --hub-name {YourIoTHubName}
