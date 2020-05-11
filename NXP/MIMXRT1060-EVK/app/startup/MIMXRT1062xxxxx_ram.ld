@@ -28,7 +28,7 @@
 /* Entry Point */
 ENTRY(Reset_Handler)
 
-HEAP_SIZE  = DEFINED(__heap_size__)  ? __heap_size__  : 0x4000;
+HEAP_SIZE  = DEFINED(__heap_size__)  ? __heap_size__  : 0x7000;
 STACK_SIZE = DEFINED(__stack_size__) ? __stack_size__ : 0x1000;
 
 /* Specify the memory areas */
@@ -158,7 +158,7 @@ SECTIONS
     KEEP(*(.jcr*))
     . = ALIGN(4);
     __data_end__ = .;        /* define a global symbol at data end */
-  } > m_data
+  } > m_data2
   __NDATA_ROM = __DATA_ROM + (__data_end__ - __data_start__);
   .ncache.init : AT(__NDATA_ROM)
   {
@@ -166,14 +166,14 @@ SECTIONS
     *(NonCacheable.init)
     . = ALIGN(4);
     __noncachedata_init_end__ = .;   /* create a global symbol at initialized ncache data end */
-  } > m_data
+  } > m_data2
   . = __noncachedata_init_end__;
   .ncache :
   {
     *(NonCacheable)
     . = ALIGN(4);
     __noncachedata_end__ = .;     /* define a global symbol at ncache data end */
-  } > m_data
+  } > m_data2
 
   __DATA_END = __NDATA_ROM + (__noncachedata_init_end__ - __noncachedata_start__);
   text_end = ORIGIN(m_text) + LENGTH(m_text);
@@ -193,7 +193,7 @@ SECTIONS
     . = ALIGN(4);
     __bss_end__ = .;
     __END_BSS = .;
-  } > m_data
+  } > m_data2
 
   .heap :
   {
