@@ -1,31 +1,20 @@
-@/**************************************************************************/ 
-@/*                                                                        */ 
-@/*            Copyright (c) 1996-2018 by Express Logic Inc.               */ 
-@/*                                                                        */ 
-@/*  This software is copyrighted by and is the sole property of Express   */ 
-@/*  Logic, Inc.  All rights, title, ownership, or other interests         */ 
-@/*  in the software remain the property of Express Logic, Inc.  This      */ 
-@/*  software may only be used in accordance with the corresponding        */ 
-@/*  license agreement.  Any unauthorized use, duplication, transmission,  */ 
-@/*  distribution, or disclosure of this software is expressly forbidden.  */ 
+  
+@/**************************************************************************/
 @/*                                                                        */
-@/*  This Copyright notice may not be removed or modified without prior    */ 
-@/*  written consent of Express Logic, Inc.                                */ 
-@/*                                                                        */ 
-@/*  Express Logic, Inc. reserves the right to modify this software        */ 
-@/*  without notice.                                                       */ 
-@/*                                                                        */ 
-@/*  Express Logic, Inc.                     info@expresslogic.com         */
-@/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-@/*  San Diego, CA  92127                                                  */
+@/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
+@/*                                                                        */
+@/*       This software is licensed under the Microsoft Software License   */
+@/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+@/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+@/*       and in the root directory of this software.                      */
 @/*                                                                        */
 @/**************************************************************************/
 @
 @
 @/**************************************************************************/
 @/**************************************************************************/
-@/**                                                                       */ 
-@/** ThreadX Component                                                     */ 
+@/**                                                                       */
+@/** ThreadX Component                                                     */
 @/**                                                                       */
 @/**   Initialize                                                          */
 @/**                                                                       */
@@ -66,52 +55,46 @@ SYSTICK_CYCLES    =   ((SYSTEM_CLOCK / 100) -1)
     .text 32
     .align 4
     .syntax unified
-@/**************************************************************************/ 
-@/*                                                                        */ 
-@/*  FUNCTION                                               RELEASE        */ 
-@/*                                                                        */ 
-@/*    _tx_initialize_low_level                          Cortex-M7/GNU     */ 
-@/*                                                           5.2          */ 
-@/*  AUTHOR                                                                */ 
-@/*                                                                        */ 
-@/*    William E. Lamie, Express Logic, Inc.                               */ 
-@/*                                                                        */ 
-@/*  DESCRIPTION                                                           */ 
-@/*                                                                        */ 
-@/*    This function is responsible for any low-level processor            */ 
-@/*    initialization, including setting up interrupt vectors, setting     */ 
-@/*    up a periodic timer interrupt source, saving the system stack       */ 
-@/*    pointer for use in ISR processing later, and finding the first      */ 
-@/*    available RAM memory address for tx_application_define.             */ 
-@/*                                                                        */ 
-@/*  INPUT                                                                 */ 
-@/*                                                                        */ 
-@/*    None                                                                */ 
-@/*                                                                        */ 
-@/*  OUTPUT                                                                */ 
-@/*                                                                        */ 
-@/*    None                                                                */ 
-@/*                                                                        */ 
-@/*  CALLS                                                                 */ 
-@/*                                                                        */ 
-@/*    None                                                                */ 
-@/*                                                                        */ 
-@/*  CALLED BY                                                             */ 
-@/*                                                                        */ 
-@/*    _tx_initialize_kernel_enter           ThreadX entry function        */ 
-@/*                                                                        */ 
-@/*  RELEASE HISTORY                                                       */ 
-@/*                                                                        */ 
-@/*    DATE              NAME                      DESCRIPTION             */ 
-@/*                                                                        */ 
-@/*  10-01-2015     William E. Lamie         Initial Version 5.0           */
-@/*  04-01-2018     William E. Lamie         Modified comment(s), and      */ 
-@/*                                            removed context save/restore*/ 
-@/*                                            calls from ISRs, resulting  */ 
-@/*                                            in version 5.1              */ 
-@/*  09-01-2018     William E. Lamie         Modified comment(s),          */ 
-@/*                                            resulting in version 5.2    */ 
-@/*                                                                        */ 
+@/**************************************************************************/
+@/*                                                                        */
+@/*  FUNCTION                                               RELEASE        */
+@/*                                                                        */
+@/*    _tx_initialize_low_level                          Cortex-M7/GNU     */
+@/*                                                           6.0          */
+@/*  AUTHOR                                                                */
+@/*                                                                        */
+@/*    William E. Lamie, Microsoft Corporation                             */
+@/*                                                                        */
+@/*  DESCRIPTION                                                           */
+@/*                                                                        */
+@/*    This function is responsible for any low-level processor            */
+@/*    initialization, including setting up interrupt vectors, setting     */
+@/*    up a periodic timer interrupt source, saving the system stack       */
+@/*    pointer for use in ISR processing later, and finding the first      */
+@/*    available RAM memory address for tx_application_define.             */
+@/*                                                                        */
+@/*  INPUT                                                                 */
+@/*                                                                        */
+@/*    None                                                                */
+@/*                                                                        */
+@/*  OUTPUT                                                                */
+@/*                                                                        */
+@/*    None                                                                */
+@/*                                                                        */
+@/*  CALLS                                                                 */
+@/*                                                                        */
+@/*    None                                                                */
+@/*                                                                        */
+@/*  CALLED BY                                                             */
+@/*                                                                        */
+@/*    _tx_initialize_kernel_enter           ThreadX entry function        */
+@/*                                                                        */
+@/*  RELEASE HISTORY                                                       */
+@/*                                                                        */
+@/*    DATE              NAME                      DESCRIPTION             */
+@/*                                                                        */
+@/*  05-19-2020     William E. Lamie         Initial Version 6.0           */
+@/*                                                                        */
 @/**************************************************************************/
 @VOID   _tx_initialize_low_level(VOID)
 @{
@@ -207,7 +190,7 @@ __tx_SVCallHandler:
 __tx_IntHandler:
 @ VOID InterruptHandler (VOID)
 @ {
-    PUSH    {lr}
+    PUSH    {r0, lr}
 #ifdef TX_ENABLE_EXECUTION_CHANGE_NOTIFY
     BL      _tx_execution_isr_enter             ; Call the ISR enter function
 #endif       
@@ -218,7 +201,7 @@ __tx_IntHandler:
 #ifdef TX_ENABLE_EXECUTION_CHANGE_NOTIFY
     BL      _tx_execution_isr_exit              ; Call the ISR exit function
 #endif
-    POP     {lr}
+    POP     {r0, lr}
     BX      LR
 @ }
 
@@ -227,11 +210,12 @@ __tx_IntHandler:
     .global  SysTick_Handler
     .thumb_func
 __tx_SysTickHandler:
+    .thumb_func
 SysTick_Handler:
 @ VOID TimerInterruptHandler (VOID)
 @ {
 @
-    PUSH    {lr}
+    PUSH    {r0, lr}
 #ifdef TX_ENABLE_EXECUTION_CHANGE_NOTIFY
     BL      _tx_execution_isr_enter             ; Call the ISR enter function
 #endif
@@ -239,7 +223,7 @@ SysTick_Handler:
 #ifdef TX_ENABLE_EXECUTION_CHANGE_NOTIFY
     BL      _tx_execution_isr_exit              ; Call the ISR exit function
 #endif
-    POP     {lr}
+    POP     {r0, lr}
     BX      LR
 @ }
 
@@ -254,4 +238,3 @@ __tx_NMIHandler:
     .thumb_func
 __tx_DBGHandler:
     B       __tx_DBGHandler
-
