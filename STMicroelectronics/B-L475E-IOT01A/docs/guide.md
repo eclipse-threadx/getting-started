@@ -2,7 +2,7 @@
 
 **Total completion time**:  45 minutes
 
-In this tutorial you use Azure RTOS to connect the STMicroelectronics B-L475E-IOT01 (hereafter, the STM  DevKit) to Azure IoT.  The article is part of the series [Getting Started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=212982). The series introduces device developers to Azure RTOS, and shows how to connect several micro-controller units (MCU) to Azure IoT.
+In this tutorial you use Azure RTOS to connect the STMicroelectronics B-L475E-IOT01 (hereafter, the STM  DevKit) to Azure IoT.  The article is part of the series [Getting Started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824). The series introduces device developers to Azure RTOS, and shows how to connect several micro-controller units (MCU) to Azure IoT.
 
 You will complete the following tasks:
 
