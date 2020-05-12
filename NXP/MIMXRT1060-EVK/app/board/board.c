@@ -368,7 +368,7 @@ void BOARD_ConfigMPU(void)
 
     /* Enable I cache and D cache */
     //SCB_EnableDCache();
-    SCB_EnableICache();
+    //SCB_EnableICache();
 }
 
 void BOARD_SD_Pin_Config(uint32_t speed, uint32_t strength)
