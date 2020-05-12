@@ -22,6 +22,7 @@ int _gettimeofday(struct timeval *tp, void *tzvp);
 
 caddr_t _sbrk(int incr)
 {
+    //printf("requesting heap %d\r\n", incr);
     extern char end asm("end");
     extern char heap_limit asm("__heap_limit");
 
@@ -36,7 +37,7 @@ caddr_t _sbrk(int incr)
     int delta = heap_end - &heap_limit + incr;
     if (delta >= 0)
     {
-        printf("heap overflow by %d\r\n", delta);
+        //printf("heap overflow by %d\r\n", delta);
         errno = ENOMEM;
         return (caddr_t) - 1;
     }

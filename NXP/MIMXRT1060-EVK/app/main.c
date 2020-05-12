@@ -23,7 +23,7 @@ void tx_application_define(void* first_unused_memory);
 void azure_thread_entry(ULONG parameter)
 {
     printf("\r\nStarting Azure thread. Built %s, %s\r\n\r\n", __DATE__, __TIME__);
-    printf("float test %f\r\n", 1.23);
+    printf("Floating point enabled %f\r\n\r\n", 3.1415);
 
     // Initialize the network
     if (!network_init(nx_driver_imx))
@@ -62,7 +62,6 @@ void azure_thread_entry(ULONG parameter)
     }
 }
 
-
 void tx_application_define(void* first_unused_memory)
 {
     // Initialise the board
@@ -84,8 +83,6 @@ void tx_application_define(void* first_unused_memory)
 
 int main(void)
 {
-//    __disable_irq();
     tx_kernel_enter();
-
     return 0;
 }
