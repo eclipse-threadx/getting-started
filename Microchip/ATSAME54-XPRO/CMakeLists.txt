@@ -7,5 +7,3 @@ set(CMAKE_C_STANDARD 99)
 add_subdirectory(lib)
 add_subdirectory(app)
 add_subdirectory(../../common ${CMAKE_CURRENT_BINARY_DIR}/common)
-
-feature_summary(WHAT ALL)

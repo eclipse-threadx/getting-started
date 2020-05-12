@@ -110,7 +110,7 @@ void mqtt_thread_entry(ULONG info)
         azure_mqtt_publish_float_twin("temperature(C)", tempDegC);
 
         // Sleep for 1 minute
-        tx_thread_sleep(60 * TX_TIMER_TICKS_PER_SECOND);
+        tx_thread_sleep(5 * TX_TIMER_TICKS_PER_SECOND);
     }
 }
 
