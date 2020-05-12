@@ -7,6 +7,7 @@ set(SOURCES
     board_init.c
     Device_Startup/startup_same54.c
     Device_Startup/system_same54.c
+    Device_Startup/tx_initialize_low_level.s
     main.c
     newlibc/syscalls.c
 )
