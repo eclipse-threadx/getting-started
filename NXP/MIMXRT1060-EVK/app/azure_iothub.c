@@ -17,15 +17,15 @@ static void set_led_state(bool level)
 {
     if (level)
     {
-        // Pin level set to "high" state
-        printf("LED is turned OFF\r\n");
-        USER_LED_OFF();
-    }
-    else
-    {
         // Pin level set to "low" state
         printf("LED is turned ON\r\n");
         USER_LED_ON();
+    }
+    else
+    {
+        // Pin level set to "high" state
+        printf("LED is turned OFF\r\n");
+        USER_LED_OFF();
     }
 }
 
