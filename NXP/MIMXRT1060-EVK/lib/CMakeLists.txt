@@ -8,15 +8,15 @@ set(THREADX_TOOLCHAIN "gnu")
 set(TX_USER_FILE "${CMAKE_CURRENT_LIST_DIR}/threadx/tx_user.h" CACHE STRING "")
 CPMAddPackage(
     NAME threadx
-    GIT_REPOSITORY https://github.com/ryanwinter/threadx.git
-    GIT_TAG MIMXRT1060
+    GIT_REPOSITORY https://github.com/azure-rtos/threadx.git
+    GIT_TAG master
 )
 
 # netX-duo
 set(NX_USER_FILE "${CMAKE_CURRENT_LIST_DIR}/netxduo/nx_user.h" CACHE STRING "")
 CPMAddPackage(
     NAME netxduo
-    GIT_REPOSITORY https://github.com/azurertos/netx-duo.git
+    GIT_REPOSITORY https://github.com/azure-rtos/netxduo.git
     GIT_TAG master
 )
 
@@ -24,7 +24,7 @@ CPMAddPackage(
 #set(FX_USER_FILE "${CMAKE_CURRENT_LIST_DIR}/filex/fx_user.h" CACHE STRING "")
 CPMAddPackage(
     NAME filex
-    GIT_REPOSITORY https://github.com/azurertos/filex.git
+    GIT_REPOSITORY https://github.com/azure-rtos/filex.git
     GIT_TAG master
 )
 

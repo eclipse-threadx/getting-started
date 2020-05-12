@@ -7,6 +7,7 @@ set(SOURCES
     newlibc/syscalls.c
     newlibc/console.c
     startup/startup_mimxrt1062.s
+    startup/tx_initialize_low_level.s
 
     board/board.c
     board/clock_config.c
