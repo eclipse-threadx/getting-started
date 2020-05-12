@@ -37,7 +37,6 @@ caddr_t _sbrk(int incr)
     int delta = heap_end - &heap_limit + incr;
     if (delta >= 0)
     {
-        //printf("heap overflow by %d\r\n", delta);
         errno = ENOMEM;
         return (caddr_t) - 1;
     }
