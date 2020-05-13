@@ -204,6 +204,7 @@ Programming and verification completed successfully.
 ### Confirm device connection details
 
 You can use the **Termite** utility to monitor communication and confirm that your device is set up correctly.
+> Note: If you have issues getting your device to initialize or connect after flashing, see [Troubleshooting](../../docs/troubleshooting.md).
 
 1. Start **Termite**.
 1. Select **Settings**.
@@ -337,20 +338,10 @@ To delete a resource group by name:
     az group list
     ```
 
-## Troubleshooting
+## Next Steps
 
-**TODO**
+In this tutorial you built a custom image that contains Azure RTOS sample code, and then flashed the image to the Microchip XPro device. You also used the Azure CLI to create Azure resources, connect the Microchip XPro securely to Azure, view telemetry, and send messages.
 
-[We will temporarily include this information here, but move into separate article in the Docs RTOS repo for GA. ]
-
-List of different troubleshooting to deal with edge cases arising from the steps within this guide. This would include device connection errors, Wi-Fi connection errors, Central connection errors, etc. 
-
-Provide a pre-built binary that is known to work so they can test that they can use to test flashing and monitoring.
-
-## Next Steps 
-**Ryan TODO**
-
-Describe the shape of the application and how to customize for their own need 
-1. List the cmake structure
-1. List the app + lib folders
-1. List common folder
+* For device developers, the suggested next step is to see the other tutorials in the series [Getting started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824).
+* To learn more about how Azure RTOS components are used in the sample code for this tutorial, see [Using Azure RTOS in the Getting Started Guides](../../docs/using-azure-rtos.md).
+* If you have issues getting your device to initialize or connect after following the steps in this guide, see [Troubleshooting](../../docs/troubleshooting.md).

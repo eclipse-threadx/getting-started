@@ -329,4 +329,4 @@ In this tutorial you built a custom image that contains Azure RTOS sample code, 
 
 * For device developers, the suggested next step is to see the other tutorials in the series [Getting started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824).
 * To learn more about how Azure RTOS components are used in the sample code for this tutorial, see [Using Azure RTOS in the Getting Started Guides](../../docs/using-azure-rtos.md).
-* To learn more about resolving common issues when you use Azure RTOS with an MCU, see [Troubleshooting](../../docs/troubleshooting.md).
+* If you have issues getting your device to initialize or connect after following the steps in this guide, see [Troubleshooting](../../docs/troubleshooting.md).
