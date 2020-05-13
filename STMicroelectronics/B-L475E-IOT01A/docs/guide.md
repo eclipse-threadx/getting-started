@@ -200,10 +200,10 @@ You can use the **Termite** utility to monitor communication and confirm that yo
 
     |Checkpoint name|Output value|
     |---------------|-----|
-    |DHCP |DHCP initialized|
-    |DNS |DNS client initialized|
-    |SNTP |SNTP initialized|
-    |MQTT client |MQTT thread initialized|
+    |DHCP |SUCCESS: DHCP initialized|
+    |DNS |SUCCESS: DNS client initialized|
+    |SNTP |SUCCESS: SNTP initialized|
+    |MQTT |SUCCESS: MQTT client initialized|
 
 The Termite console shows the details about the board, your connection, and the checkpoint values.
 
