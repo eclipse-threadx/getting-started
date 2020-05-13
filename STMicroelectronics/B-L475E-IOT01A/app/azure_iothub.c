@@ -2,8 +2,6 @@
 
 #include <stdio.h>
 
-#include "tx_api.h"
-
 #include "stm32l475e_iot01.h"
 
 #include "azure/azure_mqtt.h"

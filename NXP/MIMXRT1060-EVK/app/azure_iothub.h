@@ -2,7 +2,6 @@
 #define _AZURE_IOTHUB_H
 
 #include <stdbool.h>
-
 #include "tx_api.h"
 
 bool azure_iothub_start(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas_key);

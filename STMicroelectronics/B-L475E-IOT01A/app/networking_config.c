@@ -1,4 +1,4 @@
-#include "azure_config.h"
+#include "networking_config.h"
 
 // ----------------------------------------------------------------------------
 // WiFi connection information

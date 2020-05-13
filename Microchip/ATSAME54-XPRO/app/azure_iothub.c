@@ -1,8 +1,13 @@
 #include <azure_iothub.h>
 
+#include <stdio.h>
+#include "azure/azure_mqtt.h"
+#include "board_init.h"
+
 void mqtt_thread_entry(ULONG info);
 void mqtt_direct_method_invoke(CHAR *direct_method_name, CHAR *message, MQTT_DIRECT_METHOD_RESPONSE *response);
 void mqtt_c2d_message(CHAR *key, CHAR *value);
+void mqtt_device_twin_desired_prop_update(CHAR *message);
 void set_led_state(bool level);
 
 void set_led_state(bool level)
@@ -91,6 +96,11 @@ void mqtt_c2d_message(CHAR *key, CHAR *value)
     printf("Propoerty=%s updated with value=%s\r\n", key, value);
 }
 
+void mqtt_device_twin_desired_prop_update(CHAR *message)
+{
+    printf("Received device twin updated properties: %s\r\n", message);
+}
+
 void mqtt_thread_entry(ULONG info)
 {
     printf("Starting MQTT thread\r\n");
@@ -103,8 +113,10 @@ void mqtt_thread_entry(ULONG info)
         // Print the compensated temperature readings
         WeatherClick_waitforRead();
         tempDegC = Weather_getTemperatureDegC();
-#else        tempDegC = 23.5;
+#else
+        tempDegC = 23.5;
 #endif
+
         // Send the compensated temperature as a telemetry event
         azure_mqtt_publish_float_telemetry("temperature(c)", tempDegC);
 
@@ -137,6 +149,13 @@ bool azure_mqtt_init(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas_
     if (!status)
     {
         printf("Failed to register MQTT cloud to device callback callback\r\n");
+        return status;
+    }
+    
+    status = azure_mqtt_register_device_twin_desired_prop_update(mqtt_device_twin_desired_prop_update);
+    if (!status)
+    {
+        printf("Failed to register MQTT desired property update callback callback\r\n");
         return status;
     }
     

@@ -76,6 +76,7 @@ static VOID process_device_twin_desired_prop_update(CHAR *topic, CHAR *message);
 static func_ptr_main_thread cb_ptr_mqtt_main_thread = NULL;
 static func_ptr_direct_method cb_ptr_mqtt_invoke_direct_method = NULL;
 static func_ptr_c2d_message cb_ptr_mqtt_c2d_message = NULL;
+static func_ptr_device_twin_desired_prop_update cb_ptr_mqtt_device_twin_desired_prop_update_callback = NULL;
 
 // Initialize Azure MQTT
 bool azure_mqtt_register_main_thread_callback(func_ptr_main_thread mqtt_main_thread_callback)
@@ -111,6 +112,19 @@ bool azure_mqtt_register_c2d_message_callback(func_ptr_c2d_message mqtt_c2d_mess
     if (cb_ptr_mqtt_c2d_message == NULL)
     {
         cb_ptr_mqtt_c2d_message = mqtt_c2d_message_callback;
+        status = true;
+    }
+    
+    return status;
+}
+
+bool azure_mqtt_register_device_twin_desired_prop_update(func_ptr_device_twin_desired_prop_update mqtt_device_twin_desired_prop_update_callback)
+{
+    bool status = false;
+    
+    if (cb_ptr_mqtt_device_twin_desired_prop_update_callback == NULL)
+    {
+        cb_ptr_mqtt_device_twin_desired_prop_update_callback = mqtt_device_twin_desired_prop_update_callback;
         status = true;
     }
     
@@ -640,5 +654,5 @@ static VOID process_c2d_message(CHAR *topic)
 
 static VOID process_device_twin_desired_prop_update(CHAR *topic, CHAR *message)
 {
-    printf("Received device twin updated properties: %s\r\n", message);
+    cb_ptr_mqtt_device_twin_desired_prop_update_callback(message);
 }
