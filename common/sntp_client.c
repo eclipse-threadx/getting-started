@@ -61,7 +61,7 @@ static void set_sntp_time()
     tx_mutex_put(&time_mutex);
 
     nx_sntp_client_utility_display_date_time(&sntp_client, time_buffer, sizeof(time_buffer));
-    printf("\tSNTP time update: %s\r\n", time_buffer);
+    printf("SNTP time update: %s\r\n", time_buffer);
 
     // Flag the sync was successful
     tx_event_flags_set(&sntp_flags, SNTP_NEW_TIME, TX_OR);
@@ -126,8 +126,8 @@ void sntp_thread_entry(ULONG info)
         status = nx_sntp_client_request_unicast_time(&sntp_client, 5 * NX_IP_PERIODIC_RATE);
     } while (status != NX_SUCCESS);
 
-    set_sntp_time();
     printf("SUCCESS: SNTP initialized\r\n\r\n");
+    set_sntp_time();
 
     // Setup time update callback function
     nx_sntp_client_set_time_update_notify(&sntp_client, time_update_callback);
