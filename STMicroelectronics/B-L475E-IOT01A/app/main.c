@@ -27,7 +27,7 @@ void azure_thread_entry(ULONG parameter)
     }
 
     // Start the SNTP client
-/*    if (!sntp_start())
+    if (!sntp_start())
     {
         printf("Failed to start the SNTP client\r\n");
         return;
@@ -38,7 +38,7 @@ void azure_thread_entry(ULONG parameter)
     {
         printf("Failed to start sync SNTP time\r\n");
         return;
-    }*/
+    }
 
     // Start the Azure IoT hub thread
     if (!azure_mqtt_init())

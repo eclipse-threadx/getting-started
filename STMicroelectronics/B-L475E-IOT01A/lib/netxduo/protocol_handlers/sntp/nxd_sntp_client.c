@@ -2589,6 +2589,8 @@ NX_IP_HEADER    *ip_header_ptr;
             /* Return error status.  */
             return status;
         }
+        
+#ifndef NX_SNTP_CLIENT_CHECK_DISABLE 
         /* Check the sender port in the UDP packet header.  */  
         udp_header_ptr = (NX_UDP_HEADER *)(receive_packet -> nx_packet_prepend_ptr - sizeof(NX_UDP_HEADER));
         sender_port = (UINT)udp_header_ptr -> nx_udp_header_word_0 >> NX_SHIFT_BY_16; 
@@ -2826,6 +2828,8 @@ NX_IP_HEADER    *ip_header_ptr;
         }
 
 #endif
+
+#endif /* NX_SNTP_CLIENT_CHECK_DISABLE */
 
         /* Check that the packet has the proper length for an NTP message.  */
         length = receive_packet -> nx_packet_length;
