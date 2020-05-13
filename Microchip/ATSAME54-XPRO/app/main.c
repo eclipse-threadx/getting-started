@@ -8,9 +8,7 @@
 #include "sntp_client.h"
 #include "azure_iothub.h"
 
-#define IOT_HUB_HOSTNAME    ""
-#define IOT_DEVICE_ID       ""
-#define IOT_SAS_KEY         ""
+#include "azure_config.h"
 
 #define AZURE_THREAD_STACK_SIZE 4096
 #define AZURE_THREAD_PRIORITY   4
@@ -56,7 +54,7 @@ void azure_thread_entry(ULONG parameter)
         return;
     }
     
-    if (!azure_mqtt_init(IOT_HUB_HOSTNAME, IOT_DEVICE_ID, IOT_SAS_KEY))
+    if (!azure_mqtt_init(IOT_HUB_HOSTNAME, IOT_DEVICE_ID, IOT_PRIMARY_KEY))
     {
         printf("Failed to initialize Azure MQTT\r\n");
         return;

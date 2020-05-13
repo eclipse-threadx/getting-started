@@ -18,8 +18,8 @@ extern const WiFi_Mode wifi_mode;
 // ----------------------------------------------------------------------------
 // Azure IoT Device information
 // ----------------------------------------------------------------------------
-extern const char* iot_hub_hostname;
-extern const char* iot_device_id;
-extern const char* iot_sas_key;
+#define IOT_HUB_HOSTNAME    ""
+#define IOT_DEVICE_ID       ""
+#define IOT_PRIMARY_KEY     ""
 
 #endif // _AZURE_CONFIG_H

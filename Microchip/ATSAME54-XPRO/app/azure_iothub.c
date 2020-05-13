@@ -1,7 +1,5 @@
 #include <azure_iothub.h>
 
-static CHAR device_id[200];
-
 void mqtt_thread_entry(ULONG info);
 void mqtt_direct_method_invoke(CHAR *direct_method_name, CHAR *message, MQTT_DIRECT_METHOD_RESPONSE *response);
 void mqtt_c2d_message(CHAR *key, CHAR *value);
@@ -101,12 +99,14 @@ void mqtt_thread_entry(ULONG info)
     {
         float tempDegC;
 
+#ifdef __SENSOR_BME280__
         // Print the compensated temperature readings
         WeatherClick_waitforRead();
         tempDegC = Weather_getTemperatureDegC();
-
+#else        tempDegC = 23.5;
+#endif
         // Send the compensated temperature as a telemetry event
-        azure_mqtt_publish_float_telemetry(device_id, "temperature(c)", tempDegC);
+        azure_mqtt_publish_float_telemetry("temperature(c)", tempDegC);
 
         // Send the compensated temperature as a device twin update
         azure_mqtt_publish_float_property("temperature(c)", tempDegC);
@@ -119,10 +119,6 @@ void mqtt_thread_entry(ULONG info)
 bool azure_mqtt_init(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas_key)
 {
     bool status;
-    
-    // Save the device id name
-    strcpy(device_id, iot_device_id);
-    
     status = azure_mqtt_register_main_thread_callback(mqtt_thread_entry);
     if(!status)
     {

@@ -52,7 +52,7 @@ void mqtt_direct_method_invoke(CHAR *direct_method_name, CHAR *message, MQTT_DIR
         status = 204;
 
         // Update device twin property
-        azure_mqtt_publish_bool_twin("led0State", arg);
+        azure_mqtt_publish_bool_property("led0State", arg);
 
         printf("Direct method=%s invoked\r\n", direct_method_name);
     }
@@ -82,12 +82,12 @@ void mqtt_c2d_message(CHAR *key, CHAR *value)
         set_led_state(arg);
 
         // Update device twin property
-        azure_mqtt_publish_bool_twin(key, arg);
+        azure_mqtt_publish_bool_property(key, arg);
     }
     else
     {
         // Update device twin property
-        azure_mqtt_publish_string_twin(key, value);
+        azure_mqtt_publish_string_property(key, value);
     }
     
     printf("Property=%s updated with value=%s\r\n", key, value);
@@ -103,7 +103,7 @@ void mqtt_thread_entry(ULONG info)
     {
 
         // Send the compensated temperature as a telemetry event
-        azure_mqtt_publish_float_twin("temperature", temperature);
+        azure_mqtt_publish_float_property("temperature", temperature);
 
         // Send the compensated temperature as a device twin update
         azure_mqtt_publish_float_telemetry("temperature", temperature);
@@ -113,7 +113,7 @@ void mqtt_thread_entry(ULONG info)
     }
 }
 
-bool azure_mqtt_init()
+bool azure_mqtt_init(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas_key)
 {
     bool status;
     status = azure_mqtt_register_main_thread_callback(mqtt_thread_entry);
@@ -138,7 +138,7 @@ bool azure_mqtt_init()
     }
     
     // Start the Azure MQTT client
-    status = azure_mqtt_start();
+    status = azure_mqtt_start(iot_hub_hostname, iot_device_id, iot_sas_key);
     if (!status)
     {
         printf("Failed to start Azure IoT thread\r\n");

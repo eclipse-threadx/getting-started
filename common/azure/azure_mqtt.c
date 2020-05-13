@@ -170,11 +170,11 @@ bool azure_mqtt_start(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas
 }
 
 // Interact with Azure MQTT
-UINT azure_mqtt_publish_float_telemetry(CHAR *iot_device_id, CHAR* label, float value)
+UINT azure_mqtt_publish_float_telemetry(CHAR* label, float value)
 {
     CHAR mqtt_publish_topic[100] = { 0 };
 
-    snprintf(mqtt_publish_topic, sizeof(mqtt_publish_topic), PUBLISH_TELEMETRY_TOPIC, iot_device_id);
+    snprintf(mqtt_publish_topic, sizeof(mqtt_publish_topic), PUBLISH_TELEMETRY_TOPIC, mqtt_client.nxd_mqtt_client_id);
     printf("Sending telemetry\r\n");
 
     return mqtt_publish_float(mqtt_publish_topic, label, value);

@@ -22,6 +22,6 @@ bool azure_mqtt_start(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas
 UINT azure_mqtt_publish_float_property(CHAR* label, float value);
 UINT azure_mqtt_publish_bool_property(CHAR* label, bool value);
 UINT azure_mqtt_publish_string_property(CHAR* label, CHAR *value);
-UINT azure_mqtt_publish_float_telemetry(CHAR *iot_device_id, CHAR* label, float value);
+UINT azure_mqtt_publish_float_telemetry(CHAR* label, float value);
 
 #endif // _AZURE_MQTT_H

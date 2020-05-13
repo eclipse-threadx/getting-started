@@ -12,7 +12,6 @@ set(SOURCES
     board/peripherals.c
     board/pin_mux.c
 
-    azure_config.c
     azure_iothub.c
     board_init.c
     main.c

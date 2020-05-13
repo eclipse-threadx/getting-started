@@ -157,11 +157,6 @@
 #ifndef NX_USER_H
 #define NX_USER_H
 
-#define NX_FTP_NO_FILEX
-#define NX_HTTP_NO_FILEX
-#define NX_TFTP_NO_FILEX
-#define NX_WEB_HTTP_NO_FILEX
-
 #define NX_DISABLE_INCLUDE_SOURCE_CODE
 
 #define NX_SECURE_ENABLE
