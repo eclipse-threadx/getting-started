@@ -19,13 +19,13 @@ static void set_led_state(bool level)
     {
         // Pin level set to "low" state
         printf("LED is turned ON\r\n");
-        USER_LED_ON();
+//        USER_LED_ON();
     }
     else
     {
         // Pin level set to "high" state
         printf("LED is turned OFF\r\n");
-        USER_LED_OFF();
+//        USER_LED_OFF();
     }
 }
 
@@ -33,7 +33,7 @@ static void mqtt_direct_method_invoke(CHAR *direct_method_name, CHAR *message, M
 {
     // Default response - 501 Not Implemented
     int status = 501;
-    if (strcmp((CHAR *)direct_method_name, "set_led_state"))
+    if (strcmp((CHAR *)direct_method_name, "set_led_state") == 0)
     {
         // Set LED state
         // '0' - turn LED off
@@ -71,7 +71,7 @@ static void mqtt_direct_method_invoke(CHAR *direct_method_name, CHAR *message, M
 
 static void mqtt_c2d_message(CHAR *key, CHAR *value)
 {
-    if (strstr((CHAR *)key, "led0State"))
+    if (strcmp((CHAR *)key, "led0State") == 0)
     {
         // Set LED state
         // '0' - turn LED off
