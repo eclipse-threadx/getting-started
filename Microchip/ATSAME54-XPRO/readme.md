@@ -1,6 +1,10 @@
 <h1>Getting started with the Microchip ATSAME54-XPro</h1>
 
-**TBD:  Timlt:  Update template steps for Microchip board
+**TODO:  timlt**
+
+* Get Weather Click sensor and adapter, add step to install on board and show photo
+* Update Termite directions for monitoring output, and update Termite screen shots
+* Update CLI and telemetry directions for working with the weather sensor
 
 **Total completion time**:  45 minutes
 
@@ -10,6 +14,7 @@ You will complete the following tasks:
 
 * Install a set of embedded development tools for programming the Microchip XPro in C
 * Build an image and flash it onto the Microchip XPro
+* Connect a sensor to the Microchip XPro that lets you monitor weather conditions
 * Create an Azure IoT hub and securely connect the Microchip XPro to it
 * Use Azure CLI to view device telemetry, view properties, and invoke cloud-to-device methods
 
@@ -21,8 +26,11 @@ You will complete the following tasks:
 * Hardware
 
     > * The [Microchip ATSAME54-XPro](https://www.microchip.com/developmenttools/productdetails/atsame54-xpro) (Microchip XPro)
-    > * Wi-Fi 2.4 GHz
     > * USB 2.0 A male to Micro USB male cable
+    > * Wired Ethernet access
+    > * Ethernet cable
+    > * [Weather Click](https://www.mikroe.com/weather-click) sensor
+    > * [mikroBUS Xplained Pro](https://www.microchip.com/Developmenttools/ProductDetails/ATMBUSADAPTER-XPRO) adapter
 
 ## Prepare the development environment
 
@@ -61,6 +69,8 @@ To run the setup script:
     ```
 
 To install the remaining tools:
+
+1. Install [Atmel Studio 7](https://www.microchip.com/mplab/avr-support/atmel-studio-7). Atmel Studio is a device development environment that includes the tools to program the Microchip XPro. The installation takes several minutes, and prompts you several times to approve installation of components.
 
 1. Install [Termite](https://www.compuphase.com/software_termite.htm). You use this utility to monitor your device.
 
@@ -137,25 +147,23 @@ Confirm that you have the copied the following values from the JSON output to us
 
 ## Prepare the device
 
-To connect the Microchip XPro to Azure, you'll modify a configuration file for Wi-Fi and Azure IoT settings, rebuild the image, and flash the image to the device.
+To connect the Microchip XPro to Azure, you'll modify a configuration file for Azure IoT settings, rebuild the image, and flash the image to the device.
 
 ### Add configuration
 
-1. In a text editor, edit the file *getting-started\Microchip\ATSAME54-XPRO\app\azure_config.c* to set the Wi-Fi constants to the following values from your local environment.
+1. Open the following file in a text editor:
 
-    |Constant name|Value|
-    |-------------|-----|
-    |`wifi_ssid` |{*Your Wi-Fi ssid*}|
-    |`wifi_password` |{*Your Wi-Fi password*}|
-    |`wifi_mode` |{*One of the enumerated Wi-Fi mode values in the file*}|
+    > *getting-started\Microchip\ATSAME54-XPRO\app\azure_config.c*
 
-1. Edit the same file to set the Azure IoT device information constants to the values that you saved after you created Azure resources.
+1. Set the Azure IoT device information constants to the values that you saved after you created Azure resources.
 
     |Constant name|Value|
     |-------------|-----|
     |`iot_hub_hostname` |{*Your Iot hub hostName value*}|
     |`iot_device_id` |{*Your deviceID value*}|
     |`iot_sas_key` |{*Your primaryKey value*}|
+
+1. Save and close the file.
 
 ### Build the image
 
@@ -165,24 +173,33 @@ In your console or in File Explorer, run the script *rebuild.bat* at the followi
 
 After the build completes, confirm that a binary file was created in the following path:
 
-> *getting-started\Microchip\ATSAME54-XPRO\build\app\outputfile.bin*
+> *getting-started\Microchip\ATSAME54-XPRO\build\app\atsame54_azure_iot.bin*
 
 ### Flash the image
 
-1. On the STM DevKit MCU, locate the **Reset** button, and the Micro USB port which is labeled **USB STLink**. You use these components in the following steps. Both are highlighted in the following picture:
+1. On the Microchip XPro, locate the **Reset** button, the **Ethernet** port, and the Micro USB port which is labeled **Debug USB**. Each component is highlighted in the following picture:
 
-    ![STM DevKit board reset button and micro usb port](images/stm-devkit-board.png)
+    ![Microchip XPro reset button and micro usb port](images/microchip-xpro-board.png)
 
-1. Connect the Micro USB cable to the Micro USB port on the STM DevKit, and then connect it to your computer.
-    > Note: For detailed setup information about the STM DevKit, see the instructions on the packaging, or see [Tools and Resources](https://www.st.com/content/st_com/en/products/evaluation-tools/product-evaluation-tools/mcu-mpu-eval-tools/stm32-mcu-mpu-eval-tools/stm32-discovery-kits/b-l475e-iot01a.html#resource).
-1. Start the **STM32 ST-LINK Utility**.
-1. Select **Target > Program**.
-1. In the **Download** dialog, select **Browse**, select the binary file **stm32_azure_iot.bin** that you built in the [Build the image](#build-the-image) section, and select **Open**.
-1. Select **Start**. You don't need to change existing field values.
+1. Connect the Micro USB cable to the **Debug USB** port on the Microchip XPro, and then connect it to your computer.
+    > Note: Optionally, for more details about setting up and getting started with the Microchip XPro, see [SAM E54 Xplained Pro User's Guide](http://ww1.microchip.com/downloads/en/DeviceDoc/70005321A.pdf).
+1. Open the **Windows Start > Atmel Studio 7.0 Command Prompt** console, and go to the folder of the Microchip XPro binary file that you built.
 
-The flashing process happens quickly. After flashing completes successfully, the **STM32 ST-LINK Utility** displays a message that starts with *Memory programmed in* and indicates how long it took:
+    > *getting-started\Microchip\ATSAME54-XPRO\build\app\*
 
-![Flash a device with the STM32 ST-LINK Utility](images/stm32-stlink-utility.png)
+1. Use the *atprogram* utility to flash the Microchip XPro with the binary image:
+    > Note: For more details about using the Atmel-ICE and *atprogram* tools with the Microchip XPro, see [Using Atmel-ICE for AVR Programming In Mass Production](http://ww1.microchip.com/downloads/en/AppNotes/00002466A.pdf).
+
+    ```
+    atprogram --tool edbg --interface SWD --device ATSAME54P20A program --chiperase --file atsame54_azure_iot.bin --verify
+    ```
+
+The flashing process finishes quickly, and the console confirms that programming was successful:
+
+```
+Firmware check OK
+Programming and verification completed successfully.
+```
 
 ### Confirm device connection details
 
@@ -192,8 +209,8 @@ You can use the **Termite** utility to monitor communication and confirm that yo
 1. Select **Settings**.
 1. In the **Serial port settings** dialog, check the following settings and update if needed:
     * **Baud rate**: 115,000
-    * **Port**: The port that your STM DevKit is connected to. If there are multiple port options in the dropdown, you can find the correct port to use. Open Windows **Device Manager**, and view **Ports > STMicroelectronics STLink Virtual COM Port** to identify which port to use.
-1. Press the **Reset** button on the board. The button is black and is labeled on the board.
+    * **Port**: The port that your Microchip XPro is connected to. If there are multiple port options in the dropdown, you can find the correct port to use. Open Windows **Device Manager**, and view **Ports > EDBG  Virtual COM Port** to identify which port to use.
+1. Press the **Reset** button on the board.
 1. In the **Termite** console, check the following checkpoint values to confirm that the device is initialized and connected to Azure IoT. If a checkpoint value is missing or incorrect and you can't resolve the issue, see [Troubleshooting](#troubleshooting).
 
     |Checkpoint name|Output value|
@@ -221,7 +238,7 @@ You can use Azure CLI to inspect the flow of telemetry from the device to Azure 
     az iot hub monitor-events --device-id MyMicrochipDevice --hub-name {YourIoTHubName}
     ```
 
-1. To force the STM DevKit to reconnect and send telemetry, press **Reset**.
+1. To force the Microchip XPro to reconnect and send telemetry, press **Reset**.
 
     View the telemetry in the console's JSON output.
 
