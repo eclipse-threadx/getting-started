@@ -33,7 +33,7 @@ static void mqtt_direct_method_invoke(CHAR *direct_method_name, CHAR *message, M
 {
     // Default response - 501 Not Implemented
     int status = 501;
-    if (strstr((CHAR *)direct_method_name, "set_led_state"))
+    if (strcmp((CHAR *)direct_method_name, "set_led_state"))
     {
         // Set LED state
         // '0' - turn LED off
