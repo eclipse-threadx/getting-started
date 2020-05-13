@@ -8,6 +8,8 @@
 #include "board_init.h"
 #include "sntp_client.h"
 
+#include "azure_config.h"
+
 #define AZURE_THREAD_STACK_SIZE 4096
 #define AZURE_THREAD_PRIORITY 4
 
@@ -41,7 +43,7 @@ void azure_thread_entry(ULONG parameter)
     }
 
     // Start the Azure IoT hub thread
-    if (!azure_mqtt_init())
+    if(!azure_mqtt_init(IOT_HUB_HOSTNAME, IOT_DEVICE_ID, IOT_PRIMARY_KEY))
     {
         printf("Failed to start Azure Iot Hub thread\r\n");
         return;
