@@ -1,7 +1,7 @@
 set(TARGET atmel_start)
 
 set(SOURCES
-    atmel_start.c	    
+    atmel_start.c
     driver_init.c
     ethernet_phy/ethernet_phy.c
     ethernet_phy_main.c
@@ -48,33 +48,36 @@ target_sources(${TARGET}
 target_compile_definitions(${TARGET}
     INTERFACE 
         __SAME54P20A__
+        # If the BME280 sensor is available
+        # uncomment the line below to get real temperature readings
+        __SENSOR_BME280__
 )
 
 target_include_directories(${TARGET}
     INTERFACE
-		.
+        .
         CMSIS/Core/Include
-		Config
-		ethernet_phy
-		hal/include
-		hal/utils/include
-		hpl/cmcc
-		hpl/core
-		hpl/dmac
-		hpl/gclk
-		hpl/gmac
-		hpl/mclk
-		hpl/osc32kctrl
-		hpl/oscctrl
-		hpl/pm
-		hpl/port
-		hpl/ramecc
-		hpl/sercom
-		hri
-		include
-		stdio_redirect
-		temperature_sensor
-		temperature_sensor/BME280_WeatherClick
+        Config
+        ethernet_phy
+        hal/include
+        hal/utils/include
+        hpl/cmcc
+        hpl/core
+        hpl/dmac
+        hpl/gclk
+        hpl/gmac
+        hpl/mclk
+        hpl/osc32kctrl
+        hpl/oscctrl
+        hpl/pm
+        hpl/port
+        hpl/ramecc
+        hpl/sercom
+        hri
+        include
+        stdio_redirect
+        temperature_sensor
+        temperature_sensor/BME280_WeatherClick
 )
 
 target_link_libraries(${TARGET}
