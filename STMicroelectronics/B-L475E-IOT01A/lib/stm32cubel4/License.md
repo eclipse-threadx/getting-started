@@ -15,6 +15,7 @@
 | BSP STM32L496G-Discovery        | BSD-3-Clause         | STMicroelectronics |
 | BSP Components                  | BSD-3-Clause         | STMicroelectronics |
 | BSP Adafruit                    | BSD-3-Clause         | STMicroelectronics |
+| FreeRTOS kernel                 | MIT                  | Copyright (C) 2017 Amazon.com, Inc. or its affiliates |
 | FatFS                           | BSD-3-Clause         | ChaN - STMicroelectronics |
 | STM32_USB_Device_Library        | ST SLA0044           | STMicroelectronics |
 | STM32_USB_Host_Library          | ST SLA0044           | STMicroelectronics |
