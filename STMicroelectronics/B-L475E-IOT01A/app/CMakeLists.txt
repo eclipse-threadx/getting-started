@@ -3,8 +3,11 @@ set(LINKER_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/startup/B-L475E-IOT01.ld")
 set(SOURCES
     libc/sysmem.c
     libc/syscalls.c
+    
     startup/system_stm32l4xx.c
     startup/startup.s
+    startup/tx_initialize_low_level.s
+
     stm32cubel4/stm32l4xx_hal_msp.c
     stm32cubel4/stm32l4xx_it.c
 

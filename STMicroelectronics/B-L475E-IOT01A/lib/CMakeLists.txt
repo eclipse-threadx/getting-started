@@ -8,13 +8,11 @@ set(THREADX_TOOLCHAIN "gnu")
 set(TX_USER_FILE "${CMAKE_CURRENT_LIST_DIR}/threadx/tx_user.h" CACHE STRING "")
 CPMAddPackage(
     NAME threadx
-#    GIT_REPOSITORY https://github.com/azurertos/threadx.git
-#    GIT_TAG master
-    # contains my custom tx_initialise_low_level.S for the SYSTEM_CLOCK override
-    GIT_REPOSITORY https://github.com/ryanwinter/threadx.git
-    GIT_TAG STM32L475
+    GIT_REPOSITORY https://github.com/azure-rtos/threadx.git
+    GIT_TAG master
 )
 
+# using a local copy of NetXDuo that has been customized for this boards WiFi module
 add_subdirectory(netxduo)
 
 add_subdirectory(stm32cubel4)
