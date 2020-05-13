@@ -8,16 +8,16 @@
 
 #include "networking.h"
 
-#define SNTP_THREAD_STACK_SIZE	2048
-#define SNTP_THREAD_PRIORITY	9
+#define SNTP_THREAD_STACK_SIZE  2048
+#define SNTP_THREAD_PRIORITY    9
 
-#define SNTP_SERVER				"time.google.com"
+#define SNTP_SERVER             "time.google.com"
 
-#define SNTP_UPDATE_EVENT		1
-#define SNTP_NEW_TIME			2
+#define SNTP_UPDATE_EVENT       1
+#define SNTP_NEW_TIME           2
 
-// Seconds between Unix Epoch (1/1/1970) and NTP Epoch (1/1/1999) */
-#define UNIX_TO_NTP_EPOCH_SECS	0x83AA7E80
+// Seconds between Unix Epoch (1/1/1970) and NTP Epoch (1/1/1999)
+#define UNIX_TO_NTP_EPOCH_SECS  0x83AA7E80
 
 static UCHAR sntp_thread_stack[SNTP_THREAD_STACK_SIZE];
 static TX_THREAD mqtt_client_thread;
@@ -25,26 +25,12 @@ static TX_THREAD mqtt_client_thread;
 static NX_SNTP_CLIENT sntp_client;
 static TX_EVENT_FLAGS_GROUP sntp_flags;
 
-// Variable to keep track of time
+// Variables to keep track of time
 static TX_MUTEX time_mutex;
 static ULONG sntp_last_time = 0;
 static ULONG tx_last_ticks = 0;
 
-UINT kiss_of_death_handler(NX_SNTP_CLIENT* client_ptr, UINT KOD_code);
-UINT leap_second_handler(NX_SNTP_CLIENT* client_ptr, UINT leap_indicator);
 void sntp_thread_entry(ULONG info);
-
-UINT kiss_of_death_handler(NX_SNTP_CLIENT* client_ptr, UINT KOD_code)
-{
-    // Nothing here yet
-    return NX_SUCCESS;
-}
-
-UINT leap_second_handler(NX_SNTP_CLIENT* client_ptr, UINT leap_indicator)
-{
-    // Nothing here yet
-    return NX_SUCCESS;
-}
 
 static VOID time_update_callback(NX_SNTP_TIME_MESSAGE* time_update_ptr, NX_SNTP_TIME* local_time)
 {
@@ -58,27 +44,27 @@ static void set_sntp_time()
     ULONG milliseconds;
     UINT status;
     CHAR time_buffer[64];
-    
+
     status = nx_sntp_client_get_local_time(&sntp_client, &seconds, &milliseconds, NX_NULL);
     if (status != NX_SUCCESS)
     {
         printf("FAIL: Internal error with getting local time (0x%02x)\n", status);
         return;
     }
-    
+
     tx_mutex_get(&time_mutex, TX_WAIT_FOREVER);
-    
+
     // Stash the Unix and ThreadX times
     sntp_last_time = seconds - UNIX_TO_NTP_EPOCH_SECS;
     tx_last_ticks = tx_time_get();
-    
+
     tx_mutex_put(&time_mutex);
+
+    nx_sntp_client_utility_display_date_time(&sntp_client, time_buffer, sizeof(time_buffer));
+    printf("\tSNTP time update: %s\r\n", time_buffer);
 
     // Flag the sync was successful
     tx_event_flags_set(&sntp_flags, SNTP_NEW_TIME, TX_OR);
-    
-    nx_sntp_client_utility_display_date_time(&sntp_client, time_buffer, sizeof(time_buffer));
-    printf("\tSNTP time update: %s\r\n", time_buffer);
 }
 
 void sntp_thread_entry(ULONG info)
@@ -97,11 +83,20 @@ void sntp_thread_entry(ULONG info)
         printf("\tFAIL: Unable to resolve DNS for SNTP Server %s (0x%02x)\r\n", SNTP_SERVER, status);
         return;
     }
+
+    status = nx_sntp_client_create(&sntp_client, &ip_0, 0, &main_pool, NX_NULL, NX_NULL, NULL);
+    if (status != NX_SUCCESS) 
+    {
+        printf("\tFAIL: SNTP client create failed (0x%02x)\r\n", status);
+        return;
+    }
+
     
     status = nxd_sntp_client_initialize_unicast(&sntp_client, &sntp_address);
     if (status != NX_SUCCESS)
     {
         printf("\tFAIL: Unable to initialize unicast SNTP client (0x%02x)\r\n", status);
+        nx_sntp_client_delete(&sntp_client);
         return;
     }
 
@@ -109,6 +104,7 @@ void sntp_thread_entry(ULONG info)
     if (status != NX_SUCCESS) 
     {
         printf("\tFAIL: Unable to set local time for SNTP client (0x%02x)\r\n", status);
+        nx_sntp_client_delete(&sntp_client);
         return;
     }
 
@@ -117,9 +113,11 @@ void sntp_thread_entry(ULONG info)
     if (status != NX_SUCCESS) 
     {
         printf("\tFAIL: Unable to start unicast SNTP client (0x%02x)\r\n", status);
+        nx_sntp_client_stop(&sntp_client);
+        nx_sntp_client_delete(&sntp_client);
         return;
     }
-    
+
     // Run initial sync, keep trying forever
     int retries = 1;
     do
@@ -147,12 +145,12 @@ void sntp_thread_entry(ULONG info)
             status = nx_sntp_client_receiving_updates(&sntp_client, &server_status);
             if ((status != NX_SUCCESS) || (server_status == NX_FALSE))
             {
-                printf("FAIL: Receiving SNTP update (0x%02x)\r\n", server_status);
+                printf("FAIL: Receiving SNTP update (0x%02x) (0x%02x)\r\n", status, server_status);
                 continue;
             }
 
-            set_sntp_time();
-        }
+              set_sntp_time();
+        }    
     }
     
     nx_sntp_client_stop(&sntp_client);
@@ -186,25 +184,18 @@ bool sntp_wait_for_sync()
 bool sntp_start()
 {
     UINT status;
-    
-    status = nx_sntp_client_create(&sntp_client, &ip_0, 0, &main_pool, leap_second_handler, kiss_of_death_handler, NULL);
-    if (status != NX_SUCCESS) 
-    {
-        printf("SNTP client create failed (0x%02x)\r\n", status);
-        return false;
-    }
-    
+
     status = tx_event_flags_create(&sntp_flags, "SNTP event flags");
     if (status != TX_SUCCESS)
     {
-        printf("Unable to create sntp event flags (0x%02x)\r\n", status);
+        printf("\tFAIL: Unable to create sntp event flags (0x%02x)\r\n", status);
         return false;
-    }	
-    
+    }
+
     status = tx_mutex_create(&time_mutex, "time mutex", TX_NO_INHERIT);
     if (status != TX_SUCCESS)
     {
-        printf("Unable to create time mutex (0x%02x)\r\n", status);
+        printf("\tFAIL: Unable to create time mutex (0x%02x)\r\n", status);
         return false;
     }
 

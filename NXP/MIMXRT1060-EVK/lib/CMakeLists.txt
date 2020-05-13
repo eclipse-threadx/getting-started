@@ -5,7 +5,7 @@ set(THREADX_ARCH "cortex_m7")
 set(THREADX_TOOLCHAIN "gnu")
 
 # threadX
-set(TX_USER_FILE "${CMAKE_CURRENT_LIST_DIR}/threadx/tx_user.h" CACHE STRING "")
+set(TX_USER_FILE "${CMAKE_CURRENT_LIST_DIR}/threadx/tx_user.h" CACHE STRING "Enable TX user configuration")
 CPMAddPackage(
     NAME threadx
     GIT_REPOSITORY https://github.com/azure-rtos/threadx.git
@@ -13,18 +13,11 @@ CPMAddPackage(
 )
 
 # netX-duo
-set(NX_USER_FILE "${CMAKE_CURRENT_LIST_DIR}/netxduo/nx_user.h" CACHE STRING "")
+set(NX_USER_FILE "${CMAKE_CURRENT_LIST_DIR}/netxduo/nx_user.h" CACHE STRING "Enable NX user configuration")
+set(NXD_ENABLE_FILE_SERVERS OFF CACHE BOOL "Disable fileX dependency by netxduo")
 CPMAddPackage(
     NAME netxduo
     GIT_REPOSITORY https://github.com/azure-rtos/netxduo.git
-    GIT_TAG master
-)
-
-# filex
-#set(FX_USER_FILE "${CMAKE_CURRENT_LIST_DIR}/filex/fx_user.h" CACHE STRING "")
-CPMAddPackage(
-    NAME filex
-    GIT_REPOSITORY https://github.com/azure-rtos/filex.git
     GIT_TAG master
 )
 
