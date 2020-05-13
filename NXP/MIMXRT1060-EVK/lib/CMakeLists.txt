@@ -5,7 +5,7 @@ set(THREADX_ARCH "cortex_m7")
 set(THREADX_TOOLCHAIN "gnu")
 
 # threadX
-set(TX_USER_FILE "${CMAKE_CURRENT_LIST_DIR}/threadx/tx_user.h" CACHE STRING "")
+set(TX_USER_FILE "${CMAKE_CURRENT_LIST_DIR}/threadx/tx_user.h" CACHE STRING "Enable TX user configuration")
 CPMAddPackage(
     NAME threadx
     GIT_REPOSITORY https://github.com/azure-rtos/threadx.git

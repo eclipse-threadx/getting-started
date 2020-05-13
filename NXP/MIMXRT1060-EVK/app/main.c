@@ -9,7 +9,7 @@
 #include "networking.h"
 #include "sntp_client.h"
 
-#define AZURE_THREAD_STACK_SIZE 2048
+#define AZURE_THREAD_STACK_SIZE 4096
 #define AZURE_THREAD_PRIORITY 4
 
 void* __RAM_segment_used_end__ = 0;
@@ -23,7 +23,6 @@ void tx_application_define(void* first_unused_memory);
 void azure_thread_entry(ULONG parameter)
 {
     printf("\r\nStarting Azure thread. Built %s, %s\r\n\r\n", __DATE__, __TIME__);
-    printf("Floating point enabled %f\r\n\r\n", 3.1415);
 
     // Initialize the network
     if (!network_init(nx_driver_imx))
@@ -55,7 +54,7 @@ void azure_thread_entry(ULONG parameter)
 
     while (true)
     {
-        tx_thread_sleep(60 * TX_TIMER_TICKS_PER_SECOND);
+        tx_thread_sleep(10 * TX_TIMER_TICKS_PER_SECOND);
 
         time_t current = time(NULL);
         printf("Time %ld\r\n", (long)current);

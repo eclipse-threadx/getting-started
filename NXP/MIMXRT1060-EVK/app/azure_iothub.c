@@ -94,7 +94,7 @@ static void mqtt_c2d_message(CHAR *key, CHAR *value)
         azure_mqtt_publish_string_twin(key, value);
     }
 
-    printf("Propoerty=%s updated with value=%s\r\n", key, value);
+    printf("Property=%s updated with value=%s\r\n", key, value);
 }
 
 static void mqtt_thread_entry(ULONG info)
