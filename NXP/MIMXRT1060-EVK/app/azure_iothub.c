@@ -82,8 +82,7 @@ static void mqtt_c2d_message(CHAR *key, CHAR *value)
             printf("Invalid LED state. Possible states are '0' - turn LED off or '1' - turn LED on\r\n");
             return;
         }
-        bool new_state = !arg;
-        set_led_state(new_state);
+        set_led_state(arg);
 
         // Update device twin property
         azure_mqtt_publish_bool_twin(key, arg);

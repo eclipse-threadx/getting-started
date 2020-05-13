@@ -730,7 +730,7 @@ UINT    received_packet = NX_FALSE;
             
             /* Release the IP internal mutex before processing the IP event.  */
             tx_mutex_put(&(nx_wifi_ip -> nx_ip_protection));
-            return(NX_NOT_SUCCESSFUL);
+            return(NX_NO_PACKET);
         }
         
         /* Allocate one packet to store the data.  */

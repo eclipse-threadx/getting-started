@@ -3,6 +3,6 @@
 
 #include <stdbool.h>
 
-bool azure_iothub_start();
+bool azure_mqtt_init();
 
 #endif // _AZURE_IOTHUB_H

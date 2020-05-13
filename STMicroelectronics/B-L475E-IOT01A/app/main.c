@@ -15,7 +15,6 @@ UCHAR azure_thread_stack[AZURE_THREAD_STACK_SIZE];
 
 TX_THREAD azure_thread;
 
-void mqtt_thread_entry(ULONG info);
 void azure_thread_entry(ULONG parameter);
 
 void azure_thread_entry(ULONG parameter)
@@ -41,9 +40,8 @@ void azure_thread_entry(ULONG parameter)
         return;
     }*/
 
-
     // Start the Azure IoT hub thread
-    if (!azure_iothub_start())
+    if (!azure_mqtt_init())
     {
         printf("Failed to start Azure Iot Hub thread\r\n");
         return;
@@ -57,7 +55,7 @@ void azure_thread_entry(ULONG parameter)
     }
 }
 
-// threadx entry point
+// Threadx entry point
 void tx_application_define(void* first_unused_memory)
 {
     // Create Azure thread
@@ -79,8 +77,7 @@ int main(void)
     // Initialize the board
     board_init();
 
-    // enter the threadx kernel
+    // Enter the ThreadX kernel
     tx_kernel_enter();
-    
     return 0;
 }

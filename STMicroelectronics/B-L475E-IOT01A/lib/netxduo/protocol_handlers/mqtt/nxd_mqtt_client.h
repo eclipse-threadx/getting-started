@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -38,10 +26,10 @@
 /*  APPLICATION INTERFACE DEFINITION                       RELEASE        */
 /*                                                                        */
 /*    nxd_mqtt_client.h                                   PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    William E. Lamie, Express Logic, Inc.                               */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -53,22 +41,7 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  08-01-2017     Yuxin Zhou               Initial Version 5.10          */
-/*  07-15-2018     Yuxin Zhou               Modified comments, added a    */
-/*                                            a symbol for user to set    */
-/*                                            initial packet ID value,    */
-/*                                            improved internal logic,    */
-/*                                            added configurable timeout  */
-/*                                            option, supported user      */
-/*                                            defined memory functions,   */
-/*                                            added NXD_MQTT_REQUIRE_TLS  */
-/*                                            for sequrity operation,     */
-/*                                            resulting in version 5.11   */
-/*  08-15-2019     Yuxin Zhou               Modified comments, added      */
-/*                                            packet receive notify,      */
-/*                                            changed the return type of  */
-/*                                            tls_setup to UINT,          */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
 
@@ -89,9 +62,13 @@ extern   "C" {
 #include "nx_secure_tls_api.h"
 #endif /* NX_SECURE_ENABLE */
 
+#ifdef NXD_MQTT_CLOUD_ENABLE
+#include "nx_cloud.h"
+#endif /* NXD_MQTT_CLOUD_ENABLE */
+
 #ifdef NXD_MQTT_REQUIRE_TLS
 #ifndef NX_SECURE_ENABLE
-#error "The feautre NXD_MQTT_REQUIRE_TLS requires NX_SECURE_ENABLE."
+#error "The feature NXD_MQTT_REQUIRE_TLS requires NX_SECURE_ENABLE."
 #endif /* NX_SECURE_ENABLE */
 #endif /* NXD_MQTT_REQUIRE_TLS */
 
@@ -121,33 +98,34 @@ extern   "C" {
 #define NXD_MQTT_CLIENT_SOCKET_WINDOW_SIZE                             8192
 #endif /* NXD_MQTT_CLIENT_SOCKET_WINDOW_SIZE */
 
-/* Define the defeault MQTT Thread time slice. */
+/* Define the default MQTT Thread time slice. */
 #ifndef NXD_MQTT_CLIENT_THREAD_TIME_SLICE
 #define NXD_MQTT_CLIENT_THREAD_TIME_SLICE                              2
 #endif
 
-/* Set the defualt timer rate for the keepalive timer, in ThreadX timer ticks.
+/* Set the default timer rate for the keepalive timer, in ThreadX timer ticks.
    THe default is one second. */
 #ifndef NXD_MQTT_KEEPALIVE_TIMER_RATE
 #define NXD_MQTT_KEEPALIVE_TIMER_RATE                                  (NX_IP_PERIODIC_RATE)
 #endif
 
 /* Set the default timeout for PING response. */
-/* After sending out the MQTT Ping Request, if the client does not receive Ping Resposne within this
+/* After sending out the MQTT Ping Request, if the client does not receive Ping Response within this
    time, the client shall disconnect from the server. The default is one second. */
 #ifndef NXD_MQTT_PING_TIMEOUT_DELAY
 #define NXD_MQTT_PING_TIMEOUT_DELAY                                    (NX_IP_PERIODIC_RATE)
 #endif
 
 
+/* Deprecated. This symbol is defined for compatibility. */
 #ifndef NXD_MQTT_MAX_TOPIC_NAME_LENGTH
 #define NXD_MQTT_MAX_TOPIC_NAME_LENGTH                                 12
 #endif
 
+/* Deprecated. This symbol is defined for compatibility. */
 #ifndef NXD_MQTT_MAX_MESSAGE_LENGTH
 #define NXD_MQTT_MAX_MESSAGE_LENGTH                                    32
 #endif
-
 
 #ifndef NXD_MQTT_INITIAL_PACKET_ID_VALUE
 #define NXD_MQTT_INITIAL_PACKET_ID_VALUE                               1
@@ -164,7 +142,7 @@ extern   "C" {
 
 #define MQTT_PROTOCOL_LEVEL                                            4
 
-/* Define bit fileds and constant values used in the CONNECT packet. */
+/* Define bit fields and constant values used in the CONNECT packet. */
 #define MQTT_CONNECT_FLAGS_USERNAME                                    (1 << 7)
 #define MQTT_CONNECT_FLAGS_PASSWORD                                    (1 << 6)
 #define MQTT_CONNECT_FLAGS_WILL_RETAIN                                 (1 << 5)
@@ -175,7 +153,7 @@ extern   "C" {
 #define MQTT_CONNECT_FLAGS_CLEAN_SESSION                               (1 << 1)
 #define MQTT_CONNECT_FLAGS_WILL_QOS_FIELD                              (3 << 3)
 
-/* Define bit fileds and constant values used in the CONNACK packet. */
+/* Define bit fields and constant values used in the CONNACK packet. */
 #define MQTT_CONNACK_CONNECT_FLAGS_SP                                  (1)
 #define MQTT_CONNACK_CONNECT_RETURN_CODE_ACCEPTED                      (0)
 #define MQTT_CONNACK_CONNECT_RETURN_CODE_UNACCEPTABLE_PROTOCOL_VERSION (1)
@@ -184,7 +162,7 @@ extern   "C" {
 #define MQTT_CONNACK_CONNECT_RETURN_CODE_BAD_USERNAME_PASSWORD         (4)
 #define MQTT_CONNACK_CONNECT_RETURN_CODE_NOT_AUTHORIZED                (5)
 
-/* Define bit fileds and constant values used in the PUBLISH packet. */
+/* Define bit fields and constant values used in the PUBLISH packet. */
 #define MQTT_PUBLISH_DUP_FLAG                                          (1 << 3)
 #define MQTT_PUBLISH_QOS_LEVEL_0                                       (0)
 #define MQTT_PUBLISH_QOS_LEVEL_1                                       (1 << 1)
@@ -272,7 +250,8 @@ typedef struct MQTT_PACKET_DISCONNECT_STRUCT
 
 #define NXD_MQTT_CLIENT_STATE_INITIALIZE     0
 #define NXD_MQTT_CLIENT_STATE_IDLE           1
-#define NXD_MQTT_CLIENT_STATE_CONNECTED      2
+#define NXD_MQTT_CLIENT_STATE_CONNECTING     2
+#define NXD_MQTT_CLIENT_STATE_CONNECTED      3
 
 
 #define NXD_MQTT_SUCCESS                     0x0
@@ -290,6 +269,8 @@ typedef struct MQTT_PACKET_DISCONNECT_STRUCT
 #define NXD_MQTT_QOS2_NOT_SUPPORTED          0x1000C
 #define NXD_MQTT_INSUFFICIENT_BUFFER_SPACE   0x1000D
 #define NXD_MQTT_CLIENT_NOT_RUNNING          0x1000E
+#define NXD_MQTT_INVALID_PACKET              0x1000F
+#define NXD_MQTT_PARTIAL_PACKET              0x10010
 
 /* The following error codes match the Connect Return code in CONNACK message. */
 #define NXD_MQTT_ERROR_CONNECT_RETURN_CODE   0x10080
@@ -300,22 +281,7 @@ typedef struct MQTT_PACKET_DISCONNECT_STRUCT
 #define NXD_MQTT_ERROR_NOT_AUTHORIZED        0x10085
 
 
-
-/* Define the internal user massage queue. */
-typedef struct MQTT_MESSAGE_BLOCK_STRUCT
-{
-    UCHAR                             fixed_header;
-    UCHAR                             reserved;
-    USHORT                            packet_id;
-    UINT                              remaining_length;
-    CHAR                              topic_name[NXD_MQTT_MAX_TOPIC_NAME_LENGTH];
-    CHAR                              message[NXD_MQTT_MAX_MESSAGE_LENGTH];
-    USHORT                            topic_name_length;
-    USHORT                            message_length;
-    struct MQTT_MESSAGE_BLOCK_STRUCT *next;
-} MQTT_MESSAGE_BLOCK;
-
-/* Define the baseic MQTT Client control block. */
+/* Define the basic MQTT Client control block. */
 typedef struct NXD_MQTT_CLIENT_STRUCT
 {
     CHAR                          *nxd_mqtt_client_name;
@@ -331,38 +297,49 @@ typedef struct NXD_MQTT_CLIENT_STRUCT
     const UCHAR                   *nxd_mqtt_client_will_message;
     UINT                           nxd_mqtt_client_will_message_length;
     NX_IP                         *nxd_mqtt_client_ip_ptr;                          /* Pointer to associated IP structure   */
-    NX_PACKET_POOL                *nxd_mqtt_client_packet_pool_ptr;                 /* Pointer to TFTP client packet pool   */
-    TX_THREAD                      nxd_mqtt_thread;
-    TX_MUTEX                       nxd_mqtt_protection;
-    TX_EVENT_FLAGS_GROUP           nxd_mqtt_events;
+    NX_PACKET_POOL                *nxd_mqtt_client_packet_pool_ptr;                 /* Pointer to client packet pool        */
+    TX_MUTEX                      *nxd_mqtt_client_mutex_ptr;                       /* Pointer to client mutex              */
     TX_TIMER                       nxd_mqtt_timer;
+#ifndef NXD_MQTT_CLOUD_ENABLE
+    TX_MUTEX                       nxd_mqtt_protection;
+    TX_THREAD                      nxd_mqtt_thread;
+    TX_EVENT_FLAGS_GROUP           nxd_mqtt_events;
+#else
+    NX_CLOUD                      *nxd_mqtt_client_cloud_ptr;                      /* Pointer to associated CLOUD structure.                    */
+    NX_CLOUD                       nxd_mqtt_client_cloud;                          /* MQTT cloud.                                               */
+    NX_CLOUD_MODULE                nxd_mqtt_client_cloud_module;                   /* Define mqtt module that running on cloud helper thread.   */
+#endif /* NXD_MQTT_CLOUD_ENABLE */
     UINT                           nxd_mqtt_ping_timeout;
     UINT                           nxd_mqtt_ping_not_responded;                     /* Flag indicating the ping has been responded or not. */
     UINT                           nxd_mqtt_ping_sent_time;                         /* TX Timer tick when the ping message was sent. */
     UINT                           nxd_mqtt_timeout;                                /* TX Timer tick when the next timeout happens. */
     UINT                           nxd_mqtt_timer_value;                            /* MQTT Client periodic timer tick value.  */
     UINT                           nxd_mqtt_keepalive;                              /* Keepalive value, converted to TX ticks. */
+    UINT                           nxd_mqtt_clean_session;                          /* Clean session flag. */
     UINT                           nxd_mqtt_client_state;                           /* Record client state                  */
     NX_TCP_SOCKET                  nxd_mqtt_client_socket;
     struct NXD_MQTT_CLIENT_STRUCT *nxd_mqtt_client_next;
     UINT                           nxd_mqtt_client_packet_identifier;
-    MQTT_MESSAGE_BLOCK            *message_transmit_queue_head;
-    MQTT_MESSAGE_BLOCK            *message_transmit_queue_tail;
-    MQTT_MESSAGE_BLOCK            *message_block_free_list;
-    MQTT_MESSAGE_BLOCK            *message_receive_queue_head;
-    MQTT_MESSAGE_BLOCK            *message_receive_queue_tail;
+    NX_PACKET                     *nxd_mqtt_client_processing_packet;
+    NX_PACKET                     *message_transmit_queue_head;
+    NX_PACKET                     *message_transmit_queue_tail;
+    NX_PACKET                     *message_receive_queue_head;
+    NX_PACKET                     *message_receive_queue_tail;
     UINT                           message_receive_queue_depth;
     VOID                         (*nxd_mqtt_client_receive_notify)(struct NXD_MQTT_CLIENT_STRUCT *client_ptr, UINT number_of_messages);
+    VOID                         (*nxd_mqtt_connect_notify)(struct NXD_MQTT_CLIENT_STRUCT *client_ptr, UINT status, VOID *context);
+    VOID                          *nxd_mqtt_connect_context;
     VOID                         (*nxd_mqtt_disconnect_notify)(struct NXD_MQTT_CLIENT_STRUCT *client_ptr);
     UINT                         (*nxd_mqtt_packet_receive_notify)(struct NXD_MQTT_CLIENT_STRUCT *client_ptr, NX_PACKET *packet_ptr, VOID *context);
     VOID                          *nxd_mqtt_packet_receive_context;
 #ifdef NX_SECURE_ENABLE
-    UINT nxd_mqtt_client_use_tls;
+    UINT                           nxd_mqtt_client_use_tls;
     UINT                         (*nxd_mqtt_tls_setup)(struct NXD_MQTT_CLIENT_STRUCT *, NX_SECURE_TLS_SESSION *,
                                                        NX_SECURE_X509_CERT *, NX_SECURE_X509_CERT *);
-    NX_SECURE_X509_CERT   nxd_mqtt_tls_certificate;
-    NX_SECURE_X509_CERT   nxd_mqtt_tls_trusted_certificate;
-    NX_SECURE_TLS_SESSION nxd_mqtt_tls_session;
+    NX_SECURE_X509_CERT            nxd_mqtt_tls_certificate;
+    NX_SECURE_X509_CERT            nxd_mqtt_tls_trusted_certificate;
+    NX_SECURE_TLS_SESSION          nxd_mqtt_tls_session;
+    UINT                           nxd_mqtt_tls_in_progress;
 #endif
 } NXD_MQTT_CLIENT;
 
@@ -457,6 +434,8 @@ UINT _nxd_mqtt_client_login_set(NXD_MQTT_CLIENT *client_ptr,
                                 CHAR *username, UINT username_length, CHAR *password, UINT password_length);
 UINT _nxd_mqtt_client_message_get(NXD_MQTT_CLIENT *client_ptr, UCHAR *topic_buffer, UINT topic_buffer_size, UINT *actual_topic_length,
                                   UCHAR *message_buffer, UINT message_buffer_size, UINT *actual_message_length);
+UINT _nxd_mqtt_client_publish_packet_send(NXD_MQTT_CLIENT *client_ptr, NX_PACKET *packet_ptr,
+                                          USHORT packet_id, UINT QoS, ULONG wait_option);
 UINT _nxd_mqtt_client_publish(NXD_MQTT_CLIENT *client_ptr, CHAR *topic_name, UINT topic_name_length,
                               CHAR *message, UINT message_length, UINT retain, UINT QoS, ULONG timeout);
 UINT _nxd_mqtt_client_receive_notify_set(NXD_MQTT_CLIENT *client_ptr,
@@ -469,8 +448,12 @@ UINT _nxd_mqtt_client_unsubscribe(NXD_MQTT_CLIENT *client_ptr, CHAR *topic_name,
 UINT _nxd_mqtt_client_will_message_set(NXD_MQTT_CLIENT *client_ptr,
                                        const UCHAR *will_topic, UINT will_topic_length, const UCHAR *will_message,
                                        UINT will_message_length, UINT will_retain_flag, UINT will_QoS);
-UINT _nxd_mqtt_read_remaining_length(NX_PACKET *packet_ptr, UINT *remaining_length, UCHAR **variable_header);
-UINT _nxd_mqtt_set_remaining_length(NX_PACKET *packet_ptr, UINT length);
+UINT _nxd_mqtt_read_remaining_length(NX_PACKET *packet_ptr, UINT *remaining_length, ULONG *offset_ptr);
+UINT _nxd_mqtt_client_set_fixed_header(NXD_MQTT_CLIENT *client_ptr, NX_PACKET *packet_ptr, UCHAR control_header, UINT length, UINT wait_option);
+UINT _nxd_mqtt_client_append_message(NXD_MQTT_CLIENT *client_ptr, NX_PACKET *packet_ptr, CHAR *message, UINT length, ULONG wait_option);
+VOID _nxd_mqtt_client_connection_end(NXD_MQTT_CLIENT *client_ptr, ULONG wait_option);
+UINT _nxd_mqtt_process_publish_packet(NX_PACKET *packet_ptr, ULONG *topic_offset_ptr, USHORT *topic_length_ptr,
+                                      ULONG *message_offset_ptr, ULONG *message_length_ptr);
 
 UINT _nxde_mqtt_client_connect(NXD_MQTT_CLIENT *client_ptr, NXD_ADDRESS *server_ip, UINT server_port,
                                UINT keepalive, UINT clean_session, ULONG timeout);
@@ -509,6 +492,12 @@ UINT _nxde_mqtt_client_secure_connect(NXD_MQTT_CLIENT *client_ptr, NXD_ADDRESS *
 
 #endif /* ifndef NXD_MQTT_CLIENT_SOURCE_CODE */
 
+#ifdef NXD_MQTT_CLOUD_ENABLE
+/* MQTT create function based on cloud helper.  */
+UINT _nxd_mqtt_client_cloud_create(NXD_MQTT_CLIENT *client_ptr, CHAR *client_name,
+                                   CHAR *client_id, UINT client_id_length,
+                                   NX_IP *ip_ptr, NX_PACKET_POOL *pool_ptr, NX_CLOUD *cloud_ptr);
+#endif /* NXD_MQTT_CLOUD_ENABLE */
 
 /* Determine if a C++ compiler is being used.  If so, complete the standard
    C conditional started above.  */
