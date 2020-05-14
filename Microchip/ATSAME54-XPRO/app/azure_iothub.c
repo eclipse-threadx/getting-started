@@ -109,7 +109,7 @@ void mqtt_thread_entry(ULONG info)
     {
         float tempDegC;
 
-#if __SENSOR_BME280__ == ON
+#if __SENSOR_BME280__ == 1
         // Print the compensated temperature readings
         WeatherClick_waitforRead();
         tempDegC = Weather_getTemperatureDegC();
