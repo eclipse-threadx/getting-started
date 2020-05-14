@@ -34,7 +34,7 @@ Clone the following repo to download all sample device code, setup scripts, and 
 To clone the repo, run the following command:
 
 ```
-git clone https://github.com/AzureRTOS/getting-started
+git clone https://github.com/azure-rtos/getting-started
 ```
 
 ### Install the tools
@@ -58,7 +58,7 @@ To install the tools:
     ```
     cmake --version
     ```
-1. Install [Termite](https://www.compuphase.com/software_termite.htm). You use this utility to monitor your device.
+1. Install [Termite](https://www.compuphase.com/software_termite.htm). You use this utility to monitor your device. You can use this utility, or another serial RS232 utility, to monitor your device.
 
 ## Prepare Azure resources
 
@@ -91,7 +91,8 @@ To create an IoT hub:
    az extension add --name azure-iot
    ```
 
-1. Run the [az group create](https://docs.microsoft.com/cli/azure/group?view=azure-cli-latest#az-group-create) command to create a resource group. The following command creates a resource group named *MyResourceGroup* in the *eastus* region. To see other available regions, you can run [az account list-locations](https://docs.microsoft.com/cli/azure/account?view=azure-cli-latest#az-account-list-locations).
+1. Run the [az group create](https://docs.microsoft.com/cli/azure/group?view=azure-cli-latest#az-group-create) command to create a resource group. The following command creates a resource group named *MyResourceGroup* in the *eastus* region.
+    > Note: Optionally, to set an alternate `location`, run [az account list-locations](https://docs.microsoft.com/cli/azure/account?view=azure-cli-latest#az-account-list-locations) to see available locations. Then specify the alternate location in the following command in place of *eastus*.
 
     ```azurecli
     az group create --name MyResourceGroup --location eastus
@@ -139,15 +140,16 @@ To connect the NXP EVK to Azure, you'll modify a configuration file for the Azur
 
 1. Open the following file in a text editor:
 
-    > *getting-started\NXP\MIMXRT1060-EVK\app\azure_config.c*
+    > *getting-started\NXP\MIMXRT1060-EVK\app\azure_config.h*
 
 1. Set the Azure IoT device information constants to the values that you saved after you created Azure resources.
 
     |Constant name|Value|
     |-------------|-----|
-    |`iot_hub_hostname` |{*Your Iot hub hostName value*}|
-    |`iot_device_id` |{*Your deviceID value*}|
-    |`iot_sas_key` |{*Your primaryKey value*}|
+    |`IOT_HUB_HOSTNAME` |{*Your Iot hub hostName value*}|
+    |`IOT_DEVICE_ID` |{*Your deviceID value*}|
+    |`IOT_PRIMARY_KEY` |{*Your primaryKey value*}|
+
 1. Save and close the file.
 
 ### Build the image
@@ -171,6 +173,7 @@ After the build completes, confirm that a binary file was created in the followi
 1. Copy the image file *mimxrt1060_azure_iot_flash.bin* that you created in the previous section, and paste it into the root folder of the NXP EVK. The flashing process starts automatically.
 
     > Note: During the flashing process, a red LED blinks rapidly on the NXP EVK. The process completes in a few seconds without further notification.
+1. Use the Ethernet cable to connect the NXP EVK to an Ethernet port.
 
 ### Confirm device connection details
 
