@@ -2,19 +2,19 @@
 
 **TODO:  timlt**
 
-* Get Weather Click sensor and adapter, add step to install on board and show photo
-* Update Termite directions for monitoring output, and update Termite screen shots
+* Get Weather Click sensor and adapter, add OPTIONAL step to install on board and show photo
+* Show user how to update a variable prior to flash for the case where they don't have sensor
+* Update Termite screen shots
 
 **Total completion time**:  45 minutes
 
-In this tutorial you use Azure RTOS to connect the Microchip ATSAME54-XPro (hereafter, the Microchip XPro) to Azure IoT.  The article is part of the series [Getting Started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824). The series introduces device developers to Azure RTOS, and shows how to connect several micro-controller units (MCU) to Azure IoT.
+In this tutorial you use Azure RTOS to connect the Microchip ATSAME54-XPro (hereafter, the Microchip E54) to Azure IoT.  The article is part of the series [Getting Started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824). The series introduces device developers to Azure RTOS, and shows how to connect several micro-controller units (MCU) to Azure IoT.
 
 You will complete the following tasks:
 
-* Install a set of embedded development tools for programming the Microchip XPro in C
-* Build an image and flash it onto the Microchip XPro
-* Connect a sensor to the Microchip XPro that lets you monitor weather conditions
-* Create an Azure IoT hub and securely connect the Microchip XPro to it
+* Install a set of embedded development tools for programming the Microchip E54 in C
+* Build an image and flash it onto the Microchip E54
+* Create an Azure IoT hub and securely connect the Microchip E54 to it
 * Use Azure CLI to view device telemetry, view properties, and invoke cloud-to-device methods
 
 ## Prerequisites
@@ -24,12 +24,11 @@ You will complete the following tasks:
 * [Git](https://git-scm.com/downloads)
 * Hardware
 
-    > * The [Microchip ATSAME54-XPro](https://www.microchip.com/developmenttools/productdetails/atsame54-xpro) (Microchip XPro)
+    > * The [Microchip ATSAME54-XPro](https://www.microchip.com/developmenttools/productdetails/atsame54-xpro) (Microchip E54)
     > * USB 2.0 A male to Micro USB male cable
     > * Wired Ethernet access
-    > * Ethernet cable
-    > * [Weather Click](https://www.mikroe.com/weather-click) sensor
-    > * [mikroBUS Xplained Pro](https://www.microchip.com/Developmenttools/ProductDetails/ATMBUSADAPTER-XPRO) adapter
+    > * Optional: [Weather Click](https://www.mikroe.com/weather-click) sensor. You can add this sensor to the board to monitor weather conditions. If you don't have this sensor, you can still complete this tutorial.
+    > * Optional: [mikroBUS Xplained Pro](https://www.microchip.com/Developmenttools/ProductDetails/ATMBUSADAPTER-XPRO) adapter. Use this adapter to attach the Weather Click sensor to the Microchip E54. If you don't have the sensor and this adapter, you can still complete this tutorial.
 
 ## Prepare the development environment
 
@@ -42,7 +41,7 @@ Clone the following repo to download all sample device code, setup scripts, and 
 To clone the repo, run the following command:
 
 ```
-git clone https://github.com/AzureRTOS/getting-started
+git clone https://github.com/azure-rtos/getting-started
 ```
 
 ### Install the tools
@@ -69,9 +68,9 @@ To run the setup script:
 
 To install the remaining tools:
 
-1. Install [Atmel Studio 7](https://www.microchip.com/mplab/avr-support/atmel-studio-7). Atmel Studio is a device development environment that includes the tools to program the Microchip XPro. The installation takes several minutes, and prompts you several times to approve installation of components.
+1. Install [Atmel Studio 7](https://www.microchip.com/mplab/avr-support/atmel-studio-7). Atmel Studio is a device development environment that includes the tools to program and flash program the Microchip E54. For this tutorial, you use Atmel Studio only to flash the Microchip E54. The installation takes several minutes, and prompts you several times to approve installation of components.
 
-1. Install [Termite](https://www.compuphase.com/software_termite.htm). You use this utility to monitor your device.
+1. Install [Termite](https://www.compuphase.com/software_termite.htm). You use this utility to monitor your device. You can use this utility, or another serial RS232 utility, to monitor your device.
 
 ## Prepare Azure resources
 
@@ -104,7 +103,8 @@ To create an IoT hub:
    az extension add --name azure-iot
    ```
 
-1. Run the [az group create](https://docs.microsoft.com/cli/azure/group?view=azure-cli-latest#az-group-create) command to create a resource group. The following command creates a resource group named *MyResourceGroup* in the *eastus* region. To see other available regions, you can run [az account list-locations](https://docs.microsoft.com/cli/azure/account?view=azure-cli-latest#az-account-list-locations).
+1. Run the [az group create](https://docs.microsoft.com/cli/azure/group?view=azure-cli-latest#az-group-create) command to create a resource group. The following command creates a resource group named *MyResourceGroup* in the *eastus* region.
+    > Note: Optionally, to set an alternate `location`, run [az account list-locations](https://docs.microsoft.com/cli/azure/account?view=azure-cli-latest#az-account-list-locations) to see available locations. Then specify the alternate location in the following command in place of *eastus*.
 
     ```azurecli
     az group create --name MyResourceGroup --location eastus
@@ -146,21 +146,21 @@ Confirm that you have the copied the following values from the JSON output to us
 
 ## Prepare the device
 
-To connect the Microchip XPro to Azure, you'll modify a configuration file for Azure IoT settings, rebuild the image, and flash the image to the device.
+To connect the Microchip E54 to Azure, you'll modify a configuration file for Azure IoT settings, rebuild the image, and flash the image to the device.
 
 ### Add configuration
 
 1. Open the following file in a text editor:
 
-    > *getting-started\Microchip\ATSAME54-XPRO\app\azure_config.c*
+    > *getting-started\Microchip\ATSAME54-XPRO\app\azure_config.h*
 
 1. Set the Azure IoT device information constants to the values that you saved after you created Azure resources.
 
     |Constant name|Value|
     |-------------|-----|
-    |`iot_hub_hostname` |{*Your Iot hub hostName value*}|
-    |`iot_device_id` |{*Your deviceID value*}|
-    |`iot_sas_key` |{*Your primaryKey value*}|
+    |`IOT_HUB_HOSTNAME` |{*Your Iot hub hostName value*}|
+    |`IOT_DEVICE_ID` |{*Your deviceID value*}|
+    |`IOT_PRIMARY_KEY` |{*Your primaryKey value*}|
 
 1. Save and close the file.
 
@@ -176,29 +176,31 @@ After the build completes, confirm that a binary file was created in the followi
 
 ### Flash the image
 
-1. On the Microchip XPro, locate the **Reset** button, the **Ethernet** port, and the Micro USB port which is labeled **Debug USB**. Each component is highlighted in the following picture:
+1. On the Microchip E54, locate the **Reset** button, the **Ethernet** port, and the Micro USB port which is labeled **Debug USB**. Each component is highlighted in the following picture:
 
-    ![Microchip XPro reset button and micro usb port](media/microchip-xpro-board.png)
+    ![Microchip E54 reset button and micro usb port](media/microchip-xpro-board.png)
 
-1. Connect the Micro USB cable to the **Debug USB** port on the Microchip XPro, and then connect it to your computer.
-    > Note: Optionally, for more details about setting up and getting started with the Microchip XPro, see [SAM E54 Xplained Pro User's Guide](http://ww1.microchip.com/downloads/en/DeviceDoc/70005321A.pdf).
-1. Open the **Windows Start > Atmel Studio 7.0 Command Prompt** console, and go to the folder of the Microchip XPro binary file that you built.
+1. Connect the Micro USB cable to the **Debug USB** port on the Microchip E54, and then connect it to your computer.
+    > Note: Optionally, for more details about setting up and getting started with the Microchip E54, see [SAM E54 Xplained Pro User's Guide](http://ww1.microchip.com/downloads/en/DeviceDoc/70005321A.pdf).
+1. Open the **Windows Start > Atmel Studio 7.0 Command Prompt** console, and go to the folder of the Microchip E54 binary file that you built.
 
     > *getting-started\Microchip\ATSAME54-XPRO\build\app\*
 
-1. Use the *atprogram* utility to flash the Microchip XPro with the binary image:
-    > Note: For more details about using the Atmel-ICE and *atprogram* tools with the Microchip XPro, see [Using Atmel-ICE for AVR Programming In Mass Production](http://ww1.microchip.com/downloads/en/AppNotes/00002466A.pdf).
+1. Use the *atprogram* utility to flash the Microchip E54 with the binary image:
+    > Note: For more details about using the Atmel-ICE and *atprogram* tools with the Microchip E54, see [Using Atmel-ICE for AVR Programming In Mass Production](http://ww1.microchip.com/downloads/en/AppNotes/00002466A.pdf).
 
     ```
     atprogram --tool edbg --interface SWD --device ATSAME54P20A program --chiperase --file atsame54_azure_iot.bin --verify
     ```
 
-The flashing process finishes quickly, and the console confirms that programming was successful:
+    After the flashing process completes, the console confirms that programming was successful:
 
-```
-Firmware check OK
-Programming and verification completed successfully.
-```
+    ```
+    Firmware check OK
+    Programming and verification completed successfully.
+    ```
+
+1. Use the Ethernet cable to connect the Microchip E54 to an Ethernet port.
 
 ### Confirm device connection details
 
@@ -209,7 +211,7 @@ You can use the **Termite** utility to monitor communication and confirm that yo
 1. Select **Settings**.
 1. In the **Serial port settings** dialog, check the following settings and update if needed:
     * **Baud rate**: 115,000
-    * **Port**: The port that your Microchip XPro is connected to. If there are multiple port options in the dropdown, you can find the correct port to use. Open Windows **Device Manager**, and view **Ports > EDBG  Virtual COM Port** to identify which port to use.
+    * **Port**: The port that your Microchip E54 is connected to. If there are multiple port options in the dropdown, you can find the correct port to use. Open Windows **Device Manager**, and view **Ports > EDBG  Virtual COM Port** to identify which port to use.
 1. Press the **Reset** button on the board.
 1. In the **Termite** console, check the following checkpoint values to confirm that the device is initialized and connected to Azure IoT. If a checkpoint value is missing or incorrect and you can't resolve the issue, see [Troubleshooting](#troubleshooting).
 
@@ -238,7 +240,7 @@ You can use Azure CLI to inspect the flow of telemetry from the device to Azure 
     az iot hub monitor-events --device-id MyMicrochipDevice --hub-name {YourIoTHubName}
     ```
 
-1. To force the Microchip XPro to reconnect and send telemetry, press **Reset**.
+1. To force the Microchip E54 to reconnect and send telemetry, press **Reset**.
 
     View the telemetry in the console's JSON output.
 
@@ -339,7 +341,7 @@ To delete a resource group by name:
 
 ## Next Steps
 
-In this tutorial you built a custom image that contains Azure RTOS sample code, and then flashed the image to the Microchip XPro device. You also used the Azure CLI to create Azure resources, connect the Microchip XPro securely to Azure, view telemetry, and send messages.
+In this tutorial you built a custom image that contains Azure RTOS sample code, and then flashed the image to the Microchip E54 device. You also used the Azure CLI to create Azure resources, connect the Microchip E54 securely to Azure, view telemetry, and send messages.
 
 * For device developers, the suggested next step is to see the other tutorials in the series [Getting started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824).
 * To learn more about how Azure RTOS components are used in the sample code for this tutorial, see [Using Azure RTOS in the Getting Started Guides](../../docs/using-azure-rtos.md).
