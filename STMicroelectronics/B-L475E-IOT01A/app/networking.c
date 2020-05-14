@@ -9,8 +9,6 @@
 
 #include "wifi.h"
 
-#include "networking_config.h"
-
 #define THREADX_PACKET_COUNT (20)
 #define THREADX_PACKET_SIZE  (1200) // Set the default value to 1200 since WIFI payload size (ES_WIFI_PAYLOAD_SIZE) is 1200
 #define THREADX_POOL_SIZE    ((THREADX_PACKET_SIZE + sizeof(NX_PACKET)) * THREADX_PACKET_COUNT)
@@ -24,7 +22,7 @@ NX_PACKET_POOL main_pool;
 NX_DNS dns_client;
 
 static void print_address(CHAR* preable, uint8_t address[4]);
-static bool wifi_init();
+static bool wifi_init(CHAR* ssid, CHAR* password, WiFi_Mode mode);
 static UINT dns_create();
 
 // Print IPv4 address
@@ -33,11 +31,12 @@ static void print_address(CHAR* preable, uint8_t address[4])
     printf("\t%s: %d.%d.%d.%d\r\n", preable, address[0], address[1], address[2], address[3]);
 }
 
-static bool wifi_init()
+static bool wifi_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
 {
     WIFI_Ecn_t security_mode;
+    char moduleinfo[ES_WIFI_MAX_SSID_NAME_SIZE];
 
-    switch (wifi_mode)
+    switch (mode)
     {
         case None:
             security_mode = WIFI_ECN_OPEN;
@@ -45,21 +44,20 @@ static bool wifi_init()
         case WEP:
             security_mode = WIFI_ECN_WEP;
             break;
-        case WPA_Personal:
+        case WPA2_Personal:
         default:
-            security_mode = WIFI_ECN_WPA2_PSK;
+        security_mode = WIFI_ECN_WPA2_PSK;
             break;
     };
 
     printf("Initializing WiFi\r\n");
 
-    if (wifi_ssid[0] == '\0')
+    if (ssid[0] == '\0')
     {
         printf("ERROR: wifi_ssid is empty\r\n");
         return false;
     }
 
-    printf("\tSSID is '%s'\r\n", wifi_ssid);
 
     if (WIFI_Init() != WIFI_STATUS_OK)
     {
@@ -67,22 +65,29 @@ static bool wifi_init()
         return false;
     }
 
+    WIFI_GetModuleID(moduleinfo);
+    printf("\tModule %s\r\n", moduleinfo);
+
+    WIFI_GetModuleFwRevision(moduleinfo);
+    printf("\tFW Revision%s\r\n", moduleinfo);
+    
     // Connect to the specified SSID
     int32_t wifiConnectCounter = 1;
-    while (WIFI_Connect(wifi_ssid, wifi_password, security_mode) != WIFI_STATUS_OK)
+    printf("\tConnecting to SSID '%s'\r\n", ssid);
+    while (WIFI_Connect(ssid, password, security_mode) != WIFI_STATUS_OK)
     {
-        printf("\tWiFi is not able connect to '%s', attempt = %ld\r\n", wifi_ssid, wifiConnectCounter++);
+        printf("\tWiFi is unable connect to '%s', attempt = %ld\r\n", ssid, wifiConnectCounter++);
         HAL_Delay(1000);
 
         // Max number of attempts
         if (wifiConnectCounter == WIFI_CONNECT_MAX_ATTEMPT_COUNT)
         {
-            printf("ERROR: WiFi is not able to connected to the '%s'\r\n", wifi_ssid);
+            printf("ERROR: WiFi is unable to connected to the '%s'\r\n", ssid);
             return false;
         }
     }
 
-    printf("SUCCESS: WiFi connected to %s\r\n\r\n", wifi_ssid);
+    printf("SUCCESS: WiFi connected to %s\r\n\r\n", ssid);
 
     printf("Initializing DHCP\r\n");
 
@@ -157,12 +162,12 @@ static UINT dns_create()
     return NX_SUCCESS;
 }
 
-int stm32_network_init(void)
+int stm32_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
 {
     UINT status;
 
     // Intialize Wifi
-    if (!wifi_init())
+    if (!wifi_init(ssid, password, mode))
     {
         return NX_NOT_SUCCESSFUL;
     }
@@ -217,16 +222,4 @@ int stm32_network_init(void)
     }
 
     return NX_SUCCESS;
-}
-
-static ULONG tx_last_ticks = 0;
-unsigned long sntp_get_time(void)
-{
-    // Calculate how many seconds have elapsed since the last sync
-    ULONG tx_time_delta = (tx_time_get() - tx_last_ticks) / TX_TIMER_TICKS_PER_SECOND;
-
-    // Add this to the last sync time to get the current time
-    ULONG current_time = 1609459200 + tx_time_delta;
-
-    return current_time;
 }
