@@ -152,22 +152,27 @@ void sntp_thread_entry(ULONG info)
     {
         // Wait for an incoming SNTP message
         tx_event_flags_get(&sntp_flags, SNTP_UPDATE_EVENT, TX_OR_CLEAR, &events, 5 * NX_IP_PERIODIC_RATE);
-
+        
         status = nx_sntp_client_receiving_updates(&sntp_client, &server_status);
         if (status != NX_SUCCESS)
         {
             printf("FAIL: SNTP receiving updates call failed (0x%02x)\r\n", status);
+            continue;
         }
-        else if (server_status != NX_TRUE)
+        
+        if (server_status == NX_FALSE)
         {
             // Failed to read from server, restart the client
             nx_sntp_client_stop(&sntp_client);
             sntp_client_run();
+            continue;
         }
-        else
+        
+        if (events == SNTP_UPDATE_EVENT)
         {
             // New time, update our local time
             set_sntp_time();
+            events = 0;
         }
     }
     
