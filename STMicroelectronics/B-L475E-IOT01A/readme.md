@@ -64,7 +64,7 @@ To install the remaining tools:
 
     >Note: If the download won't start after you log in or provide an email address to get a download link, accept cookies for the website and temporarily disable your browser's ad blocker or privacy extension.
 
-1. Install [Termite](https://www.compuphase.com/software_termite.htm). You use this utility to monitor your device.
+1. Install [Termite](https://www.compuphase.com/software_termite.htm). You can use this utility, or another serial RS232 utility, to monitor your device.
 
 ## Prepare Azure resources
 
@@ -97,7 +97,8 @@ To create an IoT hub:
    az extension add --name azure-iot
    ```
 
-1. Run the [az group create](https://docs.microsoft.com/cli/azure/group?view=azure-cli-latest#az-group-create) command to create a resource group. The following command creates a resource group named *MyResourceGroup* in the *eastus* region. To see other available regions, you can run [az account list-locations](https://docs.microsoft.com/cli/azure/account?view=azure-cli-latest#az-account-list-locations).
+1. Run the [az group create](https://docs.microsoft.com/cli/azure/group?view=azure-cli-latest#az-group-create) command to create a resource group. The following command creates a resource group named *MyResourceGroup* in the *eastus* region.
+    > Note: Optionally, to set an alternate `location`, run [az account list-locations](https://docs.microsoft.com/cli/azure/account?view=azure-cli-latest#az-account-list-locations) to see available locations. Then specify the alternate location in the following command in place of *eastus*.
 
     ```azurecli
     az group create --name MyResourceGroup --location eastus
@@ -143,21 +144,21 @@ To connect the STM DevKit to Azure, you'll modify a configuration file for Wi-Fi
 
 ### Add configuration
 
-1. In a text editor, edit the file *getting-started\STMicroelectronics\B-L475E-IOT01A\app\azure_config.c* to set the Wi-Fi constants to the following values from your local environment.
+1. In a text editor, edit the file *getting-started\STMicroelectronics\B-L475E-IOT01A\app\azure_config.h* to set the Wi-Fi constants to the following values from your local environment.
 
     |Constant name|Value|
     |-------------|-----|
-    |`wifi_ssid` |{*Your Wi-Fi ssid*}|
-    |`wifi_password` |{*Your Wi-Fi password*}|
-    |`wifi_mode` |{*One of the enumerated Wi-Fi mode values in the file*}|
+    |`WIFI_SSID` |{*Your Wi-Fi ssid*}|
+    |`WIFI_PASSWORD` |{*Your Wi-Fi password*}|
+    |`WIFI_MODE` |{*One of the enumerated Wi-Fi mode values in the file*}|
 
 1. Edit the same file to set the Azure IoT device information constants to the values that you saved after you created Azure resources.
 
     |Constant name|Value|
     |-------------|-----|
-    |`iot_hub_hostname` |{*Your Iot hub hostName value*}|
-    |`iot_device_id` |{*Your deviceID value*}|
-    |`iot_sas_key` |{*Your primaryKey value*}|
+    |`IOT_HUB_HOSTNAME` |{*Your Iot hub hostName value*}|
+    |`IOT_DEVICE_ID` |{*Your deviceID value*}|
+    |`IOT_PRIMARY_KEY` |{*Your primaryKey value*}|
 
 ### Build the image
 
