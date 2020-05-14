@@ -77,7 +77,7 @@ If you prefer to run Azure CLI in the browser-based Azure Cloud Shell:
     > Note: If this is the first time you've used the Cloud Shell, it prompts you to create storage, which is required to use the Cloud Shell.  Select a subscription to create a storage account and Microsoft Azure Files share.
 1. Select Bash or Powershell as your preferred CLI environment in the **Select environment** dropdown. If you plan to use Azure Cloud Shell, keep your browser open to run the Azure CLI commands in this tutorial.
 
-    ![Select CLI environment](images/cloud-shell-environment.png)
+    ![Select CLI environment](media/cloud-shell-environment.png)
 
 ### Create an IoT hub
 
@@ -164,7 +164,7 @@ After the build completes, confirm that a binary file was created in the followi
 
 1. On the NXP EVK, locate the **Reset** button, the Micro USB port, and the Ethernet port. You use these components in the following steps.
 
-    ![NXP EVK board](images/nxp-evk-board.png)
+    ![NXP EVK board](media/nxp-evk-board.png)
 
 1. Connect the Micro USB cable to the Micro USB port on the NXP EVK, and then connect it to your computer. After the board powers up, a solid green LED shows the power status.
 1. In File Explorer, find the NXP EVK device connected to your computer.
@@ -194,7 +194,7 @@ You can use the **Termite** utility to monitor communication and confirm that yo
 
 The Termite console shows the details about the board, your connection, and the checkpoint values.
 
-![Termite output with connection checkpoints](images/termite-output-checkpoints.png)
+![Termite output with connection checkpoints](media/termite-output-checkpoints.png)
 
 Keep Termite open to monitor device output in the following steps.
 
@@ -286,7 +286,7 @@ To call a direct method on your device:
 
 1. View the Termite console to see the JSON payload output:
 
-    ![Termite output for direct methods](images/termite-output-direct-method.png)
+    ![Termite output for direct methods](media/termite-output-direct-method.png)
 
 ## Clean up resources
 
