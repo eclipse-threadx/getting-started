@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "stm32l475e_iot01.h"
+#include "stm32l475e_iot01_tsensor.h"
 
 #include "azure/azure_mqtt.h"
 
@@ -95,11 +96,12 @@ void mqtt_thread_entry(ULONG info)
 {
     printf("Starting MQTT thread\r\n");
 
-    float temperature = 25.0;
+    float temperature;
 
     while (true)
     {
-
+        temperature = BSP_TSENSOR_ReadTemp();
+        
         // Send the compensated temperature as a telemetry event
         azure_mqtt_publish_float_property("temperature", temperature);
 
@@ -107,7 +109,7 @@ void mqtt_thread_entry(ULONG info)
         azure_mqtt_publish_float_telemetry("temperature", temperature);
 
         // Sleep for 1 minute
-        tx_thread_sleep(10 * TX_TIMER_TICKS_PER_SECOND);
+        tx_thread_sleep(60 * TX_TIMER_TICKS_PER_SECOND);
     }
 }
 

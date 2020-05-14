@@ -22,7 +22,7 @@ void azure_thread_entry(ULONG parameter);
 void azure_thread_entry(ULONG parameter)
 {
     // Initialize the network
-    if (stm32_network_init() != NX_SUCCESS)
+    if (stm32_network_init(WIFI_SSID, WIFI_PASSWORD, WIFI_MODE) != NX_SUCCESS)
     {
         printf("Failed to initialize the network\r\n");
         return;
@@ -53,7 +53,7 @@ void azure_thread_entry(ULONG parameter)
     {
         time_t current = time(NULL);
         printf("Time %ld\r\n", (long)current);
-        tx_thread_sleep(60 * TX_TIMER_TICKS_PER_SECOND);
+        tx_thread_sleep(600 * TX_TIMER_TICKS_PER_SECOND);
     }
 }
 
