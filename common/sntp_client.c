@@ -16,8 +16,6 @@
 #define SNTP_UPDATE_EVENT       1
 #define SNTP_NEW_TIME           2
 
-#define SNTP_INITIAL_RETRIES    50
-
 // Seconds between Unix Epoch (1/1/1970) and NTP Epoch (1/1/1999)
 #define UNIX_TO_NTP_EPOCH_SECS  0x83AA7E80
 
