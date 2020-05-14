@@ -21,6 +21,9 @@ set gccarm_file=gcc-arm-none-eabi-9-2019-q4-major-win32-sha2.exe
 set ninja_path=https://github.com/ninja-build/ninja/releases/download/v1.10.0/
 set ninja_file=ninja-win.zip
 
+set teraterm_path=https://mirrors.gigenet.com/OSDN//ttssh2/72009/
+set teraterm_file=teraterm-4.105.exe
+
 echo Downloading CMake...
 powershell (New-Object Net.WebClient).DownloadFile('%cmake_path%%cmake_file%', '%TEMP%\%cmake_file%')
 
@@ -29,6 +32,9 @@ powershell (New-Object Net.WebClient).DownloadFile('%gccarm_path%%gccarm_file%',
 
 echo Downloading Ninja...
 powershell (New-Object Net.WebClient).DownloadFile('%ninja_path%%ninja_file%', '%TEMP%\%ninja_file%')
+
+echo Downloading Tera Term...
+powershell (New-Object Net.WebClient).DownloadFile('%teraterm_path%%teraterm_file%', '%TEMP%\%teraterm_file%')
 
 echo.
 
@@ -42,6 +48,9 @@ echo Installing Ninja...
 if not exist "%ProgramFiles(x86)%\ninja" mkdir "%ProgramFiles(x86)%\ninja"
 "%~dp0\pathman.exe" /as "%ProgramFiles(x86)%\ninja"
 powershell Expand-Archive -Force -Path '%TEMP%\%ninja_file%' -DestinationPath '%ProgramFiles(x86)%\ninja'
+
+echo Installing Tera Term...
+"%TEMP%\%teraterm_file%" /SILENT
 
 echo.
 echo Installation complete! Successfully installed CMake, GCC-ARM and Ninja
