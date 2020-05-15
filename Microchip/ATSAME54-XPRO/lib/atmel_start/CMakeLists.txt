@@ -48,9 +48,6 @@ target_sources(${TARGET}
 target_compile_definitions(${TARGET}
     INTERFACE 
         __SAME54P20A__
-        # If the BME280 sensor is available
-        # uncomment the line below to get real temperature readings
-        __SENSOR_BME280__
 )
 
 target_include_directories(${TARGET}
