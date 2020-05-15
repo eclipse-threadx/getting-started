@@ -1,6 +1,6 @@
 <h1>Getting started with the NXP MIMXRT1060-EVK: i.MX RT1060 Evaluation kit</h1>
 
-**Total completion time**:  45 minutes
+**Total completion time**:  30 minutes
 
 In this tutorial you use Azure RTOS to connect the NXP MIMXRT1060-EVK: i.MX RT1060 Evaluation kit (hereafter, the NXP EVK) to Azure IoT.  The article is part of the series [Getting Started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824). The series introduces device developers to Azure RTOS, and shows how to connect several several device evaluation kits to Azure IoT.
 
