@@ -54,57 +54,46 @@ SYSTICK_CYCLES    =   ((SYSTEM_CLOCK / 100) -1)
     .text 32
     .align 4
     .syntax unified
-@/**************************************************************************/ 
-@/*                                                                        */ 
-@/*  FUNCTION                                               RELEASE        */ 
-@/*                                                                        */ 
-@/*    _tx_initialize_low_level                          Cortex-M4/GNU     */ 
-@/*                                                           5.4          */ 
-@/*  AUTHOR                                                                */ 
-@/*                                                                        */ 
-@/*    William E. Lamie, Express Logic, Inc.                               */ 
-@/*                                                                        */ 
-@/*  DESCRIPTION                                                           */ 
-@/*                                                                        */ 
-@/*    This function is responsible for any low-level processor            */ 
-@/*    initialization, including setting up interrupt vectors, setting     */ 
-@/*    up a periodic timer interrupt source, saving the system stack       */ 
-@/*    pointer for use in ISR processing later, and finding the first      */ 
-@/*    available RAM memory address for tx_application_define.             */ 
-@/*                                                                        */ 
-@/*  INPUT                                                                 */ 
-@/*                                                                        */ 
-@/*    None                                                                */ 
-@/*                                                                        */ 
-@/*  OUTPUT                                                                */ 
-@/*                                                                        */ 
-@/*    None                                                                */ 
-@/*                                                                        */ 
-@/*  CALLS                                                                 */ 
-@/*                                                                        */ 
-@/*    None                                                                */ 
-@/*                                                                        */ 
-@/*  CALLED BY                                                             */ 
-@/*                                                                        */ 
-@/*    _tx_initialize_kernel_enter           ThreadX entry function        */ 
-@/*                                                                        */ 
-@/*  RELEASE HISTORY                                                       */ 
-@/*                                                                        */ 
-@/*    DATE              NAME                      DESCRIPTION             */ 
-@/*                                                                        */ 
-@/*  03-11-2012     William E. Lamie         Initial Version 5.0           */
-@/*  04-15-2012     William E. Lamie         Modified comment(s), and      */
-@/*                                            added FPU support,          */
-@/*                                            resulting in version 5.1    */
-@/*  01-01-2014     William E. Lamie         Modified comment(s),          */
-@/*                                            resulting in version 5.2    */
-@/*  04-01-2018     William E. Lamie         Modified comment(s), and      */ 
-@/*                                            removed context save/restore*/ 
-@/*                                            calls from ISRs, resulting  */ 
-@/*                                            in version 5.3              */ 
-@/*  09-01-2018     William E. Lamie         Modified comment(s),          */ 
-@/*                                            resulting in version 5.4    */ 
-@/*                                                                        */ 
+@/**************************************************************************/
+@/*                                                                        */
+@/*  FUNCTION                                               RELEASE        */
+@/*                                                                        */
+@/*    _tx_initialize_low_level                          Cortex-M4/GNU     */
+@/*                                                           6.0          */
+@/*  AUTHOR                                                                */
+@/*                                                                        */
+@/*    William E. Lamie, Microsoft Corporation                             */
+@/*                                                                        */
+@/*  DESCRIPTION                                                           */
+@/*                                                                        */
+@/*    This function is responsible for any low-level processor            */
+@/*    initialization, including setting up interrupt vectors, setting     */
+@/*    up a periodic timer interrupt source, saving the system stack       */
+@/*    pointer for use in ISR processing later, and finding the first      */
+@/*    available RAM memory address for tx_application_define.             */
+@/*                                                                        */
+@/*  INPUT                                                                 */
+@/*                                                                        */
+@/*    None                                                                */
+@/*                                                                        */
+@/*  OUTPUT                                                                */
+@/*                                                                        */
+@/*    None                                                                */
+@/*                                                                        */
+@/*  CALLS                                                                 */
+@/*                                                                        */
+@/*    None                                                                */
+@/*                                                                        */
+@/*  CALLED BY                                                             */
+@/*                                                                        */
+@/*    _tx_initialize_kernel_enter           ThreadX entry function        */
+@/*                                                                        */
+@/*  RELEASE HISTORY                                                       */
+@/*                                                                        */
+@/*    DATE              NAME                      DESCRIPTION             */
+@/*                                                                        */
+@/*  05-19-2020     William E. Lamie         Initial Version 6.0           */
+@/*                                                                        */
 @/**************************************************************************/
 @VOID   _tx_initialize_low_level(VOID)
 @{

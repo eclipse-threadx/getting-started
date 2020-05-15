@@ -37,7 +37,7 @@
 /*  DESCRIPTION                                                           */
 /*                                                                        */
 /*    This function is the common crypto method initialization routine    */
-/*    for the Express Logic implementation of the HKDF cryptographic      */
+/*    for the Microsoft implementation of the HKDF cryptographic          */
 /*    algorithm.                                                          */
 /*                                                                        */
 /*  INPUT                                                                 */

@@ -38,7 +38,7 @@
 /*  DESCRIPTION                                                           */
 /*                                                                        */
 /*    This function is the common crypto method init callback for         */
-/*    Express Logic supported HMAC SHA1 cryptograhic algorithm.           */
+/*    Microsoft supported HMAC SHA1 cryptograhic algorithm.               */
 /*                                                                        */
 /*  INPUT                                                                 */
 /*                                                                        */

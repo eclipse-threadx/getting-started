@@ -290,6 +290,7 @@ Using Azure CLI, you can inspect the properties on your Azure resources, includi
 ## Call a direct method on the device
 
 You can use the Azure CLI to call a direct method that you have implemented on your device. Direct methods have a name, and can optionally have a JSON payload, configurable connection, and method timeout. In this section, you call a method that enables you to turn an LED on or off.
+    > Note: The direct method in this section is not implemented on the NXP EVK. The following method call returns simulated output in the terminal, but no LED on the board will be enabled.
 
 To call a method to turn the LED on:
 
@@ -309,7 +310,6 @@ To call a method to turn the LED on:
     }
     ```
 
-1. Check your device to confirm the LED state.
 1. View the Termite terminal to confirm the output messages:
 
     ```json

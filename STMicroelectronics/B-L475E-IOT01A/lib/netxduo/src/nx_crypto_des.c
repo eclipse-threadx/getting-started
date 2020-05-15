@@ -564,7 +564,7 @@ UINT   round;
 /*  DESCRIPTION                                                           */
 /*                                                                        */
 /*    This function is the common crypto method init callback for         */
-/*    Express Logic supported 3DES cryptograhic algorithm.                */
+/*    Microsoft supported 3DES cryptograhic algorithm.                    */
 /*                                                                        */
 /*  INPUT                                                                 */
 /*                                                                        */
