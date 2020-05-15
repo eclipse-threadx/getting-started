@@ -53,7 +53,7 @@ echo Installing Termite...
 "%TEMP%\%termite_file%" /S
 
 echo.
-echo Installation complete! Successfully installed CMake, GCC-ARM and Ninja
+echo Installation complete! Successfully installed CMake, GCC-ARM, Ninja and Termite.
 echo.
 
 :finish
