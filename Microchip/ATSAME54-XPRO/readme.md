@@ -1,6 +1,6 @@
 <h1>Getting started with the Microchip ATSAME54-XPro evaluation kit</h1>
 
-**Total completion time**:  45 minutes
+**Total completion time**: 35 minutes
 
 In this tutorial you use Azure RTOS to connect the Microchip ATSAME54-XPro (hereafter, the Microchip E54) to Azure IoT.  The article is part of the series [Getting Started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824). The series introduces device developers to Azure RTOS, and shows how to connect several device evaluation kits to Azure IoT.
 
@@ -21,6 +21,7 @@ You will complete the following tasks:
     > * The [Microchip ATSAME54-XPro](https://www.microchip.com/developmenttools/productdetails/atsame54-xpro) (Microchip E54)
     > * USB 2.0 A male to Micro USB male cable
     > * Wired Ethernet access
+    > * Ethernet cable
     > * Optional: [Weather Click](https://www.mikroe.com/weather-click) sensor. You can add this sensor to the device to monitor weather conditions. If you don't have this sensor, you can still complete this tutorial.
     > * Optional: [mikroBUS Xplained Pro](https://www.microchip.com/Developmenttools/ProductDetails/ATMBUSADAPTER-XPRO) adapter. Use this adapter to attach the Weather Click sensor to the Microchip E54. If you don't have the sensor and this adapter, you can still complete this tutorial.
 
@@ -40,13 +41,13 @@ git clone https://github.com/azure-rtos/getting-started
 
 ### Install the tools
 
-The cloned repo contains a setup script that installs and configures the first set of required tools. After you run the setup script, you can install the remaining tools manually. If you installed any of these tools in another tutorial in this series, you don't need to do it again.
+The cloned repo contains a setup script that installs and configures the first set of required tools. After you run the setup script, you can install the remaining tools manually. If you installed these tools in another tutorial in the getting started guide, you don't need to do it again.
 
 > Note: The setup script installs the following tools:
 > * [GCC](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm): Compile
 > * [CMake](https://cmake.org): Build
 > * [Ninja](https://ninja-build.org): Build
-> * [Tera Term](https://mirrors.gigenet.com/OSDN//ttssh2/72009/teraterm-4.105.exe): Monitor
+> * [Termite](https://www.compuphase.com/software_termite.htm): Monitor
 
 To run the setup script:
 
@@ -61,7 +62,7 @@ To run the setup script:
     cmake --version
     ```
 
-To install the remaining tools:
+To install the remaining tool:
 
 1. Install [Atmel Studio 7](https://www.microchip.com/mplab/avr-support/atmel-studio-7). Atmel Studio is a device development environment that includes the tools to program and flash program the Microchip E54. For this tutorial, you use Atmel Studio only to flash the Microchip E54. The installation takes several minutes, and prompts you several times to approve installation of components.
 
@@ -157,6 +158,17 @@ To connect the Microchip E54 to Azure, you'll modify a configuration file for Az
 
 1. Save and close the file.
 
+### Connect the device
+
+1. On the Microchip E54, locate the **Reset** button, the **Ethernet** port, and the Micro USB port which is labeled **Debug USB**. Each component is highlighted in the following picture:
+
+    ![Microchip E54 reset button and micro usb port](media/microchip-xpro-board.png)
+
+1. Connect the Micro USB cable to the **Debug USB** port on the Microchip E54, and then connect it to your computer.
+    > Note: Optionally, for more details about setting up and getting started with the Microchip E54, see [SAM E54 Xplained Pro User's Guide](http://ww1.microchip.com/downloads/en/DeviceDoc/70005321A.pdf).
+
+1. Use the Ethernet cable to connect the Microchip E54 to an Ethernet port.
+
 ### Optional: Install a weather sensor
 
 If you have the Weather Click sensor and the mikroBUS Xplained Pro adapter, follow the steps in this section.  If you don't have them, skip to [Build the image](#build-the-image). You can complete this tutorial even if you don't have a sensor. The sample code for the device returns simulated data if a real sensor is not present.
@@ -165,7 +177,7 @@ If you have the Weather Click sensor and the mikroBUS Xplained Pro adapter, foll
 
     ![Microchip E54 with Weather click sensor](media/sam-e54-sensor.png)
 
-1. Reopen the configuration file you edited in the previous step:
+1. Reopen the configuration file you edited previously:
 
     > *getting-started\Microchip\ATSAME54-XPRO\app\azure_config.h*
 
@@ -187,15 +199,6 @@ After the build completes, confirm that a binary file was created in the followi
 
 ### Flash the image
 
-1. On the Microchip E54, locate the **Reset** button, the **Ethernet** port, and the Micro USB port which is labeled **Debug USB**. Each component is highlighted in the following picture:
-
-    ![Microchip E54 reset button and micro usb port](media/microchip-xpro-board.png)
-
-1. Connect the Micro USB cable to the **Debug USB** port on the Microchip E54, and then connect it to your computer.
-    > Note: Optionally, for more details about setting up and getting started with the Microchip E54, see [SAM E54 Xplained Pro User's Guide](http://ww1.microchip.com/downloads/en/DeviceDoc/70005321A.pdf).
-
-1. Use the Ethernet cable to connect the Microchip E54 to an Ethernet port.
-
 1. Open the **Windows Start > Atmel Studio 7.0 Command Prompt** console, and go to the folder of the Microchip E54 binary file that you built.
 
     > *getting-started\Microchip\ATSAME54-XPRO\build\app*
@@ -216,52 +219,54 @@ After the build completes, confirm that a binary file was created in the followi
 
 ### Confirm device connection details
 
-You can use the **Tera Term** utility to monitor communication and confirm that your device is set up correctly.
+You can use the **Termite** utility to monitor communication and confirm that your device is set up correctly.
 > Note: If you have issues getting your device to initialize or connect after flashing, see [Troubleshooting](../../docs/troubleshooting.md).
 
-1. Start **Tera Term**.
-1. In the **New Connection** dialog, select **Serial**.
-1. In the **Port** dropdown, select the port for your device. If there are multiple options, you can find the correct port to use. Open Windows **Device Manager**, and view **Ports** to identify the port for your device.
+1. Start **Termite**.
+1. Select **Settings**.
+1. In the **Serial port settings** dialog, check the following settings and update if needed:
+    * **Baud rate**: 115,000
+    * **Port**: The port that your STM DevKit is connected to. If there are multiple port options in the dropdown, you can find the correct port to use. Open Windows **Device Manager**, and view **Ports** to identify which port to use.
+    * **Flow control**: DTR/DSR
+
+    ![Termite settings](media/termite-settings.png)
 1. Select OK.
-1. Select **Setup > Serial port**.
-1. Set **Speed** to *115,200*.
-1. Select **New setting**.
-1. On the device, press the **Reset** button.
-1. In the **Tera Term** terminal, view the following checkpoint values to confirm that the device is initialized and connected to Azure IoT.
+1. Press the **Reset** button on the device. The button is black and is labeled on the device.
+1. In the **Termite** console, check the following checkpoint values to confirm that the device is initialized and connected to Azure IoT.
 
     |Checkpoint name|Output value|
     |---------------|-----|
-    |DHCP |DHCP initialized|
-    |DNS |DNS client initialized|
-    |SNTP |SNTP initialized|
-    |MQTT client |MQTT thread initialized|
+    |DHCP |SUCCESS: DHCP initialized|
+    |DNS |SUCCESS: DNS client initialized|
+    |SNTP |SUCCESS: SNTP initialized|
+    |MQTT |SUCCESS: MQTT client initialized|
 
-The terminal shows the details about the device, your connection, and the checkpoint values.
+    The Termite terminal shows the details about the device, your connection, and the checkpoint values.
 
-```
-Starting Azure thread
-Initializing DHCP
-        IP address: 192.168.1.132
-        Mask: 255.255.255.0
-        Gateway: 192.168.1.1
-SUCCESS: DHCP initialized
-
-Initializing DNS client
-        DNS address: 192.168.1.1
-SUCCESS: DNS client initialized
-
-Initializing SNTP client
-SNTP time update: May 14, 2020 23:22:29.17 UTC
-SUCCESS: SNTP initialized
-
-Initializing MQTT client
-SUCCESS: MQTT client initialized
-
-Time 1589498551
-Starting MQTT thread
-Sending telemetry
-Sending message {"temperature(c)": 23.50}
-```
+    ```
+    Starting Azure thread
+    Initializing DHCP
+    	IP address: 192.168.1.132
+    	Mask: 255.255.255.0
+    	Gateway: 192.168.1.1
+    SUCCESS: DHCP initialized
+    
+    Initializing DNS client
+    	DNS address: 192.168.1.1
+    SUCCESS: DNS client initialized
+    
+    Initializing SNTP client
+    SNTP time update: May 15, 2020 15:43:42.951 UTC 
+    SUCCESS: SNTP initialized
+    
+    Initializing MQTT client
+    SUCCESS: MQTT client initialized
+    
+    Time 1589557423
+    Starting MQTT thread
+    Sending telemetry
+    Sending message {"temperature(c)": 23.50}
+    ```
 
 Keep the terminal open to monitor device output in the following steps.
 

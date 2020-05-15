@@ -195,10 +195,10 @@ You can use the **Termite** utility to monitor communication and confirm that yo
 1. Select **Settings**.
 1. In the **Serial port settings** dialog, check the following settings and update if needed:
     * **Baud rate**: 115,000
-    * **Port**: The port that your STM DevKit is connected to. If there are multiple port options in the dropdown, you can find the correct port to use. Open Windows **Device Manager**, and view **Ports > STMicroelectronics STLink Virtual COM Port** to identify which port to use.
+    * **Port**: The port that your STM DevKit is connected to. If there are multiple port options in the dropdown, you can find the correct port to use. Open Windows **Device Manager**, and view **Ports** to identify which port to use.
 
     ![Termite settings](media/termite-settings.png)
-
+1. Select OK.
 1. Press the **Reset** button on the device. The button is black and is labeled on the device.
 1. In the **Termite** console, check the following checkpoint values to confirm that the device is initialized and connected to Azure IoT.
 
