@@ -160,7 +160,7 @@ In your console or in File Explorer, run the script *rebuild.bat* at the followi
 
 After the build completes, confirm that a binary file was created in the following path:
 
-> *getting-started\NXP\MIMXRT1060-EVK\build\app\mimxrt1060_azure_iot_flash.bin*
+> *getting-started\NXP\MIMXRT1060-EVK\build\app\mimxrt1060_azure_iot.bin*
 
 ### Flash the image
 
@@ -170,7 +170,7 @@ After the build completes, confirm that a binary file was created in the followi
 
 1. Connect the Micro USB cable to the Micro USB port on the NXP EVK, and then connect it to your computer. After the device powers up, a solid green LED shows the power status.
 1. In File Explorer, find the NXP EVK device connected to your computer.
-1. Copy the image file *mimxrt1060_azure_iot_flash.bin* that you created in the previous section, and paste it into the root folder of the NXP EVK. The flashing process starts automatically.
+1. Copy the image file *mimxrt1060_azure_iot.bin* that you created in the previous section, and paste it into the root folder of the NXP EVK. The flashing process starts automatically.
 
     > Note: During the flashing process, a red LED blinks rapidly on the NXP EVK. The process completes in a few seconds without further notification.
 1. Use the Ethernet cable to connect the NXP EVK to an Ethernet port.
