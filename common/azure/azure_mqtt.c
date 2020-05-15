@@ -365,7 +365,7 @@ static UINT mqtt_open(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas
     NXD_ADDRESS server_ip;
     UINT status;
 
-    if (iot_hub_hostname[0] == NULL || iot_device_id[0] == NULL || iot_sas_key[0] == NULL)
+    if (iot_hub_hostname[0] == 0 || iot_device_id[0] == 0 || iot_sas_key[0] == 0)
     {
         printf("ERROR: IoT Hub connection configuration is empty, please review\r\n");
         return 1;
