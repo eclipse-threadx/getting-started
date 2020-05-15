@@ -1,13 +1,13 @@
-<h1>Getting started with the STMicroelectronics B-L475E-IOT01</h1>
+<h1>Getting started with the STMicroelectronics B-L475E-IOT01 Discovery kit</h1>
 
-**Total completion time**:  45 minutes
+**Total completion time**:  30 minutes
 
-In this tutorial you use Azure RTOS to connect the STMicroelectronics B-L475E-IOT01 (hereafter, the STM  DevKit) to Azure IoT.  The article is part of the series [Getting started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824). The series introduces device developers to Azure RTOS, and shows how to connect several micro-controller units (MCU) to Azure IoT.
+In this tutorial you use Azure RTOS to connect the STMicroelectronics B-L475E-IOT01 Discovery kit (hereafter, the STM  DevKit) to Azure IoT. The article is part of the series [Getting started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824). The series introduces device developers to Azure RTOS, and shows how to connect several device evaluation kits to Azure IoT.
 
 You will complete the following tasks:
 
 * Install a set of embedded development tools for programming the STM DevKit in C
-* Build an image and flash it onto the STM MCU
+* Build an image and flash it onto the STM DevKit
 * Create an Azure IoT hub and securely connect the STM DevKit to it
 * Use Azure CLI to view device telemetry, view properties, and invoke cloud-to-device methods
 
@@ -44,6 +44,7 @@ The cloned repo contains a setup script that installs and configures the first s
 > * [GCC](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm): Compile
 > * [CMake](https://cmake.org): Build
 > * [Ninja](https://ninja-build.org): Build
+> * [Termite](https://www.compuphase.com/software_termite.htm): Monitor
 
 To run the setup script:
 
@@ -58,13 +59,11 @@ To run the setup script:
     cmake --version
     ```
 
-To install the remaining tools:
+To install the remaining tool:
 
 1. Download and install [ST-LINK](https://www.st.com/en/development-tools/stsw-link004.html). You use this utility to flash the device.
 
     >Note: If the download won't start after you log in or provide an email address to get a download link, accept cookies for the website and temporarily disable your browser's ad blocker or privacy extension.
-
-1. Install [Termite](https://www.compuphase.com/software_termite.htm). You can use this utility, or another serial RS232 utility, to monitor your device.
 
 ## Prepare Azure resources
 
@@ -174,7 +173,7 @@ After the build completes, confirm that a binary file was created in the followi
 
 1. On the STM DevKit MCU, locate the **Reset** button, and the Micro USB port which is labeled **USB STLink**. You use these components in the following steps. Both are highlighted in the following picture:
 
-    ![STM DevKit board reset button and micro usb port](media/stm-devkit-board.png)
+    ![STM DevKit device reset button and micro usb port](media/stm-devkit-board.png)
 
 1. Connect the Micro USB cable to the Micro USB port on the STM DevKit, and then connect it to your computer.
     > Note: For detailed setup information about the STM DevKit, see the instructions on the packaging, or see [Tools and Resources](https://www.st.com/content/st_com/en/products/evaluation-tools/product-evaluation-tools/mcu-mpu-eval-tools/stm32-mcu-mpu-eval-tools/stm32-discovery-kits/b-l475e-iot01a.html#resource).
@@ -196,9 +195,12 @@ You can use the **Termite** utility to monitor communication and confirm that yo
 1. Select **Settings**.
 1. In the **Serial port settings** dialog, check the following settings and update if needed:
     * **Baud rate**: 115,000
-    * **Port**: The port that your STM DevKit is connected to. If there are multiple port options in the dropdown, you can find the correct port to use. Open Windows **Device Manager**, and view **Ports > STMicroelectronics STLink Virtual COM Port** to identify which port to use.
-1. Press the **Reset** button on the board. The button is black and is labeled on the board.
-1. In the **Termite** console, check the following checkpoint values to confirm that the device is initialized and connected to Azure IoT. If a checkpoint value is missing or incorrect and you can't resolve the issue, see [Troubleshooting](#troubleshooting).
+    * **Port**: The port that your STM DevKit is connected to. If there are multiple port options in the dropdown, you can find the correct port to use. Open Windows **Device Manager**, and view **Ports** to identify which port to use.
+
+    ![Termite settings](media/termite-settings.png)
+1. Select OK.
+1. Press the **Reset** button on the device. The button is black and is labeled on the device.
+1. In the **Termite** console, check the following checkpoint values to confirm that the device is initialized and connected to Azure IoT.
 
     |Checkpoint name|Output value|
     |---------------|-----|
@@ -207,9 +209,30 @@ You can use the **Termite** utility to monitor communication and confirm that yo
     |SNTP |SUCCESS: SNTP initialized|
     |MQTT |SUCCESS: MQTT client initialized|
 
-The Termite console shows the details about the board, your connection, and the checkpoint values.
+    The Termite console shows the details about the device, your connection, and the checkpoint values.
 
-![Termite output with connection checkpoints](media/termite-output-checkpoints.png)
+    ```
+    Initializing DHCP
+    	IP address: 192.168.1.131
+    	Gateway: 192.168.1.1
+    SUCCESS: DHCP initialized
+    
+    Initializing DNS client
+    	DNS address: 192.168.1.1
+    SUCCESS: DNS client initialized
+    
+    Initializing SNTP client
+    SNTP time update: May 15, 2020 14:43:16.228 UTC 
+    SUCCESS: SNTP initialized
+    
+    Initializing MQTT client
+    SUCCESS: MQTT client initialized
+    
+    Time 1589553799
+    Starting MQTT thread
+    Sending device twin update with float value
+    Sending message {"temperature": 29.97}
+    ```
 
 Keep Termite open to monitor device output in the following steps.
 
@@ -272,36 +295,38 @@ Using Azure CLI, you can inspect the properties on your Azure resources, includi
 
 ## Call a direct method on the device
 
-You can use the Azure CLI to call a direct method on your board from a console. Direct methods have a name, and can optionally have a JSON payload, configurable connection, and method timeout.
+You can use the Azure CLI to call a direct method that you have implemented on your device. Direct methods have a name, and can optionally have a JSON payload, configurable connection, and method timeout. In this section, you call a method that enables you to turn an LED on or off.
 
-To call a direct method on your device:
+To call a method to turn the LED on:
 
-1. Run the [az iot hub invoke-device-method](https://docs.microsoft.com/cli/azure/ext/azure-cli-iot-ext/iot/hub?view=azure-cli-latest#ext-azure-cli-iot-ext-az-iot-hub-invoke-device-method) command to invoke a direct method.
+1. Run the [az iot hub invoke-device-method](https://docs.microsoft.com/cli/azure/ext/azure-cli-iot-ext/iot/hub?view=azure-cli-latest#ext-azure-cli-iot-ext-az-iot-hub-invoke-device-method) command, and specify the method name and payload. For this method, setting `method-payload` to `1` turns the LED on, and setting it to `0` turns it off.
 
     <!-- Inline code tag and CSS to wrap long code lines. -->
     <code style="white-space : pre-wrap !important;">
-    az iot hub invoke-device-method --device-id MySTMDevice --method-name MyMethod --method-payload '{"Greeting":"Hello world!"}' --hub-name {YourIoTHubName}
+    az iot hub invoke-device-method --device-id MySTMDevice --method-name set_led_state --method-payload 1 --hub-name {YourIoTHubName}
     </code>
 
-
-    **Note**: If you use Powershell use the following code block instead. This code formats the JSON `method-payload` parameter according to Powershell formatting rules.
-
-    <code style="white-space : pre-wrap !important;">
-    az iot hub invoke-device-method --device-id MySTMDevice --method-name MyMethod --method-payload '{\"Greeting\": \"Hello world!\"}' --hub-name {YourIoTHubName}
-    </code>
-
-    The console shows the status of your method call on the device, where `1` indicates success.
+    The CLI console shows the status of your method call on the device, where `204` indicates success.
 
     ```json
     {
-        "payload": {},
-        "status": 1
+      "payload": {},
+      "status": 204
     }
     ```
 
-1. View the Termite console to see the JSON payload output:
+1. Check your device to confirm the LED state.
 
-    ![Termite output for direct methods](media/termite-output-direct-method.png)
+1. View the Termite terminal to confirm the output messages:
+
+    ```json
+    Received direct method=set_led_state, id=1, message=1
+    LED is turned ON
+    Sending device twin update with bool value
+    Sending message {"led0State": 1}
+    Direct method=set_led_state invoked
+
+    ```
 
 ## Clean up resources
 
