@@ -1,3 +1,6 @@
+/* Copyright (c) Microsoft Corporation.
+   Licensed under the MIT License. */
+   
 #ifndef _HMAC_SHA256_H
 #define _HMAC_SHA256_H
 

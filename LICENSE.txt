@@ -1,4 +1,4 @@
-Azure RTOS Getting Started Guides
+Getting Started Guides with Azure RTOS
 
 Copyright (c) Microsoft Corporation.
 

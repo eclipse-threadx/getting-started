@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 set(TARGET MIMXRT1060-evk)
 
 set(SOURCES

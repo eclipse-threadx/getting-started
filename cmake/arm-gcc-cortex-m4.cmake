@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 set(MCPU_FLAGS "-mthumb -mcpu=cortex-m4")
 set(VFP_FLAGS "-mfloat-abi=hard -mfpu=fpv4-sp-d16")
 set(LD_FLAGS "")

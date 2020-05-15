@@ -1,3 +1,6 @@
+/* Copyright (c) Microsoft Corporation.
+   Licensed under the MIT License. */
+   
 #include "sha256.h"
 
 #define ROTL32(a, b) (((a) << (b)) | ((a) >> (32 - (b))))
