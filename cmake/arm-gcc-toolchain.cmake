@@ -41,9 +41,6 @@ else()
     message(STATUS "Using ARM GCC from default Windows toolchain directory ${ARM_TOOLCHAIN_PATH}")
 endif()
 
-# :TODO: This doesnt work for some reason
-#set(CMAKE_MAKE_PROGRAM ${CMAKE_CURRENT_LIST_DIR}/ninja.exe)
-
 # perform compiler test with the static library
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
@@ -75,16 +72,3 @@ set(CMAKE_C_FLAGS_RELEASE "-O3")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 set(CMAKE_ASM_FLAGS_RELEASE "")
 set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-flto")
-
-function(create_bin_output TARGET)
-    add_custom_target(${TARGET}.bin ALL 
-        DEPENDS ${TARGET}
-        COMMAND ${CMAKE_OBJCOPY} -Obinary ${TARGET}.elf ${TARGET}.bin)
-endfunction()
-
-# Add custom command to print firmware size in Berkley format
-function(firmware_size TARGET)
-    add_custom_target(${TARGET}.size ALL 
-        DEPENDS ${TARGET} 
-        COMMAND ${CMAKE_SIZE_UTIL} -B ${TARGET}.elf)
-endfunction()
