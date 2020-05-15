@@ -1,3 +1,6 @@
+/* Copyright (c) Microsoft Corporation.
+   Licensed under the MIT License. */
+   
 #ifndef _CERT_H
 #define _CERT_H
 

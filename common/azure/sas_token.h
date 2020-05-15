@@ -1,3 +1,6 @@
+/* Copyright (c) Microsoft Corporation.
+   Licensed under the MIT License. */
+   
 #ifndef _SAS_TOKEN_H
 #define _SAS_TOKEN_H
 

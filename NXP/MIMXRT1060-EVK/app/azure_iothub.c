@@ -1,3 +1,6 @@
+/* Copyright (c) Microsoft Corporation.
+   Licensed under the MIT License. */
+   
 #include "azure_iothub.h"
 
 #include <stdio.h>

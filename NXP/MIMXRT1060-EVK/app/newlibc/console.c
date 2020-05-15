@@ -1,3 +1,6 @@
+/* Copyright (c) Microsoft Corporation.
+   Licensed under the MIT License. */
+   
 #include "fsl_debug_console.h"
 
 int _read(int file, char *ptr, int len);

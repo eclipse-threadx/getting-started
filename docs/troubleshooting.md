@@ -7,8 +7,9 @@
 ### SNTP
 ### MQTT
 
-## Termite
+## Serial Port
 * garbled text on termite means baud rate is wrong
+* Termite/Termie might not correctly display output, use TerraTerm
 
 ## Physical Setup
 

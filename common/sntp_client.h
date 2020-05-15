@@ -1,3 +1,6 @@
+/* Copyright (c) Microsoft Corporation.
+   Licensed under the MIT License. */
+   
 #ifndef _SNTP_CLIENT_H
 #define _SNTP_CLIENT_H
 
