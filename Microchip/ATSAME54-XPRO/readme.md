@@ -21,7 +21,7 @@ You will complete the following tasks:
     > * The [Microchip ATSAME54-XPro](https://www.microchip.com/developmenttools/productdetails/atsame54-xpro) (Microchip E54)
     > * USB 2.0 A male to Micro USB male cable
     > * Wired Ethernet access
-    > * Optional: [Weather Click](https://www.mikroe.com/weather-click) sensor. You can add this sensor to the board to monitor weather conditions. If you don't have this sensor, you can still complete this tutorial.
+    > * Optional: [Weather Click](https://www.mikroe.com/weather-click) sensor. You can add this sensor to the device to monitor weather conditions. If you don't have this sensor, you can still complete this tutorial.
     > * Optional: [mikroBUS Xplained Pro](https://www.microchip.com/Developmenttools/ProductDetails/ATMBUSADAPTER-XPRO) adapter. Use this adapter to attach the Weather Click sensor to the Microchip E54. If you don't have the sensor and this adapter, you can still complete this tutorial.
 
 ## Prepare the development environment
@@ -40,7 +40,7 @@ git clone https://github.com/azure-rtos/getting-started
 
 ### Install the tools
 
-The cloned repo contains a setup script that installs and configures the first set of required tools. After you run the setup script, you can install the remaining tools manually. If you installed these tools in another tutorial in the Getting Started guide, you don't need to do it again.
+The cloned repo contains a setup script that installs and configures the first set of required tools. After you run the setup script, you can install the remaining tools manually. If you installed any of these tools in another tutorial in this series, you don't need to do it again.
 
 > Note: The setup script installs the following tools:
 > * [GCC](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm): Compile
@@ -96,8 +96,8 @@ To create an IoT hub:
    az extension add --name azure-iot
    ```
 
-1. Run the [az group create](https://docs.microsoft.com/cli/azure/group?view=azure-cli-latest#az-group-create) command to create a resource group. The following command creates a resource group named *MyResourceGroup* in the *eastus* region.
-    > Note: Optionally, to set an alternate `location`, run [az account list-locations](https://docs.microsoft.com/cli/azure/account?view=azure-cli-latest#az-account-list-locations) to see available locations. Then specify the alternate location in the following command in place of *eastus*.
+1. Run the [az group create](https://docs.microsoft.com/cli/azure/group?view=azure-cli-latest#az-group-create) command to create a resource group. The following command creates a resource group named *MyResourceGroup* in the *eastus* location.
+    > Note: To set an alternate `location`, run [az account list-locations](https://docs.microsoft.com/cli/azure/account?view=azure-cli-latest#az-account-list-locations) to see available locations. Specify the alternate location in the following command in place of *eastus*.
 
     ```azurecli
     az group create --name MyResourceGroup --location eastus
@@ -159,7 +159,7 @@ To connect the Microchip E54 to Azure, you'll modify a configuration file for Az
 
 ### Optional: Install a weather sensor
 
-If you have the Weather Click sensor and the mikroBUS Xplained Pro adapter, follow the steps in this section.  If you don't have them, skip to [Build the image](#build-the-image). You can complete this tutorial even if you don't have a sensor. The sample code for the board returns simulated data if a real sensor is not present.
+If you have the Weather Click sensor and the mikroBUS Xplained Pro adapter, follow the steps in this section.  If you don't have them, skip to [Build the image](#build-the-image). You can complete this tutorial even if you don't have a sensor. The sample code for the device returns simulated data if a real sensor is not present.
 
 1. If you have the Weather Click sensor and the mikroBUS Xplained Pro adapter, install them on the Microchip E54 as shown in the following photo:
 
@@ -169,7 +169,7 @@ If you have the Weather Click sensor and the mikroBUS Xplained Pro adapter, foll
 
     > *getting-started\Microchip\ATSAME54-XPRO\app\azure_config.h*
 
-1. Set the value of the constant `__SENSOR_BME280__` to *1* as shown in the following code from the header file. Setting this value enables the board to use real sensor data from the Weather Click sensor.
+1. Set the value of the constant `__SENSOR_BME280__` to *1* as shown in the following code from the header file. Setting this value enables the device to use real sensor data from the Weather Click sensor.
 
     > `#define __SENSOR_BME280__ 1`
 
@@ -198,7 +198,7 @@ After the build completes, confirm that a binary file was created in the followi
 
 1. Open the **Windows Start > Atmel Studio 7.0 Command Prompt** console, and go to the folder of the Microchip E54 binary file that you built.
 
-    > *getting-started\Microchip\ATSAME54-XPRO\build\app\*
+    > *getting-started\Microchip\ATSAME54-XPRO\build\app*
 
 1. Use the *atprogram* utility to flash the Microchip E54 with the binary image:
     > Note: For more details about using the Atmel-ICE and *atprogram* tools with the Microchip E54, see [Using Atmel-ICE for AVR Programming In Mass Production](http://ww1.microchip.com/downloads/en/AppNotes/00002466A.pdf).
@@ -226,8 +226,8 @@ You can use the **Tera Term** utility to monitor communication and confirm that 
 1. Select **Setup > Serial port**.
 1. Set **Speed** to *115,200*.
 1. Select **New setting**.
-1. On the board, press the **Reset** button.
-1. In the **Tera Term** terminal, view the following checkpoint values to confirm that the device is initialized and connected to Azure IoT. If a checkpoint value is missing or incorrect and you can't resolve the issue, see [Troubleshooting](#troubleshooting).
+1. On the device, press the **Reset** button.
+1. In the **Tera Term** terminal, view the following checkpoint values to confirm that the device is initialized and connected to Azure IoT.
 
     |Checkpoint name|Output value|
     |---------------|-----|
@@ -236,7 +236,7 @@ You can use the **Tera Term** utility to monitor communication and confirm that 
     |SNTP |SNTP initialized|
     |MQTT client |MQTT thread initialized|
 
-The terminal shows the details about the board, your connection, and the checkpoint values.
+The terminal shows the details about the device, your connection, and the checkpoint values.
 
 ```
 Starting Azure thread
@@ -349,7 +349,6 @@ To call a method to turn the LED on:
 1. View the Tera Term terminal to confirm the output messages:
 
     ```json
-    [Received] topic = $iothub/methods/POST/set_led_state/?$rid=6, message = 1
     Received direct method=set_led_state, id=6, message=1
     LED0 is turned ON
     Sending device twin update with bool value
