@@ -549,7 +549,7 @@ ULONG x[16];
 /*  DESCRIPTION                                                           */
 /*                                                                        */
 /*    This function is the common crypto method init callback for         */
-/*    Express Logic supported MD5 cryptograhic algorithm.                 */
+/*    Microsoft supported MD5 cryptograhic algorithm.                     */
 /*                                                                        */
 /*  INPUT                                                                 */
 /*                                                                        */

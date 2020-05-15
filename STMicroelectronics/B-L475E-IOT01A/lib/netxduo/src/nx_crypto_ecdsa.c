@@ -458,7 +458,7 @@ UINT                  buffer_size = curve -> nx_crypto_ec_n.nx_crypto_huge_buffe
 /*  DESCRIPTION                                                           */
 /*                                                                        */
 /*    This function is the common crypto method init callback for         */
-/*    Express Logic supported ECDSA cryptograhic algorithm.               */
+/*    Microsoft supported ECDSA cryptograhic algorithm.                   */
 /*                                                                        */
 /*  INPUT                                                                 */
 /*                                                                        */

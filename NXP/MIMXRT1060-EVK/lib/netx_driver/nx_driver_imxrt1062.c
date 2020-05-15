@@ -113,7 +113,7 @@ static UINT         _nx_driver_hardware_capability_set(NX_IP_DRIVER *driver_req_
 /*                                                           5.0          */ 
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Express Logic, Inc.                                     */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */ 
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -284,7 +284,7 @@ VOID  nx_driver_imx(NX_IP_DRIVER *driver_req_ptr)
 /*                                                           5.0          */ 
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Express Logic, Inc.                                     */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */ 
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -339,7 +339,7 @@ static VOID  _nx_driver_interface_attach(NX_IP_DRIVER *driver_req_ptr)
 /*                                                           5.0          */ 
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Express Logic, Inc.                                     */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */ 
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -458,7 +458,7 @@ UINT            status;
 /*                                                           5.0          */ 
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Express Logic, Inc.                                     */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */ 
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -546,7 +546,7 @@ UINT            status;
 /*                                                           5.0          */ 
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Express Logic, Inc.                                     */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */ 
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -630,7 +630,7 @@ UINT            status;
 /*                                                           5.0          */ 
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Express Logic, Inc.                                     */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */ 
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -791,7 +791,7 @@ UINT            status;
 /*                                                           5.0          */ 
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Express Logic, Inc.                                     */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */ 
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -865,7 +865,7 @@ UINT        status;
 /*                                                           5.0          */ 
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Express Logic, Inc.                                     */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */ 
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -939,7 +939,7 @@ UINT        status;
 /*                                                           5.0          */ 
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Express Logic, Inc.                                     */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */ 
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -1006,7 +1006,7 @@ UINT        status;
 /*                                                           5.0          */ 
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Express Logic, Inc.                                     */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */ 
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -1055,7 +1055,7 @@ static VOID  _nx_driver_capability_get(NX_IP_DRIVER *driver_req_ptr)
 /*                                                           5.0          */ 
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Express Logic, Inc.                                     */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */ 
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -1121,7 +1121,7 @@ UINT        status;
 /*                                                           5.0          */ 
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    XC, Express Logic, Inc.                                             */ 
+/*    XC, Microsoft Corporation                                           */ 
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -1201,7 +1201,7 @@ ULONG       deferred_events;
 /*                                                           5.0          */ 
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Express Logic, Inc.                                     */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */ 
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -1319,7 +1319,7 @@ USHORT    packet_type;
 /*                                                           5.0          */ 
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Express Logic, Inc.                                     */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */ 
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -1418,7 +1418,7 @@ static VOID _nx_driver_transmit_packet_enqueue(NX_PACKET *packet_ptr)
 /*                                                           5.0          */ 
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Express Logic, Inc.                                     */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */ 
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -1861,7 +1861,7 @@ void enet_init()
 /*                                                           5.0          */ 
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Express Logic, Inc.                                     */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */ 
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -2031,7 +2031,7 @@ UINT                i;
 /*                                                           5.0          */ 
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Express Logic, Inc.                                     */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */ 
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -2089,7 +2089,7 @@ static UINT  _nx_driver_hardware_enable(NX_IP_DRIVER *driver_req_ptr)
 /*                                                           5.0          */ 
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Express Logic, Inc.                                     */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */ 
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -2138,7 +2138,7 @@ static UINT  _nx_driver_hardware_disable(NX_IP_DRIVER *driver_req_ptr)
 /*                                                           5.0          */ 
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Express Logic, Inc.                                     */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */ 
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -2281,7 +2281,7 @@ UCHAR*         src_addr;
 /*                                                           1.0          */ 
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    SK - Express Logic, Inc.                                            */ 
+/*    SK - Microsoft Corporation                                          */ 
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -2349,7 +2349,7 @@ ULONG           data;
 /*                                                           5.0          */ 
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Express Logic, Inc.                                     */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */ 
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -2428,7 +2428,7 @@ ULONG           crc_val;
 /*                                                           5.0          */ 
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Express Logic, Inc.                                     */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */ 
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -2510,7 +2510,7 @@ ULONG           crc_val;
 /*                                                           5.0          */ 
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Express Logic, Inc.                                     */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */ 
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -2556,7 +2556,7 @@ static UINT  _nx_driver_hardware_get_status(NX_IP_DRIVER *driver_req_ptr)
 /*                                                           5.0          */ 
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Express Logic, Inc.                                     */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */ 
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -2646,7 +2646,7 @@ ULONG idx =       nx_driver_information.nx_driver_information_transmit_release_i
 /*                                                           5.0          */ 
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Express Logic, Inc.                                     */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */ 
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -2804,7 +2804,7 @@ NX_PACKET     *received_packet_ptr = nx_driver_information.nx_driver_information
 /*                                                           5.0          */ 
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Express Logic, Inc.                                     */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */ 
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -2937,7 +2937,7 @@ ULONG idx;
 /*                                                           5.0          */ 
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Express Logic, Inc.                                     */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */ 
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 

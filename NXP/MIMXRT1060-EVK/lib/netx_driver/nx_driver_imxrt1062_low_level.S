@@ -36,7 +36,7 @@
 @/*                                                           5.0          */ 
 @/*  AUTHOR                                                                */ 
 @/*                                                                        */ 
-@/*    William E. Lamie, Express Logic, Inc.                               */ 
+@/*    William E. Lamie, Microsoft Corporation                             */ 
 @/*                                                                        */ 
 @/*  DESCRIPTION                                                           */ 
 @/*                                                                        */ 

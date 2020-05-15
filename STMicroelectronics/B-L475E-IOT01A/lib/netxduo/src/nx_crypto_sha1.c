@@ -526,7 +526,7 @@ ULONG  a, b, c, d, e;
 /*  DESCRIPTION                                                           */
 /*                                                                        */
 /*    This function is the common crypto method init callback for         */
-/*    Express Logic supported SHA1 cryptograhic algorithm.                */
+/*    Microsoft supported SHA1 cryptograhic algorithm.                    */
 /*                                                                        */
 /*  INPUT                                                                 */
 /*                                                                        */

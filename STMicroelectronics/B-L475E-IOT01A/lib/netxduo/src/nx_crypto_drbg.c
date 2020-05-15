@@ -908,7 +908,7 @@ VOID *handler = NX_NULL;
 /*  DESCRIPTION                                                           */
 /*                                                                        */
 /*    This function is the common crypto method init callback for         */
-/*    Express Logic supported DRBG cryptograhic algorithm.                */
+/*    Microsoft supported DRBG cryptograhic algorithm.                    */
 /*                                                                        */
 /*  INPUT                                                                 */
 /*                                                                        */

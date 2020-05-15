@@ -451,7 +451,7 @@ UINT status;
 /*  DESCRIPTION                                                           */
 /*                                                                        */
 /*    This function is the common crypto method init callback for         */
-/*    Express Logic supported PKCS#1v1.5 cryptograhic algorithm.          */
+/*    Microsoft supported PKCS#1v1.5 cryptograhic algorithm.              */
 /*                                                                        */
 /*  INPUT                                                                 */
 /*                                                                        */

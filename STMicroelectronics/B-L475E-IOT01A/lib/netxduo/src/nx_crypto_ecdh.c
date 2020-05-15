@@ -438,7 +438,7 @@ NX_CRYPTO_EC_POINT    public_key, shared_secret;
 /*  DESCRIPTION                                                           */
 /*                                                                        */
 /*    This function is the common crypto method init callback for         */
-/*    Express Logic supported ECDH cryptograhic algorithm.                */
+/*    Microsoft supported ECDH cryptograhic algorithm.                    */
 /*                                                                        */
 /*  INPUT                                                                 */
 /*                                                                        */

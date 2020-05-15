@@ -579,7 +579,7 @@ ULONG64  a, b, c, d, e, f, g, h;
 /*  DESCRIPTION                                                           */
 /*                                                                        */
 /*    This function is the common crypto method init callback for         */
-/*    Express Logic supported SHA512 cryptograhic algorithm.              */
+/*    Microsoft supported SHA512 cryptograhic algorithm.                  */
 /*                                                                        */
 /*  INPUT                                                                 */
 /*                                                                        */
