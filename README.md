@@ -9,7 +9,7 @@ The following board specific guides will get you started with Azure RTOS:
 
 > * Getting started with the Microchip [ATSAME54-XPRO](Microchip/ATSAME54-XPRO)
 > * Getting started with the NXP [MIMXRT1060-EVK](NXP/MIMXRT1060-EVK)
-> * Getting started with the Renesas [Synergy Platform](Renesas)
+> * Getting started with the Renesas [Synergy Platform](Renesas/Synergy)
 > * Getting started with the STMicroelectronics [B-475E-IOT01](STMicroelectronics/B-L475E-IOT01A)
 
 ### Contributing
