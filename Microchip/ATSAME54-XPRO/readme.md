@@ -163,7 +163,7 @@ If you have the Weather Click sensor and the mikroBUS Xplained Pro adapter, foll
 
 1. If you have the Weather Click sensor and the mikroBUS Xplained Pro adapter, install them on the Microchip E54 as shown in the following photo:
 
-    ![Microchip E54 with Weather click sensor](media/fileName.png)
+    ![Microchip E54 with Weather click sensor](media/microchip-xpro-board.png)
 
 1. Reopen the configuration file you edited in the previous step:
 
