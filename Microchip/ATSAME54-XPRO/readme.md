@@ -351,7 +351,7 @@ To call a method to turn the LED on:
 
 1. Check your device to confirm the LED state.
 
-1. View the Tera Term terminal to confirm the output messages:
+1. View the Termite terminal to confirm the output messages:
 
     ```json
     Received direct method=set_led_state, id=6, message=1
