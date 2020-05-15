@@ -1,14 +1,8 @@
-<h1>Getting started with the Microchip ATSAME54-XPro</h1>
-
-**TODO:  timlt**
-
-* Get Weather Click sensor and adapter, add OPTIONAL step to install on board and show photo
-* Show user how to update a variable prior to flash for the case where they don't have sensor
-* Update Termite screen shots
+<h1>Getting started with the Microchip ATSAME54-XPro evaluation kit</h1>
 
 **Total completion time**:  45 minutes
 
-In this tutorial you use Azure RTOS to connect the Microchip ATSAME54-XPro (hereafter, the Microchip E54) to Azure IoT.  The article is part of the series [Getting Started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824). The series introduces device developers to Azure RTOS, and shows how to connect several micro-controller units (MCU) to Azure IoT.
+In this tutorial you use Azure RTOS to connect the Microchip ATSAME54-XPro (hereafter, the Microchip E54) to Azure IoT.  The article is part of the series [Getting Started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824). The series introduces device developers to Azure RTOS, and shows how to connect several device evaluation kits to Azure IoT.
 
 You will complete the following tasks:
 
@@ -27,7 +21,7 @@ You will complete the following tasks:
     > * The [Microchip ATSAME54-XPro](https://www.microchip.com/developmenttools/productdetails/atsame54-xpro) (Microchip E54)
     > * USB 2.0 A male to Micro USB male cable
     > * Wired Ethernet access
-    > * Optional: [Weather Click](https://www.mikroe.com/weather-click) sensor. You can add this sensor to the board to monitor weather conditions. If you don't have this sensor, you can still complete this tutorial.
+    > * Optional: [Weather Click](https://www.mikroe.com/weather-click) sensor. You can add this sensor to the device to monitor weather conditions. If you don't have this sensor, you can still complete this tutorial.
     > * Optional: [mikroBUS Xplained Pro](https://www.microchip.com/Developmenttools/ProductDetails/ATMBUSADAPTER-XPRO) adapter. Use this adapter to attach the Weather Click sensor to the Microchip E54. If you don't have the sensor and this adapter, you can still complete this tutorial.
 
 ## Prepare the development environment
@@ -46,12 +40,13 @@ git clone https://github.com/azure-rtos/getting-started
 
 ### Install the tools
 
-The cloned repo contains a setup script that installs and configures the first set of required tools. After you run the setup script, you can install the remaining tools manually. If you installed these tools in another tutorial in the Getting Started guide, you don't need to do it again.
+The cloned repo contains a setup script that installs and configures the first set of required tools. After you run the setup script, you can install the remaining tools manually. If you installed any of these tools in another tutorial in this series, you don't need to do it again.
 
 > Note: The setup script installs the following tools:
 > * [GCC](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm): Compile
 > * [CMake](https://cmake.org): Build
 > * [Ninja](https://ninja-build.org): Build
+> * [Tera Term](https://mirrors.gigenet.com/OSDN//ttssh2/72009/teraterm-4.105.exe): Monitor
 
 To run the setup script:
 
@@ -69,8 +64,6 @@ To run the setup script:
 To install the remaining tools:
 
 1. Install [Atmel Studio 7](https://www.microchip.com/mplab/avr-support/atmel-studio-7). Atmel Studio is a device development environment that includes the tools to program and flash program the Microchip E54. For this tutorial, you use Atmel Studio only to flash the Microchip E54. The installation takes several minutes, and prompts you several times to approve installation of components.
-
-1. Install [Termite](https://www.compuphase.com/software_termite.htm). You use this utility to monitor your device. You can use this utility, or another serial RS232 utility, to monitor your device.
 
 ## Prepare Azure resources
 
@@ -103,8 +96,8 @@ To create an IoT hub:
    az extension add --name azure-iot
    ```
 
-1. Run the [az group create](https://docs.microsoft.com/cli/azure/group?view=azure-cli-latest#az-group-create) command to create a resource group. The following command creates a resource group named *MyResourceGroup* in the *eastus* region.
-    > Note: Optionally, to set an alternate `location`, run [az account list-locations](https://docs.microsoft.com/cli/azure/account?view=azure-cli-latest#az-account-list-locations) to see available locations. Then specify the alternate location in the following command in place of *eastus*.
+1. Run the [az group create](https://docs.microsoft.com/cli/azure/group?view=azure-cli-latest#az-group-create) command to create a resource group. The following command creates a resource group named *MyResourceGroup* in the *eastus* location.
+    > Note: To set an alternate `location`, run [az account list-locations](https://docs.microsoft.com/cli/azure/account?view=azure-cli-latest#az-account-list-locations) to see available locations. Specify the alternate location in the following command in place of *eastus*.
 
     ```azurecli
     az group create --name MyResourceGroup --location eastus
@@ -164,6 +157,24 @@ To connect the Microchip E54 to Azure, you'll modify a configuration file for Az
 
 1. Save and close the file.
 
+### Optional: Install a weather sensor
+
+If you have the Weather Click sensor and the mikroBUS Xplained Pro adapter, follow the steps in this section.  If you don't have them, skip to [Build the image](#build-the-image). You can complete this tutorial even if you don't have a sensor. The sample code for the device returns simulated data if a real sensor is not present.
+
+1. If you have the Weather Click sensor and the mikroBUS Xplained Pro adapter, install them on the Microchip E54 as shown in the following photo:
+
+    ![Microchip E54 with Weather click sensor](media/fileName.png)
+
+1. Reopen the configuration file you edited in the previous step:
+
+    > *getting-started\Microchip\ATSAME54-XPRO\app\azure_config.h*
+
+1. Set the value of the constant `__SENSOR_BME280__` to *1* as shown in the following code from the header file. Setting this value enables the device to use real sensor data from the Weather Click sensor.
+
+    > `#define __SENSOR_BME280__ 1`
+
+1. Save and close the file.
+
 ### Build the image
 
 In your console or in File Explorer, run the script *rebuild.bat* at the following path to build the image:
@@ -182,9 +193,12 @@ After the build completes, confirm that a binary file was created in the followi
 
 1. Connect the Micro USB cable to the **Debug USB** port on the Microchip E54, and then connect it to your computer.
     > Note: Optionally, for more details about setting up and getting started with the Microchip E54, see [SAM E54 Xplained Pro User's Guide](http://ww1.microchip.com/downloads/en/DeviceDoc/70005321A.pdf).
+
+1. Use the Ethernet cable to connect the Microchip E54 to an Ethernet port.
+
 1. Open the **Windows Start > Atmel Studio 7.0 Command Prompt** console, and go to the folder of the Microchip E54 binary file that you built.
 
-    > *getting-started\Microchip\ATSAME54-XPRO\build\app\*
+    > *getting-started\Microchip\ATSAME54-XPRO\build\app*
 
 1. Use the *atprogram* utility to flash the Microchip E54 with the binary image:
     > Note: For more details about using the Atmel-ICE and *atprogram* tools with the Microchip E54, see [Using Atmel-ICE for AVR Programming In Mass Production](http://ww1.microchip.com/downloads/en/AppNotes/00002466A.pdf).
@@ -200,20 +214,20 @@ After the build completes, confirm that a binary file was created in the followi
     Programming and verification completed successfully.
     ```
 
-1. Use the Ethernet cable to connect the Microchip E54 to an Ethernet port.
-
 ### Confirm device connection details
 
-You can use the **Termite** utility to monitor communication and confirm that your device is set up correctly.
+You can use the **Tera Term** utility to monitor communication and confirm that your device is set up correctly.
 > Note: If you have issues getting your device to initialize or connect after flashing, see [Troubleshooting](../../docs/troubleshooting.md).
 
-1. Start **Termite**.
-1. Select **Settings**.
-1. In the **Serial port settings** dialog, check the following settings and update if needed:
-    * **Baud rate**: 115,000
-    * **Port**: The port that your Microchip E54 is connected to. If there are multiple port options in the dropdown, you can find the correct port to use. Open Windows **Device Manager**, and view **Ports > EDBG  Virtual COM Port** to identify which port to use.
-1. Press the **Reset** button on the board.
-1. In the **Termite** console, check the following checkpoint values to confirm that the device is initialized and connected to Azure IoT. If a checkpoint value is missing or incorrect and you can't resolve the issue, see [Troubleshooting](#troubleshooting).
+1. Start **Tera Term**.
+1. In the **New Connection** dialog, select **Serial**.
+1. In the **Port** dropdown, select the port for your device. If there are multiple options, you can find the correct port to use. Open Windows **Device Manager**, and view **Ports** to identify the port for your device.
+1. Select OK.
+1. Select **Setup > Serial port**.
+1. Set **Speed** to *115,200*.
+1. Select **New setting**.
+1. On the device, press the **Reset** button.
+1. In the **Tera Term** terminal, view the following checkpoint values to confirm that the device is initialized and connected to Azure IoT.
 
     |Checkpoint name|Output value|
     |---------------|-----|
@@ -222,11 +236,34 @@ You can use the **Termite** utility to monitor communication and confirm that yo
     |SNTP |SNTP initialized|
     |MQTT client |MQTT thread initialized|
 
-The Termite console shows the details about the board, your connection, and the checkpoint values.
+The terminal shows the details about the device, your connection, and the checkpoint values.
 
-![Termite output with connection checkpoints](media/termite-output-checkpoints.png)
+```
+Starting Azure thread
+Initializing DHCP
+        IP address: 192.168.1.132
+        Mask: 255.255.255.0
+        Gateway: 192.168.1.1
+SUCCESS: DHCP initialized
 
-Keep Termite open to monitor device output in the following steps.
+Initializing DNS client
+        DNS address: 192.168.1.1
+SUCCESS: DNS client initialized
+
+Initializing SNTP client
+SNTP time update: May 14, 2020 23:22:29.17 UTC
+SUCCESS: SNTP initialized
+
+Initializing MQTT client
+SUCCESS: MQTT client initialized
+
+Time 1589498551
+Starting MQTT thread
+Sending telemetry
+Sending message {"temperature(c)": 23.50}
+```
+
+Keep the terminal open to monitor device output in the following steps.
 
 ## View telemetry
 
@@ -242,13 +279,13 @@ You can use Azure CLI to inspect the flow of telemetry from the device to Azure 
 
 1. To force the Microchip E54 to reconnect and send telemetry, press **Reset**.
 
-    View the telemetry in the console's JSON output.
+    View the telemetry in the CLI console's JSON output.
 
     ```json
     {
         "event": {
             "origin": "MyMicrochipDevice",
-            "payload": "{\"temperature\": 25}"
+            "payload": "{\"temperature(c)\": 23.50}"
         }
     }
     ```
@@ -287,36 +324,37 @@ Using Azure CLI, you can inspect the properties on your Azure resources, includi
 
 ## Call a direct method on the device
 
-You can use the Azure CLI to call a direct method on your board from a console. Direct methods have a name, and can optionally have a JSON payload, configurable connection, and method timeout.
+You can use the Azure CLI to call a direct method that you have implemented on your device. Direct methods have a name, and can optionally have a JSON payload, configurable connection, and method timeout. In this section, you call a method that enables you to turn an LED on or off.
 
-To call a direct method on your device:
+To call a method to turn the LED on:
 
-1. Run the [az iot hub invoke-device-method](https://docs.microsoft.com/cli/azure/ext/azure-cli-iot-ext/iot/hub?view=azure-cli-latest#ext-azure-cli-iot-ext-az-iot-hub-invoke-device-method) command to invoke a direct method.
+1. Run the [az iot hub invoke-device-method](https://docs.microsoft.com/cli/azure/ext/azure-cli-iot-ext/iot/hub?view=azure-cli-latest#ext-azure-cli-iot-ext-az-iot-hub-invoke-device-method) command, and specify the method name and payload. For this method, setting `method-payload` to `1` turns the LED on, and setting it to `0` turns it off.
 
     <!-- Inline code tag and CSS to wrap long code lines. -->
     <code style="white-space : pre-wrap !important;">
-    az iot hub invoke-device-method --device-id MyMicrochipDevice --method-name MyMethod --method-payload '{"Greeting":"Hello world!"}' --hub-name {YourIoTHubName}
+    az iot hub invoke-device-method --device-id MyMicrochipDevice --method-name set_led_state --method-payload 1 --hub-name {YourIoTHubName}
     </code>
 
-
-    **Note**: If you use Powershell use the following code block instead. This code formats the JSON `method-payload` parameter according to Powershell formatting rules.
-
-    <code style="white-space : pre-wrap !important;">
-    az iot hub invoke-device-method --device-id MyMicrochipDevice --method-name MyMethod --method-payload '{\"Greeting\": \"Hello world!\"}' --hub-name {YourIoTHubName}
-    </code>
-
-    The console shows the status of your method call on the device, where `1` indicates success.
+    The CLI console shows the status of your method call on the device, where `204` indicates success.
 
     ```json
     {
-        "payload": {},
-        "status": 1
+      "payload": {},
+      "status": 204
     }
     ```
 
-1. View the Termite console to see the JSON payload output:
+1. Check your device to confirm the LED state.
 
-    ![Termite output for direct methods](media/termite-output-direct-method.png)
+1. View the Tera Term terminal to confirm the output messages:
+
+    ```json
+    Received direct method=set_led_state, id=6, message=1
+    LED0 is turned ON
+    Sending device twin update with bool value
+    Sending message {"led0State": 1}
+    Direct method=set_led_state invoked
+    ```
 
 ## Clean up resources
 
