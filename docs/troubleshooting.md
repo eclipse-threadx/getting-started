@@ -1,48 +1,31 @@
 # Troubleshooting
 
-## Console Output Errors
+## IoT connection Hub is failing
+Console output = "Unable to resolve DNS for MQTT Server"
 
-### DHCP
-Confirm that you are running a DHCP server on your network (it is unusual to not have this running). The guides doesn't support manual network configuration.
-### DNS
-* If DNS fails to resolve, check the iot hub hostname is correct, try pinging the host from a command line to make sure it is responding
-### SNTP
-* Make sure you dont have a firewall in place blocking traffic.
-### MQTT
-* Check your device_id + primary_key values match against the IoT Hub instance. If these values are incorrect / missing then MQTT will fail to connect
+* Check your spelling/case for IOT config in azure_config.h (hostname, device_id, primary_key)
 
-## Serial Port
-* garbled text on termite means baud rate is wrong, make sure it is set to 115200
-* Check the flow control, some boards like the SAME54 required flow control to be setup to DTR/DSR
-* restart Termite 
+## Flashing the board fails
+Unable to successfully complete 'Flash the image' section
 
-## Azure CLI
-??
+* Try and a different USB cable
+* Try and a different USB port on your computer
+* Restart your computer.
 
-## Physical Setup
+## Serial Port garbled text
+Console output = garbled text
 
-### USB
-*Try a different cable
-*Try a different port on your computer
-*Restart your computer to make sure drivers have installed correctly
-*Check in Device Manager and make sure all devices have are connected correctly
-*Reinstall drivers / flashing software and make sure all components are installed correctly
+* Check termite's 'baud rate' to 115200
 
-### Board specific
-* Make sure all switches / DIP switches are setup correctly, as specified in the guide or in the associated devkit documentation
-* Check the SV website / forums (provide links) for additional help on the boards.
+## Serial port no text
+Console output = nothing
 
-## Connectivity
+* Make sure your termite setting match the devices tutorial
+* Confirm the the chosen com port is correct, check device manager
+* Restart termite
 
-### Ethernet
-*Try a new ethernet cable
-*Confirm connections between your board and your router
-*Check the lights on the ethernet jack on the board, if there are no lights then it means the device isnt connected properly.
+## Generic not working
+Something just isn't working after reviewing above.
 
-### WiFi
-*make sure you have 2.4GHz, 5GHz is not supported
-*Check your connection details
-*Make sure you are using none/wep/wpa2 personal with AES. TKIP + WPA are no supported
-
-## Azure IoT
-??
+* Refer to the SV website for further diagnostic information.
+* List links to their sites.
