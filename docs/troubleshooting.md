@@ -17,15 +17,16 @@ Confirm that you are running a DHCP server on your network (it is unusual to not
 * restart Termite 
 
 ## Azure CLI
+??
 
 ## Physical Setup
 
 ### USB
-Try a different cable
-Try a different port on your computer
-Restart your computer to make sure drivers have installed correctly
-Check in Device Manager and make sure all devices have are connected correctly
-Reinstall drivers / flashing software and make sure all components are installed correctly
+*Try a different cable
+*Try a different port on your computer
+*Restart your computer to make sure drivers have installed correctly
+*Check in Device Manager and make sure all devices have are connected correctly
+*Reinstall drivers / flashing software and make sure all components are installed correctly
 
 ### Board specific
 * Make sure all switches / DIP switches are setup correctly, as specified in the guide or in the associated devkit documentation
@@ -34,14 +35,14 @@ Reinstall drivers / flashing software and make sure all components are installed
 ## Connectivity
 
 ### Ethernet
-Try a new ethernet cable
-Confirm connections between your board and your router
-Check the lights on the ethernet jack on the board, if there are no lights then it means the device isnt connected properly.
+*Try a new ethernet cable
+*Confirm connections between your board and your router
+*Check the lights on the ethernet jack on the board, if there are no lights then it means the device isnt connected properly.
 
 ### WiFi
-make sure you have 2.4GHz, 5GHz is not supported
-Check your connection details
-Make sure you are using none/wep/wpa2 personal with AES. TKIP + WPA are no supported
+*make sure you have 2.4GHz, 5GHz is not supported
+*Check your connection details
+*Make sure you are using none/wep/wpa2 personal with AES. TKIP + WPA are no supported
 
 ## Azure IoT
-
+??
