@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 set(LINKER_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/startup/B-L475E-IOT01.ld")
 
 set(SOURCES

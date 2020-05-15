@@ -1,3 +1,6 @@
+/* Copyright (c) Microsoft Corporation.
+   Licensed under the MIT License. */
+
 #include "networking.h"
 
 #include "tx_api.h"

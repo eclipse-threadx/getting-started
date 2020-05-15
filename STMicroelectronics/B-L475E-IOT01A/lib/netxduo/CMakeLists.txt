@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 set(SOURCES
     src/nxde_tcp_client_socket_connect.c
     src/nxde_tcp_socket_peer_info_get.c

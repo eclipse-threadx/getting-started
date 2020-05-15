@@ -1,23 +1,11 @@
-/**************************************************************************/ 
-/*                                                                        */ 
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */ 
-/*                                                                        */ 
-/*  This software is copyrighted by and is the sole property of Express   */ 
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */ 
-/*  in the software remain the property of Express Logic, Inc.  This      */ 
-/*  software may only be used in accordance with the corresponding        */ 
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */ 
-/*  distribution, or disclosure of this software is expressly forbidden.  */ 
+/**************************************************************************/
 /*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */ 
-/*  written consent of Express Logic, Inc.                                */ 
-/*                                                                        */ 
-/*  Express Logic, Inc. reserves the right to modify this software        */ 
-/*  without notice.                                                       */ 
-/*                                                                        */ 
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               www.expresslogic.com          */
-/*  San Diego, CA  92127                                                  */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
+/*                                                                        */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -38,11 +26,11 @@
 /*  PORT SPECIFIC C INFORMATION                            RELEASE        */ 
 /*                                                                        */ 
 /*    tx_user.h                                           PORTABLE C      */ 
-/*                                                           5.9          */ 
+/*                                                           6.0          */ 
 /*                                                                        */
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    William E. Lamie, Express Logic, Inc.                               */ 
+/*    William E. Lamie, Microsoft Corporation                             */ 
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -52,43 +40,13 @@
 /*    Note that all the defines in this file may also be made on the      */ 
 /*    command line when building ThreadX library and application objects. */ 
 /*                                                                        */ 
-/*  RELEASE HISTORY                                                       */ 
-/*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*                                                                        */ 
-/*  12-12-2005     William E. Lamie         Initial Version 5.0           */ 
-/*  04-02-2007     William E. Lamie         Modified comment(s), and      */ 
-/*                                            added two new conditional   */ 
-/*                                            build options, namely:      */ 
-/*                                                                        */ 
-/*                                                 TX_NO_TIMER  and       */ 
-/*                                                 TX_USE_PRESET_DATA     */ 
-/*                                                                        */ 
-/*                                            resulting in version 5.1    */ 
-/*  12-12-2008     William E. Lamie         Modified comment(s), added    */ 
-/*                                            new defines, and removed    */ 
-/*                                            TX_USE_PRESET_DATA          */ 
-/*                                            since it is no longer       */ 
-/*                                            required, resulting in      */ 
-/*                                            version 5.2                 */ 
-/*  07-04-2009     William E. Lamie         Modified comment(s),          */ 
-/*                                            resulting in version 5.3    */ 
-/*  12-12-2009     William E. Lamie         Modified comment(s),          */ 
-/*                                            resulting in version 5.4    */ 
-/*  07-15-2011     William E. Lamie         Modified comment(s),          */ 
-/*                                            resulting in version 5.5    */ 
-/*  11-01-2012     William E. Lamie         Modified comment(s),          */ 
-/*                                            resulting in version 5.6    */ 
-/*  05-01-2015     William E. Lamie         Modified comment(s), and      */ 
-/*                                            modified code for MISRA     */ 
-/*                                            compliance, resulting in    */ 
-/*                                            version 5.7                 */ 
-/*  06-01-2017     William E. Lamie         Modified comment(s),          */ 
-/*                                            resulting in version 5.8    */ 
-/*  02-01-2019     William E. Lamie         Modified comment(s),          */ 
-/*                                            resulting in version 5.9    */ 
-/*                                                                        */ 
-/**************************************************************************/ 
+/*  RELEASE HISTORY                                                       */
+/*                                                                        */
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  05-19-2020     William E. Lamie         Initial Version 6.0           */
+/*                                                                        */
+/**************************************************************************/
 
 #ifndef TX_USER_H
 #define TX_USER_H
