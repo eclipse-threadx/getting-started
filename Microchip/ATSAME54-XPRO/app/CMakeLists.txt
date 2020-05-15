@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static -lc -u _printf_float")
 set(LINKER_SCRIPT "${CMAKE_CURRENT_LIST_DIR}/Device_Startup/same54p20a_flash.ld")
 
