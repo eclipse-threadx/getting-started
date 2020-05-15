@@ -200,7 +200,7 @@ You can use the **Termite** utility to monitor communication and confirm that yo
     ![Termite settings](media/termite-settings.png)
 
 1. Press the **Reset** button on the device. The button is black and is labeled on the device.
-1. In the **Termite** console, check the following checkpoint values to confirm that the device is initialized and connected to Azure IoT. If a checkpoint value is missing or incorrect and you can't resolve the issue, see [Troubleshooting](#troubleshooting).
+1. In the **Termite** console, check the following checkpoint values to confirm that the device is initialized and connected to Azure IoT.
 
     |Checkpoint name|Output value|
     |---------------|-----|

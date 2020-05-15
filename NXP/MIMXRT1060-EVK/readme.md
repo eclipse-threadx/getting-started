@@ -1,8 +1,8 @@
-<h1>Getting started with the NXP MIMXRT1060-EVK: i.MX RT1060</h1>
+<h1>Getting started with the NXP MIMXRT1060-EVK: i.MX RT1060 Evaluation kit</h1>
 
 **Total completion time**:  45 minutes
 
-In this tutorial you use Azure RTOS to connect the NXP MIMXRT1060-EVK: i.MX RT1060 Evaluation Kit (hereafter, the NXP EVK) to Azure IoT.  The article is part of the series [Getting Started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824). The series introduces device developers to Azure RTOS, and shows how to connect several micro-controller units (MCU) to Azure IoT.
+In this tutorial you use Azure RTOS to connect the NXP MIMXRT1060-EVK: i.MX RT1060 Evaluation kit (hereafter, the NXP EVK) to Azure IoT.  The article is part of the series [Getting Started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824). The series introduces device developers to Azure RTOS, and shows how to connect several several device evaluation kits to Azure IoT.
 
 You will complete the following tasks:
 
@@ -39,12 +39,13 @@ git clone https://github.com/azure-rtos/getting-started
 
 ### Install the tools
 
-The cloned repo contains a setup script that installs and configures the first set of required tools. After you run the setup script, you can install the remaining tools manually. If you installed these tools in another tutorial in the Getting Started guide, you don't need to do it again.
+The cloned repo contains a setup script that installs and configures the first set of required tools. If you installed these tools in another tutorial in the getting started guide, you don't need to do it again.
 
 > Note: The setup script installs the following tools:
 > * [GCC](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm): Compile
 > * [CMake](https://cmake.org): Build
 > * [Ninja](https://ninja-build.org): Build
+> * [Termite](https://www.compuphase.com/software_termite.htm): Monitor
 
 To install the tools:
 
@@ -58,7 +59,6 @@ To install the tools:
     ```
     cmake --version
     ```
-1. Install [Termite](https://www.compuphase.com/software_termite.htm). You use this utility to monitor your device. You can use this utility, or another serial RS232 utility, to monitor your device.
 
 ## Prepare Azure resources
 
@@ -168,7 +168,7 @@ After the build completes, confirm that a binary file was created in the followi
 
     ![NXP EVK board](media/nxp-evk-board.png)
 
-1. Connect the Micro USB cable to the Micro USB port on the NXP EVK, and then connect it to your computer. After the board powers up, a solid green LED shows the power status.
+1. Connect the Micro USB cable to the Micro USB port on the NXP EVK, and then connect it to your computer. After the device powers up, a solid green LED shows the power status.
 1. In File Explorer, find the NXP EVK device connected to your computer.
 1. Copy the image file *mimxrt1060_azure_iot_flash.bin* that you created in the previous section, and paste it into the root folder of the NXP EVK. The flashing process starts automatically.
 
@@ -184,20 +184,49 @@ You can use the **Termite** utility to monitor communication and confirm that yo
 1. Select **Settings**.
 1. In the **Serial port settings** dialog, check the following settings and update if needed:
     * **Baud rate**: 115,000
-    * **Port**: The port that your NXP EVK is connected to. If there are multiple port options in the dropdown, you can find the correct port to use. Open Windows **Device Manager**, and view **Ports** to confirm which port to use.
-1. Press the **Reset** button on the board. The button is black and is labeled on the board.
-1. In the **Termite** console, check the following checkpoint values to confirm that the device is initialized and connected to Azure IoT. If a checkpoint value is missing or incorrect and you can't resolve the issue, see [Troubleshooting](#troubleshooting).
+    * **Port**: The port that your STM DevKit is connected to. If there are multiple port options in the dropdown, you can find the correct port to use. Open Windows **Device Manager**, and view **Ports > STMicroelectronics STLink Virtual COM Port** to identify which port to use.
+
+    ![Termite settings](media/termite-settings.png)
+
+1. Select OK.
+1. Press the **Reset** button on the device.
+1. In the **Termite** console, check the following checkpoint values to confirm that the device is initialized and connected to Azure IoT.
 
     |Checkpoint name|Output value|
     |---------------|-----|
-    |DHCP |DHCP initialized|
-    |DNS |DNS client initialized|
-    |SNTP |SNTP initialized|
-    |MQTT client |MQTT thread initialized|
+    |DHCP |SUCCESS: DHCP initialized|
+    |DNS |SUCCESS: DNS client initialized|
+    |SNTP |SUCCESS: SNTP initialized|
+    |MQTT |SUCCESS: MQTT client initialized|
 
-The Termite console shows the details about the board, your connection, and the checkpoint values.
+    The Termite console shows the details about the device, your connection, and the checkpoint values.
 
-![Termite output with connection checkpoints](media/termite-output-checkpoints.png)
+    ```
+    Initializing DHCP
+    	IP address: 192.168.1.132
+    	Mask: 255.255.255.0
+    	Gateway: 192.168.1.1
+    SUCCESS: DHCP initialized
+    
+    Initializing DNS client
+    	DNS address: 192.168.1.1
+    SUCCESS: DNS client initialized
+    
+    Initializing SNTP client
+    SNTP time update: May 15, 2020 15:6:45.337 UTC 
+    SUCCESS: SNTP initialized
+    
+    Initializing MQTT client
+    SUCCESS: MQTT client initialized
+    
+    Sending telemetry
+    Sending message {"temperature": 28.50}
+    Sending device twin update with float value
+    Sending message {"temperature": 28.50}
+    [Received] topic = $iothub/twin/res/204/?$rid=1&$version=40, message = 
+    Processed device twin update response with status=204, id=1
+    Time 1589555217
+    ```
 
 Keep Termite open to monitor device output in the following steps.
 
@@ -260,36 +289,36 @@ Using Azure CLI, you can inspect the properties on your Azure resources, includi
 
 ## Call a direct method on the device
 
-You can use the Azure CLI to call a direct method on your board from a console. Direct methods have a name, and can optionally have a JSON payload, configurable connection, and method timeout.
+You can use the Azure CLI to call a direct method that you have implemented on your device. Direct methods have a name, and can optionally have a JSON payload, configurable connection, and method timeout. In this section, you call a method that enables you to turn an LED on or off.
 
-To call a direct method on your device:
+To call a method to turn the LED on:
 
-1. Run the [az iot hub invoke-device-method](https://docs.microsoft.com/cli/azure/ext/azure-cli-iot-ext/iot/hub?view=azure-cli-latest#ext-azure-cli-iot-ext-az-iot-hub-invoke-device-method) command to invoke a direct method.
+1. Run the [az iot hub invoke-device-method](https://docs.microsoft.com/cli/azure/ext/azure-cli-iot-ext/iot/hub?view=azure-cli-latest#ext-azure-cli-iot-ext-az-iot-hub-invoke-device-method) command, and specify the method name and payload. For this method, setting `method-payload` to `1` turns the LED on, and setting it to `0` turns it off.
 
     <!-- Inline code tag and CSS to wrap long code lines. -->
     <code style="white-space : pre-wrap !important;">
-    az iot hub invoke-device-method --device-id MyNXPDevice --method-name MyMethod --method-payload '{"Greeting":"Hello world!"}' --hub-name {YourIoTHubName}
+    az iot hub invoke-device-method --device-id MyNXPDevice --method-name set_led_state --method-payload 1 --hub-name {YourIoTHubName}
     </code>
 
-
-    **Note**: If you use Powershell use the following code block instead. This code formats the JSON `method-payload` parameter according to Powershell formatting rules.
-
-    <code style="white-space : pre-wrap !important;">
-    az iot hub invoke-device-method --device-id MyNXPDevice --method-name MyMethod --method-payload '{\"Greeting\": \"Hello world!\"}' --hub-name {YourIoTHubName}
-    </code>
-
-    The console shows the status of your method call on the device, where `1` indicates success.
+    The CLI console shows the status of your method call on the device, where `204` indicates success.
 
     ```json
     {
-        "payload": {},
-        "status": 1
+      "payload": {},
+      "status": 204
     }
     ```
 
-1. View the Termite console to see the JSON payload output:
+1. Check your device to confirm the LED state.
+1. View the Termite terminal to confirm the output messages:
 
-    ![Termite output for direct methods](media/termite-output-direct-method.png)
+    ```json
+    Received direct method=set_led_state, id=3, message=1
+    LED is turned ON
+    Sending device twin update with bool value
+    Sending message {"led0State": 1}
+    Direct method=set_led_state invoked
+    ```
 
 ## Clean up resources
 
