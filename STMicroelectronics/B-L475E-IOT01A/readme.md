@@ -33,7 +33,7 @@ Clone the following repo to download all sample device code, setup scripts, and 
 To clone the repo, run the following command:
 
 ```
-git clone https://github.com/AzureRTOS/getting-started
+git clone https://github.com/azure-rtos/getting-started
 ```
 
 ### Install the tools
@@ -64,7 +64,7 @@ To install the remaining tools:
 
     >Note: If the download won't start after you log in or provide an email address to get a download link, accept cookies for the website and temporarily disable your browser's ad blocker or privacy extension.
 
-1. Install [Termite](https://www.compuphase.com/software_termite.htm). You use this utility to monitor your device.
+1. Install [Termite](https://www.compuphase.com/software_termite.htm). You can use this utility, or another serial RS232 utility, to monitor your device.
 
 ## Prepare Azure resources
 
@@ -83,7 +83,7 @@ If you prefer to run Azure CLI in the browser-based Azure Cloud Shell:
     > Note: If this is the first time you've used the Cloud Shell, it prompts you to create storage, which is required to use the Cloud Shell.  Select a subscription to create a storage account and Microsoft Azure Files share.
 1. Select Bash or Powershell as your preferred CLI environment in the **Select environment** dropdown. If you plan to use Azure Cloud Shell, keep your browser open to run the Azure CLI commands in this tutorial.
 
-    ![Select CLI environment](images/cloud-shell-environment.png)
+    ![Select CLI environment](media/cloud-shell-environment.png)
 
 ### Create an IoT hub
 
@@ -97,7 +97,8 @@ To create an IoT hub:
    az extension add --name azure-iot
    ```
 
-1. Run the [az group create](https://docs.microsoft.com/cli/azure/group?view=azure-cli-latest#az-group-create) command to create a resource group. The following command creates a resource group named *MyResourceGroup* in the *eastus* region. To see other available regions, you can run [az account list-locations](https://docs.microsoft.com/cli/azure/account?view=azure-cli-latest#az-account-list-locations).
+1. Run the [az group create](https://docs.microsoft.com/cli/azure/group?view=azure-cli-latest#az-group-create) command to create a resource group. The following command creates a resource group named *MyResourceGroup* in the *eastus* region.
+    > Note: Optionally, to set an alternate `location`, run [az account list-locations](https://docs.microsoft.com/cli/azure/account?view=azure-cli-latest#az-account-list-locations) to see available locations. Then specify the alternate location in the following command in place of *eastus*.
 
     ```azurecli
     az group create --name MyResourceGroup --location eastus
@@ -143,21 +144,21 @@ To connect the STM DevKit to Azure, you'll modify a configuration file for Wi-Fi
 
 ### Add configuration
 
-1. In a text editor, edit the file *getting-started\STMicroelectronics\B-L475E-IOT01A\app\azure_config.c* to set the Wi-Fi constants to the following values from your local environment.
+1. In a text editor, edit the file *getting-started\STMicroelectronics\B-L475E-IOT01A\app\azure_config.h* to set the Wi-Fi constants to the following values from your local environment.
 
     |Constant name|Value|
     |-------------|-----|
-    |`wifi_ssid` |{*Your Wi-Fi ssid*}|
-    |`wifi_password` |{*Your Wi-Fi password*}|
-    |`wifi_mode` |{*One of the enumerated Wi-Fi mode values in the file*}|
+    |`WIFI_SSID` |{*Your Wi-Fi ssid*}|
+    |`WIFI_PASSWORD` |{*Your Wi-Fi password*}|
+    |`WIFI_MODE` |{*One of the enumerated Wi-Fi mode values in the file*}|
 
 1. Edit the same file to set the Azure IoT device information constants to the values that you saved after you created Azure resources.
 
     |Constant name|Value|
     |-------------|-----|
-    |`iot_hub_hostname` |{*Your Iot hub hostName value*}|
-    |`iot_device_id` |{*Your deviceID value*}|
-    |`iot_sas_key` |{*Your primaryKey value*}|
+    |`IOT_HUB_HOSTNAME` |{*Your Iot hub hostName value*}|
+    |`IOT_DEVICE_ID` |{*Your deviceID value*}|
+    |`IOT_PRIMARY_KEY` |{*Your primaryKey value*}|
 
 ### Build the image
 
@@ -173,7 +174,7 @@ After the build completes, confirm that a binary file was created in the followi
 
 1. On the STM DevKit MCU, locate the **Reset** button, and the Micro USB port which is labeled **USB STLink**. You use these components in the following steps. Both are highlighted in the following picture:
 
-    ![STM DevKit board reset button and micro usb port](images/stm-devkit-board.png)
+    ![STM DevKit board reset button and micro usb port](media/stm-devkit-board.png)
 
 1. Connect the Micro USB cable to the Micro USB port on the STM DevKit, and then connect it to your computer.
     > Note: For detailed setup information about the STM DevKit, see the instructions on the packaging, or see [Tools and Resources](https://www.st.com/content/st_com/en/products/evaluation-tools/product-evaluation-tools/mcu-mpu-eval-tools/stm32-mcu-mpu-eval-tools/stm32-discovery-kits/b-l475e-iot01a.html#resource).
@@ -184,7 +185,7 @@ After the build completes, confirm that a binary file was created in the followi
 
 The flashing process happens quickly. After flashing completes successfully, the **STM32 ST-LINK Utility** displays a message that starts with *Memory programmed in* and indicates how long it took:
 
-![Flash a device with the STM32 ST-LINK Utility](images/stm32-stlink-utility.png)
+![Flash a device with the STM32 ST-LINK Utility](media/stm32-stlink-utility.png)
 
 ### Confirm device connection details
 
@@ -208,7 +209,7 @@ You can use the **Termite** utility to monitor communication and confirm that yo
 
 The Termite console shows the details about the board, your connection, and the checkpoint values.
 
-![Termite output with connection checkpoints](images/termite-output-checkpoints.png)
+![Termite output with connection checkpoints](media/termite-output-checkpoints.png)
 
 Keep Termite open to monitor device output in the following steps.
 
@@ -300,7 +301,7 @@ To call a direct method on your device:
 
 1. View the Termite console to see the JSON payload output:
 
-    ![Termite output for direct methods](images/termite-output-direct-method.png)
+    ![Termite output for direct methods](media/termite-output-direct-method.png)
 
 ## Clean up resources
 

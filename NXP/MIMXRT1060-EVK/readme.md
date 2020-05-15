@@ -34,7 +34,7 @@ Clone the following repo to download all sample device code, setup scripts, and 
 To clone the repo, run the following command:
 
 ```
-git clone https://github.com/AzureRTOS/getting-started
+git clone https://github.com/azure-rtos/getting-started
 ```
 
 ### Install the tools
@@ -58,7 +58,7 @@ To install the tools:
     ```
     cmake --version
     ```
-1. Install [Termite](https://www.compuphase.com/software_termite.htm). You use this utility to monitor your device.
+1. Install [Termite](https://www.compuphase.com/software_termite.htm). You use this utility to monitor your device. You can use this utility, or another serial RS232 utility, to monitor your device.
 
 ## Prepare Azure resources
 
@@ -77,7 +77,7 @@ If you prefer to run Azure CLI in the browser-based Azure Cloud Shell:
     > Note: If this is the first time you've used the Cloud Shell, it prompts you to create storage, which is required to use the Cloud Shell.  Select a subscription to create a storage account and Microsoft Azure Files share.
 1. Select Bash or Powershell as your preferred CLI environment in the **Select environment** dropdown. If you plan to use Azure Cloud Shell, keep your browser open to run the Azure CLI commands in this tutorial.
 
-    ![Select CLI environment](images/cloud-shell-environment.png)
+    ![Select CLI environment](media/cloud-shell-environment.png)
 
 ### Create an IoT hub
 
@@ -91,7 +91,8 @@ To create an IoT hub:
    az extension add --name azure-iot
    ```
 
-1. Run the [az group create](https://docs.microsoft.com/cli/azure/group?view=azure-cli-latest#az-group-create) command to create a resource group. The following command creates a resource group named *MyResourceGroup* in the *eastus* region. To see other available regions, you can run [az account list-locations](https://docs.microsoft.com/cli/azure/account?view=azure-cli-latest#az-account-list-locations).
+1. Run the [az group create](https://docs.microsoft.com/cli/azure/group?view=azure-cli-latest#az-group-create) command to create a resource group. The following command creates a resource group named *MyResourceGroup* in the *eastus* region.
+    > Note: Optionally, to set an alternate `location`, run [az account list-locations](https://docs.microsoft.com/cli/azure/account?view=azure-cli-latest#az-account-list-locations) to see available locations. Then specify the alternate location in the following command in place of *eastus*.
 
     ```azurecli
     az group create --name MyResourceGroup --location eastus
@@ -139,15 +140,16 @@ To connect the NXP EVK to Azure, you'll modify a configuration file for the Azur
 
 1. Open the following file in a text editor:
 
-    > *getting-started\NXP\MIMXRT1060-EVK\app\azure_config.c*
+    > *getting-started\NXP\MIMXRT1060-EVK\app\azure_config.h*
 
 1. Set the Azure IoT device information constants to the values that you saved after you created Azure resources.
 
     |Constant name|Value|
     |-------------|-----|
-    |`iot_hub_hostname` |{*Your Iot hub hostName value*}|
-    |`iot_device_id` |{*Your deviceID value*}|
-    |`iot_sas_key` |{*Your primaryKey value*}|
+    |`IOT_HUB_HOSTNAME` |{*Your Iot hub hostName value*}|
+    |`IOT_DEVICE_ID` |{*Your deviceID value*}|
+    |`IOT_PRIMARY_KEY` |{*Your primaryKey value*}|
+
 1. Save and close the file.
 
 ### Build the image
@@ -164,13 +166,14 @@ After the build completes, confirm that a binary file was created in the followi
 
 1. On the NXP EVK, locate the **Reset** button, the Micro USB port, and the Ethernet port. You use these components in the following steps.
 
-    ![NXP EVK board](images/nxp-evk-board.png)
+    ![NXP EVK board](media/nxp-evk-board.png)
 
 1. Connect the Micro USB cable to the Micro USB port on the NXP EVK, and then connect it to your computer. After the board powers up, a solid green LED shows the power status.
 1. In File Explorer, find the NXP EVK device connected to your computer.
 1. Copy the image file *mimxrt1060_azure_iot_flash.bin* that you created in the previous section, and paste it into the root folder of the NXP EVK. The flashing process starts automatically.
 
     > Note: During the flashing process, a red LED blinks rapidly on the NXP EVK. The process completes in a few seconds without further notification.
+1. Use the Ethernet cable to connect the NXP EVK to an Ethernet port.
 
 ### Confirm device connection details
 
@@ -194,7 +197,7 @@ You can use the **Termite** utility to monitor communication and confirm that yo
 
 The Termite console shows the details about the board, your connection, and the checkpoint values.
 
-![Termite output with connection checkpoints](images/termite-output-checkpoints.png)
+![Termite output with connection checkpoints](media/termite-output-checkpoints.png)
 
 Keep Termite open to monitor device output in the following steps.
 
@@ -286,7 +289,7 @@ To call a direct method on your device:
 
 1. View the Termite console to see the JSON payload output:
 
-    ![Termite output for direct methods](images/termite-output-direct-method.png)
+    ![Termite output for direct methods](media/termite-output-direct-method.png)
 
 ## Clean up resources
 
