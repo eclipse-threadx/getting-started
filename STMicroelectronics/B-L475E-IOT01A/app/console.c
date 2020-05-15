@@ -1,3 +1,6 @@
+/* Copyright (c) Microsoft Corporation.
+   Licensed under the MIT License. */
+
 #include "stm32l4xx_hal.h"
 
 #include "board_init.h"

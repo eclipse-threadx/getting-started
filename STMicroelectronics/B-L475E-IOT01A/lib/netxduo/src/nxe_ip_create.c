@@ -93,7 +93,7 @@ UINT       status;
 UINT       old_threshold;
 NX_IP     *created_ip;
 ULONG      created_count;
-UCHAR     *end_stack;
+UCHAR     *end_stack = 0;
 TX_THREAD *current_thread;
 
 

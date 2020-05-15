@@ -98,6 +98,8 @@
 #include "nx_ipv4.h"
 
 
+USHORT _nx_ip_checksum_compute(NX_PACKET *packet_ptr, ULONG protocol, UINT data_length,
+                               ULONG *_src_ip_addr, ULONG *_dest_ip_addr);
 
 #if 0 /* Not support for STM32L475E-IOT01A1.  */
 /* Define IP function prototypes.  */

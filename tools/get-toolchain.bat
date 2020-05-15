@@ -1,3 +1,6 @@
+:: Copyright (c) Microsoft Corporation.
+:: Licensed under the MIT License.
+
 @echo off
 
 echo Installing prerequisites. Please leave the window open until the installation completes.

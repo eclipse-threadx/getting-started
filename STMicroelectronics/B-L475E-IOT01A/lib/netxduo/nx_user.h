@@ -1,23 +1,11 @@
 /**************************************************************************/
 /*                                                                        */
-/*            Copyright (c) 1996-2019 by Express Logic Inc.               */
+/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
 /*                                                                        */
-/*  This software is copyrighted by and is the sole property of Express   */
-/*  Logic, Inc.  All rights, title, ownership, or other interests         */
-/*  in the software remain the property of Express Logic, Inc.  This      */
-/*  software may only be used in accordance with the corresponding        */
-/*  license agreement.  Any unauthorized use, duplication, transmission,  */
-/*  distribution, or disclosure of this software is expressly forbidden.  */
-/*                                                                        */
-/*  This Copyright notice may not be removed or modified without prior    */
-/*  written consent of Express Logic, Inc.                                */
-/*                                                                        */
-/*  Express Logic, Inc. reserves the right to modify this software        */
-/*  without notice.                                                       */
-/*                                                                        */
-/*  Express Logic, Inc.                     info@expresslogic.com         */
-/*  11423 West Bernardo Court               http://www.expresslogic.com   */
-/*  San Diego, CA  92127                                                  */
+/*       This software is licensed under the Microsoft Software License   */
+/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
+/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
+/*       and in the root directory of this software.                      */
 /*                                                                        */
 /**************************************************************************/
 
@@ -38,11 +26,11 @@
 /*  PORT SPECIFIC C INFORMATION                            RELEASE        */
 /*                                                                        */
 /*    nx_user.h                                           PORTABLE C      */
-/*                                                           5.12         */
+/*                                                           6.0          */
 /*                                                                        */
 /*  AUTHOR                                                                */
 /*                                                                        */
-/*    William E. Lamie, Express Logic, Inc.                               */
+/*    William E. Lamie, Microsoft Corporation                             */
 /*                                                                        */
 /*  DESCRIPTION                                                           */
 /*                                                                        */
@@ -56,103 +44,10 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  12-12-2005     William E. Lamie         Initial Version 5.0           */
-/*  08-09-2007     William E. Lamie         Modified comment(s),          */
-/*                                            resulting in version 5.1    */
-/*  12-30-2007     Yuxin Zhou               Modified comment(s), and      */
-/*                                            added support for IPv6,     */
-/*                                            resulting in version 5.2    */
-/*  08-03-2009     William E. Lamie         Modified comment(s),          */
-/*                                            resulting in version 5.3    */
-/*  11-23-2009     Yuxin Zhou               Modified comment(s),          */
-/*                                            resulting in version 5.4    */
-/*  06-01-2010     Janet Christiansen       Addeded support for path MTU  */
-/*                                            packet fragmentation logic, */
-/*                                            added options for router    */
-/*                                            solicitation, disabling RA, */
-/*                                            ICMPv6 error message, and   */
-/*                                            redirect, NetX Duo error    */
-/*                                            checking and new features   */
-/*                                            using stale cache entries,  */
-/*                                            IPsec, static IP routing    */
-/*                                            (IPv4), path MTU discovery, */
-/*                                            resulting in version 5.5    */
-/*  10-10-2011     Yuxin Zhou               Modified comment(s), added    */
-/*                                            TCP window scaling and      */
-/*                                            disable loopback interface  */
-/*                                            options, added receive and  */
-/*                                            transmit UDP packet checksum*/
-/*                                            disable options, added      */
-/*                                            options to disable ICMP     */
-/*                                            checksum computation,       */
-/*                                            resulting in version 5.6    */
-/*  01-31-2013     Yuxin Zhou               Modified comment(s), added    */
-/*                                            symbols to support IP raw   */
-/*                                            recv queue max, raw filter, */
-/*                                            IPv6 address change notify, */
-/*                                            IPv6 autoconfig control,    */
-/*                                            added new option            */
-/*                                            NX_ENABLE_TCP_MSS_CHECK     */
-/*                                            option to check connection  */
-/*                                            requests for a minimum MSS  */
-/*                                            value, added support for    */
-/*                                            IPv6 join/leave operations, */
-/*                                            added support for queue     */
-/*                                            depth notify callback,      */
-/*                                            resulting in version 5.7    */
-/*  01-12-2015     Yuxin Zhou               Modified comment(s), added    */
-/*                                            definition for IP reassembly*/
-/*                                            time, added symbol that     */
-/*                                            allows IP fragment          */
-/*                                            reassemble immediately,     */
-/*                                            updated time of ND cache to */
-/*                                            RFC recommended values,     */
-/*                                            added duo packet pool       */
-/*                                            feature, added source       */
-/*                                            address check for incoming  */
-/*                                            packet, added a feature that*/
-/*                                            responds to a conflict GARP */
-/*                                            packet, supported to limit  */
-/*                                            the number of packets that  */
-/*                                            are out of order,           */
-/*                                            supported NAT feature,      */
-/*                                            removed deprecated macro    */
-/*                                            for IPv6 path MTU,          */
-/*                                            resulting in version 5.8    */
-/*  02-22-2016     Yuxin Zhou               Modified comment(s), and      */
-/*                                            supported packet alignment, */
-/*                                            supported packet debugging, */
-/*                                            removed deprecated or unused*/
-/*                                            macros, added support to    */
-/*                                            detect man-in-the-middle    */
-/*                                            attack (NX_ENABLE_ARP_MAC_  */
-/*                                            CHANGE_NOTIFICATION),       */
-/*                                            corrected the reassembly    */
-/*                                            timer, unified ticks per    */
-/*                                            second, added ASSERT macros,*/
-/*                                            cleaned up the macro list,  */
-/*                                            supported packet pool low   */
-/*                                            watermark, updated the value*/
-/*                                            for maximum TCP receive     */
-/*                                            queue length, renamed       */
-/*                                            symbols, resulting in       */
-/*                                            version 5.9                 */
-/*  05-10-2016     Yuxin Zhou               Modified comment(s),          */
-/*                                            added NX_DISABLE_ICMPV4_    */
-/*                                            ERROR_MESSAGE,              */
-/*                                            resulting in version 5.10   */
-/*  07-15-2018     Yuxin Zhou               Modified comment(s), and      */
-/*                                            added symbol for checking   */
-/*                                            address of ICMP packet,     */
-/*                                            added NX_ICMPV6_RTR_SOLICI- */
-/*                                            TATION_DELAY, added support */
-/*                                            for disabling IPv4 feature, */
-/*                                            resulting in version 5.11   */
-/*  08-15-2019     Yuxin Zhou               Modified comment(s), and      */
-/*                                            added NX_MAX_STRING_LENGTH, */
-/*                                            resulting in version 5.12   */
+/*  05-19-2020     William E. Lamie         Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
+
 
 #ifndef NX_USER_H
 #define NX_USER_H

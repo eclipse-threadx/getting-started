@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 set(SOURCES
     Drivers/STM32L4xx_HAL_Driver/src/stm32l4xx_hal.c
     Drivers/STM32L4xx_HAL_Driver/src/stm32l4xx_hal_adc.c

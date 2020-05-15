@@ -1,3 +1,6 @@
+/* Copyright (c) Microsoft Corporation.
+   Licensed under the MIT License. */
+
 #ifndef _NETWORKING_H
 #define _NETWORKING_H
 

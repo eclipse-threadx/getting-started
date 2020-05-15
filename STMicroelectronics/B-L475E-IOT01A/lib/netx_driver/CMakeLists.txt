@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 set(SOURCES
     src/wifi.c
     src/es_wifi.c

@@ -1,3 +1,6 @@
+/* Copyright (c) Microsoft Corporation.
+   Licensed under the MIT License. */
+
 #include "networking.h"
 
 #include "tx_api.h"
@@ -66,10 +69,10 @@ static bool wifi_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
     }
 
     WIFI_GetModuleID(moduleinfo);
-    printf("\tModule %s\r\n", moduleinfo);
+    printf("\tModule: %s\r\n", moduleinfo);
 
     WIFI_GetModuleFwRevision(moduleinfo);
-    printf("\tFW Revision%s\r\n", moduleinfo);
+    printf("\tFW Revision: %s\r\n", moduleinfo);
     
     // Connect to the specified SSID
     int32_t wifiConnectCounter = 1;

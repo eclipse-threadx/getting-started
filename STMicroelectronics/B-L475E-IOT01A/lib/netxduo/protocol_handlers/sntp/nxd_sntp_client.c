@@ -2560,11 +2560,13 @@ UINT  _nx_sntp_client_receive_time_update(NX_SNTP_CLIENT *client_ptr, ULONG time
 UINT            status;
 UINT            length;
 NX_PACKET       *receive_packet;
+#ifndef NX_SNTP_CLIENT_CHECK_DISABLE 
 UINT            sender_port;
 NX_UDP_HEADER   *udp_header_ptr;
 #ifdef __PRODUCT_NETXDUO__
 NXD_ADDRESS     source_ip_address, destination_ip_address;
 #else
+#endif
 ULONG           source_ip_address, destination_ip_address;
 NX_IP_HEADER    *ip_header_ptr;
 #endif
