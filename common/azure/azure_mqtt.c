@@ -365,6 +365,12 @@ static UINT mqtt_open(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas
     NXD_ADDRESS server_ip;
     UINT status;
 
+    if (iot_hub_hostname[0] == NULL || iot_device_id[0] == NULL || iot_sas_key[0] == NULL)
+    {
+        printf("ERROR: IoT Hub connection configuration is empty, please review\r\n");
+        return 1;
+    }
+
     snprintf(mqtt_username, sizeof(mqtt_username), USERNAME, iot_hub_hostname, iot_device_id);
     create_sas_token(
         (CHAR *)iot_sas_key, strlen(iot_sas_key),
@@ -373,12 +379,6 @@ static UINT mqtt_open(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas
 
     snprintf(mqtt_subscribe_topic, sizeof(mqtt_subscribe_topic), DEVICE_MESSAGE_TOPIC, iot_device_id);
 
-    if (iot_hub_hostname[0] == 0)
-    {
-        printf("ERROR: iot_hub_hostname is blank\r\n");
-        return 1;
-    }
-    
     status = nx_secure_tls_session_create(
         &mqtt_client.nxd_mqtt_tls_session,
         &nx_crypto_tls_ciphers,
