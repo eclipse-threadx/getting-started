@@ -2,6 +2,11 @@
 
 The getting started guides in this repository extensively use the Azure RTOS for general operation as well as connecting to Azure IoT Hub.
 
+## CMake
+[CMake](https://cmake.org) is the mechanism used for to generate the build files that then build the final flashable binary. CMake was chosen as the preferred system for for Azure RTOS because of it's portability, simplicity and scalability. CMake is used by the core Azure RTOS components and 
+
+### Toolchain
+
 ## ThreadX
 ### Threads
 ### Mutexs
@@ -13,12 +18,11 @@ The getting started guides in this repository extensively use the Azure RTOS for
 
 ## Application Files
 
-### Startup Folder
+### Startup
 
 The startup folder contains three components.
-http://www.scoberlin.de/content/media/http/informatik/gcc_docs/ld_3.html
 
-1. The linker script (file ending in .ld) describes how sections of in the input files are mapped into the output file as well as control the memory layout of the output file. In here you can control where the different sections such as .data, .text, .stack are placed in the devices flash.
+1. The linker script (file ending in .ld) describes how sections in the input files are mapped into the output file as well as control the memory layout of the output file. In here you can control where the different sections such as .data, .text, .stack are placed in the devices flash.
 
 1. The startup assembly will typically contain the interrupt vector table, as well as the execution entry point. The vector table is a array of pointer where execution will begin when a hardware interrupt is triggered. The Reset_Handler entry point performs important memory initialization functions before the application main is called.
 
@@ -30,8 +34,8 @@ This file contains the application entry point main(). Main is responsible for t
 
 1. Entering the ThreadX kernel
 1. Initializing the board
-1. Initializing the network
-1. Initializing the SNTP client
+1. Starting the network
+1. Starting the SNTP client
 1. Starting the IoT Hub thread
 
 ### Azure_config.h
@@ -42,25 +46,39 @@ In a production environment it would not be recommended to hard code configurati
 
 ### Azure_iothub.c
 
-The main application location for all IoT Hub communication. This file performs the following functions:
+The main application location for all IoT Hub communication logic. This file starts the MQTT client and register the following callbacks for the subscribed topics needed for IoT Hub communication:
 
-1. Start the MQTT client and register the callbacks for the subscribed topics needed for IoT Hub communication.
+
+|Callback |Description|
+|---------|---------|
+|Direct method |Handle direct methods initiated from IoT Hub|
+|RowC2D message |Handle cloud to device messages initiated from IoT Hub|
+|Device twin desired property |Handle device twin desired properties initiated from IoT Hub|
+|Thread entry |Main thread loop. Device telemetry is implemented here on a regular interval|
 
 ### Board_init.c
 
 This file is responsible for initializing the different functions of the board. Typically this will setup the clocks, pins, peripherals as well as the debug console.
 
 ## Common Files
-### networking.c
+
+### Networking.c
+Initialize the main components of the networking stack. 
+
 ### sntp_client.c
 ### azure/azure_mqtt.c
-### azure/cert.c
-### azure/sas_token.c
 
+### Azure/sas_token.c
+
+Sas_token.c takes a IoT Hub hostname, the device id and the device sas key and generates a SAS token. The SAS token is used to authenticate with your Azure IoT Hub.
+
+A Sas token consist of a 
 
 ## Library Files
-### threadx
-### netxduo
-### netx_driver
 
-## CMake
+### Threadx
+
+### Netxduo
+
+### Netx_driver
+
