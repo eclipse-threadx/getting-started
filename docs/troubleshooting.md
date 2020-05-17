@@ -1,31 +1,91 @@
-# Troubleshooting
+# Troubleshooting for the Azure RTOS getting started guide
 
-## IoT connection Hub is failing
-Console output = "Unable to resolve DNS for MQTT Server"
+As you follow the individual tutorials in the series [Getting Started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824), you might experience some common issues. In general, issues can occur in any of the following sources:
 
-* Check your spelling/case for IOT config in azure_config.h (hostname, device_id, primary_key)
+* **Your environment**. Your machine, software, or network setup and connection.
+* **Your Azure IoT resources**. The IoT hub and device that you created to connect to Azure IoT.
+* **Your device**. The physical board and its configuration.
 
-## Flashing the board fails
-Unable to successfully complete 'Flash the image' section
+This troubleshooting guide provides suggested resolutions for the most common issues that can occur as you complete the tutorials.
 
-* Try and a different USB cable
-* Try and a different USB port on your computer
+## Prerequisites
+
+All the troubleshooting steps require that you've completed the following prerequisites for the tutorial you're working in:
+
+* You installed or acquired all prerequisites, and additional software tools, for the specific tutorial in the series [Getting Started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824).
+* You created an Azure Iot hub, and registered a device, as directed in the tutorial.
+* You built an image for the device, as directed in the tutorial.
+
+## Issue: Device can't connect to Iot hub
+
+### Description
+
+The issue can occur after you've created Azure resources, and flashed your device. When you try to connect your newly flashed device to Azure IoT, you see a console message like the following:
+
+* *Unable to resolve DNS for MQTT Server*
+
+### Resolution
+
+* Check the spelling and case of the configuration values you entered for your IoT configuration in the file *azure_config.h*. The values for some IoT resource attributes, such as `deviceID` and `primaryKey`, are case sensitive.
+
+## Issue: Flashing the board fails
+
+### Description
+
+You can't complete the process of flashing your device. You will know this if you experience any of the following symptoms:
+
+* The **.bin* image file that you built does not copy to the device.
+* The utility that you're using to flash the device gives a warning or error.
+* The utility that you're using to flash the device does not say that programming completed successfully.
+
+### Resolution
+
+* Try using a different Micro USB cable. Some devices and cables are incompatible.
+* Try connecting to a different USB port on your computer. A USB port might be disconnected internally, disabled in software, or temporarily in an unusable state.
 * Restart your computer.
 
-## Serial Port garbled text
-Console output = garbled text
+## Issue: Device fails to connect to port
 
-* Check termite's 'baud rate' to 115200
+### Description
 
-## Serial port no text
-Console output = nothing
+After you flash your device and connect it to your computer, you get a message like the following in your terminal software:
 
-* Make sure your termite setting match the devices tutorial
-* Confirm the the chosen com port is correct, check device manager
-* Restart termite
+```
+Failed to initialize the port.
+Please verify the COM port settings.
+```
 
-## Generic not working
-Something just isn't working after reviewing above.
+### Resolution
 
-* Refer to the SV website for further diagnostic information.
-* List links to their sites.
+* In the settings for your terminal software, check the **Port** setting to confirm that the correct port is selected. If there are multiple ports displayed, you can open Windows Device Manager and select the **Ports** node to find the correct port for your connected device.
+
+## Issue: Terminal output shows garbled text
+
+### Description
+
+After you flash your device successfully and connect it to your computer, you see garbled text output in your terminal software.
+
+### Resolution
+
+* In the settings for your terminal software, confirm that the **Baud rate** setting is *115,200*.
+
+## Issue: Terminal output shows no text
+
+### Description
+
+After you flash your device successfully and connect it to your computer, you see no output in your terminal software.
+
+### Resolution
+
+* Confirm that the settings in your terminal software match the settings in the tutorial.
+* Restart your terminal software.
+* Press the **Reset** button on your device.
+* Confirm that your USB cable is properly connected.
+
+## Next steps
+
+If you reviewed all the previous issues, and you still cannot monitor your device in a terminal or connect to Azure IoT, there might be an issue with your device's hardware or physical configuration. See the manufacturer's page for your device to find documentation and support options.
+
+* [STMicroelectronics B-L475E-IOT01](https://www.st.com/content/st_com/en/products/evaluation-tools/product-evaluation-tools/mcu-mpu-eval-tools/stm32-mcu-mpu-eval-tools/stm32-discovery-kits/b-l475e-iot01a.html)
+* [NXP MIMXRT1060-EVK: i.MX RT1060](https://www.nxp.com/design/development-boards/i-mx-evaluation-and-development-boards/mimxrt1060-evk-i-mx-rt1060-evaluation-kit:MIMXRT1060-EVK)
+* [Microchip ATSAME54-XPro](https://www.microchip.com/developmenttools/productdetails/atsame54-xpro)
