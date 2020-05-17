@@ -5,6 +5,29 @@ The getting started guides in this repository extensively use the Azure RTOS for
 ## CMake
 [CMake](https://cmake.org) is the mechanism used for to generate the build files that then build the final flashable binary. CMake was chosen as the preferred system for for Azure RTOS because of it's portability, simplicity and scalability. CMake is used by the core Azure RTOS components and 
 
+## Guide Structure
+|--- cmake/
+|
+|--- common/
+|   |--- azure/
+|   |   |--- azure_mqtt.c
+|   |--- networking.c
+|   |--- sntp_client.c
+|
+|--- {vendor}/{devkit}/
+    |--- app/
+    |   |--- main.c
+    |   |--- board_init.c
+    |       |--- startup/
+    |           |--- startup.s
+    |           |--- linker.ld
+    |--- lib/
+        |--- threadx/
+        |   |--- tx_user.h
+        |--- netx_duo/
+            |--- nx_user.h
+
+
 ### Toolchain
 
 ## ThreadX
@@ -58,21 +81,29 @@ The main application location for all IoT Hub communication logic. This file sta
 
 ### Board_init.c
 
-This file is responsible for initializing the different functions of the board. Typically this will setup the clocks, pins, peripherals as well as the debug console.
+This file is responsible for initializing the different functions of the board. Typically this will setup the clocks, pins, peripherals as well as the debug console which redirects to the virtual serial port.
 
 ## Common Files
 
 ### Networking.c
-Initialize the main components of the networking stack. 
 
-### sntp_client.c
-### azure/azure_mqtt.c
+Initialize the main components of the networking stack using NetXDuo. This includes allocating a packet pool, and creating the IP instance. The the TCP, UDP and ICMP protocols are enabled.
+
+NetXDuo contains a couple of add-ons, DHCP and DNS, to simplify connectivity. The nxd_dhcp_client 
+
+### Sntp_client.c
+
+Accurate time is required for generation of the SAS token, used for authentication with Azure IoT Hub. The SNTP (Simple Network Time Protocol), is responsible for synchronising time between the MCU and timer server on the internet.
+
+The SNTP implementation will attempt to synchronize time at startup, and then will maintain a thread that will monitor for incoming updates and resynchronize. The monitor thread contains some simple logic to reconnect if a required.
+
+### Azure/azure_mqtt.c
+
+
 
 ### Azure/sas_token.c
 
 Sas_token.c takes a IoT Hub hostname, the device id and the device sas key and generates a SAS token. The SAS token is used to authenticate with your Azure IoT Hub.
-
-A Sas token consist of a 
 
 ## Library Files
 
