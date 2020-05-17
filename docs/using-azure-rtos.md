@@ -2,33 +2,49 @@
 
 The getting started guides in this repository extensively use the Azure RTOS for general operation as well as connecting to Azure IoT Hub.
 
+## Guide File Structure
+
+Below is the basic file structure of the getting started repository. Each of the files will be discussed further in this document, to describe their function in the overall project.
+
+    |--- cmake/
+    |   |--- arm-gcc-cortex-m4.cmake
+    |   |--- arm-gcc-cortex-m7.cmake
+    |   |--- arm_gcc_toolchain.cmake
+    |   |--- CPM.cmake
+    |
+    |--- common/
+    |   |--- azure/
+    |   |   |--- azure_mqtt.c
+    |   |   |--- cert.c
+    |   |   |--- sas_token.c
+    |   |
+    |   |--- networking.c
+    |   |--- sntp_client.c
+    |
+    |--- {vendor}/{devkit}/
+        |--- app/
+        |   |--- main.c
+        |   |--- azure_config.h
+        |   |--- azure_iothub.c
+        |   |--- board_init.c
+        |       |--- startup/
+        |           |--- startup.s
+        |           |--- linker.ld
+        |--- lib/
+            |--- threadx/
+            |   |--- tx_user.h
+            |--- netx_duo/
+            |   |--- nx_user.h
+            |--- netx_driver/
+            |--- {board_bsp}/
+
+
 ## CMake
-[CMake](https://cmake.org) is the mechanism used for to generate the build files that then build the final flashable binary. CMake was chosen as the preferred system for for Azure RTOS because of it's portability, simplicity and scalability. CMake is used by the core Azure RTOS components and 
 
-## Guide Structure
-|--- cmake/
-|
-|--- common/
-|   |--- azure/
-|   |   |--- azure_mqtt.c
-|   |--- networking.c
-|   |--- sntp_client.c
-|
-|--- {vendor}/{devkit}/
-    |--- app/
-    |   |--- main.c
-    |   |--- board_init.c
-    |       |--- startup/
-    |           |--- startup.s
-    |           |--- linker.ld
-    |--- lib/
-        |--- threadx/
-        |   |--- tx_user.h
-        |--- netx_duo/
-            |--- nx_user.h
-
+[CMake](https://cmake.org) is the mechanism used for to generate the build files that then build the final flashable binary. CMake was chosen as the preferred system for for Azure RTOS because of it's portability, simplicity and scalability. CMake is used by the core Azure RTOS components, making integrating these into the getting started guides as simple as an `add_subdirectory` command. These guides utilize an additional module, [CPM](https://github.com/TheLartians/CPM), to automatically pull in the Azure RTOS repository at build time.
 
 ### Toolchain
+
 
 ## ThreadX
 ### Threads
