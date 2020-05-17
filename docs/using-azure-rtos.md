@@ -104,6 +104,8 @@ This file is responsible for initializing the different functions of the board. 
 
 ### Azure/azure_mqtt.c
 
+Communication between the device and Azure IoT Hub is accomplished using the MQTT protocol. Azure IoT's NetXDuo library includes an MQTT client.
+
 Contains the build of the code required to interface with Azure IoT Hub using the Azure RTOS MQTT Application. The functions in this file are responsible for.
 1. Initializing the MQTT client
 1. Establishing a secure connection using TLS
@@ -117,7 +119,7 @@ Contains the build of the code required to interface with Azure IoT Hub using th
 
 ### Azure/sas_token.c
 
-Sas_token.c takes a IoT Hub hostname, the device id and the device sas key and generates a SAS token. The SAS token is used to authenticate with your Azure IoT Hub.
+Sas_token.c takes a IoT Hub hostname, the device id and the device's primary SAS key and generates a SAS token. The SAS token is used to authenticate with your Azure IoT Hub.
 
 ### Networking.c
 
