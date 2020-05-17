@@ -41,10 +41,11 @@ Below is the basic file structure of the getting started repository. Each of the
 
 ## CMake
 
-[CMake](https://cmake.org) is the mechanism used for to generate the build files that then build the final flashable binary. CMake was chosen as the preferred system for for Azure RTOS because of it's portability, simplicity and scalability. CMake is used by the core Azure RTOS components, making integrating these into the getting started guides as simple as an `add_subdirectory` command. These guides utilize an additional module, [CPM](https://github.com/TheLartians/CPM), to automatically pull in the Azure RTOS repository at build time.
+[CMake](https://cmake.org) is the mechanism used for to generate the build files that then build the final flashable binary. CMake was chosen as the preferred system for for Azure RTOS because of it's portability, simplicity and scalability. CMake is used by the core Azure RTOS components, making integrating these into the getting started guides as simple as an `add_subdirectory` command. These guides utilizes an additional 3rd party module, [CPM](https://github.com/TheLartians/CPM), to automatically pull in the Azure RTOS repository at build time.
 
 ### Toolchain
 
+The cmake folder contains te build toolchain files for the project. It contains both a [Cortex-M4](../cmake/arm-gcc-cortex-m4.cmake) and a [Cortex-M7](../cmake/arm-gcc-cortex-m7.cmake) variant which enable the specific Gcc flags for building on the architecture. There is also a base level [arm-gcc-toolchain.cmake](../cmake/arm-gcc-toolchain.cmake) file that defines the specific build tools (arm-none-eabi-*), along with the a set of compile and linker flags to optimally build the flags.
 
 ## ThreadX
 ### Threads
@@ -71,11 +72,11 @@ The startup folder contains three components.
 
 This file contains the application entry point main(). Main is responsible for the following functions:
 
-1. Entering the ThreadX kernel
-1. Initializing the board
-1. Starting the network
-1. Starting the SNTP client
-1. Starting the IoT Hub thread
+* Entering the ThreadX kernel
+* Initializing the board
+* Starting the network
+* Starting the SNTP client
+* Starting the IoT Hub thread
 
 ### Azure_config.h
 
@@ -101,6 +102,23 @@ This file is responsible for initializing the different functions of the board. 
 
 ## Common Files
 
+### Azure/azure_mqtt.c
+
+Contains the build of the code required to interface with Azure IoT Hub using the Azure RTOS MQTT Application. The functions in this file are responsible for.
+1. Initializing the MQTT client
+1. Establishing a secure connection using TLS
+1. Subscribing to the IoT Hub topics
+    1. Cloud to Device messages
+    1. Direct methods
+    1. Device twin properties
+    1. Device twin desired properties
+1. Parsing the MQTT messages and calling the appropriate callback into the applications azure_iothub.c function.
+1. Facilitating publishing messages to IoT Hub via a set of helper functions.
+
+### Azure/sas_token.c
+
+Sas_token.c takes a IoT Hub hostname, the device id and the device sas key and generates a SAS token. The SAS token is used to authenticate with your Azure IoT Hub.
+
 ### Networking.c
 
 Initialize the main components of the networking stack using NetXDuo. This includes allocating a packet pool, and creating the IP instance. The the TCP, UDP and ICMP protocols are enabled.
@@ -113,19 +131,16 @@ Accurate time is required for generation of the SAS token, used for authenticati
 
 The SNTP implementation will attempt to synchronize time at startup, and then will maintain a thread that will monitor for incoming updates and resynchronize. The monitor thread contains some simple logic to reconnect if a required.
 
-### Azure/azure_mqtt.c
-
-
-
-### Azure/sas_token.c
-
-Sas_token.c takes a IoT Hub hostname, the device id and the device sas key and generates a SAS token. The SAS token is used to authenticate with your Azure IoT Hub.
-
 ## Library Files
 
 ### Threadx
 
+Contains a single file, tx_user.h, that defines the varies preprocessor flags to customize ThreadX for the specific architecture and board for each of the guides.
+
 ### Netxduo
+
+Contains a single file, nx_user.h, that defines the varies preprocessor flags to customize NetXDuo for the specific architecture and board for each of the guides.
 
 ### Netx_driver
 
+Contains the network driver to enable NetXDuo to interface with the network module on each of the boards.
