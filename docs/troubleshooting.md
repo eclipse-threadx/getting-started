@@ -28,6 +28,17 @@ The issue can occur after you've created Azure resources, and flashed your devic
 
 * Check the spelling and case of the configuration values you entered for your IoT configuration in the file *azure_config.h*. The values for some IoT resource attributes, such as `deviceID` and `primaryKey`, are case sensitive.
 
+## Issue:  Wi-Fi is unable to connect
+
+### Description
+
+After you flash a device that uses a Wi-Fi connection and try to connect to your Wi-Fi network, you get an error message that Wi-Fi is unable to connect.
+
+### Resolution
+
+* Check your Wi-Fi network frequency and settings. The devices used in the getting started guide all use 2.4 GHz. Confirm that your Wi-Fi router is configured to support a 2.4 GHz network.
+* Check the Wi-Fi mode. Confirm what setting you used for the WIFI_MODE constant in the *azure_config.h* file. Check your Wi-Fi network security or authentication settings to confirm that the Wi-Fi security mode matches what you have in the configuration file.
+
 ## Issue: Flashing the board fails
 
 ### Description
@@ -87,5 +98,5 @@ After you flash your device successfully and connect it to your computer, you se
 If you reviewed all the previous issues, and you still cannot monitor your device in a terminal or connect to Azure IoT, there might be an issue with your device's hardware or physical configuration. See the manufacturer's page for your device to find documentation and support options.
 
 * [STMicroelectronics B-L475E-IOT01](https://www.st.com/content/st_com/en/products/evaluation-tools/product-evaluation-tools/mcu-mpu-eval-tools/stm32-mcu-mpu-eval-tools/stm32-discovery-kits/b-l475e-iot01a.html)
-* [NXP MIMXRT1060-EVK: i.MX RT1060](https://www.nxp.com/design/development-boards/i-mx-evaluation-and-development-boards/mimxrt1060-evk-i-mx-rt1060-evaluation-kit:MIMXRT1060-EVK)
+* [NXP MIMXRT1060-EVK](https://www.nxp.com/design/development-boards/i-mx-evaluation-and-development-boards/mimxrt1060-evk-i-mx-rt1060-evaluation-kit:MIMXRT1060-EVK)
 * [Microchip ATSAME54-XPro](https://www.microchip.com/developmenttools/productdetails/atsame54-xpro)
