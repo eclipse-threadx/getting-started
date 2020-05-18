@@ -1,6 +1,11 @@
 # Using Azure RTOS in the Getting Started Guides
 
-The getting started guides in this repository extensively use the Azure RTOS for general operation as well as connecting to [Azure IoT Hub](https://azure.microsoft.com/en-us/services/iot-hub).
+The getting started guide in this repository uses Azure RTOS for general operations as well as connecting to [Azure IoT Hub](https://azure.microsoft.com/en-us/services/iot-hub). The sample code in the getting started guide uses the following Azure RTOS components:
+
+* [Azure ThreadX](threadx/overview-threadx.md). Provides the core real-time operating system components for devices.
+* [Azure NetX Duo](netx-duo/overview-netx-duo.md). Provides a full TCP/IP IPv4 and IPv6 network stack, and networking support integrated with ThreadX.
+
+> Note: Azure RTOS provides OEMs with components to secure communication and to create code and data isolation using underlying MCU/MPU hardware protection mechanisms. However, each OEM is ultimately responsible for ensuring that their device meets evolving security requirements.
 
 ## Guide File Structure
 
@@ -36,7 +41,6 @@ Below is the basic file structure of the getting started repository. Each of the
             |   |--- nx_user.h
             |--- netx_driver/
             |--- {board_bsp}/
-
 
 ## CMake
 
