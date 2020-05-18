@@ -47,15 +47,6 @@ Below is the basic file structure of the getting started repository. Each of the
 
 The cmake folder contains te build toolchain files for the project. It contains both a [Cortex-M4](../cmake/arm-gcc-cortex-m4.cmake) and a [Cortex-M7](../cmake/arm-gcc-cortex-m7.cmake) variant which enable the specific Gcc flags for building on the architecture. There is also a base level [arm-gcc-toolchain.cmake](../cmake/arm-gcc-toolchain.cmake) file that defines the specific build tools (arm-none-eabi-*), along with the a set of compile and linker flags to optimally build the flags.
 
-## ThreadX
-### Threads
-### Mutexs
-## NetXDuo
-### IP
-### DNS
-### DHCP
-### MQTT
-
 ## Application Files
 
 ### Startup
@@ -107,6 +98,7 @@ This file is responsible for initializing the different functions of the board. 
 Communication between the device and Azure IoT Hub is accomplished using the MQTT protocol. Azure IoT's NetXDuo library includes an MQTT client.
 
 Contains the build of the code required to interface with Azure IoT Hub using the Azure RTOS MQTT Application. The functions in this file are responsible for.
+
 1. Initializing the MQTT client
 1. Establishing a secure connection using TLS
 1. Subscribing to the IoT Hub topics
@@ -125,7 +117,7 @@ Sas_token.c takes a IoT Hub hostname, the device id and the device's primary SAS
 
 Initialize the main components of the networking stack using NetXDuo. This includes allocating a packet pool, and creating the IP instance. The the TCP, UDP and ICMP protocols are enabled.
 
-NetXDuo contains a couple of add-ons, DHCP and DNS, to simplify connectivity. The nxd_dhcp_client 
+NetXDuo contains a couple of add-ons, DHCP and DNS, used to establish the network connection.
 
 ### Sntp_client.c
 
