@@ -47,7 +47,10 @@ static bool wifi_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
         case WEP:
             security_mode = WIFI_ECN_WEP;
             break;
-        case WPA2_Personal:
+        case WPA_PSK_TKIP:
+            security_mode = WIFI_ECN_WPA_PSK;
+            break;
+        case WPA2_PSK_AES:
         default:
             security_mode = WIFI_ECN_WPA2_PSK;
             break;
