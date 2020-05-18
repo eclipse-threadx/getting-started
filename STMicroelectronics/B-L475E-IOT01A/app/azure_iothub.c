@@ -111,8 +111,8 @@ void mqtt_thread_entry(ULONG info)
         // Send the compensated temperature as a device twin update
         azure_mqtt_publish_float_telemetry("temperature", temperature);
 
-        // Sleep for 1 minute
-        tx_thread_sleep(60 * TX_TIMER_TICKS_PER_SECOND);
+        // Sleep for 10 seconds
+        tx_thread_sleep(10 * TX_TIMER_TICKS_PER_SECOND);
     }
 }
 

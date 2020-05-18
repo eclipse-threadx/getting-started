@@ -22,13 +22,15 @@ static void set_led_state(bool level)
     {
         // Pin level set to "low" state
         printf("LED is turned ON\r\n");
-//        USER_LED_ON();
+        // The User LED on the board shares the same pin as ENET RST so is unusable
+        // USER_LED_ON();
     }
     else
     {
         // Pin level set to "high" state
         printf("LED is turned OFF\r\n");
-//        USER_LED_OFF();
+        // The User LED on the board shares the same pin as ENET RST so is unusable
+        // USER_LED_OFF();
     }
 }
 
@@ -111,8 +113,8 @@ static void mqtt_thread_entry(ULONG info)
         // Send the compensated temperature as a device twin update
         azure_mqtt_publish_float_property("temperature", temperature);
 
-        // Sleep for 1 minute
-        tx_thread_sleep(60 * TX_TIMER_TICKS_PER_SECOND);
+        // Sleep for 10 seconds
+        tx_thread_sleep(10 * TX_TIMER_TICKS_PER_SECOND);
     }
 }
 

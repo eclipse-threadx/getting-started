@@ -54,9 +54,10 @@ void azure_thread_entry(ULONG parameter)
 
     while (true)
     {
+        tx_thread_sleep(60 * TX_TIMER_TICKS_PER_SECOND);
+
         time_t current = time(NULL);
         printf("Time %ld\r\n", (long)current);
-        tx_thread_sleep(600 * TX_TIMER_TICKS_PER_SECOND);
     }
 }
 
