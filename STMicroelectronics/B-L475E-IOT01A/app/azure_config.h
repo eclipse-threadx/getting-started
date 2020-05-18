@@ -8,7 +8,8 @@ typedef enum
 {
     None          = 0, 
     WEP           = 1,
-    WPA2_Personal = 2,
+    WPA_PSK_TKIP  = 2,
+    WPA2_PSK_AES  = 3
 } WiFi_Mode;
 
 // ----------------------------------------------------------------------------
@@ -16,7 +17,7 @@ typedef enum
 // ----------------------------------------------------------------------------
 #define WIFI_SSID           ""
 #define WIFI_PASSWORD       ""
-#define WIFI_MODE           WPA2_Personal
+#define WIFI_MODE           WPA2_PSK_AES
 
 // ----------------------------------------------------------------------------
 // Azure IoT Device information
