@@ -1,8 +1,8 @@
-<h1>Getting started with the NXP MIMXRT1060-EVK: i.MX RT1060 Evaluation kit</h1>
+<h1>Getting started with the NXP MIMXRT1060-EVK Evaluation kit</h1>
 
 **Total completion time**:  30 minutes
 
-In this tutorial you use Azure RTOS to connect the NXP MIMXRT1060-EVK: i.MX RT1060 Evaluation kit (hereafter, the NXP EVK) to Azure IoT.  The article is part of the series [Getting Started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824). The series introduces device developers to Azure RTOS, and shows how to connect several several device evaluation kits to Azure IoT.
+In this tutorial you use Azure RTOS to connect the NXP MIMXRT1060-EVK Evaluation kit (hereafter, the NXP EVK) to Azure IoT.  The article is part of the series [Getting Started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824). The series introduces device developers to Azure RTOS, and shows how to connect several several device evaluation kits to Azure IoT.
 
 You will complete the following tasks:
 
@@ -18,7 +18,7 @@ You will complete the following tasks:
 * [Git](https://git-scm.com/downloads)
 * Hardware
 
-    > * The [NXP MIMXRT1060-EVK: i.MX RT1060](https://www.nxp.com/design/development-boards/i-mx-evaluation-and-development-boards/mimxrt1060-evk-i-mx-rt1060-evaluation-kit:MIMXRT1060-EVK) (NXP EVK)
+    > * The [NXP MIMXRT1060-EVK](https://www.nxp.com/design/development-boards/i-mx-evaluation-and-development-boards/mimxrt1060-evk-i-mx-rt1060-evaluation-kit:MIMXRT1060-EVK) (NXP EVK)
     > * USB 2.0 A male to Micro USB male cable
     > * Wired Ethernet access
     > * Ethernet cable
