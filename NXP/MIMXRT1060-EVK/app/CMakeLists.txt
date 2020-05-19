@@ -7,8 +7,8 @@ set(LINKER_SCRIPT "${CMAKE_CURRENT_LIST_DIR}/startup/MIMXRT1062xxxxx_flexspi_nor
 set(SOURCES
     newlibc/syscalls.c
     newlibc/console.c
-    startup/startup_mimxrt1062.s
-    startup/tx_initialize_low_level.s
+    startup/startup_MIMXRT1062.S
+    startup/tx_initialize_low_level.S
 
     board/board.c
     board/clock_config.c
