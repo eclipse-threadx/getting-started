@@ -9,7 +9,7 @@ set(SOURCES
     
     startup/system_stm32l4xx.c
     startup/startup.s
-    startup/tx_initialize_low_level.s
+    startup/tx_initialize_low_level.S
 
     stm32cubel4/stm32l4xx_hal_msp.c
     stm32cubel4/stm32l4xx_it.c
