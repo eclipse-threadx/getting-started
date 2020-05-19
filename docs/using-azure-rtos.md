@@ -4,8 +4,8 @@ The getting started guide in this repository uses Microsoft Azure RTOS for gener
 
 The sample code in the getting started guide uses the following Azure RTOS components:
 
-* [Azure ThreadX](threadx/overview-threadx.md). Provides the core real-time operating system components for devices.
-* [Azure NetX Duo](netx-duo/overview-netx-duo.md). Provides a full TCP/IP IPv4 and IPv6 network stack, and networking support integrated with ThreadX.
+* [Azure ThreadX](https://docs.microsoft.com/azure/rtos/threadx/overview-threadx). Provides the core real-time operating system components for devices.
+* [Azure NetX Duo](https://docs.microsoft.com/azure/rtos/netx-duo/overview-netx-duo). Provides a full TCP/IP IPv4 and IPv6 network stack, and networking support integrated with ThreadX.
 
 > Note: Azure RTOS provides OEMs with components to secure communication and to create code and data isolation using underlying MCU/MPU hardware protection mechanisms. However, each OEM is ultimately responsible for ensuring that their device meets evolving security requirements.
 
