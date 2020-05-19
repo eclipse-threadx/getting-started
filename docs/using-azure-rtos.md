@@ -52,6 +52,32 @@ The getting started guide repository is arranged in the following folder and fil
 
 The *cmake* folder contains the build toolchain files for the project. It contains both a [Cortex-M4](../cmake/arm-gcc-cortex-m4.cmake) and a [Cortex-M7](../cmake/arm-gcc-cortex-m7.cmake) variant which enable the specific Gcc flags for building on the architecture. There is also a base level [arm-gcc-toolchain.cmake](../cmake/arm-gcc-toolchain.cmake) file that defines the specific build tools (arm-none-eabi-*), along with a set of compile and linker flags to optimize the build.
 
+### Building
+
+Building the project consists of two steps:
+
+1. Generate the build system, specifying the build directory (```-B```), the build system generator (```-G```) and the appropriate toolchain for the MCU (```-DCMAKE_TOOLCHAIN_FILE```):
+
+    ```
+    cmake -Bbuild -GNinja -DCMAKE_TOOLCHAIN_FILE="../../cmake/arm-gcc-cortex-m4.cmake"
+    ```
+    
+2. Build the project binary
+    
+    ```
+    cmake --build build
+    ```
+
+### Additional Build Options
+
+By default, the project builds a *Debug* release. This release type is suitable for debugging the application as optimizations are disabled (```-O0```), and the debug symbols are included in the resulting elf file.
+
+To build a *Release* binary, append the following to step 1 above, while generating the build system:
+
+```-DCMAKE_BUILD_TYPE=Release```
+
+> Note: A *Release* build may have different run-time characteristics compared to the *Debug* build due to compiler optimizations. Read [Options That Control Optimization](https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html) for further information on GCC compiler optimizations.
+
 ## Application files
 
 ### Main.c
