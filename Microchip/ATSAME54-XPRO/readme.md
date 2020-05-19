@@ -225,7 +225,7 @@ You can use the **Termite** utility to monitor communication and confirm that yo
 1. Start **Termite**.
 1. Select **Settings**.
 1. In the **Serial port settings** dialog, check the following settings and update if needed:
-    * **Baud rate**: 115,000
+    * **Baud rate**: 115,200
     * **Port**: The port that your Microchip E54 is connected to. If there are multiple port options in the dropdown, you can find the correct port to use. Open Windows **Device Manager**, and view **Ports** to identify which port to use.
     * **Flow control**: DTR/DSR
 
