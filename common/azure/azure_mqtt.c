@@ -325,7 +325,7 @@ static VOID process_device_twin_desired_prop_update(AZURE_MQTT *azure_mqtt, CHAR
 
 VOID mqtt_disconnect_cb(NXD_MQTT_CLIENT *client_ptr)
 {
-    printf("ERROR:MQTT disconnected, reconnecting\r\n");
+    printf("ERROR: MQTT disconnected, reconnecting...\r\n");
 
     AZURE_MQTT* azure_mqtt = (AZURE_MQTT *)client_ptr;
 
@@ -570,7 +570,6 @@ UINT azure_mqtt_connect(AZURE_MQTT *azure_mqtt)
     if (status != NXD_MQTT_SUCCESS)
     {
         printf("Could not create TLS Session (0x%02x)\r\n", status);
-        nxd_mqtt_client_delete(&azure_mqtt->nxd_mqtt_client);
         return status;
     }
     
@@ -581,6 +580,7 @@ UINT azure_mqtt_connect(AZURE_MQTT *azure_mqtt)
     if (status != NXD_MQTT_SUCCESS)
     {
         printf("Could not create Login Set (0x%02x)\r\n", status);
+        nx_secure_tls_session_delete(&azure_mqtt->nxd_mqtt_client.nxd_mqtt_tls_session);
         return status;
     }
 
@@ -589,6 +589,7 @@ UINT azure_mqtt_connect(AZURE_MQTT *azure_mqtt)
     if (status != NX_SUCCESS)
     {
         printf("Unable to resolve DNS for MQTT Server %s (0x%02x)\r\n", azure_mqtt->azure_mqtt_hub_hostname, status);
+        nx_secure_tls_session_delete(&azure_mqtt->nxd_mqtt_client.nxd_mqtt_tls_session);
         return status;
     }
 
@@ -599,6 +600,7 @@ UINT azure_mqtt_connect(AZURE_MQTT *azure_mqtt)
     if (status != NXD_MQTT_SUCCESS)
     {
         printf("Could not connect to MQTT server (0x%02x)\r\n", status);
+        nx_secure_tls_session_delete(&azure_mqtt->nxd_mqtt_client.nxd_mqtt_tls_session);
         return status;
     }
 
@@ -611,6 +613,7 @@ UINT azure_mqtt_connect(AZURE_MQTT *azure_mqtt)
     if (status != NXD_MQTT_SUCCESS)
     {
         printf("Error in subscribing to server (0x%02x)\r\n", status);
+        nx_secure_tls_session_delete(&azure_mqtt->nxd_mqtt_client.nxd_mqtt_tls_session);
         return status;
     }
 
@@ -622,6 +625,7 @@ UINT azure_mqtt_connect(AZURE_MQTT *azure_mqtt)
     if (status != NXD_MQTT_SUCCESS)
     {
         printf("Error in direct method subscribing to server (0x%02x)\r\n", status);
+        nx_secure_tls_session_delete(&azure_mqtt->nxd_mqtt_client.nxd_mqtt_tls_session);
         return status;
     }
 
@@ -633,6 +637,7 @@ UINT azure_mqtt_connect(AZURE_MQTT *azure_mqtt)
     if (status != NXD_MQTT_SUCCESS)
     {
         printf("Error in device twin response subscribing to server (0x%02x)\r\n", status);
+        nx_secure_tls_session_delete(&azure_mqtt->nxd_mqtt_client.nxd_mqtt_tls_session);
         return status;
     }
     
