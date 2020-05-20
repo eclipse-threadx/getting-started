@@ -125,5 +125,5 @@ target_include_directories(${TARGET}
         Drivers/BSP/B-L475E-IOT01
         Drivers/CMSIS/Device/ST/STM32L4xx/Include
         Drivers/CMSIS/Include
-        Drivers/STM32L4xx_HAL_Driver/inc
+        Drivers/STM32L4xx_HAL_Driver/Inc
 )
