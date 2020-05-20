@@ -452,7 +452,7 @@ target_include_directories(${TARGET}
     PUBLIC 
         .
         src
-		addons/dchp
+		addons/dhcp
 		addons/dns
         addons/sntp
         addons/mqtt
