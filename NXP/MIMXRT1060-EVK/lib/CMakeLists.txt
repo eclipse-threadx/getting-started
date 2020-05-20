@@ -7,6 +7,17 @@ include(CPM)
 set(THREADX_ARCH "cortex_m7")
 set(THREADX_TOOLCHAIN "gnu")
 
+# nx_cloud
+CPMAddPackage(
+    NAME azure_iot_preview
+    GIT_REPOSITORY https://github.com/azure-rtos/azure-iot-preview
+    GIT_TAG master
+)
+if (azure-iot-preview_ADDED)
+  add_library(azure_iot_preview/nx_cloud INTERFACE IMPORTED)
+  target_include_directories(nx_cloud INTERFACE ${azure_iot_preview_SOURCE_DIR}/nx_cloud)
+endif()
+
 # threadX
 set(TX_USER_FILE "${CMAKE_CURRENT_LIST_DIR}/threadx/tx_user.h" CACHE STRING "Enable TX user configuration")
 CPMAddPackage(
