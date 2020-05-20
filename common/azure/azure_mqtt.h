@@ -27,7 +27,6 @@ typedef struct MQTT_DIRECT_METHOD_RESPONSE_STRUCT
     CHAR message[16];
 } MQTT_DIRECT_METHOD_RESPONSE;
 
-typedef void(*func_ptr_main_thread)(ULONG);
 typedef void(*func_ptr_direct_method)(CHAR *, CHAR *, MQTT_DIRECT_METHOD_RESPONSE *);
 typedef void(*func_ptr_c2d_message)(CHAR *, CHAR *);
 typedef void(*func_ptr_device_twin_desired_prop_update)(CHAR *);
@@ -51,13 +50,11 @@ typedef struct AZURE_MQTT_STRUCT
     UCHAR                                    tls_remote_cert_buffer[TLS_REMOTE_CERTIFICATE_COUNT][TLS_REMOTE_CERTIFICATE_BUFFER];
     UCHAR                                    tls_packet_buffer[TLS_PACKET_BUFFER];
     
-    func_ptr_main_thread                     cb_ptr_mqtt_main_thread;
     func_ptr_direct_method                   cb_ptr_mqtt_invoke_direct_method;
     func_ptr_c2d_message                     cb_ptr_mqtt_c2d_message;
     func_ptr_device_twin_desired_prop_update cb_ptr_mqtt_device_twin_desired_prop_update_callback;
 } AZURE_MQTT;
 
-UINT azure_mqtt_register_main_thread_callback(AZURE_MQTT *azure_mqtt, func_ptr_main_thread mqtt_main_thread_callback);
 UINT azure_mqtt_register_direct_method_callback(AZURE_MQTT *azure_mqtt, func_ptr_direct_method mqtt_direct_method_callback);
 UINT azure_mqtt_register_c2d_message_callback(AZURE_MQTT *azure_mqtt, func_ptr_c2d_message mqtt_c2d_message_callback);
 UINT azure_mqtt_register_device_twin_desired_prop_update(AZURE_MQTT *azure_mqtt, func_ptr_device_twin_desired_prop_update mqtt_device_twin_desired_prop_update_callback);

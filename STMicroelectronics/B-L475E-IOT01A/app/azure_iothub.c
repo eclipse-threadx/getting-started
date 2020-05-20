@@ -57,7 +57,7 @@ static void mqtt_direct_method(CHAR *direct_method_name, CHAR *message, MQTT_DIR
     }
     else
     {
-        printf("Received direct menthod=%s is unknown\r\n", direct_method_name);
+        printf("Received direct method=%s is unknown\r\n", direct_method_name);
     }
     
     response->status = status;

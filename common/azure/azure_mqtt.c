@@ -46,18 +46,6 @@
 
 extern const NX_SECURE_TLS_CRYPTO nx_crypto_tls_ciphers;
 
-// Initialize Azure MQTT
-UINT azure_mqtt_register_main_thread_callback(AZURE_MQTT *azure_mqtt, func_ptr_main_thread mqtt_main_thread_callback)
-{
-    if (azure_mqtt == NULL || azure_mqtt->cb_ptr_mqtt_main_thread != NULL)
-    {
-        return NX_PTR_ERROR;
-    }
-    
-    azure_mqtt->cb_ptr_mqtt_main_thread = mqtt_main_thread_callback;
-    return NX_SUCCESS;
-}
-
 UINT azure_mqtt_register_direct_method_callback(AZURE_MQTT *azure_mqtt, func_ptr_direct_method mqtt_direct_method_callback)
 {
     if (azure_mqtt == NULL || azure_mqtt->cb_ptr_mqtt_invoke_direct_method != NULL)
@@ -341,7 +329,11 @@ VOID mqtt_disconnect_cb(NXD_MQTT_CLIENT *client_ptr)
 
     AZURE_MQTT* azure_mqtt = (AZURE_MQTT *)client_ptr;
 
-    azure_mqtt_connect(azure_mqtt);
+    // Try and reconnect forever
+    while (azure_mqtt_connect(azure_mqtt) != NX_SUCCESS)
+    {
+        tx_thread_sleep(TX_TIMER_TICKS_PER_SECOND);
+    }
 }
 
 static VOID mqtt_notify_cb(NXD_MQTT_CLIENT *client_ptr, UINT number_of_messages)
@@ -372,7 +364,7 @@ static VOID mqtt_notify_cb(NXD_MQTT_CLIENT *client_ptr, UINT number_of_messages)
         mqtt_message_buffer[mqtt_message_length] = 0;
 
         // Convert to lowercase
-        for(CHAR *p = mqtt_message_buffer ; *p ; ++p)
+        for(CHAR *p = mqtt_message_buffer; *p; ++p)
         {
             *p = tolower((INT)*p);
         }
@@ -529,23 +521,10 @@ UINT azure_mqtt_create(AZURE_MQTT *azure_mqtt, CHAR *iot_hub_hostname, CHAR *iot
         return status;
     }
 
-    status = nx_secure_tls_session_create(
-    &azure_mqtt->nxd_mqtt_client.nxd_mqtt_tls_session,
-        &nx_crypto_tls_ciphers,
-        azure_mqtt->tls_metadata_buffer,
-        sizeof(azure_mqtt->tls_metadata_buffer));
-    if (status != NXD_MQTT_SUCCESS)
-    {
-        printf("Could not create TLS Session (0x%02x)\r\n", status);
-        nxd_mqtt_client_delete(&azure_mqtt->nxd_mqtt_client);
-        return status;
-    }
-
     status = tx_mutex_create(&azure_mqtt->azure_mqtt_mutex, "Azure MQTT", TX_NO_INHERIT);
     if (status != TX_SUCCESS)
     {
         nxd_mqtt_client_delete(&azure_mqtt->nxd_mqtt_client);
-        nx_secure_tls_session_delete(&azure_mqtt->nxd_mqtt_client.nxd_mqtt_tls_session);
         return status;
     }
     
@@ -557,8 +536,9 @@ UINT azure_mqtt_create(AZURE_MQTT *azure_mqtt, CHAR *iot_hub_hostname, CHAR *iot
 
 UINT azure_mqtt_delete(AZURE_MQTT *azure_mqtt)
 {
+    nxd_mqtt_client_disconnect(&azure_mqtt->nxd_mqtt_client);
     nxd_mqtt_client_delete(&azure_mqtt->nxd_mqtt_client);
-    nx_secure_tls_session_delete(&azure_mqtt->nxd_mqtt_client.nxd_mqtt_tls_session);
+//    nx_secure_tls_session_delete(&azure_mqtt->nxd_mqtt_client.nxd_mqtt_tls_session);
     tx_mutex_delete(&azure_mqtt->azure_mqtt_mutex);
 
     return NXD_MQTT_SUCCESS;
@@ -582,6 +562,18 @@ UINT azure_mqtt_connect(AZURE_MQTT *azure_mqtt)
         return NX_PTR_ERROR;
     }
 
+    status = nx_secure_tls_session_create(
+        &azure_mqtt->nxd_mqtt_client.nxd_mqtt_tls_session,
+        &nx_crypto_tls_ciphers,
+        azure_mqtt->tls_metadata_buffer,
+        sizeof(azure_mqtt->tls_metadata_buffer));
+    if (status != NXD_MQTT_SUCCESS)
+    {
+        printf("Could not create TLS Session (0x%02x)\r\n", status);
+        nxd_mqtt_client_delete(&azure_mqtt->nxd_mqtt_client);
+        return status;
+    }
+    
     status = nxd_mqtt_client_login_set(
         &azure_mqtt->nxd_mqtt_client,
         azure_mqtt->azure_mqtt_username, strlen(azure_mqtt->azure_mqtt_username),
