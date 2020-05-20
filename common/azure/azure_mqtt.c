@@ -68,14 +68,14 @@ UINT azure_mqtt_register_c2d_message_callback(AZURE_MQTT *azure_mqtt, func_ptr_c
     return NX_SUCCESS;
 }
 
-UINT azure_mqtt_register_device_twin_desired_prop_update(AZURE_MQTT *azure_mqtt, func_ptr_device_twin_desired_prop_update mqtt_device_twin_desired_prop_update_callback)
+UINT azure_mqtt_register_device_twin_desired_prop_callback(AZURE_MQTT *azure_mqtt, func_ptr_device_twin_desired_prop mqtt_device_twin_desired_prop_callback)
 {
-    if (azure_mqtt == NULL || azure_mqtt->cb_ptr_mqtt_device_twin_desired_prop_update_callback != NULL)
+    if (azure_mqtt == NULL || azure_mqtt->cb_ptr_mqtt_device_twin_desired_prop_callback != NULL)
     {
         return NX_PTR_ERROR;
     }
     
-    azure_mqtt->cb_ptr_mqtt_device_twin_desired_prop_update_callback = mqtt_device_twin_desired_prop_update_callback;
+    azure_mqtt->cb_ptr_mqtt_device_twin_desired_prop_callback = mqtt_device_twin_desired_prop_callback;
     return NX_SUCCESS;
 }
 
@@ -320,7 +320,7 @@ static VOID process_c2d_message(AZURE_MQTT *azure_mqtt, CHAR *topic)
 
 static VOID process_device_twin_desired_prop_update(AZURE_MQTT *azure_mqtt, CHAR *topic, CHAR *message)
 {
-    azure_mqtt->cb_ptr_mqtt_device_twin_desired_prop_update_callback(message);
+    azure_mqtt->cb_ptr_mqtt_device_twin_desired_prop_callback(message);
 }
 
 VOID mqtt_disconnect_cb(NXD_MQTT_CLIENT *client_ptr)
@@ -364,12 +364,12 @@ static VOID mqtt_notify_cb(NXD_MQTT_CLIENT *client_ptr, UINT number_of_messages)
         mqtt_message_buffer[mqtt_message_length] = 0;
 
         // Convert to lowercase
-        for(CHAR *p = mqtt_message_buffer; *p; ++p)
+        for (CHAR *p = mqtt_message_buffer; *p; ++p)
         {
             *p = tolower((INT)*p);
         }
 
-        printf("[Received] topic = %s, message = %s\r\n", mqtt_topic_buffer, mqtt_message_buffer);
+        printf("[MQTT Received] topic = %s, message = %s\r\n", mqtt_topic_buffer, mqtt_message_buffer);
 
         if (strstr((CHAR *)mqtt_topic_buffer, DIRECT_METHOD_RECEIVE))
         {
@@ -473,7 +473,7 @@ UINT azure_mqtt_create(AZURE_MQTT *azure_mqtt, CHAR *iot_hub_hostname, CHAR *iot
 
     if (azure_mqtt == NULL)
     {
-        printf("Error: azure_mqtt is NULL\r\n");
+        printf("ERROR: azure_mqtt is NULL\r\n");
         return NX_PTR_ERROR;
     }
 
@@ -538,7 +538,6 @@ UINT azure_mqtt_delete(AZURE_MQTT *azure_mqtt)
 {
     nxd_mqtt_client_disconnect(&azure_mqtt->nxd_mqtt_client);
     nxd_mqtt_client_delete(&azure_mqtt->nxd_mqtt_client);
-//    nx_secure_tls_session_delete(&azure_mqtt->nxd_mqtt_client.nxd_mqtt_tls_session);
     tx_mutex_delete(&azure_mqtt->azure_mqtt_mutex);
 
     return NXD_MQTT_SUCCESS;
