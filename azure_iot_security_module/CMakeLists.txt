@@ -78,4 +78,11 @@ target_include_directories(${PROJECT_NAME}
 )
 
 # Define any required dependencies between this library and others
-target_link_libraries(${PROJECT_NAME} PUBLIC "azrtos::nx_cloud")
+target_link_libraries(${PROJECT_NAME}
+    PUBLIC
+        azrtos::nx_cloud
+        azrtos::threadx
+        azrtos::netx
+        azrtos::netxduo
+)
+

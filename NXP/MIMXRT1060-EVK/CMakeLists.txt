@@ -10,5 +10,7 @@ set(CMAKE_C_STANDARD 99)
 include(utilities)
 
 add_subdirectory(../../common ${CMAKE_CURRENT_BINARY_DIR}/common)
+add_subdirectory(../../nx_cloud ${CMAKE_CURRENT_BINARY_DIR}/nx_cloud)
+add_subdirectory(../../azure_iot_security_module ${CMAKE_CURRENT_BINARY_DIR}/azure_iot_security_module)
 add_subdirectory(lib)
 add_subdirectory(app)

@@ -1,15 +1,16 @@
 /* Copyright (c) Microsoft Corporation.
    Licensed under the MIT License. */
-   
-#include "azure_iothub.h"
+
+
 
 #include <stdio.h>
 
+#include "azure/azure_mqtt.h"
+#include "azure_iothub.h"
+#include "board.h"
+#include "nx_cloud.h"
 #include "tx_api.h"
 
-#include "board.h"
-
-#include "azure/azure_mqtt.h"
 
 static void set_led_state(bool level);
 static void mqtt_thread_entry(ULONG info);
@@ -68,7 +69,7 @@ static void mqtt_direct_method_invoke(CHAR *direct_method_name, CHAR *message, M
     {
         printf("Received direct menthod=%s is unknown\r\n", direct_method_name);
     }
-    
+
     response->status = status;
     strcpy(response->message, "{}");
     return;
@@ -120,6 +121,9 @@ static void mqtt_thread_entry(ULONG info)
 
 bool azure_iothub_start(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas_key)
 {
+    // FIXME
+    NX_CLOUD_MODULE nx_cloud_module;
+
     bool status;
     status = azure_mqtt_register_main_thread_callback(mqtt_thread_entry);
     if (!status)

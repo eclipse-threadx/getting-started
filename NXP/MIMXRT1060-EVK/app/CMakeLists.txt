@@ -23,7 +23,7 @@ set(SOURCES
 add_executable(${TARGET} ${SOURCES})
 
 set_target_properties(${TARGET}
-    PROPERTIES 
+    PROPERTIES
         LINK_DEPENDS ${LINKER_SCRIPT}
         SUFFIX ".elf"
 )
@@ -34,17 +34,19 @@ target_include_directories(${TARGET}
         board
 )
 
-target_link_libraries(${TARGET} 
+target_link_libraries(${TARGET}
     PUBLIC
+        azrtos::nx_cloud
         azrtos::threadx
         azrtos::netxduo
+        azrtos::azure_iot_security_module
         MIMXRT1060-evk
         netx_driver
         app_common
 )
 
 target_link_options(${TARGET}
-    PRIVATE 
+    PRIVATE
         -T${LINKER_SCRIPT} -Wl,-Map=${TARGET}.map)
 
 create_bin_output(${TARGET})
