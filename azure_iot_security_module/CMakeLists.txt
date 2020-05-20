@@ -82,7 +82,6 @@ target_link_libraries(${PROJECT_NAME}
     PUBLIC
         azrtos::nx_cloud
         azrtos::threadx
-        azrtos::netx
         azrtos::netxduo
 )
 

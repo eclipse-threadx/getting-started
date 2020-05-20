@@ -14,3 +14,5 @@ add_subdirectory(../../nx_cloud ${CMAKE_CURRENT_BINARY_DIR}/nx_cloud)
 add_subdirectory(lib)
 add_subdirectory(../../azure_iot_security_module ${CMAKE_CURRENT_BINARY_DIR}/azure_iot_security_module)
 add_subdirectory(app)
+
+target_link_libraries(netxduo PUBLIC "azrtos::nx_cloud")
