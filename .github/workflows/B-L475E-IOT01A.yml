@@ -3,6 +3,10 @@ name: CI
 on:
   push:
     branches: [ master ]
+    paths:
+      - 'common/**'
+      - 'cmake/**'
+      - 'STMicroelectronics/B-L475E-IOT01A/**'
   pull_request:
     branches: [ master ]
 
@@ -15,8 +19,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
+    - uses: actions/checkout@v2
 
     - uses: seanmiddleditch/gha-setup-ninja@master
 
@@ -24,8 +27,7 @@ jobs:
       with:
         release: '9-2019-q4'
 
-    - name: Generate build system
-      run: cmake -Bbuild -GNinja -DCMAKE_TOOLCHAIN_FILE="../../cmake/arm-gcc-cortex-m4.cmake" 
-   
     - name: Build project
-      run: cmake --build build
+      run: |
+        cmake -Bbuild -GNinja -DCMAKE_TOOLCHAIN_FILE="../../cmake/arm-gcc-cortex-m4.cmake" 
+        cmake --build build
