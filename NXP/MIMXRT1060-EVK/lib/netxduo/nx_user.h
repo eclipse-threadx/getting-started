@@ -58,6 +58,10 @@
 
 #define NX_DNS_CLIENT_USER_CREATE_PACKET_POOL
 
+#define NX_ENABLE_IP_PACKET_FILTER
+#define NXD_MQTT_CLOUD_ENABLE
+
+
 /* Define various build options for the NetX Duo port.  The application should either make changes
    here by commenting or un-commenting the conditional compilation defined OR supply the defines
    though the compiler's equivalent of the -D option.  */

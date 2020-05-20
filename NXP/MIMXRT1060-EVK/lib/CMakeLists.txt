@@ -28,26 +28,13 @@ CPMAddPackage(
     GIT_TAG master
 )
 
-set(NX_ENABLE_IP_PACKET_FILTER ON CACHE BOOL "Enable IP packer filter for security module")
-add_definitions(-DNX_ENABLE_IP_PACKET_FILTER)
-CPMAddPackage(
-    NAME netx
-    GIT_REPOSITORY https://github.com/azure-rtos/netx.git
-    GIT_TAG master
-    OPTIONS
-        "NX_ENABLE_IP_PACKET_FILTER"
-)
-
 # netX-duo
 set(NX_USER_FILE "${CMAKE_CURRENT_LIST_DIR}/netxduo/nx_user.h" CACHE STRING "Enable NX user configuration")
 set(NXD_ENABLE_FILE_SERVERS OFF CACHE BOOL "Disable fileX dependency by netxduo")
-add_definitions(-DNX_ENABLE_IP_PACKET_FILTER)
 CPMAddPackage(
     NAME netxduo
     GIT_REPOSITORY https://github.com/azure-rtos/netxduo.git
     GIT_TAG master
-    OPTIONS
-        "NX_ENABLE_IP_PACKET_FILTER"
 )
 
 add_subdirectory(netx_driver)
