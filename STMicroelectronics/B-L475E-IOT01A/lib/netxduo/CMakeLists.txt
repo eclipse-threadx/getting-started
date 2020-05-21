@@ -432,10 +432,10 @@ set(SOURCES
     src/nx_udp_socket_unbind.c
     src/nx_utility.c
 
-	protocol_handlers/DHCP/nxd_dhcp_client.c
-	protocol_handlers/DNS/nxd_dns.c
-    protocol_handlers/SNTP/nxd_sntp_client.c
-    protocol_handlers/MQTT/nxd_mqtt_client.c
+	addons/dhcp/nxd_dhcp_client.c
+	addons/dns/nxd_dns.c
+    addons/sntp/nxd_sntp_client.c
+    addons/mqtt/nxd_mqtt_client.c
 )
 
 set(TARGET netxduo)
@@ -452,10 +452,10 @@ target_include_directories(${TARGET}
     PUBLIC 
         .
         src
-		protocol_handlers/DHCP
-		protocol_handlers/DNS
-        protocol_handlers/SNTP
-        protocol_handlers/MQTT
+		addons/dhcp
+		addons/dns
+        addons/sntp
+        addons/mqtt
 )
 
 target_link_libraries(${TARGET} 
