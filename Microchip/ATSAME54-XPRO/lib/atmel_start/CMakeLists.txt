@@ -57,7 +57,7 @@ target_include_directories(${TARGET}
     INTERFACE
         .
         CMSIS/Core/Include
-        Config
+        config
         ethernet_phy
         hal/include
         hal/utils/include
