@@ -1,0 +1,27 @@
+name: cache-update
+
+on:
+  schedule:
+    - cron: '0 0 */3 * *' # every 30m for testing
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:    # Cache location for arm tools
+    - name: Cache arm-none-eabi-gcc tools
+      id: cache-arm-gcc
+      uses: actions/cache@v1
+      with:
+        path: $HOME/arm-none-eabi-gcc-9-2019-q4
+        key: ${{ runner.os }}-arm-gcc-9-2019-q4
+
+    # Get the arm-non-eabi-gcc toolchain   
+    - name: Install arm-none-eabi-gcc
+      uses: fiam/arm-none-eabi-gcc@v1
+      with:
+          release: '9-2019-q4'
+          directory: $HOME/arm-none-eabi-gcc-9-2019-q4

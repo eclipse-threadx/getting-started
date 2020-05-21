@@ -26,14 +26,19 @@ jobs:
         os: [ubuntu-latest, windows-latest]
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - uses: seanmiddleditch/gha-setup-ninja@master
+      - name: Install Ninja
+        uses: seanmiddleditch/gha-setup-ninja@master
 
-      - uses: fiam/arm-none-eabi-gcc@v1
+      - name: Install arm-none-eabi-gcc
+        uses: fiam/arm-none-eabi-gcc@v1
+        if: steps.cache-arm-gcc.outputs.cache-hit != 'true'
         with:
           release: '9-2019-q4'
-
+          directory: $HOME/arm-none-eabi-gcc-9-2019-q4
+      
       - name: Build project
         run: |
           cmake -Bbuild -GNinja -DCMAKE_TOOLCHAIN_FILE="../../cmake/arm-gcc-cortex-m4.cmake" 
