@@ -1,4 +1,4 @@
-name: CI
+name: ATSAME54-XPRO
 
 on:
   push:

@@ -1,4 +1,4 @@
-name: CI
+name: B-L475E-IOT01A
 
 on:
   push:
