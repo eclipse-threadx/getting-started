@@ -461,5 +461,7 @@ target_include_directories(${TARGET}
 
 target_link_libraries(${TARGET} 
 	PUBLIC
-    	azrtos::threadx
+        azrtos::threadx
+        netx_driver
+        stm32cubel4
 )
