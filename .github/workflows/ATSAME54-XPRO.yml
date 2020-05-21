@@ -6,17 +6,17 @@ on:
     paths:
       - 'common/**'
       - 'cmake/**'
-      - 'STMicroelectronics/B-L475E-IOT01A/**'
+      - 'Microchip/ATSAME54-XPRO/**'
   pull_request:
     branches: [ master ]
     paths:
       - 'common/**'
       - 'cmake/**'
-      - 'STMicroelectronics/B-L475E-IOT01A/**'
+      - 'Microchip/ATSAME54-XPRO/**'
 
 defaults:
   run:
-    working-directory: STMicroelectronics/B-L475E-IOT01A
+    working-directory: Microchip/ATSAME54-XPRO
 
 jobs:
   build:

@@ -6,17 +6,17 @@ on:
     paths:
       - 'common/**'
       - 'cmake/**'
-      - 'STMicroelectronics/B-L475E-IOT01A/**'
+      - 'NXP/MIMXRT106-EVK/**'
   pull_request:
     branches: [ master ]
     paths:
       - 'common/**'
       - 'cmake/**'
-      - 'STMicroelectronics/B-L475E-IOT01A/**'
+      - 'NXP/MIMXRT106-EVK/**'
 
 defaults:
   run:
-    working-directory: STMicroelectronics/B-L475E-IOT01A
+    working-directory: NXP/MIMXRT106-EVK
 
 jobs:
   build:
@@ -36,5 +36,5 @@ jobs:
 
       - name: Build project
         run: |
-          cmake -Bbuild -GNinja -DCMAKE_TOOLCHAIN_FILE="../../cmake/arm-gcc-cortex-m4.cmake" 
+          cmake -Bbuild -GNinja -DCMAKE_TOOLCHAIN_FILE="../../cmake/arm-gcc-cortex-m7.cmake" 
           cmake --build build
