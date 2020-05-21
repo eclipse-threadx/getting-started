@@ -29,19 +29,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Install Ninja
-        uses: seanmiddleditch/gha-setup-ninja@master
-
+      # Get the ARM GCC compiler
       - name: Install arm-none-eabi-gcc
         uses: fiam/arm-none-eabi-gcc@v1
-        if: steps.cache-arm-gcc.outputs.cache-hit != 'true'
         with:
           release: '9-2019-q4'
-          directory: ~/arm-none-eabi-gcc-9-2019-q4
+
+      - name: Install Ninja
+        uses: seanmiddleditch/gha-setup-ninja@master
 
       - name: Build project
         run: |
           cmake -Bbuild -GNinja -DCMAKE_TOOLCHAIN_FILE="../../cmake/arm-gcc-cortex-m4.cmake" 
           cmake --build build
-        env:
-          ARM_GCC_PATH: ~/arm-none-eabi-gcc-9-2019-q4/bin
