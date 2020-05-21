@@ -1,0 +1,40 @@
+name: ATSAME54-XPRO
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - 'common/**'
+      - 'cmake/**'
+      - 'Microchip/ATSAME54-XPRO/**'
+  pull_request:
+    branches: [ master ]
+    paths:
+      - 'common/**'
+      - 'cmake/**'
+      - 'Microchip/ATSAME54-XPRO/**'
+
+defaults:
+  run:
+    working-directory: Microchip/ATSAME54-XPRO
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: seanmiddleditch/gha-setup-ninja@master
+
+      - uses: fiam/arm-none-eabi-gcc@v1
+        with:
+          release: '9-2019-q4'
+
+      - name: Build project
+        run: |
+          cmake -Bbuild -GNinja -DCMAKE_TOOLCHAIN_FILE="../../cmake/arm-gcc-cortex-m4.cmake" 
+          cmake --build build

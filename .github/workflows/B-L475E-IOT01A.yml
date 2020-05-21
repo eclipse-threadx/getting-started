@@ -1,0 +1,40 @@
+name: B-L475E-IOT01A
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - 'common/**'
+      - 'cmake/**'
+      - 'STMicroelectronics/B-L475E-IOT01A/**'
+  pull_request:
+    branches: [ master ]
+    paths:
+      - 'common/**'
+      - 'cmake/**'
+      - 'STMicroelectronics/B-L475E-IOT01A/**'
+
+defaults:
+  run:
+    working-directory: STMicroelectronics/B-L475E-IOT01A
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: seanmiddleditch/gha-setup-ninja@master
+
+      - uses: fiam/arm-none-eabi-gcc@v1
+        with:
+          release: '9-2019-q4'
+
+      - name: Build project
+        run: |
+          cmake -Bbuild -GNinja -DCMAKE_TOOLCHAIN_FILE="../../cmake/arm-gcc-cortex-m4.cmake" 
+          cmake --build build
