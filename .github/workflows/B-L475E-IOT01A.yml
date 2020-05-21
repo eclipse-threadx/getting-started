@@ -38,6 +38,8 @@ jobs:
         with:
           release: '9-2019-q4'
           directory: $HOME/arm-none-eabi-gcc-9-2019-q4
+        run: 
+          echo "::add-path::$HOME/arm-none-eabi-gcc-9-2019-q4"
       
       - name: Build project
         env:
