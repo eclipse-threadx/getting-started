@@ -6,7 +6,7 @@ set(TARGET netxdriver)
 set(SOURCES
     nx_driver_same54.c
     nx_driver_same54.h
-    nx_driver_same54_low_level.S
+    nx_driver_same54_low_level.s
 )
 
 add_library(${TARGET} INTERFACE)
