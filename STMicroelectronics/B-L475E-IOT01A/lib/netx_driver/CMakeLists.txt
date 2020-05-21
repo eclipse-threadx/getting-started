@@ -5,7 +5,6 @@ set(SOURCES
     src/wifi.c
     src/es_wifi.c
     src/es_wifi_io.c
-    src/nx_wifi.c
 )
 
 set(PROJECT netx_driver)
