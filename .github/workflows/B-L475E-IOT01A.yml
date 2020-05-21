@@ -37,11 +37,11 @@ jobs:
         if: steps.cache-arm-gcc.outputs.cache-hit != 'true'
         with:
           release: '9-2019-q4'
-          directory: $HOME/arm-none-eabi-gcc-9-2019-q4
+          directory: ~/arm-none-eabi-gcc-9-2019-q4
 
       - name: Build project
-        env:
-          ARM_GCC_PATH: $HOME/arm-none-eabi-gcc-9-2019-q4/bin
         run: |
           cmake -Bbuild -GNinja -DCMAKE_TOOLCHAIN_FILE="../../cmake/arm-gcc-cortex-m4.cmake" 
           cmake --build build
+        env:
+          ARM_GCC_PATH: ~/arm-none-eabi-gcc-9-2019-q4/bin
