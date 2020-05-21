@@ -40,6 +40,8 @@ jobs:
           directory: $HOME/arm-none-eabi-gcc-9-2019-q4
       
       - name: Build project
+        env:
+          PATH: "$HOME/arm-none-eabi-gcc-9-2019-q4/bin:$PATH"
         run: |
           cmake -Bbuild -GNinja -DCMAKE_TOOLCHAIN_FILE="../../cmake/arm-gcc-cortex-m4.cmake" 
           cmake --build build
