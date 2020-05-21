@@ -9,6 +9,10 @@ on:
       - 'STMicroelectronics/B-L475E-IOT01A/**'
   pull_request:
     branches: [ master ]
+    paths:
+      - 'common/**'
+      - 'cmake/**'
+      - 'STMicroelectronics/B-L475E-IOT01A/**'
 
 defaults:
   run:
@@ -16,18 +20,22 @@ defaults:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - uses: seanmiddleditch/gha-setup-ninja@master
+      - uses: seanmiddleditch/gha-setup-ninja@master
 
-    - uses: fiam/arm-none-eabi-gcc@v1
-      with:
-        release: '9-2019-q4'
+      - uses: fiam/arm-none-eabi-gcc@v1
+        with:
+          release: '9-2019-q4'
 
-    - name: Build project
-      run: |
-        cmake -Bbuild -GNinja -DCMAKE_TOOLCHAIN_FILE="../../cmake/arm-gcc-cortex-m4.cmake" 
-        cmake --build build
+      - name: Build project
+        run: |
+          cmake -Bbuild -GNinja -DCMAKE_TOOLCHAIN_FILE="../../cmake/arm-gcc-cortex-m4.cmake" 
+          cmake --build build
