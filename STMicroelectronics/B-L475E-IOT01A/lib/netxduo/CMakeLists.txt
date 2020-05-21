@@ -431,6 +431,7 @@ set(SOURCES
     src/nx_udp_socket_send.c
     src/nx_udp_socket_unbind.c
     src/nx_utility.c
+    src/nx_wifi.c
 
 	addons/dhcp/nxd_dhcp_client.c
 	addons/dns/nxd_dns.c
@@ -460,5 +461,7 @@ target_include_directories(${TARGET}
 
 target_link_libraries(${TARGET} 
 	PUBLIC
-    	azrtos::threadx
+        azrtos::threadx
+        netx_driver
+        stm32cubel4
 )

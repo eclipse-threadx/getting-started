@@ -26,13 +26,17 @@ jobs:
         os: [ubuntu-latest, windows-latest]
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - uses: seanmiddleditch/gha-setup-ninja@master
-
-      - uses: fiam/arm-none-eabi-gcc@v1
+      # Get the ARM GCC compiler
+      - name: Install arm-none-eabi-gcc
+        uses: fiam/arm-none-eabi-gcc@v1
         with:
           release: '9-2019-q4'
+
+      - name: Install Ninja
+        uses: seanmiddleditch/gha-setup-ninja@master
 
       - name: Build project
         run: |
