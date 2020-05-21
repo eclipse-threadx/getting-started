@@ -41,7 +41,7 @@ jobs:
 
       - name: Build project
         env:
-          ARM_GCC_PATH: "$HOME/arm-none-eabi-gcc-9-2019-q4/bin"
+          ARM_GCC_PATH: $HOME/arm-none-eabi-gcc-9-2019-q4/bin
         run: |
           cmake -Bbuild -GNinja -DCMAKE_TOOLCHAIN_FILE="../../cmake/arm-gcc-cortex-m4.cmake" 
           cmake --build build
