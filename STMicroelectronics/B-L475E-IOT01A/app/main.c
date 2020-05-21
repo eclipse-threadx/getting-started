@@ -2,7 +2,6 @@
    Licensed under the MIT License. */
 
 #include <stdio.h>
-#include <time.h>
 
 #include "tx_api.h"
 
@@ -14,7 +13,7 @@
 #include "azure_config.h"
 
 #define AZURE_THREAD_STACK_SIZE 4096
-#define AZURE_THREAD_PRIORITY 4
+#define AZURE_THREAD_PRIORITY   4
 
 UCHAR azure_thread_stack[AZURE_THREAD_STACK_SIZE];
 
