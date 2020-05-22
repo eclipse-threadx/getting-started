@@ -2,7 +2,6 @@
    Licensed under the MIT License. */
 
 #include <stdio.h>
-#include <time.h>
 
 #include "tx_api.h"
 
@@ -14,7 +13,7 @@
 #include "azure_config.h"
 
 #define AZURE_THREAD_STACK_SIZE 4096
-#define AZURE_THREAD_PRIORITY 4
+#define AZURE_THREAD_PRIORITY   4
 
 UCHAR azure_thread_stack[AZURE_THREAD_STACK_SIZE];
 
@@ -45,19 +44,11 @@ void azure_thread_entry(ULONG parameter)
         return;
     }
 
-    // Start the Azure IoT hub thread
-    if(!azure_mqtt_init(IOT_HUB_HOSTNAME, IOT_DEVICE_ID, IOT_PRIMARY_KEY))
+    // Enter the Azure MQTT loop
+    if(!azure_iothub_run(IOT_HUB_HOSTNAME, IOT_DEVICE_ID, IOT_PRIMARY_KEY))
     {
-        printf("Failed to start Azure Iot Hub thread\r\n");
+        printf("Failed to start Azure IotHub\r\n");
         return;
-    }
-
-    while (true)
-    {
-        tx_thread_sleep(60 * TX_TIMER_TICKS_PER_SECOND);
-
-        time_t current = time(NULL);
-        printf("Time %ld\r\n", (long)current);
     }
 }
 

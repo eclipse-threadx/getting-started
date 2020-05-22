@@ -11,10 +11,7 @@
 
 #include "azure/azure_mqtt.h"
 
-static void set_led_state(bool level);
-static void mqtt_thread_entry(ULONG info);
-static void mqtt_direct_method_invoke(CHAR *direct_method_name, CHAR *message, MQTT_DIRECT_METHOD_RESPONSE *response);
-static void mqtt_c2d_message(CHAR *key, CHAR *value);
+static AZURE_MQTT azure_mqtt;
 
 static void set_led_state(bool level)
 {
@@ -34,7 +31,7 @@ static void set_led_state(bool level)
     }
 }
 
-static void mqtt_direct_method_invoke(CHAR *direct_method_name, CHAR *message, MQTT_DIRECT_METHOD_RESPONSE *response)
+static void mqtt_direct_method(CHAR *direct_method_name, CHAR *message, MQTT_DIRECT_METHOD_RESPONSE *response)
 {
     // Default response - 501 Not Implemented
     int status = 501;
@@ -60,7 +57,7 @@ static void mqtt_direct_method_invoke(CHAR *direct_method_name, CHAR *message, M
         status = 204;
 
         // Update device twin property
-        azure_mqtt_publish_bool_property("led0State", arg);
+        azure_mqtt_publish_bool_property(&azure_mqtt, "led0State", arg);
 
         printf("Direct method=%s invoked\r\n", direct_method_name);
     }
@@ -90,65 +87,60 @@ static void mqtt_c2d_message(CHAR *key, CHAR *value)
         set_led_state(arg);
 
         // Update device twin property
-        azure_mqtt_publish_bool_property(key, arg);
+        azure_mqtt_publish_bool_property(&azure_mqtt, key, arg);
     }
     else
     {
         // Update device twin property
-        azure_mqtt_publish_string_property(key, value);
+        azure_mqtt_publish_string_property(&azure_mqtt, key, value);
     }
 
     printf("Property=%s updated with value=%s\r\n", key, value);
 }
 
-static void mqtt_thread_entry(ULONG info)
+static void mqtt_device_twin_desired_prop(CHAR *message)
 {
+    printf("Received device twin updated properties: %s\r\n", message);
+}
+
+UINT azure_iothub_run(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas_key)
+{
+    UINT status;
+    float temperature;
+
+    // Create Azure MQTT
+    status = azure_mqtt_create(&azure_mqtt, iot_hub_hostname, iot_device_id, iot_sas_key);
+    if (status != NXD_MQTT_SUCCESS)
+    {
+        printf("Error: Failed to create Azure MQTT (0x%02x)\r\n", status);
+        return status;
+    }
+
+    // Register callbacks
+    azure_mqtt_register_direct_method_callback(&azure_mqtt, mqtt_direct_method);
+    azure_mqtt_register_c2d_message_callback(&azure_mqtt, mqtt_c2d_message);
+
+    // Connect the Azure MQTT client
+    status = azure_mqtt_connect(&azure_mqtt);
+    if (status != NXD_MQTT_SUCCESS)
+    {
+        printf("Error: Failed to create Azure MQTT (0x%02x)\r\n", status);
+        return status;
+    }
+    
     while (true)
     {
-        float temperature = 28.5;
+        temperature = 28.5;
 
         // Send the compensated temperature as a telemetry event
-        azure_mqtt_publish_float_telemetry("temperature", temperature);
+        azure_mqtt_publish_float_telemetry(&azure_mqtt, "temperature", temperature);
 
         // Send the compensated temperature as a device twin update
-        azure_mqtt_publish_float_property("temperature", temperature);
+        azure_mqtt_publish_float_property(&azure_mqtt, "temperature", temperature);
 
         // Sleep for 10 seconds
         tx_thread_sleep(10 * TX_TIMER_TICKS_PER_SECOND);
     }
-}
 
-bool azure_iothub_start(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas_key)
-{
-    bool status;
-    status = azure_mqtt_register_main_thread_callback(mqtt_thread_entry);
-    if (!status)
-    {
-        printf("Failed to register MQTT main thread callback\r\n");
-        return status;
-    }
-
-    status = azure_mqtt_register_direct_method_invoke_callback(mqtt_direct_method_invoke);
-    if (!status)
-    {
-        printf("Failed to register MQTT direct method callback\r\n");
-        return status;
-    }
-
-    status = azure_mqtt_register_c2d_message_callback(mqtt_c2d_message);
-    if (!status)
-    {
-        printf("Failed to register MQTT cloud to device callback callback\r\n");
-        return status;
-    }
-
-    // Start the Azure MQTT client
-    status = azure_mqtt_start(iot_hub_hostname, iot_device_id, iot_sas_key);
-    if (!status)
-    {
-        printf("Failed to start Azure IoT thread\r\n");
-        return status;
-    }
-
-    return true;
+    return NXD_MQTT_SUCCESS;
 }

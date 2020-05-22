@@ -51,18 +51,10 @@ void azure_thread_entry(ULONG parameter)
     }
 
     // Start the Azure IoT hub thread
-    if(!azure_iothub_start(IOT_HUB_HOSTNAME, IOT_DEVICE_ID, IOT_PRIMARY_KEY))
+    if(!azure_iothub_run(IOT_HUB_HOSTNAME, IOT_DEVICE_ID, IOT_PRIMARY_KEY))
     {
-        printf("Failed to start Azure Iot Hub thread\r\n");
+        printf("Failed to start Azure IoTHub\r\n");
         return;
-    }
-
-    while (true)
-    {
-        tx_thread_sleep(60 * TX_TIMER_TICKS_PER_SECOND);
-
-        time_t current = time(NULL);
-        printf("Time %ld\r\n", (long)current);
     }
 }
 

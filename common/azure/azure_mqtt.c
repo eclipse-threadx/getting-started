@@ -6,6 +6,7 @@
 #include <ctype.h>
 #include <string.h>
 
+#include "tx_api.h"
 #include "nx_api.h"
 #include "nxd_mqtt_client.h"
 
@@ -31,273 +32,69 @@
 #define DIRECT_METHOD_TOPIC "$iothub/methods/POST/#"
 #define DIRECT_METHOD_RESPONSE "$iothub/methods/res/%d/?$rid=%s"
 
-#define MQTT_CLIENT_STACK_SIZE 4096
-#define MQTT_CLIENT_PRIORITY 2
+#define MQTT_CLIENT_PRIORITY        2
 
-#define MQTT_THREAD_STACK_SIZE 2048
-#define MQTT_THREAD_PRIORITY 5
+#define MQTT_TIMEOUT                (30 * TX_TIMER_TICKS_PER_SECOND)
+#define MQTT_KEEP_ALIVE             240
 
-#define TLS_METADATA_BUFFER_SIZE (12 * 1024)
-#define TLS_REMOTE_CERTIFICATE_COUNT 2
-#define TLS_REMOTE_CERTIFICATE_BUFFER 4096
-#define TLS_PACKET_BUFFER 4096
+#define MQTT_TOPIC_NAME_LENGTH      200
+#define MQTT_MESSAGE_NAME_LENGTH    200
 
-#define MQTT_TIMEOUT (30 * TX_TIMER_TICKS_PER_SECOND)
-#define MQTT_KEEP_ALIVE 240
-
-#define MQTT_TOPIC_NAME_LENGTH 200
-#define MQTT_MESSAGE_NAME_LENGTH 200
-
-#define MQTT_QOS_0 0 // QoS 0 - Deliver at most once
-#define MQTT_QOS_1 1 // QoS 1 - Deliver at least once
-#define MQTT_QOS_2 2 // QoS 2 - Deliver exactly once
-
-static NXD_MQTT_CLIENT mqtt_client;
-static TX_THREAD mqtt_thread;
-static UCHAR mqtt_client_stack[MQTT_CLIENT_STACK_SIZE];
-static UCHAR mqtt_thread_stack[MQTT_THREAD_STACK_SIZE];
-
-static UCHAR tls_metadata_buffer[TLS_METADATA_BUFFER_SIZE];
-static NX_SECURE_X509_CERT tls_remote_certificate[TLS_REMOTE_CERTIFICATE_COUNT];
-static UCHAR tls_remote_cert_buffer[TLS_REMOTE_CERTIFICATE_COUNT][TLS_REMOTE_CERTIFICATE_BUFFER];
-static UCHAR tls_packet_buffer[TLS_PACKET_BUFFER];
+#define MQTT_QOS_0                  0 // QoS 0 - Deliver at most once
+#define MQTT_QOS_1                  1 // QoS 1 - Deliver at least once
+#define MQTT_QOS_2                  2 // QoS 2 - Deliver exactly once
 
 extern const NX_SECURE_TLS_CRYPTO nx_crypto_tls_ciphers;
 
-static UINT mqtt_init(CHAR *iot_device_id);
-static UINT mqtt_open(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas_key);
-static UINT mqtt_publish(CHAR *topic, CHAR *message);
-static UINT mqtt_publish_float(CHAR  *topic, CHAR *label, float value);
-static UINT mqtt_publish_bool(CHAR  *topic, CHAR *label, bool value);
-static UINT mqtt_publish_string(CHAR  *topic, CHAR *label, CHAR *value);
-static UINT mqtt_respond_direct_method(CHAR *topic, CHAR *request_id, MQTT_DIRECT_METHOD_RESPONSE *response);
-static VOID process_device_twin_response(CHAR *topic);
-static VOID process_direct_method(CHAR *topic, CHAR *message);
-static VOID process_c2d_message(CHAR *topic);
-static VOID process_device_twin_desired_prop_update(CHAR *topic, CHAR *message);
-
-static func_ptr_main_thread cb_ptr_mqtt_main_thread = NULL;
-static func_ptr_direct_method cb_ptr_mqtt_invoke_direct_method = NULL;
-static func_ptr_c2d_message cb_ptr_mqtt_c2d_message = NULL;
-static func_ptr_device_twin_desired_prop_update cb_ptr_mqtt_device_twin_desired_prop_update_callback = NULL;
-
-// Initialize Azure MQTT
-bool azure_mqtt_register_main_thread_callback(func_ptr_main_thread mqtt_main_thread_callback)
+UINT azure_mqtt_register_direct_method_callback(AZURE_MQTT *azure_mqtt, func_ptr_direct_method mqtt_direct_method_callback)
 {
-    bool status = false;
-    
-    if (cb_ptr_mqtt_main_thread == NULL)
+    if (azure_mqtt == NULL || azure_mqtt->cb_ptr_mqtt_invoke_direct_method != NULL)
     {
-        cb_ptr_mqtt_main_thread = mqtt_main_thread_callback;
-        status = true;
+        return NX_PTR_ERROR;
     }
     
-    return status;
+    azure_mqtt->cb_ptr_mqtt_invoke_direct_method = mqtt_direct_method_callback;
+    return NX_SUCCESS;
 }
 
-bool azure_mqtt_register_direct_method_invoke_callback(func_ptr_direct_method mqtt_direct_method_invoke_callback)
+UINT azure_mqtt_register_c2d_message_callback(AZURE_MQTT *azure_mqtt, func_ptr_c2d_message mqtt_c2d_message_callback)
 {
-    bool status = false;
-    
-    if (cb_ptr_mqtt_invoke_direct_method == NULL)
+    if (azure_mqtt == NULL || azure_mqtt->cb_ptr_mqtt_c2d_message != NULL)
     {
-        cb_ptr_mqtt_invoke_direct_method = mqtt_direct_method_invoke_callback;
-        status = true;
+        return NX_PTR_ERROR;
     }
     
-    return status;
+    azure_mqtt->cb_ptr_mqtt_c2d_message = mqtt_c2d_message_callback;
+    return NX_SUCCESS;
 }
 
-bool azure_mqtt_register_c2d_message_callback(func_ptr_c2d_message mqtt_c2d_message_callback)
+UINT azure_mqtt_register_device_twin_desired_prop_callback(AZURE_MQTT *azure_mqtt, func_ptr_device_twin_desired_prop mqtt_device_twin_desired_prop_callback)
 {
-    bool status = false;
-    
-    if (cb_ptr_mqtt_c2d_message == NULL)
+    if (azure_mqtt == NULL || azure_mqtt->cb_ptr_mqtt_device_twin_desired_prop_callback != NULL)
     {
-        cb_ptr_mqtt_c2d_message = mqtt_c2d_message_callback;
-        status = true;
+        return NX_PTR_ERROR;
     }
     
-    return status;
-}
-
-bool azure_mqtt_register_device_twin_desired_prop_update(func_ptr_device_twin_desired_prop_update mqtt_device_twin_desired_prop_update_callback)
-{
-    bool status = false;
-    
-    if (cb_ptr_mqtt_device_twin_desired_prop_update_callback == NULL)
-    {
-        cb_ptr_mqtt_device_twin_desired_prop_update_callback = mqtt_device_twin_desired_prop_update_callback;
-        status = true;
-    }
-    
-    return status;
-}
-
-bool azure_mqtt_start(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas_key)
-{
-    printf("Initializing MQTT client\r\n");
-
-    UINT status;
-
-    status = mqtt_init(iot_device_id);
-    if (status != NXD_MQTT_SUCCESS)
-    {
-        printf("MQTT init failed\r\n");
-        return false;
-    }
-
-    status = mqtt_open(iot_hub_hostname, iot_device_id, iot_sas_key);
-    if (status != NXD_MQTT_SUCCESS)
-    {
-        printf("MQTT open failed\r\n");
-        nxd_mqtt_client_delete(&mqtt_client);
-        return false;
-    }
-
-    if (cb_ptr_mqtt_main_thread == NULL)
-    {
-        printf("No callback is registered for main MQTT thread\r\n");
-        nxd_mqtt_client_delete(&mqtt_client);
-        return false;
-    }
-    else
-    {
-        status = tx_thread_create(&mqtt_thread,
-            "MQTT Thread",
-            cb_ptr_mqtt_main_thread,
-            (ULONG)NULL,
-            &mqtt_thread_stack,
-            MQTT_THREAD_STACK_SIZE,
-            MQTT_THREAD_PRIORITY,
-            MQTT_THREAD_PRIORITY,
-            TX_NO_TIME_SLICE,
-            TX_AUTO_START);
-    
-        if (status != TX_SUCCESS)
-        {
-            printf("Unable to create MQTT thread (0x%02x)\r\n", status);
-            return false;
-        }
-    }
-
-    printf("SUCCESS: MQTT client initialized\r\n\r\n");
-
-    return true;
-}
-
-// Interact with Azure MQTT
-UINT azure_mqtt_publish_float_telemetry(CHAR* label, float value)
-{
-    CHAR mqtt_publish_topic[100] = { 0 };
-
-    snprintf(mqtt_publish_topic, sizeof(mqtt_publish_topic), PUBLISH_TELEMETRY_TOPIC, mqtt_client.nxd_mqtt_client_id);
-    printf("Sending telemetry\r\n");
-
-    return mqtt_publish_float(mqtt_publish_topic, label, value);
-}
-
-UINT azure_mqtt_publish_float_property(CHAR* label, float value)
-{
-    CHAR mqtt_publish_topic[100] = { 0 };
-
-    snprintf(mqtt_publish_topic, sizeof(mqtt_publish_topic), DEVICE_TWIN_PUBLISH_TOPIC, 1);
-    printf("Sending device twin update with float value\r\n");
-
-    return mqtt_publish_float(mqtt_publish_topic, label, value);
-}
-
-UINT azure_mqtt_publish_bool_property(CHAR* label, bool value)
-{
-    CHAR mqtt_publish_topic[100] = { 0 };
-
-    snprintf(mqtt_publish_topic, sizeof(mqtt_publish_topic), DEVICE_TWIN_PUBLISH_TOPIC, 1);
-    printf("Sending device twin update with bool value\r\n");
-
-    return mqtt_publish_bool(mqtt_publish_topic, label, value);
-}
-
-UINT azure_mqtt_publish_string_property(CHAR* label, CHAR *value)
-{
-    CHAR mqtt_publish_topic[100] = { 0 };
-
-    snprintf(mqtt_publish_topic, sizeof(mqtt_publish_topic), DEVICE_TWIN_PUBLISH_TOPIC, 1);
-    printf("Sending device twin update with string value\r\n");
-
-    return mqtt_publish_string(mqtt_publish_topic, label, value);
-}
-
-// Azure MQTT private methods
-static VOID mqtt_notify(NXD_MQTT_CLIENT *client_ptr, UINT number_of_messages)
-{
-    UINT status;
-    CHAR mqtt_topic_buffer[MQTT_TOPIC_NAME_LENGTH] = { 0 };
-    UINT mqtt_topic_length;
-    CHAR mqtt_message_buffer[MQTT_MESSAGE_NAME_LENGTH] = { 0 };
-    UINT mqtt_message_length;
-
-    // Get the mqtt client message
-    status = nxd_mqtt_client_message_get(
-        &mqtt_client,
-        (UCHAR *)mqtt_topic_buffer,
-        sizeof(mqtt_topic_buffer),
-        &mqtt_topic_length,
-        (UCHAR *)mqtt_message_buffer,
-        sizeof(mqtt_message_buffer),
-        &mqtt_message_length);
-    if (status != NXD_MQTT_SUCCESS)
-    {
-        return;
-    }
-
-    // Append null string terminators
-    mqtt_topic_buffer[mqtt_topic_length] = 0;
-    mqtt_message_buffer[mqtt_message_length] = 0;
-
-    // Convert to lowercase
-    for (CHAR *p = mqtt_message_buffer; *p; ++p)
-    {
-        *p = tolower((INT)*p);
-    }
-
-    printf("[Received] topic = %s, message = %s\r\n", mqtt_topic_buffer, mqtt_message_buffer);
-
-    if (strstr((CHAR *)mqtt_topic_buffer, DIRECT_METHOD_RECEIVE))
-    {
-        process_direct_method(mqtt_topic_buffer, mqtt_message_buffer);
-    }
-    else if (strstr((CHAR *)mqtt_topic_buffer, DEVICE_TWIN_RES_BASE))
-    {
-        process_device_twin_response(mqtt_topic_buffer);
-    }
-    else if (strstr((CHAR *)mqtt_topic_buffer, DEVICE_MESSAGE_BASE))
-    {
-        process_c2d_message(mqtt_topic_buffer);
-    }
-    else if (strstr((CHAR *)mqtt_topic_buffer, DEVICE_TWIN_DESIRED_PROP_RES_BASE))
-    {
-        process_device_twin_desired_prop_update(mqtt_topic_buffer, mqtt_message_buffer);
-    }
-    else
-    {
-        printf("Unknown topic, no custom processing specified\r\n");
-    }
+    azure_mqtt->cb_ptr_mqtt_device_twin_desired_prop_callback = mqtt_device_twin_desired_prop_callback;
+    return NX_SUCCESS;
 }
 
 static UINT tls_setup(NXD_MQTT_CLIENT *client, NX_SECURE_TLS_SESSION *tls_session, NX_SECURE_X509_CERT *cert, NX_SECURE_X509_CERT *trusted_cert)
 {
     UINT status;
 
+    AZURE_MQTT *azure_mqtt = (AZURE_MQTT *)client->nxd_mqtt_packet_receive_context;
+    
     for (UINT index = 0; index < TLS_REMOTE_CERTIFICATE_COUNT; ++index)
     {
         status = nx_secure_tls_remote_certificate_allocate(
             tls_session,
-            &tls_remote_certificate[index],
-            tls_remote_cert_buffer[index],
-            sizeof(tls_remote_cert_buffer[index]));
+            &azure_mqtt->tls_remote_certificate[index],
+            azure_mqtt->tls_remote_cert_buffer[index],
+            sizeof(azure_mqtt->tls_remote_cert_buffer[index]));
         if (status != NX_SUCCESS)
         {
-            printf("Unable to allocate memory for interemediate CA certificate, ret = 0x%x\r\n", status);
+            printf("Unable to allocate memory for interemediate CA certificate (0x%02x)\r\n", status);
             return status;
         }
     }
@@ -311,20 +108,21 @@ static UINT tls_setup(NXD_MQTT_CLIENT *client, NX_SECURE_TLS_SESSION *tls_sessio
         NX_SECURE_X509_KEY_TYPE_NONE);
     if (status != NX_SUCCESS)
     {
-        printf("Unable to initialize CA certificate, ret = 0x%x\r\n", status);
+        printf("Unable to initialize CA certificate (0x%02x)\r\n", status);
         return status;
     }
 
     status = nx_secure_tls_trusted_certificate_add(tls_session, trusted_cert);
     if (status != NX_SUCCESS)
     {
-        printf("Unable to add CA certificate to trusted store, ret=0x%x\r\n", status);
+        printf("Unable to add CA certificate to trusted store (0x%02x)\r\n", status);
         return status;
     }
 
     status = nx_secure_tls_session_packet_buffer_set(
         tls_session,
-        tls_packet_buffer, sizeof(tls_packet_buffer));
+        azure_mqtt->tls_packet_buffer,
+        sizeof(azure_mqtt->tls_packet_buffer));
     if (status != NX_SUCCESS)
     {
         printf("Could not set TLS session packet buffer (0x%02x)\r\n", status);
@@ -337,180 +135,15 @@ static UINT tls_setup(NXD_MQTT_CLIENT *client, NX_SECURE_TLS_SESSION *tls_sessio
     return NX_SUCCESS;
 }
 
-static UINT mqtt_init(CHAR * iot_device_id)
+static UINT mqtt_publish(AZURE_MQTT *azure_mqtt, CHAR *topic, CHAR *message)
 {
-    UINT status;
-
-    status = nxd_mqtt_client_create(
-        &mqtt_client, "MQTT client",
-        (CHAR *)iot_device_id, strlen(iot_device_id),
-        &ip_0, &main_pool,
-        mqtt_client_stack, MQTT_CLIENT_STACK_SIZE, 
-        MQTT_CLIENT_PRIORITY,
-        NX_NULL, 0);
-    if (status != NXD_MQTT_SUCCESS)
-    {
-        printf("Failed to create MQTT Client\r\n");
-        return status;
-    }
-
-    return NXD_MQTT_SUCCESS;
-}
-
-static UINT mqtt_open(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas_key)
-{
-    CHAR mqtt_username[128];
-    CHAR mqtt_password[256];
-    CHAR mqtt_subscribe_topic[100];
-    NXD_ADDRESS server_ip;
-    UINT status;
-
-    if (iot_hub_hostname[0] == 0 || iot_device_id[0] == 0 || iot_sas_key[0] == 0)
-    {
-        printf("ERROR: IoT Hub connection configuration is empty, please review\r\n");
-        return 1;
-    }
-
-    snprintf(mqtt_username, sizeof(mqtt_username), USERNAME, iot_hub_hostname, iot_device_id);
-    create_sas_token(
-        (CHAR *)iot_sas_key, strlen(iot_sas_key),
-        (CHAR *)iot_hub_hostname, (CHAR *)iot_device_id, sntp_get_time(),
-        mqtt_password, sizeof(mqtt_password));
-
-    snprintf(mqtt_subscribe_topic, sizeof(mqtt_subscribe_topic), DEVICE_MESSAGE_TOPIC, iot_device_id);
-
-    status = nx_secure_tls_session_create(
-        &mqtt_client.nxd_mqtt_tls_session,
-        &nx_crypto_tls_ciphers,
-        tls_metadata_buffer,
-        sizeof(tls_metadata_buffer));
-    if (status != NXD_MQTT_SUCCESS)
-    {
-        printf("Could not create TLS Session (0x%02x)\r\n", status);
-        return status;
-    }
-
-    status = nxd_mqtt_client_login_set(
-        &mqtt_client,
-        mqtt_username, strlen(mqtt_username),
-        mqtt_password, strlen(mqtt_password));
-    if (status != NXD_MQTT_SUCCESS)
-    {
-        printf("Could not create Login Set (0x%02x)\r\n", status);
-        nx_secure_tls_session_delete(&mqtt_client.nxd_mqtt_tls_session);
-        return status;
-    }
-
-    // Resolve the MQTT server IP address
-    status = nxd_dns_host_by_name_get(&dns_client, (UCHAR *)iot_hub_hostname, &server_ip, NX_IP_PERIODIC_RATE, NX_IP_VERSION_V4);
-    if (status != NX_SUCCESS)
-    {
-        printf("Unable to resolve DNS for MQTT Server %s (0x%02x)\r\n", iot_hub_hostname, status);
-        return status;
-    }
-
-    status = nxd_mqtt_client_secure_connect(
-        &mqtt_client,
-        &server_ip, NXD_MQTT_TLS_PORT,
-        tls_setup, MQTT_KEEP_ALIVE, NX_TRUE, MQTT_TIMEOUT);
-    if (status != NXD_MQTT_SUCCESS)
-    {
-        printf("Could not connect to MQTT server (0x%02x)\r\n", status);
-        return status;
-    }
-
-    status = nxd_mqtt_client_subscribe(
-        &mqtt_client,
-        mqtt_subscribe_topic,
-        strlen(mqtt_subscribe_topic),
-        MQTT_QOS_0);
-    if (status != NXD_MQTT_SUCCESS)
-    {
-        printf("Error in subscribing to server (0x%02x)\r\n", status);
-        return status;
-    }
-
-    status = nxd_mqtt_client_subscribe(
-        &mqtt_client,
-        DIRECT_METHOD_TOPIC,
-        strlen(DIRECT_METHOD_TOPIC),
-        MQTT_QOS_0);
-    if (status != NXD_MQTT_SUCCESS)
-    {
-        printf("Error in direct method subscribing to server (0x%02x)\r\n", status);
-        return status;
-    }
-
-    status = nxd_mqtt_client_subscribe(
-        &mqtt_client,
-        DEVICE_TWIN_RES_TOPIC,
-        strlen(DEVICE_TWIN_RES_TOPIC),
-        MQTT_QOS_0);
-    if (status != NXD_MQTT_SUCCESS)
-    {
-        printf("Error in device twin response subscribing to server (0x%02x)\r\n", status);
-        return status;
-    }
-    
-    status = nxd_mqtt_client_subscribe(
-    &mqtt_client,
-        DEVICE_TWIN_DESIRED_PROP_RES_TOPIC,
-        strlen(DEVICE_TWIN_DESIRED_PROP_RES_TOPIC),
-        MQTT_QOS_0);
-    if (status != NXD_MQTT_SUCCESS)
-    {
-        printf("Error in device twin desired properties response subscribing to server (0x%02x)\r\n", status);
-        return status;
-    }
-
-    status = nxd_mqtt_client_receive_notify_set(&mqtt_client, mqtt_notify);
-    if (status)
-    {
-        printf("Error in setting receive notify (0x%02x)\r\n", status);
-        return status;
-    }
-
-    return NXD_MQTT_SUCCESS;
-}
-
-static UINT mqtt_publish_float(CHAR  *topic, CHAR *label, float value)
-{
-    CHAR mqtt_message[200] = { 0 };
-
-    snprintf(mqtt_message, sizeof(mqtt_message), "{\"%s\": %3.2f}", label, value);
-    printf("Sending message %s\r\n", mqtt_message);
-
-    return mqtt_publish(topic, mqtt_message);
-}
-
-static UINT mqtt_publish_bool(CHAR  *topic, CHAR *label, bool value)
-{
-    CHAR mqtt_message[200] = { 0 };
-
-    snprintf(mqtt_message, sizeof(mqtt_message), "{\"%s\": %d}", label, value);
-    printf("Sending message %s\r\n", mqtt_message);
-
-    return mqtt_publish(topic, mqtt_message);
-}
-
-static UINT mqtt_publish_string(CHAR  *topic, CHAR *label, CHAR *value)
-{
-    CHAR mqtt_message[200] = { 0 };
-
-    snprintf(mqtt_message, sizeof(mqtt_message), "{\"%s\": %s}", label, value);
-    printf("Sending message %s\r\n", mqtt_message);
-
-    return mqtt_publish(topic, mqtt_message);
-}
-
-static UINT mqtt_publish(CHAR *topic, CHAR *message)
-{
-    UINT status = nxd_mqtt_client_publish(&mqtt_client,
-                                          topic, strlen(topic),
-                                          message, strlen(message),
-                                          NX_FALSE,
-                                          MQTT_QOS_1,
-                                          NX_WAIT_FOREVER);
+    UINT status = nxd_mqtt_client_publish(
+        &azure_mqtt->nxd_mqtt_client,
+        topic, strlen(topic),
+        message, strlen(message),
+        NX_FALSE,
+        MQTT_QOS_1,
+        NX_WAIT_FOREVER);
     if (status != NX_SUCCESS)
     {
         printf("Failed to publish %s (0x%02x)\r\n", message, status);
@@ -519,13 +152,87 @@ static UINT mqtt_publish(CHAR *topic, CHAR *message)
     return status;
 }
 
-static UINT mqtt_respond_direct_method(CHAR *topic, CHAR *request_id, MQTT_DIRECT_METHOD_RESPONSE *response)
+static UINT mqtt_publish_float(AZURE_MQTT *azure_mqtt, CHAR *topic, CHAR *label, float value)
 {
-    snprintf(topic, MQTT_TOPIC_NAME_LENGTH, DIRECT_METHOD_RESPONSE, response->status, request_id);
-    return mqtt_publish(topic, response->message);
+    CHAR mqtt_message[200] = { 0 };
+
+    snprintf(mqtt_message, sizeof(mqtt_message), "{\"%s\": %3.2f}", label, value);
+    printf("Sending message %s\r\n", mqtt_message);
+
+    return mqtt_publish(azure_mqtt, topic, mqtt_message);
 }
 
-static VOID process_device_twin_response(CHAR *topic)
+static UINT mqtt_publish_bool(AZURE_MQTT *azure_mqtt, CHAR  *topic, CHAR *label, bool value)
+{
+    CHAR mqtt_message[200] = { 0 };
+
+    snprintf(mqtt_message, sizeof(mqtt_message), "{\"%s\": %d}", label, value);
+    printf("Sending message %s\r\n", mqtt_message);
+
+    return mqtt_publish(azure_mqtt, topic, mqtt_message);
+}
+
+static UINT mqtt_publish_string(AZURE_MQTT *azure_mqtt, CHAR  *topic, CHAR *label, CHAR *value)
+{
+    CHAR mqtt_message[200] = { 0 };
+
+    snprintf(mqtt_message, sizeof(mqtt_message), "{\"%s\": %s}", label, value);
+    printf("Sending message %s\r\n", mqtt_message);
+
+    return mqtt_publish(azure_mqtt, topic, mqtt_message);
+}
+
+static UINT mqtt_respond_direct_method(AZURE_MQTT *azure_mqtt, CHAR *topic, CHAR *request_id, MQTT_DIRECT_METHOD_RESPONSE *response)
+{
+    snprintf(topic, MQTT_TOPIC_NAME_LENGTH, DIRECT_METHOD_RESPONSE, response->status, request_id);
+    return mqtt_publish(azure_mqtt, topic, response->message);
+}
+
+static VOID process_direct_method(AZURE_MQTT *azure_mqtt, CHAR *topic, CHAR *message)
+{
+    int direct_method_receive_size = sizeof(DIRECT_METHOD_RECEIVE) - 1;
+    MQTT_DIRECT_METHOD_RESPONSE response = { 0, { 0 } };
+    
+    CHAR direct_method_name[64] = { 0 };
+    CHAR request_id[16] = { 0 };
+
+    CHAR *location = topic + direct_method_receive_size;
+    CHAR *find;
+
+    find = strchr(location, '/');
+    if (find == 0)
+    {
+        return;
+    }
+
+    strncpy(direct_method_name, location, find - location);
+
+    location = find;
+
+    find = strstr(location, "$rid=");
+    if (find == 0)
+    {
+        return;
+    }
+
+    location = find + 5;
+
+    strcpy(request_id, location);
+
+    printf("Received direct method=%s, id=%s, message=%s\r\n", direct_method_name, request_id, message);
+
+    if (azure_mqtt->cb_ptr_mqtt_invoke_direct_method == NULL)
+    {
+        printf("No callback is registered for MQTT direct method invoke\r\n");
+        return;
+    }
+
+    azure_mqtt->cb_ptr_mqtt_invoke_direct_method(direct_method_name, message, &response);
+
+    mqtt_respond_direct_method(azure_mqtt, topic, request_id, &response);
+}
+
+static VOID process_device_twin_response(AZURE_MQTT *azure_mqtt, CHAR *topic)
 {
     CHAR device_twin_res_status[16] = { 0 };
     CHAR request_id[16] = { 0 };
@@ -564,51 +271,7 @@ static VOID process_device_twin_response(CHAR *topic)
     printf("Processed device twin update response with status=%s, id=%s\r\n", device_twin_res_status, request_id);
 }
 
-static VOID process_direct_method(CHAR *topic, CHAR *message)
-{
-    int direct_method_receive_size = sizeof(DIRECT_METHOD_RECEIVE) - 1;
-    MQTT_DIRECT_METHOD_RESPONSE response = { 0, { 0 } };
-    
-    CHAR direct_method_name[64] = { 0 };
-    CHAR request_id[16] = { 0 };
-
-    CHAR *location = topic + direct_method_receive_size;
-    CHAR *find;
-
-    find = strchr(location, '/');
-    if (find == 0)
-    {
-        return;
-    }
-
-    strncpy(direct_method_name, location, find - location);
-
-    location = find;
-
-    find = strstr(location, "$rid=");
-    if (find == 0)
-    {
-        return;
-    }
-
-    location = find + 5;
-
-    strcpy(request_id, location);
-
-    printf("Received direct method=%s, id=%s, message=%s\r\n", direct_method_name, request_id, message);
-
-    if (cb_ptr_mqtt_invoke_direct_method == NULL)
-    {
-        printf("No callback is registered for MQTT direct method invoke\r\n");
-        return;
-    }
-    
-    cb_ptr_mqtt_invoke_direct_method(direct_method_name, message, &response);
-
-    mqtt_respond_direct_method(topic, request_id, &response);
-}
-
-static VOID process_c2d_message(CHAR *topic)
+static VOID process_c2d_message(AZURE_MQTT *azure_mqtt, CHAR *topic)
 {
     CHAR key[64] = { 0 };
     CHAR value[64] = { 0 };
@@ -645,17 +308,357 @@ static VOID process_c2d_message(CHAR *topic)
     strcpy(value, location);
 
     printf("Received property key=%s, value=%s\r\n", key, value);
-    
-    if (cb_ptr_mqtt_c2d_message == NULL)
+
+    if (azure_mqtt->cb_ptr_mqtt_c2d_message == NULL)
     {
         printf("No callback is registered for MQTT cloud to device message processing\r\n");
         return;
     }
     
-    cb_ptr_mqtt_c2d_message(key, value);
+    azure_mqtt->cb_ptr_mqtt_c2d_message(key, value);
 }
 
-static VOID process_device_twin_desired_prop_update(CHAR *topic, CHAR *message)
+static VOID process_device_twin_desired_prop_update(AZURE_MQTT *azure_mqtt, CHAR *topic, CHAR *message)
 {
-    cb_ptr_mqtt_device_twin_desired_prop_update_callback(message);
+    azure_mqtt->cb_ptr_mqtt_device_twin_desired_prop_callback(message);
+}
+
+VOID mqtt_disconnect_cb(NXD_MQTT_CLIENT *client_ptr)
+{
+    printf("ERROR: MQTT disconnected, reconnecting...\r\n");
+
+    AZURE_MQTT* azure_mqtt = (AZURE_MQTT *)client_ptr;
+
+    // Try and reconnect forever
+    while (azure_mqtt_connect(azure_mqtt) != NX_SUCCESS)
+    {
+        tx_thread_sleep(TX_TIMER_TICKS_PER_SECOND);
+    }
+}
+
+static VOID mqtt_notify_cb(NXD_MQTT_CLIENT *client_ptr, UINT number_of_messages)
+{
+    UINT status;
+    CHAR mqtt_topic_buffer[MQTT_TOPIC_NAME_LENGTH] = { 0 };
+    UINT mqtt_topic_length;
+    CHAR mqtt_message_buffer[MQTT_MESSAGE_NAME_LENGTH] = { 0 };
+    UINT mqtt_message_length;
+
+    AZURE_MQTT *azure_mqtt = (AZURE_MQTT *)client_ptr->nxd_mqtt_packet_receive_context;
+
+    tx_mutex_get(&azure_mqtt->azure_mqtt_mutex, TX_WAIT_FOREVER);
+
+    // Get the mqtt client message
+    status = nxd_mqtt_client_message_get(
+        client_ptr,
+        (UCHAR *)mqtt_topic_buffer,
+        sizeof(mqtt_topic_buffer),
+        &mqtt_topic_length,
+        (UCHAR *)mqtt_message_buffer,
+        sizeof(mqtt_message_buffer),
+        &mqtt_message_length);
+    if (status == NXD_MQTT_SUCCESS)
+    {
+        // Append null string terminators
+        mqtt_topic_buffer[mqtt_topic_length] = 0;
+        mqtt_message_buffer[mqtt_message_length] = 0;
+
+        // Convert to lowercase
+        for (CHAR *p = mqtt_message_buffer; *p; ++p)
+        {
+            *p = tolower((INT)*p);
+        }
+
+        printf("[MQTT Received] topic = %s, message = %s\r\n", mqtt_topic_buffer, mqtt_message_buffer);
+
+        if (strstr((CHAR *)mqtt_topic_buffer, DIRECT_METHOD_RECEIVE))
+        {
+            process_direct_method(azure_mqtt, mqtt_topic_buffer, mqtt_message_buffer);
+        }
+        else if (strstr((CHAR *)mqtt_topic_buffer, DEVICE_TWIN_RES_BASE))
+        {
+            process_device_twin_response(azure_mqtt, mqtt_topic_buffer);
+        }
+        else if (strstr((CHAR *)mqtt_topic_buffer, DEVICE_MESSAGE_BASE))
+        {
+            process_c2d_message(azure_mqtt, mqtt_topic_buffer);
+        }
+        else if (strstr((CHAR *)mqtt_topic_buffer, DEVICE_TWIN_DESIRED_PROP_RES_BASE))
+        {
+            process_device_twin_desired_prop_update(azure_mqtt, mqtt_topic_buffer, mqtt_message_buffer);
+        }
+        else
+        {
+            printf("Unknown topic, no custom processing specified\r\n");
+        }
+    }
+    
+    tx_mutex_put(&azure_mqtt->azure_mqtt_mutex);
+}
+
+// Interact with Azure MQTT
+UINT azure_mqtt_publish_float_telemetry(AZURE_MQTT *azure_mqtt, CHAR* label, float value)
+{
+    CHAR mqtt_publish_topic[100] = { 0 };
+    UINT status;
+
+    tx_mutex_get(&azure_mqtt->azure_mqtt_mutex, TX_WAIT_FOREVER);
+
+    snprintf(mqtt_publish_topic, sizeof(mqtt_publish_topic), PUBLISH_TELEMETRY_TOPIC, azure_mqtt->nxd_mqtt_client.nxd_mqtt_client_id);
+    printf("Sending telemetry\r\n");
+
+    status =  mqtt_publish_float(azure_mqtt, mqtt_publish_topic, label, value);
+
+    tx_mutex_put(&azure_mqtt->azure_mqtt_mutex);
+
+    return status;
+}
+
+UINT azure_mqtt_publish_float_property(AZURE_MQTT *azure_mqtt, CHAR* label, float value)
+{
+    CHAR mqtt_publish_topic[100] = { 0 };
+    UINT status;
+
+    tx_mutex_get(&azure_mqtt->azure_mqtt_mutex, TX_WAIT_FOREVER);
+
+    snprintf(mqtt_publish_topic, sizeof(mqtt_publish_topic), DEVICE_TWIN_PUBLISH_TOPIC, 1);
+    printf("Sending device twin update with float value\r\n");
+
+    status = mqtt_publish_float(azure_mqtt, mqtt_publish_topic, label, value);
+
+    tx_mutex_put(&azure_mqtt->azure_mqtt_mutex);
+
+    return status;
+}
+
+UINT azure_mqtt_publish_bool_property(AZURE_MQTT *azure_mqtt, CHAR* label, bool value)
+{
+    CHAR mqtt_publish_topic[100] = { 0 };
+    UINT status;
+
+    tx_mutex_get(&azure_mqtt->azure_mqtt_mutex, TX_WAIT_FOREVER);
+
+    snprintf(mqtt_publish_topic, sizeof(mqtt_publish_topic), DEVICE_TWIN_PUBLISH_TOPIC, 1);
+    printf("Sending device twin update with bool value\r\n");
+
+    status = mqtt_publish_bool(azure_mqtt, mqtt_publish_topic, label, value);
+
+    tx_mutex_put(&azure_mqtt->azure_mqtt_mutex);
+
+    return status;
+}
+
+UINT azure_mqtt_publish_string_property(AZURE_MQTT *azure_mqtt, CHAR* label, CHAR *value)
+{
+    CHAR mqtt_publish_topic[100] = { 0 };
+    UINT status;
+
+    tx_mutex_get(&azure_mqtt->azure_mqtt_mutex, TX_WAIT_FOREVER);
+
+    snprintf(mqtt_publish_topic, sizeof(mqtt_publish_topic), DEVICE_TWIN_PUBLISH_TOPIC, 1);
+    printf("Sending device twin update with string value\r\n");
+
+    status = mqtt_publish_string(azure_mqtt, mqtt_publish_topic, label, value);
+
+    tx_mutex_put(&azure_mqtt->azure_mqtt_mutex);
+
+    return status;
+}
+
+UINT azure_mqtt_create(AZURE_MQTT *azure_mqtt, CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas_key)
+{
+    UINT status;
+
+    printf("Initializing MQTT client\r\n");
+
+    if (azure_mqtt == NULL)
+    {
+        printf("ERROR: azure_mqtt is NULL\r\n");
+        return NX_PTR_ERROR;
+    }
+
+    if (iot_hub_hostname[0] == 0 || iot_device_id[0] == 0 || iot_sas_key[0] == 0)
+    {
+        printf("ERROR: IoT Hub connection configuration is empty\r\n");
+        return NX_PTR_ERROR;
+    }
+
+    // Stash the connection information
+    azure_mqtt->azure_mqtt_device_id = iot_device_id;
+    azure_mqtt->azure_mqtt_sas_key = iot_sas_key;
+    azure_mqtt->azure_mqtt_hub_hostname = iot_hub_hostname;
+
+    status = nxd_mqtt_client_create(
+        &azure_mqtt->nxd_mqtt_client, "MQTT client",
+        azure_mqtt->azure_mqtt_device_id, strlen(azure_mqtt->azure_mqtt_device_id),
+        &ip_0, &main_pool,
+        azure_mqtt->mqtt_client_stack, MQTT_CLIENT_STACK_SIZE, 
+        MQTT_CLIENT_PRIORITY,
+        NX_NULL, 0);
+    if (status != NXD_MQTT_SUCCESS)
+    {
+        printf("Failed to create MQTT Client (0x%02x)\r\n", status);
+        return status;
+    }
+
+    status = nxd_mqtt_client_receive_notify_set(
+        &azure_mqtt->nxd_mqtt_client, 
+        mqtt_notify_cb);
+    if (status)
+    {
+        printf("Error in setting receive notify (0x%02x)\r\n", status);
+        nxd_mqtt_client_delete(&azure_mqtt->nxd_mqtt_client);
+        return status;
+    }
+
+    status = nxd_mqtt_client_disconnect_notify_set(
+        &azure_mqtt->nxd_mqtt_client,
+        mqtt_disconnect_cb);
+    if (status != NXD_MQTT_SUCCESS)
+    {
+        printf("Error in seting disconnect notification (0x%02x)\r\n", status);
+        nxd_mqtt_client_delete(&azure_mqtt->nxd_mqtt_client);
+        return status;
+    }
+
+    status = tx_mutex_create(&azure_mqtt->azure_mqtt_mutex, "Azure MQTT", TX_NO_INHERIT);
+    if (status != TX_SUCCESS)
+    {
+        nxd_mqtt_client_delete(&azure_mqtt->nxd_mqtt_client);
+        return status;
+    }
+    
+    // Set the receive context (highjacking the packet_receive_context) for callbacks
+    azure_mqtt->nxd_mqtt_client.nxd_mqtt_packet_receive_context = azure_mqtt;
+
+    return NXD_MQTT_SUCCESS;
+}
+
+UINT azure_mqtt_delete(AZURE_MQTT *azure_mqtt)
+{
+    nxd_mqtt_client_disconnect(&azure_mqtt->nxd_mqtt_client);
+    nxd_mqtt_client_delete(&azure_mqtt->nxd_mqtt_client);
+    tx_mutex_delete(&azure_mqtt->azure_mqtt_mutex);
+
+    return NXD_MQTT_SUCCESS;
+}
+
+UINT azure_mqtt_connect(AZURE_MQTT *azure_mqtt)
+{
+    UINT status;
+    CHAR mqtt_subscribe_topic[100];
+    NXD_ADDRESS server_ip;
+
+    // Create the username & password
+    snprintf(azure_mqtt->azure_mqtt_username, AZURE_MQTT_USERNAME_SIZE, USERNAME, azure_mqtt->azure_mqtt_hub_hostname, azure_mqtt->azure_mqtt_device_id);
+    
+    if (!create_sas_token(
+        azure_mqtt->azure_mqtt_sas_key, strlen(azure_mqtt->azure_mqtt_sas_key),
+        azure_mqtt->azure_mqtt_hub_hostname, azure_mqtt->azure_mqtt_device_id, sntp_get_time(),
+        azure_mqtt->azure_mqtt_password, AZURE_MQTT_PASSWORD_SIZE))
+    {
+        printf("ERROR: Unable to generate SAS token\r\n");
+        return NX_PTR_ERROR;
+    }
+
+    status = nx_secure_tls_session_create(
+        &azure_mqtt->nxd_mqtt_client.nxd_mqtt_tls_session,
+        &nx_crypto_tls_ciphers,
+        azure_mqtt->tls_metadata_buffer,
+        sizeof(azure_mqtt->tls_metadata_buffer));
+    if (status != NXD_MQTT_SUCCESS)
+    {
+        printf("Could not create TLS Session (0x%02x)\r\n", status);
+        return status;
+    }
+    
+    status = nxd_mqtt_client_login_set(
+        &azure_mqtt->nxd_mqtt_client,
+        azure_mqtt->azure_mqtt_username, strlen(azure_mqtt->azure_mqtt_username),
+        azure_mqtt->azure_mqtt_password, strlen(azure_mqtt->azure_mqtt_password));
+    if (status != NXD_MQTT_SUCCESS)
+    {
+        printf("Could not create Login Set (0x%02x)\r\n", status);
+        nx_secure_tls_session_delete(&azure_mqtt->nxd_mqtt_client.nxd_mqtt_tls_session);
+        return status;
+    }
+
+    // Resolve the MQTT server IP address
+    status = nxd_dns_host_by_name_get(&dns_client, (UCHAR *)azure_mqtt->azure_mqtt_hub_hostname, &server_ip, NX_IP_PERIODIC_RATE, NX_IP_VERSION_V4);
+    if (status != NX_SUCCESS)
+    {
+        printf("Unable to resolve DNS for MQTT Server %s (0x%02x)\r\n", azure_mqtt->azure_mqtt_hub_hostname, status);
+        nx_secure_tls_session_delete(&azure_mqtt->nxd_mqtt_client.nxd_mqtt_tls_session);
+        return status;
+    }
+
+    status = nxd_mqtt_client_secure_connect(
+        &azure_mqtt->nxd_mqtt_client,
+        &server_ip, NXD_MQTT_TLS_PORT,
+        tls_setup, MQTT_KEEP_ALIVE, NX_TRUE, MQTT_TIMEOUT);
+    if (status != NXD_MQTT_SUCCESS)
+    {
+        printf("Could not connect to MQTT server (0x%02x)\r\n", status);
+        nx_secure_tls_session_delete(&azure_mqtt->nxd_mqtt_client.nxd_mqtt_tls_session);
+        return status;
+    }
+
+    snprintf(mqtt_subscribe_topic, sizeof(mqtt_subscribe_topic), DEVICE_MESSAGE_TOPIC, azure_mqtt->azure_mqtt_device_id);
+    status = nxd_mqtt_client_subscribe(
+        &azure_mqtt->nxd_mqtt_client,
+        mqtt_subscribe_topic,
+        strlen(mqtt_subscribe_topic),
+        MQTT_QOS_0);
+    if (status != NXD_MQTT_SUCCESS)
+    {
+        printf("Error in subscribing to server (0x%02x)\r\n", status);
+        nx_secure_tls_session_delete(&azure_mqtt->nxd_mqtt_client.nxd_mqtt_tls_session);
+        return status;
+    }
+
+    status = nxd_mqtt_client_subscribe(
+        &azure_mqtt->nxd_mqtt_client,
+        DIRECT_METHOD_TOPIC,
+        strlen(DIRECT_METHOD_TOPIC),
+        MQTT_QOS_0);
+    if (status != NXD_MQTT_SUCCESS)
+    {
+        printf("Error in direct method subscribing to server (0x%02x)\r\n", status);
+        nx_secure_tls_session_delete(&azure_mqtt->nxd_mqtt_client.nxd_mqtt_tls_session);
+        return status;
+    }
+
+    status = nxd_mqtt_client_subscribe(
+        &azure_mqtt->nxd_mqtt_client,
+        DEVICE_TWIN_RES_TOPIC,
+        strlen(DEVICE_TWIN_RES_TOPIC),
+        MQTT_QOS_0);
+    if (status != NXD_MQTT_SUCCESS)
+    {
+        printf("Error in device twin response subscribing to server (0x%02x)\r\n", status);
+        nx_secure_tls_session_delete(&azure_mqtt->nxd_mqtt_client.nxd_mqtt_tls_session);
+        return status;
+    }
+    
+    status = nxd_mqtt_client_subscribe(
+        &azure_mqtt->nxd_mqtt_client,
+        DEVICE_TWIN_DESIRED_PROP_RES_TOPIC,
+        strlen(DEVICE_TWIN_DESIRED_PROP_RES_TOPIC),
+        MQTT_QOS_0);
+    if (status != NXD_MQTT_SUCCESS)
+    {
+        printf("Error in device twin desired properties response subscribing to server (0x%02x)\r\n", status);
+        return status;
+    }
+
+    printf("SUCCESS: MQTT client initialized\r\n\r\n");
+
+    return NXD_MQTT_SUCCESS;
+}
+
+UINT azure_mqtt_disconnect(AZURE_MQTT *azure_mqtt)
+{
+    UINT status = nxd_mqtt_client_disconnect(&azure_mqtt->nxd_mqtt_client);
+
+    return status;
 }
