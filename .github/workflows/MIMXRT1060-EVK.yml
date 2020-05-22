@@ -16,7 +16,7 @@ on:
 
 defaults:
   run:
-    working-directory: NXP/MIMXRT106-EVK
+    working-directory: NXP/MIMXRT1060-EVK
 
 jobs:
   build:
