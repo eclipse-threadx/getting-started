@@ -47,7 +47,7 @@ void azure_thread_entry(ULONG parameter)
     // Enter the Azure MQTT loop
     if(!azure_mqtt_run(IOT_HUB_HOSTNAME, IOT_DEVICE_ID, IOT_PRIMARY_KEY))
     {
-        printf("Failed to start Azure Iot Hub thread\r\n");
+        printf("Failed to start Azure IotHub\r\n");
         return;
     }
 }

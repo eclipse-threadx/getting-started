@@ -98,6 +98,11 @@ static void mqtt_c2d_message(CHAR *key, CHAR *value)
     printf("Property=%s updated with value=%s\r\n", key, value);
 }
 
+static void mqtt_device_twin_desired_prop(CHAR *message)
+{
+    printf("Received device twin updated properties: %s\r\n", message);
+}
+
 UINT azure_iothub_run(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas_key)
 {
     UINT status;

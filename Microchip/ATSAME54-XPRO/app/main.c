@@ -2,7 +2,6 @@
    Licensed under the MIT License. */
    
 #include <stdio.h>
-#include <time.h>
 
 #include "tx_api.h"
 
@@ -57,17 +56,10 @@ void azure_thread_entry(ULONG parameter)
         return;
     }
     
-    if (!azure_mqtt_init(IOT_HUB_HOSTNAME, IOT_DEVICE_ID, IOT_PRIMARY_KEY))
+    if (!azure_iothub_run(IOT_HUB_HOSTNAME, IOT_DEVICE_ID, IOT_PRIMARY_KEY))
     {
-        printf("Failed to initialize Azure MQTT\r\n");
+        printf("Failed to initialize Azure IoTHub\r\n");
         return;
-    }
-    
-    while (true)
-    {
-        time_t current = time(NULL);
-        printf("Time %ld\r\n", (long)current);
-        tx_thread_sleep(60 * TX_TIMER_TICKS_PER_SECOND);
     }
 }
 

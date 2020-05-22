@@ -92,7 +92,12 @@ static void mqtt_c2d_message(CHAR *key, CHAR *value)
     printf("Property=%s updated with value=%s\r\n", key, value);
 }
 
-UINT azure_mqtt_run(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas_key)
+static void mqtt_device_twin_desired_prop(CHAR *message)
+{
+    printf("Received device twin updated properties: %s\r\n", message);
+}
+
+UINT azure_iothub_run(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas_key)
 {
     UINT status;
     float temperature;
@@ -108,6 +113,7 @@ UINT azure_mqtt_run(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas_k
     // Register callbacks
     azure_mqtt_register_direct_method_callback(&azure_mqtt, mqtt_direct_method);
     azure_mqtt_register_c2d_message_callback(&azure_mqtt, mqtt_c2d_message);
+    azure_mqtt_register_device_twin_desired_prop_callback(&azure_mqtt, mqtt_device_twin_desired_prop);
 
     // Connect the Azure MQTT client
     status = azure_mqtt_connect(&azure_mqtt);
