@@ -198,6 +198,12 @@ __attribute__((weak)) unsigned long sntp_get_time(void)
     return current_time;
 }
 
+unsigned int unix_time_get(unsigned long* unix_time)
+{
+    *unix_time = sntp_get_time();
+    return NX_SUCCESS;
+}
+
 bool sntp_wait_for_sync()
 {
     ULONG events = 0;

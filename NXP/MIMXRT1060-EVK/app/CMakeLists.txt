@@ -18,6 +18,8 @@ set(SOURCES
     azure_iothub.c
     board_init.c
     main.c
+
+    nx_azure_iot_ciphersuites.c
 )
 
 add_executable(${TARGET} ${SOURCES})
@@ -41,6 +43,10 @@ target_link_libraries(${TARGET}
         MIMXRT1060-evk
         netx_driver
         app_common
+
+        az_iot_hub
+        azrtos::nx_cloud
+        azrtos::azure_iot
 )
 
 target_link_options(${TARGET}
