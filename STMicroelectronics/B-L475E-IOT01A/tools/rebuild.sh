@@ -5,7 +5,10 @@
 
 # Use paths relative to this script's location
 SCRIPT=$(readlink -f "$0")
-BASEDIR=$(dirname "$SCRIPT")
+SCRIPTDIR=$(dirname "$SCRIPT")
+BASEDIR=$(dirname "$SCRIPTDIR")
+
+# echo $BASEDIR
 
 # If you want to build into a different directory, change this variable
 BUILDDIR="$BASEDIR/build"
