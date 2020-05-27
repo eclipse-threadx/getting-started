@@ -5,18 +5,12 @@ set(TARGET ${PROJECT_NAME})
 set(LINKER_SCRIPT "${CMAKE_CURRENT_LIST_DIR}/startup/MIMXRT1062xxxxx_flexspi_nor.ld")
 
 set(SOURCES
-    newlibc/syscalls.c
-    newlibc/console.c
     startup/startup_MIMXRT1062.S
     startup/tx_initialize_low_level.S
 
-    board/board.c
-    board/clock_config.c
-    board/peripherals.c
-    board/pin_mux.c
-
     azure_iothub.c
     board_init.c
+    console.c
     main.c
 )
 
@@ -26,12 +20,6 @@ set_target_properties(${TARGET}
     PROPERTIES 
         LINK_DEPENDS ${LINKER_SCRIPT}
         SUFFIX ".elf"
-)
-
-target_include_directories(${TARGET}
-    PUBLIC
-        .
-        board
 )
 
 target_link_libraries(${TARGET} 

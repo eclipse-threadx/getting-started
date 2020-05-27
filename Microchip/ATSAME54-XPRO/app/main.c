@@ -18,21 +18,13 @@
 TX_THREAD azure_thread;
 UCHAR azure_thread_stack[AZURE_THREAD_STACK_SIZE];
 
-void* __RAM_segment_used_end__ = 0;
-
-extern  VOID nx_driver_same54(NX_IP_DRIVER*);
+extern VOID nx_driver_same54(NX_IP_DRIVER*);
 
 void azure_thread_entry(ULONG parameter);
+void tx_application_define(void *first_unused_memory);
 
 void azure_thread_entry(ULONG parameter)
 {
-    // Sleep to allow time for user to connect serial terminal
-    for(int i = 10 ; i > 0 ; --i)
-    {
-        printf("Starting application in %d\r\n", i);
-        tx_thread_sleep(TX_TIMER_TICKS_PER_SECOND);
-    }
-
     printf("Starting Azure thread\r\n");
     
     // Initialise the network
@@ -50,7 +42,7 @@ void azure_thread_entry(ULONG parameter)
     }
 
     // Wait for an SNTP sync
-    if (!sntp_wait_for_sync())
+    if (!sntp_sync_wait())
     {
         printf("Failed to start sync SNTP time\r\n");
         return;
@@ -63,7 +55,6 @@ void azure_thread_entry(ULONG parameter)
     }
 }
 
-// threadx entry point
 void tx_application_define(void *first_unused_memory)
 {
     // Initialise the board
@@ -72,7 +63,7 @@ void tx_application_define(void *first_unused_memory)
     // Create Azure thread
     UINT status = tx_thread_create(
         &azure_thread,
-        "Azure SDK Thread",
+        "Azure Thread",
         azure_thread_entry,
         0,
         azure_thread_stack,
@@ -84,7 +75,7 @@ void tx_application_define(void *first_unused_memory)
 
     if (status != TX_SUCCESS)
     {
-        printf("Azure MQTT application failed, please restart\r\n");
+        printf("Azure IoT application failed, please restart\r\n");
     }
 }
 

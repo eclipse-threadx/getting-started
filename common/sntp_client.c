@@ -14,7 +14,7 @@
 #define SNTP_THREAD_STACK_SIZE  2048
 #define SNTP_THREAD_PRIORITY    9
 
-#define SNTP_SERVER             "time.google.com"
+#define SNTP_SERVER             "pool.ntp.org"
 
 #define SNTP_UPDATE_EVENT       1
 #define SNTP_NEW_TIME           2
@@ -34,7 +34,7 @@ static ULONG sntp_last_time = 0;
 static ULONG tx_last_ticks = 0;
 static bool first_sync = false;
 
-void sntp_thread_entry(ULONG info);
+int _gettimeofday(struct timeval *tp, void *tzvp);
 
 static VOID time_update_callback(NX_SNTP_TIME_MESSAGE* time_update_ptr, NX_SNTP_TIME* local_time)
 {
@@ -82,13 +82,13 @@ static UINT sntp_client_run()
     UINT status;
     NXD_ADDRESS sntp_address;
     
-    status = nxd_dns_host_by_name_get(&dns_client, (UCHAR *)SNTP_SERVER, &sntp_address, 5 * NX_IP_PERIODIC_RATE, NX_IP_VERSION_V4);
+    status = nxd_dns_host_by_name_get(&nx_dns_client, (UCHAR *)SNTP_SERVER, &sntp_address, 5 * NX_IP_PERIODIC_RATE, NX_IP_VERSION_V4);
     if (status != NX_SUCCESS)
     {
         printf("\tFAIL: Unable to resolve DNS for SNTP Server %s (0x%02x)\r\n", SNTP_SERVER, status);
         return status;
     }
-        
+
     status = nxd_sntp_client_initialize_unicast(&sntp_client, &sntp_address);
     if (status != NX_SUCCESS)
     {
@@ -110,7 +110,7 @@ static UINT sntp_client_run()
     return NX_SUCCESS;
 }
 
-void sntp_thread_entry(ULONG info)
+static void sntp_thread_entry(ULONG info)
 {
     UINT status;
     UINT server_status;
@@ -118,7 +118,7 @@ void sntp_thread_entry(ULONG info)
 
     printf("Initializing SNTP client\r\n");
 
-    status = nx_sntp_client_create(&sntp_client, &ip_0, 0, &main_pool, NX_NULL, NX_NULL, NULL);
+    status = nx_sntp_client_create(&sntp_client, &nx_ip, 0, &nx_pool, NX_NULL, NX_NULL, NULL);
     if (status != NX_SUCCESS) 
     {
         printf("\tFAIL: SNTP client create failed (0x%02x)\r\n", status);
@@ -183,7 +183,7 @@ void sntp_thread_entry(ULONG info)
     return;
 }
 
-__attribute__((weak)) unsigned long sntp_get_time(void)
+ULONG sntp_time_get()
 {
     tx_mutex_get(&time_mutex, TX_WAIT_FOREVER);
 
@@ -191,36 +191,44 @@ __attribute__((weak)) unsigned long sntp_get_time(void)
     ULONG tx_time_delta = (tx_time_get() - tx_last_ticks) / TX_TIMER_TICKS_PER_SECOND;
 
     // Add this to the last sync time to get the current time
-    ULONG current_time = sntp_last_time + tx_time_delta;
+    ULONG sntp_time = sntp_last_time + tx_time_delta;
 
     tx_mutex_put(&time_mutex);
 
-    return current_time;
+    return sntp_time;
 }
 
-bool sntp_wait_for_sync()
+// newlibc-nano stub
+int _gettimeofday(struct timeval *tp, void *tzvp)
+{
+    tp->tv_sec = sntp_time_get();
+    tp->tv_usec = 0;
+    
+    return 0;
+}
+
+UINT sntp_sync_wait()
 {
     ULONG events = 0;
-    tx_event_flags_get(&sntp_flags, SNTP_NEW_TIME, TX_OR_CLEAR, &events, TX_WAIT_FOREVER);
-    return true;
+    return tx_event_flags_get(&sntp_flags, SNTP_NEW_TIME, TX_OR_CLEAR, &events, TX_WAIT_FOREVER);
 }
 
-bool sntp_start()
+UINT sntp_start()
 {
     UINT status;
 
     status = tx_event_flags_create(&sntp_flags, "SNTP event flags");
     if (status != TX_SUCCESS)
     {
-        printf("\tFAIL: Unable to create sntp event flags (0x%02x)\r\n", status);
+        printf("FAIL: Unable to create SNTP event flags (0x%02x)\r\n", status);
         return false;
     }
 
     status = tx_mutex_create(&time_mutex, "time mutex", TX_NO_INHERIT);
     if (status != TX_SUCCESS)
     {
-        printf("\tFAIL: Unable to create time mutex (0x%02x)\r\n", status);
-        return false;
+        printf("FAIL: Unable to create SNTP time mutex (0x%02x)\r\n", status);
+        return status;
     }
 
     status = tx_thread_create(&mqtt_client_thread,
@@ -233,8 +241,8 @@ bool sntp_start()
     if (status != TX_SUCCESS)
     {
         printf("Unable to create SNTP thread (0x%02x)\r\n", status);
-        return false;
+        return status;
     }
 
-    return true;
+    return NX_SUCCESS;
 }

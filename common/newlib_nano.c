@@ -7,11 +7,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "sntp_client.h"
-
 extern int errno;
-
-register char *stack_ptr asm("sp");
+extern int _end;
 
 caddr_t _sbrk(int incr);
 int _close(int file);
@@ -21,34 +18,20 @@ int _lseek(int file, int ptr, int dir);
 void _exit(int status);
 void _kill(int pid, int sig);
 int _getpid(void);
-int _gettimeofday(struct timeval *tp, void *tzvp);
 
 caddr_t _sbrk(int incr)
 {
-    //printf("requesting heap %d\r\n", incr);
-    extern char end asm("end");
-    extern char heap_limit asm("__heap_limit");
+	static unsigned char *heap = NULL;
+	unsigned char *       prev_heap;
 
-    static char *heap_end = 0;
+	if (heap == NULL) {
+		heap = (unsigned char *)&_end;
+	}
+	prev_heap = heap;
 
-    // initialise the first time
-    if (heap_end == 0)
-    {
-        heap_end = &end;
-    }
+	heap += incr;
 
-    int delta = heap_end - &heap_limit + incr;
-    if (delta >= 0)
-    {
-        errno = ENOMEM;
-        return (caddr_t) - 1;
-    }
-
-    char *prev_heap_end = heap_end;
-
-    heap_end += incr;
-
-    return (caddr_t)prev_heap_end;
+	return (caddr_t)prev_heap;
 }
 
 int _close(int file)
@@ -88,11 +71,4 @@ void _kill(int pid, int sig)
 int _getpid(void)
 {
     return -1;
-}
-
-int _gettimeofday(struct timeval *tp, void *tzvp)
-{
-    tp->tv_sec = sntp_get_time();
-    tp->tv_usec = 0;
-    return 0;
 }

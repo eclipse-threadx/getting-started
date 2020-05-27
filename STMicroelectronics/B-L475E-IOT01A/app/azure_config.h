@@ -15,15 +15,15 @@ typedef enum
 // ----------------------------------------------------------------------------
 // WiFi connection information
 // ----------------------------------------------------------------------------
-#define WIFI_SSID           ""
-#define WIFI_PASSWORD       ""
+#define WIFI_SSID           "ferret"
+#define WIFI_PASSWORD       "i am a furry animal"
 #define WIFI_MODE           WPA2_PSK_AES
 
 // ----------------------------------------------------------------------------
 // Azure IoT Device information
 // ----------------------------------------------------------------------------
-#define IOT_HUB_HOSTNAME    ""
-#define IOT_DEVICE_ID       ""
-#define IOT_PRIMARY_KEY     ""
+#define IOT_HUB_HOSTNAME    "GSG.azure-devices.net"
+#define IOT_DEVICE_ID       "ryanstm"
+#define IOT_PRIMARY_KEY     "/9CVxOeKQnd5VamruN6qOymXzCjp/fFwyiYb4EJ/3zw="
 
 #endif // _AZURE_CONFIG_H

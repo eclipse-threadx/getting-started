@@ -128,11 +128,12 @@ SECTIONS
   .heap :
   {
     . = ALIGN(8);
-    PROVIDE ( end = . );
+    _end = .;
     _sheap = .;
     . = . + _Heap_Size;
     . = ALIGN(8);
     _eheap = .;
+    __heap_limit = .; /* Add for _sbrk */
   } >RAM2
 
   .stack :

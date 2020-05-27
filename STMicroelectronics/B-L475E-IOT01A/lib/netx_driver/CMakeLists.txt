@@ -9,20 +9,18 @@ set(SOURCES
 
 set(PROJECT netx_driver)
 
-add_library(${PROJECT} INTERFACE)
-
-target_sources(${PROJECT}
-    INTERFACE
-        ${SOURCES})
-
-target_include_directories(${PROJECT}
-    INTERFACE
-        src
+add_library(${PROJECT} 
+    ${SOURCES}
 )
 
 target_link_libraries(${PROJECT}
-    INTERFACE
+    PUBLIC
         azrtos::threadx
         azrtos::netxduo
         stm32cubel4
+)
+
+target_include_directories(${PROJECT}
+    PUBLIC
+        src
 )

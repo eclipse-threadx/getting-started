@@ -10,6 +10,8 @@
 #include "board.h"
 
 #include "azure/azure_mqtt.h"
+#include "networking.h"
+#include "sntp_client.h"
 
 static AZURE_MQTT azure_mqtt;
 
@@ -109,7 +111,10 @@ UINT azure_iothub_run(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas
     float temperature;
 
     // Create Azure MQTT
-    status = azure_mqtt_create(&azure_mqtt, iot_hub_hostname, iot_device_id, iot_sas_key);
+    status = azure_mqtt_create(&azure_mqtt, 
+        &nx_ip, &nx_pool, &nx_dns_client,
+        sntp_time_get,
+        iot_hub_hostname, iot_device_id, iot_sas_key);
     if (status != NXD_MQTT_SUCCESS)
     {
         printf("Error: Failed to create Azure MQTT (0x%02x)\r\n", status);
@@ -119,6 +124,7 @@ UINT azure_iothub_run(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas
     // Register callbacks
     azure_mqtt_register_direct_method_callback(&azure_mqtt, mqtt_direct_method);
     azure_mqtt_register_c2d_message_callback(&azure_mqtt, mqtt_c2d_message);
+    azure_mqtt_register_device_twin_desired_prop_callback(&azure_mqtt, mqtt_device_twin_desired_prop);
 
     // Connect the Azure MQTT client
     status = azure_mqtt_connect(&azure_mqtt);
@@ -132,10 +138,10 @@ UINT azure_iothub_run(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas
     {
         temperature = 28.5;
 
-        // Send the compensated temperature as a telemetry event
+        // Send the temperature as a telemetry event
         azure_mqtt_publish_float_telemetry(&azure_mqtt, "temperature", temperature);
 
-        // Send the compensated temperature as a device twin update
+        // Send the temperature as a device twin update
         azure_mqtt_publish_float_property(&azure_mqtt, "temperature", temperature);
 
         // Sleep for 10 seconds
