@@ -21,6 +21,7 @@ static void set_led_state(bool level)
     {
         // Pin level set to "low" state
         printf("LED is turned ON\r\n");
+        
         // The User LED on the board shares the same pin as ENET RST so is unusable
         // USER_LED_ON();
     }
@@ -28,6 +29,7 @@ static void set_led_state(bool level)
     {
         // Pin level set to "high" state
         printf("LED is turned OFF\r\n");
+
         // The User LED on the board shares the same pin as ENET RST so is unusable
         // USER_LED_OFF();
     }
@@ -37,7 +39,7 @@ static void mqtt_direct_method(CHAR *direct_method_name, CHAR *message, MQTT_DIR
 {
     // Default response - 501 Not Implemented
     int status = 501;
-    if (strcmp((CHAR *)direct_method_name, "set_led_state") == 0)
+    if (strcmp(direct_method_name, "set_led_state") == 0)
     {
         // Set LED state
         // '0' - turn LED off
@@ -75,7 +77,7 @@ static void mqtt_direct_method(CHAR *direct_method_name, CHAR *message, MQTT_DIR
 
 static void mqtt_c2d_message(CHAR *key, CHAR *value)
 {
-    if (strcmp((CHAR *)key, "led0State") == 0)
+    if (strcmp(key, "led0State") == 0)
     {
         // Set LED state
         // '0' - turn LED off

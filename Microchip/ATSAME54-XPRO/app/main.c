@@ -61,9 +61,6 @@ void azure_thread_entry(ULONG parameter)
 
 void tx_application_define(void *first_unused_memory)
 {
-    // Initialise the board
-    board_init();
-
     // Create Azure thread
     UINT status = tx_thread_create(
         &azure_thread,
@@ -85,6 +82,9 @@ void tx_application_define(void *first_unused_memory)
 
 int main(void)
 {
+    // Initialise the board
+    board_init();
+
     // Enter the ThreadX kernel
     tx_kernel_enter();
     return 0;

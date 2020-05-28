@@ -27,7 +27,7 @@ void azure_thread_entry(ULONG parameter)
 {
     UINT status;
 
-    printf("\r\nStarting Azure thread. Built %s, %s\r\n\r\n", __DATE__, __TIME__);
+    printf("\r\nStarting Azure thread\r\n\r\n");
 
     // Initialize the network
     if (!network_init(nx_driver_imx))
