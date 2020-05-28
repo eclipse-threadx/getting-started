@@ -8,6 +8,7 @@
 #include "atmel_start.h"
 #include "Bosch_BME280.h"
 
+#include "azure_config.h"
 #include "azure/azure_mqtt.h"
 #include "networking.h"
 #include "sntp_client.h"

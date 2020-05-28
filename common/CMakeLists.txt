@@ -12,8 +12,6 @@ set(SOURCES
 
     networking.c
     sntp_client.c
-
-    newlib_nano.c
 )
 
 add_library(${TARGET} OBJECT
