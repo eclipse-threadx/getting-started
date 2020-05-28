@@ -2,14 +2,15 @@
 # Licensed under the MIT License.
 
 set(SOURCES
-    src/wifi.c
     src/es_wifi.c
     src/es_wifi_io.c
+    src/nx_wifi.c
+    src/wifi.c
 )
 
 set(PROJECT netx_driver)
 
-add_library(${PROJECT} 
+add_library(${PROJECT} OBJECT
     ${SOURCES}
 )
 

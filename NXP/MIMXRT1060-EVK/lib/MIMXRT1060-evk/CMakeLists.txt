@@ -28,7 +28,7 @@ set(SOURCES
 
 set(TARGET MIMXRT1060-evk)
 
-add_library(${TARGET} 
+add_library(${TARGET} OBJECT
     ${SOURCES}
 )
 

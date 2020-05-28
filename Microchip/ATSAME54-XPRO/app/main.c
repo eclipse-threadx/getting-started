@@ -25,26 +25,30 @@ void tx_application_define(void *first_unused_memory);
 
 void azure_thread_entry(ULONG parameter)
 {
+    UINT status;
+
     printf("Starting Azure thread\r\n");
     
     // Initialise the network
-    if(!network_init(nx_driver_same54))
+    if (!network_init(nx_driver_same54))
     {
         printf("Failed to initialize the network\r\n");
         return;
     }
 
-    // Start the SNTP client
-    if (!sntp_start())
+   // Start the SNTP client
+    status = sntp_start();
+    if (status != NX_SUCCESS)
     {
-        printf("Failed to start the SNTP client\r\n");
+        printf("Failed to start the SNTP client (0x%02x)\r\n", status);
         return;
     }
 
     // Wait for an SNTP sync
-    if (!sntp_sync_wait())
+    status = sntp_sync_wait();
+    if (status != NX_SUCCESS)
     {
-        printf("Failed to start sync SNTP time\r\n");
+        printf("Failed to start sync SNTP time (0x%02x)\r\n", status);
         return;
     }
     

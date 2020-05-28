@@ -107,7 +107,7 @@ set(SOURCES
 
 set(TARGET stm32cubel4)
 
-add_library(${TARGET} 
+add_library(${TARGET} OBJECT
     ${SOURCES}
 )
 

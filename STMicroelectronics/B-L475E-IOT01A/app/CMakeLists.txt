@@ -34,7 +34,6 @@ target_link_options(${PROJECT_NAME}
 
 target_include_directories(${PROJECT_NAME}
     PUBLIC
-#        .
         stm32cubel4
 )
 

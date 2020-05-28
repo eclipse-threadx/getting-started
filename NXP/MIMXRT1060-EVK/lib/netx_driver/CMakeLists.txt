@@ -9,13 +9,9 @@ set(SOURCES
 
 set(TARGET netx_driver)
 
-add_library(${TARGET} 
+add_library(${TARGET} OBJECT
     ${SOURCES}
 )
-
-#target_sources(${TARGET} 
-#    INTERFACE
-#        ${SOURCES})
 
 target_include_directories(${TARGET}
     PUBLIC
