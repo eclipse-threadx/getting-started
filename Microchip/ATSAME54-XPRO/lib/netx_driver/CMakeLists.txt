@@ -4,24 +4,22 @@
 set(TARGET netxdriver)
 
 set(SOURCES
-    nx_driver_same54.c
-    nx_driver_same54.h
-    nx_driver_same54_low_level.s
+    src/nx_driver_same54.c
+    src/nx_driver_same54.h
+    src/nx_driver_same54_low_level.s
 )
 
-add_library(${TARGET} INTERFACE)
-
-target_sources(${TARGET} 
-    INTERFACE
-        ${SOURCES})
+add_library(${TARGET} OBJECT
+    ${SOURCES})
 
 target_include_directories(${TARGET}
-    INTERFACE
-        .
+    PUBLIC
+        src
 )
 
 target_link_libraries(${TARGET} 
-    INTERFACE
-        threadx
-        netxduo
+    PUBLIC
+        azrtos::threadx
+        azrtos::netxduo
+        atmel_start
 )

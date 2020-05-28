@@ -1,27 +1,25 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-set(TARGET netx_driver)
-
 set(SOURCES
-    nx_driver_imxrt1062.c
-    nx_driver_imxrt1062.h
-    nx_driver_imxrt1062_low_level.S
+    src/nx_driver_imxrt1062.c
+    src/nx_driver_imxrt1062.h
+    src/nx_driver_imxrt1062_low_level.S
 )
 
-add_library(${TARGET} INTERFACE)
+set(TARGET netx_driver)
 
-target_sources(${TARGET} 
-    INTERFACE
-        ${SOURCES})
+add_library(${TARGET} OBJECT
+    ${SOURCES}
+)
 
 target_include_directories(${TARGET}
-    INTERFACE
-        .
+    PUBLIC
+        src
 )
 
 target_link_libraries(${TARGET} 
-    INTERFACE
+    PUBLIC
         azrtos::threadx
         azrtos::netxduo
         MIMXRT1060-evk

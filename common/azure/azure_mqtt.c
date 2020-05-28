@@ -13,36 +13,33 @@
 #include "azure/cert.h"
 #include "azure/sas_token.h"
 
-#include "networking.h"
-#include "sntp_client.h"
+#define USERNAME                            "%s/%s/?api-version=2018-06-30"
+#define PUBLISH_TELEMETRY_TOPIC             "devices/%s/messages/events/"
 
-#define USERNAME "%s/%s/?api-version=2018-06-30"
-#define PUBLISH_TELEMETRY_TOPIC "devices/%s/messages/events/"
+#define DEVICE_MESSAGE_BASE                 "messages/devicebound/"
+#define DEVICE_MESSAGE_TOPIC                "devices/%s/messages/devicebound/#"
 
-#define DEVICE_MESSAGE_BASE "messages/devicebound/"
-#define DEVICE_MESSAGE_TOPIC "devices/%s/messages/devicebound/#"
+#define DEVICE_TWIN_PUBLISH_TOPIC           "$iothub/twin/PATCH/properties/reported/?$rid=%d"
+#define DEVICE_TWIN_RES_BASE                "$iothub/twin/res/"
+#define DEVICE_TWIN_RES_TOPIC               "$iothub/twin/res/#"
+#define DEVICE_TWIN_DESIRED_PROP_RES_BASE   "$iothub/twin/PATCH/properties/desired/"
+#define DEVICE_TWIN_DESIRED_PROP_RES_TOPIC  "$iothub/twin/PATCH/properties/desired/#"
 
-#define DEVICE_TWIN_PUBLISH_TOPIC "$iothub/twin/PATCH/properties/reported/?$rid=%d"
-#define DEVICE_TWIN_RES_BASE "$iothub/twin/res/"
-#define DEVICE_TWIN_RES_TOPIC "$iothub/twin/res/#"
-#define DEVICE_TWIN_DESIRED_PROP_RES_BASE "$iothub/twin/PATCH/properties/desired/"
-#define DEVICE_TWIN_DESIRED_PROP_RES_TOPIC "$iothub/twin/PATCH/properties/desired/#"
+#define DIRECT_METHOD_RECEIVE               "$iothub/methods/POST/"
+#define DIRECT_METHOD_TOPIC                 "$iothub/methods/POST/#"
+#define DIRECT_METHOD_RESPONSE              "$iothub/methods/res/%d/?$rid=%s"
 
-#define DIRECT_METHOD_RECEIVE "$iothub/methods/POST/"
-#define DIRECT_METHOD_TOPIC "$iothub/methods/POST/#"
-#define DIRECT_METHOD_RESPONSE "$iothub/methods/res/%d/?$rid=%s"
+#define MQTT_CLIENT_PRIORITY                2
 
-#define MQTT_CLIENT_PRIORITY        2
+#define MQTT_TIMEOUT                        (30 * TX_TIMER_TICKS_PER_SECOND)
+#define MQTT_KEEP_ALIVE                     240
 
-#define MQTT_TIMEOUT                (30 * TX_TIMER_TICKS_PER_SECOND)
-#define MQTT_KEEP_ALIVE             240
+#define MQTT_TOPIC_NAME_LENGTH              200
+#define MQTT_MESSAGE_NAME_LENGTH            200
 
-#define MQTT_TOPIC_NAME_LENGTH      200
-#define MQTT_MESSAGE_NAME_LENGTH    200
-
-#define MQTT_QOS_0                  0 // QoS 0 - Deliver at most once
-#define MQTT_QOS_1                  1 // QoS 1 - Deliver at least once
-#define MQTT_QOS_2                  2 // QoS 2 - Deliver exactly once
+#define MQTT_QOS_0                          0 // QoS 0 - Deliver at most once
+#define MQTT_QOS_1                          1 // QoS 1 - Deliver at least once
+#define MQTT_QOS_2                          2 // QoS 2 - Deliver exactly once
 
 extern const NX_SECURE_TLS_CRYPTO nx_crypto_tls_ciphers;
 
@@ -130,7 +127,7 @@ static UINT tls_setup(NXD_MQTT_CLIENT *client, NX_SECURE_TLS_SESSION *tls_sessio
     }
 
     // Add a timestamp function for time checking and timestamps in the TLS handshake
-    nx_secure_tls_session_time_function_set(tls_session, sntp_get_time);
+    nx_secure_tls_session_time_function_set(tls_session, azure_mqtt->unix_time_get);
 
     return NX_SUCCESS;
 }
@@ -465,7 +462,10 @@ UINT azure_mqtt_publish_string_property(AZURE_MQTT *azure_mqtt, CHAR* label, CHA
     return status;
 }
 
-UINT azure_mqtt_create(AZURE_MQTT *azure_mqtt, CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas_key)
+UINT azure_mqtt_create(
+    AZURE_MQTT *azure_mqtt, NX_IP *nx_ip, NX_PACKET_POOL *nx_pool, NX_DNS *nx_dns, 
+    func_ptr_unix_time_get unix_time_get, 
+    CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas_key)
 {
     UINT status;
 
@@ -484,6 +484,8 @@ UINT azure_mqtt_create(AZURE_MQTT *azure_mqtt, CHAR *iot_hub_hostname, CHAR *iot
     }
 
     // Stash the connection information
+    azure_mqtt->nx_dns = nx_dns;
+    azure_mqtt->unix_time_get = unix_time_get;
     azure_mqtt->azure_mqtt_device_id = iot_device_id;
     azure_mqtt->azure_mqtt_sas_key = iot_sas_key;
     azure_mqtt->azure_mqtt_hub_hostname = iot_hub_hostname;
@@ -491,7 +493,7 @@ UINT azure_mqtt_create(AZURE_MQTT *azure_mqtt, CHAR *iot_hub_hostname, CHAR *iot
     status = nxd_mqtt_client_create(
         &azure_mqtt->nxd_mqtt_client, "MQTT client",
         azure_mqtt->azure_mqtt_device_id, strlen(azure_mqtt->azure_mqtt_device_id),
-        &ip_0, &main_pool,
+        nx_ip, nx_pool,
         azure_mqtt->mqtt_client_stack, MQTT_CLIENT_STACK_SIZE, 
         MQTT_CLIENT_PRIORITY,
         NX_NULL, 0);
@@ -554,7 +556,8 @@ UINT azure_mqtt_connect(AZURE_MQTT *azure_mqtt)
     
     if (!create_sas_token(
         azure_mqtt->azure_mqtt_sas_key, strlen(azure_mqtt->azure_mqtt_sas_key),
-        azure_mqtt->azure_mqtt_hub_hostname, azure_mqtt->azure_mqtt_device_id, sntp_get_time(),
+        azure_mqtt->azure_mqtt_hub_hostname, azure_mqtt->azure_mqtt_device_id, 
+        azure_mqtt->unix_time_get(),
         azure_mqtt->azure_mqtt_password, AZURE_MQTT_PASSWORD_SIZE))
     {
         printf("ERROR: Unable to generate SAS token\r\n");
@@ -584,7 +587,7 @@ UINT azure_mqtt_connect(AZURE_MQTT *azure_mqtt)
     }
 
     // Resolve the MQTT server IP address
-    status = nxd_dns_host_by_name_get(&dns_client, (UCHAR *)azure_mqtt->azure_mqtt_hub_hostname, &server_ip, NX_IP_PERIODIC_RATE, NX_IP_VERSION_V4);
+    status = nxd_dns_host_by_name_get(azure_mqtt->nx_dns, (UCHAR *)azure_mqtt->azure_mqtt_hub_hostname, &server_ip, NX_IP_PERIODIC_RATE, NX_IP_VERSION_V4);
     if (status != NX_SUCCESS)
     {
         printf("Unable to resolve DNS for MQTT Server %s (0x%02x)\r\n", azure_mqtt->azure_mqtt_hub_hostname, status);

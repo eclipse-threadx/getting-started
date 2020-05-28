@@ -162,3 +162,6 @@ SECTIONS
     . = ALIGN(4);
     _end = . ;
 }
+
+/* Set the RAM segment used end for threadx */
+PROVIDE( __RAM_segment_used_end__ = 0 );

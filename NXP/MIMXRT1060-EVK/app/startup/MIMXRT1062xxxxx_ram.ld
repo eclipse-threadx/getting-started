@@ -221,3 +221,6 @@ SECTIONS
 
   ASSERT(__StackLimit >= __HeapLimit, "region m_data2 overflowed with stack and heap")
 }
+
+/* Set the RAM segment used end for threadx */
+PROVIDE( __RAM_segment_used_end__ = 0 );

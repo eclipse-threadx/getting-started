@@ -232,7 +232,7 @@ SECTIONS
   {
     . = ALIGN(8);
     __end__ = .;
-    PROVIDE(end = .);
+    PROVIDE(_end = .);
     __HeapBase = .;
     . += HEAP_SIZE;
     __HeapLimit = .;
@@ -255,3 +255,5 @@ SECTIONS
   ASSERT(__StackLimit >= __HeapLimit, "region m_data overflowed with stack and heap")
 }
 
+/* Set the RAM segment used end for threadx */
+PROVIDE( __RAM_segment_used_end__ = 0 );
