@@ -20,9 +20,7 @@ set(SOURCES
     src/devices/MIMXRT1062/drivers/fsl_lpuart.c
     src/devices/MIMXRT1062/system_MIMXRT1062.c
     src/devices/MIMXRT1062/utilities/debug_console/fsl_debug_console.c
-    src/devices/MIMXRT1062/utilities/debug_console/fsl_debug_console.h
     src/devices/MIMXRT1062/utilities/str/fsl_str.c
-    src/devices/MIMXRT1062/utilities/str/fsl_str.h
     src/devices/MIMXRT1062/xip/fsl_flexspi_nor_boot.c
 )
 

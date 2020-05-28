@@ -21,7 +21,6 @@ set(SOURCES
     src/hal/utils/src/utils_assert.c
     src/hal/utils/src/utils_event.c
     src/hal/utils/src/utils_list.c
-    src/hal/utils/src/utils_syscalls.c
     src/hpl/cmcc/hpl_cmcc.c
     src/hpl/core/hpl_core_m4.c
     src/hpl/core/hpl_init.c
