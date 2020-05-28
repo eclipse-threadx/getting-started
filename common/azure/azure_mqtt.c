@@ -491,7 +491,7 @@ UINT azure_mqtt_create(AZURE_MQTT *azure_mqtt, CHAR *iot_hub_hostname, CHAR *iot
     status = nxd_mqtt_client_create(
         &azure_mqtt->nxd_mqtt_client, "MQTT client",
         azure_mqtt->azure_mqtt_device_id, strlen(azure_mqtt->azure_mqtt_device_id),
-        &ip_0, &main_pool,
+        &ip_0, &main_pool[0],
         azure_mqtt->mqtt_client_stack, MQTT_CLIENT_STACK_SIZE, 
         MQTT_CLIENT_PRIORITY,
         NX_NULL, 0);

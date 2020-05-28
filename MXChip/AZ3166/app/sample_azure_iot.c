@@ -7,26 +7,26 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
-#include <tx_api.h>
-#include <nx_api.h>
-#include <nx_secure_tls_api.h>
-#include <nxd_mqtt_client.h>
-#include <nxd_dns.h>
+#include "tx_api.h"
+#include "nx_api.h"
+#include "nx_secure_tls_api.h"
+#include "nxd_mqtt_client.h"
+#include "nxd_dns.h"
 
 //
 // TODO`s: Configure core settings of application for your IoTHub, replace the [IoT Hub Name] and [Device ID] as yours. Use Device Explorer to generate [SAS].
 //
 
 #ifndef HOST_NAME
-#define HOST_NAME "TestHubLiya.azure-devices.net"
+#define HOST_NAME "threadx-adu.azure-devices.net"
 #endif /* HOST_NAME */
 
 #ifndef DEVICE_ID
-#define DEVICE_ID "AZ3166"
+#define DEVICE_ID "liydu-testdevice"
 #endif /* DEVICE_ID */
 
 #ifndef DEVICE_SAS
-#define DEVICE_SAS "SharedAccessSignature sr=TestHubLiya.azure-devices.net%2Fdevices%2FAZ3166&sig=2ECvfdfHIUyl1Lvfz%2FSMEnsEU%2BLej6s9QcCYnSt8zKg%3D&se=1590426088"
+#define DEVICE_SAS "SharedAccessSignature sr=threadx-adu.azure-devices.net%2Fdevices%2Fliydu-testdevice&sig=atRCs2kmIJDLG6rVPaldgn3kDVvdebvxUD%2Bjsxg56jg%3D&se=1590586897"
 #endif /* DEVICE_SAS */
 
 //
@@ -339,7 +339,7 @@ VOID demo_entry(NX_IP *ip_ptr, NX_PACKET_POOL *pool_ptr, NX_DNS *dns_ptr, UINT (
         }
 
         /* Sleep 5s.  */
-        thread_sleep(5000);
+        thread_sleep(3000);
 
         /* Update the counter.  */
         time_counter++;

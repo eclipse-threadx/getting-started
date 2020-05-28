@@ -14,7 +14,7 @@ BUILDDIR="build"
 rm -rf $BUILDDIR
 
 # Generate the build system using Ninja
-cmake -B"$BUILDDIR" -GNinja -DCMAKE_TOOLCHAIN_FILE=../../cmake/arm-gcc-cortex-m4.cmake -DWIFI_SSID="graceyou" -DWIFI_PASSWORD="yjy64161551"
+cmake -B"$BUILDDIR" -GNinja -DCMAKE_TOOLCHAIN_FILE=../../cmake/arm-gcc-cortex-m4.cmake
 
 # And then do the build
 # cmake --build "./$BUILDDIR" 2>&1 | tee ninja-build.log

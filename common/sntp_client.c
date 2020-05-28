@@ -118,7 +118,7 @@ void sntp_thread_entry(ULONG info)
 
     printf("Initializing SNTP client\r\n");
 
-    status = nx_sntp_client_create(&sntp_client, &ip_0, 0, &main_pool, NX_NULL, NX_NULL, NULL);
+    status = nx_sntp_client_create(&sntp_client, &ip_0, 0, ip_0.nx_ip_default_packet_pool, NX_NULL, NX_NULL, NULL);
     if (status != NX_SUCCESS) 
     {
         printf("\tFAIL: SNTP client create failed (0x%02x)\r\n", status);
