@@ -105,6 +105,8 @@ To create an IoT hub:
     az iot hub create --resource-group MyResourceGroup --name {YourIoTHubName}
     ```
 
+    > Note: The Basic tier is **not supported** by this guide as it requires cloud-to-device communication.
+
 1. After the IoT hub is created, view the JSON output in the console, and copy the `hostName` value from the following named field to a safe place. You use this value in a later step.
 
 ### Register a device
