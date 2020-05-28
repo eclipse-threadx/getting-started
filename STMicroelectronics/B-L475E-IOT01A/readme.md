@@ -38,7 +38,7 @@ git clone https://github.com/azure-rtos/getting-started
 
 ### Install the tools
 
-The cloned repo contains a setup script that installs and configures the first set of required tools. After you run the setup script, you can install the remaining tools manually. If you installed these tools in another tutorial in the getting started guide, you don't need to do it again.
+The cloned repo contains a setup script that installs and configures the required tools. If you installed these tools in another tutorial in the getting started guide, you don't need to do it again.
 
 > Note: The setup script installs the following tools:
 > * [GCC](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm): Compile
@@ -58,12 +58,6 @@ To run the setup script:
     ```
     cmake --version
     ```
-
-To install the remaining tool:
-
-1. Download and install [ST-LINK](https://www.st.com/en/development-tools/stsw-link004.html). You use this utility to flash the device.
-
-    >Note: If the download won't start after you log in or provide an email address to get a download link, accept cookies for the website and temporarily disable your browser's ad blocker or privacy extension.
 
 ## Prepare Azure resources
 
@@ -176,15 +170,12 @@ After the build completes, confirm that a binary file was created in the followi
     ![STM DevKit device reset button and micro usb port](media/stm-devkit-board.png)
 
 1. Connect the Micro USB cable to the Micro USB port on the STM DevKit, and then connect it to your computer.
+
     > Note: For detailed setup information about the STM DevKit, see the instructions on the packaging, or see [Tools and Resources](https://www.st.com/content/st_com/en/products/evaluation-tools/product-evaluation-tools/mcu-mpu-eval-tools/stm32-mcu-mpu-eval-tools/stm32-discovery-kits/b-l475e-iot01a.html#resource).
-1. Start the **STM32 ST-LINK Utility**.
-1. Select **Target > Program**.
-1. In the **Download** dialog, select **Browse**, select the binary file **stm32_azure_iot.bin** that you built in the [Build the image](#build-the-image) section, and select **Open**.
-1. Select **Start**. You don't need to change existing field values.
+1. In File Explorer, find the STM DevKit device connected to your computer.
+1. Copy the image file *stm32_azure_iot.bin* that you created in the previous section, and paste it into the root folder of the STM DevKit. The flashing process starts automatically.
 
-The flashing process happens quickly. After flashing completes successfully, the **STM32 ST-LINK Utility** displays a message that starts with *Memory programmed in* and indicates how long it took:
-
-![Flash a device with the STM32 ST-LINK Utility](media/stm32-stlink-utility.png)
+    > Note: During the flashing process, a LED rapidly toggles between red and green on the STM DevKit. The process completes in a few seconds without further notification.
 
 ### Confirm device connection details
 
