@@ -25,6 +25,8 @@ void azure_thread_entry(ULONG parameter)
 {
     UINT status;
 
+    printf("\r\nStarting Azure thread\r\n\r\n");
+
     // Initialize the network
     if (stm32_network_init(WIFI_SSID, WIFI_PASSWORD, WIFI_MODE) != NX_SUCCESS)
     {
