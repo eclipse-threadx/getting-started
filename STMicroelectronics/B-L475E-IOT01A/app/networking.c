@@ -3,11 +3,9 @@
 
 #include "networking.h"
 
-#include "tx_api.h"
 #include "nx_api.h"
 #include "nx_secure_tls_api.h"
 #include "nx_wifi.h"
-
 #include "nxd_dns.h"
 
 #include "wifi.h"
@@ -20,13 +18,9 @@
 
 static UCHAR threadx_ip_pool[THREADX_POOL_SIZE];
 
-NX_IP ip_0;
-NX_PACKET_POOL main_pool;
-NX_DNS dns_client;
-
-static void print_address(CHAR* preable, uint8_t address[4]);
-static bool wifi_init(CHAR* ssid, CHAR* password, WiFi_Mode mode);
-static UINT dns_create();
+NX_IP           nx_ip;
+NX_PACKET_POOL  nx_pool;
+NX_DNS          nx_dns_client;
 
 // Print IPv4 address
 static void print_address(CHAR* preable, uint8_t address[4])
@@ -126,7 +120,7 @@ static UINT dns_create()
  
     printf("Initializing DNS client\r\n");
 
-    status = nx_dns_create(&dns_client, &ip_0, (UCHAR *)"DNS Client");
+    status = nx_dns_create(&nx_dns_client, &nx_ip, (UCHAR *)"DNS Client");
     if (status != NX_SUCCESS)
     {
         printf("ERROR: Failed to create DNS (%0x02)\r\n", status);
@@ -135,11 +129,11 @@ static UINT dns_create()
 
     // Use the packet pool here
 #ifdef NX_DNS_CLIENT_USER_CREATE_PACKET_POOL 
-    status = nx_dns_packet_pool_set(&dns_client, ip_0.nx_ip_default_packet_pool);
+    status = nx_dns_packet_pool_set(&nx_dns_client, nx_ip.nx_ip_default_packet_pool);
     if (status != NX_SUCCESS)
     {
         printf("ERROR: Failed to create DNS packet pool (%0x02)\r\n", status);
-        nx_dns_delete(&dns_client);
+        nx_dns_delete(&nx_dns_client);
         return status;
     }
 #endif
@@ -147,16 +141,16 @@ static UINT dns_create()
     if (WIFI_GetDNS_Address(dns_address_1, dns_address_2) != WIFI_STATUS_OK)
     {
         printf("ERROR: Failed to fetch Wifi DNS\r\n");
-        nx_dns_delete(&dns_client);
+        nx_dns_delete(&nx_dns_client);
         return NX_NOT_SUCCESSFUL;
     }
 
     // Add an IPv4 server address to the Client list.
-    status = nx_dns_server_add(&dns_client, IP_ADDRESS(dns_address_1[0], dns_address_1[1], dns_address_1[2], dns_address_1[3]));
+    status = nx_dns_server_add(&nx_dns_client, IP_ADDRESS(dns_address_1[0], dns_address_1[1], dns_address_1[2], dns_address_1[3]));
     if (status != NX_SUCCESS)
     {
         printf("ERROR: Failed to add dns server (%0x02)\r\n", status);
-        nx_dns_delete(&dns_client);
+        nx_dns_delete(&nx_dns_client);
         return status;
     }
     
@@ -182,7 +176,7 @@ int stm32_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
     nx_system_initialize();
 
     // Create a packet pool
-    status = nx_packet_pool_create(&main_pool, "NetX Packet Pool",
+    status = nx_packet_pool_create(&nx_pool, "NetX Packet Pool",
         THREADX_PACKET_SIZE,
         threadx_ip_pool, THREADX_POOL_SIZE);
     if (status != NX_SUCCESS)
@@ -192,24 +186,24 @@ int stm32_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
     }
 
     // Create an IP instance
-     status = nx_ip_create(&ip_0, "NetX IP Instance 0",
+     status = nx_ip_create(&nx_ip, "NetX IP Instance 0",
         0, 0,
-        &main_pool, NULL, 
+        &nx_pool, NULL, 
         NULL, 0, 
         0);
     if (status != NX_SUCCESS)
     {
-        nx_packet_pool_delete(&main_pool);
+        nx_packet_pool_delete(&nx_pool);
         printf("ERROR: IP create fail.\r\n");
         return status;
     }
     
     // Initialize NetX WiFi
-    status = nx_wifi_initialize(&ip_0, &main_pool);
+    status = nx_wifi_initialize(&nx_ip, &nx_pool);
     if (status != NX_SUCCESS)
     {
-        nx_ip_delete(&ip_0);
-        nx_packet_pool_delete(&main_pool);
+        nx_ip_delete(&nx_ip);
+        nx_packet_pool_delete(&nx_pool);
         printf("ERROR: WiFi initialize fail.\r\n");
         return status;
     }
@@ -221,8 +215,8 @@ int stm32_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
     status = dns_create();
     if (status != NX_SUCCESS)
     {
-        nx_ip_delete(&ip_0);
-        nx_packet_pool_delete(&main_pool);
+        nx_ip_delete(&nx_ip);
+        nx_packet_pool_delete(&nx_pool);
         printf("ERROR: DNS create fail.\r\n");
         return status;
     }

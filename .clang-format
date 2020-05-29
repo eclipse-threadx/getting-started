@@ -1,0 +1,26 @@
+BasedOnStyle:  LLVM
+AlignEscapedNewlines: DontAlign
+BraceWrapping:   
+  AfterClass:      false
+  AfterControlStatement: true
+  AfterEnum:       false
+  AfterFunction:   true
+  AfterNamespace:  true
+  AfterStruct:     true
+  AfterUnion:      true
+  AfterExternBlock: true
+  BeforeCatch:     true
+  BeforeElse:      true
+  IndentBraces:    false
+  SplitEmptyFunction: true
+  SplitEmptyRecord: true
+  SplitEmptyNamespace: true
+BreakBeforeBraces: Allman
+BreakConstructorInitializers: AfterColon
+ColumnLimit:     120
+IndentCaseLabels: true
+IndentWidth:     4
+PointerAlignment: Left
+Standard:        Auto
+TabWidth:        4
+UseTab:          Never

@@ -15,9 +15,7 @@
 #include "azure_config.h"
 
 #define AZURE_THREAD_STACK_SIZE 4096
-#define AZURE_THREAD_PRIORITY 4
-
-void* __RAM_segment_used_end__ = 0;
+#define AZURE_THREAD_PRIORITY   4
 
 TX_THREAD azure_thread;
 UCHAR azure_thread_stack[AZURE_THREAD_STACK_SIZE];
@@ -27,7 +25,9 @@ void tx_application_define(void* first_unused_memory);
 
 void azure_thread_entry(ULONG parameter)
 {
-    printf("\r\nStarting Azure thread. Built %s, %s\r\n\r\n", __DATE__, __TIME__);
+    UINT status;
+
+    printf("\r\nStarting Azure thread\r\n\r\n");
 
     // Initialize the network
     if (!network_init(nx_driver_imx))
@@ -37,21 +37,23 @@ void azure_thread_entry(ULONG parameter)
     }
     
     // Start the SNTP client
-    if (!sntp_start())
+    status = sntp_start();
+    if (status != NX_SUCCESS)
     {
-        printf("Failed to start the SNTP client\r\n");
+        printf("Failed to start the SNTP client (0x%02x)\r\n", status);
         return;
     }
 
     // Wait for an SNTP sync
-    if (!sntp_wait_for_sync())
+    status = sntp_sync_wait();
+    if (status != NX_SUCCESS)
     {
-        printf("Failed to start sync SNTP time\r\n");
+        printf("Failed to start sync SNTP time (0x%02x)\r\n", status);
         return;
     }
 
     // Start the Azure IoT hub thread
-    if(!azure_iothub_run(IOT_HUB_HOSTNAME, IOT_DEVICE_ID, IOT_PRIMARY_KEY))
+    if (!azure_iothub_run(IOT_HUB_HOSTNAME, IOT_DEVICE_ID, IOT_PRIMARY_KEY))
     {
         printf("Failed to start Azure IoTHub\r\n");
         return;
@@ -65,7 +67,7 @@ void tx_application_define(void* first_unused_memory)
         
     // Create Azure SDK thread.
     UINT status = tx_thread_create(
-        &azure_thread, "Azure SDK Thread",
+        &azure_thread, "Azure Thread",
         azure_thread_entry, 0,
         azure_thread_stack, AZURE_THREAD_STACK_SIZE,
         AZURE_THREAD_PRIORITY, AZURE_THREAD_PRIORITY,
@@ -73,7 +75,7 @@ void tx_application_define(void* first_unused_memory)
 
     if (status != TX_SUCCESS)
     {
-        printf("Azure MQTT application failed, please restart\r\n");
+        printf("Azure IoT application failed, please restart\r\n");
     }
 }
 
