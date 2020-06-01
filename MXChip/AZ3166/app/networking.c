@@ -386,13 +386,13 @@ UINT wifi_network_join(void *pools, CHAR *ssid, CHAR *password, wiced_security_t
 	memcpy(wiced_ssid.value, ssid, wiced_ssid.length);
 
 	/* Attempt to join the Wi-Fi network.  */
-	printf("Joining: %s\r\n", ssid);
+	printf("Joining WiFi SSID: %s\r\n", ssid);
 	while (wwd_wifi_join(&wiced_ssid, security, (uint8_t *)password, strlen(password), NULL, WWD_STA_INTERFACE) != WWD_SUCCESS)
 	{
 		printf("Failed to join: %s ... retrying...\r\n", ssid);
 	}
 
-	printf("Successfully joined: %s.\r\n", ssid);
+	printf("Successfully joined WiFi SSID: %s.\r\n", ssid);
 
 	return NX_SUCCESS;
 }

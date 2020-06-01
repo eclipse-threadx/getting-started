@@ -28,11 +28,6 @@ target_link_options(${PROJECT_NAME}
     PUBLIC 
         -T${LINKER_SCRIPT} -Wl,-Map=${PROJECT_NAME}.map)
 
-target_compile_definitions(${PROJECT_NAME}
-    PUBLIC
-        USE_COM_PORT
-)
-
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(${PROJECT_NAME}

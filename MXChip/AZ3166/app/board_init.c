@@ -1,9 +1,7 @@
 #include <stdio.h>
 #include "board_init.h"
 
-#ifdef USE_COM_PORT
 UART_HandleTypeDef UartHandle;
-#endif
 
 static void SystemClock_Config(void);
 static void STM32_Error_Handler(void);
