@@ -8,19 +8,28 @@
 #define NX_SNTP_CLIENT_CHECK_DISABLE 
 
 #define NX_SECURE_ENABLE
+// #define NXD_MQTT_CLOUD_ENABLE
 
-#define NX_PACKET_ALIGNMENT             32
-#define NX_PACKET_HEADER_PAD
-#define NX_PACKET_HEADER_PAD_SIZE       2
+extern UINT nx_rand16( void );
+#define NX_RAND                         nx_rand16
 
-#define NX_DISABLE_ICMPV4_RX_CHECKSUM
-#define NX_DISABLE_ICMPV4_TX_CHECKSUM  
-#define NX_DISABLE_IP_RX_CHECKSUM
-#define NX_DISABLE_IP_TX_CHECKSUM
-#define NX_DISABLE_TCP_RX_CHECKSUM
-#define NX_DISABLE_TCP_TX_CHECKSUM
-#define NX_DISABLE_UDP_RX_CHECKSUM
-#define NX_DISABLE_UDP_TX_CHECKSUM
+#define NXD_MQTT_MAX_TOPIC_NAME_LENGTH  200
+#define NXD_MQTT_MAX_MESSAGE_LENGTH     200
+
+#define NX_ASSERT_FAIL for(;;){}
+
+// #define NX_PACKET_ALIGNMENT             32
+// #define NX_PACKET_HEADER_PAD
+// #define NX_PACKET_HEADER_PAD_SIZE       2
+
+// #define NX_DISABLE_ICMPV4_RX_CHECKSUM
+// #define NX_DISABLE_ICMPV4_TX_CHECKSUM  
+// #define NX_DISABLE_IP_RX_CHECKSUM
+// #define NX_DISABLE_IP_TX_CHECKSUM
+// #define NX_DISABLE_TCP_RX_CHECKSUM
+// #define NX_DISABLE_TCP_TX_CHECKSUM
+// #define NX_DISABLE_UDP_RX_CHECKSUM
+// #define NX_DISABLE_UDP_TX_CHECKSUM
 
 /* Symbols for Wiced.  */
 
@@ -34,4 +43,4 @@
 
 #define NX_LINK_PTP_SEND                51      /* Precision Time Protocol */
 
-#endif
+#endif /* NX_USER_H */

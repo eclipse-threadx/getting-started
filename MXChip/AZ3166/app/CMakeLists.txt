@@ -11,12 +11,12 @@ set(SOURCES
     startup/startup_stm32f412rx.s
     startup/tx_initialize_low_level.S
 
-    azure_iothub.c
+    # azure_iothub.c
     board_init.c
     # console.c
     main.c
     networking.c
-    # sample_azure_iot.c
+    sample_azure_iot.c
     stm32f4xx_hal_msp.c
 )
 
@@ -44,7 +44,7 @@ target_link_libraries(${PROJECT_NAME}
     azrtos::netxduo
     stm32cubef4
     wiced_sdk
-    app_common
+    # app_common
 )
 
 create_bin_output(${PROJECT_NAME})

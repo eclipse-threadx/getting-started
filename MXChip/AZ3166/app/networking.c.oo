@@ -4,7 +4,6 @@
 #include "tx_api.h"
 #include "nx_api.h"
 #include "nxd_dns.h"
-#include "nxd_sntp_client.h"
 #include "nx_secure_tls_api.h"
 #include "wwd_management.h"
 #include "wwd_wifi.h"
@@ -75,11 +74,6 @@ static UCHAR sample_arp_cache_area[SAMPLE_ARP_CACHE_SIZE];
 NX_PACKET_POOL                   main_pool[2]; /* 0=TX, 1=RX. */
 NX_IP                            ip_0;
 NX_DNS                           dns_client;
-NX_DNS *_sample_dns_client_created_ptr;
-
-#ifndef SAMPLE_SNTP_DISABLE
-NX_SNTP_CLIENT sntp_client;
-#endif /* SAMPLE_SNTP_DISABLE */
 
 /* System clock time for UTC.  */
 ULONG                                   unix_time_base;
@@ -118,12 +112,6 @@ static void wait_dhcp(void);
 #endif /* SAMPLE_DHCP_DISABLE  */
 
 static UINT dns_create();
-
-#ifndef SAMPLE_SNTP_DISABLE
-static UINT sntp_time_sync();
-#endif /* SAMPLE_SNTP_DISABLE */
-
-static UINT unix_time_get(ULONG *unix_time);
 
 extern void (*platform_driver_get())(NX_IP_DRIVER *);
 UINT wifi_network_join(void *pools, CHAR *ssid, CHAR *password, wiced_security_t security, wiced_country_code_t country);
@@ -269,35 +257,6 @@ int platform_init(CHAR *ssid, CHAR *password, wiced_security_t security, wiced_c
     return status;
   }
 
-#ifndef SAMPLE_SNTP_DISABLE
-  for (UINT i = 0; i < THREADX_SNTP_SYNC_MAX; i++)
-  {
-
-    /* Start SNTP to sync the local time.  */
-    status = sntp_time_sync();
-
-    /* Check status.  */
-    if (status == NX_SUCCESS)
-      break;
-  }
-
-  /* Check status.  */
-  if (status)
-  {
-    /* LogInfo */
-    printf("SNTP Time Sync failed.\r\n");
-    printf("Set Time to default value: THREADX_SYSTEM_TIME.\r\n");
-    unix_time_base = THREADX_SYSTEM_TIME;
-  }
-  else
-  {
-    /* LogInfo */
-    printf("SNTP Time Sync successfully.\r\n");
-  }
-#else
-  unix_time_base = THREADX_SYSTEM_TIME;
-#endif /* SAMPLE_SNTP_DISABLE */
-
   /* Initialize TLS.  */
   nx_secure_tls_initialize();
 
@@ -392,11 +351,7 @@ static UINT dns_create()
     return (status);
   }
 
-  /* Record the dns client, it will be used in socketio_threadx.c  */
-  _sample_dns_client_created_ptr = &dns_client;
-
   /* Output DNS Server address.  */
-  /* LogInfo */
   printf("DNS Server address: %lu.%lu.%lu.%lu\r\n",
          (dns_server_address[0] >> 24),
          (dns_server_address[0] >> 16 & 0xFF),
@@ -405,140 +360,6 @@ static UINT dns_create()
 
   return 0;
 }
-
-#ifndef SAMPLE_SNTP_DISABLE
-/* Sync up the local time.  */
-static UINT sntp_time_sync()
-{
-
-  UINT status;
-  UINT server_status;
-  ULONG sntp_server_address;
-  UINT i;
-
-  /* LogInfo */
-  printf("SNTP Time Sync...\r\n");
-
-#ifndef THREADX_SNTP_SERVER_ADDRESS
-  /* Look up an IPv4 address over IPv4. */
-  status = nx_dns_host_by_name_get(_sample_dns_client_created_ptr, (UCHAR *)THREADX_SNTP_SERVER_NAME, &sntp_server_address, 5 * NX_IP_PERIODIC_RATE);
-
-  /* Check status.  */
-  if (status)
-  {
-    return (status);
-  }
-#else
-  sntp_server_address = THREADX_SNTP_SERVER_ADDRESS;
-#endif
-
-  /* Create the SNTP Client to run in broadcast mode.. */
-  status = nx_sntp_client_create(&sntp_client, &ip_0, 0, ip_0.nx_ip_default_packet_pool,
-                                 NX_NULL,
-                                 NX_NULL,
-                                 NX_NULL /* no random_number_generator callback */);
-
-  /* Check status.  */
-  if (status)
-  {
-    return (status);
-  }
-
-  /* Use the IPv4 service to initialize the Client and set the IPv4 SNTP server. */
-  status = nx_sntp_client_initialize_unicast(&sntp_client, sntp_server_address);
-
-  /* Check status.  */
-  if (status)
-  {
-    nx_sntp_client_delete(&sntp_client);
-    return (status);
-  }
-
-  /* Set local time to 0 */
-  status = nx_sntp_client_set_local_time(&sntp_client, 0, 0);
-
-  /* Check status.  */
-  if (status)
-  {
-    nx_sntp_client_delete(&sntp_client);
-    return (status);
-  }
-
-  /* Run Unicast client */
-  status = nx_sntp_client_run_unicast(&sntp_client);
-
-  /* Check status.  */
-  if (status)
-  {
-    nx_sntp_client_stop(&sntp_client);
-    nx_sntp_client_delete(&sntp_client);
-    return (status);
-  }
-
-  /* Wait till updates are received */
-  for (i = 0; i < THREADX_SNTP_UPDATE_MAX; i++)
-  {
-
-    /* First verify we have a valid SNTP service running. */
-    status = nx_sntp_client_receiving_updates(&sntp_client, &server_status);
-
-    /* Check status.  */
-    if ((status == NX_SUCCESS) && (server_status == NX_TRUE))
-    {
-
-      /* Server status is good. Now get the Client local time. */
-
-      ULONG sntp_seconds, sntp_fraction;
-      ULONG threadx_time_in_second;
-
-      /* Get the local time.  */
-      status = nx_sntp_client_get_local_time(&sntp_client, &sntp_seconds, &sntp_fraction, NX_NULL);
-
-      /* Check status.  */
-      if (status != NX_SUCCESS)
-      {
-        continue;
-      }
-
-      /* Get the time in second in local system.  */
-      threadx_time_in_second = tx_time_get() / TX_TIMER_TICKS_PER_SECOND;
-
-      /* Convert to Unix epoch and minus the current system time. */
-      unix_time_base = (sntp_seconds - threadx_time_in_second + THREADX_UNIX_TO_NTP_EPOCH_SECOND);
-
-      /* Time sync successfully.  */
-
-      /* Stop and delete SNTP.  */
-      nx_sntp_client_stop(&sntp_client);
-      nx_sntp_client_delete(&sntp_client);
-
-      return (NX_SUCCESS);
-    }
-
-    /* Sleep.  */
-    tx_thread_sleep(50);
-  }
-
-  /* Time sync failed.  */
-
-  /* Stop and delete SNTP.  */
-  nx_sntp_client_stop(&sntp_client);
-  nx_sntp_client_delete(&sntp_client);
-
-  /* Return success.  */
-  return (NX_NOT_SUCCESSFUL);
-}
-#endif /* SAMPLE_SNTP_DISABLE */
-
-static UINT unix_time_get(ULONG *unix_time)
-{
-
-    /* Return number of seconds since Unix Epoch (1/1/1970 00:00:00).  */
-    *unix_time =  unix_time_base + (tx_time_get() / TX_TIMER_TICKS_PER_SECOND);
-
-    return(NX_SUCCESS);
-}
-
 
 /* Get the network driver.  */
 VOID(*platform_driver_get())

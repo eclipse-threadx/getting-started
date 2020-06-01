@@ -18,15 +18,15 @@
 //
 
 #ifndef HOST_NAME
-#define HOST_NAME "threadx-adu.azure-devices.net"
+#define HOST_NAME "liya-iot.azure-devices.net"
 #endif /* HOST_NAME */
 
 #ifndef DEVICE_ID
-#define DEVICE_ID "liydu-testdevice"
+#define DEVICE_ID "az3166"
 #endif /* DEVICE_ID */
 
 #ifndef DEVICE_SAS
-#define DEVICE_SAS "SharedAccessSignature sr=threadx-adu.azure-devices.net%2Fdevices%2Fliydu-testdevice&sig=atRCs2kmIJDLG6rVPaldgn3kDVvdebvxUD%2Bjsxg56jg%3D&se=1590586897"
+#define DEVICE_SAS "SharedAccessSignature sr=liya-iot.azure-devices.net%2Fdevices%2Faz3166&sig=lie5KZMD2eCYIwfYDbg5qj%2BhQbECB9Q7%2BbCOGoHcYO0%3D&se=1591007208"
 #endif /* DEVICE_SAS */
 
 //

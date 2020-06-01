@@ -9,7 +9,7 @@
 // ----------------------------------------------------------------------------
 // WiFi connection information
 // ----------------------------------------------------------------------------
-#define WIFI_SSID           "graceyou"
+#define WIFI_SSID           "Mi10"
 
 #define WIFI_PASSWORD       "yjy64161551"
 
@@ -21,8 +21,8 @@
 // ----------------------------------------------------------------------------
 // Azure IoT Device information
 // ----------------------------------------------------------------------------
-#define IOT_HUB_HOSTNAME    "threadx-adu.azure-devices.net"
-#define IOT_DEVICE_ID       "liydu-testdevice"
-#define IOT_PRIMARY_KEY     "isgOAjBeclXpxLiVG5UeTH5boCIpJBdsfDR5192KGyg="
+#define IOT_HUB_HOSTNAME    "liya-iot.azure-devices.net"
+#define IOT_DEVICE_ID       "az3166"
+#define IOT_PRIMARY_KEY     "YK3GKNCjnLKhyjDC6rxSriDikepdeT2/Qx3WEiLItvU="
 
 #endif // _AZURE_CONFIG_H
