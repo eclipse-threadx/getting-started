@@ -8,10 +8,10 @@
 #include "nxd_dns.h"
 #include "stm32f4xx_hal.h"
 
-// #include "azure_iothub.h"
+#include "azure_iothub.h"
 #include "board_init.h"
 #include "networking.h"
-// #include "sntp_client.h"
+#include "sntp_client.h"
 
 #include "azure_config.h"
 
@@ -42,25 +42,25 @@ void sample_thread_entry(ULONG parameter)
     }
 
     // Start the SNTP client
-/*     if (!sntp_start())
+    if (!sntp_start())
     {
         printf("Failed to start the SNTP client\r\n");
         return;
-    } */
+    }
 
     // Wait for an SNTP sync
-/*     if (!sntp_wait_for_sync())
+    if (!sntp_wait_for_sync())
     {
         printf("Failed to start sync SNTP time\r\n");
         return;
-    } */
+    }
 
     // Enter the Azure MQTT loop
-/*     if(!azure_iothub_run(IOT_HUB_HOSTNAME, IOT_DEVICE_ID, IOT_PRIMARY_KEY))
+    if(!azure_iothub_run(IOT_HUB_HOSTNAME, IOT_DEVICE_ID, IOT_PRIMARY_KEY))
     {
         printf("Failed to start Azure IotHub\r\n");
         return;
-    } */
+    }
 }
 
 /* Define what the initial system looks like.  */
