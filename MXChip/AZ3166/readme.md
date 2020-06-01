@@ -52,12 +52,12 @@
 1. Launch Azure IoT Explorer, paste the IoT Hub connection string you just
 got and select **Connect**.
 
-    ![IoT Hub Connection String](./media/iothub-conn-string.png =1200x)
+    ![IoT Hub Connection String](./media/iothub-conn-string.png)
 
 1. Select **New** to create a new IoT device. Enter a device ID for your device
 and keep the rest options as default. Then select **Create**.
 
-    ![New device](./media/new-device.png =1200x)
+    ![New device](./media/new-device.png)
 
 1. Select from the list for the device you just created. In the **Device identity**
 tab, copy **Device ID** and **Primary Key** to Notepad for later use.
@@ -65,7 +65,7 @@ tab, copy **Device ID** and **Primary Key** to Notepad for later use.
 1. Also copy the **IoT Hub host name** from the highlighted area to the
 Notepad.
 
-    ![Host name](./media/host-name.png =1200x)
+    ![Host name](./media/host-name.png)
 
 1. You need all these three device credentials for the sample code
 to connect to the IoT Hub.
