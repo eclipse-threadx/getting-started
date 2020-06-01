@@ -1,5 +1,6 @@
 .vs
-_build
 build
 VisualGDB
 ninja-build.log
+
+.cortex-debug.*
