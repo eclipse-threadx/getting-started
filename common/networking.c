@@ -22,10 +22,10 @@ static UCHAR threadx_ip_stack[THREADX_IP_STACK_SIZE];
 static UCHAR threadx_ip_pool[THREADX_POOL_SIZE];
 static UCHAR threadx_arp_cache_area[THREADX_ARP_CACHE_SIZE];
 
-NX_PACKET_POOL main_pool;
-NX_IP ip_0;
-NX_DNS dns_client;
-NX_DHCP dhcp_client;
+NX_IP           nx_ip;
+NX_PACKET_POOL  nx_pool;
+NX_DNS          nx_dns_client;
+NX_DHCP         nx_dhcp_client;
 
 // Print IPv4 address
 static void print_address(CHAR* preable, ULONG address)
@@ -49,13 +49,13 @@ static UINT dhcp_wait()
     printf("Initializing DHCP\r\n");
 
     // Create the DHCP instance.
-    status = nx_dhcp_create(&dhcp_client, &ip_0, "azure_iot");
+    status = nx_dhcp_create(&nx_dhcp_client, &nx_ip, "azure_iot");
 
     // Start the DHCP Client.
-    status = nx_dhcp_start(&dhcp_client);
+    status = nx_dhcp_start(&nx_dhcp_client);
 
     // Wait until address is solved.
-    status = nx_ip_status_check(&ip_0, NX_IP_ADDRESS_RESOLVED, &actual_status, NX_WAIT_FOREVER);
+    status = nx_ip_status_check(&nx_ip, NX_IP_ADDRESS_RESOLVED, &actual_status, NX_WAIT_FOREVER);
     if (status != NX_SUCCESS)
     {
         // DHCP Failed...  no IP address!
@@ -64,8 +64,8 @@ static UINT dhcp_wait()
     }
 
     // Get IP address and gateway address
-    nx_ip_address_get(&ip_0, &ip_address, &network_mask);
-    nx_ip_gateway_address_get(&ip_0, &gateway_address);
+    nx_ip_address_get(&nx_ip, &ip_address, &network_mask);
+    nx_ip_gateway_address_get(&nx_ip, &gateway_address);
 
     // Output IP address and gateway address
     print_address("IP address", ip_address);
@@ -88,7 +88,7 @@ static UINT dns_create()
     // Create a DNS instance for the Client. Note this function will create
     // the DNS Client packet pool for creating DNS message packets intended
     // for querying its DNS server.
-    status = nx_dns_create(&dns_client, &ip_0, (UCHAR *)"DNS Client");
+    status = nx_dns_create(&nx_dns_client, &nx_ip, (UCHAR *)"DNS Client");
     if (status != NX_SUCCESS)
     {
         return status;
@@ -96,22 +96,22 @@ static UINT dns_create()
 
 #ifdef NX_DNS_CLIENT_USER_CREATE_PACKET_POOL
     // Use the packet pool here
-    status = nx_dns_packet_pool_set(&dns_client, ip_0.nx_ip_default_packet_pool);
+    status = nx_dns_packet_pool_set(&nx_dns_client, nx_ip.nx_ip_default_packet_pool);
     if (status != NX_SUCCESS)
     {
-        nx_dns_delete(&dns_client);
+        nx_dns_delete(&nx_dns_client);
         return(status);
     }
 #endif
 
     // Retrieve DNS server address
-    nx_dhcp_interface_user_option_retrieve(&dhcp_client, 0, NX_DHCP_OPTION_DNS_SVR, (UCHAR*)dns_server_address, &dns_server_address_size); 
+    nx_dhcp_interface_user_option_retrieve(&nx_dhcp_client, 0, NX_DHCP_OPTION_DNS_SVR, (UCHAR*)dns_server_address, &dns_server_address_size); 
     
     // Add an IPv4 server address to the Client list
-    status = nx_dns_server_add(&dns_client, dns_server_address[0]);
+    status = nx_dns_server_add(&nx_dns_client, dns_server_address[0]);
     if (status != NX_SUCCESS)
     {
-        nx_dns_delete(&dns_client);
+        nx_dns_delete(&nx_dns_client);
         return status;
     }
     
@@ -131,7 +131,7 @@ bool network_init(VOID (*ip_link_driver)(struct NX_IP_DRIVER_STRUCT *))
     nx_system_initialize();
 
     // Create a packet pool.
-    status = nx_packet_pool_create(&main_pool, "NetX Packet Pool",
+    status = nx_packet_pool_create(&nx_pool, "NetX Packet Pool",
         THREADX_PACKET_SIZE, 
         threadx_ip_pool, THREADX_POOL_SIZE);
     if (status != NX_SUCCESS)
@@ -141,53 +141,53 @@ bool network_init(VOID (*ip_link_driver)(struct NX_IP_DRIVER_STRUCT *))
     }
 
     // Create an IP instance
-    status = nx_ip_create(&ip_0, "NetX IP Instance 0", 
+    status = nx_ip_create(&nx_ip, "NetX IP Instance 0", 
         THREADX_IPV4_ADDRESS, THREADX_IPV4_MASK,
-        &main_pool, ip_link_driver, 
+        &nx_pool, ip_link_driver, 
         (UCHAR*)threadx_ip_stack, THREADX_IP_STACK_SIZE, 1);
     if (status != NX_SUCCESS)
     {
-        nx_packet_pool_delete(&main_pool);
+        nx_packet_pool_delete(&nx_pool);
         printf("THREADX platform initialize fail: IP CREATE FAIL.\r\n");
         return false;
     }
 
     // Enable ARP and supply ARP cache memory
-    status = nx_arp_enable(&ip_0, (VOID*)threadx_arp_cache_area, THREADX_ARP_CACHE_SIZE);
+    status = nx_arp_enable(&nx_ip, (VOID*)threadx_arp_cache_area, THREADX_ARP_CACHE_SIZE);
     if (status != NX_SUCCESS)
     {
-        nx_ip_delete(&ip_0);
-        nx_packet_pool_delete(&main_pool);
+        nx_ip_delete(&nx_ip);
+        nx_packet_pool_delete(&nx_pool);
         printf("THREADX platform initialize fail: ARP ENABLE FAIL.\r\n");
         return false;
     }
 
     // Enable TCP traffic
-    status = nx_tcp_enable(&ip_0);
+    status = nx_tcp_enable(&nx_ip);
     if (status != NX_SUCCESS)
     {
-        nx_ip_delete(&ip_0);
-        nx_packet_pool_delete(&main_pool);
+        nx_ip_delete(&nx_ip);
+        nx_packet_pool_delete(&nx_pool);
         printf("THREADX platform initialize fail: TCP ENABLE FAIL.\r\n");
         return false;
     }
 
     // Enable UDP traffic
-    status = nx_udp_enable(&ip_0);
+    status = nx_udp_enable(&nx_ip);
     if (status != NX_SUCCESS)
     {
-        nx_ip_delete(&ip_0);
-        nx_packet_pool_delete(&main_pool);
+        nx_ip_delete(&nx_ip);
+        nx_packet_pool_delete(&nx_pool);
         printf("THREADX platform initialize fail: UDP ENABLE FAIL.\r\n");
         return false;
     }
 
     // Enable ICMP traffic
-    status = nx_icmp_enable(&ip_0);
+    status = nx_icmp_enable(&nx_ip);
     if (status != NX_SUCCESS)
     {
-        nx_ip_delete(&ip_0);
-        nx_packet_pool_delete(&main_pool);
+        nx_ip_delete(&nx_ip);
+        nx_packet_pool_delete(&nx_pool);
         printf("THREADX platform initialize fail: ICMP ENABLE FAIL.\r\n");
         return false;
     }
@@ -195,8 +195,8 @@ bool network_init(VOID (*ip_link_driver)(struct NX_IP_DRIVER_STRUCT *))
     status = dhcp_wait();
     if (status != NX_SUCCESS)
     {
-        nx_ip_delete(&ip_0);
-        nx_packet_pool_delete(&main_pool);
+        nx_ip_delete(&nx_ip);
+        nx_packet_pool_delete(&nx_pool);
         printf("Failed to create DHCP\r\n");
     }
 
@@ -204,9 +204,9 @@ bool network_init(VOID (*ip_link_driver)(struct NX_IP_DRIVER_STRUCT *))
     status = dns_create();
     if (status != NX_SUCCESS)
     {
-        nx_dhcp_delete(&dhcp_client);
-        nx_ip_delete(&ip_0);
-        nx_packet_pool_delete(&main_pool);
+        nx_dhcp_delete(&nx_dhcp_client);
+        nx_ip_delete(&nx_ip);
+        nx_packet_pool_delete(&nx_pool);
         printf("THREADX platform initialize fail: DNS CREATE FAIL.\r\n");
         return false;
     }

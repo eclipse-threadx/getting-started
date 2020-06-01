@@ -9,6 +9,7 @@
 #include "tx_api.h"
 
 #include "nx_api.h"
+#include "nxd_dns.h"
 #include "nxd_mqtt_client.h"
 
 #define AZURE_MQTT_USERNAME_SIZE        128
@@ -30,10 +31,12 @@ typedef struct MQTT_DIRECT_METHOD_RESPONSE_STRUCT
 typedef void(*func_ptr_direct_method)(CHAR *, CHAR *, MQTT_DIRECT_METHOD_RESPONSE *);
 typedef void(*func_ptr_c2d_message)(CHAR *, CHAR *);
 typedef void(*func_ptr_device_twin_desired_prop)(CHAR *);
+typedef ULONG(*func_ptr_unix_time_get)(VOID);
 
 typedef struct AZURE_MQTT_STRUCT
 {
     NXD_MQTT_CLIENT                   nxd_mqtt_client;
+    NX_DNS                           *nx_dns;
     TX_MUTEX                          azure_mqtt_mutex;
 
     CHAR                             *azure_mqtt_device_id;
@@ -53,6 +56,8 @@ typedef struct AZURE_MQTT_STRUCT
     func_ptr_direct_method            cb_ptr_mqtt_invoke_direct_method;
     func_ptr_c2d_message              cb_ptr_mqtt_c2d_message;
     func_ptr_device_twin_desired_prop cb_ptr_mqtt_device_twin_desired_prop_callback;
+
+    func_ptr_unix_time_get            unix_time_get;
 } AZURE_MQTT;
 
 UINT azure_mqtt_register_direct_method_callback(AZURE_MQTT *azure_mqtt, func_ptr_direct_method mqtt_direct_method_callback);
@@ -64,8 +69,12 @@ UINT azure_mqtt_publish_bool_property(AZURE_MQTT *azure_mqtt, CHAR* label, bool 
 UINT azure_mqtt_publish_string_property(AZURE_MQTT *azure_mqtt, CHAR* label, CHAR *value);
 UINT azure_mqtt_publish_float_telemetry(AZURE_MQTT *azure_mqtt, CHAR* label, float value);
 
-UINT azure_mqtt_create(AZURE_MQTT *azure_mqtt, CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas_key);
+UINT azure_mqtt_create(
+    AZURE_MQTT *azure_mqtt, NX_IP *nx_ip, NX_PACKET_POOL *nx_pool, NX_DNS *nx_dns, 
+    func_ptr_unix_time_get unix_time_get, 
+    CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas_key);
 UINT azure_mqtt_delete(AZURE_MQTT *azure_mqtt);
+
 UINT azure_mqtt_connect(AZURE_MQTT *azure_mqtt);
 UINT azure_mqtt_disconnect(AZURE_MQTT *azure_mqtt);
 

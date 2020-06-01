@@ -35,6 +35,8 @@ void sample_thread_entry(ULONG parameter);
 /* Define Sample thread entry.  */
 void sample_thread_entry(ULONG parameter)
 {
+    UINT status;
+    
     if (platform_init(WIFI_SSID, WIFI_PASSWORD, WIFI_SECURITY, WIFI_COUNTRY) != NX_SUCCESS)
     {
         printf("Failed to initialize platform.\r\n");
@@ -42,16 +44,18 @@ void sample_thread_entry(ULONG parameter)
     }
 
     // Start the SNTP client
-    if (!sntp_start())
+    status = sntp_start();
+    if (status != NX_SUCCESS)
     {
-        printf("Failed to start the SNTP client\r\n");
+        printf("Failed to start the SNTP client (0x%02x)\r\n", status);
         return;
     }
 
     // Wait for an SNTP sync
-    if (!sntp_wait_for_sync())
+    status = sntp_sync_wait();
+    if (status != NX_SUCCESS)
     {
-        printf("Failed to start sync SNTP time\r\n");
+        printf("Failed to start sync SNTP time (0x%02x)\r\n", status);
         return;
     }
 

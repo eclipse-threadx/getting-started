@@ -25,7 +25,7 @@ or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any addi
 
 ### Reporting Security Vulnerabilities
 
-If you believe you have found a security vulnerability in any Microsoft-owned repository that meets Microsoft's Microsoft's definition of a security vulnerability, please report it to the [Microsoft Security Response Center](SECURITY.md).
+If you believe you have found a security vulnerability in any Microsoft-owned repository that meets Microsoft's definition of a security vulnerability, please report it to the [Microsoft Security Response Center](SECURITY.md).
 
 ### License
 

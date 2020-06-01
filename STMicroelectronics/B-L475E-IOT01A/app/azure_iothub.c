@@ -9,6 +9,8 @@
 #include "stm32l475e_iot01_tsensor.h"
 
 #include "azure/azure_mqtt.h"
+#include "networking.h"
+#include "sntp_client.h"
 
 static AZURE_MQTT azure_mqtt;
 
@@ -30,7 +32,7 @@ static void mqtt_direct_method(CHAR *direct_method_name, CHAR *message, MQTT_DIR
 {
     // Default response - 501 Not Implemented
     int status = 501;
-    if (strcmp((CHAR *)direct_method_name, "set_led_state") == 0)
+    if (strcmp(direct_method_name, "set_led_state") == 0)
     {
         // Set LED state
         // '0' - turn LED off
@@ -67,7 +69,7 @@ static void mqtt_direct_method(CHAR *direct_method_name, CHAR *message, MQTT_DIR
 
 static void mqtt_c2d_message(CHAR *key, CHAR *value)
 {
-    if (strcmp((CHAR *)key, "led0State") == 0)
+    if (strcmp(key, "led0State") == 0)
     {
         // Set LED state
         // '0' - turn LED off
@@ -103,7 +105,11 @@ UINT azure_iothub_run(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas
     float temperature;
 
     // Create Azure MQTT
-    status = azure_mqtt_create(&azure_mqtt, iot_hub_hostname, iot_device_id, iot_sas_key);
+//    status = azure_mqtt_create(&azure_mqtt, iot_hub_hostname, iot_device_id, iot_sas_key);
+    status = azure_mqtt_create(&azure_mqtt, 
+        &nx_ip, &nx_pool, &nx_dns_client,
+        sntp_time_get,
+        iot_hub_hostname, iot_device_id, iot_sas_key);
     if (status != NXD_MQTT_SUCCESS)
     {
         printf("Error: Failed to create Azure MQTT (0x%02x)\r\n", status);
