@@ -56,7 +56,7 @@ git clone https://github.com/azure-rtos/getting-started
 
     wget -c "https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/9-2019q4/gcc-arm-none-eabi-9-2019-q4-major-x86_64-linux.tar.bz2"
 
-    untar xvjf ./gcc-arm-none-eabi-9-2019-q4-major-x86_64-linux.tar.bz2
+    tar xvjf ./gcc-arm-none-eabi-9-2019-q4-major-x86_64-linux.tar.bz2
 
     sudo mv ./gcc-arm-none-eabi-9-2019-q4-major /opt/.
     ```
@@ -64,7 +64,7 @@ git clone https://github.com/azure-rtos/getting-started
 1. Install CMake and Ninja build system.
 
     ```bash
-    sudo apt update && apt install -y cmake ninja-build
+    sudo apt update && sudo apt install -y cmake ninja-build
 
     cmake --version
     ```
