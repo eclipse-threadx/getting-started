@@ -6,6 +6,6 @@
 
 #include "tx_api.h"
 
-UINT azure_iothub_run(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas_key);
+UINT azure_iothub_run(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas_key, CHAR *iot_model_id);
 
 #endif // _AZURE_IOTHUB_H

@@ -51,7 +51,7 @@ void azure_thread_entry(ULONG parameter)
     }
 
     // Enter the Azure MQTT loop
-    if(!azure_iothub_run(IOT_HUB_HOSTNAME, IOT_DEVICE_ID, IOT_PRIMARY_KEY))
+    if(!azure_iothub_run(IOT_HUB_HOSTNAME, IOT_DEVICE_ID, IOT_PRIMARY_KEY, IOT_MODEL_ID))
     {
         printf("Failed to start Azure IotHub\r\n");
         return;

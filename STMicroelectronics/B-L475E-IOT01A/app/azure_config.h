@@ -26,4 +26,6 @@ typedef enum
 #define IOT_DEVICE_ID       ""
 #define IOT_PRIMARY_KEY     ""
 
+#define IOT_MODEL_ID        ""
+
 #endif // _AZURE_CONFIG_H
