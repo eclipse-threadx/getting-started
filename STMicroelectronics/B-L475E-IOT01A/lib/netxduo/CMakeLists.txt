@@ -431,7 +431,6 @@ set(SOURCES
     src/nx_udp_socket_send.c
     src/nx_udp_socket_unbind.c
     src/nx_utility.c
-    src/nx_wifi.c
 
 	addons/dhcp/nxd_dhcp_client.c
 	addons/dns/nxd_dns.c
@@ -441,7 +440,9 @@ set(SOURCES
 
 set(TARGET netxduo)
 
-add_library(${TARGET} ${SOURCES})
+add_library(${TARGET} OBJECT
+    ${SOURCES}
+)
 add_library("azrtos::${TARGET}" ALIAS ${TARGET})
 
 target_compile_definitions(${TARGET}
@@ -462,6 +463,5 @@ target_include_directories(${TARGET}
 target_link_libraries(${TARGET} 
 	PUBLIC
         azrtos::threadx
-        netx_driver
         stm32cubel4
 )

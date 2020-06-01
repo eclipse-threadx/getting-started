@@ -1,12 +1,17 @@
 /* Copyright (c) Microsoft Corporation.
    Licensed under the MIT License. */
    
-#include <azure_iothub.h>
+#include "azure_iothub.h"
 
 #include <stdio.h>
 
+#include "atmel_start.h"
+#include "Bosch_BME280.h"
+
+#include "azure_config.h"
 #include "azure/azure_mqtt.h"
-#include "board_init.h"
+#include "networking.h"
+#include "sntp_client.h"
 
 static AZURE_MQTT azure_mqtt;
 
@@ -30,7 +35,7 @@ static void mqtt_direct_method(CHAR *direct_method_name, CHAR *message, MQTT_DIR
 {
     // Default response - 501 Not Implemented
     int status = 501;
-    if (strcmp((CHAR *)direct_method_name, "set_led_state") == 0)
+    if (strcmp(direct_method_name, "set_led_state") == 0)
     {
         // Set LED state
         // '0' - turn LED off
@@ -68,7 +73,7 @@ static void mqtt_direct_method(CHAR *direct_method_name, CHAR *message, MQTT_DIR
 
 static void mqtt_c2d_message(CHAR *key, CHAR *value)
 {
-    if (strstr((CHAR *)key, "led0State"))
+    if (strcmp(key, "led0State") == 0)
     {
         // Set LED state
         // '0' - turn LED off
@@ -105,7 +110,10 @@ UINT azure_iothub_run(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas
     float tempDegC;
 
     // Create Azure MQTT
-    status = azure_mqtt_create(&azure_mqtt, iot_hub_hostname, iot_device_id, iot_sas_key);
+    status = azure_mqtt_create(&azure_mqtt, 
+        &nx_ip, &nx_pool, &nx_dns_client,
+        sntp_time_get,
+        iot_hub_hostname, iot_device_id, iot_sas_key);    
     if (status != NXD_MQTT_SUCCESS)
     {
         printf("Error: Failed to create Azure MQTT (0x%02x)\r\n", status);
@@ -143,8 +151,8 @@ UINT azure_iothub_run(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas
         // Send the compensated temperature as a device twin update
         azure_mqtt_publish_float_property(&azure_mqtt, "temperature(c)", tempDegC);
 
-        // Sleep for 1 minute
-        tx_thread_sleep(5 * TX_TIMER_TICKS_PER_SECOND);
+        // Sleep for 10 seconds
+        tx_thread_sleep(10 * TX_TIMER_TICKS_PER_SECOND);
     }
     
     return NXD_MQTT_SUCCESS;

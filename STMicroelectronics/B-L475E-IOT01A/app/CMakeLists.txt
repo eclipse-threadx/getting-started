@@ -4,9 +4,6 @@
 set(LINKER_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/startup/B-L475E-IOT01.ld")
 
 set(SOURCES
-    libc/sysmem.c
-    libc/syscalls.c
-    
     startup/system_stm32l4xx.c
     startup/startup.s
     startup/tx_initialize_low_level.S
@@ -37,7 +34,6 @@ target_link_options(${PROJECT_NAME}
 
 target_include_directories(${PROJECT_NAME}
     PUBLIC
-        .
         stm32cubel4
 )
 

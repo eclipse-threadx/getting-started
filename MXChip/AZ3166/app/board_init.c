@@ -204,60 +204,6 @@ static void UART_Console_Init(void)
     HAL_UART_Init(&UartHandle);
 }
 
-#ifdef USE_COM_PORT
-#if (defined(__GNUC__))
-int _write(int fd, char * ptr, int len)
-{
-  HAL_UART_Transmit(&UartHandle, (uint8_t *) ptr, len, HAL_MAX_DELAY);
-  return len;
-}
-#elif (defined(__ICCARM__))
-size_t __write(int handle, const unsigned char *buffer, size_t size)
-{
-
-    /* Check for the command to flush all handles */
-    if (handle == -1)
-    {
-        return 0;
-    }
-    /* Check for stdout and stderr      (only necessary if FILE descriptors are enabled.) */
-    if (handle != 1 && handle != 2)
-    {
-        return -1;
-    }
-
-    if (HAL_UART_Transmit(&UartHandle, (uint8_t *)buffer, size, 5000) != HAL_OK)
-    {
-        return -1;
-    }
-
-    return size;
-}
-
-size_t __read(int handle, unsigned char *buffer, size_t size)
-{
-
-    /* Check for stdin      (only necessary if FILE descriptors are enabled) */
-    if (handle != 0)
-    {
-        return -1;
-    }
-
-    if (HAL_UART_Receive(&UartHandle, (uint8_t *)buffer, size, 0x10000000) != HAL_OK)
-    {
-        return -1;
-    }
-    return size;
-}
-#elif defined (__CC_ARM)
-int fputc(int ch, FILE *f)
-{
-    HAL_UART_Transmit(&UartHandle, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
-    return ch;
-}
-#endif
-#endif
-
 static int val;
 
 __weak void button_a_callback()

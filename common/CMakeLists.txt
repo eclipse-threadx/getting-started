@@ -12,15 +12,19 @@ set(SOURCES
 
     networking.c
     sntp_client.c
+    newlib_nano.c
 )
 
-add_library(${TARGET} INTERFACE)
-
-target_sources(${TARGET} 
-    INTERFACE
-        ${SOURCES})
+add_library(${TARGET} OBJECT
+    ${SOURCES}
+)
 
 target_include_directories(${TARGET}
-    INTERFACE
+    PUBLIC
         .
+)
+
+target_link_libraries(${TARGET}
+    azrtos::threadx
+    azrtos::netxduo
 )

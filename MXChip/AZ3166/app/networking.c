@@ -71,9 +71,9 @@ static UCHAR sample_rx_pool_stack[SAMPLE_RX_POOL_SIZE];
 static UCHAR sample_arp_cache_area[SAMPLE_ARP_CACHE_SIZE];
 
 /* Define the prototypes for ThreadX.  */
-NX_PACKET_POOL                   main_pool[2]; /* 0=TX, 1=RX. */
-NX_IP                            ip_0;
-NX_DNS                           dns_client;
+NX_PACKET_POOL                   nx_pool[2]; /* 0=TX, 1=RX. */
+NX_IP                            nx_ip;
+NX_DNS                           nx_dns_client;
 
 /* System clock time for UTC.  */
 ULONG                                   unix_time_base;
@@ -132,7 +132,7 @@ int platform_init(CHAR *ssid, CHAR *password, wiced_security_t security, wiced_c
   nx_system_initialize();
 
   // Create a packet pool for TX.
-  status = nx_packet_pool_create(&main_pool[0], "NetX Main TX Packet Pool", SAMPLE_PACKET_SIZE,
+  status = nx_packet_pool_create(&nx_pool[0], "NetX Main TX Packet Pool", SAMPLE_PACKET_SIZE,
                                  sample_tx_pool_stack, SAMPLE_TX_POOL_SIZE);
   if (status != NX_SUCCESS)
   {
@@ -141,78 +141,78 @@ int platform_init(CHAR *ssid, CHAR *password, wiced_security_t security, wiced_c
   }
 
   // Create a packet pool for RX.
-  status = nx_packet_pool_create(&main_pool[1], "NetX Main RX Packet Pool", SAMPLE_PACKET_SIZE,
+  status = nx_packet_pool_create(&nx_pool[1], "NetX Main RX Packet Pool", SAMPLE_PACKET_SIZE,
                                  sample_rx_pool_stack, SAMPLE_RX_POOL_SIZE);
   if (status != NX_SUCCESS)
   {
-    nx_packet_pool_delete(&main_pool[0]);
+    nx_packet_pool_delete(&nx_pool[0]);
     printf("Sample platform initialize fail: PACKET POOL CREATE FAIL.\r\n");
     return status;
   }
 
   // Join Wifi network.
-  status = wifi_network_join(&main_pool, ssid, password, security, country);
+  status = wifi_network_join(&nx_pool, ssid, password, security, country);
   if (status != NX_SUCCESS)
   {
-    nx_packet_pool_delete(&main_pool[0]);
-    nx_packet_pool_delete(&main_pool[1]);
+    nx_packet_pool_delete(&nx_pool[0]);
+    nx_packet_pool_delete(&nx_pool[1]);
     printf("Sample platform initialize fail: WIFI JOIN FAIL.\r\n");
     return status;
   }
 
   /* Create an IP instance for the DHCP Client. The rest of the DHCP Client set up is handled
        by the client thread entry function.  */
-  status = nx_ip_create(&ip_0, "NetX IP Instance 0", SAMPLE_IPV4_ADDRESS, SAMPLE_IPV4_MASK,
-                        &main_pool[0], platform_driver_get(), (UCHAR *)sample_ip_stack, SAMPLE_IP_STACK_SIZE, 1);
+  status = nx_ip_create(&nx_ip, "NetX IP Instance 0", SAMPLE_IPV4_ADDRESS, SAMPLE_IPV4_MASK,
+                        &nx_pool[0], platform_driver_get(), (UCHAR *)sample_ip_stack, SAMPLE_IP_STACK_SIZE, 1);
   if (status != NX_SUCCESS)
   {
-    nx_packet_pool_delete(&main_pool[0]);
-    nx_packet_pool_delete(&main_pool[1]);
+    nx_packet_pool_delete(&nx_pool[0]);
+    nx_packet_pool_delete(&nx_pool[1]);
     printf("Sample platform initialize fail: IP CREATE FAIL.\r\n");
     return status;
   }
 
   /* Enable ARP and supply ARP cache memory for IP Instance 0.  */
-  status = nx_arp_enable(&ip_0, (VOID *)sample_arp_cache_area, SAMPLE_ARP_CACHE_SIZE);
+  status = nx_arp_enable(&nx_ip, (VOID *)sample_arp_cache_area, SAMPLE_ARP_CACHE_SIZE);
   if (status != NX_SUCCESS)
   {
-    nx_ip_delete(&ip_0);
-    nx_packet_pool_delete(&main_pool[0]);
-    nx_packet_pool_delete(&main_pool[1]);
+    nx_ip_delete(&nx_ip);
+    nx_packet_pool_delete(&nx_pool[0]);
+    nx_packet_pool_delete(&nx_pool[1]);
     printf("Sample platform initialize fail: ARP ENABLE FAIL.\r\n");
     return status;
   }
 
   /* Enable ICMP traffic.  */
-  status = nx_icmp_enable(&ip_0);
+  status = nx_icmp_enable(&nx_ip);
   if (status != NX_SUCCESS)
   {
-    nx_ip_delete(&ip_0);
-    nx_packet_pool_delete(&main_pool[0]);
-    nx_packet_pool_delete(&main_pool[1]);
+    nx_ip_delete(&nx_ip);
+    nx_packet_pool_delete(&nx_pool[0]);
+    nx_packet_pool_delete(&nx_pool[1]);
     printf("Sample platform initialize fail: ICMP ENABLE FAIL.\r\n");
     return status;
   }
 
   /* Enable TCP traffic.  */
-  status = nx_tcp_enable(&ip_0);
+  status = nx_tcp_enable(&nx_ip);
   if (status != NX_SUCCESS)
   {
-    nx_ip_delete(&ip_0);
-    nx_packet_pool_delete(&main_pool[0]);
-    nx_packet_pool_delete(&main_pool[1]);
+    nx_ip_delete(&nx_ip);
+    nx_packet_pool_delete(&nx_pool[0]);
+    nx_packet_pool_delete(&nx_pool[1]);
     /* LogError */
     printf("Sample platform initialize fail: TCP ENABLE FAIL.\r\n");
     return status;
   }
 
   /* Enable UDP traffic.  */
-  status = nx_udp_enable(&ip_0);
+  status = nx_udp_enable(&nx_ip);
   if (status != NX_SUCCESS)
   {
-    nx_ip_delete(&ip_0);
-    nx_packet_pool_delete(&main_pool[0]);
-    nx_packet_pool_delete(&main_pool[1]);
+    nx_ip_delete(&nx_ip);
+    nx_packet_pool_delete(&nx_pool[0]);
+    nx_packet_pool_delete(&nx_pool[1]);
     printf("Sample platform initialize fail: UDP ENABLE FAIL.\r\n");
     return status;
   }
@@ -220,12 +220,12 @@ int platform_init(CHAR *ssid, CHAR *password, wiced_security_t security, wiced_c
 #ifndef SAMPLE_DHCP_DISABLE
   wait_dhcp();
 #else
-  nx_ip_gateway_address_set(&ip_0, SAMPLE_GATEWAY_ADDRESS);
+  nx_ip_gateway_address_set(&nx_ip, SAMPLE_GATEWAY_ADDRESS);
 #endif /* SAMPLE_DHCP_DISABLE  */
 
   /* Get IP address and gateway address. */
-  nx_ip_address_get(&ip_0, &ip_address, &network_mask);
-  nx_ip_gateway_address_get(&ip_0, &gateway_address);
+  nx_ip_address_get(&nx_ip, &ip_address, &network_mask);
+  nx_ip_gateway_address_get(&nx_ip, &gateway_address);
 
   /* Output IP address and gateway address. */
   /* LogInfo */
@@ -250,9 +250,9 @@ int platform_init(CHAR *ssid, CHAR *password, wiced_security_t security, wiced_c
   if (status != NX_SUCCESS)
   {
     nx_dhcp_delete(&dhcp_client);
-    nx_ip_delete(&ip_0);
-    nx_packet_pool_delete(&main_pool[0]);
-    nx_packet_pool_delete(&main_pool[1]);
+    nx_ip_delete(&nx_ip);
+    nx_packet_pool_delete(&nx_pool[0]);
+    nx_packet_pool_delete(&nx_pool[1]);
     printf("Sample platform initialize fail: %u\r\n", status);
     return status;
   }
@@ -261,7 +261,7 @@ int platform_init(CHAR *ssid, CHAR *password, wiced_security_t security, wiced_c
   nx_secure_tls_initialize();
 
   /* Start demo.  */
-  // demo_entry(&ip_0, &main_pool[0], &dns_client, unix_time_get);
+  // demo_entry(&nx_ip, &nx_pool[0], &nx_dns_client, unix_time_get);
 
   return NX_SUCCESS;
 }
@@ -276,15 +276,15 @@ void platform_deinit(void)
   tx_mutex_delete(&_nx_secure_tls_protection);
 
   /* Cleanup DNS.  */
-  nx_dns_delete(&dns_client);
+  nx_dns_delete(&nx_dns_client);
 
   /* Cleanup DHCP.  */
   nx_dhcp_delete(&dhcp_client);
 
   /* Cleanup IP and packet pool.  */
-  nx_ip_delete(&ip_0);
-  nx_packet_pool_delete(&main_pool[0]);
-  nx_packet_pool_delete(&main_pool[1]);
+  nx_ip_delete(&nx_ip);
+  nx_packet_pool_delete(&nx_pool[0]);
+  nx_packet_pool_delete(&nx_pool[1]);
 }
 
 #ifndef SAMPLE_DHCP_DISABLE
@@ -297,13 +297,13 @@ static void wait_dhcp(void)
   printf("DHCP In Progress...\r\n");
 
   /* Create the DHCP instance.  */
-  nx_dhcp_create(&dhcp_client, &ip_0, "MXChip_AZ3166");
+  nx_dhcp_create(&dhcp_client, &nx_ip, "MXChip_AZ3166");
 
   /* Start the DHCP Client.  */
   nx_dhcp_start(&dhcp_client);
 
   /* Wait util address is solved. */
-  nx_ip_status_check(&ip_0, NX_IP_ADDRESS_RESOLVED, &actual_status, NX_WAIT_FOREVER);
+  nx_ip_status_check(&nx_ip, NX_IP_ADDRESS_RESOLVED, &actual_status, NX_WAIT_FOREVER);
 }
 #endif /* SAMPLE_DHCP_DISABLE  */
 
@@ -317,7 +317,7 @@ static UINT dns_create()
   /* Create a DNS instance for the Client.  Note this function will create
        the DNS Client packet pool for creating DNS message packets intended
        for querying its DNS server. */
-  status = nx_dns_create(&dns_client, &ip_0, (UCHAR *)"DNS Client");
+  status = nx_dns_create(&nx_dns_client, &nx_ip, (UCHAR *)"DNS Client");
   if (status)
   {
     return (status);
@@ -328,10 +328,10 @@ static UINT dns_create()
 
   /* Yes, use the packet pool created above which has appropriate payload size
        for DNS messages. */
-  status = nx_dns_packet_pool_set(&dns_client, ip_0.nx_ip_default_packet_pool);
+  status = nx_dns_packet_pool_set(&nx_dns_client, nx_ip.nx_ip_default_packet_pool);
   if (status)
   {
-    nx_dns_delete(&dns_client);
+    nx_dns_delete(&nx_dns_client);
     return (status);
   }
 #endif /* NX_DNS_CLIENT_USER_CREATE_PACKET_POOL */
@@ -344,10 +344,10 @@ static UINT dns_create()
 #endif
 
   /* Add an IPv4 server address to the Client list. */
-  status = nx_dns_server_add(&dns_client, dns_server_address[0]);
+  status = nx_dns_server_add(&nx_dns_client, dns_server_address[0]);
   if (status)
   {
-    nx_dns_delete(&dns_client);
+    nx_dns_delete(&nx_dns_client);
     return (status);
   }
 

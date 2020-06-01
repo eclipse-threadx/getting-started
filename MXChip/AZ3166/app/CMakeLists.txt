@@ -4,9 +4,6 @@
 set(LINKER_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/startup/MXChip_AZ3166.ld")
 
 set(SOURCES
-    libc/sysmem.c
-    libc/syscalls.c
-    
     startup/system_stm32f4xx.c
     startup/startup_stm32f412rx.s
     startup/tx_initialize_low_level.S

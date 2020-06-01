@@ -93,6 +93,20 @@ After you flash your device successfully and connect it to your computer, you se
 * Press the **Reset** button on your device.
 * Confirm that your USB cable is properly connected.
 
+## Issue: Communication between device and IoT Hub fails
+
+### Description
+
+After you flash your device and connect it to your computer, you get a repeated messages like the following in your terminal window:
+
+```
+Failed to publish temperature
+```
+
+### Resolution
+
+* Confirm that the *Pricing and scale tier* is one of *Free* or *Standard*. **Basic is not supported** as it doesn't support cloud-to-device and device twin communication.
+
 ## Next steps
 
 If you reviewed all the previous issues, and you still cannot monitor your device in a terminal or connect to Azure IoT, there might be an issue with your device's hardware or physical configuration. See the manufacturer's page for your device to find documentation and support options.

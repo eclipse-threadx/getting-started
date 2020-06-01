@@ -64,7 +64,7 @@ set(CMAKE_COMMON_FLAGS "-ffunction-sections -fdata-sections -Wunused -Wuninitial
 set(CMAKE_C_FLAGS 	"${MCPU_FLAGS} ${VFP_FLAGS} ${SPECS_FLAGS} ${CMAKE_COMMON_FLAGS}")
 set(CMAKE_CXX_FLAGS "${MCPU_FLAGS} ${VFP_FLAGS} ${SPECS_FLAGS} ${CMAKE_COMMON_FLAGS}")
 set(CMAKE_ASM_FLAGS "${MCPU_FLAGS} ${VFP_FLAGS} ${SPECS_FLAGS}")
-set(CMAKE_EXE_LINKER_FLAGS "${LD_FLAGS} -Wl,--gc-sections -Wl,-print-memory-usage")
+set(CMAKE_EXE_LINKER_FLAGS "${LD_FLAGS} -Wl,--gc-sections,-print-memory-usage")
 
 set(CMAKE_C_FLAGS_DEBUG "-O0 -g")
 set(CMAKE_CXX_ASM_FLAGS_DEBUG "-O0 -g")

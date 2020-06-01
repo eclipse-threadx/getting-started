@@ -9,6 +9,8 @@ set(CMAKE_C_STANDARD 99)
 
 include(utilities)
 
+message(STATUS "Using toolchain file: ${CMAKE_TOOLCHAIN_FILE}.")
+
 add_subdirectory(lib)
 add_subdirectory(app)
 add_subdirectory(../../common ${CMAKE_CURRENT_BINARY_DIR}/common)
