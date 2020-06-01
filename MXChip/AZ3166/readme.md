@@ -12,7 +12,7 @@
 
 1. Launch Ubuntu 18.04 bash command line.
 
-    ![Ubuntu](./media/ubuntu.png =500x)
+    ![Ubuntu](./media/ubuntu.png)
 
 1. Download and untar [GCC ARM Toolchain in Linux](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads).
 
@@ -165,7 +165,7 @@ We develop and build everything within WSL2.
 
 1. Open Device Manager and find the COM port for the MXChip IoT DevKit.
 
-    ![COM Port](./media/com_port.png =600x)
+    ![COM Port](./media/com_port.png)
 
 1. Open Termite and configure the COM port and settings as:
 
@@ -175,7 +175,7 @@ We develop and build everything within WSL2.
 
     Now you can view the DevKit is publising temperature telemetry to IoT Hub in every a few seconds.
 
-    ![Termite](./media/termite.png =700x)
+    ![Termite](./media/termite.png)
 
 ## Debug
 
