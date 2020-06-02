@@ -61,6 +61,26 @@ git clone https://github.com/azure-rtos/getting-started
     sudo mv ./gcc-arm-none-eabi-9-2019-q4-major /opt/.
     ```
 
+1. Add GCC to the path.
+
+    ```bash
+    nano ~/.bashrc
+    ```
+
+    Find line with `PATH=...` or add a new line to add the GCC binary path into it:
+
+    ```bash
+    PATH="/opt/gcc-arm-none-eabi-9-2019-q4-major/bin:$PATH"
+    ```
+
+    Save and close the file (`Ctrl+X`). Then source the `bashrc` to make it effective.
+
+    ```bash
+    source ~/.bashrc
+
+    arm-none-eabi-gcc --version
+    ```
+
 1. Install CMake and Ninja build system.
 
     ```bash
