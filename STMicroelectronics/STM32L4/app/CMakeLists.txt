@@ -44,4 +44,4 @@ function(create_target TARGET STARTUP LINKER)
 endfunction()
 
 create_target("stm32l475_azure_iot" "startup/startup_stm32l475xx.s" "${CMAKE_CURRENT_SOURCE_DIR}/startup/STM32L475VGTx_FLASH.ld")
-create_target("stm32l4S5_azure_iot" "startup/startup_stm32l4S5xx.s" "${CMAKE_CURRENT_SOURCE_DIR}/startup/STM32L4S5VITx_FLASH.ld")
+create_target("stm32l4S5_azure_iot" "startup/startup_stm32l4s5xx.s" "${CMAKE_CURRENT_SOURCE_DIR}/startup/STM32L4S5VITx_FLASH.ld")
