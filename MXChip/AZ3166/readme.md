@@ -54,11 +54,11 @@ git clone https://github.com/azure-rtos/getting-started
     ```bash
     cd ~
 
-    wget -c "https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/9-2019q4/gcc-arm-none-eabi-9-2019-q4-major-x86_64-linux.tar.bz2"
+    wget -c "https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/9-2020q2/gcc-arm-none-eabi-9-2020-q2-update-x86_64-linux.tar.bz2"
 
-    tar xvjf ./gcc-arm-none-eabi-9-2019-q4-major-x86_64-linux.tar.bz2
+    tar xvjf ./gcc-arm-none-eabi-9-2020-q2-update-x86_64-linux.tar.bz2
 
-    sudo mv ./gcc-arm-none-eabi-9-2019-q4-major /opt/.
+    sudo mv ./gcc-arm-none-eabi-9-2020-q2-update /opt/.
     ```
 
 1. Add GCC to the path.
@@ -70,7 +70,7 @@ git clone https://github.com/azure-rtos/getting-started
     Find line with `PATH=...` or add a new line to add the GCC binary path into it:
 
     ```bash
-    PATH="/opt/gcc-arm-none-eabi-9-2019-q4-major/bin:$PATH"
+    PATH="/opt/gcc-arm-none-eabi-9-2020-q2-update/bin:$PATH"
     ```
 
     Save and close the file (`Ctrl+X`). Then source the `bashrc` to make it effective.
