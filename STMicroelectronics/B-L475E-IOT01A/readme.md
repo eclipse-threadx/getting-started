@@ -22,6 +22,8 @@ You will complete the following tasks:
     > * Wi-Fi 2.4 GHz
     > * USB 2.0 A male to Micro USB male cable
 
+> Note: Make sure the latest WiFi firmware is installed. The latest WiFi firmware can be downloaded from the [STMicroelectronics website](https://www.st.com/resource/en/utilities/inventek_fw_updater.zip). This guide requires version 3.5.2.5.STM or higher.
+
 ## Prepare the development environment
 
 To set up your development environment, first you clone a GitHub repo that contains all the assets you need for the tutorial. Then you install a set of programming tools.
