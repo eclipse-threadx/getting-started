@@ -1,4 +1,4 @@
-name: B-L475E-IOT01A
+name: STM32L4
 
 on:
   push:
@@ -6,17 +6,17 @@ on:
     paths:
       - 'common/**'
       - 'cmake/**'
-      - 'STMicroelectronics/B-L475E-IOT01A/**'
+      - 'STMicroelectronics/STM32L4/**'
   pull_request:
     branches: [ master ]
     paths:
       - 'common/**'
       - 'cmake/**'
-      - 'STMicroelectronics/B-L475E-IOT01A/**'
+      - 'STMicroelectronics/STM32L4/**'
 
 defaults:
   run:
-    working-directory: STMicroelectronics/B-L475E-IOT01A
+    working-directory: STMicroelectronics/STM32L4
 
 jobs:
   build:

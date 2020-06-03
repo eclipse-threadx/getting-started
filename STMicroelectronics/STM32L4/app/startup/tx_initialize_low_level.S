@@ -115,13 +115,13 @@ _tx_initialize_low_level:
 @    /* Setup Vector Table Offset Register.  */
 @    
     MOV     r0, #0xE000E000                         @ Build address of NVIC registers
-    LDR     r1, =_vectors                           @ Pickup address of vector table  
+    LDR     r1, =g_pfnVectors                       @ Pickup address of vector table  
     STR     r1, [r0, #0xD08]                        @ Set vector table address   
 @
 @    /* Set system stack pointer from vector value.  */
 @
     LDR     r0, =_tx_thread_system_stack_ptr        @ Build address of system stack pointer
-    LDR     r1, =_vectors                           @ Pickup address of vector table
+    LDR     r1, =g_pfnVectors                       @ Pickup address of vector table
     LDR     r1, [r1]                                @ Pickup reset stack pointer
     STR     r1, [r0]                                @ Save system stack pointer
 @
@@ -139,6 +139,7 @@ _tx_initialize_low_level:
     STR     r1, [r0, #0x14]                         @ Setup SysTick Reload Value
     MOV     r1, #0x7                                @ Build SysTick Control Enable Value
     STR     r1, [r0, #0x10]                         @ Setup SysTick Control
+
 @
 @    /* Configure handler priorities.  */
 @

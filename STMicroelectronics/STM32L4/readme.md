@@ -1,8 +1,8 @@
-<h1>Getting started with the STMicroelectronics B-L475E-IOT01 Discovery kit</h1>
+<h1>Getting started with the STMicroelectronics B-L475E-IOT01A / B-L4S5I-IOTOA1 Discovery kits</h1>
 
 **Total completion time**:  30 minutes
 
-In this tutorial you use Azure RTOS to connect the STMicroelectronics B-L475E-IOT01 Discovery kit (hereafter, the STM  DevKit) to Azure IoT. The article is part of the series [Getting started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824). The series introduces device developers to Azure RTOS, and shows how to connect several device evaluation kits to Azure IoT.
+In this tutorial you use Azure RTOS to connect the either the STMicroelectronics B-L475E-IOT01A or B-L4S5I-IOT01A Discovery kit (hereafter, the STM DevKit) to Azure IoT. The article is part of the series [Getting started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824). The series introduces device developers to Azure RTOS, and shows how to connect several device evaluation kits to Azure IoT.
 
 You will complete the following tasks:
 
@@ -18,11 +18,13 @@ You will complete the following tasks:
 * [Git](https://git-scm.com/downloads)
 * Hardware
 
-    > * The [STMicroelectronics B-L475E-IOT01](https://www.st.com/content/st_com/en/products/evaluation-tools/product-evaluation-tools/mcu-mpu-eval-tools/stm32-mcu-mpu-eval-tools/stm32-discovery-kits/b-l475e-iot01a.html) (STM DevKit)
+    > * STM DevKit, either of:
+    >    * [B-L475E-IOT01A](https://www.st.com/en/evaluation-tools/b-l475e-iot01a.html)
+    >    * [B-L4S5I-IOT01A](https://www.st.com/en/evaluation-tools/b-l4s5i-iot01a.html)
     > * Wi-Fi 2.4 GHz
     > * USB 2.0 A male to Micro USB male cable
 
-> Note: Make sure the latest WiFi firmware is installed. The latest WiFi firmware can be downloaded from the [STMicroelectronics website](https://www.st.com/resource/en/utilities/inventek_fw_updater.zip). This guide requires version 3.5.2.5.STM or higher.
+> Note: Make sure the latest WiFi firmware is installed. The latest WiFi firmware can be downloaded from the [STMicroelectronics website](https://www.st.com/resource/en/utilities/inventek_fw_updater.zip). This guide requires version 3.5.2.5.STM or later.
 
 ## Prepare the development environment
 
@@ -141,7 +143,7 @@ To connect the STM DevKit to Azure, you'll modify a configuration file for Wi-Fi
 
 ### Add configuration
 
-1. In a text editor, edit the file *getting-started\STMicroelectronics\B-L475E-IOT01A\app\azure_config.h* to set the Wi-Fi constants to the following values from your local environment.
+1. In a text editor, edit the file *getting-started\STMicroelectronics\STM32L4\app\azure_config.h* to set the Wi-Fi constants to the following values from your local environment.
 
     |Constant name|Value|
     |-------------|-----|
@@ -161,11 +163,13 @@ To connect the STM DevKit to Azure, you'll modify a configuration file for Wi-Fi
 
 In your console or in File Explorer, run the script *rebuild.bat* at the following path to build the image:
 
-> *getting-started\STMicroelectronics\B-L475E-IOT01A\tools\rebuild.bat*
+> *getting-started\STMicroelectronics\STM32L4\tools\rebuild.bat*
 
-After the build completes, confirm that a binary file was created in the following path:
+After the build completes, confirm that the binary files were created in the following path:
 
-> *getting-started\STMicroelectronics\B-L475E-IOT01A\build\app\stm32_azure_iot.bin*
+> *getting-started\STMicroelectronics\STM32L4\build\app\stm32l475_azure_iot.bin*
+
+> *getting-started\STMicroelectronics\STM32L4\build\app\stm32l4S5_azure_iot.bin*
 
 ### Flash the image
 
@@ -175,7 +179,7 @@ After the build completes, confirm that a binary file was created in the followi
 
 1. Connect the Micro USB cable to the Micro USB port on the STM DevKit, and then connect it to your computer.
 
-    > Note: For detailed setup information about the STM DevKit, see the instructions on the packaging, or see [Tools and Resources](https://www.st.com/content/st_com/en/products/evaluation-tools/product-evaluation-tools/mcu-mpu-eval-tools/stm32-mcu-mpu-eval-tools/stm32-discovery-kits/b-l475e-iot01a.html#resource).
+    > Note: For detailed setup information about the STM DevKit, see the instructions on the packaging, or see [B-L475E-IOT01A Resources](https://www.st.com/en/evaluation-tools/b-l475e-iot01a.html#resource) / [B-L4S5I-IOT01A Resources](https://www.st.com/en/evaluation-tools/b-l4s5i-iot01a.html#resource).
 1. In File Explorer, find the STM DevKit device connected to your computer.
 1. Copy the image file *stm32_azure_iot.bin* that you created in the previous section, and paste it into the root folder of the STM DevKit. The flashing process starts automatically.
 
