@@ -16,3 +16,10 @@ function(firmware_size TARGET)
         DEPENDS ${TARGET} 
         COMMAND ${CMAKE_SIZE_UTIL} -B ${TARGET}.elf)
 endfunction()
+
+# Output size of symbols in the resulting elf
+function(symbol_size TARGET)
+    add_custom_target(${TARGET}.nm ALL
+        DEPENDS ${TARGET}
+        COMMAND ${CMAKE_NM_UTIL} --print-size --size-sort --radix=d ${TARGET}.elf)
+endfunction()
