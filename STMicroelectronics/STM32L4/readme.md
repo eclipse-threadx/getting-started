@@ -181,7 +181,7 @@ After the build completes, confirm that the binary files were created in the fol
 
     > Note: For detailed setup information about the STM DevKit, see the instructions on the packaging, or see [B-L475E-IOT01A Resources](https://www.st.com/en/evaluation-tools/b-l475e-iot01a.html#resource) / [B-L4S5I-IOT01A Resources](https://www.st.com/en/evaluation-tools/b-l4s5i-iot01a.html#resource).
 1. In File Explorer, find the STM DevKit device connected to your computer.
-1. Copy the image file *stm32_azure_iot.bin* that you created in the previous section, and paste it into the root folder of the STM DevKit. The flashing process starts automatically.
+1. Copy the binary file for your Dev Kit that you created in the previous section, and paste it into the root folder of the STM DevKit. The flashing process starts automatically.
 
     > Note: During the flashing process, a LED rapidly toggles between red and green on the STM DevKit. The process completes in a few seconds without further notification.
 
