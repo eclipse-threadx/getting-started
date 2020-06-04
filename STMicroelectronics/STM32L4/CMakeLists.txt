@@ -11,6 +11,8 @@ include(utilities)
 
 message(STATUS "Using toolchain file: ${CMAKE_TOOLCHAIN_FILE}.")
 
+set(DISABLE_COMMON_NETWORK true)
 add_subdirectory(../../common ${CMAKE_CURRENT_BINARY_DIR}/common)
+
 add_subdirectory(lib)
 add_subdirectory(app)

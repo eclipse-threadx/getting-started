@@ -60,6 +60,9 @@ void azure_thread_entry(ULONG parameter)
 
 void tx_application_define(void* first_unused_memory)
 {
+    // Override the SYSTICK interval with the current clock
+    SysTick->LOAD  = SystemCoreClock / TX_TIMER_TICKS_PER_SECOND - 1;
+
     // Create Azure thread
     UINT status = tx_thread_create(
         &azure_thread, "Azure Thread",
