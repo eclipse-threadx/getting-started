@@ -15,11 +15,11 @@ if NOT %errorLevel% == 0 (
 
 echo.
 
-set cmake_path=https://github.com/Kitware/CMake/releases/download/v3.17.2/
-set cmake_file=cmake-3.17.2-win32-x86.msi
+set cmake_path=https://github.com/Kitware/CMake/releases/download/v3.17.3/
+set cmake_file=cmake-3.17.3-win32-x86.msi
 
-set gccarm_path=https://developer.arm.com/-/media/Files/downloads/gnu-rm/9-2019q4/
-set gccarm_file=gcc-arm-none-eabi-9-2019-q4-major-win32-sha2.exe
+set gccarm_path=https://developer.arm.com/-/media/Files/downloads/gnu-rm/9-2020q2/
+set gccarm_file=gcc-arm-none-eabi-9-2020-q2-update-win32.exe
 
 set ninja_path=https://github.com/ninja-build/ninja/releases/download/v1.10.0/
 set ninja_file=ninja-win.zip

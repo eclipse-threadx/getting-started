@@ -1,9 +1,37 @@
+/**
+  ******************************************************************************
+  * @file      startup_stm32l475xx.s
+  * @author    MCD Application Team
+  * @brief     STM32L475xx devices vector table for GCC toolchain.
+  *            This module performs:
+  *                - Set the initial SP
+  *                - Set the initial PC == Reset_Handler,
+  *                - Set the vector table entries with the exceptions ISR address,
+  *                - Configure the clock system  
+  *                - Branches to main in the C library (which eventually
+  *                  calls main()).
+  *            After Reset the Cortex-M4 processor is in Thread mode,
+  *            priority is Privileged, and the Stack is set to Main.
+  ******************************************************************************
+  * @attention
+  *
+  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.</center></h2>
+  *
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
+  *
+  ******************************************************************************
+  */
+
   .syntax unified
 	.cpu cortex-m4
 	.fpu softvfp
 	.thumb
 
-.global	_vectors
+.global	g_pfnVectors
 .global	Default_Handler
 
 /* start address for the initialization values of the .data section.
@@ -18,7 +46,6 @@ defined in linker script */
 /* end address for the .bss section. defined in linker script */
 .word	_ebss
 
-
 .equ  BootRAM,        0xF1E0F85F
 /**
  * @brief  This is the code that gets called when the processor first
@@ -29,7 +56,7 @@ defined in linker script */
  * @retval : None
 */
 
-  .section	.text.Reset_Handler
+    .section	.text.Reset_Handler
 	.weak	Reset_Handler
 	.type	Reset_Handler, %function
 Reset_Handler:
@@ -71,8 +98,8 @@ LoopFillZerobss:
 	bl	main
 
 LoopForever:
-  b LoopForever
-
+    b LoopForever
+    
 .size	Reset_Handler, .-Reset_Handler
 
 /**
@@ -83,36 +110,38 @@ LoopForever:
  * @param  None
  * @retval : None
 */
-  .section	.text.Default_Handler,"ax",%progbits
+    .section	.text.Default_Handler,"ax",%progbits
 Default_Handler:
 Infinite_Loop:
 	b	Infinite_Loop
 	.size	Default_Handler, .-Default_Handler
-
 /******************************************************************************
+*
 * The minimal vector table for a Cortex-M4.  Note that the proper constructs
 * must be placed on this to ensure that it ends up at physical address
 * 0x0000.0000.
+*
 ******************************************************************************/
-  .section	.isr_vector,"a",%progbits
-	.type	_vectors, %object
-	.size	_vectors, .-_vectors
+ 	.section	.isr_vector,"a",%progbits
+	.type	g_pfnVectors, %object
+	.size	g_pfnVectors, .-g_pfnVectors
 
-_vectors:
+
+g_pfnVectors:
 	.word	_estack
 	.word	Reset_Handler
-	.word	__tx_NMIHandler
-	.word	__tx_HardfaultHandler
+	.word	NMI_Handler
+	.word	HardFault_Handler
 	.word	MemManage_Handler
 	.word	BusFault_Handler
 	.word	UsageFault_Handler
-	.word	0 // Reserved
-	.word	0 // Reserved
-	.word	0 // Reserved
-	.word	0 // Reserved
-	.word	__tx_SVCallHandler
-	.word	__tx_DBGHandler
-	.word	0 // Reserved
+	.word	0
+	.word	0
+	.word	0
+	.word	0
+	.word	SVC_Handler
+	.word	DebugMon_Handler
+	.word	0
 	.word	__tx_PendSVHandler 
 	.word	__tx_SysTickHandler
 	.word	WWDG_IRQHandler
@@ -198,16 +227,25 @@ _vectors:
 	.word	RNG_IRQHandler
 	.word	FPU_IRQHandler
 
-  	.weak	NMI_Handler
+
+/*******************************************************************************
+*
+* Provide weak aliases for each Exception handler to the Default_Handler.
+* As they are weak aliases, any function with the same name will override
+* this definition.
+*
+*******************************************************************************/
+
+  .weak	NMI_Handler
 	.thumb_set NMI_Handler,Default_Handler
 
-  	.weak	HardFault_Handler
+  .weak	HardFault_Handler
 	.thumb_set HardFault_Handler,Default_Handler
 
-  	.weak	MemManage_Handler
+  .weak	MemManage_Handler
 	.thumb_set MemManage_Handler,Default_Handler
 
-  	.weak	BusFault_Handler
+  .weak	BusFault_Handler
 	.thumb_set BusFault_Handler,Default_Handler
 
 	.weak	UsageFault_Handler
@@ -224,7 +262,7 @@ _vectors:
 
 	.weak	SysTick_Handler
 	.thumb_set SysTick_Handler,Default_Handler
-  
+
 	.weak	WWDG_IRQHandler
 	.thumb_set WWDG_IRQHandler,Default_Handler
 
@@ -464,3 +502,4 @@ _vectors:
 	
 	.weak	FPU_IRQHandler
 	.thumb_set FPU_IRQHandler,Default_Handler
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

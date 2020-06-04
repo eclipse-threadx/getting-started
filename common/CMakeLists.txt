@@ -10,10 +10,16 @@ set(SOURCES
     azure/hmac_sha256.c
     azure/sas_token.c
 
-    networking.c
     sntp_client.c
     newlib_nano.c
 )
+
+# Allow to disable the common networking component
+if(NOT DEFINED DISABLE_COMMON_NETWORK) 
+    list(APPEND SOURCES
+        networking.c
+    )
+endif()
 
 add_library(${TARGET} OBJECT
     ${SOURCES}

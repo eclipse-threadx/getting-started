@@ -10,11 +10,9 @@
 
 #include "wifi.h"
 
-#define THREADX_PACKET_COUNT (20)
-#define THREADX_PACKET_SIZE  (1200) // Set the default value to 1200 since WIFI payload size (ES_WIFI_PAYLOAD_SIZE) is 1200
+#define THREADX_PACKET_COUNT 20
+#define THREADX_PACKET_SIZE  1200 // Set the default value to 1200 since WIFI payload size (ES_WIFI_PAYLOAD_SIZE) is 1200
 #define THREADX_POOL_SIZE    ((THREADX_PACKET_SIZE + sizeof(NX_PACKET)) * THREADX_PACKET_COUNT)
-
-#define WIFI_CONNECT_MAX_ATTEMPT_COUNT 5
 
 static UCHAR threadx_ip_pool[THREADX_POOL_SIZE];
 
@@ -22,16 +20,52 @@ NX_IP           nx_ip;
 NX_PACKET_POOL  nx_pool;
 NX_DNS          nx_dns_client;
 
+// WiFi firmware version required
+static const UINT wifi_required_version[] = { 3, 5, 2, 5 };
+
 // Print IPv4 address
 static void print_address(CHAR* preable, uint8_t address[4])
 {
     printf("\t%s: %d.%d.%d.%d\r\n", preable, address[0], address[1], address[2], address[3]);
 }
 
+static void checkWifiVersion()
+{
+    UINT status = 0;
+    UINT version[4];
+    CHAR moduleinfo[32];
+
+    WIFI_GetModuleID(moduleinfo);
+    printf("\tModule: %s\r\n", moduleinfo);
+
+    WIFI_GetModuleFwRevision(moduleinfo);
+    printf("\tFirmware revision: %s\r\n", moduleinfo);
+
+    status = sscanf(moduleinfo, "C%d.%d.%d.%d.STM", &version[0], &version[1], &version[2], &version[3]);
+
+    if (status <= 0)
+    {
+        printf("WARNING: Unable to decode WiFi firmware\r\n");
+        return;
+    }
+
+    for (int i = 0; i < 4; ++i)
+    {
+        if (version[i] > wifi_required_version[i])
+        {
+            break;
+        }
+        else if (version[i] < wifi_required_version[i])
+        {
+            printf("WARNING: The WiFi firmware is out of date\r\n");
+            break;
+        }
+    }
+}
+
 static bool wifi_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
 {
     WIFI_Ecn_t security_mode;
-    char moduleinfo[ES_WIFI_MAX_SSID_NAME_SIZE];
 
     switch (mode)
     {
@@ -65,11 +99,7 @@ static bool wifi_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
         return false;
     }
 
-    WIFI_GetModuleID(moduleinfo);
-    printf("\tModule: %s\r\n", moduleinfo);
-
-    WIFI_GetModuleFwRevision(moduleinfo);
-    printf("\tFW Revision: %s\r\n", moduleinfo);
+    checkWifiVersion();
     
     // Connect to the specified SSID
     int32_t wifiConnectCounter = 1;
@@ -77,14 +107,8 @@ static bool wifi_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
     while (WIFI_Connect(ssid, password, security_mode) != WIFI_STATUS_OK)
     {
         printf("\tWiFi is unable connect to '%s', attempt = %ld\r\n", ssid, wifiConnectCounter++);
+        
         HAL_Delay(1000);
-
-        // Max number of attempts
-        if (wifiConnectCounter == WIFI_CONNECT_MAX_ATTEMPT_COUNT)
-        {
-            printf("ERROR: WiFi is unable to connected to the '%s'\r\n", ssid);
-            return false;
-        }
     }
 
     printf("SUCCESS: WiFi connected to %s\r\n\r\n", ssid);
