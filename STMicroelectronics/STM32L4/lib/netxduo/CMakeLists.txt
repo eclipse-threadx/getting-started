@@ -432,8 +432,7 @@ set(SOURCES
     src/nx_udp_socket_unbind.c
     src/nx_utility.c
 
-	addons/dhcp/nxd_dhcp_client.c
-	addons/dns/nxd_dns.c
+    addons/dns/nxd_dns.c
     addons/sntp/nxd_sntp_client.c
     addons/mqtt/nxd_mqtt_client.c
 )
