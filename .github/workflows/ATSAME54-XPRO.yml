@@ -40,6 +40,8 @@ jobs:
 
       - name: Install Ninja
         uses: seanmiddleditch/gha-setup-ninja@v1
+        with:
+          version: '1.10.0'        
 
       - name: Build project
         run: |
