@@ -280,6 +280,12 @@ You can debug the firmware application in VS Code using [OpenOCD](http://openocd
 
 1. It will first flash the firmware onto the DevKit and start running it and stopped at `main()`. Press `F5` again or select continue to run the app.
 
+    > If you get the error: *"arm-none-eabi-gdb: error while loading shared libraries: libncurses.so.5: cannot open shared object file: No such file or directory"*, it is due to the GDB has dependency on `libncurses` v5 but you may have a higher version of it. To solve this:
+    > ```bash
+    > ln -s /lib/x86_64-linux-gnu/libncurses.so.6.2 /lib/x86_64-linux-gnu/libncurses.so.5
+    > ln -s /lib/x86_64-linux-gnu/libncurses.so.6.2 /lib/x86_64-linux-gnu/libtinfo.so.5
+    > ```
+
 View [Debug C++ in Visual Studio Code](https://code.visualstudio.com/docs/cpp/cpp-debug) to learn debugging in VS Code.
 
 ![Debugging](./media/debugging.png)
