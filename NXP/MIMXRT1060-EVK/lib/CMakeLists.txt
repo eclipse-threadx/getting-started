@@ -12,8 +12,8 @@ set(TX_USER_FILE "${CMAKE_CURRENT_LIST_DIR}/threadx/tx_user.h" CACHE STRING "Ena
 set(NX_USER_FILE "${CMAKE_CURRENT_LIST_DIR}/netxduo/nx_user.h" CACHE STRING "Enable NX user configuration")
 set(NXD_ENABLE_FILE_SERVERS OFF CACHE BOOL "Disable fileX dependency by netxduo")
 
-add_subdirectory(${GSG_BASE_DIR}/common common)
-add_subdirectory(${GSG_BASE_DIR}/extern/threadx threadx)
-add_subdirectory(${GSG_BASE_DIR}/extern/netxduo netxduo)
+add_subdirectory(${GSG_BASE_DIR}/src common_src)
+add_subdirectory(${GSG_BASE_DIR}/lib/threadx threadx)
+add_subdirectory(${GSG_BASE_DIR}/lib/netxduo netxduo)
 add_subdirectory(netx_driver)
 add_subdirectory(MIMXRT1060-evk)

@@ -1,6 +1,0 @@
-[submodule "extern/threadx"]
-	path = extern/threadx
-	url = https://github.com/azure-rtos/threadx.git
-[submodule "extern/netxduo"]
-	path = extern/netxduo
-	url = https://github.com/azure-rtos/netxduo.git

@@ -13,9 +13,9 @@ set(NX_USER_FILE "${CMAKE_CURRENT_LIST_DIR}/netxduo/nx_user.h" CACHE STRING "Ena
 set(NXD_ENABLE_FILE_SERVERS OFF CACHE BOOL "Disable fileX dependency by netxduo")
 
 set(DISABLE_COMMON_NETWORK true)
-add_subdirectory(${GSG_BASE_DIR}/common common)
+add_subdirectory(${GSG_BASE_DIR}/src common_src)
 
-add_subdirectory(${GSG_BASE_DIR}/extern/threadx threadx)
+add_subdirectory(${GSG_BASE_DIR}/lib/threadx threadx)
 
 # using a local copy of NetXDuo that has been customized for this boards WiFi module
 add_subdirectory(netxduo)
