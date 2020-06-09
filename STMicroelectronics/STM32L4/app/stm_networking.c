@@ -1,7 +1,7 @@
 /* Copyright (c) Microsoft Corporation.
    Licensed under the MIT License. */
 
-#include "networking.h"
+#include "stm_networking.h"
 
 #include "nx_api.h"
 #include "nx_secure_tls_api.h"

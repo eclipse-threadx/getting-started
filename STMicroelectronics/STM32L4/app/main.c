@@ -6,9 +6,9 @@
 #include "tx_api.h"
 
 #include "azure_iothub.h"
-#include "networking.h"
 #include "board_init.h"
 #include "sntp_client.h"
+#include "stm_networking.h"
 
 #include "azure_config.h"
 

@@ -10,7 +10,7 @@ set(SOURCES
     board_init.c
     console.c
     main.c
-    networking.c
+    stm_networking.c
 )
 
 function(create_target TARGET STARTUP LINKER)
