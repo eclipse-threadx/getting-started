@@ -210,7 +210,7 @@ int stm32_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
     }
 
     // Create an IP instance
-     status = nx_ip_create(&nx_ip, "NetX IP Instance 0",
+    status = nx_ip_create(&nx_ip, "NetX IP Instance 0",
         0, 0,
         &nx_pool, NULL, 
         NULL, 0, 
