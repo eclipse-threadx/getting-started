@@ -42,6 +42,7 @@ typedef struct AZURE_MQTT_STRUCT
     CHAR                             *azure_mqtt_device_id;
     CHAR                             *azure_mqtt_sas_key;
     CHAR                             *azure_mqtt_hub_hostname;
+    CHAR                             *azure_mqtt_model_id;
 
     CHAR                              azure_mqtt_username[AZURE_MQTT_USERNAME_SIZE];
     CHAR                              azure_mqtt_password[AZURE_MQTT_PASSWORD_SIZE];
@@ -72,7 +73,8 @@ UINT azure_mqtt_publish_float_telemetry(AZURE_MQTT *azure_mqtt, CHAR* label, flo
 UINT azure_mqtt_create(
     AZURE_MQTT *azure_mqtt, NX_IP *nx_ip, NX_PACKET_POOL *nx_pool, NX_DNS *nx_dns, 
     func_ptr_unix_time_get unix_time_get, 
-    CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas_key);
+    CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas_key,
+    CHAR *iot_model_id);
 UINT azure_mqtt_delete(AZURE_MQTT *azure_mqtt);
 
 UINT azure_mqtt_connect(AZURE_MQTT *azure_mqtt);
