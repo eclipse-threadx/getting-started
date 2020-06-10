@@ -74,6 +74,7 @@ static void mqtt_c2d_message(CHAR *key, CHAR *value)
         // 'false' - turn LED off
         // 'true'  - turn LED on
         bool arg = (strcmp(value, "true") == 0);
+        
         set_led_state(arg);
 
         // Update device twin property
