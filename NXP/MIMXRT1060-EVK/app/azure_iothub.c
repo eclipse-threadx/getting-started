@@ -13,7 +13,7 @@
 #include "networking.h"
 #include "sntp_client.h"
 
-#define IOT_MODEL_ID ""
+#define IOT_MODEL_ID "dtmi:microsoft:gsg;1"
 
 static AZURE_MQTT azure_mqtt;
 
@@ -74,7 +74,7 @@ static void mqtt_c2d_message(CHAR *key, CHAR *value)
         // 'false' - turn LED off
         // 'true'  - turn LED on
         bool arg = (strcmp(value, "true") == 0);
-        
+
         set_led_state(arg);
 
         // Update device twin property

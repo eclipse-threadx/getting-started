@@ -12,7 +12,7 @@
 #include "networking.h"
 #include "sntp_client.h"
 
-#define IOT_MODEL_ID ""
+#define IOT_MODEL_ID "dtmi:microsoft:gsg;1"
 
 static AZURE_MQTT azure_mqtt;
 
@@ -93,7 +93,6 @@ UINT azure_iothub_run(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas
     float temperature;
 
     // Create Azure MQTT
-//    status = azure_mqtt_create(&azure_mqtt, iot_hub_hostname, iot_device_id, iot_sas_key);
     status = azure_mqtt_create(&azure_mqtt, 
         &nx_ip, &nx_pool, &nx_dns_client,
         sntp_time_get,
