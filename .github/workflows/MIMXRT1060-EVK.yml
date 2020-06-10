@@ -35,7 +35,7 @@ jobs:
       - name: Install tools for linux
         run: |
           if [ "$RUNNER_OS" == "Linux" ]; then
-            apt install gcc-arm-none-eabi ninja-build cmake
+            sudo apt install gcc-arm-none-eabi ninja-build cmake
           fi
 
       - name: Build project
