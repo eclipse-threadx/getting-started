@@ -4,13 +4,13 @@ on:
   push:
     branches: [ master ]
     paths:
-      - 'common/**'
+      - 'core/**'
       - 'cmake/**'
       - 'NXP/MIMXRT106-EVK/**'
   pull_request:
     branches: [ master ]
     paths:
-      - 'common/**'
+      - 'core/**'
       - 'cmake/**'
       - 'NXP/MIMXRT106-EVK/**'
 

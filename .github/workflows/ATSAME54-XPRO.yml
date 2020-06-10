@@ -4,13 +4,13 @@ on:
   push:
     branches: [ master ]
     paths:
-      - 'common/**'
+      - 'core/**'
       - 'cmake/**'
       - 'Microchip/ATSAME54-XPRO/**'
   pull_request:
     branches: [ master ]
     paths:
-      - 'common/**'
+      - 'core/**'
       - 'cmake/**'
       - 'Microchip/ATSAME54-XPRO/**'
 

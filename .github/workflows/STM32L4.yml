@@ -4,13 +4,13 @@ on:
   push:
     branches: [ master ]
     paths:
-      - 'common/**'
+      - 'core/**'
       - 'cmake/**'
       - 'STMicroelectronics/STM32L4/**'
   pull_request:
     branches: [ master ]
     paths:
-      - 'common/**'
+      - 'core/**'
       - 'cmake/**'
       - 'STMicroelectronics/STM32L4/**'
 
