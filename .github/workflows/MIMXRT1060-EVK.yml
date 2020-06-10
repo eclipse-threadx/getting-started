@@ -6,13 +6,13 @@ on:
     paths:
       - 'core/**'
       - 'cmake/**'
-      - 'NXP/MIMXRT106-EVK/**'
+      - 'NXP/MIMXRT1060-EVK/**'
   pull_request:
     branches: [ master ]
     paths:
       - 'core/**'
       - 'cmake/**'
-      - 'NXP/MIMXRT106-EVK/**'
+      - 'NXP/MIMXRT1060-EVK/**'
 
 defaults:
   run:
