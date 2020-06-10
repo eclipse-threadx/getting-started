@@ -71,15 +71,9 @@ static void mqtt_c2d_message(CHAR *key, CHAR *value)
 {
     if (strcmp(key, "led0State") == 0)
     {
-        // Set LED state
-        // '0' - turn LED off
-        // '1' - turn LED on
-        int arg = atoi(value);
-        if (arg != 0 && arg != 1)
-        {
-            printf("Invalid LED state. Possible states are '0' - turn LED off or '1' - turn LED on\r\n");
-            return;
-        }
+        // 'false' - turn LED off
+        // 'true'  - turn LED on
+        bool arg = (strcmp(value, "true") == 0);
         set_led_state(arg);
 
         // Update device twin property
