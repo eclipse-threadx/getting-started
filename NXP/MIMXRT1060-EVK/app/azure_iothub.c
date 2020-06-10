@@ -136,16 +136,22 @@ static VOID connection_status_callback(NX_AZURE_IOT_HUB_CLIENT *hub_client_ptr, 
     }
 }
 
+static UINT unix_time_get(ULONG* unix_time)
+{
+    *unix_time = sntp_time_get();
+    return NX_SUCCESS;
+}
+
 UINT azure_iothub_run(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas_key)
 {
     UINT status;
     
     // Create Azure IoT handler
     if ((status = nx_azure_iot_create(&nx_azure_iot,
-        (UCHAR *)"Azure IoT",
-        &ip_0,
-        &main_pool,
-        &dns_client,
+        (UCHAR*)"Azure IoT",
+        &nx_ip,
+        &nx_pool,
+        &nx_dns_client,
         nx_azure_iot_thread_stack,
         sizeof(nx_azure_iot_thread_stack),
         NX_AZURE_IOT_THREAD_PRIORITY,
@@ -226,54 +232,49 @@ UINT azure_iothub_run(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas
     UINT buffer_length;
     UINT i = 0;
 
+    UCHAR* property = "temperature";
+    UCHAR* value = "28.5";
+
     while (true)
     {
-        /* Create a telemetry message packet. */
+        // Create a telemetry message packet.
         if ((status = nx_azure_iot_hub_client_telemetry_message_create(&iothub_client, &packet_ptr, NX_WAIT_FOREVER)))
         {
             printf("Telemetry message create failed!: error code = 0x%08x\r\n", status);
             break;
         }
 
-        /* Add properties to telemetry message. */
-        for (int index = 0; index < MAX_PROPERTY_COUNT; index++)
+        // Add properties to telemetry message.
+        status = nx_azure_iot_hub_client_telemetry_property_add(packet_ptr,
+            property, strlen(property),
+            value, strlen(value),
+            NX_WAIT_FOREVER);
+        if (status != NX_SUCCESS)
         {
-            if ((status = nx_azure_iot_hub_client_telemetry_property_add(packet_ptr,
-                (UCHAR *)"temperature", strlen("temperature"),
-                (UCHAR *)"28.5", strlen("28.5"),
-//                (UCHAR *)sample_properties[index][0],
-//                (USHORT)strlen(sample_properties[index][0]),
-//                (UCHAR *)sample_properties[index][1],
-//                (USHORT)strlen(sample_properties[index][1]),
-                NX_WAIT_FOREVER)))
-            {
-                printf("Telemetry property add failed!: error code = 0x%08x\r\n", status);
-                break;
-            }
-        }
-
-        if (status)
-        {
+            printf("Telemetry property add failed!: error code = 0x%08x\r\n", status);
             nx_azure_iot_hub_client_telemetry_message_delete(packet_ptr);
             break;
         }
 
         buffer_length = (UINT)snprintf(buffer, sizeof(buffer), "{\"Message ID\":%u}", i++);
-        if (nx_azure_iot_hub_client_telemetry_send(&iothub_client,
+        status = nx_azure_iot_hub_client_telemetry_send(&iothub_client,
             packet_ptr,
             (UCHAR *)buffer,
             buffer_length,
-            NX_WAIT_FOREVER))
+            NX_WAIT_FOREVER);
+        if (status != NX_SUCCESS)
         {
             printf("Telemetry message send failed!: error code = 0x%08x\r\n", status);
             nx_azure_iot_hub_client_telemetry_message_delete(packet_ptr);
             break;
         }
-        printf("Telemetry message send: %s.\r\n", buffer);
 
-        tx_thread_sleep(5 * NX_IP_PERIODIC_RATE);
+        printf("Telemetry message send: %s.\r\n", buffer);
+        tx_thread_sleep(10 * NX_IP_PERIODIC_RATE);
     }
     
+
+    nx_azure_iot_hub_client_direct_method_message_receive
 /*    UINT status;
     float temperature;
 

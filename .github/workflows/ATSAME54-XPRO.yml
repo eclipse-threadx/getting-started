@@ -28,6 +28,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          submodules: true
 
       # Get the ARM GCC compiler
       - name: Install arm-none-eabi-gcc

@@ -28,13 +28,18 @@ target_link_libraries(${TARGET}
     PUBLIC
         azrtos::threadx
         azrtos::netxduo
+        
+        az_noplatform 
+        az::core
+        az::iot::common
+        az::iot::hub
+
+        azrtos::nx_cloud
+        azrtos::azure_iot
+
         MIMXRT1060-evk
         netx_driver
         app_common
-
-        az_iot_hub
-        azrtos::nx_cloud
-        azrtos::azure_iot
 )
 
 target_link_options(${TARGET}
