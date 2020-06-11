@@ -126,7 +126,7 @@ UINT azure_iothub_run(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas
         azure_mqtt_publish_float_telemetry(&azure_mqtt, "temperature", temperature);
 
         // Send the compensated temperature as a device twin update
-        azure_mqtt_publish_float_property(&azure_mqtt, "temperature", temperature);
+        azure_mqtt_publish_float_property(&azure_mqtt, "currentTemperature", temperature);
 
         // Sleep for 10 seconds
         tx_thread_sleep(10 * TX_TIMER_TICKS_PER_SECOND);
