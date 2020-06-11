@@ -553,6 +553,10 @@ UINT azure_mqtt_connect(AZURE_MQTT *azure_mqtt)
     CHAR mqtt_subscribe_topic[100];
     NXD_ADDRESS server_ip;
 
+    printf("\tHub hostname: %s\r\n", azure_mqtt->azure_mqtt_hub_hostname);
+    printf("\tDevice id: %s\r\n", azure_mqtt->azure_mqtt_device_id);
+    printf("\tModel id: %s\r\n", azure_mqtt->azure_mqtt_model_id);
+
     // Create the username & password
     snprintf(azure_mqtt->azure_mqtt_username, AZURE_MQTT_USERNAME_SIZE, USERNAME, azure_mqtt->azure_mqtt_hub_hostname, azure_mqtt->azure_mqtt_device_id, azure_mqtt->azure_mqtt_model_id);
     
