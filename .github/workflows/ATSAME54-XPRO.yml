@@ -4,13 +4,13 @@ on:
   push:
     branches: [ master ]
     paths:
-      - 'common/**'
+      - 'core/**'
       - 'cmake/**'
       - 'Microchip/ATSAME54-XPRO/**'
   pull_request:
     branches: [ master ]
     paths:
-      - 'common/**'
+      - 'core/**'
       - 'cmake/**'
       - 'Microchip/ATSAME54-XPRO/**'
 
@@ -32,13 +32,9 @@ jobs:
           submodules: true
 
       # Get the ARM GCC compiler
-      - name: Install arm-none-eabi-gcc
-        uses: fiam/arm-none-eabi-gcc@v1
-        with:
-          release: '9-2019-q4'
-
-      - name: Install cmake
-        uses: lukka/get-cmake@latest
+      - name: Install tools for linux
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt install gcc-arm-none-eabi cmake
 
       - name: Install Ninja
         uses: seanmiddleditch/gha-setup-ninja@v1

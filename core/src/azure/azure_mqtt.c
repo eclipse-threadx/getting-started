@@ -13,7 +13,7 @@
 #include "azure/cert.h"
 #include "azure/sas_token.h"
 
-#define USERNAME                            "%s/%s/?api-version=2018-06-30"
+#define USERNAME                            "%s/%s/?api-version=2020-05-31-preview&digital-twin-model-id=%s"
 #define PUBLISH_TELEMETRY_TOPIC             "devices/%s/messages/events/"
 
 #define DEVICE_MESSAGE_BASE                 "messages/devicebound/"
@@ -465,7 +465,8 @@ UINT azure_mqtt_publish_string_property(AZURE_MQTT *azure_mqtt, CHAR* label, CHA
 UINT azure_mqtt_create(
     AZURE_MQTT *azure_mqtt, NX_IP *nx_ip, NX_PACKET_POOL *nx_pool, NX_DNS *nx_dns, 
     func_ptr_unix_time_get unix_time_get, 
-    CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas_key)
+    CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas_key,
+    CHAR *iot_model_id)
 {
     UINT status;
 
@@ -489,6 +490,7 @@ UINT azure_mqtt_create(
     azure_mqtt->azure_mqtt_device_id = iot_device_id;
     azure_mqtt->azure_mqtt_sas_key = iot_sas_key;
     azure_mqtt->azure_mqtt_hub_hostname = iot_hub_hostname;
+    azure_mqtt->azure_mqtt_model_id = iot_model_id;
 
     status = nxd_mqtt_client_create(
         &azure_mqtt->nxd_mqtt_client, "MQTT client",
@@ -551,8 +553,12 @@ UINT azure_mqtt_connect(AZURE_MQTT *azure_mqtt)
     CHAR mqtt_subscribe_topic[100];
     NXD_ADDRESS server_ip;
 
+    printf("\tHub hostname: %s\r\n", azure_mqtt->azure_mqtt_hub_hostname);
+    printf("\tDevice id: %s\r\n", azure_mqtt->azure_mqtt_device_id);
+    printf("\tModel id: %s\r\n", azure_mqtt->azure_mqtt_model_id);
+
     // Create the username & password
-    snprintf(azure_mqtt->azure_mqtt_username, AZURE_MQTT_USERNAME_SIZE, USERNAME, azure_mqtt->azure_mqtt_hub_hostname, azure_mqtt->azure_mqtt_device_id);
+    snprintf(azure_mqtt->azure_mqtt_username, AZURE_MQTT_USERNAME_SIZE, USERNAME, azure_mqtt->azure_mqtt_hub_hostname, azure_mqtt->azure_mqtt_device_id, azure_mqtt->azure_mqtt_model_id);
     
     if (!create_sas_token(
         azure_mqtt->azure_mqtt_sas_key, strlen(azure_mqtt->azure_mqtt_sas_key),

@@ -1,0 +1,26 @@
+{
+    "@context": "dtmi:dtdl:context;2",
+    "@id": "dtmi:microsoft:gsg;1",
+    "@type": "Interface",
+    "displayName": "gsg",
+    "contents": [
+        {
+            "@type": "Property",
+            "name": "currentTemperature",
+            "schema": "double"
+        },
+        {
+            "@type": "Telemetry",
+            "name": "temperature",
+            "schema": "double"
+        },
+        {
+            "@type": "Command",
+            "name": "set_led_state",
+            "request": {
+                "name": "level",
+                "schema": "boolean"
+            }
+        }
+    ]
+}
