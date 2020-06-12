@@ -1,14 +1,14 @@
-<h1>Getting started with the NXP MIMXRT1060-EVK Evaluation kit</h1>
+<h1>Getting started with the STMicroelectronics B-L475E-IOT01A / B-L4S5I-IOTOA1 Discovery kits</h1>
 
 **Total completion time**:  30 minutes
 
-In this tutorial you use Azure RTOS to connect the NXP MIMXRT1060-EVK Evaluation kit (hereafter, the NXP EVK) to Azure IoT.  The article is part of the series [Getting Started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824). The series introduces device developers to Azure RTOS, and shows how to connect several several device evaluation kits to Azure IoT.
+In this tutorial you use Azure RTOS to connect the either the STMicroelectronics B-L475E-IOT01A or B-L4S5I-IOT01A Discovery kit (hereafter, the STM DevKit) to Azure IoT. The article is part of the series [Getting started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824). The series introduces device developers to Azure RTOS, and shows how to connect several device evaluation kits to Azure IoT.
 
 You will complete the following tasks:
 
-* Install a set of embedded development tools for programming the NXP EVK in C
-* Build an image and flash it onto the NXP EVK
-* Create an Azure IoT hub and securely connect the NXP EVK to it
+* Install a set of embedded development tools for programming the STM DevKit in C
+* Build an image and flash it onto the STM DevKit
+* Create an Azure IoT hub and securely connect the STM DevKit to it
 * Use Azure CLI to view device telemetry, view properties, and invoke cloud-to-device methods
 
 ## Prerequisites
@@ -18,10 +18,13 @@ You will complete the following tasks:
 * [Git](https://git-scm.com/downloads)
 * Hardware
 
-    > * The [NXP MIMXRT1060-EVK](https://www.nxp.com/design/development-boards/i-mx-evaluation-and-development-boards/mimxrt1060-evk-i-mx-rt1060-evaluation-kit:MIMXRT1060-EVK) (NXP EVK)
+    > * STM DevKit, either of:
+    >    * [B-L475E-IOT01A](https://www.st.com/en/evaluation-tools/b-l475e-iot01a.html)
+    >    * [B-L4S5I-IOT01A](https://www.st.com/en/evaluation-tools/b-l4s5i-iot01a.html)
+    > * Wi-Fi 2.4 GHz
     > * USB 2.0 A male to Micro USB male cable
-    > * Wired Ethernet access
-    > * Ethernet cable
+
+> Note: Make sure the latest WiFi firmware is installed. The latest WiFi firmware can be downloaded from the [STMicroelectronics website](https://www.st.com/resource/en/utilities/inventek_fw_updater.zip). This guide requires version 3.5.2.5.STM or later.
 
 ## Prepare the development environment
 
@@ -39,7 +42,7 @@ git clone --recursive https://github.com/azure-rtos/getting-started
 
 ### Install the tools
 
-The cloned repo contains a setup script that installs and configures the first set of required tools. If you installed these tools in another tutorial in the getting started guide, you don't need to do it again.
+The cloned repo contains a setup script that installs and configures the required tools. If you installed these tools in another tutorial in the getting started guide, you don't need to do it again.
 
 > Note: The setup script installs the following tools:
 > * [GCC](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm): Compile
@@ -47,7 +50,7 @@ The cloned repo contains a setup script that installs and configures the first s
 > * [Ninja](https://ninja-build.org): Build
 > * [Termite](https://www.compuphase.com/software_termite.htm): Monitor
 
-To install the tools:
+To run the setup script:
 
 1. Open a console app with administrator privileges, go to the following path in the repo, and run the setup script named *get-toolchain.bat*. If you use File Explorer, right-click the file and select **Run As Administrator**.
 
@@ -120,10 +123,10 @@ To register a device:
 
     *YourIotHubName*. Replace this placeholder below with the name you chose for your IoT hub.
 
-    *MyNXPDevice*. You can use this name directly for the device in CLI commands in this tutorial. Optionally, use a different name.
+    *MySTMDevice*. You can use this name directly for the device in CLI commands in this tutorial. Optionally, use a different name.
 
     ```azurecli
-    az iot hub device-identity create --device-id MyNXPDevice --hub-name {YourIoTHubName}
+    az iot hub device-identity create --device-id MySTMDevice --hub-name {YourIoTHubName}
     ```
 
 1. After the device is created, view the JSON output in the console, and copy the `deviceId` and `primaryKey` values to use in a later step.
@@ -136,15 +139,19 @@ Confirm that you have the copied the following values from the JSON output to us
 
 ## Prepare the device
 
-To connect the NXP EVK to Azure, you'll modify a configuration file for the Azure IoT settings, rebuild the image, and flash the image to the device.
+To connect the STM DevKit to Azure, you'll modify a configuration file for Wi-Fi and Azure IoT settings, rebuild the image, and flash the image to the device.
 
 ### Add configuration
 
-1. Open the following file in a text editor:
+1. In a text editor, edit the file *getting-started\STMicroelectronics\STM32L4\app\azure_config.h* to set the Wi-Fi constants to the following values from your local environment.
 
-    > *getting-started\NXP\MIMXRT1060-EVK\app\azure_config.h*
+    |Constant name|Value|
+    |-------------|-----|
+    |`WIFI_SSID` |{*Your Wi-Fi ssid*}|
+    |`WIFI_PASSWORD` |{*Your Wi-Fi password*}|
+    |`WIFI_MODE` |{*One of the enumerated Wi-Fi mode values in the file.*}|
 
-1. Set the Azure IoT device information constants to the values that you saved after you created Azure resources.
+1. Edit the same file to set the Azure IoT device information constants to the values that you saved after you created Azure resources.
 
     |Constant name|Value|
     |-------------|-----|
@@ -152,30 +159,31 @@ To connect the NXP EVK to Azure, you'll modify a configuration file for the Azur
     |`IOT_DEVICE_ID` |{*Your deviceID value*}|
     |`IOT_PRIMARY_KEY` |{*Your primaryKey value*}|
 
-1. Save and close the file.
-
 ### Build the image
 
 In your console or in File Explorer, run the script *rebuild.bat* at the following path to build the image:
 
-> *getting-started\NXP\MIMXRT1060-EVK\tools\rebuild.bat*
+> *getting-started\STMicroelectronics\STM32L4\tools\rebuild.bat*
 
-After the build completes, confirm that a binary file was created in the following path:
+After the build completes, confirm that the binary files were created in the following path:
 
-> *getting-started\NXP\MIMXRT1060-EVK\build\app\mimxrt1060_azure_iot.bin*
+> *getting-started\STMicroelectronics\STM32L4\build\app\stm32l475_azure_iot.bin*
+
+> *getting-started\STMicroelectronics\STM32L4\build\app\stm32l4S5_azure_iot.bin*
 
 ### Flash the image
 
-1. On the NXP EVK, locate the **Reset** button, the Micro USB port, and the Ethernet port. You use these components in the following steps.
+1. On the STM DevKit MCU, locate the **Reset** button, and the Micro USB port which is labeled **USB STLink**. You use these components in the following steps. Both are highlighted in the following picture:
 
-    ![NXP EVK board](media/nxp-evk-board.png)
+    ![STM DevKit device reset button and micro usb port](media/stm-devkit-board.png)
 
-1. Connect the Micro USB cable to the Micro USB port on the NXP EVK, and then connect it to your computer. After the device powers up, a solid green LED shows the power status.
-1. In File Explorer, find the NXP EVK device connected to your computer.
-1. Copy the image file *mimxrt1060_azure_iot.bin* that you created in the previous section, and paste it into the root folder of the NXP EVK. The flashing process starts automatically.
+1. Connect the Micro USB cable to the Micro USB port on the STM DevKit, and then connect it to your computer.
 
-    > Note: During the flashing process, a red LED blinks rapidly on the NXP EVK. The process completes in a few seconds without further notification.
-1. Use the Ethernet cable to connect the NXP EVK to an Ethernet port.
+    > Note: For detailed setup information about the STM DevKit, see the instructions on the packaging, or see [B-L475E-IOT01A Resources](https://www.st.com/en/evaluation-tools/b-l475e-iot01a.html#resource) / [B-L4S5I-IOT01A Resources](https://www.st.com/en/evaluation-tools/b-l4s5i-iot01a.html#resource).
+1. In File Explorer, find the STM DevKit device connected to your computer.
+1. Copy the binary file for your Dev Kit that you created in the previous section, and paste it into the root folder of the STM DevKit. The flashing process starts automatically.
+
+    > Note: During the flashing process, a LED rapidly toggles between red and green on the STM DevKit. The process completes in a few seconds without further notification.
 
 ### Confirm device connection details
 
@@ -186,12 +194,11 @@ You can use the **Termite** utility to monitor communication and confirm that yo
 1. Select **Settings**.
 1. In the **Serial port settings** dialog, check the following settings and update if needed:
     * **Baud rate**: 115,200
-    * **Port**: The port that your NXP EVK is connected to. If there are multiple port options in the dropdown, you can find the correct port to use. Open Windows **Device Manager**, and view **Ports** to identify which port to use.
+    * **Port**: The port that your STM DevKit is connected to. If there are multiple port options in the dropdown, you can find the correct port to use. Open Windows **Device Manager**, and view **Ports** to identify which port to use.
 
     ![Termite settings](media/termite-settings.png)
-
 1. Select OK.
-1. Press the **Reset** button on the device.
+1. Press the **Reset** button on the device. The button is black and is labeled on the device.
 1. In the **Termite** console, check the following checkpoint values to confirm that the device is initialized and connected to Azure IoT.
 
     |Checkpoint name|Output value|
@@ -205,8 +212,7 @@ You can use the **Termite** utility to monitor communication and confirm that yo
 
     ```
     Initializing DHCP
-    	IP address: 192.168.1.132
-    	Mask: 255.255.255.0
+    	IP address: 192.168.1.131
     	Gateway: 192.168.1.1
     SUCCESS: DHCP initialized
     
@@ -215,19 +221,16 @@ You can use the **Termite** utility to monitor communication and confirm that yo
     SUCCESS: DNS client initialized
     
     Initializing SNTP client
-    SNTP time update: May 15, 2020 15:6:45.337 UTC 
+    SNTP time update: May 15, 2020 14:43:16.228 UTC 
     SUCCESS: SNTP initialized
     
     Initializing MQTT client
     SUCCESS: MQTT client initialized
     
-    Sending telemetry
-    Sending message {"temperature": 28.50}
+    Time 1589553799
+    Starting MQTT thread
     Sending device twin update with float value
-    Sending message {"temperature": 28.50}
-    [Received] topic = $iothub/twin/res/204/?$rid=1&$version=40, message = 
-    Processed device twin update response with status=204, id=1
-    Time 1589555217
+    Sending message {"temperature": 29.97}
     ```
 
 Keep Termite open to monitor device output in the following steps.
@@ -241,17 +244,17 @@ You can use Azure CLI to inspect the flow of telemetry from the device to Azure 
     > Note: The first time you run this command after installing, Azure CLI might prompt to install a *Dependency update (uamqp 1.2) required for IoT extension version: 0.9.1*. Select *y* to install the update. If the CLI prompts you to install another extension named *azure-cli-iot-ext*, do not install it. The current extension to use is the *azure-iot* extension that you installed previously.
 
     ```azurecli
-    az iot hub monitor-events --device-id MyNXPDevice --hub-name {YourIoTHubName}
+    az iot hub monitor-events --device-id MySTMDevice --hub-name {YourIoTHubName}
     ```
 
-1. To force the NXP EVK to reconnect and resend telemetry, press **Reset**.
+1. To force the STM DevKit to reconnect and send telemetry, press **Reset**.
 
     View the telemetry in the console's JSON output.
 
     ```json
     {
         "event": {
-            "origin": "MyNXPDevice",
+            "origin": "MySTMDevice",
             "payload": "{\"temperature\": 25}"
         }
     }
@@ -280,19 +283,18 @@ Using Azure CLI, you can inspect the properties on your Azure resources, includi
     "cloudToDeviceMessageCount": 0,
     "connectionState": "Connected",
     "deviceEtag": "Njc0NTAzODkw",
-    "deviceId": "MyNXPDevice",
+    "deviceId": "MySTMDevice",
     ```
 
 1. Run the [az iot hub device-identity show](https://docs.microsoft.com/cli/azure/ext/azure-cli-iot-ext/iot/hub/device-identity?view=azure-cli-latest#ext-azure-cli-iot-ext-az-iot-hub-device-identity-show) command to view the properties of your device.
 
     ```azurecli
-    az iot hub device-identity show --device-id MyNXPDevice --hub-name {YourIoTHubName}
+    az iot hub device-identity show --device-id MySTMDevice --hub-name {YourIoTHubName}
     ```
 
 ## Call a direct method on the device
 
 You can use the Azure CLI to call a direct method that you have implemented on your device. Direct methods have a name, and can optionally have a JSON payload, configurable connection, and method timeout. In this section, you call a method that enables you to turn an LED on or off.
-    > Note: The direct method in this section is not implemented on the NXP EVK. The following method call returns simulated output in the terminal, but no LED on the board will be enabled.
 
 To call a method to turn the LED on:
 
@@ -300,7 +302,7 @@ To call a method to turn the LED on:
 
     <!-- Inline code tag and CSS to wrap long code lines. -->
     <code style="white-space : pre-wrap !important;">
-    az iot hub invoke-device-method --device-id MyNXPDevice --method-name set_led_state --method-payload true --hub-name {YourIoTHubName}
+    az iot hub invoke-device-method --device-id MySTMDevice --method-name set_led_state --method-payload true --hub-name {YourIoTHubName}
     </code>
 
     The CLI console shows the status of your method call on the device, where `204` indicates success.
@@ -312,21 +314,24 @@ To call a method to turn the LED on:
     }
     ```
 
+1. Check your device to confirm the LED state.
+
 1. View the Termite terminal to confirm the output messages:
 
     ```json
-    Received direct method=set_led_state, id=3, message=1
+    Received direct method=set_led_state, id=1, message=1
     LED is turned ON
     Sending device twin update with bool value
     Sending message {"led0State": 1}
     Direct method=set_led_state invoked
+
     ```
 
 ## Clean up resources
 
 If you no longer need the Azure resources created in this tutorial, you can use the Azure CLI to delete them.
 
-If you continue to another tutorial in this Getting Started guide, you can keep the resources you've already created and reuse them.
+If you continue to another tutorial in this getting started guide, you can keep the resources you've already created and reuse them.
 
 > **Important**: Deleting a resource group is irreversible. The resource group and all the resources contained in it are permanently deleted. Make sure that you do not accidentally delete the wrong resource group or resources.
 
@@ -345,7 +350,7 @@ To delete a resource group by name:
 
 ## Next Steps
 
-In this tutorial you built a custom image that contains Azure RTOS sample code, and then flashed the image to the NXP EVK device. You also used the Azure CLI to create Azure resources, connect the NXP EVK securely to Azure, view telemetry, and send messages.
+In this tutorial you built a custom image that contains Azure RTOS sample code, and then flashed the image to the STM DevKit device. You also used the Azure CLI to create Azure resources, connect the STM DevKit securely to Azure, view telemetry, and send messages.
 
 * For device developers, the suggested next step is to see the other tutorials in the series [Getting started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824).
 * If you have issues getting your device to initialize or connect after following the steps in this guide, see [Troubleshooting](../../docs/troubleshooting.md).
