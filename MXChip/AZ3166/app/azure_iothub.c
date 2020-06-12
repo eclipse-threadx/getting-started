@@ -9,6 +9,8 @@
 #include "networking.h"
 #include "sntp_client.h"
 
+#define IOT_MODEL_ID "dtmi:microsoft:gsg;1"
+
 static AZURE_MQTT azure_mqtt;
 
 static void mqtt_device_twin_desired_prop(CHAR *message)
@@ -27,7 +29,8 @@ UINT azure_iothub_run(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas
     status = azure_mqtt_create(&azure_mqtt, 
         &nx_ip, &nx_pool[0], &nx_dns_client,
         sntp_time_get,
-        iot_hub_hostname, iot_device_id, iot_sas_key);
+        iot_hub_hostname, iot_device_id, iot_sas_key,
+        IOT_MODEL_ID);
     if (status != NXD_MQTT_SUCCESS)
     {
         printf("Error: Failed to create Azure MQTT (0x%02x)\r\n", status);
