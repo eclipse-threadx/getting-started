@@ -1,4 +1,4 @@
-name: ATSAME54-XPRO
+name: STM32L4
 
 on:
   push:
@@ -6,17 +6,17 @@ on:
     paths:
       - 'core/**'
       - 'cmake/**'
-      - 'Microchip/ATSAME54-XPRO/**'
+      - 'STMicroelectronics/STM32L4/**'
   pull_request:
     branches: [ master ]
     paths:
       - 'core/**'
       - 'cmake/**'
-      - 'Microchip/ATSAME54-XPRO/**'
+      - 'STMicroelectronics/STM32L4/**'
 
 defaults:
   run:
-    working-directory: Microchip/ATSAME54-XPRO
+    working-directory: STMicroelectronics/STM32L4
 
 jobs:
   build:
@@ -43,3 +43,4 @@ jobs:
         run: |
           cmake -Bbuild -GNinja -DCMAKE_TOOLCHAIN_FILE="../../cmake/arm-gcc-cortex-m4.cmake" 
           cmake --build build
+          

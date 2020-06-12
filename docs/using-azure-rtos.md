@@ -33,9 +33,9 @@ The getting started guide repository is arranged in the following folder and fil
         |   |--- azure_config.h
         |   |--- azure_iothub.c
         |   |--- board_init.c
-        |       |--- startup/
-        |           |--- startup.s
-        |           |--- linker.ld
+        |   |--- startup/
+        |       |--- startup.s
+        |       |--- linker.ld
         |--- lib/
             |--- threadx/
             |   |--- tx_user.h

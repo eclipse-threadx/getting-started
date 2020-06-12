@@ -36,7 +36,7 @@ Clone the following repo to download all sample device code, setup scripts, and 
 To clone the repo, run the following command:
 
 ```
-git clone https://github.com/azure-rtos/getting-started
+git clone --recursive https://github.com/azure-rtos/getting-started
 ```
 
 ### Install the tools
@@ -339,7 +339,7 @@ To call a method to turn the LED on:
 
     <!-- Inline code tag and CSS to wrap long code lines. -->
     <code style="white-space : pre-wrap !important;">
-    az iot hub invoke-device-method --device-id MyMicrochipDevice --method-name set_led_state --method-payload 1 --hub-name {YourIoTHubName}
+    az iot hub invoke-device-method --device-id MyMicrochipDevice --method-name set_led_state --method-payload true --hub-name {YourIoTHubName}
     </code>
 
     The CLI console shows the status of your method call on the device, where `204` indicates success.
