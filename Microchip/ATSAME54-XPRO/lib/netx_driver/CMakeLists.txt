@@ -1,16 +1,17 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-set(TARGET netxdriver)
-
 set(SOURCES
     src/nx_driver_same54.c
     src/nx_driver_same54.h
-    src/nx_driver_same54_low_level.s
+    src/nx_driver_same54_low_level.S
 )
 
+set(TARGET netxdriver)
+
 add_library(${TARGET} OBJECT
-    ${SOURCES})
+    ${SOURCES}
+)
 
 target_include_directories(${TARGET}
     PUBLIC

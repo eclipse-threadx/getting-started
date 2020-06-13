@@ -20,11 +20,10 @@
 @/**************************************************************************/
 @/**************************************************************************/
 @
+@#define TX_SOURCE_CODE
 @
 @
-@
-    .global  _tx_thread_context_save
-    .global  _tx_thread_context_restore
+
     .global  nx_driver_same54_ethernet_isr
 
     .text
@@ -69,7 +68,7 @@
 @/*                                                                        */
 @/**************************************************************************/
     .global  GMAC_Handler
-    .global   __nx_driver_same54_ethernet_isr 
+    .global  __nx_driver_same54_ethernet_isr
     .thumb_func
 GMAC_Handler: 
     .thumb_func
