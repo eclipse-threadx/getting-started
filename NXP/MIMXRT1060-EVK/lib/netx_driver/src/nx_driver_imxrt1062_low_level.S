@@ -40,7 +40,7 @@
 @/*                                                                        */ 
 @/*  DESCRIPTION                                                           */ 
 @/*                                                                        */ 
-@/*    This function is responsible for fielding the etherent interrupts   */ 
+@/*    This function is responsible for fielding the ethernet interrupts   */ 
 @/*    of the MIMXRT1060.                                                  */ 
 @/*                                                                        */ 
 @/*  INPUT                                                                 */ 
@@ -71,13 +71,13 @@
     .thumb_func
 __nx_ENET_IRQHandler:
 ENET_IRQHandler:
-    PUSH    {lr}
+    PUSH    {r0, lr}
 #ifdef TX_ENABLE_EXECUTION_CHANGE_NOTIFY
-    BL      _tx_execution_isr_enter             ; Call the ISR enter function
+    BL      _tx_execution_isr_enter             @ Call the ISR enter function
 #endif   
     BL      nx_driver_imx_ethernet_isr
 #ifdef TX_ENABLE_EXECUTION_CHANGE_NOTIFY
-    BL      _tx_execution_isr_exit              ; Call the ISR exit function
+    BL      _tx_execution_isr_exit              @ Call the ISR exit function
 #endif
-    POP     {lr}
+    POP     {r0, lr}
     BX      lr

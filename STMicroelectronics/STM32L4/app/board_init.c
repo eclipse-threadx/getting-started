@@ -298,8 +298,6 @@ void STM32_Error_Handler(void)
     }
 }
 
-
-
 /**
  * @brief  Configures UART interface
  * @param  None

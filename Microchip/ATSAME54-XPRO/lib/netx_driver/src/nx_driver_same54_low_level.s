@@ -74,11 +74,15 @@
 GMAC_Handler: 
     .thumb_func
 __nx_driver_same54_ethernet_isr:
-    PUSH    {lr}
-    BL      _tx_thread_context_save
+    PUSH    {r0, lr}
+#ifdef TX_ENABLE_EXECUTION_CHANGE_NOTIFY
+    BL      _tx_execution_isr_enter             @ Call the ISR enter function
+#endif
+
     BL      nx_driver_same54_ethernet_isr
-    BL      _tx_thread_context_restore
-    POP     {lr}
-    BX      lr
 
-
+#ifdef TX_ENABLE_EXECUTION_CHANGE_NOTIFY
+    BL      _tx_execution_isr_exit              @ Call the ISR exit function
+#endif
+    POP     {r0, lr}
+    BX      LR
