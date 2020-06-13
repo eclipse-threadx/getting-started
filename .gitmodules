@@ -7,6 +7,3 @@
 [submodule "core/lib/azure-iot-preview"]
 	path = core/lib/azure-iot-preview
 	url = https://github.com/azure-rtos/azure-iot-preview
-[submodule "core/lib/azure-sdk-for-c"]
-	path = core/lib/azure-sdk-for-c
-	url = https://github.com/Azure/azure-sdk-for-c.git

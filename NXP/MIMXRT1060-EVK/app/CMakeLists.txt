@@ -9,6 +9,7 @@ set(SOURCES
     startup/tx_initialize_low_level.S
 
     azure_iothub.c
+    rtos_iot.c
     board_init.c
     console.c
     main.c
@@ -29,11 +30,6 @@ target_link_libraries(${TARGET}
         azrtos::threadx
         azrtos::netxduo
         
-        az_noplatform 
-        az::core
-        az::iot::common
-        az::iot::hub
-
         azrtos::nx_cloud
         azrtos::azure_iot
 

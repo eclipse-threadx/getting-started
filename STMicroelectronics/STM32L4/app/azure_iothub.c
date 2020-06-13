@@ -12,6 +12,8 @@
 #include "networking.h"
 #include "sntp_client.h"
 
+#define IOT_MODEL_ID "dtmi:microsoft:gsg;1"
+
 static AZURE_MQTT azure_mqtt;
 
 static void set_led_state(bool level)
@@ -34,18 +36,9 @@ static void mqtt_direct_method(CHAR *direct_method_name, CHAR *message, MQTT_DIR
     int status = 501;
     if (strcmp(direct_method_name, "set_led_state") == 0)
     {
-        // Set LED state
-        // '0' - turn LED off
-        // '1' - turn LED on
-        int arg = atoi(message);
-        if (arg != 0 && arg != 1)
-        {
-            printf("Invalid LED state. Possible states are '0' - turn LED off or '1' - turn LED on\r\n");
-
-            response->status = 500;
-            strcpy(response->message, "{}");
-            return;
-        }
+        // 'false' - turn LED off
+        // 'true'  - turn LED on
+        bool arg = (strcmp(message, "true") == 0);
 
         set_led_state(arg);
         
@@ -71,15 +64,10 @@ static void mqtt_c2d_message(CHAR *key, CHAR *value)
 {
     if (strcmp(key, "led0State") == 0)
     {
-        // Set LED state
-        // '0' - turn LED off
-        // '1' - turn LED on
-        int arg = atoi(value);
-        if (arg != 0 && arg != 1)
-        {
-            printf("Invalid LED state. Possible states are '0' - turn LED off or '1' - turn LED on\r\n");
-            return;
-        }
+        // 'false' - turn LED off
+        // 'true'  - turn LED on
+        bool arg = (strcmp(value, "true") == 0);
+
         set_led_state(arg);
 
         // Update device twin property
@@ -105,11 +93,11 @@ UINT azure_iothub_run(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas
     float temperature;
 
     // Create Azure MQTT
-//    status = azure_mqtt_create(&azure_mqtt, iot_hub_hostname, iot_device_id, iot_sas_key);
     status = azure_mqtt_create(&azure_mqtt, 
         &nx_ip, &nx_pool, &nx_dns_client,
         sntp_time_get,
-        iot_hub_hostname, iot_device_id, iot_sas_key);
+        iot_hub_hostname, iot_device_id, iot_sas_key,
+        IOT_MODEL_ID);
     if (status != NXD_MQTT_SUCCESS)
     {
         printf("Error: Failed to create Azure MQTT (0x%02x)\r\n", status);
@@ -138,7 +126,7 @@ UINT azure_iothub_run(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas
         azure_mqtt_publish_float_telemetry(&azure_mqtt, "temperature", temperature);
 
         // Send the compensated temperature as a device twin update
-        azure_mqtt_publish_float_property(&azure_mqtt, "temperature", temperature);
+        azure_mqtt_publish_float_property(&azure_mqtt, "currentTemperature", temperature);
 
         // Sleep for 10 seconds
         tx_thread_sleep(10 * TX_TIMER_TICKS_PER_SECOND);

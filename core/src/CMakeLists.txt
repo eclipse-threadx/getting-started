@@ -4,12 +4,12 @@
 set(TARGET app_common)
 
 set(SOURCES
-    azure/azure_mqtt.c
-    azure/cert.c
-    azure/sha256.c
-    azure/hmac_sha256.c
-    azure/sas_token.c
+    iot_mqtt/iot_mqtt.c
+    iot_mqtt/sha256.c
+    iot_mqtt/hmac_sha256.c
+    iot_mqtt/sas_token.c
 
+    cert.c
     sntp_client.c
     newlib_nano.c
 )

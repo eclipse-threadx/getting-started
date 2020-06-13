@@ -8,6 +8,7 @@
 #include "nx_driver_imxrt1062.h"
 
 #include "azure_iothub.h"
+#include "rtos_iot.h"
 #include "board_init.h"
 #include "networking.h"
 #include "sntp_client.h"
@@ -53,7 +54,14 @@ void azure_thread_entry(ULONG parameter)
     }
 
     // Start the Azure IoT hub thread
-    if (!azure_iothub_run(IOT_HUB_HOSTNAME, IOT_DEVICE_ID, IOT_PRIMARY_KEY))
+//    if (!azure_iothub_run(IOT_HUB_HOSTNAME, IOT_DEVICE_ID, IOT_PRIMARY_KEY))
+//    {
+//        printf("Failed to start Azure IoTHub\r\n");
+//        return;
+//    }
+
+    // Start the Azure IoT hub thread
+    if (!rtos_iot_run(IOT_HUB_HOSTNAME, IOT_DEVICE_ID, IOT_PRIMARY_KEY))
     {
         printf("Failed to start Azure IoTHub\r\n");
         return;
