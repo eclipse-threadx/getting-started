@@ -9,9 +9,9 @@
 // ----------------------------------------------------------------------------
 // WiFi connection information
 // ----------------------------------------------------------------------------
-#define WIFI_SSID           ""
+#define WIFI_SSID           "ChinaNet-AQ6K"
 
-#define WIFI_PASSWORD       ""
+#define WIFI_PASSWORD       "1qaz!QAZ"
 
 /* WIFI Security, the security types are defined in wwwd_constants.h.  */
 #define WIFI_SECURITY       WICED_SECURITY_WPA2_MIXED_PSK
