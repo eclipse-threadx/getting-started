@@ -9,7 +9,7 @@
 /*                                                                        */
 /**************************************************************************/
 
-#include "nx_azure_iot_ciphersuites.h"
+#include "azure_iot_ciphersuites.h"
 
 #if (!NX_SECURE_TLS_TLS_1_2_ENABLED)
 #error "TLS 1.2 must be enabled."

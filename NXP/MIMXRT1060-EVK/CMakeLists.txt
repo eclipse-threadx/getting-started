@@ -5,6 +5,7 @@ cmake_minimum_required(VERSION 3.10)
 project(mimxrt1060_azure_iot C ASM)
 
 set(CMAKE_C_STANDARD 99)
+
 set(GSG_BASE_DIR ${PROJECT_SOURCE_DIR}/../..)
 set(CORE_SRC_DIR ${GSG_BASE_DIR}/core/src)
 set(CORE_LIB_DIR ${GSG_BASE_DIR}/core/lib)

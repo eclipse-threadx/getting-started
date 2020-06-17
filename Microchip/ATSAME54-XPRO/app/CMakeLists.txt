@@ -8,7 +8,8 @@ set(SOURCES
     startup/system_same54.c
     startup/tx_initialize_low_level.S
 
-    azure_iothub.c
+    azure_iot_embedded_sdk.c
+    azure_iot_mqtt.c
     board_init.c
     main.c
 )
@@ -18,6 +19,9 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 target_link_libraries(${PROJECT_NAME}
     azrtos::threadx
     azrtos::netxduo
+    azrtos::nx_cloud
+    azrtos::azure_iot
+    
     netxdriver
     atmel_start
     app_common

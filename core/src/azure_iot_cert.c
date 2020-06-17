@@ -1,7 +1,7 @@
 /* Copyright (c) Microsoft Corporation.
    Licensed under the MIT License. */
    
-#include "cert.h"
+#include "azure_iot_cert.h"
 
 const unsigned char azure_iot_root_ca[] =
 {

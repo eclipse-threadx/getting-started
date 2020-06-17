@@ -8,13 +8,11 @@ set(SOURCES
     startup/startup_MIMXRT1062.S
     startup/tx_initialize_low_level.S
 
-    azure_iothub.c
-    rtos_iot.c
+    azure_iot_mqtt.c
+    azure_iot_embedded_sdk.c
     board_init.c
     console.c
     main.c
-
-    nx_azure_iot_ciphersuites.c
 )
 
 add_executable(${TARGET} ${SOURCES})
@@ -29,7 +27,6 @@ target_link_libraries(${TARGET}
     PUBLIC
         azrtos::threadx
         azrtos::netxduo
-        
         azrtos::nx_cloud
         azrtos::azure_iot
 

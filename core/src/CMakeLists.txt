@@ -9,7 +9,8 @@ set(SOURCES
     iot_mqtt/hmac_sha256.c
     iot_mqtt/sas_token.c
 
-    cert.c
+    azure_iot_cert.c
+    azure_iot_ciphersuites.c
     sntp_client.c
     newlib_nano.c
 )

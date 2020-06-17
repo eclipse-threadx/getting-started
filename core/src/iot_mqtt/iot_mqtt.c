@@ -10,7 +10,7 @@
 #include "nx_api.h"
 #include "nxd_mqtt_client.h"
 
-#include "cert.h"
+#include "azure_iot_cert.h"
 #include "iot_mqtt/sas_token.h"
 
 #define USERNAME                            "%s/%s/?api-version=2020-05-31-preview&digital-twin-model-id=%s"
@@ -65,7 +65,7 @@ UINT iot_mqtt_register_c2d_message_callback(IOT_MQTT *iot_mqtt, func_ptr_c2d_mes
     return NX_SUCCESS;
 }
 
-UINT azure_mqtt_register_device_twin_desired_prop_callback(IOT_MQTT *iot_mqtt, func_ptr_device_twin_desired_prop mqtt_device_twin_desired_prop_callback)
+UINT iot_mqtt_register_device_twin_desired_prop_callback(IOT_MQTT *iot_mqtt, func_ptr_device_twin_desired_prop mqtt_device_twin_desired_prop_callback)
 {
     if (iot_mqtt == NULL || iot_mqtt->cb_ptr_mqtt_device_twin_desired_prop_callback != NULL)
     {
@@ -327,7 +327,7 @@ static VOID mqtt_disconnect_cb(NXD_MQTT_CLIENT *client_ptr)
     IOT_MQTT* iot_mqtt = (IOT_MQTT *)client_ptr;
 
     // Try and reconnect forever
-    while (azure_mqtt_connect(iot_mqtt) != NX_SUCCESS)
+    while (iot_mqtt_connect(iot_mqtt) != NX_SUCCESS)
     {
         tx_thread_sleep(TX_TIMER_TICKS_PER_SECOND);
     }
@@ -483,6 +483,8 @@ UINT iot_mqtt_create(
         printf("ERROR: IoT Hub connection configuration is empty\r\n");
         return NX_PTR_ERROR;
     }
+
+    memset(iot_mqtt, 0, sizeof(&iot_mqtt));
 
     // Stash the connection information
     iot_mqtt->nx_dns = nx_dns;
