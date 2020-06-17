@@ -7,6 +7,11 @@ set(SOURCES
     startup/system_stm32f4xx.c
     startup/startup_stm32f412rx.s
     startup/tx_initialize_low_level.S
+    
+    sensor/lps22hb_read_data_polling.c
+    sensor/lps22hb_reg.c    
+    sensor/hts221_read_data_polling.c
+    sensor/hts221_reg.c
 
     azure_iothub.c
     board_init.c
@@ -28,7 +33,8 @@ target_link_options(${PROJECT_NAME}
     PUBLIC 
         -T${LINKER_SCRIPT} -Wl,-Map=${PROJECT_NAME}.map)
 
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
+                           ${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/sensor/")
 
 target_link_libraries(${PROJECT_NAME}
     azrtos::threadx

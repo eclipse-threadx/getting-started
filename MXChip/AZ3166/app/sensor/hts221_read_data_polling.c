@@ -49,6 +49,7 @@
  */
    
    #include "stm32f4xx_hal.h"
+#include "sensor.h"
 //#define STEVAL_MKI109V3
 #define NUCLEO_F411RE
 
@@ -128,18 +129,25 @@ float linear_interpolation(lin_t *lin, int16_t x) {
     return ((lin->y1 - lin->y0) * x + ((lin->x1 * lin->y0) - (lin->x0 * lin->y1)))
             / (lin->x1 - lin->x0);
 }
+
+/* Initialize mems driver interface */
+static stmdev_ctx_t dev_ctx =
+{
+    platform_write,
+    platform_read,
+    &hi2c1,
+};
+
+/* humidity calibration coefficient */
+  lin_t lin_hum;
+/* Temperature calibration coefficient */
+  lin_t lin_temp;
 /* Main Example --------------------------------------------------------------*/
-void hts221_read_data_polling(void)
+void hts221_config(void)
 {
 
   /* Initialize platform specific hardware */
   platform_init();
-
-  /* Initialize mems driver interface */
-  stmdev_ctx_t dev_ctx;
-  dev_ctx.write_reg = platform_write;
-  dev_ctx.read_reg = platform_read;
-  dev_ctx.handle = &hi2c1;
 
   /* Check device ID */
   whoamI = 0;
@@ -148,14 +156,12 @@ void hts221_read_data_polling(void)
     while(1); /*manage here device not found */
 
   /* Read humidity calibration coefficient */
-  lin_t lin_hum;
   hts221_hum_adc_point_0_get(&dev_ctx, &lin_hum.x0);
   hts221_hum_rh_point_0_get(&dev_ctx, &lin_hum.y0);
   hts221_hum_adc_point_1_get(&dev_ctx, &lin_hum.x1);
   hts221_hum_rh_point_1_get(&dev_ctx, &lin_hum.y1);
 
   /* Read temperature calibration coefficient */
-  lin_t lin_temp;
   hts221_temp_adc_point_0_get(&dev_ctx, &lin_temp.x0);
   hts221_temp_deg_point_0_get(&dev_ctx, &lin_temp.y0);
   hts221_temp_adc_point_1_get(&dev_ctx, &lin_temp.x1);
@@ -167,35 +173,36 @@ void hts221_read_data_polling(void)
   hts221_data_rate_set(&dev_ctx, HTS221_ODR_1Hz);
   /* Device power on */
   hts221_power_on_set(&dev_ctx, PROPERTY_ENABLE);
+}
+
+hts221_data_t hts221_data_read(void)
+{
+  hts221_data_t reading;
 
   /* Read samples in polling mode */
-  while(1)
-  {
+
     /* Read output only if new value is available */
     hts221_reg_t reg;
-    hts221_status_get(&dev_ctx, &reg.status_reg);
+    
+    /* Read output only if new value is available */
+    while((reg.status_reg.h_da!=1) && (reg.status_reg.t_da!=1))
+    {
+      hts221_status_get(&dev_ctx, &reg.status_reg);
+    }
 
-    if (reg.status_reg.h_da)
-    {
-      /* Read humidity data */
-      memset(data_raw_humidity.u8bit, 0x00, sizeof(int16_t));
-      hts221_humidity_raw_get(&dev_ctx, data_raw_humidity.u8bit);
-      humidity_perc = linear_interpolation(&lin_hum, data_raw_humidity.i16bit);
-      if (humidity_perc < 0) humidity_perc = 0;
-      if (humidity_perc > 100) humidity_perc = 100;
-      sprintf((char*)tx_buffer, "Humidity [%%]:%3.2f\r\n", humidity_perc);
-      tx_com( tx_buffer, strlen( (char const*)tx_buffer ) );
-    }
-    if (reg.status_reg.t_da)
-    {
-      /* Read temperature data */
-      memset(data_raw_temperature.u8bit, 0x00, sizeof(int16_t));
-      hts221_temperature_raw_get(&dev_ctx, data_raw_temperature.u8bit);
-      temperature_degC = linear_interpolation(&lin_temp, data_raw_temperature.i16bit);
-      sprintf((char*)tx_buffer, "Temperature [degC]:%6.2f\r\n", temperature_degC );
-      tx_com( tx_buffer, strlen( (char const*)tx_buffer ) );
-    }
-  }
+    /* Read humidity data */
+    memset(data_raw_humidity.u8bit, 0x00, sizeof(int16_t));
+    hts221_humidity_raw_get(&dev_ctx, data_raw_humidity.u8bit);
+    reading.humidity_perc = linear_interpolation(&lin_hum, data_raw_humidity.i16bit);
+    if (reading.humidity_perc < 0) reading.humidity_perc = 0;
+    if (reading.humidity_perc > 100) reading.humidity_perc = 100;
+
+    /* Read temperature data */
+    memset(data_raw_temperature.u8bit, 0x00, sizeof(int16_t));
+    hts221_temperature_raw_get(&dev_ctx, data_raw_temperature.u8bit);
+    reading.temperature_degC = linear_interpolation(&lin_temp, data_raw_temperature.i16bit);
+    
+  return reading;
 }
 
 /*

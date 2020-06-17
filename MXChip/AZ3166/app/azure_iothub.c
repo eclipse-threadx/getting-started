@@ -8,6 +8,7 @@
 #include "azure/azure_mqtt.h"
 #include "networking.h"
 #include "sntp_client.h"
+#include "sensor/sensor.h"
 
 static AZURE_MQTT azure_mqtt;
 
@@ -47,17 +48,27 @@ UINT azure_iothub_run(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas
         return status;
     }
 
+    lps22hb_config();
+
+    hts221_config();
+
+    hts221_data_t hts221_data;
     printf("Starting MQTT loop\r\n");
     while (true)
     {
-        // temperature = BSP_TSENSOR_ReadTemp();
-        temperature += 0.2;
-        
+        temperature = lps22hb_data_read();
+        hts221_data = hts221_data_read();
+
         // Send the compensated temperature as a telemetry event
         azure_mqtt_publish_float_telemetry(&azure_mqtt, "temperature", temperature);
 
         // Send the compensated temperature as a device twin update
         azure_mqtt_publish_float_property(&azure_mqtt, "temperature", temperature);
+        
+        // Send the compensated Humidity as a telemetry event
+        azure_mqtt_publish_float_telemetry(&azure_mqtt, "Humidity Percentage", hts221_data.humidity_perc);
+        // Send the compensated temperature as a device twin update
+        azure_mqtt_publish_float_property(&azure_mqtt, "Humidity Percentage", hts221_data.humidity_perc);
 
         // Sleep for 10 seconds
         tx_thread_sleep(10 * TX_TIMER_TICKS_PER_SECOND);
