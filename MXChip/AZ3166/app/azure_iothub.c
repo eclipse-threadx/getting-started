@@ -59,10 +59,10 @@ UINT azure_iothub_run(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas
     printf("Starting MQTT loop\r\n");
     while (true)
     {
-        // lps22hb_data = lps22hb_data_read();
-        // hts221_data = hts221_data_read();
-        // lsm6dsl_data = lsm6dsl_data_read();
-        // lis2mdl_data = lis2mdl_data_read();
+        lps22hb_data = lps22hb_data_read();
+        hts221_data = hts221_data_read();
+        lsm6dsl_data = lsm6dsl_data_read();
+        lis2mdl_data = lis2mdl_data_read();
 
         // Send the compensated temperature as a telemetry event
         azure_mqtt_publish_float_telemetry(&azure_mqtt, "temperature", lps22hb_data.temperature_degC);
