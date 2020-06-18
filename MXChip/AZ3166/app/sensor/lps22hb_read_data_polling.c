@@ -60,7 +60,6 @@
 #elif defined(NUCLEO_F411RE_X_NUCLEO_IKS01A2)
 /* NUCLEO_F411RE_X_NUCLEO_IKS01A2: Define communication interface */
 
-#define SENSOR_BUS hi2c1
 #define hi2c1 I2cHandle
 
 #define huart2 UartHandle
@@ -92,8 +91,6 @@ typedef union{
 /* Private variables ---------------------------------------------------------*/
 static axis1bit32_t data_raw_pressure;
 static axis1bit16_t data_raw_temperature;
-static float pressure_hPa;
-static float temperature_degC;
 static uint8_t whoamI, rst;
 //static stmdev_ctx_t dev_ctx;
 
@@ -119,7 +116,7 @@ static stmdev_ctx_t dev_ctx =
 {
     platform_write,
     platform_read,
-    &SENSOR_BUS,
+    &hi2c1,
 };
 
 void lps22hb_config(void)
@@ -153,24 +150,27 @@ void lps22hb_config(void)
  
 }
 
-float lps22hb_data_read(void)
+static uint32_t timeout = 5;
+lps22hb_t lps22hb_data_read(void)
 {
+  lps22hb_t reading = {0};
     uint8_t reg;
     /* Read output only if new value is available */
-    while(reg!=1)
+    while((reg!=1) && (timeout>0))
     {
       lps22hb_press_data_ready_get(&dev_ctx, &reg);
+      timeout--;
     }
     
     memset(data_raw_pressure.u8bit, 0x00, sizeof(int32_t));
     lps22hb_pressure_raw_get(&dev_ctx, data_raw_pressure.u8bit);
-    pressure_hPa = lps22hb_from_lsb_to_hpa(data_raw_pressure.i32bit);
+    reading.pressure_hPa = lps22hb_from_lsb_to_hpa(data_raw_pressure.i32bit);
       
     memset(data_raw_temperature.u8bit, 0x00, sizeof(int16_t));
     lps22hb_temperature_raw_get(&dev_ctx, data_raw_temperature.u8bit);
-    temperature_degC = lps22hb_from_lsb_to_degc(data_raw_temperature.i16bit);
+    reading.temperature_degC = lps22hb_from_lsb_to_degc(data_raw_temperature.i16bit);
 
-    return temperature_degC;
+    return reading;
 }
 
 /*

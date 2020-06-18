@@ -73,8 +73,7 @@
 #include <stdio.h>
 #include "stm32f4xx_hal.h"
 #include "lis2mdl_reg.h"
-
-
+#include "sensor.h"
 
 
 extern I2C_HandleTypeDef I2cHandle;
@@ -95,10 +94,7 @@ typedef union{
 /* Private variables ---------------------------------------------------------*/
 static axis3bit16_t data_raw_magnetic;
 static axis1bit16_t data_raw_temperature;
-static float magnetic_mG[3];
-static float temperature_degC;
 static uint8_t whoamI, rst;
-static uint8_t tx_buffer[1000];
 
 /* Extern variables ----------------------------------------------------------*/
 #define    BOOT_TIME        20 //ms
@@ -114,20 +110,20 @@ static int32_t platform_write(void *handle, uint8_t reg, uint8_t *bufp,
                               uint16_t len);
 static int32_t platform_read(void *handle, uint8_t reg, uint8_t *bufp,
                              uint16_t len);
-static void tx_com(uint8_t *tx_buffer, uint16_t len);
 static void platform_delay(uint32_t ms);
 static void platform_init(void);
 
-/* Main Example --------------------------------------------------------------*/
-void lis2mdl_read_data_simple(void)
+
+static stmdev_ctx_t dev_ctx =
 {
-  /* Initialize mems driver interface */
-  stmdev_ctx_t dev_ctx;
+    platform_write,
+    platform_read,
+    &hi2c1,
+};
 
-  dev_ctx.write_reg = platform_write;
-  dev_ctx.read_reg = platform_read;
-  dev_ctx.handle = &SENSOR_BUS;
-
+/* Main Example --------------------------------------------------------------*/
+void lis2mdl_config(void)
+{
   /* Initialize platform specific hardware */
   platform_init();
 
@@ -168,36 +164,33 @@ void lis2mdl_read_data_simple(void)
   /* Set device in continuous mode */
   lis2mdl_operating_mode_set(&dev_ctx, LIS2MDL_CONTINUOUS_MODE);
 
-  /* Read samples in polling mode (no int) */
-  while(1)
-  {
+}
+static uint32_t timeout = 5;
+lis2mdl_data_t lis2mdl_data_read(void)
+ {
+   lis2mdl_data_t reading = {0};
     uint8_t reg;
 
     /* Read output only if new value is available */
-    lis2mdl_mag_data_ready_get(&dev_ctx, &reg);
-    if (reg)
+    while((reg!=1) && (timeout>0))
     {
+        lis2mdl_mag_data_ready_get(&dev_ctx, &reg);
+        timeout --;
+    }
       /* Read magnetic field data */
       memset(data_raw_magnetic.u8bit, 0x00, 3 * sizeof(int16_t));
       lis2mdl_magnetic_raw_get(&dev_ctx, data_raw_magnetic.u8bit);
-      magnetic_mG[0] = lis2mdl_from_lsb_to_mgauss(data_raw_magnetic.i16bit[0]);
-      magnetic_mG[1] = lis2mdl_from_lsb_to_mgauss(data_raw_magnetic.i16bit[1]);
-      magnetic_mG[2] = lis2mdl_from_lsb_to_mgauss(data_raw_magnetic.i16bit[2]);
-
-      sprintf((char*)tx_buffer, "Magnetic field [mG]:%4.2f\t%4.2f\t%4.2f\r\n",
-              magnetic_mG[0], magnetic_mG[1], magnetic_mG[2]);
-      tx_com(tx_buffer, strlen((char const*)tx_buffer));
+      reading.magnetic_mG[0] = lis2mdl_from_lsb_to_mgauss(data_raw_magnetic.i16bit[0]);
+      reading.magnetic_mG[1] = lis2mdl_from_lsb_to_mgauss(data_raw_magnetic.i16bit[1]);
+      reading.magnetic_mG[2] = lis2mdl_from_lsb_to_mgauss(data_raw_magnetic.i16bit[2]);
 
       /* Read temperature data */
       memset(data_raw_temperature.u8bit, 0x00, sizeof(int16_t));
       lis2mdl_temperature_raw_get(&dev_ctx, data_raw_temperature.u8bit);
-      temperature_degC = lis2mdl_from_lsb_to_celsius(data_raw_temperature.i16bit);
-
-      sprintf((char*)tx_buffer, "Temperature [degC]:%6.2f\r\n",
-          temperature_degC);
-      tx_com(tx_buffer, strlen((char const*)tx_buffer));
-    }
-  }
+      reading.temperature_degC = lis2mdl_from_lsb_to_celsius(data_raw_temperature.i16bit);
+    
+    return reading;
+  
 }
 
 /*
@@ -266,23 +259,6 @@ static int32_t platform_read(void *handle, uint8_t reg, uint8_t *bufp,
   }
 #endif
   return 0;
-}
-
-/*
- * @brief  Send buffer to console (platform dependent)
- *
- * @param  tx_buffer     buffer to trasmit
- * @param  len           number of byte to send
- *
- */
-static void tx_com(uint8_t *tx_buffer, uint16_t len)
-{
-  #ifdef NUCLEO_F411RE
-  HAL_UART_Transmit(&huart2, tx_buffer, len, 1000);
-  #endif
-  #ifdef STEVAL_MKI109V3
-  CDC_Transmit_FS(tx_buffer, len);
-  #endif
 }
 
 /*

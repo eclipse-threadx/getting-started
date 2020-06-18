@@ -11,8 +11,12 @@ set(SOURCES
     sensor/lps22hb_read_data_polling.c
     sensor/lps22hb_reg.c    
     sensor/hts221_read_data_polling.c
-    sensor/hts221_reg.c
-
+    sensor/hts221_reg.c  
+    sensor/lsm6dsl_read_data_polling.c
+    sensor/lsm6dsl_reg.c       
+    sensor/lis2mdl_read_data_polling.c
+    sensor/lis2mdl_reg.c 
+    
     azure_iothub.c
     board_init.c
     console.c

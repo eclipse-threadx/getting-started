@@ -93,10 +93,7 @@ typedef union {
 /* Private variables ---------------------------------------------------------*/
 static axis1bit16_t data_raw_humidity;
 static axis1bit16_t data_raw_temperature;
-static float humidity_perc;
-static float temperature_degC;
 static uint8_t whoamI;
-static uint8_t tx_buffer[1000];
 
 /* Extern variables ----------------------------------------------------------*/
 
@@ -111,7 +108,6 @@ static int32_t platform_write(void *handle, uint8_t reg, uint8_t *bufp,
                               uint16_t len);
 static int32_t platform_read(void *handle, uint8_t reg, uint8_t *bufp,
                              uint16_t len);
-static void tx_com(uint8_t *tx_buffer, uint16_t len);
 //static void platform_delay(uint32_t ms);
 static void platform_init(void);
 
@@ -175,9 +171,10 @@ void hts221_config(void)
   hts221_power_on_set(&dev_ctx, PROPERTY_ENABLE);
 }
 
+static uint32_t timeout = 5;
 hts221_data_t hts221_data_read(void)
 {
-  hts221_data_t reading;
+  hts221_data_t reading = {0};
 
   /* Read samples in polling mode */
 
@@ -185,9 +182,10 @@ hts221_data_t hts221_data_read(void)
     hts221_reg_t reg;
     
     /* Read output only if new value is available */
-    while((reg.status_reg.h_da!=1) && (reg.status_reg.t_da!=1))
+    while((reg.status_reg.h_da!=1) && (reg.status_reg.t_da!=1) && (timeout>0))
     {
       hts221_status_get(&dev_ctx, &reg.status_reg);
+      timeout--;
     }
 
     /* Read humidity data */
@@ -271,24 +269,6 @@ static int32_t platform_read(void *handle, uint8_t reg, uint8_t *bufp,
   }
 #endif
   return 0;
-}
-
-/*
- * @brief  Send buffer to console (platform dependent)
- *
- * @param  tx_buffer     buffer to trasmit
- * @param  len           number of byte to send
- *
- */
-static void tx_com(uint8_t *tx_buffer, uint16_t len)
-{
-  #ifdef NUCLEO_F411RE
-  HAL_UART_Transmit(&UartHandle, tx_buffer, len, 5000);
-
-  #endif
-  #ifdef STEVAL_MKI109V3
-  CDC_Transmit_FS(tx_buffer, len);
-  #endif
 }
 
 /*
