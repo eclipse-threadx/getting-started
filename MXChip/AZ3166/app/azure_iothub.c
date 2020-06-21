@@ -8,7 +8,7 @@
 #include "azure/azure_mqtt.h"
 #include "networking.h"
 #include "sntp_client.h"
-#include "sensor/sensor.h"
+#include "sensor.h"
 
 static AZURE_MQTT azure_mqtt;
 
@@ -49,12 +49,12 @@ UINT azure_iothub_run(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas
     lps22hb_config();
     hts221_config();
     lsm6dsl_config();    
-    //lis2mdl_config();
+    // lis2mdl_config();
     
     lps22hb_t lps22hb_data= {0};
     hts221_data_t hts221_data= {0};
     lsm6dsl_data_t lsm6dsl_data= {0};
-    lis2mdl_data_t lis2mdl_data= {0};
+   // lis2mdl_data_t lis2mdl_data= {0};
 
     printf("Starting MQTT loop\r\n");
     while (true)
@@ -62,7 +62,7 @@ UINT azure_iothub_run(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas
         lps22hb_data = lps22hb_data_read();
         hts221_data = hts221_data_read();
         lsm6dsl_data = lsm6dsl_data_read();
-        //lis2mdl_data = lis2mdl_data_read();
+        // lis2mdl_data = lis2mdl_data_read();
 
         // Send the compensated temperature as a telemetry event
         azure_mqtt_publish_float_telemetry(&azure_mqtt, "temperature", lps22hb_data.temperature_degC);
