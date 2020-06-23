@@ -61,13 +61,11 @@ UINT azure_iothub_run(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas
 
         // Send the compensated temperature as a telemetry event
         azure_mqtt_publish_float_telemetry(&azure_mqtt, "temperature", lps22hb_data.temperature_degC);
-
         // Send the compensated temperature as a device twin update
         azure_mqtt_publish_float_property(&azure_mqtt, "temperature", lps22hb_data.temperature_degC);
         
         // Send the compensated Pressure as a telemetry event
         azure_mqtt_publish_float_telemetry(&azure_mqtt, "Pressure", lps22hb_data.pressure_hPa);
-
         // Send the compensated Pressure as a device twin update
         azure_mqtt_publish_float_property(&azure_mqtt, "Pressure", lps22hb_data.pressure_hPa);
         
