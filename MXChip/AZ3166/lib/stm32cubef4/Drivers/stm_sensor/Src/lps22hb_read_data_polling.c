@@ -47,24 +47,10 @@
  * If a different hardware is used please comment all
  * following target board and redefine yours.
  */
-//#define STEVAL_MKI109V3
-#define NUCLEO_F411RE_X_NUCLEO_IKS01A2
 
-#if defined(STEVAL_MKI109V3)
-/* MKI109V3: Define communication interface */
-#define SENSOR_BUS hspi2
-
-/* MKI109V3: Vdd and Vddio power supply values */
-#define PWM_3V3 915
-
-#elif defined(NUCLEO_F411RE_X_NUCLEO_IKS01A2)
-/* NUCLEO_F411RE_X_NUCLEO_IKS01A2: Define communication interface */
 
 #define hi2c1 I2cHandle
 
-#define huart2 UartHandle
-
-#endif
 
 /* Includes ------------------------------------------------------------------*/
 #include <string.h>
@@ -92,7 +78,6 @@ typedef union{
 static axis1bit32_t data_raw_pressure;
 static axis1bit16_t data_raw_temperature;
 static uint8_t whoamI, rst;
-//static stmdev_ctx_t dev_ctx;
 
 /* Extern variables ----------------------------------------------------------*/
 
@@ -107,7 +92,6 @@ static int32_t platform_write(void *handle, uint8_t reg, uint8_t *bufp,
                               uint16_t len);
 static int32_t platform_read(void *handle, uint8_t reg, uint8_t *bufp,
                              uint16_t len);
-static void platform_init(void);
 
 /* Main Example --------------------------------------------------------------*/
 
@@ -121,9 +105,6 @@ static stmdev_ctx_t dev_ctx =
 
 void lps22hb_config(void)
 {
-  /* Initialize platform specific hardware */
-  platform_init();
-
   /* Check device ID */
   lps22hb_device_id_get(&dev_ctx, &whoamI);
   if (whoamI != LPS22HB_ID){
@@ -191,15 +172,6 @@ static int32_t platform_write(void *handle, uint8_t reg, uint8_t *bufp,
     HAL_I2C_Mem_Write(handle, LPS22HB_I2C_ADD_L, reg,
                       I2C_MEMADD_SIZE_8BIT, bufp, len, 1000);
   }
-#ifdef STEVAL_MKI109V3
-  else if (handle == &hspi2)
-  {
-    HAL_GPIO_WritePin(CS_up_GPIO_Port, CS_up_Pin, GPIO_PIN_RESET);
-    HAL_SPI_Transmit(handle, &reg, 1, 1000);
-    HAL_SPI_Transmit(handle, bufp, len, 1000);
-    HAL_GPIO_WritePin(CS_up_GPIO_Port, CS_up_Pin, GPIO_PIN_SET);
-  }
-#endif
   return 0;
 }
 
@@ -221,28 +193,5 @@ static int32_t platform_read(void *handle, uint8_t reg, uint8_t *bufp,
     HAL_I2C_Mem_Read(handle, LPS22HB_I2C_ADD_L, reg,
                      I2C_MEMADD_SIZE_8BIT, bufp, len, 1000);
   }
-#ifdef STEVAL_MKI109V3
-  else if (handle == &hspi2)
-  {
-    /* Read command */
-    reg |= 0x80;
-    HAL_GPIO_WritePin(CS_up_GPIO_Port, CS_up_Pin, GPIO_PIN_RESET);
-    HAL_SPI_Transmit(handle, &reg, 1, 1000);
-    HAL_SPI_Receive(handle, bufp, len, 1000);
-    HAL_GPIO_WritePin(CS_up_GPIO_Port, CS_up_Pin, GPIO_PIN_SET);
-  }
-#endif
   return 0;
-}
-
-/*
- * @brief  platform specific initialization (platform dependent)
- */
-static void platform_init(void)
-{
-#ifdef STEVAL_MKI109V3
-  TIM3->CCR1 = PWM_3V3;
-  TIM3->CCR2 = PWM_3V3;
-  HAL_Delay(1000);
-#endif
 }

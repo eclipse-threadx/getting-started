@@ -54,7 +54,7 @@ UINT azure_iothub_run(CHAR *iot_hub_hostname, CHAR *iot_device_id, CHAR *iot_sas
     lps22hb_t lps22hb_data= {0};
     hts221_data_t hts221_data= {0};
     lsm6dsl_data_t lsm6dsl_data= {0};
-   // lis2mdl_data_t lis2mdl_data= {0};
+    lis2mdl_data_t lis2mdl_data= {0};
 
     printf("Starting MQTT loop\r\n");
     while (true)

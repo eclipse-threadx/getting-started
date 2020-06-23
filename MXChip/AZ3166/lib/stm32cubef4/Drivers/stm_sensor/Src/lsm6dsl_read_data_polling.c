@@ -24,12 +24,9 @@
 #include <string.h>
 #include <stdio.h>
 #include "sensor.h"
-//#define MKI109V2
-#define AZ3166
 
 #include "stm32f4xx_hal.h"
 extern I2C_HandleTypeDef I2cHandle;
-extern UART_HandleTypeDef UartHandle;
 
 #define hi2c1 I2cHandle
 
@@ -56,15 +53,6 @@ static stmdev_ctx_t dev_ctx =
 };
 
 /* Private macro -------------------------------------------------------------*/
-#ifdef MKI109V2
-#define CS_SPI2_GPIO_Port   CS_DEV_GPIO_Port
-#define CS_SPI2_Pin         CS_DEV_Pin
-#define CS_SPI1_GPIO_Port   CS_RF_GPIO_Port
-#define CS_SPI1_Pin         CS_RF_Pin
-#endif
-
-
-#define TX_BUF_DIM          1000
 
 /* Private variables ---------------------------------------------------------*/
 static axis3bit16_t data_raw_acceleration;
@@ -93,22 +81,6 @@ static int32_t platform_write(void *handle, uint8_t Reg, uint8_t *Bufp,
     HAL_I2C_Mem_Write(handle, LSM6DSL_I2C_ADD_L, Reg,
                       I2C_MEMADD_SIZE_8BIT, Bufp, len, 1000);
   }
-#ifdef MKI109V2 
-  else if (handle == &hspi2)
-  {
-    HAL_GPIO_WritePin(CS_SPI2_GPIO_Port, CS_SPI2_Pin, GPIO_PIN_RESET);
-    HAL_SPI_Transmit(handle, &Reg, 1, 1000);
-    HAL_SPI_Transmit(handle, Bufp, len, 1000);
-    HAL_GPIO_WritePin(CS_SPI2_GPIO_Port, CS_SPI2_Pin, GPIO_PIN_SET);
-  }
-  else if (handle == &hspi1)
-  {
-    HAL_GPIO_WritePin(CS_SPI1_GPIO_Port, CS_SPI1_Pin, GPIO_PIN_RESET);
-    HAL_SPI_Transmit(handle, &Reg, 1, 1000);
-    HAL_SPI_Transmit(handle, Bufp, len, 1000);
-    HAL_GPIO_WritePin(CS_SPI1_GPIO_Port, CS_SPI1_Pin, GPIO_PIN_SET);
-  }
-#endif
   return 0;
 }
 
@@ -120,24 +92,6 @@ static int32_t platform_read(void *handle, uint8_t Reg, uint8_t *Bufp,
       HAL_I2C_Mem_Read(handle, LSM6DSL_I2C_ADD_L, Reg,
                        I2C_MEMADD_SIZE_8BIT, Bufp, len, 1000);
   }
-#ifdef MKI109V2  
-  else if (handle == &hspi2)
-  {
-    Reg |= 0x80;
-    HAL_GPIO_WritePin(CS_DEV_GPIO_Port, CS_DEV_Pin, GPIO_PIN_RESET);
-    HAL_SPI_Transmit(handle, &Reg, 1, 1000);
-    HAL_SPI_Receive(handle, Bufp, len, 1000);
-    HAL_GPIO_WritePin(CS_DEV_GPIO_Port, CS_DEV_Pin, GPIO_PIN_SET);
-  }
-  else
-  {
-    Reg |= 0x80;
-    HAL_GPIO_WritePin(CS_RF_GPIO_Port, CS_RF_Pin, GPIO_PIN_RESET);
-    HAL_SPI_Transmit(handle, &Reg, 1, 1000);
-    HAL_SPI_Receive(handle, Bufp, len, 1000);
-    HAL_GPIO_WritePin(CS_RF_GPIO_Port, CS_RF_Pin, GPIO_PIN_SET);
-  }
-#endif 
   return 0;
 }
 

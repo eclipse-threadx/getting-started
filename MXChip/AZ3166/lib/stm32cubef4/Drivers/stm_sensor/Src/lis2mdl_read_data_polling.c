@@ -47,26 +47,6 @@
  * If a different hardware is used please comment all
  * following target board and redefine yours.
  */
-//#define STEVAL_MKI109V3
-#define NUCLEO_F411RE
-
-
-
-
-#if defined(STEVAL_MKI109V3)
-/* MKI109V3: Define communication interface */
-#define SENSOR_BUS hspi2
-
-/* MKI109V3: Vdd and Vddio power supply values */
-#define PWM_3V3 915
-
-#elif defined(NUCLEO_F411RE)
-/* NUCLEO_F411RE: Define communication interface */
-
-#define SENSOR_BUS I2cHandle
-#define hi2c1 I2cHandle
-#define huart2 UartHandle
-#endif
 
 /* Includes ------------------------------------------------------------------*/
 #include <string.h>
@@ -77,7 +57,7 @@
 
 
 extern I2C_HandleTypeDef I2cHandle;
-extern UART_HandleTypeDef UartHandle;
+#define hi2c1 I2cHandle
 
 typedef union{
   int16_t i16bit[3];
@@ -111,8 +91,6 @@ static int32_t platform_write(void *handle, uint8_t reg, uint8_t *bufp,
 static int32_t platform_read(void *handle, uint8_t reg, uint8_t *bufp,
                              uint16_t len);
 static void platform_delay(uint32_t ms);
-static void platform_init(void);
-
 
 static stmdev_ctx_t dev_ctx =
 {
@@ -124,16 +102,8 @@ static stmdev_ctx_t dev_ctx =
 /* Main Example --------------------------------------------------------------*/
 void lis2mdl_config(void)
 {
-  /* Initialize platform specific hardware */
-  platform_init();
-
   /* Wait sensor boot time */
   platform_delay(BOOT_TIME);
-
-#if defined(STEVAL_MKI109V3)
-  /* Default SPI mode is 3 wire, so enable 4 wire mode */
-  lis2mdl_spi_mode_set(&dev_ctx, LIS2MDL_SPI_4_WIRE);
-#endif
 
   /* Check device ID */
   lis2mdl_device_id_get(&dev_ctx, &whoamI);
@@ -213,17 +183,6 @@ static int32_t platform_write(void *handle, uint8_t reg, uint8_t *bufp,
     HAL_I2C_Mem_Write(handle, LIS2MDL_I2C_ADD, reg,
                       I2C_MEMADD_SIZE_8BIT, bufp, len, 1000);
   }
-#ifdef STEVAL_MKI109V3
-  else if (handle == &hspi2)
-  {
-    /* Write multiple command */
-    reg |= 0x40;
-    HAL_GPIO_WritePin(CS_up_GPIO_Port, CS_up_Pin, GPIO_PIN_RESET);
-    HAL_SPI_Transmit(handle, &reg, 1, 1000);
-    HAL_SPI_Transmit(handle, bufp, len, 1000);
-    HAL_GPIO_WritePin(CS_up_GPIO_Port, CS_up_Pin, GPIO_PIN_SET);
-  }
-#endif
   return 0;
 }
 
@@ -247,17 +206,6 @@ static int32_t platform_read(void *handle, uint8_t reg, uint8_t *bufp,
     HAL_I2C_Mem_Read(handle, LIS2MDL_I2C_ADD, reg,
                      I2C_MEMADD_SIZE_8BIT, bufp, len, 1000);
   }
-#ifdef STEVAL_MKI109V3
-  else if (handle == &hspi2)
-  {
-    /* Read multiple command */
-    reg |= 0xC0;
-    HAL_GPIO_WritePin(CS_up_GPIO_Port, CS_up_Pin, GPIO_PIN_RESET);
-    HAL_SPI_Transmit(handle, &reg, 1, 1000);
-    HAL_SPI_Receive(handle, bufp, len, 1000);
-    HAL_GPIO_WritePin(CS_up_GPIO_Port, CS_up_Pin, GPIO_PIN_SET);
-  }
-#endif
   return 0;
 }
 
@@ -270,18 +218,4 @@ static int32_t platform_read(void *handle, uint8_t reg, uint8_t *bufp,
 static void platform_delay(uint32_t ms)
 {
   HAL_Delay(ms);
-}
-
-/*
- * @brief  platform specific initialization (platform dependent)
- */
-static void platform_init(void)
-{
-#ifdef STEVAL_MKI109V3
-  TIM3->CCR1 = PWM_3V3;
-  TIM3->CCR2 = PWM_3V3;
-  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
-  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
-  HAL_Delay(1000);
-#endif
 }
