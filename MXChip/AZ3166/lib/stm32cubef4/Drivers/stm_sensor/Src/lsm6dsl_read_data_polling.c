@@ -96,15 +96,21 @@ static int32_t platform_read(void *handle, uint8_t Reg, uint8_t *Bufp,
 }
 
 /* Main Example --------------------------------------------------------------*/
-void lsm6dsl_config(void)
+Sensor_StatusTypeDef lsm6dsl_config(void)
 {
+  Sensor_StatusTypeDef ret = SENSOR_OK;
+
   /*
    *  Check device ID
    */
   whoamI = 0;
   lsm6dsl_device_id_get(&dev_ctx, &whoamI);
   if ( whoamI != LSM6DSL_ID )
-    while(1); /*manage here device not found */
+  {
+    ret = SENSOR_ERROR;
+  }
+  else
+  {
   /*
    *  Restore default configuration
    */
@@ -145,6 +151,8 @@ void lsm6dsl_config(void)
  
   /* Gyroscope - filtering chain */
   lsm6dsl_gy_band_pass_set(&dev_ctx, LSM6DSL_HP_260mHz_LP1_STRONG);
+  }
+  return ret;
 }
 static uint32_t timeout = 5;
 lsm6dsl_data_t lsm6dsl_data_read(void)

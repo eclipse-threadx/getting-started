@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "board_init.h"
+#include "sensor.h"
 
 /* I2C handler declaration */
 I2C_HandleTypeDef I2cHandle;
@@ -59,6 +60,28 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef *hi2c)
 static void SystemClock_Config(void);
 static void STM32_Error_Handler(void);
 static void UART_Console_Init(void);
+
+
+static void Init_MEM1_Sensors(void)
+{    
+    if(SENSOR_OK != lps22hb_config())
+    {
+        printf("Init Error Pressure Sensor\r\n");
+    }
+    if(SENSOR_OK != hts221_config())
+    {
+        printf("Init Error Humidity-Temperature Sensor\r\n");
+    }    
+    printf("Humidity-Temperatur Sensor OK \r\n");
+    if(SENSOR_OK != lsm6dsl_config())
+    {
+        printf("Init Error Accelerometer Sensor\r\n");
+    }
+    if(SENSOR_OK != lis2mdl_config())
+    {
+        printf("Init Error Magnetometer Sensor\r\n");
+    }
+}
 
 VOID board_init(void)
 {
@@ -173,6 +196,8 @@ VOID board_init(void)
     /* Initialization Error */
     while(1);    
     }
+    
+    Init_MEM1_Sensors();
 }
 
 /**

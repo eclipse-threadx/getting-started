@@ -99,24 +99,31 @@ static stmdev_ctx_t dev_ctx =
     &hi2c1,
 };
 
+static uint32_t timeout = 5;
 /* Main Example --------------------------------------------------------------*/
-void lis2mdl_config(void)
+Sensor_StatusTypeDef lis2mdl_config(void)
 {
+  Sensor_StatusTypeDef ret = SENSOR_OK;
+
   /* Wait sensor boot time */
-  platform_delay(BOOT_TIME);
+  // platform_delay(BOOT_TIME);
+  whoamI =0;
 
   /* Check device ID */
   lis2mdl_device_id_get(&dev_ctx, &whoamI);
-  if (whoamI != LIS2MDL_ID)
-    while(1)
-    {
-      /* manage here device not found */
-    }
+  if(whoamI != LIS2MDL_ID)
+  {
+    ret = SENSOR_ERROR;
+  }
+  else
+  {
 
-  /* Restore default configuration */
-  lis2mdl_reset_set(&dev_ctx, PROPERTY_ENABLE);
+    timeout = 5;
+    /* Restore default configuration */
+    lis2mdl_reset_set(&dev_ctx, PROPERTY_ENABLE);
   do {
     lis2mdl_reset_get(&dev_ctx, &rst);
+    //printf(" Reset Error Magnetometer Sensor\r\n");
   } while (rst);
 
   /* Enable Block Data Update */
@@ -133,9 +140,9 @@ void lis2mdl_config(void)
 
   /* Set device in continuous mode */
   lis2mdl_operating_mode_set(&dev_ctx, LIS2MDL_CONTINUOUS_MODE);
-
+  }
+  return ret;
 }
-static uint32_t timeout = 5;
 lis2mdl_data_t lis2mdl_data_read(void)
  {
    lis2mdl_data_t reading = {0};

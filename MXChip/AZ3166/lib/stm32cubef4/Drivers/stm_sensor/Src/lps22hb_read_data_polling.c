@@ -49,9 +49,6 @@
  */
 
 
-#define hi2c1 I2cHandle
-
-
 /* Includes ------------------------------------------------------------------*/
 #include <string.h>
 #include <stdio.h>
@@ -62,6 +59,9 @@
 
 extern I2C_HandleTypeDef I2cHandle;
 extern UART_HandleTypeDef UartHandle;
+
+#define hi2c1 I2cHandle
+
 typedef union{
   int16_t i16bit;
   uint8_t u8bit[2];
@@ -103,14 +103,18 @@ static stmdev_ctx_t dev_ctx =
     &hi2c1,
 };
 
-void lps22hb_config(void)
+Sensor_StatusTypeDef lps22hb_config(void)
 {
-  /* Check device ID */
+  Sensor_StatusTypeDef ret = SENSOR_OK;
+  whoamI =0;
+  /* Check device ID */  
   lps22hb_device_id_get(&dev_ctx, &whoamI);
-  if (whoamI != LPS22HB_ID){
-    while(1)/* manage here device not found */;
+  if(whoamI != LPS22HB_ID)
+  {
+    ret = SENSOR_ERROR;
   }
-
+  else
+  {
   /* Restore default configuration */
   lps22hb_reset_set(&dev_ctx, PROPERTY_ENABLE);
   do {
@@ -128,7 +132,8 @@ void lps22hb_config(void)
 
   /* Set Output Data Rate */
   lps22hb_data_rate_set(&dev_ctx, LPS22HB_ODR_10_Hz);
- 
+  }
+  return ret;
 }
 
 static uint32_t timeout = 5;

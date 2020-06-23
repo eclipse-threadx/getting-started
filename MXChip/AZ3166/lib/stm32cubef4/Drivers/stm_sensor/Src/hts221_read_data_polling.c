@@ -117,14 +117,19 @@ static stmdev_ctx_t dev_ctx =
 /* Temperature calibration coefficient */
   lin_t lin_temp;
 /* Main Example --------------------------------------------------------------*/
-void hts221_config(void)
+Sensor_StatusTypeDef hts221_config(void)
 {
+  Sensor_StatusTypeDef ret = SENSOR_OK;
+
   /* Check device ID */
   whoamI = 0;
   hts221_device_id_get(&dev_ctx, &whoamI);
-  if ( whoamI != HTS221_ID )
-    while(1); /*manage here device not found */
-
+  if(whoamI != HTS221_ID)
+  {
+    ret = SENSOR_ERROR;
+  }
+  else
+  {
   /* Read humidity calibration coefficient */
   hts221_hum_adc_point_0_get(&dev_ctx, &lin_hum.x0);
   hts221_hum_rh_point_0_get(&dev_ctx, &lin_hum.y0);
@@ -143,6 +148,9 @@ void hts221_config(void)
   hts221_data_rate_set(&dev_ctx, HTS221_ODR_1Hz);
   /* Device power on */
   hts221_power_on_set(&dev_ctx, PROPERTY_ENABLE);
+
+  }
+  return ret;
 }
 
 static uint32_t timeout = 5;
