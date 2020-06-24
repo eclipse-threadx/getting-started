@@ -23,15 +23,17 @@
 #include "lsm6dsl_reg.h"
 #include <string.h>
 #include <stdio.h>
-
-//#define MKI109V2
-#define AZ3166
+#include "sensor.h"
 
 #include "stm32f4xx_hal.h"
 extern I2C_HandleTypeDef I2cHandle;
-extern UART_HandleTypeDef UartHandle;
 
 #define hi2c1 I2cHandle
+
+static int32_t platform_write(void *handle, uint8_t reg, uint8_t *bufp,
+                              uint16_t len);
+static int32_t platform_read(void *handle, uint8_t reg, uint8_t *bufp,
+                             uint16_t len);
 
 typedef union{
   int16_t i16bit[3];
@@ -43,26 +45,21 @@ typedef union{
   uint8_t u8bit[2];
 } axis1bit16_t;
 
+static stmdev_ctx_t dev_ctx =
+{
+    platform_write,
+    platform_read,
+    &hi2c1,
+};
+
 /* Private macro -------------------------------------------------------------*/
-#ifdef MKI109V2
-#define CS_SPI2_GPIO_Port   CS_DEV_GPIO_Port
-#define CS_SPI2_Pin         CS_DEV_Pin
-#define CS_SPI1_GPIO_Port   CS_RF_GPIO_Port
-#define CS_SPI1_Pin         CS_RF_Pin
-#endif
-
-
-#define TX_BUF_DIM          1000
 
 /* Private variables ---------------------------------------------------------*/
 static axis3bit16_t data_raw_acceleration;
 static axis3bit16_t data_raw_angular_rate;
 static axis1bit16_t data_raw_temperature;
-static float acceleration_mg[3];
-static float angular_rate_mdps[3];
-static float temperature_degC;
+
 static uint8_t whoamI, rst;
-static uint8_t tx_buffer[TX_BUF_DIM];
 
 /* Extern variables ----------------------------------------------------------*/
 
@@ -84,22 +81,6 @@ static int32_t platform_write(void *handle, uint8_t Reg, uint8_t *Bufp,
     HAL_I2C_Mem_Write(handle, LSM6DSL_I2C_ADD_L, Reg,
                       I2C_MEMADD_SIZE_8BIT, Bufp, len, 1000);
   }
-#ifdef MKI109V2 
-  else if (handle == &hspi2)
-  {
-    HAL_GPIO_WritePin(CS_SPI2_GPIO_Port, CS_SPI2_Pin, GPIO_PIN_RESET);
-    HAL_SPI_Transmit(handle, &Reg, 1, 1000);
-    HAL_SPI_Transmit(handle, Bufp, len, 1000);
-    HAL_GPIO_WritePin(CS_SPI2_GPIO_Port, CS_SPI2_Pin, GPIO_PIN_SET);
-  }
-  else if (handle == &hspi1)
-  {
-    HAL_GPIO_WritePin(CS_SPI1_GPIO_Port, CS_SPI1_Pin, GPIO_PIN_RESET);
-    HAL_SPI_Transmit(handle, &Reg, 1, 1000);
-    HAL_SPI_Transmit(handle, Bufp, len, 1000);
-    HAL_GPIO_WritePin(CS_SPI1_GPIO_Port, CS_SPI1_Pin, GPIO_PIN_SET);
-  }
-#endif
   return 0;
 }
 
@@ -111,57 +92,25 @@ static int32_t platform_read(void *handle, uint8_t Reg, uint8_t *Bufp,
       HAL_I2C_Mem_Read(handle, LSM6DSL_I2C_ADD_L, Reg,
                        I2C_MEMADD_SIZE_8BIT, Bufp, len, 1000);
   }
-#ifdef MKI109V2  
-  else if (handle == &hspi2)
-  {
-    Reg |= 0x80;
-    HAL_GPIO_WritePin(CS_DEV_GPIO_Port, CS_DEV_Pin, GPIO_PIN_RESET);
-    HAL_SPI_Transmit(handle, &Reg, 1, 1000);
-    HAL_SPI_Receive(handle, Bufp, len, 1000);
-    HAL_GPIO_WritePin(CS_DEV_GPIO_Port, CS_DEV_Pin, GPIO_PIN_SET);
-  }
-  else
-  {
-    Reg |= 0x80;
-    HAL_GPIO_WritePin(CS_RF_GPIO_Port, CS_RF_Pin, GPIO_PIN_RESET);
-    HAL_SPI_Transmit(handle, &Reg, 1, 1000);
-    HAL_SPI_Receive(handle, Bufp, len, 1000);
-    HAL_GPIO_WritePin(CS_RF_GPIO_Port, CS_RF_Pin, GPIO_PIN_SET);
-  }
-#endif 
   return 0;
 }
 
-/*
- *  Function to print messages
- */
-static void tx_com( uint8_t *tx_buffer, uint16_t len )
-{
-  #ifdef AZ3166 
-  HAL_UART_Transmit( &UartHandle, tx_buffer, len, 1000 );
-  #endif
-  #ifdef MKI109V2 
-  CDC_Transmit_FS( tx_buffer, len );
-  #endif
-}
-
 /* Main Example --------------------------------------------------------------*/
-void lsm6dsl_read_data_polling(void)
+Sensor_StatusTypeDef lsm6dsl_config(void)
 {
-  /*
-   *  Initialize mems driver interface
-   */
-  stmdev_ctx_t dev_ctx;
-  dev_ctx.write_reg = platform_write;
-  dev_ctx.read_reg = platform_read;
-  dev_ctx.handle = &hi2c1; 
+  Sensor_StatusTypeDef ret = SENSOR_OK;
+
   /*
    *  Check device ID
    */
   whoamI = 0;
   lsm6dsl_device_id_get(&dev_ctx, &whoamI);
   if ( whoamI != LSM6DSL_ID )
-    while(1); /*manage here device not found */
+  {
+    ret = SENSOR_ERROR;
+  }
+  else
+  {
   /*
    *  Restore default configuration
    */
@@ -202,54 +151,44 @@ void lsm6dsl_read_data_polling(void)
  
   /* Gyroscope - filtering chain */
   lsm6dsl_gy_band_pass_set(&dev_ctx, LSM6DSL_HP_260mHz_LP1_STRONG);
- 
-  /*
-   * Read samples in polling mode (no int)
-   */
-  while(1)
-  {
+  }
+  return ret;
+}
+static uint32_t timeout = 5;
+lsm6dsl_data_t lsm6dsl_data_read(void)
+{
+lsm6dsl_data_t reading= {0};
     /*
      * Read output only if new value is available
      */
     lsm6dsl_reg_t reg;
-    lsm6dsl_status_reg_get(&dev_ctx, &reg.status_reg);
-
-    if (reg.status_reg.xlda)
+    while((reg.status_reg.xlda!=1) && (reg.status_reg.gda!=1)&& (reg.status_reg.tda!=1) && (timeout>0))
     {
+       lsm6dsl_status_reg_get(&dev_ctx, &reg.status_reg);
+       timeout--;
+    }
+
       /* Read magnetic field data */
       memset(data_raw_acceleration.u8bit, 0x00, 3*sizeof(int16_t));
       lsm6dsl_acceleration_raw_get(&dev_ctx, data_raw_acceleration.u8bit);
-      acceleration_mg[0] = lsm6dsl_from_fs2g_to_mg( data_raw_acceleration.i16bit[0]);
-      acceleration_mg[1] = lsm6dsl_from_fs2g_to_mg( data_raw_acceleration.i16bit[1]);
-      acceleration_mg[2] = lsm6dsl_from_fs2g_to_mg( data_raw_acceleration.i16bit[2]);
-     
-      sprintf((char*)tx_buffer, "Acceleration [mg]:%4.2f\t%4.2f\t%4.2f\r\n",
-              acceleration_mg[0], acceleration_mg[1], acceleration_mg[2]);
-      tx_com( tx_buffer, strlen( (char const*)tx_buffer ) );
-    }
-    if (reg.status_reg.gda)
-    {
+      reading.acceleration_mg[0] = lsm6dsl_from_fs2g_to_mg( data_raw_acceleration.i16bit[0]);
+      reading.acceleration_mg[1] = lsm6dsl_from_fs2g_to_mg( data_raw_acceleration.i16bit[1]);
+      reading.acceleration_mg[2] = lsm6dsl_from_fs2g_to_mg( data_raw_acceleration.i16bit[2]);
+
+
       /* Read magnetic field data */
       memset(data_raw_angular_rate.u8bit, 0x00, 3*sizeof(int16_t));
       lsm6dsl_angular_rate_raw_get(&dev_ctx, data_raw_angular_rate.u8bit);
-      angular_rate_mdps[0] = lsm6dsl_from_fs2000dps_to_mdps(data_raw_angular_rate.i16bit[0]);
-      angular_rate_mdps[1] = lsm6dsl_from_fs2000dps_to_mdps(data_raw_angular_rate.i16bit[1]);
-      angular_rate_mdps[2] = lsm6dsl_from_fs2000dps_to_mdps(data_raw_angular_rate.i16bit[2]);
-     
-      sprintf((char*)tx_buffer, "Angular rate [mdps]:%4.2f\t%4.2f\t%4.2f\r\n",
-              angular_rate_mdps[0], angular_rate_mdps[1], angular_rate_mdps[2]);
-      tx_com( tx_buffer, strlen( (char const*)tx_buffer ) );
-    }   
-    if (reg.status_reg.tda)
-    {  
+      reading.angular_rate_mdps[0] = lsm6dsl_from_fs2000dps_to_mdps(data_raw_angular_rate.i16bit[0]);
+      reading.angular_rate_mdps[1] = lsm6dsl_from_fs2000dps_to_mdps(data_raw_angular_rate.i16bit[1]);
+      reading.angular_rate_mdps[2] = lsm6dsl_from_fs2000dps_to_mdps(data_raw_angular_rate.i16bit[2]);
+
       /* Read temperature data */
       memset(data_raw_temperature.u8bit, 0x00, sizeof(int16_t));
       lsm6dsl_temperature_raw_get(&dev_ctx, data_raw_temperature.u8bit);
-      temperature_degC = lsm6dsl_from_lsb_to_celsius( data_raw_temperature.i16bit );
-      
-      sprintf((char*)tx_buffer, "Temperature [degC]:%6.2f\r\n", temperature_degC );
-      tx_com( tx_buffer, strlen( (char const*)tx_buffer ) );
-    }
-  }
+      reading.temperature_degC = lsm6dsl_from_lsb_to_celsius( data_raw_temperature.i16bit );
+
+   return reading;
+
 }
 

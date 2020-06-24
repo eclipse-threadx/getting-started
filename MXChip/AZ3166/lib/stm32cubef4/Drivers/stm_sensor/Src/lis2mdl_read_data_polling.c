@@ -47,38 +47,17 @@
  * If a different hardware is used please comment all
  * following target board and redefine yours.
  */
-//#define STEVAL_MKI109V3
-#define NUCLEO_F411RE
-
-
-
-
-#if defined(STEVAL_MKI109V3)
-/* MKI109V3: Define communication interface */
-#define SENSOR_BUS hspi2
-
-/* MKI109V3: Vdd and Vddio power supply values */
-#define PWM_3V3 915
-
-#elif defined(NUCLEO_F411RE)
-/* NUCLEO_F411RE: Define communication interface */
-
-#define SENSOR_BUS I2cHandle
-#define hi2c1 I2cHandle
-#define huart2 UartHandle
-#endif
 
 /* Includes ------------------------------------------------------------------*/
 #include <string.h>
 #include <stdio.h>
 #include "stm32f4xx_hal.h"
 #include "lis2mdl_reg.h"
-
-
+#include "sensor.h"
 
 
 extern I2C_HandleTypeDef I2cHandle;
-extern UART_HandleTypeDef UartHandle;
+#define hi2c1 I2cHandle
 
 typedef union{
   int16_t i16bit[3];
@@ -95,10 +74,7 @@ typedef union{
 /* Private variables ---------------------------------------------------------*/
 static axis3bit16_t data_raw_magnetic;
 static axis1bit16_t data_raw_temperature;
-static float magnetic_mG[3];
-static float temperature_degC;
 static uint8_t whoamI, rst;
-static uint8_t tx_buffer[1000];
 
 /* Extern variables ----------------------------------------------------------*/
 #define    BOOT_TIME        20 //ms
@@ -114,43 +90,40 @@ static int32_t platform_write(void *handle, uint8_t reg, uint8_t *bufp,
                               uint16_t len);
 static int32_t platform_read(void *handle, uint8_t reg, uint8_t *bufp,
                              uint16_t len);
-static void tx_com(uint8_t *tx_buffer, uint16_t len);
 static void platform_delay(uint32_t ms);
-static void platform_init(void);
 
-/* Main Example --------------------------------------------------------------*/
-void lis2mdl_read_data_simple(void)
+static stmdev_ctx_t dev_ctx =
 {
-  /* Initialize mems driver interface */
-  stmdev_ctx_t dev_ctx;
+    platform_write,
+    platform_read,
+    &hi2c1,
+};
 
-  dev_ctx.write_reg = platform_write;
-  dev_ctx.read_reg = platform_read;
-  dev_ctx.handle = &SENSOR_BUS;
-
-  /* Initialize platform specific hardware */
-  platform_init();
+static uint32_t timeout = 5;
+/* Main Example --------------------------------------------------------------*/
+Sensor_StatusTypeDef lis2mdl_config(void)
+{
+  Sensor_StatusTypeDef ret = SENSOR_OK;
 
   /* Wait sensor boot time */
-  platform_delay(BOOT_TIME);
-
-#if defined(STEVAL_MKI109V3)
-  /* Default SPI mode is 3 wire, so enable 4 wire mode */
-  lis2mdl_spi_mode_set(&dev_ctx, LIS2MDL_SPI_4_WIRE);
-#endif
+  // platform_delay(BOOT_TIME);
+  whoamI =0;
 
   /* Check device ID */
   lis2mdl_device_id_get(&dev_ctx, &whoamI);
-  if (whoamI != LIS2MDL_ID)
-    while(1)
-    {
-      /* manage here device not found */
-    }
+  if(whoamI != LIS2MDL_ID)
+  {
+    ret = SENSOR_ERROR;
+  }
+  else
+  {
 
-  /* Restore default configuration */
-  lis2mdl_reset_set(&dev_ctx, PROPERTY_ENABLE);
+    timeout = 5;
+    /* Restore default configuration */
+    lis2mdl_reset_set(&dev_ctx, PROPERTY_ENABLE);
   do {
     lis2mdl_reset_get(&dev_ctx, &rst);
+    //printf(" Reset Error Magnetometer Sensor\r\n");
   } while (rst);
 
   /* Enable Block Data Update */
@@ -167,37 +140,34 @@ void lis2mdl_read_data_simple(void)
 
   /* Set device in continuous mode */
   lis2mdl_operating_mode_set(&dev_ctx, LIS2MDL_CONTINUOUS_MODE);
-
-  /* Read samples in polling mode (no int) */
-  while(1)
-  {
+  }
+  return ret;
+}
+lis2mdl_data_t lis2mdl_data_read(void)
+ {
+   lis2mdl_data_t reading = {0};
     uint8_t reg;
 
     /* Read output only if new value is available */
-    lis2mdl_mag_data_ready_get(&dev_ctx, &reg);
-    if (reg)
+    while((reg!=1) && (timeout>0))
     {
+        lis2mdl_mag_data_ready_get(&dev_ctx, &reg);
+        timeout --;
+    }
       /* Read magnetic field data */
       memset(data_raw_magnetic.u8bit, 0x00, 3 * sizeof(int16_t));
       lis2mdl_magnetic_raw_get(&dev_ctx, data_raw_magnetic.u8bit);
-      magnetic_mG[0] = lis2mdl_from_lsb_to_mgauss(data_raw_magnetic.i16bit[0]);
-      magnetic_mG[1] = lis2mdl_from_lsb_to_mgauss(data_raw_magnetic.i16bit[1]);
-      magnetic_mG[2] = lis2mdl_from_lsb_to_mgauss(data_raw_magnetic.i16bit[2]);
-
-      sprintf((char*)tx_buffer, "Magnetic field [mG]:%4.2f\t%4.2f\t%4.2f\r\n",
-              magnetic_mG[0], magnetic_mG[1], magnetic_mG[2]);
-      tx_com(tx_buffer, strlen((char const*)tx_buffer));
+      reading.magnetic_mG[0] = lis2mdl_from_lsb_to_mgauss(data_raw_magnetic.i16bit[0]);
+      reading.magnetic_mG[1] = lis2mdl_from_lsb_to_mgauss(data_raw_magnetic.i16bit[1]);
+      reading.magnetic_mG[2] = lis2mdl_from_lsb_to_mgauss(data_raw_magnetic.i16bit[2]);
 
       /* Read temperature data */
       memset(data_raw_temperature.u8bit, 0x00, sizeof(int16_t));
       lis2mdl_temperature_raw_get(&dev_ctx, data_raw_temperature.u8bit);
-      temperature_degC = lis2mdl_from_lsb_to_celsius(data_raw_temperature.i16bit);
-
-      sprintf((char*)tx_buffer, "Temperature [degC]:%6.2f\r\n",
-          temperature_degC);
-      tx_com(tx_buffer, strlen((char const*)tx_buffer));
-    }
-  }
+      reading.temperature_degC = lis2mdl_from_lsb_to_celsius(data_raw_temperature.i16bit);
+    
+    return reading;
+  
 }
 
 /*
@@ -220,17 +190,6 @@ static int32_t platform_write(void *handle, uint8_t reg, uint8_t *bufp,
     HAL_I2C_Mem_Write(handle, LIS2MDL_I2C_ADD, reg,
                       I2C_MEMADD_SIZE_8BIT, bufp, len, 1000);
   }
-#ifdef STEVAL_MKI109V3
-  else if (handle == &hspi2)
-  {
-    /* Write multiple command */
-    reg |= 0x40;
-    HAL_GPIO_WritePin(CS_up_GPIO_Port, CS_up_Pin, GPIO_PIN_RESET);
-    HAL_SPI_Transmit(handle, &reg, 1, 1000);
-    HAL_SPI_Transmit(handle, bufp, len, 1000);
-    HAL_GPIO_WritePin(CS_up_GPIO_Port, CS_up_Pin, GPIO_PIN_SET);
-  }
-#endif
   return 0;
 }
 
@@ -254,35 +213,7 @@ static int32_t platform_read(void *handle, uint8_t reg, uint8_t *bufp,
     HAL_I2C_Mem_Read(handle, LIS2MDL_I2C_ADD, reg,
                      I2C_MEMADD_SIZE_8BIT, bufp, len, 1000);
   }
-#ifdef STEVAL_MKI109V3
-  else if (handle == &hspi2)
-  {
-    /* Read multiple command */
-    reg |= 0xC0;
-    HAL_GPIO_WritePin(CS_up_GPIO_Port, CS_up_Pin, GPIO_PIN_RESET);
-    HAL_SPI_Transmit(handle, &reg, 1, 1000);
-    HAL_SPI_Receive(handle, bufp, len, 1000);
-    HAL_GPIO_WritePin(CS_up_GPIO_Port, CS_up_Pin, GPIO_PIN_SET);
-  }
-#endif
   return 0;
-}
-
-/*
- * @brief  Send buffer to console (platform dependent)
- *
- * @param  tx_buffer     buffer to trasmit
- * @param  len           number of byte to send
- *
- */
-static void tx_com(uint8_t *tx_buffer, uint16_t len)
-{
-  #ifdef NUCLEO_F411RE
-  HAL_UART_Transmit(&huart2, tx_buffer, len, 1000);
-  #endif
-  #ifdef STEVAL_MKI109V3
-  CDC_Transmit_FS(tx_buffer, len);
-  #endif
 }
 
 /*
@@ -294,18 +225,4 @@ static void tx_com(uint8_t *tx_buffer, uint16_t len)
 static void platform_delay(uint32_t ms)
 {
   HAL_Delay(ms);
-}
-
-/*
- * @brief  platform specific initialization (platform dependent)
- */
-static void platform_init(void)
-{
-#ifdef STEVAL_MKI109V3
-  TIM3->CCR1 = PWM_3V3;
-  TIM3->CCR2 = PWM_3V3;
-  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
-  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
-  HAL_Delay(1000);
-#endif
 }

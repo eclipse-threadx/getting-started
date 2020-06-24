@@ -8,7 +8,20 @@ set(TARGET stm32cubef4)
 
 add_library(${TARGET} INTERFACE)
 
-target_sources(${TARGET} INTERFACE ${STM32HAL_SOURCES})
+
+list(APPEND STM32HAL_SOURCES
+Drivers/stm_sensor/Src/lps22hb_reg.c
+Drivers/stm_sensor/Src/hts221_reg.c 
+Drivers/stm_sensor/Src/lsm6dsl_reg.c
+Drivers/stm_sensor/Src/lis2mdl_reg.c
+Drivers/stm_sensor/Src/lsm6dsl_read_data_polling.c
+Drivers/stm_sensor/Src/lps22hb_read_data_polling.c
+Drivers/stm_sensor/Src/hts221_read_data_polling.c
+Drivers/stm_sensor/Src/lis2mdl_read_data_polling.c
+)
+
+target_sources(${TARGET} INTERFACE ${STM32HAL_SOURCES}
+)
 
 target_compile_definitions(${TARGET}
     INTERFACE 
@@ -20,5 +33,7 @@ target_include_directories(${TARGET}
     INTERFACE
         ${CMSIS_INCLUDE_DIRS}
         ${STM32HAL_INCLUDE_DIR}
+        Drivers/stm_sensor/Inc
 )
+
 
