@@ -21,16 +21,16 @@ static void set_led_state(bool level)
 {
     if (level)
     {
-        // Pin level set to "high" state
-        printf("LED0 is turned OFF\r\n");
-    }
-    else
-    {
         // Pin level set to "low" state
         printf("LED0 is turned ON\r\n");
     }
+    else
+    {
+        // Pin level set to "high" state
+        printf("LED0 is turned OFF\r\n");
+    }
 
-    gpio_set_pin_level(PC18, level);
+    gpio_set_pin_level(PC18, !level);
 }
 
 static void mqtt_direct_method(CHAR *direct_method_name, CHAR *message, MQTT_DIRECT_METHOD_RESPONSE *response)
