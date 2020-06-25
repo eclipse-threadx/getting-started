@@ -36,6 +36,26 @@ static bool first_sync = false;
 
 int _gettimeofday(struct timeval *tp, void *tzvp);
 
+static void print_address(CHAR* preable, NXD_ADDRESS address)
+{
+    if (address.nxd_ip_version == NX_IP_VERSION_V4)
+    {
+        ULONG ipv4 = address.nxd_ip_address.v4;
+    
+        printf("\t%s: %d.%d.%d.%d\r\n",
+            preable,
+            (u_int8_t)(ipv4 >> 24),
+            (u_int8_t)(ipv4 >> 16 & 0xFF),
+            (u_int8_t)(ipv4 >> 8 & 0xFF),
+            (u_int8_t)(ipv4 & 0xFF));
+    }
+    else
+    {
+        printf("\tUnsupported address format\r\n");
+    }
+    
+}
+
 static VOID time_update_callback(NX_SNTP_TIME_MESSAGE* time_update_ptr, NX_SNTP_TIME* local_time)
 {
     // Set the update flag so we pick up the new time in the SNTP thread
@@ -65,12 +85,16 @@ static void set_sntp_time()
     tx_mutex_put(&time_mutex);
 
     nx_sntp_client_utility_display_date_time(&sntp_client, time_buffer, sizeof(time_buffer));
-    printf("SNTP time update: %s\r\n", time_buffer);
 
     if (first_sync == false)
     {
+        printf("\tSNTP time update: %s\r\n", time_buffer);
         printf("SUCCESS: SNTP initialized\r\n\r\n");
         first_sync = true;
+    }
+    else
+    {
+        printf("SNTP time update: %s\r\n", time_buffer);
     }
     
     // Flag the sync was successful
@@ -89,6 +113,7 @@ static UINT sntp_client_run()
         return status;
     }
 
+    print_address("SNTP IP address", sntp_address);
     status = nxd_sntp_client_initialize_unicast(&sntp_client, &sntp_address);
     if (status != NX_SUCCESS)
     {
@@ -153,22 +178,23 @@ static void sntp_thread_entry(ULONG info)
     {
         // Wait for an incoming SNTP message
         tx_event_flags_get(&sntp_flags, SNTP_UPDATE_EVENT, TX_OR_CLEAR, &events, 5 * NX_IP_PERIODIC_RATE);
-        
+
         status = nx_sntp_client_receiving_updates(&sntp_client, &server_status);
         if (status != NX_SUCCESS)
         {
             printf("FAIL: SNTP receiving updates call failed (0x%02x)\r\n", status);
             continue;
         }
-        
+
         if (server_status == NX_FALSE)
         {
             // Failed to read from server, restart the client
+            printf("SNTP server timeout, restarting client\r\n");
             nx_sntp_client_stop(&sntp_client);
             sntp_client_run();
             continue;
         }
-        
+
         if (events == SNTP_UPDATE_EVENT)
         {
             // New time, update our local time
@@ -176,7 +202,7 @@ static void sntp_thread_entry(ULONG info)
             events = 0;
         }
     }
-    
+
     nx_sntp_client_stop(&sntp_client);
     nx_sntp_client_delete(&sntp_client);
 
