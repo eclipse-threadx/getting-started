@@ -7,3 +7,6 @@
 [submodule "core/lib/azure-iot-preview"]
 	path = core/lib/azure-iot-preview
 	url = https://github.com/azure-rtos/azure-iot-preview
+[submodule "core/lib/jsmn/src"]
+	path = core/lib/jsmn/src
+	url = https://github.com/zserge/jsmn

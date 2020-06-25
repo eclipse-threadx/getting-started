@@ -10,6 +10,8 @@
 #include "nx_azure_iot_hub_client.h"
 #include "nx_azure_iot_provisioning_client.h"
 
+#include "jsmn.h"
+
 /* These are sample files, user can build their own certificate and
  * ciphersuites.  */
 #include "azure_iot_cert.h"
@@ -44,6 +46,8 @@ static NX_AZURE_IOT_PROVISIONING_CLIENT prov_client;
 static UCHAR sample_iothub_hostname[SAMPLE_MAX_BUFFER];
 static UCHAR sample_iothub_device_id[SAMPLE_MAX_BUFFER];
 #endif /* ENABLE_DPS_SAMPLE */
+
+static INT telemetry_interval = 10;
 
 /* Define sample threads. */
 static TX_THREAD sample_telemetry_thread;
@@ -86,11 +90,10 @@ static VOID printf_packet(NX_PACKET* packet_ptr)
 {
     while (packet_ptr != NX_NULL)
     {
-        printf("%.*s",
-            (INT)(packet_ptr->nx_packet_append_ptr - packet_ptr->nx_packet_prepend_ptr),
-            (CHAR*)packet_ptr->nx_packet_prepend_ptr);
+        printf("%.*s", (INT)(packet_ptr->nx_packet_length), (CHAR*)packet_ptr->nx_packet_prepend_ptr);
         packet_ptr = packet_ptr->nx_packet_next;
     }
+    printf("\r\n");
 }
 
 static VOID connection_status_callback(NX_AZURE_IOT_HUB_CLIENT* hub_client_ptr, UINT status)
@@ -118,8 +121,8 @@ UINT azure_iot_embedded_sdk_entry(
 #else
     UCHAR* iothub_hostname       = (UCHAR*)IOT_HUB_HOSTNAME;
     UCHAR* iothub_device_id      = (UCHAR*)IOT_DEVICE_ID;
-    UINT iothub_hostname_length  = sizeof(IOT_HUB_HOSTNAME) - 1;
-    UINT iothub_device_id_length = sizeof(IOT_DEVICE_ID) - 1;
+    UINT iothub_hostname_length  = strlen(IOT_HUB_HOSTNAME);
+    UINT iothub_device_id_length = strlen(IOT_DEVICE_ID);
 #endif /* ENABLE_DPS_SAMPLE */
 
     /* Create Azure IoT handler.  */
@@ -171,7 +174,7 @@ UINT azure_iot_embedded_sdk_entry(
              iothub_device_id,
              iothub_device_id_length,
              (UCHAR*)MODULE_ID,
-             sizeof(MODULE_ID) - 1,
+             strlen(MODULE_ID),
              _nx_azure_iot_tls_supported_crypto,
              _nx_azure_iot_tls_supported_crypto_size,
              _nx_azure_iot_tls_ciphersuite_map,
@@ -189,7 +192,7 @@ UINT azure_iot_embedded_sdk_entry(
 
     /* Set symmetric key.  */
     if ((status = nx_azure_iot_hub_client_symmetric_key_set(
-             &iothub_client, (UCHAR*)IOT_PRIMARY_KEY, sizeof(IOT_PRIMARY_KEY) - 1)))
+             &iothub_client, (UCHAR*)IOT_PRIMARY_KEY, strlen(IOT_PRIMARY_KEY))))
     {
         printf("Failed on nx_azure_iot_hub_client_symmetric_key_set!\r\n");
         return status;
@@ -411,7 +414,7 @@ void sample_telemetry_thread_entry(ULONG parameter)
 
         printf("Telemetry message sent: %s.\r\n", buffer);
         nx_azure_iot_hub_client_telemetry_message_delete(packet_ptr);
-        tx_thread_sleep(10 * NX_IP_PERIODIC_RATE);
+        tx_thread_sleep(telemetry_interval * NX_IP_PERIODIC_RATE);
     }
 }
 
@@ -456,8 +459,6 @@ void sample_c2d_thread_entry(ULONG parameter)
 
         printf("Receive message:");
         printf_packet(packet_ptr);
-        printf("\r\n");
-
         nx_packet_release(packet_ptr);
     }
 }
@@ -485,6 +486,7 @@ void sample_direct_method_thread_entry(ULONG parameter)
     /* Loop to receive direct method message.  */
     while (true)
     {
+        http_status = 501;
 
         if ((status = nx_azure_iot_hub_client_direct_method_message_receive(&iothub_client,
                  &method_name_ptr,
@@ -500,21 +502,15 @@ void sample_direct_method_thread_entry(ULONG parameter)
 
         printf("Receive method call: %.*s, with payload:", (INT)method_name_length, (CHAR*)method_name_ptr);
         printf_packet(packet_ptr);
-        printf("\r\n");
 
-        if (strncmp((CHAR*)method_name_ptr, "setLedState", method_name_length) == 0)
+        if (strncmp((CHAR*)method_name_ptr, "set_led_state", method_name_length) == 0)
         {
-            // setLedState command
+            // set_led_state command
             printf("received set_led_state\r\n");
 
             bool arg = strncmp((CHAR*)packet_ptr->nx_packet_prepend_ptr, "true", packet_ptr->nx_packet_length);
             set_led_state(arg);
             http_status = 200;
-        }
-        else
-        {
-            // Bad command
-            http_status = 501;
         }
 
         if ((status = nx_azure_iot_hub_client_direct_method_message_response(&iothub_client,
@@ -562,8 +558,13 @@ void sample_device_twin_thread_entry(ULONG parameter)
 
     printf("Receive twin properties :");
     printf_packet(packet_ptr);
-    printf("\r\n");
     nx_packet_release(packet_ptr);
+
+    jsmn_parser parser;
+    jsmntok_t tokens[16];
+    INT token_count = 0;
+
+    jsmn_init(&parser);
 
     /* Loop to receive device twin message.  */
     while (true)
@@ -577,12 +578,19 @@ void sample_device_twin_thread_entry(ULONG parameter)
 
         printf("Receive desired property call: ");
         printf_packet(packet_ptr);
-        printf("\r\n");
+
+        token_count =
+            jsmn_parse(&parser, (CHAR *)packet_ptr->nx_packet_prepend_ptr,
+                       packet_ptr->nx_packet_length, tokens, 16);
+
+        // find the telemetryInterval
+        //for ()
+        
         nx_packet_release(packet_ptr);
 
         if ((status = nx_azure_iot_hub_client_device_twin_reported_properties_send(&iothub_client,
                  (UCHAR*)fixed_reported_properties,
-                 sizeof(fixed_reported_properties) - 1,
+                 strlen(fixed_reported_properties),
                  &request_id,
                  &response_status,
                  NX_WAIT_FOREVER)))

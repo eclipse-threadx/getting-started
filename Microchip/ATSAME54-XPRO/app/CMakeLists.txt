@@ -25,6 +25,7 @@ target_link_libraries(${PROJECT_NAME}
     netxdriver
     atmel_start
     app_common
+    jsmn
 )
 
 target_link_options(${PROJECT_NAME}
