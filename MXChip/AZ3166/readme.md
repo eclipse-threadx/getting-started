@@ -215,7 +215,7 @@ You can use the **Termite** utility to monitor communication and confirm that yo
     * Data bits: 8
     * Stop bits: 1
 
-    Now you can view the DevKit is publising temperature telemetry to IoT Hub in every a few seconds.
+    Now you can view the DevKit is publishing sensor telemetry data to IoT Hub in every a few seconds.
 
     ![Termite](./media/termite.png)
 
