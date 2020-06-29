@@ -56,7 +56,6 @@ static TX_THREAD sample_c2d_thread;
 static ULONG sample_c2d_thread_stack[SAMPLE_STACK_SIZE / sizeof(ULONG)];
 static TX_THREAD sample_direct_method_thread;
 static ULONG sample_direct_method_thread_stack[SAMPLE_STACK_SIZE / sizeof(ULONG)];
-static CHAR fixed_reported_properties[] = "{\"sample_report\": \"OK\"}";
 static TX_THREAD sample_device_twin_thread;
 static ULONG sample_device_twin_thread_stack[SAMPLE_STACK_SIZE / sizeof(ULONG)];
 
@@ -107,6 +106,70 @@ static VOID connection_status_callback(NX_AZURE_IOT_HUB_CLIENT* hub_client_ptr, 
     {
         printf("Connected to IoTHub.\r\n");
     }
+}
+
+static bool findJsonInt(const char* json, jsmntok_t* tokens, int tokens_count, const char* s, int* value)
+{
+    for (int i = 1; i < tokens_count; i++)
+    {
+        if ((tokens[i].type == JSMN_STRING) && (strlen(s) == tokens[i].end - tokens[i].start) &&
+            (strncmp(json + tokens[i].start, s, tokens[i].end - tokens[i].start) == 0))
+        {
+            *value = atoi(json + tokens[i + 1].start);
+
+            printf("Desired property %s = %d\r\n", "telemetryInterval", *value);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+static UINT report_telemetry_float(CHAR* key, float value, NX_PACKET* packet_ptr)
+{
+    UINT status;
+    CHAR buffer[30];
+
+    snprintf(buffer, sizeof(buffer), "{\"%s\":%0.2f}", key, value);
+
+    if ((status = nx_azure_iot_hub_client_telemetry_send(
+             &iothub_client, packet_ptr, (UCHAR*)buffer, strlen(buffer), NX_WAIT_FOREVER)))
+    {
+        printf("Telemetry message send failed!: error code = 0x%08x\r\n", status);
+        //        nx_azure_iot_hub_client_telemetry_message_delete(packet_ptr);
+        return status;
+    }
+
+    printf("Telemetry message sent: %s.\r\n", buffer);
+
+    return NX_SUCCESS;
+}
+
+static UINT report_device_twin_property_float(CHAR* key, float value)
+{
+    UINT status;
+    UINT response_status;
+    UINT request_id;
+    CHAR buffer[30];
+
+    snprintf(buffer, sizeof(buffer), "{\"%s\":%0.2f}", key, value);
+
+    if ((status = nx_azure_iot_hub_client_device_twin_reported_properties_send(
+             &iothub_client, (UCHAR*)buffer, strlen(buffer), &request_id, &response_status, NX_WAIT_FOREVER)))
+    {
+        printf("Device twin reported properties failed!: error code = 0x%08x\r\n", status);
+        return status;
+    }
+
+    if ((response_status < 200) || (response_status >= 300))
+    {
+        printf("device twin report properties failed with code : %d\r\n", response_status);
+        return status;
+    }
+
+    printf("Device twin property sent: %s.\r\n", buffer);
+
+    return NX_SUCCESS;
 }
 
 UINT azure_iot_embedded_sdk_entry(
@@ -286,7 +349,7 @@ UINT azure_iot_embedded_sdk_entry(
         tx_thread_sleep(NX_IP_PERIODIC_RATE);
     }
 
-    /* Destroy IoTHub Client.  */
+    /* Destroy IoTHub Client. */
     nx_azure_iot_hub_client_disconnect(&iothub_client);
     nx_azure_iot_hub_client_deinitialize(&iothub_client);
     nx_azure_iot_delete(&nx_azure_iot);
@@ -366,11 +429,10 @@ static UINT sample_dps_entry(
 }
 #endif /* ENABLE_DPS_SAMPLE */
 
-void sample_telemetry_thread_entry(ULONG parameter)
+static void sample_telemetry_thread_entry(ULONG parameter)
 {
     NX_PACKET* packet_ptr;
     UINT status;
-    CHAR buffer[30];
     float temperature = 28.5;
 
     NX_PARAMETER_NOT_USED(parameter);
@@ -390,35 +452,16 @@ void sample_telemetry_thread_entry(ULONG parameter)
         temperature = Weather_getTemperatureDegC();
 #endif
 
-        /* Add properties to telemetry message. */
-        /*        if ((status = nx_azure_iot_hub_client_telemetry_property_add(packet_ptr,
-                         (UCHAR*)temperature_property,
-                         strlen(temperature_property),
-                         (UCHAR*)temperature_value,
-                         strlen(temperature_value),
-                         NX_WAIT_FOREVER)))
-                {
-                    printf("Telemetry property add failed!: error code = 0x%08x\r\n", status);
-                    nx_azure_iot_hub_client_telemetry_message_delete(packet_ptr);
-                    break;
-                }*/
+        report_telemetry_float("temperature", temperature, packet_ptr);
+        report_device_twin_property_float("currentTemperature", temperature);
 
-        snprintf(buffer, sizeof(buffer), "{\"temperature\":%0.2f}", temperature);
-        if ((status = nx_azure_iot_hub_client_telemetry_send(
-                 &iothub_client, packet_ptr, (UCHAR*)buffer, strlen(buffer), NX_WAIT_FOREVER)))
-        {
-            printf("Telemetry message send failed!: error code = 0x%08x\r\n", status);
-            nx_azure_iot_hub_client_telemetry_message_delete(packet_ptr);
-            break;
-        }
-
-        printf("Telemetry message sent: %s.\r\n", buffer);
         nx_azure_iot_hub_client_telemetry_message_delete(packet_ptr);
+
         tx_thread_sleep(telemetry_interval * NX_IP_PERIODIC_RATE);
     }
 }
 
-void sample_c2d_thread_entry(ULONG parameter)
+static void sample_c2d_thread_entry(ULONG parameter)
 {
     NX_PACKET* packet_ptr;
     UINT status = 0;
@@ -463,7 +506,7 @@ void sample_c2d_thread_entry(ULONG parameter)
     }
 }
 
-void sample_direct_method_thread_entry(ULONG parameter)
+static void sample_direct_method_thread_entry(ULONG parameter)
 {
     NX_PACKET* packet_ptr;
     UINT status;
@@ -529,12 +572,14 @@ void sample_direct_method_thread_entry(ULONG parameter)
     }
 }
 
-void sample_device_twin_thread_entry(ULONG parameter)
+static void sample_device_twin_thread_entry(ULONG parameter)
 {
     NX_PACKET* packet_ptr;
-    UINT status = 0;
-    UINT response_status;
-    UINT request_id;
+    UINT status;
+
+    jsmn_parser parser;
+    jsmntok_t tokens[16];
+    INT token_count;
 
     NX_PARAMETER_NOT_USED(parameter);
 
@@ -544,6 +589,7 @@ void sample_device_twin_thread_entry(ULONG parameter)
         return;
     }
 
+    // Request and parse the device twin properties
     if ((status = nx_azure_iot_hub_client_device_twin_properties_request(&iothub_client, NX_WAIT_FOREVER)))
     {
         printf("device twin document request failed!: error code = 0x%08x\r\n", status);
@@ -556,52 +602,30 @@ void sample_device_twin_thread_entry(ULONG parameter)
         return;
     }
 
-    printf("Receive twin properties :");
-    printf_packet(packet_ptr);
-    nx_packet_release(packet_ptr);
-
-    jsmn_parser parser;
-    jsmntok_t tokens[16];
-    INT token_count = 0;
-
-    jsmn_init(&parser);
-
-    /* Loop to receive device twin message.  */
+    /* Loop to receive device twin message. */
     while (true)
     {
+        printf("Receive device twin properties: ");
+        printf_packet(packet_ptr);
+
+        const CHAR* json_str = (CHAR*)packet_ptr->nx_packet_prepend_ptr;
+        const ULONG json_len = packet_ptr->nx_packet_length;
+
+        jsmn_init(&parser);
+        token_count = jsmn_parse(&parser, json_str, json_len, tokens, 16);
+
+        findJsonInt(json_str, tokens, token_count, "telemetryInterval", &telemetry_interval);
+        tx_thread_wait_abort(&sample_telemetry_thread);
+
+        nx_packet_release(packet_ptr);
+
+        // Wait for a desired property update
         if ((status = nx_azure_iot_hub_client_device_twin_desired_properties_receive(
                  &iothub_client, &packet_ptr, NX_WAIT_FOREVER)))
         {
-            printf("Receive desired property receive failed!: error code = 0x%08x\r\n", status);
-            break;
-        }
-
-        printf("Receive desired property call: ");
-        printf_packet(packet_ptr);
-
-        token_count =
-            jsmn_parse(&parser, (CHAR *)packet_ptr->nx_packet_prepend_ptr,
-                       packet_ptr->nx_packet_length, tokens, 16);
-
-        // find the telemetryInterval
-        //for ()
-        
-        nx_packet_release(packet_ptr);
-
-        if ((status = nx_azure_iot_hub_client_device_twin_reported_properties_send(&iothub_client,
-                 (UCHAR*)fixed_reported_properties,
-                 strlen(fixed_reported_properties),
-                 &request_id,
-                 &response_status,
-                 NX_WAIT_FOREVER)))
-        {
-            printf("Device twin reported properties failed!: error code = 0x%08x\r\n", status);
-            break;
-        }
-
-        if ((response_status < 200) || (response_status >= 300))
-        {
-            printf("device twin report properties failed with code : %d\r\n", response_status);
+            printf("Receive desired property receive failed!: error code = "
+                   "0x%08x\r\n",
+                status);
             break;
         }
     }
