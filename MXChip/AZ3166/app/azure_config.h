@@ -13,10 +13,10 @@
 
 #define WIFI_PASSWORD       ""
 
-/* WIFI Security, the security types are defined in wwwd_constants.h.  */
+/* WIFI Security, the security types are defined in wwd_constants.h.  */
 #define WIFI_SECURITY       WICED_SECURITY_WPA2_MIXED_PSK
 /* Country codes are defined in wwd_constants.h.  */
-#define WIFI_COUNTRY        WICED_COUNTRY_CHINA
+#define WIFI_COUNTRY        WICED_COUNTRY_GERMANY
 
 // ----------------------------------------------------------------------------
 // Azure IoT Device information

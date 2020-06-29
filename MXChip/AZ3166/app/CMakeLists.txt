@@ -7,7 +7,7 @@ set(SOURCES
     startup/system_stm32f4xx.c
     startup/startup_stm32f412rx.s
     startup/tx_initialize_low_level.S
-
+   
     azure_iothub.c
     board_init.c
     console.c

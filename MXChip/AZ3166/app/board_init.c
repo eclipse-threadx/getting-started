@@ -1,11 +1,87 @@
 #include <stdio.h>
 #include "board_init.h"
+#include "sensor.h"
+
+/* I2C handler declaration */
+I2C_HandleTypeDef I2cHandle;
+
+#define I2C_ADDRESS        0x30F
+
+/* I2C SPEEDCLOCK define to max value: 400 KHz on STM32F4xx*/
+#define I2C_SPEEDCLOCK   400000
+#define I2C_DUTYCYCLE    I2C_DUTYCYCLE_2
+
+/* Definition for I2Cx clock resources */
+#define I2Cx                             I2C1
+
+#define I2Cx_CLK_ENABLE()               __HAL_RCC_I2C1_CLK_ENABLE()
+#define I2Cx_SDA_GPIO_CLK_ENABLE()      __HAL_RCC_GPIOB_CLK_ENABLE()
+#define I2Cx_SCL_GPIO_CLK_ENABLE()      __HAL_RCC_GPIOB_CLK_ENABLE() 
+
+#define I2Cx_FORCE_RESET()              __HAL_RCC_I2C1_FORCE_RESET()
+#define I2Cx_RELEASE_RESET()            __HAL_RCC_I2C1_RELEASE_RESET()
+
+/* Definition for I2Cx Pins */
+#define I2Cx_SCL_PIN                    GPIO_PIN_8
+#define I2Cx_SCL_GPIO_PORT              GPIOB
+#define I2Cx_SDA_PIN                    GPIO_PIN_9
+#define I2Cx_SDA_GPIO_PORT              GPIOB
+#define I2Cx_SCL_SDA_AF                 GPIO_AF4_I2C1
 
 UART_HandleTypeDef UartHandle;
+
+
+void HAL_I2C_MspInit(I2C_HandleTypeDef *hi2c)
+{
+  GPIO_InitTypeDef  GPIO_InitStruct;
+  
+  /*##-1- Enable peripherals and GPIO Clocks #################################*/
+  /* Enable GPIO TX/RX clock */
+  I2Cx_SCL_GPIO_CLK_ENABLE();
+  I2Cx_SDA_GPIO_CLK_ENABLE();
+  /* Enable I2Cx clock */
+  I2Cx_CLK_ENABLE(); 
+
+  /*##-2- Configure peripheral GPIO ##########################################*/  
+  /* I2C TX GPIO pin configuration  */
+  GPIO_InitStruct.Pin       = I2Cx_SCL_PIN;
+  GPIO_InitStruct.Mode      = GPIO_MODE_AF_OD;
+  GPIO_InitStruct.Pull      = GPIO_PULLUP;
+  GPIO_InitStruct.Speed     = GPIO_SPEED_HIGH;
+  GPIO_InitStruct.Alternate = I2Cx_SCL_SDA_AF;
+  HAL_GPIO_Init(I2Cx_SCL_GPIO_PORT, &GPIO_InitStruct);
+    
+  /* I2C RX GPIO pin configuration  */
+  GPIO_InitStruct.Pin       = I2Cx_SDA_PIN;
+  GPIO_InitStruct.Alternate = I2Cx_SCL_SDA_AF;
+  HAL_GPIO_Init(I2Cx_SDA_GPIO_PORT, &GPIO_InitStruct);
+}
 
 static void SystemClock_Config(void);
 static void STM32_Error_Handler(void);
 static void UART_Console_Init(void);
+
+
+static void Init_MEM1_Sensors(void)
+{    
+    if(SENSOR_OK != lps22hb_config())
+    {
+        printf("Init Error Pressure Sensor\r\n");
+    }
+    if(SENSOR_OK != hts221_config())
+    {
+        printf("Init Error Humidity-Temperature Sensor\r\n");
+    }    
+    printf("Humidity-Temperatur Sensor OK \r\n");
+    if(SENSOR_OK != lsm6dsl_config())
+    {
+        printf("Init Error Accelerometer Sensor\r\n");
+    }
+    if(SENSOR_OK != lis2mdl_config())
+    {
+        printf("Init Error Magnetometer Sensor\r\n");
+    }
+}
 
 VOID board_init(void)
 {
@@ -103,6 +179,25 @@ VOID board_init(void)
     gpio_init_structure.Pin = GPIO_PIN_3;
     gpio_init_structure.Alternate = GPIO_AF1_TIM2;
     HAL_GPIO_Init(GPIOB, &gpio_init_structure);
+    
+    
+    I2cHandle.Instance             = I2Cx;
+    I2cHandle.Init.ClockSpeed      = I2C_SPEEDCLOCK;
+    I2cHandle.Init.DutyCycle       = I2C_DUTYCYCLE;
+    I2cHandle.Init.OwnAddress1     = I2C_ADDRESS;
+    I2cHandle.Init.AddressingMode  = I2C_ADDRESSINGMODE_10BIT;
+    I2cHandle.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+    I2cHandle.Init.OwnAddress2     = 0xFF;
+    I2cHandle.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+    I2cHandle.Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;  
+
+    if(HAL_I2C_Init(&I2cHandle) != HAL_OK)
+    {
+    /* Initialization Error */
+    while(1);    
+    }
+    
+    Init_MEM1_Sensors();
 }
 
 /**

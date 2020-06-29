@@ -33,7 +33,7 @@ Clone the following repo to download all sample device code, setup scripts, and 
 To clone the repo, run the following command in Ubuntu bash command line:
 
 ```
-git clone https://github.com/azure-rtos/getting-started
+git clone --recursive https://github.com/azure-rtos/getting-started
 ```
 
 ### Install the tools
