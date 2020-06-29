@@ -90,7 +90,7 @@ static int32_t platform_write(void *handle, uint8_t reg, uint8_t *bufp,
                               uint16_t len);
 static int32_t platform_read(void *handle, uint8_t reg, uint8_t *bufp,
                              uint16_t len);
-static void platform_delay(uint32_t ms);
+// static void platform_delay(uint32_t ms);
 
 static stmdev_ctx_t dev_ctx =
 {
@@ -222,7 +222,8 @@ static int32_t platform_read(void *handle, uint8_t reg, uint8_t *bufp,
  * @param  ms        delay in ms
  *
  */
+/* 
 static void platform_delay(uint32_t ms)
 {
   HAL_Delay(ms);
-}
+} */
