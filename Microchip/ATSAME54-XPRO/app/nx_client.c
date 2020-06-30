@@ -15,8 +15,7 @@
 // These are sample files, user can build their own certificate and ciphersuites
 #include "azure_iot_cert.h"
 #include "azure_iot_ciphersuites.h"
-
-#include "azure_iot/azure_iot_nx_client.h"
+#include "azure_iot_nx_client.h"
 
 #include "azure_config.h"
 
@@ -219,7 +218,7 @@ static void c2d_thread_entry(ULONG parameter)
     }
 }
 
-UINT azure_iot_embedded_sdk_entry(
+UINT azure_iot_nx_client_entry(
     NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, UINT (*unix_time_callback)(ULONG* unix_time))
 {
     UINT status;

@@ -41,6 +41,18 @@ UINT azure_iot_nx_client_create(AZURE_IOT_NX_CLIENT* azure_iot_nx_client,
     printf("\tHub hostname: %s\r\n", iot_hub_hostname);
     printf("\tDevice id: %s\r\n", iot_device_id);
 
+    if (azure_iot_nx_client == NULL)
+    {
+        printf("ERROR: azure_iot_nx_client is NULL\r\n");
+        return NX_PTR_ERROR;
+    }
+
+    if (iot_hub_hostname[0] == 0 || iot_device_id[0] == 0 || iot_sas_key[0] == 0)
+    {
+        printf("ERROR: IoT Hub connection configuration is empty\r\n");
+        return NX_PTR_ERROR;
+    }
+
     memset(azure_iot_nx_client, 0, sizeof(&azure_iot_nx_client));
 
     /* Create Azure IoT handler. */
@@ -90,9 +102,7 @@ UINT azure_iot_nx_client_create(AZURE_IOT_NX_CLIENT* azure_iot_nx_client,
              sizeof(azure_iot_nx_client->nx_azure_iot_tls_metadata_buffer),
              &azure_iot_nx_client->root_ca_cert)))
     {
-        printf("Failed on nx_azure_iot_hub_client_initialize!: error code = "
-               "0x%08x\r\n",
-            status);
+        printf("Failed on nx_azure_iot_hub_client_initialize!: error code = 0x%08x\r\n", status);
         nx_azure_iot_delete(&azure_iot_nx_client->nx_azure_iot);
         return status;
     }
@@ -266,7 +276,7 @@ UINT azure_iot_nx_client_enable_c2d(AZURE_IOT_NX_CLIENT* azure_iot_nx_client, th
     return NX_SUCCESS;
 }
 
-UINT report_telemetry_float(AZURE_IOT_NX_CLIENT* azure_iot_nx_client, CHAR* key, float value, NX_PACKET* packet_ptr)
+UINT azure_iot_nx_client_publish_float_telemetry(AZURE_IOT_NX_CLIENT* azure_iot_nx_client, CHAR* key, float value, NX_PACKET* packet_ptr)
 {
     UINT status;
     CHAR buffer[30];
@@ -286,7 +296,7 @@ UINT report_telemetry_float(AZURE_IOT_NX_CLIENT* azure_iot_nx_client, CHAR* key,
     return NX_SUCCESS;
 }
 
-UINT report_device_twin_property_float(AZURE_IOT_NX_CLIENT* azure_iot_nx_client, CHAR* key, float value)
+UINT azure_iot_nx_client_publish_float_property(AZURE_IOT_NX_CLIENT* azure_iot_nx_client, CHAR* key, float value)
 {
     UINT status;
     UINT response_status;

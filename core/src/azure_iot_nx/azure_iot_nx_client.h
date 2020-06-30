@@ -63,8 +63,8 @@ UINT azure_iot_nx_client_enable_direct_method(
     AZURE_IOT_NX_CLIENT* azure_iot_nx_client, threadx_entry direct_method_entry);
 UINT azure_iot_nx_client_enable_c2d(AZURE_IOT_NX_CLIENT* azure_iot_nx_client, threadx_entry c2d_entry);
 
-UINT report_telemetry_float(AZURE_IOT_NX_CLIENT* azure_iot_nx_client, CHAR* key, float value, NX_PACKET* packet_ptr);
-UINT report_device_twin_property_float(AZURE_IOT_NX_CLIENT* azure_iot_nx_client, CHAR* key, float value);
+UINT azure_iot_nx_client_publish_float_telemetry(AZURE_IOT_NX_CLIENT* azure_iot_nx_client, CHAR* key, float value, NX_PACKET* packet_ptr);
+UINT azure_iot_nx_client_publish_float_property(AZURE_IOT_NX_CLIENT* azure_iot_nx_client, CHAR* key, float value);
 
 VOID printf_packet(NX_PACKET* packet_ptr);
 bool findJsonInt(const char* json, jsmntok_t* tokens, int tokens_count, const char* s, int* value);

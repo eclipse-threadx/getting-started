@@ -6,12 +6,13 @@
 
 /*************** Azure IoT Hub Connection Transport ******************/
 // Define this variable to use the MQTT layer directly, otherwise the Azure RTOS Embedded SDK is used.
-//#define AZURE_IOT_MQTT
+#define USE_MQTT
 
 /*************** Azure IoT Hub Connection Configuration ******************/
 #define IOT_HUB_HOSTNAME    ""
 #define IOT_DEVICE_ID       ""
 #define IOT_PRIMARY_KEY     ""
+
 
 /*************** Sensor Configuration ******************/
 // 0 - BME280 sensor is not present

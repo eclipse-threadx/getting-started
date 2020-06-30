@@ -8,8 +8,8 @@ set(SOURCES
     startup/system_same54.c
     startup/tx_initialize_low_level.S
 
-    azure_iot_embedded_sdk.c
-    azure_iot_mqtt.c
+    nx_client.c
+    mqtt.c
     board_init.c
     main.c
 )
