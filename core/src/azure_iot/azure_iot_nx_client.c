@@ -5,8 +5,6 @@
 
 #include <stdio.h>
 
-#include "jsmn.h"
-
 #include "azure_iot_cert.h"
 #include "azure_iot_ciphersuites.h"
 
@@ -28,23 +26,6 @@ static VOID connection_status_callback(NX_AZURE_IOT_HUB_CLIENT* hub_client_ptr, 
     }
 }
 
-static bool findJsonInt(const char* json, jsmntok_t* tokens, int tokens_count, const char* s, int* value)
-{
-    for (int i = 1; i < tokens_count; i++)
-    {
-        if ((tokens[i].type == JSMN_STRING) && (strlen(s) == tokens[i].end - tokens[i].start) &&
-            (strncmp(json + tokens[i].start, s, tokens[i].end - tokens[i].start) == 0))
-        {
-            *value = atoi(json + tokens[i + 1].start);
-
-            printf("Desired property %s = %d\r\n", "telemetryInterval", *value);
-            return true;
-        }
-    }
-
-    return false;
-}
-
 UINT azure_iot_nx_client_create(AZURE_IOT_NX_CLIENT* azure_iot_nx_client,
     NX_IP* nx_ip,
     NX_PACKET_POOL* nx_pool,
@@ -52,15 +33,13 @@ UINT azure_iot_nx_client_create(AZURE_IOT_NX_CLIENT* azure_iot_nx_client,
     UINT (*unix_time_callback)(ULONG* unix_time),
     CHAR* iot_hub_hostname,
     CHAR* iot_device_id,
-    CHAR* iot_sas_key,
-    CHAR* iot_model_id)
+    CHAR* iot_sas_key)
 {
     UINT status = 0;
 
     printf("Initializing Azure IoT Hub client\r\n");
     printf("\tHub hostname: %s\r\n", iot_hub_hostname);
     printf("\tDevice id: %s\r\n", iot_device_id);
-    printf("\tModel id: %s\r\n", iot_model_id);
 
     memset(azure_iot_nx_client, 0, sizeof(&azure_iot_nx_client));
 
@@ -101,8 +80,8 @@ UINT azure_iot_nx_client_create(AZURE_IOT_NX_CLIENT* azure_iot_nx_client,
              strlen(iot_hub_hostname),
              (UCHAR*)iot_device_id,
              strlen(iot_device_id),
-             (UCHAR*)iot_model_id,
-             strlen(iot_model_id),
+             (UCHAR*)MODULE_ID,
+             strlen(MODULE_ID),
              _nx_azure_iot_tls_supported_crypto,
              _nx_azure_iot_tls_supported_crypto_size,
              _nx_azure_iot_tls_ciphersuite_map,
@@ -298,7 +277,7 @@ UINT report_telemetry_float(AZURE_IOT_NX_CLIENT* azure_iot_nx_client, CHAR* key,
              &azure_iot_nx_client->iothub_client, packet_ptr, (UCHAR*)buffer, strlen(buffer), NX_WAIT_FOREVER)))
     {
         printf("Telemetry message send failed!: error code = 0x%08x\r\n", status);
-        //        nx_azure_iot_hub_client_telemetry_message_delete(packet_ptr);
+        nx_azure_iot_hub_client_telemetry_message_delete(packet_ptr);
         return status;
     }
 
@@ -346,4 +325,21 @@ VOID printf_packet(NX_PACKET* packet_ptr)
         packet_ptr = packet_ptr->nx_packet_next;
     }
     printf("\r\n");
+}
+
+bool findJsonInt(const char* json, jsmntok_t* tokens, int tokens_count, const char* s, int* value)
+{
+    for (int i = 1; i < tokens_count; i++)
+    {
+        if ((tokens[i].type == JSMN_STRING) && (strlen(s) == tokens[i].end - tokens[i].start) &&
+            (strncmp(json + tokens[i].start, s, tokens[i].end - tokens[i].start) == 0))
+        {
+            *value = atoi(json + tokens[i + 1].start);
+
+            printf("Desired property %s = %d\r\n", "telemetryInterval", *value);
+            return true;
+        }
+    }
+
+    return false;
 }

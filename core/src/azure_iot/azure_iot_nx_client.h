@@ -8,6 +8,8 @@
 #include "nx_azure_iot_hub_client.h"
 #include "nx_azure_iot_provisioning_client.h"
 
+#include "jsmn.h"
+
 #include "azure_iot_ciphersuites.h"
 
 #define NX_AZURE_IOT_STACK_SIZE 2048
@@ -49,8 +51,7 @@ UINT azure_iot_nx_client_create(AZURE_IOT_NX_CLIENT* azure_iot_nx_client,
     UINT (*unix_time_callback)(ULONG* unix_time),
     CHAR* iot_hub_hostname,
     CHAR* iot_device_id,
-    CHAR* iot_sas_key,
-    CHAR* iot_model_id);
+    CHAR* iot_sas_key);
 UINT azure_iot_nx_client_delete(AZURE_IOT_NX_CLIENT* azure_iot_nx_client);
 
 UINT azure_iot_nx_client_connect(AZURE_IOT_NX_CLIENT* azure_iot_nx_client);
@@ -66,5 +67,6 @@ UINT report_telemetry_float(AZURE_IOT_NX_CLIENT* azure_iot_nx_client, CHAR* key,
 UINT report_device_twin_property_float(AZURE_IOT_NX_CLIENT* azure_iot_nx_client, CHAR* key, float value);
 
 VOID printf_packet(NX_PACKET* packet_ptr);
+bool findJsonInt(const char* json, jsmntok_t* tokens, int tokens_count, const char* s, int* value);
 
 #endif
