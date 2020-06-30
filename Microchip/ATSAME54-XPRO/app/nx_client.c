@@ -66,8 +66,8 @@ static void telemetry_thread_entry(ULONG parameter)
         temperature = Weather_getTemperatureDegC();
 #endif
 
-        report_telemetry_float(&azure_iot_nx_client, "temperature", temperature, packet_ptr);
-        report_device_twin_property_float(&azure_iot_nx_client, "currentTemperature", temperature);
+        azure_iot_nx_client_publish_float_telemetry(&azure_iot_nx_client, "temperature", temperature, packet_ptr);
+        azure_iot_nx_client_publish_float_property(&azure_iot_nx_client, "currentTemperature", temperature);
 
         tx_event_flags_get(
             &azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR_CLEAR, &events, telemetry_interval * NX_IP_PERIODIC_RATE);
