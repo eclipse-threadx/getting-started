@@ -117,7 +117,7 @@ static void device_twin_thread_entry(ULONG parameter)
         // Set a telemetry event so we pick up the change immediately
         tx_event_flags_set(&azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR);
 
-        // Release the received packet, as ownership has been passed to the application
+        // Release the received packet, as ownership was passed to the application
         nx_packet_release(packet_ptr);
 
         // Wait for a desired property update
@@ -132,14 +132,14 @@ static void device_twin_thread_entry(ULONG parameter)
 
 static void direct_method_thread_entry(ULONG parameter)
 {
-    NX_PACKET* packet_ptr;
     UINT status;
+    NX_PACKET* packet_ptr;
     UCHAR* method_name_ptr;
     USHORT method_name_length;
-    CHAR* payload_ptr;
-    USHORT payload_length;
     VOID* context_ptr;
     USHORT context_length;
+    CHAR *payload_ptr;
+    USHORT payload_length;
 
     UINT http_status;
     CHAR* http_response = "{}";
@@ -190,7 +190,7 @@ static void direct_method_thread_entry(ULONG parameter)
             break;
         }
 
-        // Release the received packet, as ownership has been passed to the application
+        // Release the received packet, as ownership was passed to the application
         nx_packet_release(packet_ptr);
     }
 }
@@ -214,7 +214,7 @@ static void c2d_thread_entry(ULONG parameter)
         printf("Receive message: ");
         printf_packet(packet_ptr);
 
-        // Release the received packet, as ownership has been passed to the application
+        // Release the received packet, as ownership was passed to the application
         nx_packet_release(packet_ptr);
     }
 }
