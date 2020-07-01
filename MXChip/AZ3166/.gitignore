@@ -1,0 +1,6 @@
+.vs
+build
+VisualGDB
+ninja-build.log
+
+.cortex-debug.*

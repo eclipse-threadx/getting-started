@@ -14,7 +14,8 @@
 #define SNTP_THREAD_STACK_SIZE  2048
 #define SNTP_THREAD_PRIORITY    9
 
-#define SNTP_SERVER             "pool.ntp.org"
+// #define SNTP_SERVER             "time.google.com"
+#define SNTP_SERVER             "asia.pool.ntp.org"
 
 #define SNTP_UPDATE_EVENT       1
 #define SNTP_NEW_TIME           2
@@ -143,7 +144,8 @@ static void sntp_thread_entry(ULONG info)
 
     printf("Initializing SNTP client\r\n");
 
-    status = nx_sntp_client_create(&sntp_client, &nx_ip, 0, &nx_pool, NX_NULL, NX_NULL, NULL);
+    // status = nx_sntp_client_create(&sntp_client, &nx_ip, 0, &nx_pool, NX_NULL, NX_NULL, NULL);
+    status = nx_sntp_client_create(&sntp_client, &nx_ip, 0, nx_ip.nx_ip_default_packet_pool, NX_NULL, NX_NULL, NULL);
     if (status != NX_SUCCESS) 
     {
         printf("\tFAIL: SNTP client create failed (0x%02x)\r\n", status);
