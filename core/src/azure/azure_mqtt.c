@@ -134,7 +134,7 @@ static UINT tls_setup(NXD_MQTT_CLIENT *client, NX_SECURE_TLS_SESSION *tls_sessio
 
 static UINT mqtt_publish(AZURE_MQTT *azure_mqtt, CHAR *topic, CHAR *message)
 {
-    UINT status = nxd_mqtt_client_publish(
+   UINT status = nxd_mqtt_client_publish(
         &azure_mqtt->nxd_mqtt_client,
         topic, strlen(topic),
         message, strlen(message),
@@ -153,7 +153,7 @@ static UINT mqtt_publish_float(AZURE_MQTT *azure_mqtt, CHAR *topic, CHAR *label,
 {
     CHAR mqtt_message[200] = { 0 };
 
-    snprintf(mqtt_message, sizeof(mqtt_message), "{\"%s\": %3.2f}", label, value);
+    snprintf(mqtt_message, sizeof(mqtt_message), "{\"%s\":%3.2f}", label, value);
     printf("Sending message %s\r\n", mqtt_message);
 
     return mqtt_publish(azure_mqtt, topic, mqtt_message);
@@ -163,7 +163,7 @@ static UINT mqtt_publish_bool(AZURE_MQTT *azure_mqtt, CHAR  *topic, CHAR *label,
 {
     CHAR mqtt_message[200] = { 0 };
 
-    snprintf(mqtt_message, sizeof(mqtt_message), "{\"%s\": %d}", label, value);
+    snprintf(mqtt_message, sizeof(mqtt_message), "{\"%s\":%d}", label, value);
     printf("Sending message %s\r\n", mqtt_message);
 
     return mqtt_publish(azure_mqtt, topic, mqtt_message);
@@ -173,7 +173,7 @@ static UINT mqtt_publish_string(AZURE_MQTT *azure_mqtt, CHAR  *topic, CHAR *labe
 {
     CHAR mqtt_message[200] = { 0 };
 
-    snprintf(mqtt_message, sizeof(mqtt_message), "{\"%s\": %s}", label, value);
+    snprintf(mqtt_message, sizeof(mqtt_message), "{\"%s\":%s}", label, value);
     printf("Sending message %s\r\n", mqtt_message);
 
     return mqtt_publish(azure_mqtt, topic, mqtt_message);
