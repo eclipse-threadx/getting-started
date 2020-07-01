@@ -19,17 +19,6 @@ function(create_target TARGET STARTUP LINKER)
         ${STARTUP}
     )
 
-    set_target_properties(${TARGET}
-        PROPERTIES 
-            LINK_DEPENDS ${LINKER}
-            SUFFIX ".elf"
-    )
-    
-    target_link_options(${TARGET}
-        PUBLIC 
-            -T${LINKER} -Wl,-Map=${TARGET}.map
-    )
-
     target_link_libraries(${TARGET}
         azrtos::threadx
         azrtos::netxduo
@@ -38,8 +27,18 @@ function(create_target TARGET STARTUP LINKER)
         app_common
     )
 
+    target_link_options(${TARGET}
+        PUBLIC 
+            -T${LINKER} -Wl,-Map=${TARGET}.map
+    )
+
+    set_target_properties(${TARGET}
+        PROPERTIES 
+            LINK_DEPENDS ${LINKER}
+            SUFFIX ".elf"
+    )
+
     create_bin_output(${TARGET})
-    
     firmware_size(${TARGET})
 endfunction()
 

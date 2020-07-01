@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 #include "azure/azure_mqtt.h"
-#include "networking.h"
+#include "wwd_networking.h"
 #include "sntp_client.h"
 #include "sensor.h"
 

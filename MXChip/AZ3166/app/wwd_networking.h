@@ -15,6 +15,5 @@ extern NX_IP                            nx_ip;
 extern NX_DNS                           nx_dns_client;
 
 int platform_init(CHAR *ssid, CHAR *password, wiced_security_t security, wiced_country_code_t country);
-// unsigned long sntp_get_time(void);
 
 #endif // _NETWORKING_H

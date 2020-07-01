@@ -1,68 +1,33 @@
 /* Copyright (c) Microsoft Corporation.
    Licensed under the MIT License. */
 
+#include "wwd_networking.h"
+
+
 #include "tx_api.h"
+
 #include "nx_api.h"
-#include "nxd_dns.h"
 #include "nx_secure_tls_api.h"
+#include "nxd_dns.h"
+#include "nxd_dhcp_client.h"
+
 #include "wwd_management.h"
 #include "wwd_wifi.h"
 #include "wwd_buffer_interface.h"
 #include "wwd_network.h"
 #include "wwd_network_constants.h"
 
-#include "networking.h"
 
-/* Define the default thread priority, stack size, etc. The user can override this 
-   via -D command line option or via project settings.  */
-
-#ifndef SAMPLE_IP_STACK_SIZE
-#define SAMPLE_IP_STACK_SIZE (2048)
-#endif /* SAMPLE_IP_STACK_SIZE  */
-
-#ifndef SAMPLE_TX_PACKET_COUNT
-#define SAMPLE_TX_PACKET_COUNT (16)
-#endif /* SAMPLE_TX_PACKET_COUNT  */
-
-#ifndef SAMPLE_RX_PACKET_COUNT
-#define SAMPLE_RX_PACKET_COUNT (8)
-#endif /* SAMPLE_RX_PACKET_COUNT  */
-
-#ifndef SAMPLE_PACKET_SIZE
+#define SAMPLE_IP_STACK_SIZE 2048
+#define SAMPLE_TX_PACKET_COUNT 16
+#define SAMPLE_RX_PACKET_COUNT 8
 #define SAMPLE_PACKET_SIZE (WICED_LINK_MTU)
-#endif /* SAMPLE_PACKET_SIZE  */
-
 #define SAMPLE_TX_POOL_SIZE ((SAMPLE_PACKET_SIZE + sizeof(NX_PACKET)) * SAMPLE_TX_PACKET_COUNT)
 #define SAMPLE_RX_POOL_SIZE ((SAMPLE_PACKET_SIZE + sizeof(NX_PACKET)) * SAMPLE_RX_PACKET_COUNT)
-
-#ifndef SAMPLE_ARP_CACHE_SIZE
 #define SAMPLE_ARP_CACHE_SIZE 512
-#endif /* SAMPLE_ARP_CACHE_SIZE  */
 
-/* Define the address of SNTP Server. If not defined, use DNS module to resolve the host name THREADX_SNTP_SERVER_NAME.  */
-/*
-#define THREADX_SNTP_SERVER_ADDRESS     IP_ADDRESS(118, 190, 21, 209)
-*/
-
-#ifndef THREADX_SNTP_SERVER_NAME
-#define THREADX_SNTP_SERVER_NAME "0.pool.ntp.org" /* SNTP Server.  */
-#endif                                            /* THREADX_SNTP_SERVER_NAME */
-
-#ifndef THREADX_SNTP_SYNC_MAX
-#define THREADX_SNTP_SYNC_MAX 3
-#endif /* THREADX_SNTP_SYNC_MAX */
-
-#ifndef THREADX_SNTP_UPDATE_MAX
-#define THREADX_SNTP_UPDATE_MAX 10
-#endif /* THREADX_SNTP_UPDATE_MAX */
-
-/* Default time. GMT: Monday, June 1, 2020 12:00:00 AM. Epoch timestamp: 1590969601.  */
-#ifndef THREADX_SYSTEM_TIME
-#define THREADX_SYSTEM_TIME 1590969601
-#endif /* THREADX_SYSTEM_TIME  */
-
-/* Seconds between Unix Epoch (1/1/1970) and NTP Epoch (1/1/1999) */
-#define THREADX_UNIX_TO_NTP_EPOCH_SECOND 0x83AA7E80
+#define SAMPLE_IPV4_ADDRESS IP_ADDRESS(0, 0, 0, 0)
+#define SAMPLE_IPV4_MASK IP_ADDRESS(0, 0, 0, 0)
 
 /* Define the stack/cache for ThreadX.  */
 static UCHAR sample_ip_stack[SAMPLE_IP_STACK_SIZE];
@@ -75,54 +40,14 @@ NX_PACKET_POOL                   nx_pool[2]; /* 0=TX, 1=RX. */
 NX_IP                            nx_ip;
 NX_DNS                           nx_dns_client;
 
-/* System clock time for UTC.  */
-ULONG                                   unix_time_base;
-
-#ifndef SAMPLE_DHCP_DISABLE
-
-#include <nxd_dhcp_client.h>
 static NX_DHCP dhcp_client;
 static void wait_dhcp(void);
-
-#define SAMPLE_IPV4_ADDRESS IP_ADDRESS(0, 0, 0, 0)
-#define SAMPLE_IPV4_MASK IP_ADDRESS(0, 0, 0, 0)
-
-#else
-
-#ifndef SAMPLE_IPV4_ADDRESS
-//#define SAMPLE_IPV4_ADDRESS          IP_ADDRESS(192, 168, 100, 33)
-#error "SYMBOL SAMPLE_IPV4_ADDRESS must be defined. This symbol specifies the IP address of device. "
-
-#endif /* SAMPLE_IPV4_ADDRESS */
-#ifndef SAMPLE_IPV4_MASK
-//#define SAMPLE_IPV4_MASK             0xFFFFFF00UL
-#error "SYMBOL SAMPLE_IPV4_MASK must be defined. This symbol specifies the IP address mask of device. "
-#endif /* IPV4_MASK */
-
-#ifndef SAMPLE_GATEWAY_ADDRESS
-//#define SAMPLE_GATEWAY_ADDRESS       IP_ADDRESS(192, 168, 100, 1)
-#error "SYMBOL SAMPLE_GATEWAY_ADDRESS must be defined. This symbol specifies the gateway address for routing. "
-#endif /* SAMPLE_GATEWAY_ADDRESS */
-
-#ifndef SAMPLE_DNS_SERVER_ADDRESS
-//#define SAMPLE_DNS_SERVER_ADDRESS      IP_ADDRESS(192, 168, 100, 1)
-#error "SYMBOL SAMPLE_DNS_SERVER_ADDRESS must be defined. This symbol specifies the dns server address for routing. "
-#endif /* SAMPLE_DNS_SERVER_ADDRESS */
-
-#endif /* SAMPLE_DHCP_DISABLE  */
-
 static UINT dns_create();
 
-extern void (*platform_driver_get())(NX_IP_DRIVER *);
 UINT wifi_network_join(void *pools, CHAR *ssid, CHAR *password, wiced_security_t security, wiced_country_code_t country);
 
-/* Include the demo. */
-// extern VOID demo_entry(NX_IP *ip_ptr, NX_PACKET_POOL *pool_ptr, NX_DNS *dns_ptr, UINT (*unix_time_callback)(ULONG *unix_time));
-
 int platform_init(CHAR *ssid, CHAR *password, wiced_security_t security, wiced_country_code_t country)
-
 {
-
   UINT status;
   ULONG ip_address;
   ULONG network_mask;
@@ -163,7 +88,7 @@ int platform_init(CHAR *ssid, CHAR *password, wiced_security_t security, wiced_c
   /* Create an IP instance for the DHCP Client. The rest of the DHCP Client set up is handled
        by the client thread entry function.  */
   status = nx_ip_create(&nx_ip, "NetX IP Instance 0", SAMPLE_IPV4_ADDRESS, SAMPLE_IPV4_MASK,
-                        &nx_pool[0], platform_driver_get(), (UCHAR *)sample_ip_stack, SAMPLE_IP_STACK_SIZE, 1);
+                        &nx_pool[0], wiced_sta_netx_duo_driver_entry, (UCHAR *)sample_ip_stack, SAMPLE_IP_STACK_SIZE, 1);
   if (status != NX_SUCCESS)
   {
     nx_packet_pool_delete(&nx_pool[0]);
@@ -217,11 +142,7 @@ int platform_init(CHAR *ssid, CHAR *password, wiced_security_t security, wiced_c
     return status;
   }
 
-#ifndef SAMPLE_DHCP_DISABLE
   wait_dhcp();
-#else
-  nx_ip_gateway_address_set(&nx_ip, SAMPLE_GATEWAY_ADDRESS);
-#endif /* SAMPLE_DHCP_DISABLE  */
 
   /* Get IP address and gateway address. */
   nx_ip_address_get(&nx_ip, &ip_address, &network_mask);
@@ -287,7 +208,6 @@ void platform_deinit(void)
   nx_packet_pool_delete(&nx_pool[1]);
 }
 
-#ifndef SAMPLE_DHCP_DISABLE
 static void wait_dhcp(void)
 {
 
@@ -305,7 +225,6 @@ static void wait_dhcp(void)
   /* Wait util address is solved. */
   nx_ip_status_check(&nx_ip, NX_IP_ADDRESS_RESOLVED, &actual_status, NX_WAIT_FOREVER);
 }
-#endif /* SAMPLE_DHCP_DISABLE  */
 
 static UINT dns_create()
 {
@@ -336,12 +255,8 @@ static UINT dns_create()
   }
 #endif /* NX_DNS_CLIENT_USER_CREATE_PACKET_POOL */
 
-#ifndef SAMPLE_DHCP_DISABLE
   /* Retrieve DNS server address.  */
   nx_dhcp_interface_user_option_retrieve(&dhcp_client, 0, NX_DHCP_OPTION_DNS_SVR, (UCHAR *)(dns_server_address), &dns_server_address_size);
-#else
-  dns_server_address[0] = SAMPLE_DNS_SERVER_ADDRESS;
-#endif
 
   /* Add an IPv4 server address to the Client list. */
   status = nx_dns_server_add(&nx_dns_client, dns_server_address[0]);
@@ -359,13 +274,6 @@ static UINT dns_create()
          (dns_server_address[0] & 0xFF));
 
   return 0;
-}
-
-/* Get the network driver.  */
-VOID(*platform_driver_get())
-(NX_IP_DRIVER *)
-{
-	return (wiced_sta_netx_duo_driver_entry);
 }
 
 /* Join Network.  */

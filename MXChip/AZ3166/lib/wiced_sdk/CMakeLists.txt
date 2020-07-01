@@ -38,7 +38,9 @@ set(WICED_SDK_SRC
 set(TARGET wiced_sdk)
 
 # Add a library with the above sources
-add_library(${TARGET} STATIC ${WICED_SDK_SRC})
+add_library(${TARGET} 
+    OBJECT 
+        ${WICED_SDK_SRC})
 
 # Preprocessor marcos
 target_compile_definitions(${TARGET}
@@ -66,5 +68,3 @@ target_link_libraries(${TARGET}
         azrtos::threadx
         azrtos::netxduo
 )
-
-

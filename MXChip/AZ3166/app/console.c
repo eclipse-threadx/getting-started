@@ -5,24 +5,18 @@
 
 #include "board_init.h"
 
-#ifdef __GNUC__
-#define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
-#define GETCHAR_PROTOTYPE int __io_getchar(void)
-#else
-#define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
-#define GETCHAR_PROTOTYPE int fgetc(FILE *f)
-#endif /* __GNUC__ */
-
+int __io_putchar(int ch);
+int __io_getchar(void);
 int _read(int file, char *ptr, int len);
 int _write(int file, char *ptr, int len);
 
-PUTCHAR_PROTOTYPE
+int __io_putchar(int ch)
 {
 	HAL_UART_Transmit(&UartHandle, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
 	return ch;
 }
 
-GETCHAR_PROTOTYPE
+int __io_getchar(void)
 {
 	uint8_t ch;
 	HAL_UART_Receive(&UartHandle, &ch, 1, HAL_MAX_DELAY);
