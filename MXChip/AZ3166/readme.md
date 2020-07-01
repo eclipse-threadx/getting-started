@@ -10,6 +10,7 @@ You will complete the following tasks:
 * Build an image and flash it onto the IoT DevKit
 * Create an Azure IoT hub and securely connect the IoT DevKit to it
 * Use Azure IoT Explorer to view device telemetry, view properties, and invoke cloud-to-device methods
+* Use VS Code, OpenOCD and GDB to debug the firmware
 
 ## Prerequistes
 
