@@ -9,6 +9,7 @@
 #include "board_init.h"
 #include "wwd_networking.h"
 #include "sntp_client.h"
+#include "cmsis_utils.h"
 
 #include "azure_config.h"
 
@@ -24,10 +25,6 @@ void tx_application_define(void *first_unused_memory);
 void azure_thread_entry(ULONG parameter)
 {
     UINT status;
-    
-    printf("sleeping\r\n");
-        tx_thread_sleep(10 * TX_TIMER_TICKS_PER_SECOND);
-    printf("sleeping\r\n");
 
     if (platform_init(WIFI_SSID, WIFI_PASSWORD, WIFI_SECURITY, WIFI_COUNTRY) != NX_SUCCESS)
     {
@@ -61,6 +58,8 @@ void azure_thread_entry(ULONG parameter)
 
 void tx_application_define(void *first_unused_memory)
 {
+    systick_interval_set(TX_TIMER_TICKS_PER_SECOND);
+
     // Create Azure thread
     UINT status = tx_thread_create(&azure_thread, "Azure Thread",
                               azure_thread_entry, 0,
