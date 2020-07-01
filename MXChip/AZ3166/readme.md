@@ -1,6 +1,6 @@
 # Getting started with the MXChip AZ3166 IoT DevKit
 
-**Total completion time**:  30 minutes
+**Total completion time**:  45 minutes
 
 In this tutorial you use Azure RTOS to connect the MXChip AZ3166 IoT DevKit (hereafter, the IoT DevKit) to Azure IoT. The article is part of the series [Getting started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824). The series introduces device developers to Azure RTOS, and shows how to connect several device evaluation kits to Azure IoT.
 
@@ -9,13 +9,13 @@ You will complete the following tasks:
 * Install a set of embedded development tools for programming the IoT DevKit in C
 * Build an image and flash it onto the IoT DevKit
 * Create an Azure IoT hub and securely connect the IoT DevKit to it
-* Use Azure CLI to view device telemetry, view properties, and invoke cloud-to-device methods
+* Use Azure IoT Explorer to view device telemetry, view properties, and invoke cloud-to-device methods
 
 ## Prerequistes
 
 * A PC running Microsoft Windows (Windows 10 recommended)
+* [Ubuntu 18.04 or above installed in WSL2](https://docs.microsoft.com/windows/wsl/wsl2-install) on Windows 10. You will set up your development environment in it.
 * If you don't have an Azure subscription, [create one for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F) before you begin.
-* [Git](https://git-scm.com/downloads)
 * Hardware
 
     > * The [MXChip AZ3166 IoT DevKit](https://aka.ms/iot-devkit) (IoT DevKit)
@@ -25,23 +25,6 @@ You will complete the following tasks:
 ## Prepare the development environment
 
 To set up your development environment, first you clone a GitHub repo that contains all the assets you need for the tutorial. Then you install a set of programming tools.
-
-### Clone the repo for the tutorial
-
-Clone the following repo to download all sample device code, setup scripts, and offline versions of the documentation. If you previously cloned this repo in another tutorial, you don't need to do it again.
-
-To clone the repo, run the following command in Ubuntu bash command line:
-
-```
-git clone --recursive https://github.com/azure-rtos/getting-started
-```
-
-### Install the tools
-
-* [Ubuntu 18.04 or above installed in WSL2](https://docs.microsoft.com/windows/wsl/wsl2-install) on Windows 10. You will set up your development environment in it.
-* [Visual Studio Code](https://code.visualstudio.com/) for Windows with [Remote - WSL](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl) extension installed. This is for code editing and debugging with UI supported. Learn [Develop in WSL](https://code.visualstudio.com/docs/remote/wsl) if you are new to it.
-* [Termite](https://www.compuphase.com/software_termite.htm) terminal for viewing log output from COM port.
-
 
 #### Prepare the toolchain in WSL2
 
@@ -73,7 +56,7 @@ git clone --recursive https://github.com/azure-rtos/getting-started
     PATH="/opt/gcc-arm-none-eabi-9-2020-q2-update/bin:$PATH"
     ```
 
-    Save and close the file (`Ctrl+X`). Then source the `bashrc` to make it effective.
+    Save and close the file (`Ctrl+X`). Then source the `.bashrc` to make it effective.
 
     ```bash
     source ~/.bashrc
@@ -81,65 +64,103 @@ git clone --recursive https://github.com/azure-rtos/getting-started
     arm-none-eabi-gcc --version
     ```
 
-1. Install CMake and Ninja build system.
+1. Install Git, CMake and Ninja build system.
 
     ```bash
-    sudo apt update && sudo apt install -y cmake ninja-build
+    sudo apt update && sudo apt install -y git cmake ninja-build
 
     cmake --version
     ```
     Make sure the CMake version is above 3.14.0. If not, you can follow [this guide](https://apt.kitware.com/) to install the latest CMake.
 
-#### Install VS Code extensions
+### Clone the repo for the tutorial
 
-You will install a couple VS Code extensions to enable the syntax highlighting and debugging experiences.
+Clone the following repo to download all sample device code, setup scripts, and offline versions of the documentation. If you previously cloned this repo in another tutorial, you don't need to do it again.
 
-1. Launch Visual Studio Code, click the left bottom corner to launch Remote command palette and select **Remote-WSL: New Window**.
+To clone the repo, run the following command in Ubuntu bash command line:
 
-    ![VSCode WSL](./media/vscode-wsl.png)
+```
+git clone --recursive https://github.com/azure-rtos/getting-started
+```
 
-1. In Extensions tab (`Ctrl+Shift+X`), search and install the following extensions in the WSL.
+### Install the tools
 
-    * C/C++
-    * CMake
-    * Cortex-Debug
-
-    ![VSCode Install Extension](./media/vscode-install-ext.png)
+* [Azure IoT Explorer](https://github.com/Azure/azure-iot-explorer/releases) cross platform utility for managing IoT Hub devices and view communication between device and IoT Hub.
+* [Termite](https://www.compuphase.com/software_termite.htm) terminal for viewing log output from COM port.
 
 ## Prepare Azure resources
 
-To prepare Azure cloud resources and connect a device to Azure, you can use [Azure portal](https://portal.azure.com).
+To prepare Azure cloud resources and connect a device to Azure, you can use Azure CLI. There are two ways to access the Azure CLI: by using the Azure Cloud Shell, or by installing Azure CLI locally.  Azure Cloud Shell lets you run the CLI in a browser so you don't have to install anything.
+
+Use one of the following options to run Azure CLI.  
+
+If you prefer to run Azure CLI locally:
+
+1. If you already have Azure CLI installed locally, run `az --version` to check the version. This tutorial requires Azure CLI 2.5.1 or later.
+1. To install or upgrade, see [Install Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest). If you install Azure CLI locally, you can run CLI commands in the **GCC Command Prompt**, Git Bash for Windows, or Powershell.
+
+If you prefer to run Azure CLI in the browser-based Azure Cloud Shell:
+
+1. Use your Azure account credentials to sign into the Azure Cloud shell at https://shell.azure.com/.
+    > Note: If this is the first time you've used the Cloud Shell, it prompts you to create storage, which is required to use the Cloud Shell.  Select a subscription to create a storage account and Microsoft Azure Files share.
+1. Select Bash or Powershell as your preferred CLI environment in the **Select environment** dropdown. If you plan to use Azure Cloud Shell, keep your browser open to run the Azure CLI commands in this tutorial.
+
+    ![Select CLI environment](media/cloud-shell-environment.png)
 
 ### Create an IoT hub
 
-1. Follow [this guide](https://docs.microsoft.com/azure/iot-hub/iot-hub-create-through-portal) to create an Azure IoT Hub.
+You can use Azure CLI to create an IoT hub that handles events and messaging for your device.
 
-1. Save the IoT Hub Connection String in **IoT Hub -> Setting -> Shared access policies -> iothubowner -> Connection string** for later use.
+To create an IoT hub:
+
+1. In your CLI console, run the [az extension add](https://docs.microsoft.com/cli/azure/extension?view=azure-cli-latest#az-extension-add) command to add the Microsoft Azure IoT Extension for Azure CLI to your CLI shell. The IOT Extension adds IoT Hub, IoT Edge, and IoT Device Provisioning Service (DPS) specific commands to Azure CLI.
+
+   ```azurecli
+   az extension add --name azure-iot
+   ```
+
+1. Run the [az group create](https://docs.microsoft.com/cli/azure/group?view=azure-cli-latest#az-group-create) command to create a resource group. The following command creates a resource group named *MyResourceGroup* in the *eastus* region.
+    > Note: Optionally, to set an alternate `location`, run [az account list-locations](https://docs.microsoft.com/cli/azure/account?view=azure-cli-latest#az-account-list-locations) to see available locations. Then specify the alternate location in the following command in place of *eastus*.
+
+    ```azurecli
+    az group create --name MyResourceGroup --location eastus
+    ```
+
+1. Run the [az iot hub create](https://docs.microsoft.com/cli/azure/iot/hub?view=azure-cli-latest#az-iot-hub-create) command to create an IoT hub. It might take a few minutes to create an IoT hub.
+
+    *YourIotHubName*. Replace this placeholder below with the name you chose for your IoT hub. An IoT hub name must be globally unique in Azure. This placeholder is used in the rest of this tutorial to represent your unique IoT hub name.
+
+    ```azurecli
+    az iot hub create --resource-group MyResourceGroup --name {YourIoTHubName}
+    ```
+
+    > Note: The Basic tier is **not supported** by this guide as it requires cloud-to-device communication.
+
+1. After the IoT hub is created, view the JSON output in the console, and copy the `hostName` value from the following named field to a safe place. You use this value in a later step.
 
 ### Register a device
 
 In this section, you create a new device instance and register it with the Iot hub you created. You will use the connection information for the newly registered device to securely connect your physical device in a later section.
 
-1. Launch Azure IoT Explorer, paste the IoT Hub connection string you just
-noted and select **Connect**.
+To register a device:
 
-    ![IoT Hub Connection String](./media/iothub-conn-string.png)
+1. In your console, run the [az iot hub device-identity create](https://docs.microsoft.com/cli/azure/ext/azure-cli-iot-ext/iot/hub/device-identity?view=azure-cli-latest#ext-azure-cli-iot-ext-az-iot-hub-device-identity-create) command. This creates the simulated device identity.
 
-1. Select **New** to create a new IoT device. Enter the **Device ID** and leave the rest as default then select **Create**.
+    *YourIotHubName*. Replace this placeholder below with the name you chose for your IoT hub.
 
-    ![New device](./media/new-device.png)
+    *MySTMDevice*. You can use this name directly for the device in CLI commands in this tutorial. Optionally, use a different name.
 
-1. Select from the list for the device you just created. In the **Device identity**
-tab, copy **Device ID** and **Primary Key** for later use.
+    ```azurecli
+    az iot hub device-identity create --device-id MySTMDevice --hub-name {YourIoTHubName}
+    ```
 
-1. Also copy the **IoT Hub name** from the highlighted area.
+1. After the device is created, view the JSON output in the console, and copy the `deviceId` and `primaryKey` values to use in a later step.
 
-    ![Host name](./media/host-name.png)
+Confirm that you have the copied the following values from the JSON output to use in the next section:
 
-1. Confirm that you have the copied the following values from to use in the next section.
-    * IoT Hub Name
-    * Device ID
-    * Primary Key
+> * `hostName`
+> * `deviceId`
+> * `primaryKey`
 
 ## Prepare the device
 
@@ -235,13 +256,27 @@ Using Azure IoT Explorer, you can inspect the properties on connected device.
 
     ![Device twin](./media/device-twin.png)
 
-## Call a direct method on the device
-
-*TBD*
-
 ## Debugging
 
 You can debug the firmware application in VS Code using [OpenOCD](http://openocd.org/) and [GDB](https://www.gnu.org/software/gdb/).
+
+### Install VS Code and extensions
+
+1. Install [Visual Studio Code](https://code.visualstudio.com/) for Windows with [Remote - WSL](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl) extension installed. This is for code editing and debugging with UI supported. Learn [Develop in WSL](https://code.visualstudio.com/docs/remote/wsl) if you are new to it.
+
+1. Launch VS Code, click the left bottom corner to launch Remote command palette and select **Remote-WSL: New Window**.
+
+    ![VSCode WSL](./media/vscode-wsl.png)
+
+1. In Extensions tab (`Ctrl+Shift+X`), search and install the following extensions in the WSL.
+
+    * C/C++
+    * CMake
+    * Cortex-Debug
+
+    ![VSCode Install Extension](./media/vscode-install-ext.png)
+
+### Debugging using OpenOCD and GDB
 
 1. In Windows command line or PowerShell, launch **openocd** server:
 
