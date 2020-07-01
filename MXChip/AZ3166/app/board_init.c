@@ -77,7 +77,6 @@ static void Init_MEM1_Sensors(void)
     {
         printf("Init Error Humidity-Temperature Sensor\r\n");
     }    
-    printf("Humidity-Temperatur Sensor OK \r\n");
     if(SENSOR_OK != lsm6dsl_config())
     {
         printf("Init Error Accelerometer Sensor\r\n");

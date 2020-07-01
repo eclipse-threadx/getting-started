@@ -92,7 +92,6 @@ static bool wifi_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
         return false;
     }
 
-
     if (WIFI_Init() != WIFI_STATUS_OK)
     {
         printf("ERROR: Failed to initialize WIFI module\r\n");
@@ -107,7 +106,6 @@ static bool wifi_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
     while (WIFI_Connect(ssid, password, security_mode) != WIFI_STATUS_OK)
     {
         printf("\tWiFi is unable connect to '%s', attempt = %ld\r\n", ssid, wifiConnectCounter++);
-        
         HAL_Delay(1000);
     }
 
@@ -196,7 +194,7 @@ int stm32_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
         return NX_NOT_SUCCESSFUL;
     }
 
-    // Initialize the NetX system.
+    // Initialize the NetX system
     nx_system_initialize();
 
     // Create a packet pool
@@ -235,7 +233,7 @@ int stm32_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
     // Initialize TLS
     nx_secure_tls_initialize();
 
-    // Create DNS.
+    // Create DNS
     status = dns_create();
     if (status != NX_SUCCESS)
     {
