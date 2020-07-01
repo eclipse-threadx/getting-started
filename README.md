@@ -1,3 +1,4 @@
+
 # Getting Started with Azure RTOS
 
 This Getting Started guides shows device developers how to start working with Azure RTOS. Each guide will step through from installation of the required toolchains, to connecting the device to Azure IoT Hub.
@@ -30,3 +31,7 @@ If you believe you have found a security vulnerability in any Microsoft-owned re
 ### License
 
 The Azure RTOS Getting Started guides are licensed under the [MIT](LICENSE.txt) license.
+
+![](https://github.com/azure-rtos/getting-started/workflows/ATSAME54-XPRO/badge.svg)
+![](https://github.com/azure-rtos/getting-started/workflows/MIMXRT1060-EVK/badge.svg)
+![](https://github.com/azure-rtos/getting-started/workflows/STM32L4/badge.svg)
