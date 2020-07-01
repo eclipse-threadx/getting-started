@@ -127,7 +127,6 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
     }
 
     printf("Starting MQTT loop\r\n");
-
     while (true)
     {
 #if __SENSOR_BME280__ == 1
