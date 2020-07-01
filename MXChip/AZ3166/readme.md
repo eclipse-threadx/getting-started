@@ -204,8 +204,8 @@ We will build the image in Ubuntu of WSL2.
 
 1. After the build completes, confirm that a binary file was created in the following path
 
-    ```txt
-    getting-started\MXChip\AZ3166\build\app\mxchip_azure_iot.bin
+    ```bash
+    getting-started/MXChip/AZ3166/build/app/mxchip_azure_iot.bin
     ```
 
 ### Flash the image
