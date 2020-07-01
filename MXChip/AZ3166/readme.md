@@ -336,7 +336,7 @@ If you continue to another tutorial in this getting started guide, you can keep 
 
 ## Next Steps
 
-In this tutorial you built a custom image that contains Azure RTOS sample code, and then flashed the image to the STM DevKit device. You also used the Azure CLI to create Azure resources, connect the STM DevKit securely to Azure, view telemetry, and send messages.
+In this tutorial you built a custom image that contains Azure RTOS sample code, and then flashed the image to the MXChip IoT DevKit device. You also used the Azure CLI to create Azure resources, connect the IoT DevKit securely to Azure, view telemetry, and send messages.
 
 * For device developers, the suggested next step is to see the other tutorials in the series [Getting started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824).
 * If you have issues getting your device to initialize or connect after following the steps in this guide, see [Troubleshooting](../../docs/troubleshooting.md).
