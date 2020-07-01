@@ -14,8 +14,7 @@
 #define SNTP_THREAD_STACK_SIZE  2048
 #define SNTP_THREAD_PRIORITY    9
 
-// #define SNTP_SERVER             "time.google.com"
-#define SNTP_SERVER             "asia.pool.ntp.org"
+#define SNTP_SERVER             "pool.ntp.org"
 
 #define SNTP_UPDATE_EVENT       1
 #define SNTP_NEW_TIME           2
