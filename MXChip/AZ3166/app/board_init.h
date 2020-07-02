@@ -1,10 +1,9 @@
 /* Copyright (c) Microsoft Corporation.
    Licensed under the MIT License. */
 
-#ifndef BOARD_INIT_H
-#define BOARD_INIT_H
+#ifndef _BOARD_INIT_H
+#define _BOARD_INIT_H
 
-#include <tx_api.h>
 #include "stm32f4xx_hal.h"
 
 #define BUTTON_A_PIN                GPIO_PIN_4
@@ -29,6 +28,6 @@
 extern UART_HandleTypeDef UartHandle;
 
 /* Define prototypes. */
-VOID board_init(void);
+void board_init(void);
 
 #endif // _BOARD_INIT_H

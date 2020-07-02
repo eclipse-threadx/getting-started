@@ -7,6 +7,7 @@
 
 #include "azure_iothub.h"
 #include "board_init.h"
+#include "cmsis_utils.h"
 #include "sntp_client.h"
 #include "stm_networking.h"
 
@@ -60,8 +61,7 @@ void azure_thread_entry(ULONG parameter)
 
 void tx_application_define(void* first_unused_memory)
 {
-    // Override the SYSTICK interval with the current clock
-    SysTick->LOAD  = SystemCoreClock / TX_TIMER_TICKS_PER_SECOND - 1;
+    systick_interval_set(TX_TIMER_TICKS_PER_SECOND);
 
     // Create Azure thread
     UINT status = tx_thread_create(

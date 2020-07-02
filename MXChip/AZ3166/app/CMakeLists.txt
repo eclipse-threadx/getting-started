@@ -12,23 +12,11 @@ set(SOURCES
     board_init.c
     console.c
     main.c
-    networking.c
+    wwd_networking.c
     stm32f4xx_hal_msp.c
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})
-
-set_target_properties(${PROJECT_NAME}
-    PROPERTIES 
-        LINK_DEPENDS ${LINKER_SCRIPT}
-        SUFFIX ".elf"
-)
-
-target_link_options(${PROJECT_NAME}
-    PUBLIC 
-        -T${LINKER_SCRIPT} -Wl,-Map=${PROJECT_NAME}.map)
-
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(${PROJECT_NAME}
     azrtos::threadx
@@ -36,6 +24,21 @@ target_link_libraries(${PROJECT_NAME}
     stm32cubef4
     wiced_sdk
     app_common
+)
+
+target_link_options(${PROJECT_NAME}
+    PUBLIC 
+        -T${LINKER_SCRIPT} -Wl,-Map=${PROJECT_NAME}.map)
+
+set_target_properties(${PROJECT_NAME}
+    PROPERTIES 
+        LINK_DEPENDS ${LINKER_SCRIPT}
+        SUFFIX ".elf"
+)
+
+target_include_directories(${PROJECT_NAME} 
+    PUBLIC 
+        .
 )
 
 create_bin_output(${PROJECT_NAME})

@@ -1,42 +1,31 @@
-/**************************************************************************/
-/*                                                                        */
-/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
-/*                                                                        */
-/**************************************************************************/
+/* Copyright (c) Microsoft Corporation.
+   Licensed under the MIT License. */
 
-#include "nx_api.h"
-#include "nxd_dns.h"
-#include "stm32f4xx_hal.h"
+#include <stdio.h>
+
+#include "tx_api.h"
 
 #include "azure_iothub.h"
 #include "board_init.h"
-#include "networking.h"
+#include "wwd_networking.h"
 #include "sntp_client.h"
+#include "cmsis_utils.h"
 
 #include "azure_config.h"
 
-/* Define the thread for running Azure demo on ThreadX (X-Ware IoT Platform).  */
-#ifndef SAMPLE_THREAD_STACK_SIZE
-#define SAMPLE_THREAD_STACK_SIZE (4096)
-#endif /* SAMPLE_THREAD_STACK_SIZE  */
+#define AZURE_THREAD_STACK_SIZE 4096
+#define AZURE_THREAD_PRIORITY 4
 
-#ifndef SAMPLE_THREAD_PRIORITY
-#define SAMPLE_THREAD_PRIORITY (4)
-#endif /* SAMPLE_THREAD_PRIORITY  */
+TX_THREAD azure_thread;
+UCHAR azure_thread_stack[AZURE_THREAD_STACK_SIZE];
 
-/* Define the memory area for sample thread.  */
-UCHAR sample_thread_stack[SAMPLE_THREAD_STACK_SIZE];
+void azure_thread_entry(ULONG parameter);
+void tx_application_define(void *first_unused_memory);
 
-/* Define the prototypes for sample thread.  */
-TX_THREAD sample_thread;
-
-void sample_thread_entry(ULONG parameter);
-
-/* Define Sample thread entry.  */
-void sample_thread_entry(ULONG parameter)
+void azure_thread_entry(ULONG parameter)
 {
     UINT status;
-    
+
     if (platform_init(WIFI_SSID, WIFI_PASSWORD, WIFI_SECURITY, WIFI_COUNTRY) != NX_SUCCESS)
     {
         printf("Failed to initialize platform.\r\n");
@@ -60,41 +49,36 @@ void sample_thread_entry(ULONG parameter)
     }
 
     // Enter the Azure MQTT loop
-    if(!azure_iothub_run(IOT_HUB_HOSTNAME, IOT_DEVICE_ID, IOT_PRIMARY_KEY))
+    if (!azure_iothub_run(IOT_HUB_HOSTNAME, IOT_DEVICE_ID, IOT_PRIMARY_KEY))
     {
         printf("Failed to start Azure IotHub\r\n");
         return;
     }
 }
 
-/* Define what the initial system looks like.  */
 void tx_application_define(void *first_unused_memory)
 {
+    systick_interval_set(TX_TIMER_TICKS_PER_SECOND);
 
-    UINT status;
-
-    /* Create Sample thread. */
-    status = tx_thread_create(&sample_thread, "Sample Thread",
-                              sample_thread_entry, 0,
-                              sample_thread_stack, SAMPLE_THREAD_STACK_SIZE,
-                              SAMPLE_THREAD_PRIORITY, SAMPLE_THREAD_PRIORITY,
+    // Create Azure thread
+    UINT status = tx_thread_create(&azure_thread, "Azure Thread",
+                              azure_thread_entry, 0,
+                              azure_thread_stack, AZURE_THREAD_STACK_SIZE,
+                              AZURE_THREAD_PRIORITY, AZURE_THREAD_PRIORITY,
                               TX_NO_TIME_SLICE, TX_AUTO_START);
 
-    /* Check status.  */
-    if (status)
+    if (status != TX_SUCCESS)
     {
-        printf("nx_packet_pool_create fail: %u\r\n", status);
-        return;
+        printf("Azure IoT application failed, please restart\r\n");
     }
 }
 
-/* Define main entry point.  */
 int main(void)
 {
-    /* Setup platform. */
+    // Initialise the board
     board_init();
 
-    /* Enter the ThreadX kernel.  */
+    // Enter the ThreadX kernel
     tx_kernel_enter();
 
     return 0;

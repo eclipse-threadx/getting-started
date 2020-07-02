@@ -1,5 +1,10 @@
-#include <stdio.h>
+/* Copyright (c) Microsoft Corporation.
+   Licensed under the MIT License. */
+
 #include "board_init.h"
+
+#include <stdio.h>
+
 #include "sensor.h"
 
 /* I2C handler declaration */
@@ -72,7 +77,6 @@ static void Init_MEM1_Sensors(void)
     {
         printf("Init Error Humidity-Temperature Sensor\r\n");
     }    
-    printf("Humidity-Temperatur Sensor OK \r\n");
     if(SENSOR_OK != lsm6dsl_config())
     {
         printf("Init Error Accelerometer Sensor\r\n");
@@ -83,7 +87,7 @@ static void Init_MEM1_Sensors(void)
     }
 }
 
-VOID board_init(void)
+void board_init(void)
 {
 
     GPIO_InitTypeDef gpio_init_structure;

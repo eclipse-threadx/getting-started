@@ -1,0 +1,46 @@
+name: AZ3166
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - 'core/**'
+      - 'cmake/**'
+      - 'MXChip/AZ3166/**'
+  pull_request:
+    branches: [ master ]
+    paths:
+      - 'core/**'
+      - 'cmake/**'
+      - 'MXChip/AZ3166/**'
+
+defaults:
+  run:
+    working-directory: MXChip/AZ3166
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      # Get the ARM GCC compiler
+      - name: Install tools for linux
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt install gcc-arm-none-eabi cmake
+
+      - name: Install Ninja
+        uses: seanmiddleditch/gha-setup-ninja@v1
+
+      - name: Build project
+        run: |
+          cmake -Bbuild -GNinja -DCMAKE_TOOLCHAIN_FILE="../../cmake/arm-gcc-cortex-m4.cmake" 
+          cmake --build build
+          
