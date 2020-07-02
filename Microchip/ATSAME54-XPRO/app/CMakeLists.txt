@@ -17,15 +17,16 @@ set(SOURCES
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 target_link_libraries(${PROJECT_NAME}
-    azrtos::threadx
-    azrtos::netxduo
-    azrtos::nx_cloud
-    azrtos::azure_iot
-    
-    netxdriver
-    atmel_start
-    app_common
-    jsmn
+    PUBLIC
+        azrtos::threadx
+        azrtos::netxduo
+        azrtos::nx_cloud
+        azrtos::azure_iot
+        
+        atmel_start
+        app_common
+        jsmn
+        netxdriver
 )
 
 target_link_options(${PROJECT_NAME}
