@@ -72,7 +72,7 @@ To set up your development environment, first you clone a GitHub repo that conta
 
     cmake --version
     ```
-    Make sure the CMake version is above 3.14.0. If not, you can follow [this guide](https://apt.kitware.com/) to install the latest CMake.
+    Make sure the CMake version is above 3.10.0. If not, you can follow [this guide](https://apt.kitware.com/) to install the latest CMake.
 
 ### Clone the repo for the tutorial
 
@@ -149,10 +149,10 @@ To register a device:
 
     *YourIotHubName*. Replace this placeholder below with the name you chose for your IoT hub.
 
-    *MySTMDevice*. You can use this name directly for the device in CLI commands in this tutorial. Optionally, use a different name.
+    *MyMXChipDevice*. You can use this name directly for the device in CLI commands in this tutorial. Optionally, use a different name.
 
     ```azurecli
-    az iot hub device-identity create --device-id MySTMDevice --hub-name {YourIoTHubName}
+    az iot hub device-identity create --device-id MyMXChipDevice --hub-name {YourIoTHubName}
     ```
 
 1. After the device is created, view the JSON output in the console, and copy the `deviceId` and `primaryKey` values to use in a later step.
