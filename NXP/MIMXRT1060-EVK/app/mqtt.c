@@ -93,7 +93,6 @@ static void mqtt_device_twin_desired_prop(CHAR* message)
 }
 
 UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, ULONG (*sntp_time_get)(VOID))
-
 {
     UINT status;
     float temperature;
@@ -110,7 +109,7 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
         IOT_MODEL_ID);
     if (status != NXD_MQTT_SUCCESS)
     {
-        printf("Error: Failed to create IoT MQTT (0x%02x)\r\n", status);
+        printf("Error: Failed to create Azure MQTT (0x%02x)\r\n", status);
         return status;
     }
 

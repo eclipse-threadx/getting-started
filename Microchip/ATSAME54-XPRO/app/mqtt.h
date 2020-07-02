@@ -1,6 +1,6 @@
 /* Copyright (c) Microsoft Corporation.
    Licensed under the MIT License. */
-   
+
 #ifndef _MQTT_H
 #define _MQTT_H
 

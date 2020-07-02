@@ -139,7 +139,7 @@ static void direct_method_thread_entry(ULONG parameter)
     USHORT method_name_length;
     VOID* context_ptr;
     USHORT context_length;
-    CHAR *payload_ptr;
+    CHAR* payload_ptr;
     USHORT payload_length;
 
     UINT http_status;
@@ -174,7 +174,7 @@ static void direct_method_thread_entry(ULONG parameter)
             // set_led_state command
             printf("received set_led_state\r\n");
 
-            bool arg = strncmp(payload_ptr, "true", payload_length);
+            bool arg = (strncmp(payload_ptr, "true", payload_length) == 0);
             set_led_state(arg);
             http_status = 200;
         }
@@ -227,7 +227,7 @@ UINT azure_iot_nx_client_entry(
 
     if ((status = tx_event_flags_create(&azure_iot_flags, "Azure IOT flags")))
     {
-        printf("FAIL: Unable to create SNTP event flags (0x%02x)\r\n", status);
+        printf("FAIL: Unable to create nx_client event flags (0x%02x)\r\n", status);
         return status;
     }
 

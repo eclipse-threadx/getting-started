@@ -221,9 +221,9 @@ UINT azure_iot_nx_client_entry(
 {
     UINT status;
 
-    if ((status = tx_event_flags_create(&azure_iot_flags, "Azure IOT flags")))
+    if ((status = tx_event_flags_create(&azure_iot_flags, "Azure IoT flags")))
     {
-        printf("FAIL: Unable to create SNTP event flags (0x%02x)\r\n", status);
+        printf("FAIL: Unable to create nx_client event flags (0x%02x)\r\n", status);
         return status;
     }
 

@@ -46,8 +46,7 @@ static void mqtt_direct_method(CHAR* direct_method_name, CHAR* message, MQTT_DIR
 
         set_led_state(arg);
 
-        // 204 No Content
-        // The server successfully processed the request and is not returning any content.
+        // 204 No Content, the server successfully processed the request and is not returning any content.
         status = 204;
 
         // Update device twin property
@@ -137,10 +136,10 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
         temperature = 23.5;
 #endif
 
-        // Send the compensated temperature as a telemetry event
+        // Send the temperature as a telemetry event
         azure_iot_mqtt_publish_float_telemetry(&azure_iot_mqtt, "temperature", temperature);
 
-        // Send the compensated temperature as a device twin update
+        // Send the temperature as a device twin update
         azure_iot_mqtt_publish_float_property(&azure_iot_mqtt, "currentTemperature", temperature);
 
         // Sleep for 10 seconds

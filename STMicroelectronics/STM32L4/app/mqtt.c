@@ -128,10 +128,10 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
     {
         temperature = BSP_TSENSOR_ReadTemp();
 
-        // Send the compensated temperature as a telemetry event
+        // Send the temperature as a telemetry event
         azure_iot_mqtt_publish_float_telemetry(&azure_iot_mqtt, "temperature", temperature);
 
-        // Send the compensated temperature as a device twin update
+        // Send the temperature as a device twin update
         azure_iot_mqtt_publish_float_property(&azure_iot_mqtt, "currentTemperature", temperature);
 
         // Sleep for 10 seconds
