@@ -72,7 +72,7 @@ To set up your development environment, first you clone a GitHub repo that conta
 
     cmake --version
     ```
-    Make sure the CMake version is above 3.14.0. If not, you can follow [this guide](https://apt.kitware.com/) to install the latest CMake.
+    Make sure the CMake version is above 3.10.0. If not, you can follow [this guide](https://apt.kitware.com/) to install the latest CMake.
 
 ### Clone the repo for the tutorial
 
