@@ -15,13 +15,12 @@ set(NXD_ENABLE_FILE_SERVERS OFF CACHE BOOL "Disable fileX dependency by netxduo"
 # Azure RTOS
 add_subdirectory(${CORE_LIB_DIR}/threadx threadx)
 add_subdirectory(${CORE_LIB_DIR}/netxduo netxduo)
+add_subdirectory(${CORE_LIB_DIR}/azure-iot-preview/nx_cloud nx_cloud)
+add_subdirectory(${CORE_LIB_DIR}/azure-iot-preview/azure_iot azure_iot)
+add_subdirectory(${CORE_LIB_DIR}/jsmn jsmn)
 
 # Core source
 add_subdirectory(${CORE_SRC_DIR} core_src)
-
-# Azure RTOS IoT 
-add_subdirectory(${CORE_LIB_DIR}/azure-iot-preview/nx_cloud nx_cloud)
-add_subdirectory(${CORE_LIB_DIR}/azure-iot-preview/azure_iot azure_iot)
 
 # Bind the nx_cloud preview include into the existing netxduo
 target_include_directories(netxduo 
