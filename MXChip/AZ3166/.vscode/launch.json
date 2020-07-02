@@ -1,0 +1,44 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+          {
+              "armToolchainPath": "/opt/gcc-arm-none-eabi-9-2020-q2-update/bin",
+              "cwd": "${workspaceFolder}",
+              "executable": "${workspaceFolder}/build/app/${input:sampleName}.elf",
+              "name": "(OpenOCD) Cortex Debug External",
+              "request": "launch",
+              "type": "cortex-debug",
+              "runToMain": true,
+              "servertype": "external",
+              // Get WSL2 IP from "cat /etc/resolv.conf"
+              "gdbTarget": "172.23.128.1:3333",
+              "device": "STM32F412RG",
+              "interface": "swd",
+              "svdFile": "${workspaceFolder}/STM32F412.svd",
+              "postLaunchCommands": [
+                  // "target extended-remote 172.30.176.1:3333",
+                  "cd ${workspaceFolder}/build/app",
+                  "file ./${input:sampleName}.elf",
+                  "load",
+                  "enable breakpoint",
+                  "monitor reset halt",
+                  "monitor arm semihosting enable",
+                  "cd ${workspaceFolder}"
+              ]
+          },
+      ],
+      "inputs": [
+          {
+              "type": "pickString",
+              "id": "sampleName",
+              "description": "Which sample do you want to download and debug?",
+              "options": [
+                  "mxchip_azure_iot"
+              ],
+              "default": "mxchip_azure_iot"
+          }
+      ]
+  }

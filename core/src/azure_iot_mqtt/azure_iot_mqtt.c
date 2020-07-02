@@ -160,7 +160,7 @@ static UINT mqtt_publish_float(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR
 {
     CHAR mqtt_message[200] = {0};
 
-    snprintf(mqtt_message, sizeof(mqtt_message), "{\"%s\": %3.2f}", label, value);
+    snprintf(mqtt_message, sizeof(mqtt_message), "{\"%s\":%3.2f}", label, value);
     printf("Sending message %s\r\n", mqtt_message);
 
     return mqtt_publish(azure_iot_mqtt, topic, mqtt_message);
@@ -170,7 +170,7 @@ static UINT mqtt_publish_bool(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR*
 {
     CHAR mqtt_message[200] = {0};
 
-    snprintf(mqtt_message, sizeof(mqtt_message), "{\"%s\": %d}", label, value);
+    snprintf(mqtt_message, sizeof(mqtt_message), "{\"%s\":%d}", label, value);
     printf("Sending message %s\r\n", mqtt_message);
 
     return mqtt_publish(azure_iot_mqtt, topic, mqtt_message);
@@ -180,7 +180,7 @@ static UINT mqtt_publish_string(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHA
 {
     CHAR mqtt_message[200] = {0};
 
-    snprintf(mqtt_message, sizeof(mqtt_message), "{\"%s\": %s}", label, value);
+    snprintf(mqtt_message, sizeof(mqtt_message), "{\"%s\":%s}", label, value);
     printf("Sending message %s\r\n", mqtt_message);
 
     return mqtt_publish(azure_iot_mqtt, topic, mqtt_message);

@@ -1,4 +1,4 @@
-.vscode/
 build/
 VisualGDB/
+.vscode/
 azure_config.h
