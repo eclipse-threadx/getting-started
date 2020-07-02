@@ -1,43 +1,43 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-set(TARGET ${PROJECT_NAME})
 set(LINKER_SCRIPT "${CMAKE_CURRENT_LIST_DIR}/startup/MIMXRT1062xxxxx_flexspi_nor.ld")
 
 set(SOURCES
     startup/startup_MIMXRT1062.S
     startup/tx_initialize_low_level.S
 
-    azure_iot_mqtt.c
-    azure_iot_embedded_sdk.c
+    nx_client.c
+    mqtt.c
     board_init.c
     console.c
     main.c
 )
 
-add_executable(${TARGET} ${SOURCES})
+add_executable(${PROJECT_NAME} ${SOURCES})
 
-set_target_properties(${TARGET}
-    PROPERTIES 
-        LINK_DEPENDS ${LINKER_SCRIPT}
-        SUFFIX ".elf"
-)
-
-target_link_libraries(${TARGET} 
+target_link_libraries(${PROJECT_NAME} 
     PUBLIC
         azrtos::threadx
         azrtos::netxduo
         azrtos::nx_cloud
         azrtos::azure_iot
 
+        app_common
+        jsmn
         MIMXRT1060-evk
         netx_driver
-        app_common
 )
 
-target_link_options(${TARGET}
+target_link_options(${PROJECT_NAME}
     PRIVATE 
-        -T${LINKER_SCRIPT} -Wl,-Map=${TARGET}.map)
+        -T${LINKER_SCRIPT} -Wl,-Map=${PROJECT_NAME}.map)
 
-create_bin_output(${TARGET})
-firmware_size(${TARGET})
+set_target_properties(${PROJECT_NAME}
+    PROPERTIES 
+        LINK_DEPENDS ${LINKER_SCRIPT}
+        SUFFIX ".elf"
+)
+
+create_bin_output(${PROJECT_NAME})
+firmware_size(${PROJECT_NAME})

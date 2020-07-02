@@ -11,8 +11,8 @@
 #include "networking.h"
 #include "sntp_client.h"
 
-#include "azure_iot_mqtt.h"
-#include "azure_iot_embedded_sdk.h"
+#include "mqtt.h"
+#include "nx_client.h"
 
 #include "azure_config.h"
 
@@ -54,17 +54,13 @@ void azure_thread_entry(ULONG parameter)
         return;
     }
 
-    // Start the Azure IoT hub thread
-//    if (!azure_iot_mqtt_run(IOT_HUB_HOSTNAME, IOT_DEVICE_ID, IOT_PRIMARY_KEY))
-//    {
-//        printf("Failed to start Azure IoTHub\r\n");
-//        return;
-//    }
-
-    status = azure_iot_embedded_sdk_entry(&nx_ip, &nx_pool, &nx_dns_client, sntp_time);
-    if (status != NX_SUCCESS)
+#ifdef USE_MQTT
+    if ((status = azure_iot_mqtt_entry(&nx_ip, &nx_pool, &nx_dns_client, sntp_time_get)))
+#else
+    if ((status = azure_iot_nx_client_entry(&nx_ip, &nx_pool, &nx_dns_client, sntp_time)))
+#endif
     {
-        printf("Failed to start Azure IoTHub\r\n");
+        printf("Failed to run Azure IoTHub (0x%04x)\r\n", status);
         return;
     }
 }

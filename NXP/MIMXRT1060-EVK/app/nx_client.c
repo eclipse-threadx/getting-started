@@ -1,6 +1,8 @@
 /* Copyright (c) Microsoft Corporation.
    Licensed under the MIT License. */
 
+#include "nx_client.h"
+
 #include <stdio.h>
 
 #include "nx_api.h"
