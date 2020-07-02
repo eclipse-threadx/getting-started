@@ -170,7 +170,7 @@ static void direct_method_thread_entry(ULONG parameter)
             // set_led_state command
             printf("received set_led_state\r\n");
 
-            bool arg = strncmp(payload_ptr, "true", payload_length);
+            bool arg = (strncmp(payload_ptr, "true", payload_length) == 0);
             set_led_state(arg);
             http_status = 200;
         }

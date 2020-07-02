@@ -9,8 +9,8 @@
 #define USE_MQTT
 
 /*************** Azure IoT Hub Connection Configuration ******************/
-#define IOT_HUB_HOSTNAME    "ryangsg.azure-devices.net"
-#define IOT_DEVICE_ID       "NXP"
-#define IOT_PRIMARY_KEY     "AoyKIczyIkjIYOH13db61HQQzHgu2KkW6zEZhSkDlB4="
+#define IOT_HUB_HOSTNAME    ""
+#define IOT_DEVICE_ID       ""
+#define IOT_PRIMARY_KEY     ""
 
 #endif // _AZURE_CONFIG_H
