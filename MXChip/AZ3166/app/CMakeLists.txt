@@ -8,7 +8,8 @@ set(SOURCES
     startup/startup_stm32f412rx.s
     startup/tx_initialize_low_level.S
    
-    azure_iothub.c
+    nx_client.c
+    mqtt.c
     board_init.c
     console.c
     main.c
@@ -21,9 +22,13 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 target_link_libraries(${PROJECT_NAME}
     azrtos::threadx
     azrtos::netxduo
+    azrtos::nx_cloud
+    azrtos::azure_iot
+
     stm32cubef4
     wiced_sdk
     app_common
+    jsmn
 )
 
 target_link_options(${PROJECT_NAME}

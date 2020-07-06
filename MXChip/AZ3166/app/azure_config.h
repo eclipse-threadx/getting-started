@@ -9,8 +9,8 @@
 // ----------------------------------------------------------------------------
 // WiFi connection information
 // ----------------------------------------------------------------------------
-#define WIFI_SSID           "iot_test"
-#define WIFI_PASSWORD       "iot_rulez"
+#define WIFI_SSID           ""
+#define WIFI_PASSWORD       ""
 
 // WIFI Security, the security types are defined in wwd_constants.h
 #define WIFI_SECURITY       WICED_SECURITY_WPA2_MIXED_PSK
@@ -18,10 +18,15 @@
 #define WIFI_COUNTRY        WICED_COUNTRY_CHINA
 
 // ----------------------------------------------------------------------------
+// Azure IoT Hub Connection Transport
+// ----------------------------------------------------------------------------
+//#define USE_MQTT
+
+// ----------------------------------------------------------------------------
 // Azure IoT Device information
 // ----------------------------------------------------------------------------
-#define IOT_HUB_HOSTNAME    "ryangsg.azure-devices.net"
-#define IOT_DEVICE_ID       "mxchip"
-#define IOT_PRIMARY_KEY     "6v4WRLRV0od3oJo+So+PCP54TxoS12ZGiM/myyRm6PY="
+#define IOT_HUB_HOSTNAME    ""
+#define IOT_DEVICE_ID       ""
+#define IOT_PRIMARY_KEY     ""
 
 #endif // _AZURE_CONFIG_H
