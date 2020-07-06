@@ -5,8 +5,8 @@
 
 #include <stdio.h>
 
-#include "stm32l475e_iot01.h"
-#include "stm32l475e_iot01_tsensor.h"
+#include "sensor.h"
+#include "stm32f4xx_hal.h"
 
 #include "azure_iot_mqtt.h"
 #include "sntp_client.h"
@@ -22,12 +22,12 @@ static void set_led_state(bool level)
     if (level)
     {
         printf("LED is turned ON\r\n");
-        BSP_LED_On(LED_GREEN);
+        HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
     }
     else
     {
         printf("LED is turned OFF\r\n");
-        BSP_LED_Off(LED_GREEN);
+        HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
     }
 }
 
@@ -91,7 +91,11 @@ static void mqtt_device_twin_desired_prop(CHAR* message)
 UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, ULONG (*sntp_time_get)(VOID))
 {
     UINT status;
-    float temperature;
+    lps22hb_t lps22hb_data;
+    hts221_data_t hts221_data;
+    lsm6dsl_data_t lsm6dsl_data;
+    lis2mdl_data_t lis2mdl_data;
+
 
     // Create Azure MQTT
     status = azure_iot_mqtt_create(&azure_iot_mqtt,
@@ -125,13 +129,31 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
     printf("Starting MQTT loop\r\n");
     while (true)
     {
-        temperature = BSP_TSENSOR_ReadTemp();
+        // Read data from sensors
+        lps22hb_data = lps22hb_data_read();
+        hts221_data = hts221_data_read();
+        lsm6dsl_data = lsm6dsl_data_read();
+        lis2mdl_data = lis2mdl_data_read();
 
-        // Send the temperature as a telemetry event
-        azure_iot_mqtt_publish_float_telemetry(&azure_iot_mqtt, "temperature", temperature);
+        // Send the compensated temperature
+        azure_iot_mqtt_publish_float_telemetry(&azure_iot_mqtt, "temperature", lps22hb_data.temperature_degC);
+        azure_iot_mqtt_publish_float_property(&azure_iot_mqtt, "temperature", lps22hb_data.temperature_degC);
+        
+        // Send the compensated pressure
+        azure_iot_mqtt_publish_float_telemetry(&azure_iot_mqtt, "pressure", lps22hb_data.pressure_hPa);
+        azure_iot_mqtt_publish_float_property(&azure_iot_mqtt, "pressure", lps22hb_data.pressure_hPa);
+        
+        // Send the compensated humidity
+        azure_iot_mqtt_publish_float_telemetry(&azure_iot_mqtt, "humidityPercentage", hts221_data.humidity_perc);
+        azure_iot_mqtt_publish_float_property(&azure_iot_mqtt, "humidityPercentage", hts221_data.humidity_perc);
+      
+        // Send the compensated acceleration
+        azure_iot_mqtt_publish_float_telemetry(&azure_iot_mqtt, "acceleration", lsm6dsl_data.acceleration_mg[0]);
+        azure_iot_mqtt_publish_float_property(&azure_iot_mqtt, "acceleration", lsm6dsl_data.acceleration_mg[0]);
 
-        // Send the temperature as a device twin update
-        azure_iot_mqtt_publish_float_property(&azure_iot_mqtt, "currentTemperature", temperature);
+        // Send the compensated magnetic
+        azure_iot_mqtt_publish_float_telemetry(&azure_iot_mqtt, "magnetic", lis2mdl_data.magnetic_mG[0]);
+        azure_iot_mqtt_publish_float_property(&azure_iot_mqtt, "magnetic", lis2mdl_data.magnetic_mG[0]);
 
         // Sleep for 10 seconds
         tx_thread_sleep(10 * TX_TIMER_TICKS_PER_SECOND);

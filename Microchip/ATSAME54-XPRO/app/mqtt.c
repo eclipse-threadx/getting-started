@@ -9,7 +9,6 @@
 #include "atmel_start.h"
 
 #include "azure_iot_mqtt.h"
-#include "networking.h"
 #include "sntp_client.h"
 
 #include "azure_config.h"

@@ -6,7 +6,6 @@
 #include <stdio.h>
 
 #include "azure_iot_mqtt.h"
-#include "networking.h"
 #include "sntp_client.h"
 
 #include "azure_config.h"
@@ -19,7 +18,6 @@ static void set_led_state(bool level)
 {
     if (level)
     {
-        // Pin level set to "low" state
         printf("LED is turned ON\r\n");
 
         // The User LED on the board shares the same pin as ENET RST so is unusable
@@ -27,7 +25,6 @@ static void set_led_state(bool level)
     }
     else
     {
-        // Pin level set to "high" state
         printf("LED is turned OFF\r\n");
 
         // The User LED on the board shares the same pin as ENET RST so is unusable
