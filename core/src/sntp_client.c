@@ -225,13 +225,10 @@ ULONG sntp_time_get()
     return sntp_time;
 }
 
-// newlibc-nano stub
-int _gettimeofday(struct timeval *tp, void *tzvp)
+UINT sntp_time(ULONG* unix_time)
 {
-    tp->tv_sec = sntp_time_get();
-    tp->tv_usec = 0;
-    
-    return 0;
+    *unix_time = sntp_time_get();
+    return NX_SUCCESS;
 }
 
 UINT sntp_sync_wait()
@@ -272,4 +269,13 @@ UINT sntp_start()
     }
 
     return NX_SUCCESS;
+}
+
+// newlibc-nano stub
+int _gettimeofday(struct timeval *tp, void *tzvp)
+{
+    tp->tv_sec = sntp_time_get();
+    tp->tv_usec = 0;
+    
+    return 0;
 }

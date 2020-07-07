@@ -20,6 +20,12 @@ typedef enum
 #define WIFI_MODE           WPA2_PSK_AES
 
 // ----------------------------------------------------------------------------
+// Azure IoT Hub Connection Transport
+// Define this to use the nx client, otherwise MQTT
+// ----------------------------------------------------------------------------
+//#define USE_NX_CLIENT_PREVIEW
+
+// ----------------------------------------------------------------------------
 // Azure IoT Device information
 // ----------------------------------------------------------------------------
 #define IOT_HUB_HOSTNAME    ""

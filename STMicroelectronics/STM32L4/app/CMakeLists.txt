@@ -4,12 +4,15 @@
 set(SOURCES
     startup/system_stm32l4xx.c
     startup/tx_initialize_low_level.S
+    
     stm32cubel4/stm32l4xx_hal_msp.c
     stm32cubel4/stm32l4xx_it.c
-    azure_iothub.c
+
     board_init.c
     console.c
     main.c
+    mqtt.c
+    nx_client.c
     stm_networking.c
 )
 
@@ -22,9 +25,13 @@ function(create_target TARGET STARTUP LINKER)
     target_link_libraries(${TARGET}
         azrtos::threadx
         azrtos::netxduo
+        azrtos::nx_cloud
+        azrtos::azure_iot
+
         stm32cubel4
         netx_driver
         app_common
+        jsmn
     )
 
     target_link_options(${TARGET}
