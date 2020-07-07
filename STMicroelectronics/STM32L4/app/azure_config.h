@@ -23,7 +23,7 @@ typedef enum
 // Azure IoT Hub Connection Transport
 // Define this to use the nx client, otherwise MQTT
 // ----------------------------------------------------------------------------
-#define USE_NX_CLIENT
+//#define USE_NX_CLIENT_PREVIEW
 
 // ----------------------------------------------------------------------------
 // Azure IoT Device information

@@ -53,7 +53,7 @@ void azure_thread_entry(ULONG parameter)
         return;
     }
 
-#ifdef USE_NX_CLIENT
+#ifdef USE_NX_CLIENT_PREVIEW
     if ((status = azure_iot_nx_client_entry(&nx_ip, &nx_pool, &nx_dns_client, sntp_time)))
 #else
     if ((status = azure_iot_mqtt_entry(&nx_ip, &nx_pool, &nx_dns_client, sntp_time_get)))
