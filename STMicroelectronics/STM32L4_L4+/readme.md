@@ -143,7 +143,7 @@ To connect the STM DevKit to Azure, you'll modify a configuration file for Wi-Fi
 
 ### Add configuration
 
-1. In a text editor, edit the file *getting-started\STMicroelectronics\STM32L4\app\azure_config.h* to set the Wi-Fi constants to the following values from your local environment.
+1. In a text editor, edit the file *getting-started\STMicroelectronics\STM32L4_L4+\app\azure_config.h* to set the Wi-Fi constants to the following values from your local environment.
 
     |Constant name|Value|
     |-------------|-----|
@@ -163,13 +163,13 @@ To connect the STM DevKit to Azure, you'll modify a configuration file for Wi-Fi
 
 In your console or in File Explorer, run the script *rebuild.bat* at the following path to build the image:
 
-> *getting-started\STMicroelectronics\STM32L4\tools\rebuild.bat*
+> *getting-started\STMicroelectronics\STM32L4_L4+\tools\rebuild.bat*
 
 After the build completes, confirm that the binary files were created in the following path:
 
-> *getting-started\STMicroelectronics\STM32L4\build\app\stm32l475_azure_iot.bin*
+> *getting-started\STMicroelectronics\STM32L4_L4+\build\app\stm32l475_azure_iot.bin*
 
-> *getting-started\STMicroelectronics\STM32L4\build\app\stm32l4S5_azure_iot.bin*
+> *getting-started\STMicroelectronics\STM32L4_L4+\build\app\stm32l4S5_azure_iot.bin*
 
 ### Flash the image
 
