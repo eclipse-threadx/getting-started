@@ -1,4 +1,4 @@
-name: STM32L4
+name: STM32L4_L4+
 
 on:
   push:
@@ -6,17 +6,17 @@ on:
     paths:
       - 'core/**'
       - 'cmake/**'
-      - 'STMicroelectronics/STM32L4/**'
+      - 'STMicroelectronics/STM32L4_L4+/**'
   pull_request:
     branches: [ master ]
     paths:
       - 'core/**'
       - 'cmake/**'
-      - 'STMicroelectronics/STM32L4/**'
+      - 'STMicroelectronics/STM32L4_L4+/**'
 
 defaults:
   run:
-    working-directory: STMicroelectronics/STM32L4
+    working-directory: STMicroelectronics/STM32L4_L4+
 
 jobs:
   build:

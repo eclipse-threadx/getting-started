@@ -1,7 +1,7 @@
-# STM32L4
+# STM32L4_L4+
 Cube: https://github.com/STMicroelectronics/STM32CubeL4
 
-# MXChip
+# AZ3166
 Cube: https://github.com/STMicroelectronics/STM32CubeF4
 
 # ATMSAME54-XPRO
