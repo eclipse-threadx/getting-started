@@ -62,7 +62,7 @@ static void telemetry_thread_entry(ULONG parameter)
         lsm6dsl_data = lsm6dsl_data_read();
         lis2mdl_data = lis2mdl_data_read();
 
-        /* Create a telemetry message packet. */
+        // Create a telemetry message packet
         if ((status = nx_azure_iot_hub_client_telemetry_message_create(
                  &azure_iot_nx_client.iothub_client, &packet_ptr, NX_WAIT_FOREVER)))
         {
@@ -271,7 +271,7 @@ UINT azure_iot_nx_client_entry(
 
     // Register the callback entry points
     azure_iot_nx_client_enable_telemetry(&azure_iot_nx_client, telemetry_thread_entry);
-//    azure_iot_nx_client_enable_device_twin(&azure_iot_nx_client, device_twin_thread_entry);
+    azure_iot_nx_client_enable_device_twin(&azure_iot_nx_client, device_twin_thread_entry);
     azure_iot_nx_client_enable_direct_method(&azure_iot_nx_client, direct_method_thread_entry);
     azure_iot_nx_client_enable_c2d(&azure_iot_nx_client, c2d_thread_entry);
 

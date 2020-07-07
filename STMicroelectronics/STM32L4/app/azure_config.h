@@ -20,10 +20,10 @@ typedef enum
 #define WIFI_MODE           WPA2_PSK_AES
 
 // ----------------------------------------------------------------------------
-// Define this variable to use the MQTT layer directly, 
-// otherwise the Azure RTOS Embedded SDK is used.
+// Azure IoT Hub Connection Transport
+// Define this to use the nx client, otherwise MQTT
 // ----------------------------------------------------------------------------
-//#define USE_MQTT
+#define USE_NX_CLIENT
 
 // ----------------------------------------------------------------------------
 // Azure IoT Device information

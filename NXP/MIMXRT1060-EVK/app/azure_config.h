@@ -6,8 +6,9 @@
 
 // ----------------------------------------------------------------------------
 // Azure IoT Hub Connection Transport
+// Define this to use the nx client, otherwise MQTT
 // ----------------------------------------------------------------------------
-#define USE_MQTT
+#define USE_NX_CLIENT
 
 // ----------------------------------------------------------------------------
 // Azure IoT Device information

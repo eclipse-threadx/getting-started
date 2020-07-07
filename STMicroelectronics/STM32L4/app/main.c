@@ -53,13 +53,13 @@ void azure_thread_entry(ULONG parameter)
         return;
     }
 
-#ifdef USE_MQTT
-    if ((status = azure_iot_mqtt_entry(&nx_ip, &nx_pool, &nx_dns_client, sntp_time_get)))
-#else
+#ifdef USE_NX_CLIENT
     if ((status = azure_iot_nx_client_entry(&nx_ip, &nx_pool, &nx_dns_client, sntp_time)))
+#else
+    if ((status = azure_iot_mqtt_entry(&nx_ip, &nx_pool, &nx_dns_client, sntp_time_get)))
 #endif
     {
-        printf("Failed to run Azure IoTHub (0x%04x)\r\n", status);
+        printf("Failed to run Azure IoT (0x%04x)\r\n", status);
         return;
     }
 }
