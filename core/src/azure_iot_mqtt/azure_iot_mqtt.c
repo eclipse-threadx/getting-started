@@ -170,17 +170,7 @@ static UINT mqtt_publish_bool(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR*
 {
     CHAR mqtt_message[200] = {0};
 
-    snprintf(mqtt_message, sizeof(mqtt_message), "{\"%s\":%d}", label, value);
-    printf("Sending message %s\r\n", mqtt_message);
-
-    return mqtt_publish(azure_iot_mqtt, topic, mqtt_message);
-}
-
-static UINT mqtt_publish_string(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR* label, CHAR* value)
-{
-    CHAR mqtt_message[200] = {0};
-
-    snprintf(mqtt_message, sizeof(mqtt_message), "{\"%s\":%s}", label, value);
+    snprintf(mqtt_message, sizeof(mqtt_message), "{\"%s\":%s}", label, (value ? "true" : false));
     printf("Sending message %s\r\n", mqtt_message);
 
     return mqtt_publish(azure_iot_mqtt, topic, mqtt_message);
@@ -449,23 +439,6 @@ UINT azure_iot_mqtt_publish_bool_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* 
     printf("Sending device twin update with bool value\r\n");
 
     status = mqtt_publish_bool(azure_iot_mqtt, mqtt_publish_topic, label, value);
-
-    tx_mutex_put(&azure_iot_mqtt->mqtt_mutex);
-
-    return status;
-}
-
-UINT azure_iot_mqtt_publish_string_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, CHAR* value)
-{
-    CHAR mqtt_publish_topic[100] = {0};
-    UINT status;
-
-    tx_mutex_get(&azure_iot_mqtt->mqtt_mutex, TX_WAIT_FOREVER);
-
-    snprintf(mqtt_publish_topic, sizeof(mqtt_publish_topic), DEVICE_TWIN_PUBLISH_TOPIC, 1);
-    printf("Sending device twin update with string value\r\n");
-
-    status = mqtt_publish_string(azure_iot_mqtt, mqtt_publish_topic, label, value);
 
     tx_mutex_put(&azure_iot_mqtt->mqtt_mutex);
 

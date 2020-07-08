@@ -29,17 +29,13 @@ static void set_led_state(bool level)
 {
     if (level)
     {
-        // Pin level set to "low" state
         printf("LED is turned ON\r\n");
-
         // The User LED on the board shares the same pin as ENET RST so is unusable
         // USER_LED_ON();
     }
     else
     {
-        // Pin level set to "high" state
         printf("LED is turned OFF\r\n");
-
         // The User LED on the board shares the same pin as ENET RST so is unusable
         // USER_LED_OFF();
     }
@@ -65,7 +61,6 @@ static void telemetry_thread_entry(ULONG parameter)
         }
 
         azure_iot_nx_client_publish_float_telemetry(&azure_iot_nx_client, "temperature", temperature, packet_ptr);
-        azure_iot_nx_client_publish_float_property(&azure_iot_nx_client, "currentTemperature", temperature);
 
         tx_event_flags_get(
             &azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR_CLEAR, &events, telemetry_interval * NX_IP_PERIODIC_RATE);
@@ -165,13 +160,13 @@ static void direct_method_thread_entry(ULONG parameter)
         payload_ptr    = (CHAR*)packet_ptr->nx_packet_prepend_ptr;
         payload_length = packet_ptr->nx_packet_append_ptr - packet_ptr->nx_packet_prepend_ptr;
 
-        if (strncmp((CHAR*)method_name_ptr, "set_led_state", method_name_length) == 0)
+        if (strncmp((CHAR*)method_name_ptr, "setLedState", method_name_length) == 0)
         {
-            // set_led_state command
-            printf("received set_led_state\r\n");
-
             bool arg = (strncmp(payload_ptr, "true", payload_length) == 0);
             set_led_state(arg);
+
+            azure_iot_nx_client_publish_bool_property(&azure_iot_nx_client, "ledState", arg);
+
             http_status = 200;
         }
 

@@ -70,7 +70,6 @@ UINT azure_iot_mqtt_register_device_twin_desired_prop_callback(
 
 UINT azure_iot_mqtt_publish_float_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, float value);
 UINT azure_iot_mqtt_publish_bool_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, bool value);
-UINT azure_iot_mqtt_publish_string_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, CHAR* value);
 UINT azure_iot_mqtt_publish_float_telemetry(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, float value);
 
 UINT azure_iot_mqtt_create(AZURE_IOT_MQTT* azure_iot_mqtt,

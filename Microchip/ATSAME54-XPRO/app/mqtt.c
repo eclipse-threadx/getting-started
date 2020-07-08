@@ -22,12 +22,12 @@ static void set_led_state(bool level)
     if (level)
     {
         // Pin level set to "low" state
-        printf("LED0 is turned ON\r\n");
+        printf("LED is turned ON\r\n");
     }
     else
     {
         // Pin level set to "high" state
-        printf("LED0 is turned OFF\r\n");
+        printf("LED is turned OFF\r\n");
     }
 
     gpio_set_pin_level(PC18, !level);
@@ -37,7 +37,7 @@ static void mqtt_direct_method(CHAR* direct_method_name, CHAR* message, MQTT_DIR
 {
     // Default response - 501 Not Implemented
     int status = 501;
-    if (strcmp(direct_method_name, "set_led_state") == 0)
+    if (strcmp(direct_method_name, "setLedState") == 0)
     {
         // 'false' - turn LED off
         // 'true'  - turn LED on
@@ -49,7 +49,7 @@ static void mqtt_direct_method(CHAR* direct_method_name, CHAR* message, MQTT_DIR
         status = 204;
 
         // Update device twin property
-        azure_iot_mqtt_publish_bool_property(&azure_iot_mqtt, "led0State", arg);
+        azure_iot_mqtt_publish_bool_property(&azure_iot_mqtt, "ledState", arg);
 
         printf("Direct method=%s invoked\r\n", direct_method_name);
     }
@@ -65,23 +65,6 @@ static void mqtt_direct_method(CHAR* direct_method_name, CHAR* message, MQTT_DIR
 
 static void mqtt_c2d_message(CHAR* key, CHAR* value)
 {
-    if (strcmp(key, "led0State") == 0)
-    {
-        // 'false' - turn LED off
-        // 'true'  - turn LED on
-        bool arg = (strcmp(value, "true") == 0);
-
-        set_led_state(arg);
-
-        // Update device twin property
-        azure_iot_mqtt_publish_bool_property(&azure_iot_mqtt, key, arg);
-    }
-    else
-    {
-        // Update device twin property
-        azure_iot_mqtt_publish_string_property(&azure_iot_mqtt, key, value);
-    }
-
     printf("Property=%s updated with value=%s\r\n", key, value);
 }
 
@@ -137,9 +120,6 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
 
         // Send the temperature as a telemetry event
         azure_iot_mqtt_publish_float_telemetry(&azure_iot_mqtt, "temperature", temperature);
-
-        // Send the temperature as a device twin update
-        azure_iot_mqtt_publish_float_property(&azure_iot_mqtt, "currentTemperature", temperature);
 
         // Sleep for 10 seconds
         tx_thread_sleep(10 * TX_TIMER_TICKS_PER_SECOND);

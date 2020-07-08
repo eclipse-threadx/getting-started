@@ -64,7 +64,6 @@ static void telemetry_thread_entry(ULONG parameter)
         temperature = BSP_TSENSOR_ReadTemp();
 
         azure_iot_nx_client_publish_float_telemetry(&azure_iot_nx_client, "temperature", temperature, packet_ptr);
-        azure_iot_nx_client_publish_float_property(&azure_iot_nx_client, "currentTemperature", temperature);
 
         tx_event_flags_get(
             &azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR_CLEAR, &events, telemetry_interval * NX_IP_PERIODIC_RATE);
@@ -164,13 +163,13 @@ static void direct_method_thread_entry(ULONG parameter)
         payload_ptr    = (CHAR*)packet_ptr->nx_packet_prepend_ptr;
         payload_length = packet_ptr->nx_packet_append_ptr - packet_ptr->nx_packet_prepend_ptr;
 
-        if (strncmp((CHAR*)method_name_ptr, "set_led_state", method_name_length) == 0)
+        if (strncmp((CHAR*)method_name_ptr, "setLedState", method_name_length) == 0)
         {
-            // set_led_state command
-            printf("received set_led_state\r\n");
-
             bool arg = (strncmp(payload_ptr, "true", payload_length) == 0);
             set_led_state(arg);
+
+            azure_iot_nx_client_publish_bool_property(&azure_iot_nx_client, "ledState", arg);
+            
             http_status = 200;
         }
 

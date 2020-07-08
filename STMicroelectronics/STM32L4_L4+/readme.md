@@ -302,7 +302,7 @@ To call a method to turn the LED on:
 
     <!-- Inline code tag and CSS to wrap long code lines. -->
     <code style="white-space : pre-wrap !important;">
-    az iot hub invoke-device-method --device-id MySTMDevice --method-name set_led_state --method-payload true --hub-name {YourIoTHubName}
+    az iot hub invoke-device-method --device-id MySTMDevice --method-name setLedState --method-payload true --hub-name {YourIoTHubName}
     </code>
 
     The CLI console shows the status of your method call on the device, where `204` indicates success.
@@ -319,11 +319,11 @@ To call a method to turn the LED on:
 1. View the Termite terminal to confirm the output messages:
 
     ```json
-    Received direct method=set_led_state, id=1, message=1
+    Received direct method=setLedState, id=1, message=true
     LED is turned ON
     Sending device twin update with bool value
-    Sending message {"led0State": 1}
-    Direct method=set_led_state invoked
+    Sending message {"ledState":true}
+    Direct method=setLedState invoked
 
     ```
 

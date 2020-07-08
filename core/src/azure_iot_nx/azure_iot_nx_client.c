@@ -276,7 +276,8 @@ UINT azure_iot_nx_client_enable_c2d(AZURE_IOT_NX_CLIENT* azure_iot_nx_client, th
     return NX_SUCCESS;
 }
 
-UINT azure_iot_nx_client_publish_float_telemetry(AZURE_IOT_NX_CLIENT* azure_iot_nx_client, CHAR* key, float value, NX_PACKET* packet_ptr)
+UINT azure_iot_nx_client_publish_float_telemetry(
+    AZURE_IOT_NX_CLIENT* azure_iot_nx_client, CHAR* key, float value, NX_PACKET* packet_ptr)
 {
     UINT status;
     CHAR buffer[30];
@@ -304,6 +305,37 @@ UINT azure_iot_nx_client_publish_float_property(AZURE_IOT_NX_CLIENT* azure_iot_n
     CHAR buffer[30];
 
     snprintf(buffer, sizeof(buffer), "{\"%s\":%0.2f}", key, value);
+
+    if ((status = nx_azure_iot_hub_client_device_twin_reported_properties_send(&azure_iot_nx_client->iothub_client,
+             (UCHAR*)buffer,
+             strlen(buffer),
+             &request_id,
+             &response_status,
+             NX_WAIT_FOREVER)))
+    {
+        printf("Device twin reported properties failed!: error code = 0x%08x\r\n", status);
+        return status;
+    }
+
+    if ((response_status < 200) || (response_status >= 300))
+    {
+        printf("device twin report properties failed with code : %d\r\n", response_status);
+        return status;
+    }
+
+    printf("Device twin property sent: %s.\r\n", buffer);
+
+    return NX_SUCCESS;
+}
+
+UINT azure_iot_nx_client_publish_bool_property(AZURE_IOT_NX_CLIENT* azure_iot_nx_client, CHAR* key, bool value)
+{
+    UINT status;
+    UINT response_status;
+    UINT request_id;
+    CHAR buffer[30];
+
+    snprintf(buffer, sizeof(buffer), "{\"%s\":\"%s\"}", key, (value == true ? "true" : "false"));
 
     if ((status = nx_azure_iot_hub_client_device_twin_reported_properties_send(&azure_iot_nx_client->iothub_client,
              (UCHAR*)buffer,
