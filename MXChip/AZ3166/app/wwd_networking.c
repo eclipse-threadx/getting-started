@@ -15,7 +15,6 @@
 #include "wwd_buffer_interface.h"
 #include "wwd_network.h"
 
-
 #define SAMPLE_IP_STACK_SIZE 2048
 #define SAMPLE_TX_PACKET_COUNT 16
 #define SAMPLE_RX_PACKET_COUNT 16
