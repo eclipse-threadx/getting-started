@@ -5,29 +5,27 @@
     "version": "0.2.0",
     "configurations": [
           {
-              "armToolchainPath": "/opt/gcc-arm-none-eabi-9-2020-q2-update/bin",
-              "cwd": "${workspaceFolder}",
-              "executable": "${workspaceFolder}/build/app/${input:sampleName}.elf",
-              "name": "(OpenOCD) Cortex Debug External",
-              "request": "launch",
               "type": "cortex-debug",
-              "runToMain": true,
-              "servertype": "external",
-              // Get WSL2 IP from "cat /etc/resolv.conf"
-              "gdbTarget": "172.23.128.1:3333",
+              "request": "launch",
+              "servertype": "openocd",
+              "armToolchainPath": "C:\\Program Files (x86)\\GNU Arm Embedded Toolchain\\9 2020-q2-update\\bin",
+              "cwd": "${workspaceRoot}/build/app",
+              "executable": "${input:sampleName}.elf",
+              "name": "(OpenOCD) Cortex Debug",
               "device": "STM32F412RG",
+              "runToMain": true,
               "interface": "swd",
-              "svdFile": "${workspaceFolder}/STM32F412.svd",
-              "postLaunchCommands": [
-                  // "target extended-remote 172.30.176.1:3333",
-                  "cd ${workspaceFolder}/build/app",
-                  "file ./${input:sampleName}.elf",
-                  "load",
-                  "enable breakpoint",
-                  "monitor reset halt",
-                  "monitor arm semihosting enable",
-                  "cd ${workspaceFolder}"
-              ]
+              "configFiles": [
+                  "interface/stlink.cfg",
+                  "target/stm32f4x.cfg"
+              ],
+              "svdFile": "${cwd}/STM32F412.svd",
+              "swoConfig": {
+                  "enabled": true,
+                  "cpuFrequency": 10000000,
+                  "swoFrequency": 2000000,
+                  "source": "probe"
+              },
           },
       ],
       "inputs": [
