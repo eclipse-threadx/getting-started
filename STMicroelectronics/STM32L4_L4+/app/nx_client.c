@@ -13,6 +13,7 @@
 #include "nx_azure_iot_provisioning_client.h"
 
 #include "jsmn.h"
+#include "json_utils.h"
 
 // These are sample files, user can build their own certificate and ciphersuites
 #include "azure_iot_cert.h"
@@ -107,10 +108,11 @@ static void device_twin_thread_entry(ULONG parameter)
         jsmn_init(&parser);
         token_count = jsmn_parse(&parser, json_str, json_len, tokens, 64);
 
-        findJsonInt(json_str, tokens, token_count, "telemetryInterval", &telemetry_interval);
-
-        // Set a telemetry event so we pick up the change immediately
-        tx_event_flags_set(&azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR);
+        if (findJsonInt(json_str, tokens, token_count, "telemetryInterval", &telemetry_interval))
+        {
+            // Set a telemetry event so we pick up the change immediately
+            tx_event_flags_set(&azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR);
+        }
 
         // Release the received packet, as ownership was passed to the application
         nx_packet_release(packet_ptr);

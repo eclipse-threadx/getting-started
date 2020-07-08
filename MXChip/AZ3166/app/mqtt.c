@@ -8,14 +8,22 @@
 #include "sensor.h"
 #include "stm32f4xx_hal.h"
 
+#include "jsmn.h"
+
 #include "azure_iot_mqtt.h"
+#include "json_utils.h"
 #include "sntp_client.h"
 
 #include "azure_config.h"
 
 #define IOT_MODEL_ID "dtmi:microsoft:gsg;1"
 
+#define TELEMETRY_INTERVAL_EVENT 1
+
 static AZURE_IOT_MQTT azure_iot_mqtt;
+static TX_EVENT_FLAGS_GROUP azure_iot_flags;
+
+static INT telemetry_interval = 10;
 
 static void set_led_state(bool level)
 {
@@ -68,16 +76,36 @@ static void mqtt_c2d_message(CHAR* key, CHAR* value)
 
 static void mqtt_device_twin_desired_prop(CHAR* message)
 {
+    jsmn_parser parser;
+    jsmntok_t tokens[64];
+    INT token_count;
+
     printf("Received device twin updated properties: %s\r\n", message);
+
+    jsmn_init(&parser);
+    token_count = jsmn_parse(&parser, message, strlen(message), tokens, 64);
+
+    if (findJsonInt(message, tokens, token_count, "telemetryInterval", &telemetry_interval))
+    {
+        // Set a telemetry event so we pick up the change immediately
+        tx_event_flags_set(&azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR);
+    }
 }
 
 UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, ULONG (*sntp_time_get)(VOID))
 {
     UINT status;
+    ULONG events;
     lps22hb_t lps22hb_data;
     hts221_data_t hts221_data;
     lsm6dsl_data_t lsm6dsl_data;
     lis2mdl_data_t lis2mdl_data;
+
+    if ((status = tx_event_flags_create(&azure_iot_flags, "Azure IoT flags")))
+    {
+        printf("FAIL: Unable to create nx_client event flags (0x%02x)\r\n", status);
+        return status;
+    }
 
     // Create Azure MQTT
     status = azure_iot_mqtt_create(&azure_iot_mqtt,
@@ -132,8 +160,9 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
         // Send the compensated magnetic
         azure_iot_mqtt_publish_float_telemetry(&azure_iot_mqtt, "magnetic", lis2mdl_data.magnetic_mG[0]);
 
-        // Sleep for 10 seconds
-        tx_thread_sleep(10 * TX_TIMER_TICKS_PER_SECOND);
+        // Sleep
+        tx_event_flags_get(
+            &azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR_CLEAR, &events, telemetry_interval * NX_IP_PERIODIC_RATE);
     }
 
     return NXD_MQTT_SUCCESS;

@@ -357,12 +357,6 @@ static VOID mqtt_notify_cb(NXD_MQTT_CLIENT* client_ptr, UINT number_of_messages)
         mqtt_topic_buffer[mqtt_topic_length]     = 0;
         mqtt_message_buffer[mqtt_message_length] = 0;
 
-        // Convert to lowercase
-        for (CHAR* p = mqtt_message_buffer; *p; ++p)
-        {
-            *p = tolower((INT)*p);
-        }
-
         printf("[MQTT Received] topic = %s, message = %s\r\n", mqtt_topic_buffer, mqtt_message_buffer);
 
         if (strstr((CHAR*)mqtt_topic_buffer, DIRECT_METHOD_RECEIVE))

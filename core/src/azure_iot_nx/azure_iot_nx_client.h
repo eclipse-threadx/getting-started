@@ -68,6 +68,5 @@ UINT azure_iot_nx_client_publish_float_property(AZURE_IOT_NX_CLIENT* azure_iot_n
 UINT azure_iot_nx_client_publish_bool_property(AZURE_IOT_NX_CLIENT* azure_iot_nx_client, CHAR* key, bool value);
 
 VOID printf_packet(NX_PACKET* packet_ptr);
-bool findJsonInt(const char* json, jsmntok_t* tokens, int tokens_count, const char* s, int* value);
 
 #endif
