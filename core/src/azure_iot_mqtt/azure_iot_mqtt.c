@@ -21,6 +21,7 @@
 #define DEVICE_MESSAGE_TOPIC "devices/%s/messages/devicebound/#"
 
 #define DEVICE_TWIN_PUBLISH_TOPIC          "$iothub/twin/PATCH/properties/reported/?$rid=%d"
+#define DEVICE_TWIN_REQUEST_TOPIC          "$iothub/twin/GET/?$rid=%d"
 #define DEVICE_TWIN_RES_BASE               "$iothub/twin/res/"
 #define DEVICE_TWIN_RES_TOPIC              "$iothub/twin/res/#"
 #define DEVICE_TWIN_DESIRED_PROP_RES_BASE  "$iothub/twin/PATCH/properties/desired/"
@@ -31,9 +32,8 @@
 #define DIRECT_METHOD_RESPONSE "$iothub/methods/res/%d/?$rid=%s"
 
 #define MQTT_CLIENT_PRIORITY 2
-
-#define MQTT_TIMEOUT    (30 * TX_TIMER_TICKS_PER_SECOND)
-#define MQTT_KEEP_ALIVE 240
+#define MQTT_TIMEOUT         (10 * TX_TIMER_TICKS_PER_SECOND)
+#define MQTT_KEEP_ALIVE      240
 
 #define MQTT_TOPIC_NAME_LENGTH   200
 #define MQTT_MESSAGE_NAME_LENGTH 200
@@ -77,6 +77,18 @@ UINT azure_iot_mqtt_register_device_twin_desired_prop_callback(
     }
 
     azure_iot_mqtt->cb_ptr_mqtt_device_twin_desired_prop_callback = mqtt_device_twin_desired_prop_callback;
+    return NX_SUCCESS;
+}
+
+UINT azure_iot_mqtt_register_device_twin_prop_callback(
+    AZURE_IOT_MQTT* azure_iot_mqtt, func_ptr_device_twin_desired_prop mqtt_device_twin_prop_callback)
+{
+    if (azure_iot_mqtt == NULL || azure_iot_mqtt->cb_ptr_mqtt_device_twin_prop_callback != NULL)
+    {
+        return NX_PTR_ERROR;
+    }
+
+    azure_iot_mqtt->cb_ptr_mqtt_device_twin_prop_callback = mqtt_device_twin_prop_callback;
     return NX_SUCCESS;
 }
 
@@ -227,10 +239,9 @@ static VOID process_direct_method(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, C
     mqtt_respond_direct_method(azure_iot_mqtt, topic, request_id, &response);
 }
 
-static VOID process_device_twin_response(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic)
+static VOID process_device_twin_response(AZURE_IOT_MQTT *azure_iot_mqtt, CHAR *topic, CHAR *message)
 {
     CHAR device_twin_res_status[16] = {0};
-    CHAR request_id[16]             = {0};
 
     // Parse the device twin response status
     CHAR* location = topic + sizeof(DEVICE_TWIN_RES_BASE) - 1;
@@ -244,26 +255,9 @@ static VOID process_device_twin_response(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* t
 
     strncpy(device_twin_res_status, location, find - location);
 
-    // Parse the request id from the device twin response
-    location = find;
+    printf("Processed device twin update response with status=%s\r\n", device_twin_res_status);
 
-    find = strstr(location, "$rid=");
-    if (find == 0)
-    {
-        return;
-    }
-
-    location = find + 5;
-
-    find = strchr(location, '&');
-    if (find == 0)
-    {
-        return;
-    }
-
-    strncpy(request_id, location, find - location);
-
-    printf("Processed device twin update response with status=%s, id=%s\r\n", device_twin_res_status, request_id);
+    azure_iot_mqtt->cb_ptr_mqtt_device_twin_prop_callback(message);
 }
 
 static VOID process_c2d_message(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic)
@@ -315,6 +309,8 @@ static VOID process_c2d_message(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic)
 
 static VOID process_device_twin_desired_prop_update(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR* message)
 {
+    printf("Received device twin desired property\r\n");
+
     azure_iot_mqtt->cb_ptr_mqtt_device_twin_desired_prop_callback(message);
 }
 
@@ -357,7 +353,7 @@ static VOID mqtt_notify_cb(NXD_MQTT_CLIENT* client_ptr, UINT number_of_messages)
         mqtt_topic_buffer[mqtt_topic_length]     = 0;
         mqtt_message_buffer[mqtt_message_length] = 0;
 
-        printf("[MQTT Received] topic = %s, message = %s\r\n", mqtt_topic_buffer, mqtt_message_buffer);
+        printf("[MQTT Received] topic = %s\r\n", mqtt_topic_buffer);
 
         if (strstr((CHAR*)mqtt_topic_buffer, DIRECT_METHOD_RECEIVE))
         {
@@ -365,7 +361,7 @@ static VOID mqtt_notify_cb(NXD_MQTT_CLIENT* client_ptr, UINT number_of_messages)
         }
         else if (strstr((CHAR*)mqtt_topic_buffer, DEVICE_TWIN_RES_BASE))
         {
-            process_device_twin_response(azure_iot_mqtt, mqtt_topic_buffer);
+            process_device_twin_response(azure_iot_mqtt, mqtt_topic_buffer, mqtt_message_buffer);
         }
         else if (strstr((CHAR*)mqtt_topic_buffer, DEVICE_MESSAGE_BASE))
         {
@@ -412,7 +408,7 @@ UINT azure_iot_mqtt_publish_float_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR*
 
     tx_mutex_get(&azure_iot_mqtt->mqtt_mutex, TX_WAIT_FOREVER);
 
-    snprintf(mqtt_publish_topic, sizeof(mqtt_publish_topic), DEVICE_TWIN_PUBLISH_TOPIC, 1);
+    snprintf(mqtt_publish_topic, sizeof(mqtt_publish_topic), DEVICE_TWIN_PUBLISH_TOPIC, azure_iot_mqtt->request_id++);
     printf("Sending device twin update with float value\r\n");
 
     status = mqtt_publish_float(azure_iot_mqtt, mqtt_publish_topic, label, value);
@@ -429,7 +425,7 @@ UINT azure_iot_mqtt_publish_bool_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* 
 
     tx_mutex_get(&azure_iot_mqtt->mqtt_mutex, TX_WAIT_FOREVER);
 
-    snprintf(mqtt_publish_topic, sizeof(mqtt_publish_topic), DEVICE_TWIN_PUBLISH_TOPIC, 1);
+    snprintf(mqtt_publish_topic, sizeof(mqtt_publish_topic), DEVICE_TWIN_PUBLISH_TOPIC, azure_iot_mqtt->request_id++);
     printf("Sending device twin update with bool value\r\n");
 
     status = mqtt_publish_bool(azure_iot_mqtt, mqtt_publish_topic, label, value);
@@ -437,6 +433,25 @@ UINT azure_iot_mqtt_publish_bool_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* 
     tx_mutex_put(&azure_iot_mqtt->mqtt_mutex);
 
     return status;
+}
+
+UINT azure_iot_mqtt_device_twin_request(AZURE_IOT_MQTT* azure_iot_mqtt)
+{
+    CHAR mqtt_publish_topic[100];
+    UINT status;
+
+    printf("Requesting device twin model\r\n");
+
+    snprintf(mqtt_publish_topic, sizeof(mqtt_publish_topic), DEVICE_TWIN_REQUEST_TOPIC, azure_iot_mqtt->request_id++);
+
+    // Publish an empty message to request the device twin
+    if ((status = mqtt_publish(azure_iot_mqtt, mqtt_publish_topic, "{}")))
+    {
+        printf("Failed to publish device twin request (0x%02x)\r\n", status);
+        return status;
+    }
+
+    return NX_SUCCESS;
 }
 
 UINT azure_iot_mqtt_create(AZURE_IOT_MQTT* azure_iot_mqtt,
