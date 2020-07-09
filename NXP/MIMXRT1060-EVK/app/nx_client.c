@@ -10,6 +10,7 @@
 #include "nx_azure_iot_provisioning_client.h"
 
 #include "jsmn.h"
+#include "json_utils.h"
 
 // These are sample files, user can build their own certificate and ciphersuites
 #include "azure_iot_cert.h"
@@ -29,17 +30,13 @@ static void set_led_state(bool level)
 {
     if (level)
     {
-        // Pin level set to "low" state
         printf("LED is turned ON\r\n");
-
         // The User LED on the board shares the same pin as ENET RST so is unusable
         // USER_LED_ON();
     }
     else
     {
-        // Pin level set to "high" state
         printf("LED is turned OFF\r\n");
-
         // The User LED on the board shares the same pin as ENET RST so is unusable
         // USER_LED_OFF();
     }
@@ -65,7 +62,6 @@ static void telemetry_thread_entry(ULONG parameter)
         }
 
         azure_iot_nx_client_publish_float_telemetry(&azure_iot_nx_client, "temperature", temperature, packet_ptr);
-        azure_iot_nx_client_publish_float_property(&azure_iot_nx_client, "currentTemperature", temperature);
 
         tx_event_flags_get(
             &azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR_CLEAR, &events, telemetry_interval * NX_IP_PERIODIC_RATE);
@@ -109,10 +105,11 @@ static void device_twin_thread_entry(ULONG parameter)
         jsmn_init(&parser);
         token_count = jsmn_parse(&parser, json_str, json_len, tokens, 64);
 
-        findJsonInt(json_str, tokens, token_count, "telemetryInterval", &telemetry_interval);
-
-        // Set a telemetry event so we pick up the change immediately
-        tx_event_flags_set(&azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR);
+        if (findJsonInt(json_str, tokens, token_count, "telemetryInterval", &telemetry_interval))
+        {
+            // Set a telemetry event so we pick up the change immediately
+            tx_event_flags_set(&azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR);
+        }
 
         // Release the received packet, as ownership was passed to the application
         nx_packet_release(packet_ptr);
@@ -165,13 +162,13 @@ static void direct_method_thread_entry(ULONG parameter)
         payload_ptr    = (CHAR*)packet_ptr->nx_packet_prepend_ptr;
         payload_length = packet_ptr->nx_packet_append_ptr - packet_ptr->nx_packet_prepend_ptr;
 
-        if (strncmp((CHAR*)method_name_ptr, "set_led_state", method_name_length) == 0)
+        if (strncmp((CHAR*)method_name_ptr, "setLedState", method_name_length) == 0)
         {
-            // set_led_state command
-            printf("received set_led_state\r\n");
-
             bool arg = (strncmp(payload_ptr, "true", payload_length) == 0);
             set_led_state(arg);
+
+            azure_iot_nx_client_publish_bool_property(&azure_iot_nx_client, "ledState", arg);
+
             http_status = 200;
         }
 

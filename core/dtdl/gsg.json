@@ -2,12 +2,18 @@
     "@context": "dtmi:dtdl:context;2",
     "@id": "dtmi:microsoft:gsg;1",
     "@type": "Interface",
-    "displayName": "gsg",
+    "displayName": "GSG",
     "contents": [
         {
             "@type": "Property",
-            "name": "currentTemperature",
-            "schema": "double"
+            "name": "ledState",
+            "schema": "boolean"
+        },
+        {
+            "@type": "Property",
+            "name": "telemetryInterval",
+            "writable": true,
+            "schema": "integer"
         },
         {
             "@type": "Telemetry",
@@ -16,7 +22,7 @@
         },
         {
             "@type": "Command",
-            "name": "set_led_state",
+            "name": "setLedState",
             "request": {
                 "name": "level",
                 "schema": "boolean"

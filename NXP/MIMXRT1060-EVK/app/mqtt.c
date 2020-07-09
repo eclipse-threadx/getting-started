@@ -6,27 +6,31 @@
 #include <stdio.h>
 
 #include "azure_iot_mqtt.h"
+#include "json_utils.h"
 #include "sntp_client.h"
 
 #include "azure_config.h"
 
 #define IOT_MODEL_ID "dtmi:microsoft:gsg;1"
 
+#define TELEMETRY_INTERVAL_EVENT 1
+
 static AZURE_IOT_MQTT azure_iot_mqtt;
+static TX_EVENT_FLAGS_GROUP azure_iot_flags;
+
+static INT telemetry_interval = 10;
 
 static void set_led_state(bool level)
 {
     if (level)
     {
         printf("LED is turned ON\r\n");
-
         // The User LED on the board shares the same pin as ENET RST so is unusable
         // USER_LED_ON();
     }
     else
     {
         printf("LED is turned OFF\r\n");
-
         // The User LED on the board shares the same pin as ENET RST so is unusable
         // USER_LED_OFF();
     }
@@ -36,7 +40,7 @@ static void mqtt_direct_method(CHAR* direct_method_name, CHAR* message, MQTT_DIR
 {
     // Default response - 501 Not Implemented
     int status = 501;
-    if (strcmp(direct_method_name, "set_led_state") == 0)
+    if (strcmp(direct_method_name, "setLedState") == 0)
     {
         // 'false' - turn LED off
         // 'true'  - turn LED on
@@ -48,7 +52,7 @@ static void mqtt_direct_method(CHAR* direct_method_name, CHAR* message, MQTT_DIR
         status = 204;
 
         // Update device twin property
-        azure_iot_mqtt_publish_bool_property(&azure_iot_mqtt, "led0State", arg);
+        azure_iot_mqtt_publish_bool_property(&azure_iot_mqtt, "ledState", arg);
 
         printf("Direct method=%s invoked\r\n", direct_method_name);
     }
@@ -64,35 +68,52 @@ static void mqtt_direct_method(CHAR* direct_method_name, CHAR* message, MQTT_DIR
 
 static void mqtt_c2d_message(CHAR* key, CHAR* value)
 {
-    if (strcmp(key, "led0State") == 0)
-    {
-        // 'false' - turn LED off
-        // 'true'  - turn LED on
-        bool arg = (strcmp(value, "true") == 0);
-
-        set_led_state(arg);
-
-        // Update device twin property
-        azure_iot_mqtt_publish_bool_property(&azure_iot_mqtt, key, arg);
-    }
-    else
-    {
-        // Update device twin property
-        azure_iot_mqtt_publish_string_property(&azure_iot_mqtt, key, value);
-    }
-
     printf("Property=%s updated with value=%s\r\n", key, value);
 }
 
 static void mqtt_device_twin_desired_prop(CHAR* message)
 {
-    printf("Received device twin updated properties: %s\r\n", message);
+    jsmn_parser parser;
+    jsmntok_t tokens[16];
+    INT token_count;
+
+    jsmn_init(&parser);
+    token_count = jsmn_parse(&parser, message, strlen(message), tokens, 16);
+
+    if (findJsonInt(message, tokens, token_count, "telemetryInterval", &telemetry_interval))
+    {
+        // Set a telemetry event so we pick up the change immediately
+        tx_event_flags_set(&azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR);
+    }
+}
+
+static void mqtt_device_twin_prop(CHAR* message)
+{
+    jsmn_parser parser;
+    jsmntok_t tokens[64];
+    INT token_count;
+
+    jsmn_init(&parser);
+    token_count = jsmn_parse(&parser, message, strlen(message), tokens, 64);
+
+    if (findJsonInt(message, tokens, token_count, "telemetryInterval", &telemetry_interval))
+    {
+        // Set a telemetry event so we pick up the change immediately
+        tx_event_flags_set(&azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR);
+    }
 }
 
 UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, ULONG (*sntp_time_get)(VOID))
 {
     UINT status;
+    ULONG events;
     float temperature;
+
+    if ((status = tx_event_flags_create(&azure_iot_flags, "Azure IoT flags")))
+    {
+        printf("FAIL: Unable to create nx_client event flags (0x%02x)\r\n", status);
+        return status;
+    }
 
     // Create Azure MQTT
     status = azure_iot_mqtt_create(&azure_iot_mqtt,
@@ -114,6 +135,7 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
     azure_iot_mqtt_register_direct_method_callback(&azure_iot_mqtt, mqtt_direct_method);
     azure_iot_mqtt_register_c2d_message_callback(&azure_iot_mqtt, mqtt_c2d_message);
     azure_iot_mqtt_register_device_twin_desired_prop_callback(&azure_iot_mqtt, mqtt_device_twin_desired_prop);
+    azure_iot_mqtt_register_device_twin_prop_callback(&azure_iot_mqtt, mqtt_device_twin_prop);
 
     // Connect the Azure MQTT client
     status = azure_iot_mqtt_connect(&azure_iot_mqtt);
@@ -123,6 +145,9 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
         return status;
     }
 
+    // Request the device twin
+    azure_iot_mqtt_device_twin_request(&azure_iot_mqtt);
+
     printf("Starting MQTT loop\r\n");
     while (true)
     {
@@ -131,11 +156,9 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
         // Send the temperature as a telemetry event
         azure_iot_mqtt_publish_float_telemetry(&azure_iot_mqtt, "temperature", temperature);
 
-        // Send the temperature as a device twin update
-        azure_iot_mqtt_publish_float_property(&azure_iot_mqtt, "currentTemperature", temperature);
-
-        // Sleep for 10 seconds
-        tx_thread_sleep(10 * TX_TIMER_TICKS_PER_SECOND);
+        // Sleep
+        tx_event_flags_get(
+            &azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR_CLEAR, &events, telemetry_interval * NX_IP_PERIODIC_RATE);
     }
 
     return NXD_MQTT_SUCCESS;

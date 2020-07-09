@@ -276,7 +276,8 @@ UINT azure_iot_nx_client_enable_c2d(AZURE_IOT_NX_CLIENT* azure_iot_nx_client, th
     return NX_SUCCESS;
 }
 
-UINT azure_iot_nx_client_publish_float_telemetry(AZURE_IOT_NX_CLIENT* azure_iot_nx_client, CHAR* key, float value, NX_PACKET* packet_ptr)
+UINT azure_iot_nx_client_publish_float_telemetry(
+    AZURE_IOT_NX_CLIENT* azure_iot_nx_client, CHAR* key, float value, NX_PACKET* packet_ptr)
 {
     UINT status;
     CHAR buffer[30];
@@ -327,6 +328,37 @@ UINT azure_iot_nx_client_publish_float_property(AZURE_IOT_NX_CLIENT* azure_iot_n
     return NX_SUCCESS;
 }
 
+UINT azure_iot_nx_client_publish_bool_property(AZURE_IOT_NX_CLIENT* azure_iot_nx_client, CHAR* key, bool value)
+{
+    UINT status;
+    UINT response_status;
+    UINT request_id;
+    CHAR buffer[30];
+
+    snprintf(buffer, sizeof(buffer), "{\"%s\":\"%s\"}", key, (value == true ? "true" : "false"));
+
+    if ((status = nx_azure_iot_hub_client_device_twin_reported_properties_send(&azure_iot_nx_client->iothub_client,
+             (UCHAR*)buffer,
+             strlen(buffer),
+             &request_id,
+             &response_status,
+             NX_WAIT_FOREVER)))
+    {
+        printf("Device twin reported properties failed!: error code = 0x%08x\r\n", status);
+        return status;
+    }
+
+    if ((response_status < 200) || (response_status >= 300))
+    {
+        printf("device twin report properties failed with code : %d\r\n", response_status);
+        return status;
+    }
+
+    printf("Device twin property sent: %s.\r\n", buffer);
+
+    return NX_SUCCESS;
+}
+
 VOID printf_packet(NX_PACKET* packet_ptr)
 {
     while (packet_ptr != NX_NULL)
@@ -335,21 +367,4 @@ VOID printf_packet(NX_PACKET* packet_ptr)
         packet_ptr = packet_ptr->nx_packet_next;
     }
     printf("\r\n");
-}
-
-bool findJsonInt(const char* json, jsmntok_t* tokens, int tokens_count, const char* s, int* value)
-{
-    for (int i = 1; i < tokens_count; i++)
-    {
-        if ((tokens[i].type == JSMN_STRING) && (strlen(s) == tokens[i].end - tokens[i].start) &&
-            (strncmp(json + tokens[i].start, s, tokens[i].end - tokens[i].start) == 0))
-        {
-            *value = atoi(json + tokens[i + 1].start);
-
-            printf("Desired property %s = %d\r\n", "telemetryInterval", *value);
-            return true;
-        }
-    }
-
-    return false;
 }
