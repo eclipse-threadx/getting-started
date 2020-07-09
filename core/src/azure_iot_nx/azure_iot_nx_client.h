@@ -65,8 +65,8 @@ UINT azure_iot_nx_client_enable_c2d(AZURE_IOT_NX_CLIENT* azure_iot_nx_client, th
 
 UINT azure_iot_nx_client_publish_float_telemetry(AZURE_IOT_NX_CLIENT* azure_iot_nx_client, CHAR* key, float value, NX_PACKET* packet_ptr);
 UINT azure_iot_nx_client_publish_float_property(AZURE_IOT_NX_CLIENT* azure_iot_nx_client, CHAR* key, float value);
+UINT azure_iot_nx_client_publish_bool_property(AZURE_IOT_NX_CLIENT* azure_iot_nx_client, CHAR* key, bool value);
 
 VOID printf_packet(NX_PACKET* packet_ptr);
-bool findJsonInt(const char* json, jsmntok_t* tokens, int tokens_count, const char* s, int* value);
 
 #endif

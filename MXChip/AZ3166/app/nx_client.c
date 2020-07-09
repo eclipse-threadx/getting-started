@@ -5,14 +5,15 @@
 
 #include <stdio.h>
 
+#include "sensor.h"
+#include "stm32f4xx_hal.h"
+
 #include "nx_api.h"
 #include "nx_azure_iot_hub_client.h"
 #include "nx_azure_iot_provisioning_client.h"
 
 #include "jsmn.h"
-
-#include "sensor.h"
-#include "stm32f4xx_hal.h"
+#include "json_utils.h"
 
 // These are sample files, user can build their own certificate and ciphersuites
 #include "azure_iot_cert.h"
@@ -45,7 +46,6 @@ static void set_led_state(bool level)
 static void telemetry_thread_entry(ULONG parameter)
 {
     NX_PACKET* packet_ptr;
-    UINT status;
     ULONG events;
     lps22hb_t lps22hb_data;
     hts221_data_t hts221_data;
@@ -58,43 +58,39 @@ static void telemetry_thread_entry(ULONG parameter)
     {
         // Read data from sensors
         lps22hb_data = lps22hb_data_read();
-        hts221_data = hts221_data_read();
+        hts221_data  = hts221_data_read();
         lsm6dsl_data = lsm6dsl_data_read();
         lis2mdl_data = lis2mdl_data_read();
 
         // Create a telemetry message packet
-        if ((status = nx_azure_iot_hub_client_telemetry_message_create(
-                 &azure_iot_nx_client.iothub_client, &packet_ptr, NX_WAIT_FOREVER)))
-        {
-            printf("Telemetry message create failed!: error code = 0x%08x\r\n", status);
-            break;
-        }
-
+        nx_azure_iot_hub_client_telemetry_message_create(
+            &azure_iot_nx_client.iothub_client, &packet_ptr, NX_WAIT_FOREVER);
         azure_iot_nx_client_publish_float_telemetry(
             &azure_iot_nx_client, "temperature", lps22hb_data.temperature_degC, packet_ptr);
-        azure_iot_nx_client_publish_float_property(&azure_iot_nx_client, "temperature", lps22hb_data.temperature_degC);
 
         // Send the compensated pressure
-//        azure_iot_nx_client_publish_float_telemetry(
-//            &azure_iot_nx_client, "pressure", lps22hb_data.pressure_hPa, packet_ptr);
-//        azure_iot_nx_client_publish_float_property(&azure_iot_nx_client, "pressure", lps22hb_data.pressure_hPa);
-//
-//        // Send the compensated humidity
-//        azure_iot_nx_client_publish_float_telemetry(
-//            &azure_iot_nx_client, "humidityPercentage", hts221_data.humidity_perc, packet_ptr);
-//        azure_iot_nx_client_publish_float_property(
-//            &azure_iot_nx_client, "humidityPercentage", hts221_data.humidity_perc);
-//
-//        // Send the compensated acceleration
-//        azure_iot_nx_client_publish_float_telemetry(
-//            &azure_iot_nx_client, "acceleration", lsm6dsl_data.acceleration_mg[0], packet_ptr);
-//        azure_iot_nx_client_publish_float_property(
-//            &azure_iot_nx_client, "acceleration", lsm6dsl_data.acceleration_mg[0]);
-//
-//        // Send the compensated magnetic
-//        azure_iot_nx_client_publish_float_telemetry(
-//            &azure_iot_nx_client, "magnetic", lis2mdl_data.magnetic_mG[0], packet_ptr);
-//        azure_iot_nx_client_publish_float_property(&azure_iot_nx_client, "magnetic", lis2mdl_data.magnetic_mG[0]);
+        nx_azure_iot_hub_client_telemetry_message_create(
+            &azure_iot_nx_client.iothub_client, &packet_ptr, NX_WAIT_FOREVER);
+        azure_iot_nx_client_publish_float_telemetry(
+            &azure_iot_nx_client, "pressure", lps22hb_data.pressure_hPa, packet_ptr);
+
+        // Send the compensated humidity
+        nx_azure_iot_hub_client_telemetry_message_create(
+            &azure_iot_nx_client.iothub_client, &packet_ptr, NX_WAIT_FOREVER);
+        azure_iot_nx_client_publish_float_telemetry(
+            &azure_iot_nx_client, "humidityPercentage", hts221_data.humidity_perc, packet_ptr);
+
+        // Send the compensated acceleration
+        nx_azure_iot_hub_client_telemetry_message_create(
+            &azure_iot_nx_client.iothub_client, &packet_ptr, NX_WAIT_FOREVER);
+        azure_iot_nx_client_publish_float_telemetry(
+            &azure_iot_nx_client, "acceleration", lsm6dsl_data.acceleration_mg[0], packet_ptr);
+
+        // Send the compensated magnetic
+        nx_azure_iot_hub_client_telemetry_message_create(
+            &azure_iot_nx_client.iothub_client, &packet_ptr, NX_WAIT_FOREVER);
+        azure_iot_nx_client_publish_float_telemetry(
+            &azure_iot_nx_client, "magnetic", lis2mdl_data.magnetic_mG[0], packet_ptr);
 
         tx_event_flags_get(
             &azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR_CLEAR, &events, telemetry_interval * NX_IP_PERIODIC_RATE);
@@ -138,10 +134,11 @@ static void device_twin_thread_entry(ULONG parameter)
         jsmn_init(&parser);
         token_count = jsmn_parse(&parser, json_str, json_len, tokens, 64);
 
-        findJsonInt(json_str, tokens, token_count, "telemetryInterval", &telemetry_interval);
-
-        // Set a telemetry event so we pick up the change immediately
-        tx_event_flags_set(&azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR);
+        if (findJsonInt(json_str, tokens, token_count, "telemetryInterval", &telemetry_interval))
+        {
+            // Set a telemetry event so we pick up the change immediately
+            tx_event_flags_set(&azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR);
+        }
 
         // Release the received packet, as ownership was passed to the application
         nx_packet_release(packet_ptr);
@@ -194,13 +191,13 @@ static void direct_method_thread_entry(ULONG parameter)
         payload_ptr    = (CHAR*)packet_ptr->nx_packet_prepend_ptr;
         payload_length = packet_ptr->nx_packet_append_ptr - packet_ptr->nx_packet_prepend_ptr;
 
-        if (strncmp((CHAR*)method_name_ptr, "set_led_state", method_name_length) == 0)
+        if (strncmp((CHAR*)method_name_ptr, "setLedState", method_name_length) == 0)
         {
-            // set_led_state command
-            printf("received set_led_state\r\n");
-
             bool arg = (strncmp(payload_ptr, "true", payload_length) == 0);
             set_led_state(arg);
+
+            azure_iot_nx_client_publish_bool_property(&azure_iot_nx_client, "ledState", arg);
+
             http_status = 200;
         }
 
