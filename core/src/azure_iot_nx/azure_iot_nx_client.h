@@ -15,9 +15,6 @@
 #define NX_AZURE_IOT_STACK_SIZE 2048
 #define AZURE_IOT_NX_STACK_SIZE 2048
 
-// typedef void(*func_ptr_direct_method)(CHAR *, CHAR *, MQTT_DIRECT_METHOD_RESPONSE *);
-// typedef void(*func_ptr_c2d_message)(CHAR *, CHAR *);
-// typedef void(*func_ptr_device_twin_desired_prop)(CHAR *);
 typedef void (*threadx_entry)(ULONG parameter);
 
 typedef struct AZURE_IOT_NX_CLIENT_STRUCT
