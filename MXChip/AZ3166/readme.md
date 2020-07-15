@@ -148,7 +148,6 @@ To connect the IoT DevKit to Azure, you'll modify a configuration file for Wi-Fi
     |`WIFI_SSID` |{*Your Wi-Fi ssid*}|
     |`WIFI_PASSWORD` |{*Your Wi-Fi password*}|
     |`WIFI_SECURITY` |{*Your Wi-Fi security type*}|
-    |`WIFI_COUNTRY` |{*Your Wi-Fi is located in a country*}|
 
 1. Edit the same file to set the Azure IoT device information constants to the values that you saved after you created Azure resources.
 
@@ -171,10 +170,6 @@ After the build completes, confirm that the binary files were created in the fol
 > *getting-started/MXChip/AZ3166/build/app/mxchip_azure_iot.bin*
 
 ### Flash the image
-
-1. Download and unzip [OpenOCD for Windows](https://gnutoolchains.com/arm-eabi/openocd/) to `C:\Program Files(x86)\OpenOCD`. Add `openocd.exe` path in Windows Path Environment Variables.
-
-1. Install ST-Link driver within unzipped OpenOCD folder by running `OpenOCD/drivers/ST-Link/stlink_winusb_install.bat`.
 
 1. Connect the Micro USB cable to the Micro USB port on the IoT DevKit, and then connect it to your computer.
 
@@ -234,6 +229,10 @@ You can debug the firmware application in VS Code using [OpenOCD](http://openocd
     * Cortex-Debug
 
 ### Debugging using OpenOCD and GDB
+
+1. Download and unzip [OpenOCD for Windows](https://gnutoolchains.com/arm-eabi/openocd/) to `C:\Program Files(x86)\OpenOCD`. Add `openocd.exe` path in Windows Path Environment Variables.
+
+1. Install ST-Link driver within unzipped OpenOCD folder by running `OpenOCD/drivers/ST-Link/stlink_winusb_install.bat`.
 
 1. Launch VS Code, open *getting-started/MXChip/AZ3166/* folder.
 

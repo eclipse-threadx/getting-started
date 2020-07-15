@@ -184,7 +184,7 @@ UINT azure_iot_nx_client_connect(AZURE_IOT_NX_CLIENT* azure_iot_nx_client)
                  AZURE_IOT_NX_STACK_SIZE,
                  THREAD_PRIORITY,
                  THREAD_PRIORITY,
-                 1,
+                 0,
                  TX_AUTO_START)))
         {
             printf("Failed to create device twin thread!: error code = 0x%08x\r\n", status);
