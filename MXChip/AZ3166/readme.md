@@ -15,7 +15,6 @@ You will complete the following tasks:
 ## Prerequistes
 
 * A PC running Microsoft Windows (Windows 10 recommended)
-* [Ubuntu 18.04 or above installed in WSL2](https://docs.microsoft.com/windows/wsl/wsl2-install) on Windows 10. You will set up your development environment in it.
 * If you don't have an Azure subscription, [create one for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F) before you begin.
 * Hardware
 
