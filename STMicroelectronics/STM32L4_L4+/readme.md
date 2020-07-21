@@ -24,8 +24,6 @@ You will complete the following tasks:
     > * Wi-Fi 2.4 GHz
     > * USB 2.0 A male to Micro USB male cable
 
-> Note: Make sure the latest WiFi firmware is installed. The latest WiFi firmware can be downloaded from the [STMicroelectronics website](https://www.st.com/resource/en/utilities/inventek_fw_updater.zip). This guide requires version 3.5.2.5.STM or later.
-
 ## Prepare the development environment
 
 To set up your development environment, first you clone a GitHub repo that contains all the assets you need for the tutorial. Then you install a set of programming tools.
@@ -139,7 +137,13 @@ Confirm that you have the copied the following values from the JSON output to us
 
 ## Prepare the device
 
-To connect the STM DevKit to Azure, you'll modify a configuration file for Wi-Fi and Azure IoT settings, rebuild the image, and flash the image to the device.
+To connect the STM DevKit to Azure, first you'll need to update the Wi-Fi firmware. Then you'll modify a configuration file for Wi-Fi and Azure IoT settings, rebuild the image, and flash the image to the device.
+
+### Update Wi-Fi firmware
+Install the latest Wi-Fi module firmware. This tutorial requires version 3.5.2.5.STM or later.  
+
+1. Download and extract the [Inventek ISM 43362 Wi-Fi module firmware update](https://www.st.com/content/ccc/resource/technical/binary_resources/utilities/group0/7d/0b/be/f2/6a/51/4f/a2/inventek_fw_updater/files/inventek_fw_updater.zip/jcr:content/translations/en.inventek_fw_updater.zip).
+2. Follow the directions in the *readme.txt* file to update the firmware.
 
 ### Add configuration
 
@@ -177,8 +181,7 @@ After the build completes, confirm that the binary files were created in the fol
 
     ![STM DevKit device reset button and micro usb port](media/stm-devkit-board.png)
 
-1. Connect the Micro USB cable to the Micro USB port on the STM DevKit, and then connect it to your computer.
-
+1. Use the Micro USB cable to connect the **USB STLink** port on the STM DevKit to your computer.
     > Note: For detailed setup information about the STM DevKit, see the instructions on the packaging, or see [B-L475E-IOT01A Resources](https://www.st.com/en/evaluation-tools/b-l475e-iot01a.html#resource) / [B-L4S5I-IOT01A Resources](https://www.st.com/en/evaluation-tools/b-l4s5i-iot01a.html#resource).
 1. In File Explorer, find the STM DevKit device connected to your computer.
 1. Copy the binary file for your Dev Kit that you created in the previous section, and paste it into the root folder of the STM DevKit. The flashing process starts automatically.
@@ -298,7 +301,7 @@ You can use the Azure CLI to call a direct method that you have implemented on y
 
 To call a method to turn the LED on:
 
-1. Run the [az iot hub invoke-device-method](https://docs.microsoft.com/cli/azure/ext/azure-cli-iot-ext/iot/hub?view=azure-cli-latest#ext-azure-cli-iot-ext-az-iot-hub-invoke-device-method) command, and specify the method name and payload. For this method, setting `method-payload` to `1` turns the LED on, and setting it to `0` turns it off.
+1. Run the [az iot hub invoke-device-method](https://docs.microsoft.com/cli/azure/ext/azure-cli-iot-ext/iot/hub?view=azure-cli-latest#ext-azure-cli-iot-ext-az-iot-hub-invoke-device-method) command, and specify the method name and payload. For this method, setting `method-payload` to `true` turns the LED on, and setting it to `false` turns it off.
 
     <!-- Inline code tag and CSS to wrap long code lines. -->
     <code style="white-space : pre-wrap !important;">
@@ -324,7 +327,6 @@ To call a method to turn the LED on:
     Sending device twin update with bool value
     Sending message {"ledState":true}
     Direct method=setLedState invoked
-
     ```
 
 ## Clean up resources
