@@ -234,7 +234,7 @@ You can use the **Termite** utility to monitor communication and confirm that yo
     ```
 
     > [!IMPORTANT]
-    > If the DNS client initialization fails due to a DNS error, you'll need to update the Wi-Fi module firmware. This tutorial requires version 3.5.2.5.STM or later. Download and install the [Inventek ISM 43362 Wi-Fi module firmware update](https://www.st.com/content/ccc/resource/technical/binary_resources/utilities/group0/7d/0b/be/f2/6a/51/4f/a2/inventek_fw_updater/files/inventek_fw_updater.zip/jcr:content/translations/en.inventek_fw_updater.zip). Then press the **Reset** button on the device to recheck your connection.
+    > If the DNS client initialization fails due to a DNS error, you'll need to update the Wi-Fi module firmware  to version 3.5.2.5.STM or later. Download and install the [Inventek ISM 43362 Wi-Fi module firmware update](https://www.st.com/content/ccc/resource/technical/binary_resources/utilities/group0/7d/0b/be/f2/6a/51/4f/a2/inventek_fw_updater/files/inventek_fw_updater.zip/jcr:content/translations/en.inventek_fw_updater.zip). Then press the **Reset** button on the device to recheck your connection, and continue this tutorial.
 
 Keep Termite open to monitor device output in the following steps.
 
