@@ -137,10 +137,7 @@ Confirm that you have the copied the following values from the JSON output to us
 
 ## Prepare the device
 
-To connect the STM DevKit to Azure, first you'll need to update the Wi-Fi firmware. Then you'll modify a configuration file for Wi-Fi and Azure IoT settings, rebuild the image, and flash the image to the device.
-
-### Update Wi-Fi firmware
-Install the latest Wi-Fi module firmware. This tutorial requires version 3.5.2.5.STM or later.  
+To connect the STM DevKit to Azure, you'll modify a configuration file for Wi-Fi and Azure IoT settings, rebuild the image, and flash the image to the device.
 
 1. Download and extract the [Inventek ISM 43362 Wi-Fi module firmware update](https://www.st.com/content/ccc/resource/technical/binary_resources/utilities/group0/7d/0b/be/f2/6a/51/4f/a2/inventek_fw_updater/files/inventek_fw_updater.zip/jcr:content/translations/en.inventek_fw_updater.zip).
 2. Follow the directions in the *readme.txt* file to update the firmware.
@@ -235,6 +232,9 @@ You can use the **Termite** utility to monitor communication and confirm that yo
     Sending device twin update with float value
     Sending message {"temperature": 29.97}
     ```
+
+    > [!IMPORTANT]
+    > If the DNS client initialization fails due to a DNS error, you'll need to update the Wi-Fi module firmware. This tutorial requires version 3.5.2.5.STM or later. Download and install the [Inventek ISM 43362 Wi-Fi module firmware update](https://www.st.com/content/ccc/resource/technical/binary_resources/utilities/group0/7d/0b/be/f2/6a/51/4f/a2/inventek_fw_updater/files/inventek_fw_updater.zip/jcr:content/translations/en.inventek_fw_updater.zip). Then press the **Reset** button on the device to recheck your connection.
 
 Keep Termite open to monitor device output in the following steps.
 
