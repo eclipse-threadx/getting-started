@@ -155,7 +155,7 @@ static UINT wifi_network_join(void *pools, CHAR *ssid, CHAR *password, wiced_sec
 	while (wwd_wifi_join(&wiced_ssid, security, (uint8_t *)password, strlen(password), NULL, WWD_STA_INTERFACE) != WWD_SUCCESS)
 	{
 		printf("Failed to join: %s ... retrying...\r\n", ssid);
-        HAL_Delay(1000);
+    HAL_Delay(1000);
 	}
 
     printf("SUCCESS: WiFi connected to %s\r\n\r\n", ssid);

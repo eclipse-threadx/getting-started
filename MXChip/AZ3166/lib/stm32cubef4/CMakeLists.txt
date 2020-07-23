@@ -15,7 +15,6 @@ list(APPEND STM32HAL_SOURCES
     Drivers/stm_sensor/Src/lis2mdl_read_data_polling.c
     Drivers/ssd1306/Src/ssd1306.c
     Drivers/ssd1306/Src/ssd1306_fonts.c
-    Drivers/ssd1306/Src/ssd1306_tests.c
 )
 
 set(TARGET stm32cubef4)

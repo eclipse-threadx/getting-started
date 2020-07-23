@@ -6,6 +6,7 @@
 #include "tx_api.h"
 
 #include "board_init.h"
+#include "screen.h"
 #include "sntp_client.h"
 #include "cmsis_utils.h"
 
@@ -33,6 +34,7 @@ void azure_thread_entry(ULONG parameter)
         printf("Failed to initialize platform.\r\n");
         return;
     }
+    screen_print("WiFi ready", L0);
 
     // Start the SNTP client
     status = sntp_start();
@@ -49,6 +51,7 @@ void azure_thread_entry(ULONG parameter)
         printf("Failed to start sync SNTP time (0x%02x)\r\n", status);
         return;
     }
+    screen_print("SNTP inited", L0);
 
 #ifdef USE_NX_CLIENT_PREVIEW
     if ((status = azure_iot_nx_client_entry(&nx_ip, &nx_pool[0], &nx_dns_client, sntp_time)))

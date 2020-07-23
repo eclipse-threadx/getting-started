@@ -59,6 +59,21 @@
   * @{
   */
 
+/**
+  * Initializes the Global MSP.
+  */
+void HAL_MspInit(void)
+{
+  /* SysTick_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
+  /* Enable and set EXTI Line 4 interrupt.  */
+  HAL_NVIC_SetPriority(EXTI4_IRQn, 0xE, 0xE);
+  HAL_NVIC_EnableIRQ(EXTI4_IRQn);
+  /* Enable and set EXTI Line 15 interrupt.  */
+  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0xE, 0xE);
+  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+}
+
 #define I2Cx_CLK_ENABLE()               __HAL_RCC_I2C1_CLK_ENABLE()
 #define I2Cx_SDA_GPIO_CLK_ENABLE()      __HAL_RCC_GPIOB_CLK_ENABLE()
 #define I2Cx_SCL_GPIO_CLK_ENABLE()      __HAL_RCC_GPIOB_CLK_ENABLE() 

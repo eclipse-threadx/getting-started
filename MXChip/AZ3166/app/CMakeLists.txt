@@ -15,6 +15,7 @@ set(SOURCES
     mqtt.c
     board_init.c
     console.c
+    screen.c
     main.c
     wwd_networking.c
 )

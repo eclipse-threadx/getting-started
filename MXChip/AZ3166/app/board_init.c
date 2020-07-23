@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 #include "sensor.h"
-#include "ssd1306_tests.h"
+#include "ssd1306.h"
 
 /* Private handler declarations */
 I2C_HandleTypeDef I2cHandle;
@@ -52,7 +52,7 @@ static void Init_MEM1_Sensors(void)
 
 void Init_Screen(void)
 {
-    printf("Scanning I2C bus...\r\n");
+    printf("Scanning I2C bus\r\n\t");
 
     HAL_StatusTypeDef res;
     for(uint16_t i = 0; i < 128; i++)
@@ -61,7 +61,7 @@ void Init_Screen(void)
         if (res == HAL_OK)
         {
             char msg[64];
-            snprintf(msg, sizeof(msg), "0x%02X", i);
+            snprintf(msg, sizeof(msg), "0x%02x", i);
             printf(msg);
         }
         else
@@ -69,9 +69,9 @@ void Init_Screen(void)
             printf(".");
         }
     }
-    printf("\r\n");
+    printf("\r\n\r\n");
 
-    ssd1306_TestAll();
+    ssd1306_Init();
 }
 
 void board_init(void)
@@ -81,12 +81,6 @@ void board_init(void)
 
     /* Configure the system clock to 96 MHz.  */
     SystemClock_Config();
-
-      HAL_NVIC_SetPriority(EXTI4_IRQn, 0xE, 0xE);
-  HAL_NVIC_EnableIRQ(EXTI4_IRQn);
-  /* Enable and set EXTI Line 15 interrupt.  */
-  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0xE, 0xE);
-  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 
     // Initialize console
     UART_Console_Init();
@@ -104,7 +98,7 @@ void board_init(void)
     Init_MEM1_Sensors();
 
     // Discover and intialize OLED screen
-    // Init_Screen();
+    Init_Screen();
 }
 
 /**
