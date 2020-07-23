@@ -247,11 +247,24 @@ View [Debug C++ in Visual Studio Code](https://code.visualstudio.com/docs/cpp/cp
 
 ## Clean up resources
 
-If you no longer need the Azure resources created in this tutorial, you can use the Azure portal to delete them.
+If you no longer need the Azure resources created in this tutorial, you can use the Azure CLI to delete them.
 
 If you continue to another tutorial in this getting started guide, you can keep the resources you've already created and reuse them.
 
 > **Important**: Deleting a resource group is irreversible. The resource group and all the resources contained in it are permanently deleted. Make sure that you do not accidentally delete the wrong resource group or resources.
+
+To delete a resource group by name:
+1. Run the [az group delete](https://docs.microsoft.com/cli/azure/group?view=azure-cli-latest#az-group-delete) command. This removes the resource group, the IoT Hub, and the device registration you created.
+
+    ```azurecli
+    az group delete --name MyResourceGroup
+    ```
+
+1. Run the [az group list](https://docs.microsoft.com/cli/azure/group?view=azure-cli-latest#az-group-list) command to confirm the resource group is deleted.  
+
+    ```azurecli
+    az group list
+    ```
 
 ## Next Steps
 
