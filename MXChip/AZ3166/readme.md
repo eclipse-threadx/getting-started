@@ -15,7 +15,6 @@ You will complete the following tasks:
 ## Prerequistes
 
 * A PC running Microsoft Windows (Windows 10 recommended)
-* [Ubuntu 18.04 or above installed in WSL2](https://docs.microsoft.com/windows/wsl/wsl2-install) on Windows 10. You will set up your development environment in it.
 * If you don't have an Azure subscription, [create one for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F) before you begin.
 * Hardware
 
@@ -27,67 +26,39 @@ You will complete the following tasks:
 
 To set up your development environment, first you clone a GitHub repo that contains all the assets you need for the tutorial. Then you install a set of programming tools.
 
-#### Prepare the toolchain in WSL2
-
-1. In Windows 10, launch Ubuntu bash command line.
-
-    ![Ubuntu](./media/ubuntu.png)
-
-1. Download and untar [GCC ARM Toolchain in Linux](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads).
-
-    ```bash
-    cd ~
-
-    wget -c "https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/9-2020q2/gcc-arm-none-eabi-9-2020-q2-update-x86_64-linux.tar.bz2"
-
-    tar xvjf ./gcc-arm-none-eabi-9-2020-q2-update-x86_64-linux.tar.bz2
-
-    sudo mv ./gcc-arm-none-eabi-9-2020-q2-update /opt/.
-    ```
-
-1. Add GCC to the path.
-
-    ```bash
-    nano ~/.bashrc
-    ```
-
-    Find line with `PATH=...` or add a new line to add the GCC binary path into it:
-
-    ```bash
-    PATH="/opt/gcc-arm-none-eabi-9-2020-q2-update/bin:$PATH"
-    ```
-
-    Save and close the file (`Ctrl+X`). Then source the `.bashrc` to make it effective.
-
-    ```bash
-    source ~/.bashrc
-
-    arm-none-eabi-gcc --version
-    ```
-
-1. Install Git, CMake and Ninja build system.
-
-    ```bash
-    sudo apt update && sudo apt install -y git cmake ninja-build
-
-    cmake --version
-    ```
-    Make sure the CMake version is above 3.10.0. If not, you can follow [this guide](https://apt.kitware.com/) to install the latest CMake.
-
 ### Clone the repo for the tutorial
 
 Clone the following repo to download all sample device code, setup scripts, and offline versions of the documentation. If you previously cloned this repo in another tutorial, you don't need to do it again.
 
 To clone the repo, run the following command in Ubuntu bash command line:
 
-```
+```cmd
 git clone --recursive https://github.com/azure-rtos/getting-started
 ```
 
 ### Install the tools
 
-* [Azure IoT Explorer](https://github.com/Azure/azure-iot-explorer/releases) cross platform utility for managing IoT Hub devices and view communication between device and IoT Hub.
-* [Termite](https://www.compuphase.com/software_termite.htm) terminal for viewing log output from COM port.
+The cloned repo contains a setup script that installs and configures the required tools. If you installed these tools in another tutorial in the getting started guide, you don't need to do it again.
+
+> Note: The setup script installs the following tools:
+> * [GCC](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm): Compile
+> * [CMake](https://cmake.org): Build
+> * [Ninja](https://ninja-build.org): Build
+> * [Azure IoT Explorer](https://github.com/Azure/azure-iot-explorer/releases): cross platform utility for managing IoT Hub devices and view communication between device and IoT Hub.
+> * [Termite](https://www.compuphase.com/software_termite.htm): Terminal for viewing log output from COM port.
+
+To run the setup script:
+
+1. Open a console app with administrator privileges, go to the following path in the repo, and run the setup script named *get-toolchain.bat*. If you use File Explorer, right-click the file and select **Run As Administrator**.
+
+    > *getting-started\tools\get-toolchain.bat*
+
+1. After the installation, open a new console window to recognize the configuration changes made by the setup script. Use this console to complete the remaining programming tasks in the tutorial. You can use Windows CMD, Powershell, or Git Bash for Windows.
+1. Run the following code to confirm that CMake version 3.14 or later is installed.
+
+    ```
+    cmake --version
+    ```
 
 ## Prepare Azure resources
 
@@ -176,7 +147,6 @@ To connect the IoT DevKit to Azure, you'll modify a configuration file for Wi-Fi
     |`WIFI_SSID` |{*Your Wi-Fi ssid*}|
     |`WIFI_PASSWORD` |{*Your Wi-Fi password*}|
     |`WIFI_SECURITY` |{*Your Wi-Fi security type*}|
-    |`WIFI_COUNTRY` |{*Your Wi-Fi is located in a country*}|
 
 1. Edit the same file to set the Azure IoT device information constants to the values that you saved after you created Azure resources.
 
@@ -190,29 +160,15 @@ To connect the IoT DevKit to Azure, you'll modify a configuration file for Wi-Fi
 
 ### Build the image
 
-We will build the image in Ubuntu of WSL2.
+In your console or in File Explorer, run the script *rebuild.bat* at the following path to build the image:
 
-1. Open Ubuntu bash command line.
+> *getting-started\MXChip\AZ3166\tools\rebuild.bat*
 
-1. Build the project with the script that invokes CMake and Ninja.
+After the build completes, confirm that the binary files were created in the following path:
 
-    ```bash
-    cd ./getting-started/MXChip/AZ3166/
-
-    ./rebuild.sh
-    ```
-
-1. After the build completes, confirm that a binary file was created in the following path
-
-    ```bash
-    getting-started/MXChip/AZ3166/build/app/mxchip_azure_iot.bin
-    ```
+> *getting-started/MXChip/AZ3166/build/app/mxchip_azure_iot.bin*
 
 ### Flash the image
-
-1. Download and unzip [OpenOCD for Windows](https://gnutoolchains.com/arm-eabi/openocd/) to `C:\Program Files(x86)\OpenOCD`. Add `openocd.exe` path in Windows Path Environment Variables.
-
-1. Install ST-Link driver within unzipped OpenOCD folder by running `OpenOCD/drivers/ST-Link/stlink_winusb_install.bat`.
 
 1. Connect the Micro USB cable to the Micro USB port on the IoT DevKit, and then connect it to your computer.
 
@@ -263,52 +219,21 @@ You can debug the firmware application in VS Code using [OpenOCD](http://openocd
 
 ### Install VS Code and extensions
 
-1. Install [Visual Studio Code](https://code.visualstudio.com/) for Windows with [Remote - WSL](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl) extension installed. This is for code editing and debugging with UI supported. Learn [Develop in WSL](https://code.visualstudio.com/docs/remote/wsl) if you are new to it.
+1. Install [Visual Studio Code](https://code.visualstudio.com/).
 
-1. Launch VS Code, click the left bottom corner to launch Remote command palette and select **Remote-WSL: New Window**.
-
-    ![VSCode WSL](./media/vscode-wsl.png)
-
-1. In Extensions tab (`Ctrl+Shift+X`), search and install the following extensions in the WSL.
+1. In Extensions tab (`Ctrl+Shift+X`), search and install the following extensions.
 
     * C/C++
     * CMake
     * Cortex-Debug
 
-    ![VSCode Install Extension](./media/vscode-install-ext.png)
-
 ### Debugging using OpenOCD and GDB
 
-1. In Windows command line or PowerShell, launch **openocd** server:
+1. Download and unzip [OpenOCD for Windows](https://gnutoolchains.com/arm-eabi/openocd/) to `C:\Program Files(x86)\OpenOCD`. Add `openocd.exe` path in Windows Path Environment Variables.
 
-    ```cmd
-    openocd -c "bindto 0.0.0.0" -s "C:\Program Files(x86)\OpenOCD\share\openocd\scripts" -f interface/stlink.cfg -f target/stm32f4x.cfg
-    ```
+1. Install ST-Link driver within unzipped OpenOCD folder by running `OpenOCD/drivers/ST-Link/stlink_winusb_install.bat`.
 
-    ![OpenOCD](./media/openocd.png)
-
-1. Launch VS Code, click the left bottom corner to launch Remote command palette and select **Remote-WSL: New Window** to open the remote connection to WSL2.
-
-1. Select **View > Terminal** to open the terminal of Ubuntu bash command line within VS Code. Then get  Windows host IP address in WSL2:
-
-    ```bash
-    cat /etc/resolv.conf
-    ```
-
-    Copy the IP adress of nameserver like the sample output:
-
-    ```txt
-    # [network]
-    # generateResolvConf = false
-    nameserver 172.17.176.1
-    ```
-
-1. Replace the IP address in `./getting-started/MXChip/AZ3166/.vscode/launch.json`.
-
-    ```json
-    // Get WSL2 IP from "cat /etc/resolv.conf"
-    "gdbTarget": "{Your Windows host IP}:3333",
-    ```
+1. Launch VS Code, open *getting-started/MXChip/AZ3166/* folder.
 
 1. In VSCode, press `F5` or launch debug Run tab. Then select `mxchip_azure_iot`.
 
@@ -316,23 +241,30 @@ You can debug the firmware application in VS Code using [OpenOCD](http://openocd
 
 1. It will first flash the firmware onto the DevKit and start running it and stopped at `main()`. Press `F5` again or select continue to run the app.
 
-    > If you get the error: *"arm-none-eabi-gdb: error while loading shared libraries: libncurses.so.5: cannot open shared object file: No such file or directory"*, it is due to the GDB has dependency on `libncurses` v5 but you may have a higher version of it. To solve this:
-    > ```bash
-    > ln -s /lib/x86_64-linux-gnu/libncurses.so.6.2 /lib/x86_64-linux-gnu/libncurses.so.5
-    > ln -s /lib/x86_64-linux-gnu/libncurses.so.6.2 /lib/x86_64-linux-gnu/libtinfo.so.5
-    > ```
-
 View [Debug C++ in Visual Studio Code](https://code.visualstudio.com/docs/cpp/cpp-debug) to learn debugging in VS Code.
 
 ![Debugging](./media/debugging.png)
 
 ## Clean up resources
 
-If you no longer need the Azure resources created in this tutorial, you can use the Azure portal to delete them.
+If you no longer need the Azure resources created in this tutorial, you can use the Azure CLI to delete them.
 
 If you continue to another tutorial in this getting started guide, you can keep the resources you've already created and reuse them.
 
 > **Important**: Deleting a resource group is irreversible. The resource group and all the resources contained in it are permanently deleted. Make sure that you do not accidentally delete the wrong resource group or resources.
+
+To delete a resource group by name:
+1. Run the [az group delete](https://docs.microsoft.com/cli/azure/group?view=azure-cli-latest#az-group-delete) command. This removes the resource group, the IoT Hub, and the device registration you created.
+
+    ```azurecli
+    az group delete --name MyResourceGroup
+    ```
+
+1. Run the [az group list](https://docs.microsoft.com/cli/azure/group?view=azure-cli-latest#az-group-list) command to confirm the resource group is deleted.  
+
+    ```azurecli
+    az group list
+    ```
 
 ## Next Steps
 

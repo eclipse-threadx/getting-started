@@ -55,7 +55,7 @@ static void mqtt_direct_method(CHAR* direct_method_name, CHAR* message, MQTT_DIR
         status = 204;
 
         // Update device twin property
-//        azure_iot_mqtt_publish_bool_property(&azure_iot_mqtt, "ledState", arg);
+        azure_iot_mqtt_publish_bool_property(&azure_iot_mqtt, "ledState", arg);
 
         printf("Direct method=%s invoked\r\n", direct_method_name);
     }
@@ -152,7 +152,7 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
     }
 
     // Request the device twin
-//    azure_iot_mqtt_device_twin_request(&azure_iot_mqtt);
+    azure_iot_mqtt_device_twin_request(&azure_iot_mqtt);
 
     printf("Starting MQTT loop\r\n");
     while (true)

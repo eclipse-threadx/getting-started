@@ -9,6 +9,9 @@
 
 #include "azure_config.h"
 
+// Country codes as defined in wwd_constants.h, doesn't need to change it.
+#define WIFI_COUNTRY        WICED_COUNTRY_CHINA
+
 /* Define the prototypes for ThreadX.  */
 extern NX_PACKET_POOL                   nx_pool[2]; /* 0=TX, 1=RX. */
 extern NX_IP                            nx_ip;
