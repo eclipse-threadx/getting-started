@@ -7,8 +7,10 @@
 
 #include "sensor.h"
 
-/* I2C handler declaration */
+/* Private handler declarations */
 I2C_HandleTypeDef I2cHandle;
+
+UART_HandleTypeDef UartHandle;
 
 #define I2C_ADDRESS        0x30F
 
@@ -33,7 +35,13 @@ I2C_HandleTypeDef I2cHandle;
 #define I2Cx_SDA_GPIO_PORT              GPIOB
 #define I2Cx_SCL_SDA_AF                 GPIO_AF4_I2C1
 
-UART_HandleTypeDef UartHandle;
+/* Private function prototypes */
+static void SystemClock_Config(void);
+static void STM32_Error_Handler(void);
+static void TIM_Init(void);
+static void GPIO_Init(void);
+static void I2Cx_Init(void);
+static void UART_Console_Init(void);
 
 
 void HAL_I2C_MspInit(I2C_HandleTypeDef *hi2c)
@@ -62,10 +70,6 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef *hi2c)
   HAL_GPIO_Init(I2Cx_SDA_GPIO_PORT, &GPIO_InitStruct);
 }
 
-static void SystemClock_Config(void);
-static void STM32_Error_Handler(void);
-static void UART_Console_Init(void);
-
 
 static void Init_MEM1_Sensors(void)
 {    
@@ -89,11 +93,6 @@ static void Init_MEM1_Sensors(void)
 
 void board_init(void)
 {
-
-    GPIO_InitTypeDef gpio_init_structure;
-    TIM_HandleTypeDef timer_handle;
-    TIM_OC_InitTypeDef channel_config;
-
     /* Initialize STM32F412 HAL library.  */
     HAL_Init();
 
@@ -103,103 +102,17 @@ void board_init(void)
     // Initialize console
     UART_Console_Init();
 
-    /* Enable GPIOA clock.  */
-    __HAL_RCC_GPIOA_CLK_ENABLE();
-
-    /* Enable GPIOB clock.  */
-    __HAL_RCC_GPIOB_CLK_ENABLE();
-
-    /* Enable GPIOC clock.  */
-    __HAL_RCC_GPIOC_CLK_ENABLE();
-
-    /* Configure pins for LEDs.  */
-    gpio_init_structure.Pin = GPIO_PIN_2;
-    gpio_init_structure.Mode = GPIO_MODE_OUTPUT_PP;
-    gpio_init_structure.Speed = GPIO_SPEED_FREQ_LOW;
-    gpio_init_structure.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOB, &gpio_init_structure);
-
-    gpio_init_structure.Pin = GPIO_PIN_15;
-    HAL_GPIO_Init(GPIOA, &gpio_init_structure);
-
-    gpio_init_structure.Pin = GPIO_PIN_13;
-    HAL_GPIO_Init(GPIOC, &gpio_init_structure);
-
-    /* Configure push buttons.  */
-    gpio_init_structure.Pin = GPIO_PIN_4 | GPIO_PIN_10;
-    gpio_init_structure.Mode = GPIO_MODE_IT_RISING_FALLING;
-    gpio_init_structure.Speed = GPIO_SPEED_FREQ_LOW;
-    gpio_init_structure.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOA, &gpio_init_structure);
-
     /* Enable interrupt.  */
     HAL_NVIC_SetPriority(EXTI4_IRQn, 0xE, 0xE);
     HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0xE, 0xE);
     HAL_NVIC_EnableIRQ(EXTI4_IRQn);
     HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 
-    /* Enable TIM2 clock.  */
-    __HAL_RCC_TIM2_CLK_ENABLE();
-
-    /* Enable TIM3 clock.  */
-    __HAL_RCC_TIM3_CLK_ENABLE();
-
-    timer_handle.Instance = TIM2;
-    timer_handle.Init.Prescaler = 45;
-    timer_handle.Init.Period = 2047;
-    timer_handle.Init.ClockDivision = 0;
-    timer_handle.Init.CounterMode = TIM_COUNTERMODE_UP;
-    timer_handle.Init.RepetitionCounter = 0;
-    timer_handle.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-    HAL_TIM_PWM_Init(&timer_handle);
-
-    channel_config.OCMode = TIM_OCMODE_PWM1;
-    channel_config.OCPolarity = TIM_OCPOLARITY_HIGH;
-    channel_config.OCFastMode = TIM_OCFAST_DISABLE;
-    channel_config.OCNPolarity = TIM_OCNPOLARITY_HIGH;
-    channel_config.OCNIdleState = TIM_OCNIDLESTATE_RESET;
-    channel_config.OCIdleState = TIM_OCIDLESTATE_RESET;
-    channel_config.Pulse = 0;
-
-    HAL_TIM_PWM_ConfigChannel(&timer_handle, &channel_config, TIM_CHANNEL_2);
-    HAL_TIM_PWM_Start(&timer_handle, TIM_CHANNEL_2);
-
-    timer_handle.Instance = TIM3;
-    HAL_TIM_PWM_Init(&timer_handle);
-    HAL_TIM_PWM_ConfigChannel(&timer_handle, &channel_config, TIM_CHANNEL_1);
-    HAL_TIM_PWM_Start(&timer_handle, TIM_CHANNEL_1);
-    HAL_TIM_PWM_ConfigChannel(&timer_handle, &channel_config, TIM_CHANNEL_2);
-    HAL_TIM_PWM_Start(&timer_handle, TIM_CHANNEL_2);
-
-    /* Configure RGB LED pins.  */
-    gpio_init_structure.Pin = GPIO_PIN_4;
-    gpio_init_structure.Mode = GPIO_MODE_AF_PP;
-    gpio_init_structure.Speed = GPIO_SPEED_FREQ_LOW;
-    gpio_init_structure.Pull = GPIO_NOPULL;
-    gpio_init_structure.Alternate = GPIO_AF2_TIM3;
-    HAL_GPIO_Init(GPIOB, &gpio_init_structure);
-    gpio_init_structure.Pin = GPIO_PIN_7;
-    HAL_GPIO_Init(GPIOC, &gpio_init_structure);
-    gpio_init_structure.Pin = GPIO_PIN_3;
-    gpio_init_structure.Alternate = GPIO_AF1_TIM2;
-    HAL_GPIO_Init(GPIOB, &gpio_init_structure);
+    TIM_Init();
     
-    
-    I2cHandle.Instance             = I2Cx;
-    I2cHandle.Init.ClockSpeed      = I2C_SPEEDCLOCK;
-    I2cHandle.Init.DutyCycle       = I2C_DUTYCYCLE;
-    I2cHandle.Init.OwnAddress1     = I2C_ADDRESS;
-    I2cHandle.Init.AddressingMode  = I2C_ADDRESSINGMODE_10BIT;
-    I2cHandle.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
-    I2cHandle.Init.OwnAddress2     = 0xFF;
-    I2cHandle.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
-    I2cHandle.Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;  
+    GPIO_Init();
 
-    if(HAL_I2C_Init(&I2cHandle) != HAL_OK)
-    {
-    /* Initialization Error */
-    while(1);    
-    }
+    I2Cx_Init();
     
     Init_MEM1_Sensors();
 }
@@ -283,6 +196,123 @@ static void STM32_Error_Handler(void)
 }
 
 /**
+  * @brief  Configures TIM interface
+  * @param  None
+  * @retval None
+  */
+static void TIM_Init(void)
+{
+    TIM_HandleTypeDef timer_handle;
+    TIM_OC_InitTypeDef channel_config;
+
+    /* Enable TIM2 clock.  */
+    __HAL_RCC_TIM2_CLK_ENABLE();
+
+    /* Enable TIM3 clock.  */
+    __HAL_RCC_TIM3_CLK_ENABLE();
+
+    timer_handle.Instance = TIM2;
+    timer_handle.Init.Prescaler = 45;
+    timer_handle.Init.Period = 2047;
+    timer_handle.Init.ClockDivision = 0;
+    timer_handle.Init.CounterMode = TIM_COUNTERMODE_UP;
+    timer_handle.Init.RepetitionCounter = 0;
+    timer_handle.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    HAL_TIM_PWM_Init(&timer_handle);
+
+    channel_config.OCMode = TIM_OCMODE_PWM1;
+    channel_config.OCPolarity = TIM_OCPOLARITY_HIGH;
+    channel_config.OCFastMode = TIM_OCFAST_DISABLE;
+    channel_config.OCNPolarity = TIM_OCNPOLARITY_HIGH;
+    channel_config.OCNIdleState = TIM_OCNIDLESTATE_RESET;
+    channel_config.OCIdleState = TIM_OCIDLESTATE_RESET;
+    channel_config.Pulse = 0;
+
+    HAL_TIM_PWM_ConfigChannel(&timer_handle, &channel_config, TIM_CHANNEL_2);
+    HAL_TIM_PWM_Start(&timer_handle, TIM_CHANNEL_2);
+
+    timer_handle.Instance = TIM3;
+    HAL_TIM_PWM_Init(&timer_handle);
+    HAL_TIM_PWM_ConfigChannel(&timer_handle, &channel_config, TIM_CHANNEL_1);
+    HAL_TIM_PWM_Start(&timer_handle, TIM_CHANNEL_1);
+    HAL_TIM_PWM_ConfigChannel(&timer_handle, &channel_config, TIM_CHANNEL_2);
+    HAL_TIM_PWM_Start(&timer_handle, TIM_CHANNEL_2);
+}
+
+/**
+ * @brief  Configures GPIO interface
+ * @param  None
+ * @retval None
+ */
+static void GPIO_Init(void)
+{
+    GPIO_InitTypeDef gpio_init_structure;
+    
+    /* Enable GPIO ports clock.  */
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+
+    /* Configure pins for LEDs.  */
+    gpio_init_structure.Pin = GPIO_PIN_2;
+    gpio_init_structure.Mode = GPIO_MODE_OUTPUT_PP;
+    gpio_init_structure.Speed = GPIO_SPEED_FREQ_LOW;
+    gpio_init_structure.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOB, &gpio_init_structure);
+
+    gpio_init_structure.Pin = GPIO_PIN_15;
+    HAL_GPIO_Init(GPIOA, &gpio_init_structure);
+
+    gpio_init_structure.Pin = GPIO_PIN_13;
+    HAL_GPIO_Init(GPIOC, &gpio_init_structure);
+
+    /* Configure push buttons.  */
+    gpio_init_structure.Pin = GPIO_PIN_4 | GPIO_PIN_10;
+    gpio_init_structure.Mode = GPIO_MODE_IT_RISING_FALLING;
+    gpio_init_structure.Speed = GPIO_SPEED_FREQ_LOW;
+    gpio_init_structure.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOA, &gpio_init_structure);
+
+    /* Configure RGB LED pins.  */
+    gpio_init_structure.Pin = GPIO_PIN_4;
+    gpio_init_structure.Mode = GPIO_MODE_AF_PP;
+    gpio_init_structure.Speed = GPIO_SPEED_FREQ_LOW;
+    gpio_init_structure.Pull = GPIO_NOPULL;
+    gpio_init_structure.Alternate = GPIO_AF2_TIM3;
+    HAL_GPIO_Init(GPIOB, &gpio_init_structure);
+
+    gpio_init_structure.Pin = GPIO_PIN_7;
+    HAL_GPIO_Init(GPIOC, &gpio_init_structure);
+
+    gpio_init_structure.Pin = GPIO_PIN_3;
+    gpio_init_structure.Alternate = GPIO_AF1_TIM2;
+    HAL_GPIO_Init(GPIOB, &gpio_init_structure);
+}
+
+/**
+ * @brief  Configures I2C interface
+ * @param  None
+ * @retval None
+ */
+static void I2Cx_Init(void)
+{
+    I2cHandle.Instance             = I2Cx;
+    I2cHandle.Init.ClockSpeed      = I2C_SPEEDCLOCK;
+    I2cHandle.Init.DutyCycle       = I2C_DUTYCYCLE;
+    I2cHandle.Init.OwnAddress1     = I2C_ADDRESS;
+    I2cHandle.Init.AddressingMode  = I2C_ADDRESSINGMODE_10BIT;
+    I2cHandle.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+    I2cHandle.Init.OwnAddress2     = 0xFF;
+    I2cHandle.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+    I2cHandle.Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;  
+
+    if(HAL_I2C_Init(&I2cHandle) != HAL_OK)
+    {
+        STM32_Error_Handler();
+    }
+}
+
+/**
  * @brief  Configures UART interface
  * @param  None
  * @retval None
@@ -298,7 +328,10 @@ static void UART_Console_Init(void)
     UartHandle.Init.Mode = UART_MODE_TX_RX;
     UartHandle.Init.OverSampling = UART_OVERSAMPLING_16;
     // BSP_COM_Init(COM1, &UartHandle);
-    HAL_UART_Init(&UartHandle);
+    if (HAL_UART_Init(&UartHandle) != HAL_OK)
+    {
+        STM32_Error_Handler();
+    }
 }
 
 static int val;
