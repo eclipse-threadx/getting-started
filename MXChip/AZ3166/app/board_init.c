@@ -6,6 +6,7 @@
 #include <stdio.h>
 
 #include "sensor.h"
+#include "ssd1306_tests.h"
 
 /* Private handler declarations */
 I2C_HandleTypeDef I2cHandle;
@@ -21,55 +22,13 @@ UART_HandleTypeDef UartHandle;
 /* Definition for I2Cx clock resources */
 #define I2Cx                             I2C1
 
-#define I2Cx_CLK_ENABLE()               __HAL_RCC_I2C1_CLK_ENABLE()
-#define I2Cx_SDA_GPIO_CLK_ENABLE()      __HAL_RCC_GPIOB_CLK_ENABLE()
-#define I2Cx_SCL_GPIO_CLK_ENABLE()      __HAL_RCC_GPIOB_CLK_ENABLE() 
-
-#define I2Cx_FORCE_RESET()              __HAL_RCC_I2C1_FORCE_RESET()
-#define I2Cx_RELEASE_RESET()            __HAL_RCC_I2C1_RELEASE_RESET()
-
-/* Definition for I2Cx Pins */
-#define I2Cx_SCL_PIN                    GPIO_PIN_8
-#define I2Cx_SCL_GPIO_PORT              GPIOB
-#define I2Cx_SDA_PIN                    GPIO_PIN_9
-#define I2Cx_SDA_GPIO_PORT              GPIOB
-#define I2Cx_SCL_SDA_AF                 GPIO_AF4_I2C1
-
 /* Private function prototypes */
 static void SystemClock_Config(void);
 static void STM32_Error_Handler(void);
 static void TIM_Init(void);
 static void GPIO_Init(void);
-static void I2Cx_Init(void);
+static void I2C1_Init(void);
 static void UART_Console_Init(void);
-
-
-void HAL_I2C_MspInit(I2C_HandleTypeDef *hi2c)
-{
-  GPIO_InitTypeDef  GPIO_InitStruct;
-  
-  /*##-1- Enable peripherals and GPIO Clocks #################################*/
-  /* Enable GPIO TX/RX clock */
-  I2Cx_SCL_GPIO_CLK_ENABLE();
-  I2Cx_SDA_GPIO_CLK_ENABLE();
-  /* Enable I2Cx clock */
-  I2Cx_CLK_ENABLE(); 
-
-  /*##-2- Configure peripheral GPIO ##########################################*/  
-  /* I2C TX GPIO pin configuration  */
-  GPIO_InitStruct.Pin       = I2Cx_SCL_PIN;
-  GPIO_InitStruct.Mode      = GPIO_MODE_AF_OD;
-  GPIO_InitStruct.Pull      = GPIO_PULLUP;
-  GPIO_InitStruct.Speed     = GPIO_SPEED_HIGH;
-  GPIO_InitStruct.Alternate = I2Cx_SCL_SDA_AF;
-  HAL_GPIO_Init(I2Cx_SCL_GPIO_PORT, &GPIO_InitStruct);
-    
-  /* I2C RX GPIO pin configuration  */
-  GPIO_InitStruct.Pin       = I2Cx_SDA_PIN;
-  GPIO_InitStruct.Alternate = I2Cx_SCL_SDA_AF;
-  HAL_GPIO_Init(I2Cx_SDA_GPIO_PORT, &GPIO_InitStruct);
-}
-
 
 static void Init_MEM1_Sensors(void)
 {    
@@ -91,6 +50,30 @@ static void Init_MEM1_Sensors(void)
     }
 }
 
+void Init_Screen(void)
+{
+    printf("Scanning I2C bus...\r\n");
+
+    HAL_StatusTypeDef res;
+    for(uint16_t i = 0; i < 128; i++)
+    {
+        res = HAL_I2C_IsDeviceReady(&I2cHandle, i << 1, i, 10);
+        if (res == HAL_OK)
+        {
+            char msg[64];
+            snprintf(msg, sizeof(msg), "0x%02X", i);
+            printf(msg);
+        }
+        else
+        {
+            printf(".");
+        }
+    }
+    printf("\r\n");
+
+    ssd1306_TestAll();
+}
+
 void board_init(void)
 {
     /* Initialize STM32F412 HAL library.  */
@@ -99,22 +82,29 @@ void board_init(void)
     /* Configure the system clock to 96 MHz.  */
     SystemClock_Config();
 
+      HAL_NVIC_SetPriority(EXTI4_IRQn, 0xE, 0xE);
+  HAL_NVIC_EnableIRQ(EXTI4_IRQn);
+  /* Enable and set EXTI Line 15 interrupt.  */
+  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0xE, 0xE);
+  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+
     // Initialize console
     UART_Console_Init();
 
-    /* Enable interrupt.  */
-    HAL_NVIC_SetPriority(EXTI4_IRQn, 0xE, 0xE);
-    HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0xE, 0xE);
-    HAL_NVIC_EnableIRQ(EXTI4_IRQn);
-    HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
-
+    // Initialize timer
     TIM_Init();
     
+    // Initialize GPIO
     GPIO_Init();
 
-    I2Cx_Init();
+    // Initialize I2C
+    I2C1_Init();
     
+    // Discover and intialize sensors
     Init_MEM1_Sensors();
+
+    // Discover and intialize OLED screen
+    // Init_Screen();
 }
 
 /**
@@ -294,7 +284,7 @@ static void GPIO_Init(void)
  * @param  None
  * @retval None
  */
-static void I2Cx_Init(void)
+static void I2C1_Init(void)
 {
     I2cHandle.Instance             = I2Cx;
     I2cHandle.Init.ClockSpeed      = I2C_SPEEDCLOCK;
