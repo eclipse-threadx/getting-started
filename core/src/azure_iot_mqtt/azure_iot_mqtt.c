@@ -14,7 +14,7 @@
 #include "azure_iot_cert.h"
 #include "azure_iot_mqtt/sas_token.h"
 
-#define USERNAME                "%s/%s/?api-version=2020-05-31-preview&digital-twin-model-id=%s"
+#define USERNAME                "%s/%s/?api-version=2020-05-31-preview&model-id=%s"
 #define PUBLISH_TELEMETRY_TOPIC "devices/%s/messages/events/"
 
 #define DEVICE_MESSAGE_BASE  "messages/devicebound/"
