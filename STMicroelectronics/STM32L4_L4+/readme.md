@@ -8,8 +8,8 @@ You will complete the following tasks:
 
 * Install a set of embedded development tools for programming the STM DevKit in C
 * Build an image and flash it onto the STM DevKit
-* Use Azure CLI to create and managed Azure IoT resources that the STM DevKit will connect to
-* Use Azure IoT Explorer to view properties, view device telemetry, and invoke cloud-to-device methods
+* Use Azure CLI to create and manage an Azure IoT hub that the STM DevKit will securely connect to
+* Use Azure IoT Explorer to view properties, view device telemetry, and call cloud-to-device (c2d) methods
 
 ## Prerequisites
 
@@ -46,7 +46,8 @@ The cloned repo contains a setup script that installs and configures the require
 > * [GCC](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm): Compile
 > * [CMake](https://cmake.org): Build
 > * [Ninja](https://ninja-build.org): Build
-> * [Termite](https://www.compuphase.com/software_termite.htm): Monitor
+> * [Termite](https://www.compuphase.com/software_termite.htm): Monitor COM port output for connected devices
+> * [Azure IoT Explorer](https://github.com/Azure/azure-iot-explorer/releases): Monitor and manage Azure IoT hubs and devices
 
 To run the setup script:
 
@@ -54,23 +55,14 @@ To run the setup script:
 
     > *getting-started\tools\get-toolchain.bat*
 
+    **Note**: After the installation completes, the Azure IoT Explorer opens automatically. Keep the IoT Explorer open, you'll use it in later steps.
+
 1. After the installation, open a new console window to recognize the configuration changes made by the setup script. Use this console to complete the remaining programming tasks in the tutorial. You can use Windows CMD, Powershell, or Git Bash for Windows.
 1. Run the following code to confirm that CMake version 3.14 or later is installed.
 
     ```
     cmake --version
     ```
-
-### Install management tools
-
-Azure IoT Explorer is a cross-platform GUI utility used to view and manage Azure IoT resources. There are other tools you can use to manage Azure IoT resources, including Azure CLI as shown in this tutorial, the [Azure portal](https://portal.azure.com), and programming APIs. But the IoT Explorer is a lightweight, visually oriented tool that is optimized for certain management tasks. In this tutorial, you'll use the IoT Explorer with the connected STM DevKit to view telemetry, view device properties, and invoke a cloud-to-device (c2d) method.
-
-To install the Azure IoT Explorer:
-
-1. Download the latest version of [Azure IoT Explorer](https://github.com/Azure/azure-iot-explorer/releases).
-1. Run the *msi* installer package. After the installation completes, it opens the application.
-
-Keep the IoT Explorer open. In a later step you'll add the connection details for your device.
 
 ## Prepare Azure resources
 
@@ -118,9 +110,9 @@ To create an IoT hub:
     az iot hub create --resource-group MyResourceGroup --name {YourIoTHubName}
     ```
 
-    > Note: The Basic tier is **not supported** by this guide as it requires cloud-to-device communication.
+1. After the IoT hub is created, view the JSON output in the console, and copy the `hostName` value to a safe place. You use this value in a later step. The `hostName` value looks like the following example:
 
-1. After the IoT hub is created, view the JSON output in the console, and copy the `hostName` value from the following named field to a safe place. You use this value in a later step.
+    `{Your IoT hub name}.azure-devices.net`
 
 ### Register a device
 

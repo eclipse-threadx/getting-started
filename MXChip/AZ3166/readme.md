@@ -2,14 +2,14 @@
 
 **Total completion time**:  45 minutes
 
-In this tutorial you use Azure RTOS to connect the MXChip AZ3166 IoT DevKit (hereafter, the IoT DevKit) to Azure IoT. The article is part of the series [Getting started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824). The series introduces device developers to Azure RTOS, and shows how to connect several device evaluation kits to Azure IoT.
+In this tutorial you use Azure RTOS to connect the MXChip AZ3166 IoT DevKit (hereafter, the MXChip DevKit) to Azure IoT. The article is part of the series [Getting started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824). The series introduces device developers to Azure RTOS, and shows how to connect several device evaluation kits to Azure IoT.
 
 You will complete the following tasks:
 
-* Install a set of embedded development tools for programming the IoT DevKit in C
-* Build an image and flash it onto the IoT DevKit
-* Create an Azure IoT hub and securely connect the IoT DevKit to it
-* Use Azure IoT Explorer to view device telemetry, view properties, and invoke cloud-to-device methods
+* Install a set of embedded development tools for programming the MXChip DevKit in C
+* Build an image and flash it onto the MXChip DevKit
+* Use Azure CLI to create and manage an Azure IoT hub that the MXChip DevKit will securely connect to
+* Use Azure IoT Explorer to view device telemetry, view properties, and call cloud-to-device (c2d) methods
 * Use VS Code, OpenOCD and GDB to debug the firmware
 
 ## Prerequistes
@@ -18,7 +18,7 @@ You will complete the following tasks:
 * If you don't have an Azure subscription, [create one for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F) before you begin.
 * Hardware
 
-    > * The [MXChip AZ3166 IoT DevKit](https://aka.ms/iot-devkit) (IoT DevKit)
+    > * The [MXChip AZ3166 IoT DevKit](https://aka.ms/iot-devkit) (MXChip DevKit)
     > * Wi-Fi 2.4 GHz
     > * USB 2.0 A male to Micro USB male cable
 
@@ -44,14 +44,16 @@ The cloned repo contains a setup script that installs and configures the require
 > * [GCC](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm): Compile
 > * [CMake](https://cmake.org): Build
 > * [Ninja](https://ninja-build.org): Build
-> * [Azure IoT Explorer](https://github.com/Azure/azure-iot-explorer/releases): cross platform utility for managing IoT Hub devices and view communication between device and IoT Hub.
-> * [Termite](https://www.compuphase.com/software_termite.htm): Terminal for viewing log output from COM port.
+> * [Termite](https://www.compuphase.com/software_termite.htm): Monitor COM port output for connected devices
+> * [Azure IoT Explorer](https://github.com/Azure/azure-iot-explorer/releases): Monitor and manage Azure IoT hubs and devices
 
 To run the setup script:
 
 1. Open a console app with administrator privileges, go to the following path in the repo, and run the setup script named *get-toolchain.bat*. If you use File Explorer, right-click the file and select **Run As Administrator**.
 
     > *getting-started\tools\get-toolchain.bat*
+
+    **Note**: After the installation completes, the Azure IoT Explorer opens automatically. Keep the IoT Explorer open, you'll use it in later steps.
 
 1. After the installation, open a new console window to recognize the configuration changes made by the setup script. Use this console to complete the remaining programming tasks in the tutorial. You can use Windows CMD, Powershell, or Git Bash for Windows.
 1. Run the following code to confirm that CMake version 3.14 or later is installed.
@@ -69,7 +71,7 @@ Use one of the following options to run Azure CLI.
 If you prefer to run Azure CLI locally:
 
 1. If you already have Azure CLI installed locally, run `az --version` to check the version. This tutorial requires Azure CLI 2.5.1 or later.
-1. To install or upgrade, see [Install Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest). If you install Azure CLI locally, you can run CLI commands in the **GCC Command Prompt**, Git Bash for Windows, or Powershell.
+1. To install or upgrade, see [Install Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest). If you install Azure CLI locally, you can run CLI commands in the GCC Command Prompt, Git Bash for Windows, or Powershell.
 
 If you prefer to run Azure CLI in the browser-based Azure Cloud Shell:
 
@@ -106,9 +108,9 @@ To create an IoT hub:
     az iot hub create --resource-group MyResourceGroup --name {YourIoTHubName}
     ```
 
-    > Note: The Basic tier is **not supported** by this guide as it requires cloud-to-device communication.
+1. After the IoT hub is created, view the JSON output in the console, and copy the `hostName` value to a safe place. You use this value in a later step. The `hostName` value looks like the following example:
 
-1. After the IoT hub is created, view the JSON output in the console, and copy the `hostName` value from the following named field to a safe place. You use this value in a later step.
+    `{Your IoT hub name}.azure-devices.net`
 
 ### Register a device
 
@@ -136,7 +138,7 @@ Confirm that you have the copied the following values from the JSON output to us
 
 ## Prepare the device
 
-To connect the IoT DevKit to Azure, you'll modify a configuration file for Wi-Fi and Azure IoT settings, rebuild the image, and flash the image to the device.
+To connect the MXChip DevKit to Azure, you'll modify a configuration file for Wi-Fi and Azure IoT settings, rebuild the image, and flash the image to the device.
 
 ### Add configuration
 
@@ -148,6 +150,15 @@ To connect the IoT DevKit to Azure, you'll modify a configuration file for Wi-Fi
     |`WIFI_PASSWORD` |{*Your Wi-Fi password*}|
     |`WIFI_SECURITY` |{*Your Wi-Fi security type*}|
 
+    For the value of the `WIFI_SECURITY` constant, you can use one of the most common Wi-Fi modes from the following list, or check the file */MXChip/AZ3166/lib/wiced_sdk/43xxx_Wi-Fi/wwd_constants.h* for a complete list of Wi-Fi mode values.
+
+    |Wi-Fi security mode|Value to assign to the `WIFI_SECURITY` constant|
+    |-------------|-----|
+    |None |`WICED_SECURITY_OPEN`|
+    |WEP |`WICED_SECURITY_WEP_PSK`|
+    |WPA2_PSK_AES |`WICED_SECURITY_WPA2_AES_PSK`|
+    |WPA2_PSK_TKIP |`WICED_SECURITY_WPA2_MIXED_PSK`|
+
 1. Edit the same file to set the Azure IoT device information constants to the values that you saved after you created Azure resources.
 
     |Constant name|Value|
@@ -155,8 +166,6 @@ To connect the IoT DevKit to Azure, you'll modify a configuration file for Wi-Fi
     |`IOT_HUB_HOSTNAME` |{*Your Iot hub hostName value*}|
     |`IOT_DEVICE_ID` |{*Your deviceID value*}|
     |`IOT_PRIMARY_KEY` |{*Your primaryKey value*}|
-
-    > The IoT Hub host name format is `{Your IoT Hub name}.azure-devices.net`.
 
 ### Build the image
 
@@ -170,13 +179,17 @@ After the build completes, confirm that the binary files were created in the fol
 
 ### Flash the image
 
-1. Connect the Micro USB cable to the Micro USB port on the IoT DevKit, and then connect it to your computer.
+1. On the MXChip DevKit, locate the **Reset** button, and the Micro USB port. You use these components in the following steps. Both are highlighted in the following picture:
 
-1. In File Explorer, find the IoT DevKit device connected to your computer. It is a driver labeled as **AZ3166**.
+    ![MXChip DevKit reset button and micro usb port](media/mxchip-iot-devkit.png)
 
-1. Copy the image file *mxchip_azure_iot.bin* that you created in the previous section, and paste it into the root folder of the IoT DevKit. The flashing process starts automatically.
+1. Connect the Micro USB cable to the Micro USB port on the MXChip DevKit, and then connect it to your computer.
 
-    > Note: During the flashing process, the RED LED toggled on IoT DevKit. The process completes in a few seconds without further notification.
+1. In File Explorer, find the MXChip DevKit device connected to your computer. It is a driver labeled as **AZ3166**.
+
+1. Copy the image file *mxchip_azure_iot.bin* that you created in the previous section, and paste it into the root folder of the MXChip DevKit. The flashing process starts automatically.
+
+    > Note: During the flashing process, the RED LED toggled on MXChip DevKit. The process completes in a few seconds without further notification.
 
 ### Confirm device connection details
 
@@ -187,31 +200,141 @@ You can use the **Termite** utility to monitor communication and confirm that yo
 
     ![COM Port](./media/com_port.png)
 
-1. Start Termite and configure the COM port and settings as:
+1. Start **Termite**.
+1. Select **Settings**.
+1. In the **Serial port settings** dialog, check the following settings and update if needed:
 
-    * Baud rate: 115,200
-    * Data bits: 8
-    * Stop bits: 1
+    * **Baud rate**: 115,200
+    * **Data bits**: 8
+    * **Stop bits**: 1
 
-    Now you can view the DevKit is publishing sensor telemetry data to IoT Hub in every a few seconds.
+    ![Termite](./media/termite-settings.png)
+
+1. Select OK.
+
+    Now you can view the terminal output. The MXChip DevKit provides initialization messages about your connection and key protocols, and then publishes telemetry from the sensors on the device.
 
     ![Termite](./media/termite.png)
 
-## View telemetry
-
-You can use Azure IoT Explorer to inspect the flow of telemetry from the device to Azure IoT.
-
-1. In Azure IoT Explorer, select the device you just created from the list. Select **Telemetry** tab and select **Start** to to monitor telemetry from your device.
-
-    ![Telemetry](./media/telemetry.png)
-
 ## View device properties
 
-Using Azure IoT Explorer, you can inspect the properties on connected device.
+You can use the Azure IoT Explorer to view and manage the properties of your devices. In the following steps, you'll add a connection to your IoT hub in IoT Explorer. With the connection, you can view properties for devices associated with the IoT hub. Optionally, you can perform the same task using Azure CLI.
 
-1. In Azure IoT Explorer, select the device you just created from the list. Select **Device Twin** tab and select **Refresh** to to view the properties from your device.
+To add a connection to your IoT hub:
 
-    ![Device twin](./media/device-twin.png)
+1. In your CLI console, run the [az iot hub show-connection-string](https://docs.microsoft.com/en-us/cli/azure/iot/hub?view=azure-cli-latest#az-iot-hub-show-connection-string) command to get the connection string for your IoT hub.
+
+    ```azurecli
+    az iot hub show-connection-string --name {YourIoTHubName}
+    ```
+
+1. Copy the connection string without the surrounding quotation characters.
+1. In Azure IoT Explorer, select **IoT hubs > Add connection**.
+1. Paste the connection string into the **Connection string** box.
+1. Select **Save**.
+
+    ![Azure IoT Explorer connection string](media/azure-iot-explorer-create-connection.png)
+
+If the connection succeeds, the Azure IoT Explorer switches to a **Devices** view and lists your device.
+
+To view device properties using Azure IoT Explorer:
+
+1. Select the link for your device identity. IoT Explorer displays details for the device.
+
+    ![Azure IoT Explorer device identity](media/azure-iot-explorer-device-identity.png)
+
+1. Inspect the properties for your device in the **Device identity** panel. 
+1. Optionally, click the **Device twin** panel and inspect additional device properties.
+
+To use Azure CLI to view device properties:
+
+1. Run the [az iot hub device-identity show](https://docs.microsoft.com/en-us/cli/azure/ext/azure-iot/iot/hub/device-identity?view=azure-cli-latest#ext-azure-iot-az-iot-hub-device-identity-show) command.
+
+    ```azurecli
+    az iot hub device-identity show --device-id MyMXChipDevice --hub-name {YourIoTHubName}
+    ```
+1. Inspect the properties for your device in the console output.
+
+## View device telemetry
+
+With Azure IoT Explorer, you can view the flow of telemetry from your device to the cloud. Optionally, you can perform the same task using Azure CLI.
+
+To view telemetry in Azure IoT Explorer:
+
+1. In IoT Explorer select **Telemetry**. Confirm that **Use built-in event hub** is set to *Yes*.
+1. Select **Start**.
+1. View the telemetry as the device sends messages to the cloud.
+
+    ![Azure IoT Explorer device telemetry](media/azure-iot-explorer-device-telemetry.png)
+
+    Note: You can also monitor telemetry from the device by using the Termite terminal.
+
+1. Select **Stop** to end receiving events.
+
+To use Azure CLI to view device telemetry:
+
+1. In your CLI console, run the [az iot hub monitor-events](https://docs.microsoft.com/en-us/cli/azure/ext/azure-iot/iot/hub?view=azure-cli-latest#ext-azure-iot-az-iot-hub-monitor-events) command. Use the names that you created previously in Azure IoT for your device and IoT hub.
+
+    ```azurecli
+    az iot hub monitor-events --device-id MyMXChipDevice --hub-name {YourIoTHubName}
+    ```
+1. View the JSON output in the console.
+
+    ```json
+    {
+        "event": {
+            "origin": "MyMXChipDevice",
+            "payload": "{\"temperature\": 25}"
+        }
+    }
+    ```
+1. Select CTRL+C to end monitoring.
+
+## Call a direct method on the device
+
+You can also use Azure IoT Explorer to call a direct method that you have implemented on your device. Direct methods have a name, and can optionally have a JSON payload, configurable connection, and method timeout. In this section, you call a method that enables you to turn an LED on or off. Optionally, you can perform the same task using Azure CLI.
+
+To call a method in Azure IoT Explorer:
+
+1. Select **Direct method**.
+1. In the **Direct method** panel add the following values for the method name and payload. The payload value *true* indicates to turn the LED on.
+    * **Method name**: `setLedState`
+    * **Payload**: `true`
+1. Select **Invoke method**. The LED light should turn on.
+
+    ![Azure IoT Explorer invoke method](media/azure-iot-explorer-invoke-method.png)
+1. Change **Payload** to *false*, and again select **Invoke method**. The LED light should turn off.
+1. Optionally, you can view the output in Termite to monitor the status of the methods.
+
+To use Azure CLI to call a method:
+
+1. Run the [az iot hub invoke-device-method](https://docs.microsoft.com/en-us/cli/azure/ext/azure-iot/iot/hub?view=azure-cli-latest#ext-azure-iot-az-iot-hub-invoke-device-method) command, and specify the method name and payload. For this method, setting `method-payload` to `true` turns the LED on, and setting it to `false` turns it off.
+
+    <!-- Inline code tag and CSS to wrap long code lines. -->
+    <code style="white-space : pre-wrap !important;">
+    az iot hub invoke-device-method --device-id MyMXChipDevice --method-name setLedState --method-payload true --hub-name {YourIoTHubName}
+    </code>
+
+    The CLI console shows the status of your method call on the device, where `204` indicates success.
+
+    ```json
+    {
+      "payload": {},
+      "status": 204
+    }
+    ```
+
+1. Check your device to confirm the LED state.
+
+1. View the Termite terminal to confirm the output messages:
+
+    ```json
+    Received direct method=setLedState, id=1, message=true
+    LED is turned ON
+    Sending device twin update with bool value
+    Sending message {"ledState":true}
+    Direct method=setLedState invoked
+    ```
 
 ## Debugging
 
@@ -247,7 +370,7 @@ View [Debug C++ in Visual Studio Code](https://code.visualstudio.com/docs/cpp/cp
 
 ## Clean up resources
 
-If you no longer need the Azure resources created in this tutorial, you can use the Azure CLI to delete them.
+If you no longer need the Azure resources created in this tutorial, you can use the Azure CLI to delete the resource group and all the resources you created for this tutorial. Optionally, you can use Azure IoT Explorer to delete individual resources including devices and IoT hubs.
 
 If you continue to another tutorial in this getting started guide, you can keep the resources you've already created and reuse them.
 
@@ -268,7 +391,7 @@ To delete a resource group by name:
 
 ## Next Steps
 
-In this tutorial you built a custom image that contains Azure RTOS sample code, and then flashed the image to the MXChip IoT DevKit device. You also used the Azure CLI to create Azure resources, connect the IoT DevKit securely to Azure, view telemetry, and send messages.
+In this tutorial you built a custom image that contains Azure RTOS sample code, and then flashed the image to the MXChip AZ3166 IoT DevKit device. You also used the Azure CLI to create Azure resources, connect the MXChip DevKit securely to Azure, view telemetry, and send messages.
 
 * For device developers, the suggested next step is to see the other tutorials in the series [Getting started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824).
 * If you have issues getting your device to initialize or connect after following the steps in this guide, see [Troubleshooting](../../docs/troubleshooting.md).
