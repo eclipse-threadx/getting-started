@@ -2,7 +2,7 @@ set(STM32_FAMILY "F4")
 set(STM32Cube_DIR "./")
 
 find_package(CMSIS REQUIRED)
-find_package(STM32HAL REQUIRED COMPONENTS dma flash gpio tim uart usart i2c)
+find_package(STM32HAL REQUIRED COMPONENTS dma flash gpio tim timebase_tim uart usart i2c)
 
 list(APPEND STM32HAL_SOURCES
     Drivers/stm_sensor/Src/lps22hb_reg.c
