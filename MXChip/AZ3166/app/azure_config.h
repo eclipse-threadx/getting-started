@@ -12,7 +12,7 @@
 #define WIFI_SSID           ""
 #define WIFI_PASSWORD       ""
 
-// WIFI Security as defined in wwd_constants.h
+// WIFI Security as defined in lib/wiced_sdk/43xxx_Wi-Fi/wwd_constants.h
 #define WIFI_SECURITY       WICED_SECURITY_WPA2_MIXED_PSK
 
 // ----------------------------------------------------------------------------

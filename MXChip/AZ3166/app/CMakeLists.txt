@@ -7,14 +7,16 @@ set(SOURCES
     startup/system_stm32f4xx.c
     startup/startup_stm32f412rx.s
     startup/tx_initialize_low_level.S
+
+    stm32cubef4/stm32f4xx_hal_msp.c
    
     nx_client.c
     mqtt.c
     board_init.c
     console.c
+    screen.c
     main.c
     wwd_networking.c
-    stm32f4xx_hal_msp.c
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})

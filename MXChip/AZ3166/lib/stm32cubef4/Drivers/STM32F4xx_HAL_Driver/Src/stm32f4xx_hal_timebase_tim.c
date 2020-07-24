@@ -40,7 +40,8 @@
 /* Private variables ---------------------------------------------------------*/
 TIM_HandleTypeDef        TimHandle;
 /* Private function prototypes -----------------------------------------------*/
-void TIM6_DAC_IRQHandler(void);
+// void TIM6_DAC_IRQHandler(void);
+void TIM6_IRQHandler(void);
 /* Private functions ---------------------------------------------------------*/
 
 /**
@@ -60,10 +61,12 @@ HAL_StatusTypeDef HAL_InitTick (uint32_t TickPriority)
   uint32_t              pFLatency;
   
     /*Configure the TIM6 IRQ priority */
-  HAL_NVIC_SetPriority(TIM6_DAC_IRQn, TickPriority ,0U);
+  // HAL_NVIC_SetPriority(TIM6_DAC_IRQn, TickPriority ,0U);
+  HAL_NVIC_SetPriority(TIM6_IRQn, TickPriority ,0U);
   
   /* Enable the TIM6 global Interrupt */
-  HAL_NVIC_EnableIRQ(TIM6_DAC_IRQn);
+  // HAL_NVIC_EnableIRQ(TIM6_DAC_IRQn);
+  HAL_NVIC_EnableIRQ(TIM6_IRQn);
   
   /* Enable TIM6 clock */
   __HAL_RCC_TIM6_CLK_ENABLE();
@@ -150,10 +153,16 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   * @brief  This function handles TIM interrupt request.
   * @retval None
   */
-void TIM6_DAC_IRQHandler(void)
+/* void TIM6_DAC_IRQHandler(void)
+{
+  HAL_TIM_IRQHandler(&TimHandle);
+} */
+
+void TIM6_IRQHandler(void)
 {
   HAL_TIM_IRQHandler(&TimHandle);
 }
+
 
 /**
   * @}

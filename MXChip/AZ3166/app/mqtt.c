@@ -6,6 +6,7 @@
 #include <stdio.h>
 
 #include "sensor.h"
+#include "screen.h"
 #include "stm32f4xx_hal.h"
 
 #include "jsmn.h"
@@ -136,6 +137,7 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
         printf("Error: Failed to create Azure MQTT (0x%02x)\r\n", status);
         return status;
     }
+    screen_print("MQTT inited", L0);
 
     // Register callbacks
     azure_iot_mqtt_register_direct_method_callback(&azure_iot_mqtt, mqtt_direct_method);
