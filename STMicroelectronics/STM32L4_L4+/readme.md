@@ -47,7 +47,6 @@ The cloned repo contains a setup script that installs and configures the require
 > * [CMake](https://cmake.org): Build
 > * [Ninja](https://ninja-build.org): Build
 > * [Termite](https://www.compuphase.com/software_termite.htm): Monitor COM port output for connected devices
-> * [Azure IoT Explorer](https://github.com/Azure/azure-iot-explorer/releases): Monitor and manage Azure IoT hubs and devices
 
 To run the setup script:
 
@@ -63,6 +62,8 @@ To run the setup script:
     ```
     cmake --version
     ```
+
+1. Install [Azure IoT Explorer](https://github.com/Azure/azure-iot-explorer/releases). You can use this cross-platform utility to monitor and manage Azure IoT resources.
 
 ## Prepare Azure resources
 
