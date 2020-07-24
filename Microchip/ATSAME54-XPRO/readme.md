@@ -8,8 +8,8 @@ You will complete the following tasks:
 
 * Install a set of embedded development tools for programming the Microchip E54 in C
 * Build an image and flash it onto the Microchip E54
-* Create an Azure IoT hub and securely connect the Microchip E54 to it
-* Use Azure CLI to view device telemetry, view properties, and invoke cloud-to-device methods
+* Use Azure CLI to create and manage an Azure IoT hub that the Microchip E54 will securely connect to
+* Use Azure IoT Explorer to view properties, view device telemetry, and call cloud-to-device (c2d) methods
 
 ## Prerequisites
 
@@ -62,9 +62,11 @@ To run the setup script:
     cmake --version
     ```
 
-To install the remaining tool:
+To install the remaining tools:
 
 1. Install [Atmel Studio 7](https://www.microchip.com/mplab/avr-support/atmel-studio-7). Atmel Studio is a device development environment that includes the tools to program and flash program the Microchip E54. For this tutorial, you use Atmel Studio only to flash the Microchip E54. The installation takes several minutes, and prompts you several times to approve installation of components.
+
+1. Install [Azure IoT Explorer](https://github.com/Azure/azure-iot-explorer/releases). You can use this cross-platform utility to monitor and manage Azure IoT resources.
 
 ## Prepare Azure resources
 
@@ -112,9 +114,9 @@ To create an IoT hub:
     az iot hub create --resource-group MyResourceGroup --name {YourIoTHubName}
     ```
 
-    > Note: The Basic tier is **not supported** by this guide as it requires cloud-to-device communication.
+1. After the IoT hub is created, view the JSON output in the console, and copy the `hostName` value to a safe place. You use this value in a later step. The `hostName` value looks like the following example:
 
-1. After the IoT hub is created, view the JSON output in the console, and copy the `hostName` value from the following named field to a safe place. You use this value in a later step.
+    `{Your IoT hub name}.azure-devices.net`
 
 ### Register a device
 
@@ -272,70 +274,102 @@ You can use the **Termite** utility to monitor communication and confirm that yo
 
 Keep the terminal open to monitor device output in the following steps.
 
+## View device properties
+
+You can use the Azure IoT Explorer to view and manage the properties of your devices. In the following steps, you'll add a connection to your IoT hub in IoT Explorer. With the connection, you can view properties for devices associated with the IoT hub. Optionally, you can perform the same task using Azure CLI.
+
+To add a connection to your IoT hub:
+
+1. In your CLI console, run the [az iot hub show-connection-string](https://docs.microsoft.com/en-us/cli/azure/iot/hub?view=azure-cli-latest#az-iot-hub-show-connection-string) command to get the connection string for your IoT hub.
+
+    ```azurecli
+    az iot hub show-connection-string --name {YourIoTHubName}
+    ```
+
+1. Copy the connection string without the surrounding quotation characters.
+1. In Azure IoT Explorer, select **IoT hubs > Add connection**.
+1. Paste the connection string into the **Connection string** box.
+1. Select **Save**.
+
+    ![Azure IoT Explorer connection string](media/azure-iot-explorer-create-connection.png)
+
+If the connection succeeds, the Azure IoT Explorer switches to a **Devices** view and lists your device.
+
+To view device properties using Azure IoT Explorer:
+
+1. Select the link for your device identity. IoT Explorer displays details for the device.
+
+    ![Azure IoT Explorer device identity](media/azure-iot-explorer-device-identity.png)
+
+1. Inspect the properties for your device in the **Device identity** panel.
+1. Optionally, select the **Device twin** panel and inspect additional device properties.
+
+To use Azure CLI to view device properties:
+
+1. Run the [az iot hub device-identity show](https://docs.microsoft.com/en-us/cli/azure/ext/azure-iot/iot/hub/device-identity?view=azure-cli-latest#ext-azure-iot-az-iot-hub-device-identity-show) command.
+
+    ```azurecli
+    az iot hub device-identity show --device-id MyMicrochipDevice --hub-name {YourIoTHubName}
+    ```
+
+1. Inspect the properties for your device in the console output.
+
 ## View telemetry
 
-You can use Azure CLI to inspect the flow of telemetry from the device to Azure IoT.
+With Azure IoT Explorer, you can view the flow of telemetry from your device to the cloud. Optionally, you can perform the same task using Azure CLI.
 
-1. In your CLI console, run the [az iot hub monitor-events](https://docs.microsoft.com/cli/azure/ext/azure-cli-iot-ext/iot/hub?view=azure-cli-latest#ext-azure-cli-iot-ext-az-iot-hub-monitor-events) command to monitor telemetry from your device. Use the names that you created previously in Azure IoT for your device and IoT hub.
+To view telemetry in Azure IoT Explorer:
 
-    > Note: The first time you run this command after installing, Azure CLI might prompt to install a *Dependency update (uamqp 1.2) required for IoT extension version: 0.9.1*. Select *y* to install the update. If the CLI prompts you to install another extension named *azure-cli-iot-ext*, do not install it. The current extension to use is the *azure-iot* extension that you installed previously.
+1. In IoT Explorer select **Telemetry**. Confirm that **Use built-in event hub** is set to *Yes*.
+1. Select **Start**.
+1. View the telemetry as the device sends messages to the cloud. 
+
+    ![Azure IoT Explorer device telemetry](media/azure-iot-explorer-device-telemetry.png)
+
+    Note: You can also monitor telemetry from the device by using the Termite terminal.
+
+1. Select **Stop** to end receiving events.
+
+To use Azure CLI to view device telemetry:
+
+1. In your CLI console, run the [az iot hub monitor-events](https://docs.microsoft.com/en-us/cli/azure/ext/azure-iot/iot/hub?view=azure-cli-latest#ext-azure-iot-az-iot-hub-monitor-events) command. Use the names that you created previously in Azure IoT for your device and IoT hub.
 
     ```azurecli
     az iot hub monitor-events --device-id MyMicrochipDevice --hub-name {YourIoTHubName}
     ```
 
-1. To force the Microchip E54 to reconnect and send telemetry, press **Reset**.
-
-    View the telemetry in the CLI console's JSON output.
+1. View the JSON output in the console.
 
     ```json
     {
         "event": {
             "origin": "MyMicrochipDevice",
-            "payload": "{\"temperature\":23.50}"
+            "payload": "{\"temperature\": 23.96}"
         }
     }
     ```
 
 1. Select CTRL+C to end monitoring.
 
-## View device properties
-
-Using Azure CLI, you can inspect the properties on your Azure resources, including your connected device.
-
-1. Run the [az iot hub device-identity list](https://docs.microsoft.com/cli/azure/ext/azure-cli-iot-ext/iot/hub/device-identity?view=azure-cli-latest#ext-azure-cli-iot-ext-az-iot-hub-device-identity-list) command to list devices attached to your Iot hub.
-
-    ```azurecli
-    az iot hub device-identity list --hub-name {YourIoTHubName}
-    ```
-
-    The following partial JSON output shows how the connected device is included in the device list.
-
-    ```json
-    {
-    "authenticationType": "sas",
-    "capabilities": {
-        "iotEdge": false
-    },
-    "cloudToDeviceMessageCount": 0,
-    "connectionState": "Connected",
-    "deviceEtag": "Njc0NTAzODkw",
-    "deviceId": "MyMicrochipDevice",
-    ```
-
-1. Run the [az iot hub device-identity show](https://docs.microsoft.com/cli/azure/ext/azure-cli-iot-ext/iot/hub/device-identity?view=azure-cli-latest#ext-azure-cli-iot-ext-az-iot-hub-device-identity-show) command to view the properties of your device.
-
-    ```azurecli
-    az iot hub device-identity show --device-id MyMicrochipDevice --hub-name {YourIoTHubName}
-    ```
-
 ## Call a direct method on the device
 
-You can use the Azure CLI to call a direct method that you have implemented on your device. Direct methods have a name, and can optionally have a JSON payload, configurable connection, and method timeout. In this section, you call a method that enables you to turn an LED on or off.
+You can also use Azure IoT Explorer to call a direct method that you have implemented on your device. Direct methods have a name, and can optionally have a JSON payload, configurable connection, and method timeout. In this section, you call a method that enables you to turn an LED on or off. Optionally, you can perform the same task using Azure CLI.
 
-To call a method to turn the LED on:
+To call a method in Azure IoT Explorer:
 
-1. Run the [az iot hub invoke-device-method](https://docs.microsoft.com/cli/azure/ext/azure-cli-iot-ext/iot/hub?view=azure-cli-latest#ext-azure-cli-iot-ext-az-iot-hub-invoke-device-method) command, and specify the method name and payload. For this method, setting `method-payload` to `1` turns the LED on, and setting it to `0` turns it off.
+1. Select **Direct method**.
+1. In the **Direct method** panel add the following values for the method name and payload. The payload value *true* indicates to turn the LED on.
+    * **Method name**: `setLedState`
+    * **Payload**: `true`
+1. Select **Invoke method**. The LED light should turn on.
+
+    ![Azure IoT Explorer invoke method](media/azure-iot-explorer-invoke-method.png)
+1. Change **Payload** to *false*, and again select **Invoke method**. The LED light should turn off.
+1. Optionally, you can view the output in Termite to monitor the status of the methods.
+
+To use Azure CLI to call a method:
+
+1. Run the [az iot hub invoke-device-method](https://docs.microsoft.com/en-us/cli/azure/ext/azure-iot/iot/hub?view=azure-cli-latest#ext-azure-iot-az-iot-hub-invoke-device-method) command, and specify the method name and payload. For this method, setting `method-payload` to `true` turns the LED on, and setting it to `false` turns it off.
 
     <!-- Inline code tag and CSS to wrap long code lines. -->
     <code style="white-space : pre-wrap !important;">
@@ -356,8 +390,8 @@ To call a method to turn the LED on:
 1. View the Termite terminal to confirm the output messages:
 
     ```json
-    Received direct method=setLedState, id=6, message=true
-    LED0 is turned ON
+    Received direct method=setLedState, id=1, message=true
+    LED is turned ON
     Sending device twin update with bool value
     Sending message {"ledState":true}
     Direct method=setLedState invoked
@@ -365,7 +399,7 @@ To call a method to turn the LED on:
 
 ## Clean up resources
 
-If you no longer need the Azure resources created in this tutorial, you can use the Azure CLI to delete them.
+If you no longer need the Azure resources created in this tutorial, you can use the Azure CLI to delete the resource group and all the resources you created for this tutorial. Optionally, you can use Azure IoT Explorer to delete individual resources including devices and IoT hubs.
 
 If you continue to another tutorial in this Getting Started guide, you can keep the resources you've already created and reuse them.
 
