@@ -35,8 +35,13 @@
 #define MQTT_TIMEOUT         (10 * TX_TIMER_TICKS_PER_SECOND)
 #define MQTT_KEEP_ALIVE      240
 
-#define MQTT_TOPIC_NAME_LENGTH   200
-#define MQTT_MESSAGE_NAME_LENGTH 200
+#define MQTT_TOPIC_NAME_LENGTH   300
+#define MQTT_MESSAGE_NAME_LENGTH 1000
+
+CHAR mqtt_topic_buffer[MQTT_TOPIC_NAME_LENGTH] = {0};
+UINT mqtt_topic_length;
+CHAR mqtt_message_buffer[MQTT_MESSAGE_NAME_LENGTH] = {0};
+UINT mqtt_message_length;
 
 #define MQTT_QOS_0 0 // QoS 0 - Deliver at most once
 #define MQTT_QOS_1 1 // QoS 1 - Deliver at least once
@@ -330,10 +335,6 @@ static VOID mqtt_disconnect_cb(NXD_MQTT_CLIENT* client_ptr)
 static VOID mqtt_notify_cb(NXD_MQTT_CLIENT* client_ptr, UINT number_of_messages)
 {
     UINT status;
-    CHAR mqtt_topic_buffer[MQTT_TOPIC_NAME_LENGTH] = {0};
-    UINT mqtt_topic_length;
-    CHAR mqtt_message_buffer[MQTT_MESSAGE_NAME_LENGTH] = {0};
-    UINT mqtt_message_length;
 
     AZURE_IOT_MQTT* azure_iot_mqtt = (AZURE_IOT_MQTT*)client_ptr->nxd_mqtt_packet_receive_context;
 
