@@ -12,16 +12,14 @@
 #define WIFI_SSID           ""
 #define WIFI_PASSWORD       ""
 
-// WIFI Security as defined in wwd_constants.h
+// WIFI Security as defined in lib/wiced_sdk/43xxx_Wi-Fi/wwd_constants.h
 #define WIFI_SECURITY       WICED_SECURITY_WPA2_MIXED_PSK
-// Country codes as defined in wwd_constants.h
-#define WIFI_COUNTRY        WICED_COUNTRY_CHINA
 
 // ----------------------------------------------------------------------------
 // Azure IoT Hub Connection Transport
 // Define this to use the nx client, otherwise MQTT
 // ----------------------------------------------------------------------------
-//#define USE_NX_CLIENT_PREVIEW
+// #define USE_NX_CLIENT_PREVIEW
 
 // ----------------------------------------------------------------------------
 // Azure IoT Device information

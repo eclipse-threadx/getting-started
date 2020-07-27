@@ -1,7 +1,7 @@
 set(HAL_COMPONENTS adc can cec cortex crc cryp dac dcmi dma dma2d eth exti flash
                     flash_ramfunc fmpi2c gpio hash hcd i2c i2s irda iwdg ltdc
                     nand nor pccard pcd pwr qspi rcc rng rtc sai sd sdram
-                    smartcard spdifrx spi sram tim uart usart wwdg)
+                    smartcard spdifrx spi sram tim timebase_tim uart usart wwdg)
 
 set(HAL_REQUIRED_COMPONENTS cortex pwr rcc)
 

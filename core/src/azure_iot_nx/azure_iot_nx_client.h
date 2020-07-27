@@ -13,7 +13,7 @@
 #include "azure_iot_ciphersuites.h"
 
 #define NX_AZURE_IOT_STACK_SIZE 2048
-#define AZURE_IOT_NX_STACK_SIZE 2048
+#define AZURE_IOT_NX_STACK_SIZE 4096
 
 typedef void (*threadx_entry)(ULONG parameter);
 
