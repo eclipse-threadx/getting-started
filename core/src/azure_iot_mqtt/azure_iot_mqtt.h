@@ -33,7 +33,7 @@ typedef struct MQTT_DIRECT_METHOD_RESPONSE_STRUCT
 
 typedef void (*func_ptr_direct_method)(CHAR*, CHAR*, MQTT_DIRECT_METHOD_RESPONSE*);
 typedef void (*func_ptr_c2d_message)(CHAR*, CHAR*);
-typedef bool (*func_ptr_device_twin_desired_prop)(CHAR*);
+typedef void (*func_ptr_device_twin_desired_prop)(CHAR*);
 typedef void (*func_ptr_device_twin_prop)(CHAR *);
 typedef ULONG (*func_ptr_unix_time_get)(VOID);
 
