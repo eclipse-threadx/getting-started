@@ -15,6 +15,9 @@
 #define AZURE_IOT_MQTT_USERNAME_SIZE 128
 #define AZURE_IOT_MQTT_PASSWORD_SIZE 256
 
+#define MQTT_TOPIC_NAME_LENGTH   300
+#define MQTT_MESSAGE_NAME_LENGTH 1000
+
 #define AZURE_IOT_MQTT_CLIENT_STACK_SIZE 4096
 
 #define TLS_METADATA_BUFFER_SIZE      (12 * 1024)
@@ -30,7 +33,7 @@ typedef struct MQTT_DIRECT_METHOD_RESPONSE_STRUCT
 
 typedef void (*func_ptr_direct_method)(CHAR*, CHAR*, MQTT_DIRECT_METHOD_RESPONSE*);
 typedef void (*func_ptr_c2d_message)(CHAR*, CHAR*);
-typedef void (*func_ptr_device_twin_desired_prop)(CHAR*);
+typedef bool (*func_ptr_device_twin_desired_prop)(CHAR*);
 typedef void (*func_ptr_device_twin_prop)(CHAR *);
 typedef ULONG (*func_ptr_unix_time_get)(VOID);
 
@@ -45,10 +48,14 @@ typedef struct AZURE_IOT_MQTT_STRUCT
     CHAR* mqtt_hub_hostname;
     CHAR* mqtt_model_id;
 
-    UINT request_id;
+    UINT reported_property_version;
+    UINT desired_property_version;
 
     CHAR mqtt_username[AZURE_IOT_MQTT_USERNAME_SIZE];
     CHAR mqtt_password[AZURE_IOT_MQTT_PASSWORD_SIZE];
+
+    CHAR mqtt_topic_buffer[MQTT_TOPIC_NAME_LENGTH];
+    CHAR mqtt_message_buffer[MQTT_MESSAGE_NAME_LENGTH];
 
     UCHAR mqtt_client_stack[AZURE_IOT_MQTT_CLIENT_STACK_SIZE];
 
