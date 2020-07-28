@@ -3815,7 +3815,7 @@ UINT        record_count = 0;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_host_resource_data_by_name_get               PORTABLE C     */ 
-/*                                                           6.0          */
+/*                                                           6.0.1        */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -3858,6 +3858,9 @@ UINT        record_count = 0;
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*  06-30-2020     Yuxin Zhou               Modified comment(s), corrected*/
+/*                                            the timeout of first query, */
+/*                                            resulting in version 6.0.1  */
 /*                                                                        */
 /**************************************************************************/
 static UINT  _nx_dns_host_resource_data_by_name_get(NX_DNS *dns_ptr, UCHAR *host_name, 
@@ -3912,6 +3915,12 @@ UINT        i;
         return(NX_DNS_NO_SERVER);
     }        
 
+    /* Limit the timeout to NX_DNS_MAX_RETRANS_TIMEOUT.  */
+    if (wait_option > NX_DNS_MAX_RETRANS_TIMEOUT)
+    {
+        wait_option = NX_DNS_MAX_RETRANS_TIMEOUT;
+    }
+
     /* Keep sending queries to all DNS Servers till the retry count expires.  */
     for (retries = 0; retries < dns_ptr -> nx_dns_retries; retries++)
     {
@@ -3939,8 +3948,8 @@ UINT        i;
         }
 
         /* Timed out for querying all DNS servers in this cycle, double the timeout, limited to NX_DNS_MAX_RETRANS_TIMEOUT.  */
-        if ((2 * wait_option) <= NX_DNS_MAX_RETRANS_TIMEOUT)
-            wait_option =  wait_option * 2;
+        if (wait_option <= (NX_DNS_MAX_RETRANS_TIMEOUT >> 1))
+            wait_option =  (wait_option << 1);
         else
             wait_option =  NX_DNS_MAX_RETRANS_TIMEOUT;
     }
@@ -6418,7 +6427,7 @@ UINT                size;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_process_soa_type                             PORTABLE C     */ 
-/*                                                           6.0          */
+/*                                                           6.0.1        */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -6459,6 +6468,9 @@ UINT                size;
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*  06-30-2020     Yuxin Zhou               Modified comment(s), and      */
+/*                                            and verified buffer size,   */
+/*                                            resulting in version 6.0.1  */
 /*                                                                        */
 /**************************************************************************/
 static UINT _nx_dns_process_soa_type(NX_DNS *dns_ptr, NX_PACKET *packet_ptr, UCHAR *data_ptr, 
@@ -6511,6 +6523,12 @@ ULONG               rr_ttl;
     /* Set the SRV entry pointer.  */
     nx_dns_soa_entry_ptr = (NX_DNS_SOA_ENTRY *)(record_buffer);
 
+    if (buffer_size <= sizeof(NX_DNS_SOA_ENTRY))
+    {
+        /* The buffer size is not enough.  */
+        return(NX_DNS_MALFORMED_PACKET);
+    }
+
     /* Update the start address of available buffer and the buffer size.  */
     buffer_start = record_buffer + sizeof(NX_DNS_SOA_ENTRY);
     buffer_size -= sizeof(NX_DNS_SOA_ENTRY);
@@ -6541,7 +6559,13 @@ ULONG               rr_ttl;
         /* Return !*/
         return(NX_DNS_MALFORMED_PACKET);
     }
-        
+
+    if (!buffer_size)
+    {
+        /* The buffer size is not enough.  */
+        return(NX_DNS_MALFORMED_PACKET);
+    }
+
     /* Get the responsible mail address and record it in buffer.  */
     rname_length = _nx_dns_name_string_unencode(packet_ptr, data_ptr, buffer_start, buffer_size - 1);
 
@@ -6932,7 +6956,7 @@ UINT  _nxd_dns_host_by_address_get(NX_DNS *dns_ptr, NXD_ADDRESS *host_address_pt
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_dns_host_by_address_get_internal                PORTABLE C      */
-/*                                                           6.0          */
+/*                                                           6.0.1        */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -6972,6 +6996,9 @@ UINT  _nxd_dns_host_by_address_get(NX_DNS *dns_ptr, NXD_ADDRESS *host_address_pt
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*  06-30-2020     Yuxin Zhou               Modified comment(s), corrected*/
+/*                                            the timeout of first query, */
+/*                                            resulting in version 6.0.1  */
 /*                                                                        */
 /**************************************************************************/
 static UINT  _nx_dns_host_by_address_get_internal(NX_DNS *dns_ptr, NXD_ADDRESS *host_address_ptr, UCHAR *host_name_ptr, 
@@ -7121,7 +7148,13 @@ UINT        length, index;
         return (NX_DNS_SUCCESS);
     }
 #endif /*NX_DNS_CACHE_ENABLE.  */  
-                  
+
+    /* Limit the timeout to NX_DNS_MAX_RETRANS_TIMEOUT.  */
+    if (wait_option > NX_DNS_MAX_RETRANS_TIMEOUT)
+    {
+        wait_option = NX_DNS_MAX_RETRANS_TIMEOUT;
+    }
+
     /* Keep sending queries to all DNS Servers till the retry count expires.  */
     for (retries = 0; retries < dns_ptr -> nx_dns_retries; retries++)
     {
@@ -7131,7 +7164,7 @@ UINT        length, index;
         /*  Attempt host name resolution from each DNS server till one if found. */      
         for (i = 0; (i < NX_DNS_MAX_SERVERS) && (dns_ptr -> nx_dns_server_ip_array[i].nxd_ip_version != 0); i ++)
         {
-                 
+
             /* Send the PTR/reverse lookup query. */
             status = _nx_dns_send_query_by_address(dns_ptr, &dns_ptr -> nx_dns_server_ip_array[i], &ip_question[0], 
                                                    host_name_ptr, host_name_buffer_size, wait_option);
@@ -7147,12 +7180,12 @@ UINT        length, index;
                 return NX_SUCCESS;
             }
         }
-             
+
         /* Timed out for querying all DNS servers in this cycle, double the timeout, limited to NX_DNS_MAX_RETRANS_TIMEOUT.  */
-        if ((2 * wait_option) <= NX_DNS_MAX_RETRANS_TIMEOUT)
-            wait_option =  wait_option * 2;
+        if (wait_option <= (NX_DNS_MAX_RETRANS_TIMEOUT >> 1))
+            wait_option = (wait_option << 1);
         else
-            wait_option =  NX_DNS_MAX_RETRANS_TIMEOUT;
+            wait_option = NX_DNS_MAX_RETRANS_TIMEOUT;
     }
 
     /* Release protection.  */
