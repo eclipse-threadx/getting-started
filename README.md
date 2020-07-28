@@ -15,6 +15,7 @@ This Getting Started guides shows device developers how to start working with Az
 The following board specific guides will get you started with Azure RTOS:
 
 * Getting started with the [Microchip ATSAME54-XPRO](Microchip/ATSAME54-XPRO)
+* Getting started with the [MXCHIP AZ3166](MXChip/AZ3166)
 * Getting started with the [NXP MIMXRT1060-EVK](NXP/MIMXRT1060-EVK)
 * Getting started with the [Renesas AE-Cloud2](Renesas/Synergy)
 * Getting started with the [STMicroelectronics B-L475E-IOT01A / B-L4S5I-IOT01A](STMicroelectronics/STM32L4_L4+)
