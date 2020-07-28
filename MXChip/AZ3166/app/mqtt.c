@@ -52,8 +52,8 @@ static void mqtt_direct_method(CHAR* direct_method_name, CHAR* message, MQTT_DIR
 
         set_led_state(arg);
 
-        // 204 No Content, the server successfully processed the request and is not returning any content.
-        status = 204;
+        // Return success
+        status = 200;
 
         // Update device twin property
         azure_iot_mqtt_publish_bool_property(&azure_iot_mqtt, "ledState", arg);
