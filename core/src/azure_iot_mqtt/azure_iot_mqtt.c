@@ -308,7 +308,24 @@ static VOID process_device_twin_desired_prop_update(AZURE_IOT_MQTT* azure_iot_mq
 {
     printf("Received device twin desired property\r\n");
 
-    azure_iot_mqtt->cb_ptr_mqtt_device_twin_desired_prop_callback(message);
+        // Parse the device twin version
+    CHAR* location = topic + sizeof(DEVICE_TWIN_DESIRED_PROP_RES_BASE) - 1;
+    CHAR buffer[64];
+    INT response = 200;
+    INT version;
+
+    location = strstr(location, "$version=");
+    if (location == 0)
+    {
+        response = 400;
+    }
+    else
+    {
+        version = atoi(location + 9);
+        azure_iot_mqtt->cb_ptr_mqtt_device_twin_desired_prop_callback(message);
+    }
+
+//    azure_iot_mqtt->cb_ptr_mqtt_device_twin_desired_prop_callback(message);
 }
 
 static VOID mqtt_disconnect_cb(NXD_MQTT_CLIENT* client_ptr)
