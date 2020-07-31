@@ -37,7 +37,6 @@ struct AZURE_IOT_MQTT_STRUCT
 {
     NXD_MQTT_CLIENT nxd_mqtt_client;
     NX_DNS* nx_dns;
-    TX_MUTEX mqtt_mutex;
 
     CHAR* mqtt_device_id;
     CHAR* mqtt_sas_key;
@@ -51,8 +50,8 @@ struct AZURE_IOT_MQTT_STRUCT
     CHAR mqtt_username[AZURE_IOT_MQTT_USERNAME_SIZE];
     CHAR mqtt_password[AZURE_IOT_MQTT_PASSWORD_SIZE];
 
-    CHAR mqtt_topic_buffer[MQTT_TOPIC_NAME_LENGTH];
-    CHAR mqtt_message_buffer[MQTT_MESSAGE_NAME_LENGTH];
+    CHAR mqtt_receive_topic_buffer[MQTT_TOPIC_NAME_LENGTH];
+    CHAR mqtt_receive_message_buffer[MQTT_MESSAGE_NAME_LENGTH];
 
     UCHAR mqtt_client_stack[AZURE_IOT_MQTT_CLIENT_STACK_SIZE];
 
@@ -81,12 +80,10 @@ UINT azure_iot_mqtt_register_device_twin_prop_callback(
 UINT azure_iot_mqtt_publish_float_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, float value);
 UINT azure_iot_mqtt_publish_bool_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, bool value);
 UINT azure_iot_mqtt_publish_float_telemetry(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, float value);
-UINT azure_iot_mqtt_publish_int_desired_property(
-    AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, int value);
+UINT azure_iot_mqtt_publish_int_desired_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, int value);
 UINT azure_iot_mqtt_respond_int_desired_property(
     AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, int value, int http_status);
-UINT azure_iot_mqtt_respond_direct_method(AZURE_IOT_MQTT* azure_iot_mqtt, UINT status);
-
+UINT azure_iot_mqtt_respond_direct_method(AZURE_IOT_MQTT* azure_iot_mqtt, UINT response);
 UINT azure_iot_mqtt_device_twin_request(AZURE_IOT_MQTT* azure_iot_mqtt);
 
 UINT azure_iot_mqtt_create(AZURE_IOT_MQTT* azure_iot_mqtt,
