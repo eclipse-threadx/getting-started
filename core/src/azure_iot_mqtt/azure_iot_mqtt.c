@@ -167,7 +167,7 @@ static UINT mqtt_publish(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR* mess
 
 static UINT mqtt_publish_float(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR* label, float value)
 {
-    CHAR mqtt_message[200];
+    CHAR mqtt_message[100];
 
     snprintf(mqtt_message, sizeof(mqtt_message), "{\"%s\":%3.2f}", label, value);
     printf("Sending message %s\r\n", mqtt_message);
