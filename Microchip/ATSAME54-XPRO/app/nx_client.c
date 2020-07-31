@@ -22,6 +22,8 @@
 
 #include "azure_config.h"
 
+#define IOT_MODEL_ID "dtmi:microsoft:gsg;1"
+
 #define TELEMETRY_INTERVAL_EVENT 1
 
 static AZURE_IOT_NX_CLIENT azure_iot_nx_client;
@@ -239,7 +241,8 @@ UINT azure_iot_nx_client_entry(
              unix_time_callback,
              IOT_HUB_HOSTNAME,
              IOT_DEVICE_ID,
-             IOT_PRIMARY_KEY)))
+             IOT_PRIMARY_KEY,
+             IOT_MODEL_ID)))
     {
         printf("ERROR: failed to create iot client 0x%08x\r\n", status);
         return status;

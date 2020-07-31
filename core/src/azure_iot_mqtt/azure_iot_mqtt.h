@@ -25,23 +25,18 @@
 #define TLS_REMOTE_CERTIFICATE_BUFFER 4096
 #define TLS_PACKET_BUFFER             4096
 
-typedef struct MQTT_DIRECT_METHOD_RESPONSE_STRUCT
-{
-    int status;
-    CHAR message[16];
-} MQTT_DIRECT_METHOD_RESPONSE;
+typedef struct AZURE_IOT_MQTT_STRUCT AZURE_IOT_MQTT;
 
-typedef void (*func_ptr_direct_method)(CHAR*, CHAR*, MQTT_DIRECT_METHOD_RESPONSE*);
-typedef void (*func_ptr_c2d_message)(CHAR*, CHAR*);
-typedef void (*func_ptr_device_twin_desired_prop)(CHAR*);
-typedef void (*func_ptr_device_twin_prop)(CHAR *);
+typedef void (*func_ptr_direct_method)(AZURE_IOT_MQTT*, CHAR*, CHAR*);
+typedef void (*func_ptr_c2d_message)(AZURE_IOT_MQTT*, CHAR*, CHAR*);
+typedef void (*func_ptr_device_twin_desired_prop)(AZURE_IOT_MQTT*, CHAR*);
+typedef void (*func_ptr_device_twin_prop)(AZURE_IOT_MQTT*, CHAR*);
 typedef ULONG (*func_ptr_unix_time_get)(VOID);
 
-typedef struct AZURE_IOT_MQTT_STRUCT
+struct AZURE_IOT_MQTT_STRUCT
 {
     NXD_MQTT_CLIENT nxd_mqtt_client;
     NX_DNS* nx_dns;
-    TX_MUTEX mqtt_mutex;
 
     CHAR* mqtt_device_id;
     CHAR* mqtt_sas_key;
@@ -50,12 +45,13 @@ typedef struct AZURE_IOT_MQTT_STRUCT
 
     UINT reported_property_version;
     UINT desired_property_version;
+    UINT direct_command_request_id;
 
     CHAR mqtt_username[AZURE_IOT_MQTT_USERNAME_SIZE];
     CHAR mqtt_password[AZURE_IOT_MQTT_PASSWORD_SIZE];
 
-    CHAR mqtt_topic_buffer[MQTT_TOPIC_NAME_LENGTH];
-    CHAR mqtt_message_buffer[MQTT_MESSAGE_NAME_LENGTH];
+    CHAR mqtt_receive_topic_buffer[MQTT_TOPIC_NAME_LENGTH];
+    CHAR mqtt_receive_message_buffer[MQTT_MESSAGE_NAME_LENGTH];
 
     UCHAR mqtt_client_stack[AZURE_IOT_MQTT_CLIENT_STACK_SIZE];
 
@@ -70,7 +66,7 @@ typedef struct AZURE_IOT_MQTT_STRUCT
     func_ptr_device_twin_prop cb_ptr_mqtt_device_twin_prop_callback;
 
     func_ptr_unix_time_get unix_time_get;
-} AZURE_IOT_MQTT;
+};
 
 UINT azure_iot_mqtt_register_direct_method_callback(
     AZURE_IOT_MQTT* azure_iot_mqtt, func_ptr_direct_method mqtt_direct_method_callback);
@@ -79,12 +75,15 @@ UINT azure_iot_mqtt_register_c2d_message_callback(
 UINT azure_iot_mqtt_register_device_twin_desired_prop_callback(
     AZURE_IOT_MQTT* azure_iot_mqtt, func_ptr_device_twin_desired_prop mqtt_device_twin_desired_prop_update_callback);
 UINT azure_iot_mqtt_register_device_twin_prop_callback(
-    AZURE_IOT_MQTT *azure_iot_mqtt, func_ptr_device_twin_prop mqtt_device_twin_prop_callback);
+    AZURE_IOT_MQTT* azure_iot_mqtt, func_ptr_device_twin_prop mqtt_device_twin_prop_callback);
 
 UINT azure_iot_mqtt_publish_float_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, float value);
 UINT azure_iot_mqtt_publish_bool_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, bool value);
 UINT azure_iot_mqtt_publish_float_telemetry(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, float value);
-
+UINT azure_iot_mqtt_publish_int_desired_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, int value);
+UINT azure_iot_mqtt_respond_int_desired_property(
+    AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, int value, int http_status);
+UINT azure_iot_mqtt_respond_direct_method(AZURE_IOT_MQTT* azure_iot_mqtt, UINT response);
 UINT azure_iot_mqtt_device_twin_request(AZURE_IOT_MQTT* azure_iot_mqtt);
 
 UINT azure_iot_mqtt_create(AZURE_IOT_MQTT* azure_iot_mqtt,

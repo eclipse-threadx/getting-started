@@ -24,7 +24,7 @@
             "@type": "Command",
             "name": "setLedState",
             "request": {
-                "name": "level",
+                "name": "state",
                 "schema": "boolean"
             }
         }
