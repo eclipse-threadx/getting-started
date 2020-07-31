@@ -456,7 +456,7 @@ UINT azure_iot_mqtt_publish_int_desired_property(
 
     snprintf(azure_iot_mqtt->mqtt_message_buffer,
         MQTT_MESSAGE_NAME_LENGTH,
-        "{\"%s\":{\"value\":%d}}",
+        "{\"%s\":{\"value\":%d,\"ac\":200,\"av\":0}}",
         label,
         value);
 
