@@ -1,3 +1,15 @@
+---
+page_type: sample
+languages:
+- c
+products:
+- azure-iot
+- azure-iot-hub
+- azure-iot-pnp
+- azure-rtos
+- device
+---
+
 <h1>Getting started with the NXP MIMXRT1060-EVK Evaluation kit</h1>
 
 **Total completion time**:  30 minutes
