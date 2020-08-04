@@ -120,6 +120,8 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
     lsm6dsl_data_t lsm6dsl_data;
     lis2mdl_data_t lis2mdl_data;
 
+    int telemetry_state = 0;
+
     if ((status = tx_event_flags_create(&azure_iot_flags, "Azure IoT flags")))
     {
         printf("FAIL: Unable to create nx_client event flags (0x%02x)\r\n", status);
@@ -163,26 +165,40 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
     printf("Starting MQTT loop\r\n");
     while (true)
     {
-        // Read data from sensors
-        lps22hb_data = lps22hb_data_read();
-        hts221_data  = hts221_data_read();
-        lsm6dsl_data = lsm6dsl_data_read();
-        lis2mdl_data = lis2mdl_data_read();
+        switch (telemetry_state)
+        {
+            case 0:
+                // Send the compensated temperature
+                lps22hb_data = lps22hb_data_read();
+                azure_iot_mqtt_publish_float_telemetry(&azure_iot_mqtt, "temperature", lps22hb_data.temperature_degC);
+                break;
 
-        // Send the compensated temperature
-        azure_iot_mqtt_publish_float_telemetry(&azure_iot_mqtt, "temperature", lps22hb_data.temperature_degC);
+            case 1:
+                // Send the compensated pressure
+                lps22hb_data = lps22hb_data_read();
+                azure_iot_mqtt_publish_float_telemetry(&azure_iot_mqtt, "pressure", lps22hb_data.pressure_hPa);
+                break;
 
-        // Send the compensated pressure
-        azure_iot_mqtt_publish_float_telemetry(&azure_iot_mqtt, "pressure", lps22hb_data.pressure_hPa);
+            case 2:
+                // Send the compensated humidity
+                hts221_data = hts221_data_read();
+                azure_iot_mqtt_publish_float_telemetry(&azure_iot_mqtt, "humidity", hts221_data.humidity_perc);
+                break;
 
-        // Send the compensated humidity
-        azure_iot_mqtt_publish_float_telemetry(&azure_iot_mqtt, "humidityPercentage", hts221_data.humidity_perc);
+            case 3:
+                // Send the compensated acceleration
+                lsm6dsl_data = lsm6dsl_data_read();
+                azure_iot_mqtt_publish_float_telemetry(&azure_iot_mqtt, "acceleration", lsm6dsl_data.acceleration_mg[0]);
+                break;
 
-        // Send the compensated acceleration
-        azure_iot_mqtt_publish_float_telemetry(&azure_iot_mqtt, "acceleration", lsm6dsl_data.acceleration_mg[0]);
+            case 4:
+                // Send the compensated magnetic
+                lis2mdl_data = lis2mdl_data_read();
+                azure_iot_mqtt_publish_float_telemetry(&azure_iot_mqtt, "magnetic", lis2mdl_data.magnetic_mG[0]);
+                break;
+            }
 
-        // Send the compensated magnetic
-        azure_iot_mqtt_publish_float_telemetry(&azure_iot_mqtt, "magnetic", lis2mdl_data.magnetic_mG[0]);
+        telemetry_state = (telemetry_state + 1) % 5;
 
         // Sleep
         tx_event_flags_get(
