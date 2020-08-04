@@ -1,3 +1,15 @@
+---
+page_type: sample
+languages:
+- c
+products:
+- azure-iot
+- azure-iot-hub
+- azure-iot-pnp
+- azure-rtos
+- device
+---
+
 # Getting started with the MXChip AZ3166 IoT DevKit
 
 **Total completion time**:  45 minutes
