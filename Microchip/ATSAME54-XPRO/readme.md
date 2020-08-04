@@ -60,6 +60,7 @@ The cloned repo contains a setup script that installs and configures the first s
 > * [CMake](https://cmake.org): Build
 > * [Ninja](https://ninja-build.org): Build
 > * [Termite](https://www.compuphase.com/software_termite.htm): Monitor
+> * [Azure IoT Explorer](https://github.com/Azure/azure-iot-explorer/releases): Cross-platform utility to  monitor and manage Azure IoT resources
 
 To run the setup script:
 
@@ -77,8 +78,6 @@ To run the setup script:
 To install the remaining tools:
 
 1. Install [Atmel Studio 7](https://www.microchip.com/mplab/avr-support/atmel-studio-7). Atmel Studio is a device development environment that includes the tools to program and flash program the Microchip E54. For this tutorial, you use Atmel Studio only to flash the Microchip E54. The installation takes several minutes, and prompts you several times to approve installation of components.
-
-1. Install [Azure IoT Explorer](https://github.com/Azure/azure-iot-explorer/releases). You can use this cross-platform utility to monitor and manage Azure IoT resources.
 
 ## Prepare Azure resources
 
