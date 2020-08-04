@@ -1,3 +1,15 @@
+---
+page_type: sample
+languages:
+- c
+products:
+- azure-iot
+- azure-iot-hub
+- azure-iot-pnp
+- azure-rtos
+- device
+---
+
 <h1>Getting started with the Microchip ATSAME54-XPro evaluation kit</h1>
 
 **Total completion time**: 35 minutes
