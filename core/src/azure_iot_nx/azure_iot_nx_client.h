@@ -69,6 +69,9 @@ UINT azure_iot_nx_client_publish_float_telemetry(
 UINT azure_iot_nx_client_publish_float_property(AZURE_IOT_NX_CLIENT* azure_iot_nx_client, CHAR* key, float value);
 UINT azure_iot_nx_client_publish_bool_property(AZURE_IOT_NX_CLIENT* azure_iot_nx_client, CHAR* key, bool value);
 
+UINT azure_iot_nx_client_publish_int_desired_property(
+    AZURE_IOT_NX_CLIENT* azure_iot_nx_client, CHAR* label, UINT value);
+
 VOID printf_packet(NX_PACKET* packet_ptr);
 
 #endif

@@ -156,13 +156,6 @@ UINT azure_iot_nx_client_connect(AZURE_IOT_NX_CLIENT* azure_iot_nx_client)
         return status;
     }
 
-    // Enable the device twin
-    if ((status = nx_azure_iot_hub_client_device_twin_enable(&azure_iot_nx_client->iothub_client)))
-    {
-        printf("device twin enabled failed!: error code = 0x%08x\r\n", status);
-        return status;
-    }
-
     // Telemetry thread
     if (azure_iot_nx_client->telemetry_thread_entry != NULL)
     {
@@ -185,6 +178,11 @@ UINT azure_iot_nx_client_connect(AZURE_IOT_NX_CLIENT* azure_iot_nx_client)
     // Device twin thread
     if (azure_iot_nx_client->device_twin_thread_entry != NULL)
     {
+        if ((status = nx_azure_iot_hub_client_device_twin_enable(&azure_iot_nx_client->iothub_client)))
+        {
+            printf("device twin enabled failed!: error code = 0x%08x\r\n", status);
+            return status;
+        }
         if ((status = tx_thread_create(&azure_iot_nx_client->device_twin_thread,
                  "Device Twin Thread",
                  azure_iot_nx_client->device_twin_thread_entry,
@@ -344,7 +342,7 @@ UINT azure_iot_nx_client_publish_bool_property(AZURE_IOT_NX_CLIENT* azure_iot_nx
     UINT request_id;
     CHAR buffer[30];
 
-    snprintf(buffer, sizeof(buffer), "{\"%s\":\"%s\"}", key, (value == true ? "true" : "false"));
+    snprintf(buffer, sizeof(buffer), "{\"%s\":%s}", key, (value ? "true" : "false"));
 
     if ((status = nx_azure_iot_hub_client_device_twin_reported_properties_send(&azure_iot_nx_client->iothub_client,
              (UCHAR*)buffer,
@@ -366,6 +364,69 @@ UINT azure_iot_nx_client_publish_bool_property(AZURE_IOT_NX_CLIENT* azure_iot_nx
     printf("Device twin property sent: %s.\r\n", buffer);
 
     return NX_SUCCESS;
+}
+
+UINT azure_iot_nx_client_publish_int_desired_property(AZURE_IOT_NX_CLIENT* azure_iot_nx_client, CHAR* label, UINT value)
+{
+    UINT status;
+    UINT response_status;
+    UINT request_id;
+    CHAR message[100];
+
+    snprintf(message, sizeof(message), "{\"%s\":{\"value\":%d,\"ac\":200,\"av\":1}}", label, value);
+
+    if ((status = nx_azure_iot_hub_client_device_twin_reported_properties_send(&azure_iot_nx_client->iothub_client,
+             (UCHAR*)message,
+             strlen(message),
+             &request_id,
+             &response_status,
+             NX_WAIT_FOREVER)))
+    {
+        printf("Device twin reported properties failed!: error code = 0x%08x\r\n", status);
+    }
+
+    if ((response_status < 200) || (response_status >= 300))
+    {
+        printf("device twin report properties failed with code : %d\r\n", response_status);
+        return status;
+    }
+
+    printf("Reported desired property with int value %s\r\n", message);
+
+    return status;
+}
+
+UINT azure_nx_client_respond_int_desired_property(
+    AZURE_IOT_NX_CLIENT* azure_iot_nx_client, CHAR* label, INT value, UINT http_status, UINT version)
+{
+    // CHAR mqtt_publish_topic[100];
+    UINT status;
+    UINT response_status;
+    UINT request_id;
+    CHAR message[100];
+
+    snprintf(
+        message, sizeof(message), "{\"%s\":{\"value\":%d,\"ac\":%d,\"av\":%d}}", label, value, http_status, version);
+
+    if ((status = nx_azure_iot_hub_client_device_twin_reported_properties_send(&azure_iot_nx_client->iothub_client,
+             (UCHAR*)message,
+             strlen(message),
+             &request_id,
+             &response_status,
+             NX_WAIT_FOREVER)))
+    {
+        printf("Device twin reported properties failed!: error code = 0x%08x\r\n", status);
+    }
+
+    if ((response_status < 200) || (response_status >= 300))
+    {
+        printf("device twin report properties failed with code : %d\r\n", response_status);
+        return status;
+    }
+
+    printf("Reported desired property with int value %s\r\n", message);
+
+    return status;
 }
 
 VOID printf_packet(NX_PACKET* packet_ptr)

@@ -24,6 +24,8 @@
 
 #define IOT_MODEL_ID "dtmi:microsoft:gsg;1"
 
+#define TELEMETRY_INTERVAL_PROPERTY "telemetryInterval"
+
 #define TELEMETRY_INTERVAL_EVENT 1
 
 static AZURE_IOT_NX_CLIENT azure_iot_nx_client;
@@ -35,13 +37,13 @@ static void set_led_state(bool level)
 {
     if (level)
     {
-        // Pin level set to "high" state
-        printf("LED is turned OFF\r\n");
+        // Pin level set to "low" state
+        printf("LED is turned ON\r\n");
     }
     else
     {
-        // Pin level set to "low" state
-        printf("LED is turned ON\r\n");
+        // Pin level set to "high" state
+        printf("LED is turned OFF\r\n");
     }
 
     gpio_set_pin_level(PC18, !level);
@@ -89,6 +91,10 @@ static void device_twin_thread_entry(ULONG parameter)
 
     NX_PARAMETER_NOT_USED(parameter);
 
+    jsmn_init(&parser);
+
+    printf("Requesting device twin\r\n");
+
     // Request and parse the device twin properties
     if ((status = nx_azure_iot_hub_client_device_twin_properties_request(
              &azure_iot_nx_client.iothub_client, NX_WAIT_FOREVER)))
@@ -97,6 +103,7 @@ static void device_twin_thread_entry(ULONG parameter)
         return;
     }
 
+    // Read the device twin response
     if ((status = nx_azure_iot_hub_client_device_twin_properties_receive(
              &azure_iot_nx_client.iothub_client, &packet_ptr, NX_WAIT_FOREVER)))
     {
@@ -104,26 +111,27 @@ static void device_twin_thread_entry(ULONG parameter)
         return;
     }
 
+    // Extract the relevant properties
+    const CHAR* json_str = (CHAR*)packet_ptr->nx_packet_prepend_ptr;
+    const ULONG json_len = packet_ptr->nx_packet_append_ptr - packet_ptr->nx_packet_prepend_ptr;
+
+    token_count = jsmn_parse(&parser, json_str, json_len, tokens, 64);
+
+    if (findJsonInt(json_str, tokens, token_count, TELEMETRY_INTERVAL_PROPERTY, &telemetry_interval))
+    {
+        // Set a telemetry event so we pick up the change immediately
+        tx_event_flags_set(&azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR);
+    }
+
+    // Release the received packet, as ownership was passed to the application
+    nx_packet_release(packet_ptr);
+
+    // Update the cloud with device state
+    azure_iot_nx_client_publish_int_desired_property(
+        &azure_iot_nx_client, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
+
     while (true)
     {
-        printf("Receive device twin properties: ");
-        printf_packet(packet_ptr);
-
-        const CHAR* json_str = (CHAR*)packet_ptr->nx_packet_prepend_ptr;
-        const ULONG json_len = packet_ptr->nx_packet_append_ptr - packet_ptr->nx_packet_prepend_ptr;
-
-        jsmn_init(&parser);
-        token_count = jsmn_parse(&parser, json_str, json_len, tokens, 64);
-
-        if (findJsonInt(json_str, tokens, token_count, "telemetryInterval", &telemetry_interval))
-        {
-            // Set a telemetry event so we pick up the change immediately
-            tx_event_flags_set(&azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR);
-        }
-
-        // Release the received packet, as ownership was passed to the application
-        nx_packet_release(packet_ptr);
-
         // Wait for a desired property update
         if ((status = nx_azure_iot_hub_client_device_twin_desired_properties_receive(
                  &azure_iot_nx_client.iothub_client, &packet_ptr, NX_WAIT_FOREVER)))
@@ -131,6 +139,23 @@ static void device_twin_thread_entry(ULONG parameter)
             printf("Receive desired property receive failed!: error code = 0x%08x\r\n", status);
             break;
         }
+
+        printf("Receive device twin properties: ");
+        printf_packet(packet_ptr);
+
+        const CHAR* json_str = (CHAR*)packet_ptr->nx_packet_prepend_ptr;
+        const ULONG json_len = packet_ptr->nx_packet_append_ptr - packet_ptr->nx_packet_prepend_ptr;
+
+        token_count = jsmn_parse(&parser, json_str, json_len, tokens, 64);
+
+        if (findJsonInt(json_str, tokens, token_count, TELEMETRY_INTERVAL_PROPERTY, &telemetry_interval))
+        {
+            // Set a telemetry event so we pick up the change immediately
+            tx_event_flags_set(&azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR);
+        }
+
+        // Release the received packet, as ownership was passed to the application
+        nx_packet_release(packet_ptr);
     }
 }
 
