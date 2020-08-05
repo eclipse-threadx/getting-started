@@ -46,7 +46,7 @@ Clone the following repo to download all sample device code, setup scripts, and 
 
 To clone the repo, run the following command:
 
-```
+```bash
 git clone --recursive https://github.com/azure-rtos/getting-started
 ```
 
@@ -67,12 +67,12 @@ To run the setup script:
 
     > *getting-started\tools\get-toolchain.bat*
 
-    **Note**: After the installation completes, the Azure IoT Explorer opens automatically. Keep the IoT Explorer open, you'll use it in later steps.
+    After the installation completes, the Azure IoT Explorer opens automatically. Keep the IoT Explorer open, you'll use it in later steps.
 
 1. After the installation, open a new console window to recognize the configuration changes made by the setup script. Use this console to complete the remaining programming tasks in the tutorial. You can use Windows CMD, Powershell, or Git Bash for Windows.
 1. Run the following code to confirm that CMake version 3.14 or later is installed.
 
-    ```
+    ```c
     cmake --version
     ```
 
