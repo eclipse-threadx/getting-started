@@ -15,8 +15,8 @@ if NOT %errorLevel% == 0 (
 
 echo.
 
-set cmake_path=https://github.com/Kitware/CMake/releases/download/v3.18.0/
-set cmake_file=cmake-3.18.0-win32-x86.msi
+set cmake_path=https://github.com/Kitware/CMake/releases/download/v3.18.1/
+set cmake_file=cmake-3.18.1-win32-x86.msi
 
 set gccarm_path=https://developer.arm.com/-/media/Files/downloads/gnu-rm/9-2019q4/
 set gccarm_file=gcc-arm-none-eabi-9-2019-q4-major-win32-sha2.exe
@@ -27,8 +27,8 @@ set ninja_file=ninja-win.zip
 set termite_path=https://www.compuphase.com/software/
 set termite_file=termite-3.4.exe
 
-set iot_explorer_path=https://github.com/Azure/azure-iot-explorer/releases/download/v0.11.1/
-set iot_explorer_file=Azure.IoT.Explorer.preview.0.11.1.msi
+set iot_explorer_path=https://github.com/Azure/azure-iot-explorer/releases/download/v0.11.2/
+set iot_explorer_file=Azure.IoT.Explorer.preview.0.11.2.msi
 
 echo Downloading CMake...
 powershell (New-Object Net.WebClient).DownloadFile('%cmake_path%%cmake_file%', '%TEMP%\%cmake_file%')
@@ -42,7 +42,7 @@ powershell (New-Object Net.WebClient).DownloadFile('%ninja_path%%ninja_file%', '
 echo Downloading Termite...
 powershell (New-Object Net.WebClient).DownloadFile('%termite_path%%termite_file%', '%TEMP%\%termite_file%')
 
-echo Downloading IoT Explorer...
+echo Downloading Azure IoT Explorer...
 powershell (New-Object Net.WebClient).DownloadFile('%iot_explorer_path%%iot_explorer_file%', '%TEMP%\%iot_explorer_file%')
 
 echo.
@@ -65,7 +65,7 @@ echo Installing IoT Explorer...
 "%TEMP%\%iot_explorer_file%" /passive
 
 echo.
-echo Installation complete! Successfully installed CMake, GCC-ARM, Ninja and Termite.
+echo Installation complete! Successfully installed CMake, GCC-ARM, Ninja, Termite & Azure IoT Explorer.
 echo.
 
 :finish
