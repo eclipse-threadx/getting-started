@@ -47,7 +47,7 @@ Clone the following repo to download all sample device code, setup scripts, and 
 
 To clone the repo, run the following command:
 
-```
+```bash
 git clone --recursive https://github.com/azure-rtos/getting-started
 ```
 
@@ -68,10 +68,12 @@ To run the setup script:
 
     > *getting-started\tools\get-toolchain.bat*
 
+    After the installation completes, the Azure IoT Explorer opens automatically. Keep the IoT Explorer open, you'll use it in later steps.
+
 1. After the installation, open a new console window to recognize the configuration changes made by the setup script. Use this console to complete the remaining programming tasks in the tutorial. You can use Windows CMD, Powershell, or Git Bash for Windows.
 1. Run the following code to confirm that CMake version 3.14 or later is installed.
 
-    ```
+    ```c
     cmake --version
     ```
 
@@ -221,13 +223,13 @@ After the build completes, confirm that a binary file was created in the followi
 1. Use the *atprogram* utility to flash the Microchip E54 with the binary image:
     > Note: For more details about using the Atmel-ICE and *atprogram* tools with the Microchip E54, see [Using Atmel-ICE for AVR Programming In Mass Production](http://ww1.microchip.com/downloads/en/AppNotes/00002466A.pdf).
 
-    ```
+    ```console
     atprogram --tool edbg --interface SWD --device ATSAME54P20A program --chiperase --file atsame54_azure_iot.bin --verify
     ```
 
     After the flashing process completes, the console confirms that programming was successful:
 
-    ```
+    ```output
     Firmware check OK
     Programming and verification completed successfully.
     ```
@@ -258,7 +260,7 @@ You can use the **Termite** utility to monitor communication and confirm that yo
 
     The Termite terminal shows the details about the device, your connection, and the checkpoint values.
 
-    ```
+    ```output
     Starting Azure thread
     Initializing DHCP
     	IP address: 192.168.1.132
@@ -400,7 +402,7 @@ To use Azure CLI to call a method:
 
 1. View the Termite terminal to confirm the output messages:
 
-    ```json
+    ```output
     Received direct method=setLedState, id=1, message=true
     LED is turned ON
     Sending device twin update with bool value
