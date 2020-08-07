@@ -46,7 +46,7 @@ Clone the following repo to download all sample device code, setup scripts, and 
 
 To clone the repo, run the following command:
 
-```bash
+```shell
 git clone --recursive https://github.com/azure-rtos/getting-started
 ```
 
@@ -72,7 +72,7 @@ To run the setup script:
 1. After the installation, open a new console window to recognize the configuration changes made by the setup script. Use this console to complete the remaining programming tasks in the tutorial. You can use Windows CMD, Powershell, or Git Bash for Windows.
 1. Run the following code to confirm that CMake version 3.14 or later is installed.
 
-    ```c
+    ```shell
     cmake --version
     ```
 
@@ -103,14 +103,14 @@ To create an IoT hub:
 
 1. In your CLI console, run the [az extension add](https://docs.microsoft.com/cli/azure/extension?view=azure-cli-latest#az-extension-add) command to add the Microsoft Azure IoT Extension for Azure CLI to your CLI shell. The IOT Extension adds IoT Hub, IoT Edge, and IoT Device Provisioning Service (DPS) specific commands to Azure CLI.
 
-   ```azurecli
+   ```shell
    az extension add --name azure-iot
    ```
 
 1. Run the [az group create](https://docs.microsoft.com/cli/azure/group?view=azure-cli-latest#az-group-create) command to create a resource group. The following command creates a resource group named *MyResourceGroup* in the *eastus* region.
     > Note: Optionally, to set an alternate `location`, run [az account list-locations](https://docs.microsoft.com/cli/azure/account?view=azure-cli-latest#az-account-list-locations) to see available locations. Then specify the alternate location in the following command in place of *eastus*.
 
-    ```azurecli
+    ```shell
     az group create --name MyResourceGroup --location eastus
     ```
 
@@ -118,7 +118,7 @@ To create an IoT hub:
 
     *YourIotHubName*. Replace this placeholder below with the name you chose for your IoT hub. An IoT hub name must be globally unique in Azure. This placeholder is used in the rest of this tutorial to represent your unique IoT hub name.
 
-    ```azurecli
+    ```shell
     az iot hub create --resource-group MyResourceGroup --name {YourIoTHubName}
     ```
 
@@ -138,7 +138,7 @@ To register a device:
 
     *MySTMDevice*. You can use this name directly for the device in CLI commands in this tutorial. Optionally, use a different name.
 
-    ```azurecli
+    ```shell
     az iot hub device-identity create --device-id MySTMDevice --hub-name {YourIoTHubName}
     ```
 
@@ -257,7 +257,7 @@ To add a connection to your IoT hub:
 
 1. In your CLI console, run the [az iot hub show-connection-string](https://docs.microsoft.com/en-us/cli/azure/iot/hub?view=azure-cli-latest#az-iot-hub-show-connection-string) command to get the connection string for your IoT hub.
 
-    ```azurecli
+    ```shell
     az iot hub show-connection-string --name {YourIoTHubName}
     ```
 
@@ -282,7 +282,7 @@ To use Azure CLI to view device properties:
 
 1. Run the [az iot hub device-identity show](https://docs.microsoft.com/en-us/cli/azure/ext/azure-iot/iot/hub/device-identity?view=azure-cli-latest#ext-azure-iot-az-iot-hub-device-identity-show) command.
 
-    ```azurecli
+    ```shell
     az iot hub device-identity show --device-id MySTMDevice --hub-name {YourIoTHubName}
     ```
 1. Inspect the properties for your device in the console output.
@@ -307,7 +307,7 @@ To use Azure CLI to view device telemetry:
 
 1. In your CLI console, run the [az iot hub monitor-events](https://docs.microsoft.com/en-us/cli/azure/ext/azure-iot/iot/hub?view=azure-cli-latest#ext-azure-iot-az-iot-hub-monitor-events) command. Use the names that you created previously in Azure IoT for your device and IoT hub.
 
-    ```azurecli
+    ```shell
     az iot hub monitor-events --device-id MySTMDevice --hub-name {YourIoTHubName}
     ```
 1. View the JSON output in the console.
@@ -360,7 +360,7 @@ To use Azure CLI to call a method:
 
 1. View the Termite terminal to confirm the output messages:
 
-    ```json
+    ```
     Received direct method=setLedState, id=1, message=true
     LED is turned ON
     Sending device twin update with bool value
@@ -379,13 +379,13 @@ If you continue to another tutorial in this getting started guide, you can keep 
 To delete a resource group by name:
 1. Run the [az group delete](https://docs.microsoft.com/cli/azure/group?view=azure-cli-latest#az-group-delete) command. This removes the resource group, the IoT Hub, and the device registration you created.
 
-    ```azurecli
+    ```shell
     az group delete --name MyResourceGroup
     ```
 
 1. Run the [az group list](https://docs.microsoft.com/cli/azure/group?view=azure-cli-latest#az-group-list) command to confirm the resource group is deleted.  
 
-    ```azurecli
+    ```shell
     az group list
     ```
 
