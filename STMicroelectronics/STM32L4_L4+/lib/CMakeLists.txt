@@ -26,6 +26,7 @@ add_subdirectory(netxduo)
 
 add_subdirectory(stm32cubel4)
 add_subdirectory(netx_driver)
+add_subdirectory(device_config)
 
 # Bind the nx_cloud preview include into the existing netxduo
 target_include_directories(netxduo 
