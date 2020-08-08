@@ -13,6 +13,7 @@
 #include "nx_client.h"
 
 #include "azure_config.h"
+#include "device_config.h"
 
 #define AZURE_THREAD_STACK_SIZE 4096
 #define AZURE_THREAD_PRIORITY   4

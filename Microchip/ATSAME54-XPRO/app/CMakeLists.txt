@@ -27,6 +27,7 @@ target_link_libraries(${PROJECT_NAME}
         app_common
         jsmn
         netxdriver
+        device_config
 )
 
 target_link_options(${PROJECT_NAME}

@@ -30,3 +30,4 @@ target_include_directories(netxduo
 
 add_subdirectory(netx_driver)
 add_subdirectory(atmel_start)
+add_subdirectory(device_config)
