@@ -15,6 +15,10 @@ set(SOURCES
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})
+target_include_directories(${PROJECT_NAME} 
+    PUBLIC 
+        lib/device_config
+)
 
 target_link_libraries(${PROJECT_NAME}
     PUBLIC
@@ -29,6 +33,7 @@ target_link_libraries(${PROJECT_NAME}
         netxdriver
         device_config
 )
+
 
 target_link_options(${PROJECT_NAME}
     PRIVATE 
