@@ -2,7 +2,7 @@
 # Licensed under the MIT License.
 
 set(SOURCES
-    device_config.C
+    device_config.c
 )
 
 set(TARGET device_config)
@@ -14,6 +14,5 @@ add_library(${TARGET} OBJECT
 target_link_libraries(${TARGET}
     PUBLIC
         azrtos::threadx
-        azrtos::netxduo
         stm32cubel4
 )

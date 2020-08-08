@@ -28,12 +28,14 @@ function(create_target TARGET STARTUP LINKER)
         azrtos::nx_cloud
         azrtos::azure_iot
 
+        device_config
         stm32cubel4
         netx_driver
         app_common
         jsmn
-	device_config
     )
+
+
 
     target_link_options(${TARGET}
         PUBLIC 

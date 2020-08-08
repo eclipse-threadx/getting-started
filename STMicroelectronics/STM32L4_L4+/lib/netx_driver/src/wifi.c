@@ -613,4 +613,44 @@ WIFI_Status_t WIFI_GetModuleName(char *ModuleName)
   }
   return ret;
 }
+
+WIFI_Status_t WIFI_GetNetworkSettings(void) 
+{
+  WIFI_Status_t ret = WIFI_STATUS_ERROR;
+  if (ES_WIFI_GetNetworkSettings(&EsWifiObj) == ES_WIFI_STATUS_OK) {
+    ret = WIFI_STATUS_OK;
+  }
+  return ret;
+}
+
+WIFI_Status_t WIFI_GetSSID(char *ssid) 
+{
+  WIFI_Status_t ret = WIFI_STATUS_ERROR;
+
+  if (EsWifiObj.NetSettings.SSID != NULL) {
+    strncpy(ssid, (char *)EsWifiObj.NetSettings.SSID,
+            ES_WIFI_MAX_SSID_NAME_SIZE + 1);
+    ret = WIFI_STATUS_OK;
+  }
+  return ret;
+}
+
+WIFI_Status_t WIFI_GetPSWD(char *pswd) 
+{
+  WIFI_Status_t ret = WIFI_STATUS_ERROR;
+
+  if (EsWifiObj.NetSettings.pswd != NULL) {
+    strncpy(pswd, (char *)EsWifiObj.NetSettings.pswd,
+            ES_WIFI_MAX_PSWD_NAME_SIZE + 1);
+    ret = WIFI_STATUS_OK;
+  }
+  return ret;
+}
+
+WIFI_Status_t WIFI_GetSecurityMode(uint8_t mode) 
+{
+  mode = EsWifiObj.NetSettings.Security;
+
+  return WIFI_STATUS_OK;
+}
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
