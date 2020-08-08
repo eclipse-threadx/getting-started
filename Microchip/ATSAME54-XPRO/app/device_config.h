@@ -1,6 +1,9 @@
 /* Copyright (c) Microsoft Corporation.
    Licensed under the MIT License. */
 
+#ifndef _DEVICE_CONFIG_H
+#define _DEVICE_CONFIG_H
+
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -50,3 +53,5 @@ FLASH_Status_t erase_flash(void);
 
 /* Read Azure IoT credentials from flash */
 FLASH_Status_t read_flash(DevConfig_IoT_Info_t* info);
+
+#endif // _DEVICE_CONFIG_H
