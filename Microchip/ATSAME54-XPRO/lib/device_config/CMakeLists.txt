@@ -11,6 +11,11 @@ add_library(${TARGET} OBJECT
     ${SOURCES}
 )
 
+target_include_directories(${TARGET}
+    PUBLIC 
+        ./
+)
+
 target_link_libraries(${TARGET}
     PUBLIC
         azrtos::threadx
