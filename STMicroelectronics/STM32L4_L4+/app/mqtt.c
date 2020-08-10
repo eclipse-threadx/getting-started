@@ -120,16 +120,28 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
         return status;
     }
 
+    // Read IoTHub credentials from flash
+    DevConfig_IoT_Info_t device_info;
+    status = read_flash(&device_info);
+    if (status != STATUS_OK) 
+    {
+      printf("Unable to read credentials from flash.\n");
+      return status;
+    }
+
     // Create Azure MQTT
     status = azure_iot_mqtt_create(&azure_iot_mqtt,
         ip_ptr,
         pool_ptr,
         dns_ptr,
         sntp_time_get,
-        IOT_HUB_HOSTNAME,
-        IOT_DEVICE_ID,
-        IOT_PRIMARY_KEY,
+        device_info.hostname,
+        device_info.device_id,
+        device_info.primary_key,
         IOT_MODEL_ID);
+//    status = azure_iot_mqtt_create(
+//        &azure_iot_mqtt, ip_ptr, pool_ptr, dns_ptr, sntp_time_get,
+//        IOT_HUB_HOSTNAME, IOT_DEVICE_ID, IOT_PRIMARY_KEY, IOT_MODEL_ID);   
     if (status != NXD_MQTT_SUCCESS)
     {
         printf("Error: Failed to create Azure MQTT (0x%02x)\r\n", status);
