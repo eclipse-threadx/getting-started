@@ -7,7 +7,8 @@ products:
 - azure-iot-hub
 - azure-iot-pnp
 - azure-rtos
-- device
+target:
+- embedded
 ---
 
 # Getting started with the MXChip AZ3166 IoT DevKit
