@@ -32,9 +32,15 @@ void azure_thread_entry(ULONG parameter)
 
     // Initialize the network
 
-    if (!wifi_init(WIFI_SSID, WIFI_PASSWORD, WIFI_MODE)) 
+    //    if (!wifi_init(WIFI_SSID, WIFI_PASSWORD, WIFI_MODE))
+    //    {
+    //      printf("Error initializing wifi");
+    //    }
+    WiFi_Info_t softAP_wifi;
+
+    if (wifi_softAP_init(&softAP_wifi)) 
     {
-      printf("Error initializing wifi");
+        printf("Initialized wifi connection with SoftAP. SSID: %s\n", softAP_wifi.SSID);
     }
 
     if (stm32_network_init() != NX_SUCCESS)

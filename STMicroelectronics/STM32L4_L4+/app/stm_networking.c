@@ -64,67 +64,67 @@ static void checkWifiVersion()
 }
 
 bool wifi_softAP_init(WiFi_Info_t *wifi) {
-  printf("Initializing WiFi SoftAP\r\n");
+    printf("Initializing WiFi SoftAP\r\n");
 
-  if (WIFI_Init() != WIFI_STATUS_OK) {
-    printf("ERROR: Failed to initialize WIFI module\r\n");
-    return false;
-  }
+    if (WIFI_Init() != WIFI_STATUS_OK) {
+        printf("ERROR: Failed to initialize WIFI module\r\n");
+        return false;
+    }
 
-  checkWifiVersion();
+    checkWifiVersion();
 
-  // SoftAP configuration
-  u_char ap_ssid[] = "ST_AP_Test";
-  u_char ap_pw[] = "password";
+    // SoftAP configuration
+    u_char ap_ssid[] = "ST_AP_Test";
+    u_char ap_pw[] = "password";
 
-  printf("Enabling WiFi SoftAP Function:\n Please connect to %s network on "
-         "your computer with password %s\n",
-         ap_ssid, ap_pw);
-  printf("Please visit http://192.168.10.1/ and follow onscreen instructions "
-         "to connect to your local WiFi network. \n");
+    printf("Enabling WiFi SoftAP Function:\n Please connect to %s network on "
+            "your computer with password %s\n",
+            ap_ssid, ap_pw);
+    printf("Please visit http://192.168.10.1/ and follow onscreen instructions "
+            "to connect to your local WiFi network. \n");
 
-  if (WIFI_ConfigureAP(ap_ssid, ap_pw, WIFI_ECN_OPEN, 1, 4) != WIFI_STATUS_OK) {
-    printf("Error: Wifi configAP error \n");
-    __BKPT(0);
-    return false;
-  }
+    if (WIFI_ConfigureAP(ap_ssid, ap_pw, WIFI_ECN_OPEN, 1, 4) != WIFI_STATUS_OK) {
+        printf("Error: Wifi configAP error \n");
+        __BKPT(0);
+        return false;
+    }
 
-  if (WIFI_GetNetworkSettings() != WIFI_STATUS_OK) {
-    printf("Error: Cannot get network settings \n");
-    __BKPT(0);
-    return false;
-  }
+    if (WIFI_GetNetworkSettings() != WIFI_STATUS_OK) {
+        printf("Error: Cannot get network settings \n");
+        __BKPT(0);
+        return false;
+    }
 
-  printf("Initializing DHCP\r\n");
+    printf("Initializing DHCP\r\n");
 
-  uint8_t ip_address[4];
-  if (WIFI_GetIP_Address(ip_address) != WIFI_STATUS_OK) {
-    return false;
-  }
+    uint8_t ip_address[4];
+    if (WIFI_GetIP_Address(ip_address) != WIFI_STATUS_OK) {
+        return false;
+    }
 
-  uint8_t gateway_address[4];
-  if (WIFI_GetGateway_Address(gateway_address) != WIFI_STATUS_OK) {
-    return false;
-  }
+    uint8_t gateway_address[4];
+    if (WIFI_GetGateway_Address(gateway_address) != WIFI_STATUS_OK) {
+        return false;
+    }
 
-  // Output IP address and gateway address
-  print_address("IP address", ip_address);
-  print_address("Gateway", gateway_address);
+    // Output IP address and gateway address
+    print_address("IP address", ip_address);
+    print_address("Gateway", gateway_address);
 
-  printf("SUCCESS: DHCP initialized\r\n\r\n");
+    printf("SUCCESS: DHCP initialized\r\n\r\n");
 
-  // Store WiFi credentials into struct
-  if (WIFI_GetSSID(wifi->SSID) != WIFI_STATUS_OK) {
-    return false;
-  }
-  if (WIFI_GetPSWD(wifi->pswd) != WIFI_STATUS_OK) {
-    return false;
-  }
-  if (WIFI_GetSecurityMode(wifi->Security) != WIFI_STATUS_OK) {
-    return false;
-  }
+    // Store WiFi credentials into struct
+    if (WIFI_GetSSID(wifi->SSID) != WIFI_STATUS_OK) {
+        return false;
+    }
+    if (WIFI_GetPSWD(wifi->pswd) != WIFI_STATUS_OK) {
+        return false;
+    }
+    if (WIFI_GetSecurityMode(wifi->Security) != WIFI_STATUS_OK) {
+        return false;
+    }
 
-  return true;
+    return true;
 }
 
 bool wifi_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
