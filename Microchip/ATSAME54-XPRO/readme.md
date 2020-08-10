@@ -7,8 +7,6 @@ products:
 - azure-iot-hub
 - azure-iot-pnp
 - azure-rtos
-target:
-- embedded
 ---
 
 <h1>Getting started with the Microchip ATSAME54-XPro evaluation kit</h1>
