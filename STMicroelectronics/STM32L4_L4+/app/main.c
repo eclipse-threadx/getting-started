@@ -35,26 +35,36 @@ void azure_thread_entry(ULONG parameter)
     {
         if(read_flash(&device_info) == STATUS_OK)
         {
-            printf("\nCurrently device %s is connected to %s. \n", device_info.device_id, device_info.hostname);
+            printf("Currently device %s is connected to %s. \n", device_info.device_id, device_info.hostname);
         }
         else
         {
             printf("\nError reading from flash\n");
         }
-        
-        // Start menu option
-        int menu_option;
-        printf("Press 0: Continue .\r\nPress 1: Erase credentials/Reset Flash .\r\n");
 
-        if (scanf("%d", &menu_option) == 0)
+        // Start menu option
+        int menu_option, rc;
+        printf("Enter 0 - Continue\nEnter 1 - Erase/Reset flash\n");
+        while (1)
         {
-            /* Not valid input, flush stdin */
-            fflush(stdin);
+            while ((rc = scanf("%d", &menu_option)) == 0) 
+            {
+                scanf("%*[^\n]");
+                printf("Invalid input.\nEnter 0 - Continue\nEnter 1 - Erase/Reset flash\n");
+                fflush(stdin);
+            }
+            if (menu_option == 1) {
+              if (erase_flash() == STATUS_OK) {
+                printf("Successfully erased flash.\n");
+                break;
+              }
+            } else if (menu_option == 0) {
+                break;
+            }
+            printf("Invalid input.\nEnter 0 - Continue\nEnter 1 - "
+                   "Erase/Reset flash\n");
         }
-        if (menu_option == 1)
-        {
-            erase_flash();
-        }
+        
     }
 
     char hostname[MAX_HOSTNAME_LEN] = ""; 
