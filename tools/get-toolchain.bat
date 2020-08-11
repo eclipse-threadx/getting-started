@@ -31,19 +31,19 @@ set iot_explorer_path=https://github.com/Azure/azure-iot-explorer/releases/downl
 set iot_explorer_file=Azure.IoT.Explorer.preview.0.11.2.msi
 
 echo Downloading packages...
-echo (1/5) CMake...
+echo (1/5) CMake v3.18.1
 powershell (New-Object Net.WebClient).DownloadFile('%cmake_path%%cmake_file%', '%TEMP%\%cmake_file%')
 
-echo (2/5) GCC-ARM...
+echo (2/5) GCC-ARM 9-2019q4-major
 powershell (New-Object Net.WebClient).DownloadFile('%gccarm_path%%gccarm_file%', '%TEMP%\%gccarm_file%')
 
-echo (3/5) Ninja...
+echo (3/5) Ninja v1.10.0
 powershell (New-Object Net.WebClient).DownloadFile('%ninja_path%%ninja_file%', '%TEMP%\%ninja_file%')
 
-echo (4/5) Termite...
+echo (4/5) Termite v3.4
 powershell (New-Object Net.WebClient).DownloadFile('%termite_path%%termite_file%', '%TEMP%\%termite_file%')
 
-echo (5/5) Azure IoT Explorer...
+echo (5/5) Azure IoT Explorer v0.11.2
 powershell (New-Object Net.WebClient).DownloadFile('%iot_explorer_path%%iot_explorer_file%', '%TEMP%\%iot_explorer_file%')
 
 echo.
