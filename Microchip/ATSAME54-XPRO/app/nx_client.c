@@ -127,7 +127,7 @@ static void device_twin_thread_entry(ULONG parameter)
     nx_packet_release(packet_ptr);
 
     // Update the cloud with device state
-    azure_iot_nx_client_publish_int_desired_property(
+    azure_nx_client_publish_int_desired_property(
         &azure_iot_nx_client, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
 
     while (true)

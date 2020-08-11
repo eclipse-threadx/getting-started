@@ -366,36 +366,6 @@ UINT azure_iot_nx_client_publish_bool_property(AZURE_IOT_NX_CLIENT* azure_iot_nx
     return NX_SUCCESS;
 }
 
-UINT azure_iot_nx_client_publish_int_desired_property(AZURE_IOT_NX_CLIENT* azure_iot_nx_client, CHAR* label, UINT value)
-{
-    UINT status;
-    UINT response_status;
-    UINT request_id;
-    CHAR message[100];
-
-    snprintf(message, sizeof(message), "{\"%s\":{\"value\":%d,\"ac\":200,\"av\":1}}", label, value);
-
-    if ((status = nx_azure_iot_hub_client_device_twin_reported_properties_send(&azure_iot_nx_client->iothub_client,
-             (UCHAR*)message,
-             strlen(message),
-             &request_id,
-             &response_status,
-             NX_WAIT_FOREVER)))
-    {
-        printf("Device twin reported properties failed!: error code = 0x%08x\r\n", status);
-    }
-
-    if ((response_status < 200) || (response_status >= 300))
-    {
-        printf("device twin report properties failed with code : %d\r\n", response_status);
-        return status;
-    }
-
-    printf("Reported desired property with int value %s\r\n", message);
-
-    return status;
-}
-
 UINT azure_nx_client_respond_int_desired_property(
     AZURE_IOT_NX_CLIENT* azure_iot_nx_client, CHAR* label, INT value, UINT http_status, UINT version)
 {
@@ -427,6 +397,11 @@ UINT azure_nx_client_respond_int_desired_property(
     printf("Reported desired property with int value %s\r\n", message);
 
     return status;
+}
+
+UINT azure_nx_client_publish_int_desired_property(AZURE_IOT_NX_CLIENT* azure_iot_nx_client, CHAR* label, UINT value)
+{
+    return azure_nx_client_respond_int_desired_property(azure_iot_nx_client, label, value, 200, 1);
 }
 
 VOID printf_packet(NX_PACKET* packet_ptr)
