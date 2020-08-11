@@ -112,7 +112,7 @@ void azure_thread_entry(ULONG parameter)
         strcpy(device_info.primary_key, primary_key);
         
                     
-        if (save_to_flash(&device_info))
+        if (save_to_flash(&device_info) == STATUS_OK)
         {
             printf("Successfully saved credentials to flash. \n\n");
         }
