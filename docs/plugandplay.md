@@ -12,7 +12,7 @@
 Link to top level index page that links to the 4 GSG's as they need to complete many steps there first in case they land here.
 
 ## Setup
-I chatted with Stefan and he has added the model to his private repo, and he said he would look into making this a public model after his review with Cameron, however they are still deciding how to stop the model repository being polluted with sample models.
+Reviewing whether the model will be in the public repository or will be used locally, TBD.
 
 1. Make sure the device is flashed and booted up and connected to Azure IoT Hub
 1. Choose your hub and device
