@@ -61,8 +61,7 @@ void azure_thread_entry(ULONG parameter)
             } else if (menu_option == 0) {
                 break;
             }
-            printf("Invalid input.\nEnter 0 - Continue\nEnter 1 - "
-                   "Erase/Reset flash\n");
+            printf("Invalid input.\nEnter 0 - Continue\nEnter 1 - Erase/Reset flash\n");
         }
         
     }
