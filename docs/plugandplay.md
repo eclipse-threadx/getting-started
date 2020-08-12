@@ -3,10 +3,10 @@
 * The user needs to deploy their hub into US-Central as this contains the PNP code.
 
 ## Introduction
-Provide context: Brief intro on why we are implementing PNP
-Pointer to PNP docs for more details
-    https://docs.microsoft.com/en-us/azure/iot-pnp/
-This is a companion document to the GSG
+* Provide context: Brief intro on why we are implementing PNP
+* Pointer to PNP docs for more details
+   * https://docs.microsoft.com/en-us/azure/iot-pnp/
+* This is a companion document to the GSG
 
 ## Prerequisites
 Link to top level index page that links to the 4 GSG's as they need to complete many steps there first in case they land here.
