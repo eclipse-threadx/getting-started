@@ -22,7 +22,7 @@
 
 #include "azure_config.h"
 
-#define IOT_MODEL_ID "dtmi:microsoft:gsg;1"
+#define IOT_MODEL_ID "dtmi:com:examples:gsg;1"
 
 #define TELEMETRY_INTERVAL_EVENT 1
 
