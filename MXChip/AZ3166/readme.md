@@ -7,7 +7,6 @@ products:
 - azure-iot-hub
 - azure-iot-pnp
 - azure-rtos
-- device
 ---
 
 # Getting started with the MXChip AZ3166 IoT DevKit
@@ -24,7 +23,7 @@ You will complete the following tasks:
 * Use Azure IoT Explorer to view device telemetry, view properties, and call cloud-to-device (c2d) methods
 * Use VS Code, OpenOCD and GDB to debug the firmware
 
-## Prerequistes
+## Prerequisites
 
 * A PC running Microsoft Windows (Windows 10 recommended)
 * If you don't have an Azure subscription, [create one for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F) before you begin.

@@ -7,7 +7,6 @@ products:
 - azure-iot-hub
 - azure-iot-pnp
 - azure-rtos
-- device
 ---
 
 <h1>Getting started with the NXP MIMXRT1060-EVK Evaluation kit</h1>

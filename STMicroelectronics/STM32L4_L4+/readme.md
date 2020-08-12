@@ -7,7 +7,6 @@ products:
 - azure-iot-hub
 - azure-iot-pnp
 - azure-rtos
-- device
 ---
 
 <h1>Getting started with the STMicroelectronics B-L475E-IOT01A / B-L4S5I-IOTOA1 Discovery kits</h1>
