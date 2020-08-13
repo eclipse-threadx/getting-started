@@ -202,7 +202,7 @@ You can use the **Termite** utility to monitor communication and confirm that yo
 
     ![SoftAP Website](media/softap-website.png)
 
-    ![SoftAP Confirm](media/softap-confirm.png)
+    ![SoftAP Confirm](media/softap-confirm.PNG)
 
 1. In the **Termite** console, check the following checkpoint values to confirm that the device is initialized and connected to Azure IoT.
 
@@ -239,6 +239,9 @@ You can use the **Termite** utility to monitor communication and confirm that yo
     ```
 
     > **Important**: If the DNS client initialization fails and notifies you that the Wi-Fi firmware is out of date, you'll need to update the Wi-Fi module firmware. Download and install the [Inventek ISM 43362 Wi-Fi module firmware update](https://www.st.com/content/ccc/resource/technical/binary_resources/utilities/group0/7d/0b/be/f2/6a/51/4f/a2/inventek_fw_updater/files/inventek_fw_updater.zip/jcr:content/translations/en.inventek_fw_updater.zip). Then press the **Reset** button on the device to recheck your connection, and continue this tutorial.
+
+1. Use the reset button to run the sample again, you should see the Azure IoT device information pop up again with a choice to continue or enter new credentials. Choose to continue with the rest of the sample. You will need to use softAP to connect the device to WiFi again. 
+    ![Device Config Reset](media/reset-prompt.png)
 
 Keep Termite open to monitor device output in subsequent steps.
 
