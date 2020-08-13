@@ -3,16 +3,16 @@
 * The user needs to deploy their hub into US-Central as this contains the PNP code.
 
 ## Introduction
-Provide context: Brief intro on why we are implementing PNP
-Pointer to PNP docs for more details
-    https://docs.microsoft.com/en-us/azure/iot-pnp/
-This is a companion document to the GSG
+* Provide context: Brief intro on why we are implementing PNP
+* Pointer to PNP docs for more details
+   * https://docs.microsoft.com/en-us/azure/iot-pnp/
+* This is a companion document to the GSG
 
 ## Prerequisites
 Link to top level index page that links to the 4 GSG's as they need to complete many steps there first in case they land here.
 
 ## Setup
-I chatted with Stefan and he has added the model to his private repo, and he said he would look into making this a public model after his review with Cameron, however they are still deciding how to stop the model repository being polluted with sample models.
+Reviewing whether the model will be in the public repository or will be used locally, TBD.
 
 1. Make sure the device is flashed and booted up and connected to Azure IoT Hub
 1. Choose your hub and device
