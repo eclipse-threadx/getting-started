@@ -198,10 +198,10 @@ You can use the **Termite** utility to monitor communication and confirm that yo
 1. The next step is to connect your laptop to the temporary WiFi hotspot the dev board has created. Connect to the **ST_AP_Test** network and enter in the password **password**
 
     ![SoftAP Hotspot](media/hotspot.png)
-1. Use your browser of choice, go to address **http://192.168.10.1/**. It might take a couple seconds to load. **Make sure the page fully loads before continuing.**
+1. Use your browser of choice, go to address **http://192.168.10.1/**. It might take a couple seconds to load. **Make sure the page fully loads before continuing.**. Return to the serial terminal after connection.
 
     ![SoftAP Website](media/softap-website.png)
-    
+
     ![SoftAP Confirm](media/softap-confirm.png)
 
 1. In the **Termite** console, check the following checkpoint values to confirm that the device is initialized and connected to Azure IoT.
