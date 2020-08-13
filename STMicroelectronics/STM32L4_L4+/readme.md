@@ -193,12 +193,16 @@ You can use the **Termite** utility to monitor communication and confirm that yo
 1. Select OK.
 1. Press the **Reset** button on the device. The button is black and is labeled on the device.
 1. In the **Termite** console, you should see serial prompt asking for Azure IoT device information. Use the information you saved from earlier and choose to store these credentials safely in flash. 
+
     ![SoftAP Terminal](media/stml4-serial-prompt.png)
 1. The next step is to connect your laptop to the temporary WiFi hotspot the dev board has created. Connect to the **ST_AP_Test** network and enter in the password **password**
+
     ![SoftAP Hotspot](media/hotspot.png)
 1. Use your browser of choice, go to address **http://192.168.10.1/**. It might take a couple seconds to load. **Make sure the page fully loads before continuing.**
+
     ![SoftAP Website](media/softap-website.png)
-    ![SoftAP Confirm](media/softap-confirm)
+    
+    ![SoftAP Confirm](media/softap-confirm.png)
 
 1. In the **Termite** console, check the following checkpoint values to confirm that the device is initialized and connected to Azure IoT.
 
