@@ -73,6 +73,7 @@ void azure_thread_entry(ULONG parameter)
 			fflush(stdin);
 			continue;
 		}
+		printf(hostname);
 		
 		printf("Please enter your IoTHub device ID: \n");
 		if (scanf("%s", device_id) == 0) {

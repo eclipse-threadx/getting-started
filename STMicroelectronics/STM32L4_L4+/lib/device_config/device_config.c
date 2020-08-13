@@ -107,45 +107,15 @@ FLASH_Status_t read_flash_ST(uint8_t* data)
     return STATUS_OK;
 }
 
-
-//FLASH_Status_t save_to_flash(char *hostname, char *device_id, char* primary_key)
-//{
-//	FLASH_Status_t status = SAVE_STATUS_ERROR;
-//	
-//	const char *format = "hostname=%s device_id=%s primary_key=%s";
-//	
-//	char writeData[MAX_READ_BUFF] = { 0 };
-//	
-//	// Create credential string using format string
-//	if(sprintf(writeData, format, hostname, device_id, primary_key) < 0)
-//	{
-//		printf("Error parsing credentials to store. \n");
-//		return SAVE_STATUS_ERROR;
-//	}
-//	
-//	 Call device specific implementation of FLASH storage
-//	status = save_to_flash_ST((uint8_t *)(writeData));
-//	
-//	return status;
-//
-//}
-
 FLASH_Status_t save_to_flash(DevConfig_IoT_Info_t* info)
 {
     FLASH_Status_t status = SAVE_STATUS_ERROR;
 
     const char *format = "hostname=%s device_id=%s primary_key=%s";
-    //    const char *format = "hostname=%s device_id=%s primary_key=%s ssid=%s pw=%s mode=%d";
     
     char writeData[MAX_READ_BUFF] = { 0 };
     
     // Create credential string using format string
-//    if(sprintf(writeData, format, info->hostname, info->device_id, info->primary_key, info->wifi_info.SSID, info->wifi_info.pswd, info->wifi_info.Security) < 0)
-//    {
-//        printf("Error parsing credentials to store. \n");
-//        return SAVE_STATUS_ERROR;
-//    }
-
     if (sprintf(writeData, format, info->hostname, info->device_id, info->primary_key) < 0) 
     {
         printf("Error parsing credentials to store. \n");
@@ -167,26 +137,16 @@ FLASH_Status_t read_flash(DevConfig_IoT_Info_t* info)
     char readData[MAX_READ_BUFF] = { 0 };
 
     const char *format = "hostname=%s device_id=%s primary_key=%s"; 
-//    const char *format = "hostname=%s device_id=%s primary_key=%s ssid=%s pw=%s mode=%d";
-
 
     // Call MCU specific flash reading function
     status = read_flash_ST((uint8_t*)(readData));
-    
-    WiFi_Info_t softAP_wifi;
-
-    // Parse credentials from string
-//    if(sscanf(readData, format, info->hostname, info->device_id, info->primary_key, softAP_wifi.SSID, softAP_wifi.pswd, softAP_wifi.Security) < 0)
-//    {
-//        status = READ_STATUS_FLASH_ERROR;
-//    }
     
     if(sscanf(readData, format, info->hostname, info->device_id, info->primary_key) < 0)
     {
         status = READ_STATUS_FLASH_ERROR;
     }
     
-    info->wifi_info = softAP_wifi;
+    // info->wifi_info = softAP_wifi;
     
     return status;
 }

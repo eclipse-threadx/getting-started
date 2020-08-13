@@ -151,25 +151,7 @@ Confirm that you have the copied the following values from the JSON output to us
 
 ## Prepare the device
 
-To connect the STM DevKit to Azure, you'll modify a configuration file for Wi-Fi and Azure IoT settings, rebuild the image, and flash the image to the device.
-
-### Add configuration
-
-1. In a text editor, edit the file *getting-started\STMicroelectronics\STM32L4_L4+\app\azure_config.h* to set the Wi-Fi constants to the following values from your local environment.
-
-    |Constant name|Value|
-    |-------------|-----|
-    |`WIFI_SSID` |{*Your Wi-Fi ssid*}|
-    |`WIFI_PASSWORD` |{*Your Wi-Fi password*}|
-    |`WIFI_MODE` |{*One of the enumerated Wi-Fi mode values in the file.*}|
-
-1. Edit the same file to set the Azure IoT device information constants to the values that you saved after you created Azure resources.
-
-    |Constant name|Value|
-    |-------------|-----|
-    |`IOT_HUB_HOSTNAME` |{*Your Iot hub hostName value*}|
-    |`IOT_DEVICE_ID` |{*Your deviceID value*}|
-    |`IOT_PRIMARY_KEY` |{*Your primaryKey value*}|
+To connect the STM DevKit to Azure, you'll build the image, flash the image to the device, and configure Wi-Fi via a temporary access point and enter Azure IoT settings during runtime.
 
 ### Build the image
 
@@ -210,6 +192,8 @@ You can use the **Termite** utility to monitor communication and confirm that yo
     ![Termite settings](media/termite-settings.png)
 1. Select OK.
 1. Press the **Reset** button on the device. The button is black and is labeled on the device.
+1. In the **Termite** console, you should see serial prompt asking for Azure IoT device information. Use the information you saved from earlier and choose to store these credentials safely in flash. [photos to add here]
+
 1. In the **Termite** console, check the following checkpoint values to confirm that the device is initialized and connected to Azure IoT.
 
     |Checkpoint name|Output value|
