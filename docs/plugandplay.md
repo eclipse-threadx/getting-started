@@ -2,9 +2,9 @@
 
 ## Introduction
 
-The [Azure RTOS Getting Started guide](../README.md) code sample includes a feature called IoT Plug and Play.  The current tutorials in the guide don't use this feature. The tutorials demonstrate a manual process of adding and interacting with devices. In contrast, IoT Plug and Play provides a standard device model that lets applications programmatically query a device's capabilities and interact with it. A device uses this model to broadcast its capabilities to an IoT Plug and Play-enabled application. By using this model, you can streamline and enhance the tasks of adding, configuring, and managing devices. For more information see the [IoT Plug and Play documentation](https://docs.microsoft.com/en-us/azure/iot-pnp/).
+The [Azure RTOS Getting Started guide](../README.md) code sample includes a feature called IoT Plug and Play. The current tutorials in the guide don't show you how to use this feature. Instead, they demonstrate a more manual process of interacting with the device, using Azure IoT Explorer or Azure CLI. In contrast, IoT Plug and Play provides a standard device model that lets applications programmatically query a device's capabilities and interact with it. A device uses this model to broadcast its capabilities to an IoT Plug and Play-enabled application. By using this model, you can streamline and enhance the tasks of adding, configuring, and managing devices. For more information see the [IoT Plug and Play documentation](https://docs.microsoft.com/en-us/azure/iot-pnp/).
 
-To use IoT Plug and Play with your device, follow the steps in this article. You'll add a device model so that your device is IoT Plug and Play-enabled. After that, Azure IoT Explorer can query the device to generate a UI based on the device's properties. You'll use Azure IoT Explorer to view the device's properties and telemetry, call a direct method, and modify a writeable property.
+To use IoT Plug and Play with your device, follow the steps in this article. The device model lets IoT Explorer automatically generate a UI based on the device's properties. You'll use IoT Explorer to view the device's properties and telemetry, call a direct method, and modify a writeable property
 
 ## Prerequisites
 
@@ -14,12 +14,12 @@ To use IoT Plug and Play with your device, you must first complete one of the tu
 
 ## Setup
 
-In this section you configure Azure IoT Explorer to add an IoT Plug and Play device model. Adding the model enables IoT Explorer to query and interact with the IoT Plug and Play components on compatible devices. If you have completed any tutorial in the [Azure RTOS Getting Started guide](../README.md), the code sample that you built enabled your device for IoT Plug and Play.
+In this section you configure IoT Explorer to add an IoT Plug and Play device model. Adding the model enables IoT Explorer to interact with the IoT Plug and Play components on compatible devices. If you have completed any tutorial in the [Azure RTOS Getting Started guide](../README.md), the code sample that you built enabled your device for IoT Plug and Play.
 
 To add a device model to IoT Explorer:
 
 1. Confirm that the device you used for the tutorial is flashed, booted up, and connected to the Iot hub you created.
-1. Open Azure IoT explorer.
+1. Open IoT Explorer.
 1. Navigate to **Home**.
 1. Select **IoT Plug and Play Settings**.
 1. Select **Add > Local folder**.
@@ -47,9 +47,9 @@ To access the IoT Plug and Play components on your device:
 
     | Tab | Type | Name | Description |
     |---|---|---|---|
-    | **Interface** | interface | `Getting Started guide` | Example model for the Azure RTOS Getting Started Guides |
+    | **Interface** | Interface | `Getting Started Guide` | Example model for the Azure RTOS Getting Started Guides |
     | **Properties (read-only)** | Property | `ledState` | The current state of the LED |
-    | **Properties (writable)** | Property | `telemetryInterval` | The interval that the device sends telemetry|
+    | **Properties (writable)** | Property | `telemetryInterval` | The interval that the device sends telemetry |
     | **Commands** | Command | `setLedState` | Enable or disable the LED |
     | **Telemetry** | Telemetry | `temperature` | The temperature in celsius |
 
@@ -106,15 +106,17 @@ To call a direct method on the connected device:
 
     ![Azure IoT Explorer send command](media/azure-iot-explorer-send-command.png)
 
-1. For the `setLedState` command, set **state** to *false*.
+1. Select the **Properties (read-only)** tab.
+1. Select **Refresh**. Confirm that **Value** for the LED is *true*.
+1. Return to the **Commands** tab and for the `setLedState` command, set **state** to *false*.
 1. Select **Send command**. Confirm that the LED is disabled.
 1. Select the **Properties (read-only)** tab.
 1. Select **Refresh**. Confirm that **Value** for the LED is *false*.
-1. Optionally, return to the **Commands** tab, and enable the LED. Then return to the **Properties (read-only)** tab, and click **Refresh**. Confirm that **Value** for the LED is *true*.
+
 
 ## Next Steps
 
-In this tutorial you used Azure IoT Explorer to work with an IoT Plug and Play-enabled device. You use the IoT Explorer to add an IoT Plug and Play device model. Then you used the UI generated by IoT Explorer to work with device properties, view telemetry, and invoke a direct method to toggle the LED.
+In this tutorial you used Azure IoT Explorer to work with an IoT Plug and Play enabled device. You used IoT Explorer to add an IoT Plug and Play device model. Then you used the UI generated by IoT Explorer to interact with device properties, view telemetry, and invoke a direct method to toggle the LED.
 
 * To continue learning about Azure RTOS, return to the tutorial you started with in the [Azure RTOS Getting Started guide](../README.md). You can optionally learn how to perform the same tasks you completed in this tutorial, but without using IoT Plug and Play. The tutorials also provide directions to clean up IoT resources that you created for the sample application.
 * To learn more about IoT Plug and Play, see the [IoT Plug and Play documentation](https://docs.microsoft.com/en-us/azure/iot-pnp/).
