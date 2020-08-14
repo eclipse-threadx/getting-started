@@ -186,7 +186,7 @@ After the build completes, confirm that two binary files were created. There's a
 
 ### Flash the image
 
-1. On the STM DevKit MCU, locate the **Reset** button, the Micro USB port which is labeled **USB STLink**, and the board part number. You will refer these items in the next steps. All of them are highlighted in the following picture:
+1. On the STM DevKit MCU, locate the **Reset** button, the Micro USB port which is labeled **USB STLink**, and the board part number. You will refer to these items in the next steps. All of them are highlighted in the following picture:
 
     ![STM DevKit device reset button and micro usb port](media/stm-devkit-board.png)
 
