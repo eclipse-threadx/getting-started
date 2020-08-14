@@ -20,7 +20,7 @@
 #define AZURE_THREAD_PRIORITY 4
 
 TX_THREAD azure_thread;
-UCHAR azure_thread_stack[AZURE_THREAD_STACK_SIZE];
+ULONG azure_thread_stack[AZURE_THREAD_STACK_SIZE / sizeof(ULONG)];
 
 void azure_thread_entry(ULONG parameter);
 void tx_application_define(void *first_unused_memory);

@@ -12,7 +12,6 @@
 #include "nxd_mqtt_client.h"
 
 #include "azure_iot_cert.h"
-#include "azure_iot_ciphersuites.h"
 #include "azure_iot_mqtt/sas_token.h"
 
 #define USERNAME                "%s/%s/?api-version=2020-05-31-preview&model-id=%s"
@@ -345,10 +344,10 @@ static VOID mqtt_notify_cb(NXD_MQTT_CLIENT* client_ptr, UINT number_of_messages)
         // Get the mqtt client message
         status = nxd_mqtt_client_message_get(client_ptr,
             (UCHAR*)azure_iot_mqtt->mqtt_receive_topic_buffer,
-            MQTT_TOPIC_NAME_LENGTH,
+            AZURE_IOT_MQTT_TOPIC_NAME_LENGTH,
             &actual_topic_length,
             (UCHAR*)azure_iot_mqtt->mqtt_receive_message_buffer,
-            MQTT_MESSAGE_LENGTH,
+            AZURE_IOT_MQTT_MESSAGE_LENGTH,
             &actual_message_length);
         if (status != NXD_MQTT_SUCCESS)
         {

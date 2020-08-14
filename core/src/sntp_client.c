@@ -22,7 +22,7 @@
 // Seconds between Unix Epoch (1/1/1970) and NTP Epoch (1/1/1999)
 #define UNIX_TO_NTP_EPOCH_SECS  0x83AA7E80
 
-static UCHAR sntp_thread_stack[SNTP_THREAD_STACK_SIZE];
+static ULONG sntp_thread_stack[SNTP_THREAD_STACK_SIZE / sizeof(ULONG)];
 static TX_THREAD mqtt_client_thread;
 
 static NX_SNTP_CLIENT sntp_client;
