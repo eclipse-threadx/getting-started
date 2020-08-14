@@ -30,7 +30,6 @@ FLASH_Status_t save_to_flash_SAME54(char *writeData);
 FLASH_Status_t read_flash_SAME54(char *readData);
 
 // Helper functions
-
 /**
  ** \brief Hardfault Handler
  * Used to identify when a location outside the reserved area
@@ -58,14 +57,11 @@ int8_t verify_seep_signature(void)
 
 	while (hri_nvmctrl_get_SEESTAT_BUSY_bit(NVMCTRL)) ;
 
-	//	/* If SBLK fuse is not configured, inform the user and wait here */
-	//	if (!(hri_nvmctrl_read_SEESTAT_SBLK_bf(NVMCTRL))) {
-	//		printf("\r\nPlease configure SBLK fuse to allocate SmartEEPROM area\r\n");
-	//		while (1) ;
-	//	}
-	
-	//NVMCTRL_SEESBLK = 0x01
-	//NVMCTRL_SEEPSZ = 0x03
+	/* If SBLK fuse is not configured, inform the user and wait here */
+	if (!(hri_nvmctrl_read_SEESTAT_SBLK_bf(NVMCTRL))) {
+		printf("\r\nPlease configure SBLK fuse to allocate SmartEEPROM area\r\n");
+		while (1) ;
+	}
 
 	if (SMEE_CUSTOM_SIG == ADDR[0]) {
 		ret_val = ERR_NONE;

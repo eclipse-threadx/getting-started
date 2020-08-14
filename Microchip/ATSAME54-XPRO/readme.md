@@ -209,6 +209,7 @@ After the build completes, confirm that a binary file was created in the followi
     > Note: For more details about using the Atmel-ICE and *atprogram* tools with the Microchip E54, see [Using Atmel-ICE for AVR Programming In Mass Production](http://ww1.microchip.com/downloads/en/AppNotes/00002466A.pdf).
 
     ```console
+    atprogram --tool edbg --interface SWD --device ATSAME54P20A write -fs -o 0x804000 --values 39929AFEB1FFA8AA
     atprogram --tool edbg --interface SWD --device ATSAME54P20A program --chiperase --file atsame54_azure_iot.bin --verify
     ```
 
