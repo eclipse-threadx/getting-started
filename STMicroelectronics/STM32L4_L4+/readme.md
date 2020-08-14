@@ -13,7 +13,7 @@ products:
 
 **Total completion time**:  30 minutes
 
-In this tutorial you use Azure RTOS to connect the either the STMicroelectronics B-L475E-IOT01A or B-L4S5I-IOT01A Discovery kit (hereafter, the STM DevKit) to Azure IoT. The article is part of the series [Getting started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824). The series introduces device developers to Azure RTOS, and shows how to connect several device evaluation kits to Azure IoT.
+In this tutorial you use Azure RTOS to connect the either the STMicroelectronics [B-L475E-IOT01A](https://www.st.com/en/evaluation-tools/b-l475e-iot01a.html) or [B-L4S5I-IOT01A](https://www.st.com/en/evaluation-tools/b-l4s5i-iot01a.html) Discovery kit (hereafter, the STM DevKit) to Azure IoT. The article is part of the series [Getting started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824). The series introduces device developers to Azure RTOS, and shows how to connect several device evaluation kits to Azure IoT.
 
 You will complete the following tasks:
 
@@ -29,7 +29,7 @@ You will complete the following tasks:
 * [Git](https://git-scm.com/downloads)
 * Hardware
 
-    > * STM DevKit, either of:
+    > * STM DevKit. The tutorial works with either of the following STM Discovery kits.
     >    * [B-L475E-IOT01A](https://www.st.com/en/evaluation-tools/b-l475e-iot01a.html)
     >    * [B-L4S5I-IOT01A](https://www.st.com/en/evaluation-tools/b-l4s5i-iot01a.html)
     > * Wi-Fi 2.4 GHz
@@ -178,7 +178,7 @@ In your console or in File Explorer, run the script *rebuild.bat* at the followi
 
 > *getting-started\STMicroelectronics\STM32L4_L4+\tools\rebuild.bat*
 
-After the build completes, confirm that the binary files were created in the following path:
+After the build completes, confirm that two binary files were created. There's a binary image for each version of the STM Devkit. The build saves the images to the following paths:
 
 > *getting-started\STMicroelectronics\STM32L4_L4+\build\app\stm32l475_azure_iot.bin*
 
@@ -186,16 +186,18 @@ After the build completes, confirm that the binary files were created in the fol
 
 ### Flash the image
 
-1. On the STM DevKit MCU, locate the **Reset** button, and the Micro USB port which is labeled **USB STLink**. You use these components in the following steps. Both are highlighted in the following picture:
+1. On the STM DevKit MCU, locate the **Reset** button, the Micro USB port which is labeled **USB STLink**, and the board part number. You will refer to these items in the next steps. All of them are highlighted in the following picture:
 
     ![STM DevKit device reset button and micro usb port](media/stm-devkit-board.png)
 
 1. Use the Micro USB cable to connect the **USB STLink** port on the STM DevKit to your computer.
     > Note: For detailed setup information about the STM DevKit, see the instructions on the packaging, or see [B-L475E-IOT01A Resources](https://www.st.com/en/evaluation-tools/b-l475e-iot01a.html#resource) / [B-L4S5I-IOT01A Resources](https://www.st.com/en/evaluation-tools/b-l4s5i-iot01a.html#resource).
-1. In File Explorer, find the STM DevKit device connected to your computer.
-1. Copy the binary file for your Dev Kit that you created in the previous section, and paste it into the root folder of the STM DevKit. The flashing process starts automatically.
+1. In File Explorer, find the binary files that you created in the previous section.
+1. Copy the binary file whose file name corresponds to the part number of the STM Devkit you are using. For example, if your board part number is **B-L475E-IOT01A1**, copy the binary file named *stm32l475_azure_iot.bin*.
+1. In File Explorer, find the STM Devkit that's connected to your computer. The device appears as a drive on your system with the drive label **DIS_L4IOT**.
+1. Paste the binary file into the root folder of the STM Devkit. Flashing starts automatically and completes in a few seconds.
 
-    > Note: During the flashing process, a LED rapidly toggles between red and green on the STM DevKit. The process completes in a few seconds without further notification.
+    > Note: During the flashing process, a LED rapidly toggles between red and green on the STM DevKit.
 
 ### Confirm device connection details
 
