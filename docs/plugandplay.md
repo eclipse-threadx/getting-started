@@ -93,7 +93,7 @@ To view device telemetry:
 
     | Enqueue time | Name | Schema | Unit | Value |
     |---|---|---|---|---|
-    | 10:58:35 AM, 08/13/2020 | temperature (Temperature) | double | degree celsius (°C) | { "temperature": 30.23 } |
+    | 10:58:40 AM, 08/13/2020 | temperature (Temperature) | double | degree celsius (°C) | { "temperature": 30.23 } |
     | 10:58:35 AM, 08/13/2020 | temperature (Temperature) | double | degree celsius (°C) | { "temperature": 30.21 } |
 
 ## Call a direct method on the device
