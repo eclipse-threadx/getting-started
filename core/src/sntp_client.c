@@ -22,7 +22,7 @@
 // Seconds between Unix Epoch (1/1/1970) and NTP Epoch (1/1/1999)
 #define UNIX_TO_NTP_EPOCH_SECS  0x83AA7E80
 
-static UCHAR sntp_thread_stack[SNTP_THREAD_STACK_SIZE];
+static ULONG sntp_thread_stack[SNTP_THREAD_STACK_SIZE / sizeof(ULONG)];
 static TX_THREAD mqtt_client_thread;
 
 static NX_SNTP_CLIENT sntp_client;
@@ -53,7 +53,6 @@ static void print_address(CHAR* preable, NXD_ADDRESS address)
     {
         printf("\tUnsupported address format\r\n");
     }
-    
 }
 
 static VOID time_update_callback(NX_SNTP_TIME_MESSAGE* time_update_ptr, NX_SNTP_TIME* local_time)
@@ -96,7 +95,7 @@ static void set_sntp_time()
     {
         printf("SNTP time update: %s\r\n", time_buffer);
     }
-    
+
     // Flag the sync was successful
     tx_event_flags_set(&sntp_flags, SNTP_NEW_TIME, TX_OR);
 }
@@ -105,7 +104,7 @@ static UINT sntp_client_run()
 {
     UINT status;
     NXD_ADDRESS sntp_address;
-    
+
     status = nxd_dns_host_by_name_get(&nx_dns_client, (UCHAR *)SNTP_SERVER, &sntp_address, 5 * NX_IP_PERIODIC_RATE, NX_IP_VERSION_V4);
     if (status != NX_SUCCESS)
     {
@@ -150,7 +149,7 @@ static void sntp_thread_entry(ULONG info)
         printf("\tFAIL: SNTP client create failed (0x%02x)\r\n", status);
         return;
     }
-        
+
     status = nx_sntp_client_set_local_time(&sntp_client, 0, 0);
     if (status != NX_SUCCESS) 
     {

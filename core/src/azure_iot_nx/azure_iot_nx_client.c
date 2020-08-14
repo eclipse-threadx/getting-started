@@ -54,7 +54,7 @@ UINT azure_iot_nx_client_create(AZURE_IOT_NX_CLIENT* azure_iot_nx_client,
         return NX_PTR_ERROR;
     }
 
-    memset(azure_iot_nx_client, 0, sizeof(&azure_iot_nx_client));
+    memset(azure_iot_nx_client, 0, sizeof(*azure_iot_nx_client));
 
     /* Create Azure IoT handler. */
     if ((status = nx_azure_iot_create(&azure_iot_nx_client->nx_azure_iot,
