@@ -12,18 +12,17 @@
 #include "nxd_dns.h"
 #include "nxd_mqtt_client.h"
 
-#define AZURE_IOT_MQTT_USERNAME_SIZE 128
-#define AZURE_IOT_MQTT_PASSWORD_SIZE 256
+#include "azure_iot_ciphersuites.h"
 
-#define MQTT_TOPIC_NAME_LENGTH   300
-#define MQTT_MESSAGE_NAME_LENGTH 1000
+#define AZURE_IOT_MQTT_USERNAME_SIZE           128
+#define AZURE_IOT_MQTT_PASSWORD_SIZE           256
+#define AZURE_IOT_MQTT_TOPIC_NAME_LENGTH       256
+#define AZURE_IOT_MQTT_MESSAGE_LENGTH          512
+#define AZURE_IOT_MQTT_DIRECT_COMMAND_RID_SIZE 6
 
 #define AZURE_IOT_MQTT_CLIENT_STACK_SIZE 4096
 
-#define TLS_METADATA_BUFFER_SIZE      (12 * 1024)
-#define TLS_REMOTE_CERTIFICATE_COUNT  2
-#define TLS_REMOTE_CERTIFICATE_BUFFER 4096
-#define TLS_PACKET_BUFFER             4096
+#define TLS_PACKET_BUFFER (5 * 1024)
 
 typedef struct AZURE_IOT_MQTT_STRUCT AZURE_IOT_MQTT;
 
@@ -45,19 +44,17 @@ struct AZURE_IOT_MQTT_STRUCT
 
     UINT reported_property_version;
     UINT desired_property_version;
-    UINT direct_command_request_id;
+    CHAR direct_command_request_id[AZURE_IOT_MQTT_DIRECT_COMMAND_RID_SIZE];
 
     CHAR mqtt_username[AZURE_IOT_MQTT_USERNAME_SIZE];
     CHAR mqtt_password[AZURE_IOT_MQTT_PASSWORD_SIZE];
 
-    CHAR mqtt_receive_topic_buffer[MQTT_TOPIC_NAME_LENGTH];
-    CHAR mqtt_receive_message_buffer[MQTT_MESSAGE_NAME_LENGTH];
+    CHAR mqtt_receive_topic_buffer[AZURE_IOT_MQTT_TOPIC_NAME_LENGTH];
+    CHAR mqtt_receive_message_buffer[AZURE_IOT_MQTT_MESSAGE_LENGTH];
 
-    UCHAR mqtt_client_stack[AZURE_IOT_MQTT_CLIENT_STACK_SIZE];
+    ULONG mqtt_client_stack[AZURE_IOT_MQTT_CLIENT_STACK_SIZE / sizeof(ULONG)];
 
-    UCHAR tls_metadata_buffer[TLS_METADATA_BUFFER_SIZE];
-    NX_SECURE_X509_CERT tls_remote_certificate[TLS_REMOTE_CERTIFICATE_COUNT];
-    UCHAR tls_remote_cert_buffer[TLS_REMOTE_CERTIFICATE_COUNT][TLS_REMOTE_CERTIFICATE_BUFFER];
+    ULONG tls_metadata_buffer[NX_AZURE_IOT_TLS_METADATA_BUFFER_SIZE / sizeof(ULONG)]; 
     UCHAR tls_packet_buffer[TLS_PACKET_BUFFER];
 
     func_ptr_direct_method cb_ptr_mqtt_invoke_direct_method;
