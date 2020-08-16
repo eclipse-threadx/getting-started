@@ -8,7 +8,7 @@ To use IoT Plug and Play with your device, follow the steps in this article. The
 
 ## Prerequisites
 
-To use IoT Plug and Play with your device, you must first complete several setup setup steps in one of the tutorials in the [Azure RTOS Getting Started guide](../README.md). Each tutorial walks you through the initial setup for your device. Then you'll have the option to either continue the tutorial, or browse to this article and complete the tutorial using IoT Plug and Play.
+To use IoT Plug and Play with your device, you must first complete several setup steps in one of the tutorials in the [Azure RTOS Getting Started guide](../README.md). Each tutorial walks you through the initial setup for your device. Then you'll have the option to either continue the tutorial, or browse to this article and complete the tutorial using IoT Plug and Play.
 
 **Important**:  IoT Plug and Play is currently available only on IoT hubs created in the Central US, North Europe, and East Japan regions. The Azure RTOS Getting Started guide shows how to create a resource group in the `centralus` region.
 
