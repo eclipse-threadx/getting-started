@@ -12,9 +12,6 @@ set(TX_USER_FILE "${CMAKE_CURRENT_LIST_DIR}/threadx/tx_user.h" CACHE STRING "Ena
 set(NX_USER_FILE "${CMAKE_CURRENT_LIST_DIR}/netxduo/nx_user.h" CACHE STRING "Enable NX user configuration")
 set(NXD_ENABLE_FILE_SERVERS OFF CACHE BOOL "Disable fileX dependency by netxduo")
 
-set(DISABLE_COMMON_NETWORK true)
-add_subdirectory(${CORE_SRC_DIR} core_src)
-
 add_subdirectory(${CORE_LIB_DIR}/threadx threadx)
 add_subdirectory(${CORE_LIB_DIR}/netxduo netxduo)
 add_subdirectory(${CORE_LIB_DIR}/azure-iot-preview/nx_cloud nx_cloud)

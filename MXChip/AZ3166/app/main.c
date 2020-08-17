@@ -29,7 +29,7 @@ void azure_thread_entry(ULONG parameter)
 {
     UINT status;
 
-    if (platform_init(WIFI_SSID, WIFI_PASSWORD, WIFI_SECURITY, WIFI_COUNTRY) != NX_SUCCESS)
+    if (platform_init(WIFI_SSID, WIFI_PASSWORD, WIFI_SECURITY) != NX_SUCCESS)
     {
         printf("Failed to initialize platform.\r\n");
         return;
