@@ -10,7 +10,5 @@ set_target_properties(${TARGET}
 
 target_include_directories(${TARGET}
     INTERFACE
-        43xxx_Wi-Fi
-        43xxx_Wi-Fi/network
         include
 )
