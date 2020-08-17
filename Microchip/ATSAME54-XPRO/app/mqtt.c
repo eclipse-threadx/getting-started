@@ -17,6 +17,7 @@
 #define IOT_MODEL_ID "dtmi:com:examples:gsg;1"
 
 #define TELEMETRY_INTERVAL_PROPERTY "telemetryInterval"
+#define LED_STATE_PROPERTY "ledState"
 
 #define TELEMETRY_INTERVAL_EVENT 1
 
@@ -57,7 +58,7 @@ static void mqtt_direct_method(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* direct_meth
         azure_iot_mqtt_respond_direct_method(azure_iot_mqtt, 200);
 
         // Update device twin property
-        azure_iot_mqtt_publish_bool_property(azure_iot_mqtt, "ledState", arg);
+        azure_iot_mqtt_publish_bool_property(azure_iot_mqtt, LED_STATE_PROPERTY, arg);
     }
     else
     {
@@ -151,6 +152,9 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
         printf("Error: Failed to create Azure MQTT (0x%02x)\r\n", status);
         return status;
     }
+
+    // Update ledState property
+    azure_iot_mqtt_publish_bool_property(&azure_iot_mqtt, LED_STATE_PROPERTY, false);
 
     // Request the device twin
     azure_iot_mqtt_device_twin_request(&azure_iot_mqtt);

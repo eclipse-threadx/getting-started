@@ -2,13 +2,13 @@
 
 ## Introduction
 
-The [Azure RTOS Getting Started guide](../README.md) code sample includes a feature called IoT Plug and Play. The current tutorials in the guide don't show you how to use this feature. Instead, they demonstrate a more manual process of interacting with the device, using Azure IoT Explorer or Azure CLI. In contrast, IoT Plug and Play provides a standard device model that lets applications programmatically query a device's capabilities and interact with it. A device uses this model to broadcast its capabilities to an IoT Plug and Play-enabled application. By using this model, you can streamline and enhance the tasks of adding, configuring, and managing devices. For more information see the [IoT Plug and Play documentation](https://docs.microsoft.com/en-us/azure/iot-pnp/).
+The [Azure RTOS Getting Started guide](../README.md) code sample includes a feature called IoT Plug and Play. The current tutorials in the guide don't show you how to use this feature. Instead, they demonstrate a more manual process of interacting with the device, using Azure IoT Explorer or Azure CLI. In contrast, IoT Plug and Play provides an open device model that lets applications programmatically query a device's capabilities and interact with it. A device uses this model to broadcast its capabilities to an IoT Plug and Play-enabled application. By using this model, you can streamline and enhance the tasks of adding, configuring, and managing devices. For more information see the [IoT Plug and Play documentation](https://docs.microsoft.com/en-us/azure/iot-pnp/).
 
-To use IoT Plug and Play with your device, follow the steps in this article. The device model lets IoT Explorer automatically generate a UI based on the device's properties. You'll use IoT Explorer to view the device's properties and telemetry, call a direct method, and modify a writeable property
+To use IoT Plug and Play with your device, follow the steps in this article. The device model lets IoT Explorer automatically generate a UI based on the device's properties. You'll use IoT Explorer to view the device's properties and telemetry, call a direct method, and modify a writeable property.
 
 ## Prerequisites
 
-To use IoT Plug and Play with your device, you must first complete one of the tutorials in the [Azure RTOS Getting Started guide](../README.md). Each tutorial walks you through a number of setup steps, and then gives the option to either continue the tutorial, or browse to this article and complete the tutorial using IoT Plug and Play.
+To use IoT Plug and Play with your device, you must first complete several setup steps in one of the tutorials in the [Azure RTOS Getting Started guide](../README.md). Each tutorial walks you through the initial setup for your device. Then you'll have the option to either continue the tutorial, or browse to this article and complete the tutorial using IoT Plug and Play.
 
 **Important**:  IoT Plug and Play is currently available only on IoT hubs created in the Central US, North Europe, and East Japan regions. The Azure RTOS Getting Started guide shows how to create a resource group in the `centralus` region.
 
