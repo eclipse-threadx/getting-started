@@ -3,8 +3,9 @@
 
 #include <stdint.h>
 
-#include "tx_api.h"
 #include "nx_api.h"
+#include "tx_api.h"
+
 
 // wwd_constants.h
 #define RESULT_ENUM(prefix, name, value) prefix##name = (value)
@@ -79,17 +80,12 @@ typedef enum
     WICED_COUNTRY_UNITED_STATES = MK_CNTRY('U', 'S', 0)
 } wiced_country_code_t;
 
-#define WEP_ENABLED        0x0001
-#define TKIP_ENABLED       0x0002
-#define AES_ENABLED        0x0004
-#define SHARED_ENABLED     0x00008000
-#define WPA_SECURITY       0x00200000
-#define WPA2_SECURITY      0x00400000
-#define WPA3_SECURITY      0x01000000
-#define ENTERPRISE_ENABLED 0x02000000
-#define WPS_ENABLED        0x10000000
-#define IBSS_ENABLED       0x20000000
-#define FBT_ENABLED        0x40000000
+#define WEP_ENABLED    0x0001
+#define TKIP_ENABLED   0x0002
+#define AES_ENABLED    0x0004
+#define SHARED_ENABLED 0x00008000
+#define WPA_SECURITY   0x00200000
+#define WPA2_SECURITY  0x00400000
 
 typedef enum
 {
