@@ -3,3 +3,4 @@ VisualGDB/
 .vscode/
 .azure_config.h
 .vs/
+MXChip/AZ3166/lib/wiced_sdk/binary_build

@@ -327,7 +327,7 @@ static VOID mqtt_disconnect_cb(NXD_MQTT_CLIENT* client_ptr)
     // Try and reconnect forever
     while (azure_iot_mqtt_connect(azure_iot_mqtt) != NX_SUCCESS)
     {
-        tx_thread_sleep(TX_TIMER_TICKS_PER_SECOND);
+        tx_thread_sleep(10 * TX_TIMER_TICKS_PER_SECOND);
     }
 }
 
