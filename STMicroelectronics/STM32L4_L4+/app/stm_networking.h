@@ -15,6 +15,6 @@ extern NX_DNS         nx_dns_client;
 
 int stm32_network_init();
 bool wifi_init(CHAR *ssid, CHAR *password, WiFi_Mode mode);
-bool wifi_softAP_init(WiFi_Info_t *wifi);
+bool wifi_softAP_init(SoftAP_WiFi_Info_t *wifi);
 
 #endif // _NETWORKING_H

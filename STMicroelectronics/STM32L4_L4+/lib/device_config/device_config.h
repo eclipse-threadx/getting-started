@@ -23,6 +23,9 @@
 // Value of empty EEPROM byte
 #define EMPTY_EEPROM_VAL 0xFF
 
+// Using an STM32L4 board with wifi capabilities
+#define STM32L4
+
 #define WIFI_MAX_SSID_NAME_SIZE	32
 #define WIFI_MAX_PSWD_NAME_SIZE 32
 
@@ -46,16 +49,20 @@ typedef enum
 typedef struct 
 {
 	char   SSID[WIFI_MAX_SSID_NAME_SIZE + 1];
-	char   pswd[WIFI_MAX_PSWD_NAME_SIZE + 1];
+	char   PSWD[WIFI_MAX_PSWD_NAME_SIZE + 1];
 	WiFi_Mode Security;
-} WiFi_Info_t;
+} SoftAP_WiFi_Info_t;
 
 typedef struct 
 {
 	char hostname[MAX_HOSTNAME_LEN];
 	char device_id[MAX_DEVICEID_LEN];
 	char primary_key[MAX_KEY_LEN];
-	WiFi_Info_t wifi_info;
+#ifdef STM32L4
+	char   ssid[WIFI_MAX_SSID_NAME_SIZE + 1];
+	char   pswd[WIFI_MAX_PSWD_NAME_SIZE + 1];
+	WiFi_Mode security;
+#endif
 } DevConfig_IoT_Info_t;
 
 

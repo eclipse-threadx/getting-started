@@ -63,7 +63,7 @@ static void checkWifiVersion()
     }
 }
 
-bool wifi_softAP_init(WiFi_Info_t *wifi) {
+bool wifi_softAP_init(SoftAP_WiFi_Info_t *wifi) {
     printf("Initializing WiFi SoftAP\r\n");
 
     if (WIFI_Init() != WIFI_STATUS_OK) {
@@ -83,7 +83,7 @@ bool wifi_softAP_init(WiFi_Info_t *wifi) {
     printf("Step 2: Visit http://192.168.10.1/ and follow onscreen instructions "
             "to connect to your local WiFi network. \n");
 
-    if (WIFI_ConfigureAP(ap_ssid, ap_pw, WIFI_ECN_OPEN, 1, 4) != WIFI_STATUS_OK) {
+    if (WIFI_ConfigureAP((uint8_t *)(&ap_ssid), (uint8_t *)(&ap_pw), WIFI_ECN_OPEN, 1, 4) != WIFI_STATUS_OK) {
         printf("Error: Wifi configAP driver error \n");
         __BKPT(0);
         return false;
@@ -117,7 +117,7 @@ bool wifi_softAP_init(WiFi_Info_t *wifi) {
     if (WIFI_GetSSID(wifi->SSID) != WIFI_STATUS_OK) {
         return false;
     }
-    if (WIFI_GetPSWD(wifi->pswd) != WIFI_STATUS_OK) {
+    if (WIFI_GetPSWD(wifi->PSWD) != WIFI_STATUS_OK) {
         return false;
     }
     if (WIFI_GetSecurityMode(wifi->Security) != WIFI_STATUS_OK) {
