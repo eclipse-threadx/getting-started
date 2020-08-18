@@ -164,7 +164,7 @@ WIFI_Status_t       WIFI_GetModuleName(char *ModuleName);
 
 WIFI_Status_t       WIFI_GetNetworkSettings(void);
 WIFI_Status_t       WIFI_GetSSID(char *ssid);
-WIFI_Status_t       WIFI_GetSecurityMode(uint8_t mode);
+WIFI_Status_t       WIFI_GetSecurityMode(uint8_t *mode);
 WIFI_Status_t       WIFI_GetPSWD(char *pswd);
 #ifdef __cplusplus
 }

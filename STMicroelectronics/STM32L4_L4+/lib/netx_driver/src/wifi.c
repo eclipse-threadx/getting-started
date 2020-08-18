@@ -655,9 +655,9 @@ WIFI_Status_t WIFI_GetPSWD(char *pswd)
   return ret;
 }
 
-WIFI_Status_t WIFI_GetSecurityMode(uint8_t mode) 
+WIFI_Status_t WIFI_GetSecurityMode(uint8_t *mode) 
 {
-  mode = EsWifiObj.NetSettings.Security;
+  *mode = EsWifiObj.NetSettings.Security;
 
   return WIFI_STATUS_OK;
 }

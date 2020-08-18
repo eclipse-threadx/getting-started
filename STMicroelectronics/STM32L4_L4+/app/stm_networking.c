@@ -120,7 +120,7 @@ bool wifi_softAP_init(SoftAP_WiFi_Info_t *wifi) {
     if (WIFI_GetPSWD(wifi->PSWD) != WIFI_STATUS_OK) {
         return false;
     }
-    if (WIFI_GetSecurityMode(wifi->Security) != WIFI_STATUS_OK) {
+    if (WIFI_GetSecurityMode(&(wifi->Security)) != WIFI_STATUS_OK) {
         return false;
     }
 

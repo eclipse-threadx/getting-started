@@ -225,12 +225,16 @@ HAL_StatusTypeDef erase_flash_ST()
 	uint32_t PageError;
 
     if (HAL_FLASHEx_Erase(&EraseInitStruct, &PageError) == HAL_ERROR) {
-        printf("Erase PageError: %lu\n", PageError);
-        // lock flash
-        HAL_FLASH_OB_Lock();
-        HAL_FLASH_Lock();
-        return PageError;
+        if (HAL_FLASHEx_Erase(&EraseInitStruct, &PageError) == HAL_ERROR) {
+            printf("Erase PageError: %lu\n", PageError);
+            // lock flash
+            HAL_FLASH_OB_Lock();
+            HAL_FLASH_Lock();
+            return PageError;
+        }
     }
+
+    
 	
 	// Lock flash
 	HAL_FLASH_OB_Lock();

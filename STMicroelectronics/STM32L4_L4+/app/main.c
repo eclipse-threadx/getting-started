@@ -125,17 +125,16 @@ void azure_thread_entry(ULONG parameter)
         if (save_to_flash(&device_info) == STATUS_OK)
         {
             printf("Successfully saved credentials to flash. \n\n");
+            break;
         }
     }
-
-    //printf("%x", device_info.ssid[0]); 0xEF
 
     // WiFi Initialization
     if(device_info.ssid[0] != 0xEF)
     {
+        printf("%s", device_info.pswd);
         //Initialize the network
-        if (!wifi_init(device_info.ssid, device_info.pswd,
-        device_info.security))
+        if (!wifi_init(device_info.ssid, device_info.pswd, WPA2_PSK_AES))
         {
             printf("Error initializing wifi from stored info");
         }
@@ -151,7 +150,7 @@ void azure_thread_entry(ULONG parameter)
 
         strcpy(device_info.ssid, softAP_wifi.SSID);
         strcpy(device_info.pswd, softAP_wifi.PSWD);
-        device_info.security = softAP_wifi.Security;
+        device_info.security = WPA2_PSK_AES;
 
         if (save_to_flash(&device_info) == STATUS_OK) {
             printf("Successfully saved WiFi credentials to flash. \n\n");

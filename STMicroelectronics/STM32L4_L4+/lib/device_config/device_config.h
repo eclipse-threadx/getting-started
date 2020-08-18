@@ -9,7 +9,7 @@
 #include <stdbool.h>
 
 // Max length of the data buffer read from flash
-#define MAX_READ_BUFF 380
+#define MAX_READ_BUFF 500
 
 // Max length of the Azure IoTHub hostname
 #define MAX_HOSTNAME_LEN 100
