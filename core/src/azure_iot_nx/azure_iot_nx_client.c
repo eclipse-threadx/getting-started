@@ -54,7 +54,7 @@ UINT azure_iot_nx_client_create(AZURE_IOT_NX_CLIENT* azure_iot_nx_client,
         return NX_PTR_ERROR;
     }
 
-    memset(azure_iot_nx_client, 0, sizeof(&azure_iot_nx_client));
+    memset(azure_iot_nx_client, 0, sizeof(*azure_iot_nx_client));
 
     /* Create Azure IoT handler. */
     if ((status = nx_azure_iot_create(&azure_iot_nx_client->nx_azure_iot,
@@ -99,7 +99,7 @@ UINT azure_iot_nx_client_create(AZURE_IOT_NX_CLIENT* azure_iot_nx_client,
              _nx_azure_iot_tls_supported_crypto_size,
              _nx_azure_iot_tls_ciphersuite_map,
              _nx_azure_iot_tls_ciphersuite_map_size,
-             azure_iot_nx_client->nx_azure_iot_tls_metadata_buffer,
+             (UCHAR*)azure_iot_nx_client->nx_azure_iot_tls_metadata_buffer,
              sizeof(azure_iot_nx_client->nx_azure_iot_tls_metadata_buffer),
              &azure_iot_nx_client->root_ca_cert)))
     {

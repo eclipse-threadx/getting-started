@@ -5,9 +5,10 @@
 
 # Getting Started with Azure RTOS
 
-This Getting Started guides shows device developers how to start working with Azure RTOS. Each guide will step through from installation of the required toolchains, to connecting the device to Azure IoT Hub.
+This Getting Started guides shows device developers how to start working with Azure RTOS. Each guide will step through from installation of the required toolchain, to connecting the device to Azure IoT Hub using IoT Plug and Play.
 
 * Refer to [Getting Started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824) for additional information on the guides and Azure RTOS.
+* Refer to [IoT Plug and Play](https://docs.microsoft.com/en-us/azure/iot-pnp) for information on the Iot Plug and Play Preview Refresh.
 * Ask questions on the [Azure RTOS Q&A](https://aka.ms/QnA/azure-rtos) site.
 
 ## Getting Started Guides
