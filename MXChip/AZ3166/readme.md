@@ -66,7 +66,7 @@ To run the setup script:
 
     After the installation completes, the Azure IoT Explorer opens automatically. Keep the IoT Explorer open, you'll use it in later steps.
 
-1. After the installation, open a new console window to recognize the configuration changes made by the setup script. Use this console to complete the remaining programming tasks in the tutorial. You can use Windows CMD, Powershell, or Git Bash for Windows.
+1. After the installation, open a new console window to recognize the configuration changes made by the setup script. Use this console to complete the remaining programming tasks in the tutorial. You can use Windows CMD, PowerShell, or Git Bash for Windows.
 1. Run the following code to confirm that CMake version 3.14 or later is installed.
 
     ```shell
@@ -82,13 +82,13 @@ Use one of the following options to run Azure CLI.
 If you prefer to run Azure CLI locally:
 
 1. If you already have Azure CLI installed locally, run `az --version` to check the version. This tutorial requires Azure CLI 2.10.1 or later.
-1. To install or upgrade, see [Install Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest). If you install Azure CLI locally, you can run CLI commands in the GCC Command Prompt, Git Bash for Windows, or Powershell.
+1. To install or upgrade, see [Install Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest). If you install Azure CLI locally, you can run CLI commands in the GCC Command Prompt, Git Bash for Windows, or PowerShell.
 
 If you prefer to run Azure CLI in the browser-based Azure Cloud Shell:
 
 1. Use your Azure account credentials to sign into the Azure Cloud shell at https://shell.azure.com/.
     > Note: If this is the first time you've used the Cloud Shell, it prompts you to create storage, which is required to use the Cloud Shell.  Select a subscription to create a storage account and Microsoft Azure Files share.
-1. Select Bash or Powershell as your preferred CLI environment in the **Select environment** dropdown. If you plan to use Azure Cloud Shell, keep your browser open to run the Azure CLI commands in this tutorial.
+1. Select Bash or PowerShell as your preferred CLI environment in the **Select environment** dropdown. If you plan to use Azure Cloud Shell, keep your browser open to run the Azure CLI commands in this tutorial.
 
     ![Select CLI environment](media/cloud-shell-environment.png)
 
@@ -126,7 +126,7 @@ To create an IoT hub:
 
 ### Register a device
 
-In this section, you create a new device instance and register it with the Iot hub you created. You will use the connection information for the newly registered device to securely connect your physical device in a later section.
+In this section, you create a new device instance and register it with the IoT hub you created. You will use the connection information for the newly registered device to securely connect your physical device in a later section.
 
 To register a device:
 
@@ -267,6 +267,7 @@ To use Azure CLI to view device properties:
     ```shell
     az iot hub device-identity show --device-id MyMXChipDevice --hub-name {YourIoTHubName}
     ```
+
 1. Inspect the properties for your device in the console output.
 
 ## View device telemetry
@@ -292,6 +293,7 @@ To use Azure CLI to view device telemetry:
     ```shell
     az iot hub monitor-events --device-id MyMXChipDevice --hub-name {YourIoTHubName}
     ```
+
 1. View the JSON output in the console.
 
     ```json
@@ -302,6 +304,7 @@ To use Azure CLI to view device telemetry:
         }
     }
     ```
+
 1. Select CTRL+C to end monitoring.
 
 ## Call a direct method on the device
@@ -342,7 +345,7 @@ To use Azure CLI to call a method:
 
 1. View the Termite terminal to confirm the output messages:
 
-    ```
+    ```output
     Received direct method=setLedState, id=1, message=true
     LED is turned ON
     Sending device twin update with bool value

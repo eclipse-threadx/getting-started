@@ -9,11 +9,11 @@ products:
 - azure-rtos
 ---
 
-<h1>Getting started with the STMicroelectronics B-L475E-IOT01A / B-L4S5I-IOTOA1 Discovery kits</h1>
+# Getting started with the STMicroelectronics B-L475E-IOT01A / B-L4S5I-IOTOA1 Discovery kits
 
 **Total completion time**:  30 minutes
 
-In this tutorial you use Azure RTOS to connect the either the STMicroelectronics [B-L475E-IOT01A](https://www.st.com/en/evaluation-tools/b-l475e-iot01a.html) or [B-L4S5I-IOT01A](https://www.st.com/en/evaluation-tools/b-l4s5i-iot01a.html) Discovery kit (hereafter, the STM DevKit) to Azure IoT. The article is part of the series [Getting started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824). The series introduces device developers to Azure RTOS, and shows how to connect several device evaluation kits to Azure IoT.
+In this tutorial you use Azure RTOS to connect either the STMicroelectronics [B-L475E-IOT01A](https://www.st.com/en/evaluation-tools/b-l475e-iot01a.html) or [B-L4S5I-IOT01A](https://www.st.com/en/evaluation-tools/b-l4s5i-iot01a.html) Discovery kit (hereafter, the STM DevKit) to Azure IoT. The article is part of the series [Getting started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824). The series introduces device developers to Azure RTOS, and shows how to connect several device evaluation kits to Azure IoT.
 
 You will complete the following tasks:
 
@@ -30,8 +30,8 @@ You will complete the following tasks:
 * Hardware
 
     > * STM DevKit. The tutorial works with either of the following STM Discovery kits.
-    >    * [B-L475E-IOT01A](https://www.st.com/en/evaluation-tools/b-l475e-iot01a.html)
-    >    * [B-L4S5I-IOT01A](https://www.st.com/en/evaluation-tools/b-l4s5i-iot01a.html)
+    >   * [B-L475E-IOT01A](https://www.st.com/en/evaluation-tools/b-l475e-iot01a.html)
+    >   * [B-L4S5I-IOT01A](https://www.st.com/en/evaluation-tools/b-l4s5i-iot01a.html)
     > * Wi-Fi 2.4 GHz
     > * USB 2.0 A male to Micro USB male cable
 
@@ -68,7 +68,7 @@ To run the setup script:
 
     After the installation completes, the Azure IoT Explorer opens automatically. Keep the IoT Explorer open, you'll use it in later steps.
 
-1. After the installation, open a new console window to recognize the configuration changes made by the setup script. Use this console to complete the remaining programming tasks in the tutorial. You can use Windows CMD, Powershell, or Git Bash for Windows.
+1. After the installation, open a new console window to recognize the configuration changes made by the setup script. Use this console to complete the remaining programming tasks in the tutorial. You can use Windows CMD, PowerShell, or Git Bash for Windows.
 1. Run the following code to confirm that CMake version 3.14 or later is installed.
 
     ```shell
@@ -84,13 +84,13 @@ Use one of the following options to run Azure CLI.
 If you prefer to run Azure CLI locally:
 
 1. If you already have Azure CLI installed locally, run `az --version` to check the version. This tutorial requires Azure CLI 2.10.1 or later.
-1. To install or upgrade, see [Install Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest). If you install Azure CLI locally, you can run CLI commands in the **GCC Command Prompt**, Git Bash for Windows, or Powershell.
+1. To install or upgrade, see [Install Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest). If you install Azure CLI locally, you can run CLI commands in the **GCC Command Prompt**, Git Bash for Windows, or PowerShell.
 
 If you prefer to run Azure CLI in the browser-based Azure Cloud Shell:
 
 1. Use your Azure account credentials to sign into the Azure Cloud shell at https://shell.azure.com/.
     > Note: If this is the first time you've used the Cloud Shell, it prompts you to create storage, which is required to use the Cloud Shell.  Select a subscription to create a storage account and Microsoft Azure Files share.
-1. Select Bash or Powershell as your preferred CLI environment in the **Select environment** dropdown. If you plan to use Azure Cloud Shell, keep your browser open to run the Azure CLI commands in this tutorial.
+1. Select Bash or PowerShell as your preferred CLI environment in the **Select environment** dropdown. If you plan to use Azure Cloud Shell, keep your browser open to run the Azure CLI commands in this tutorial.
 
     ![Select CLI environment](media/cloud-shell-environment.png)
 
@@ -224,23 +224,23 @@ You can use the **Termite** utility to monitor communication and confirm that yo
 
     The Termite console shows the details about the device, your connection, and the checkpoint values.
 
-    ```
+    ```output
     Initializing DHCP
-    	IP address: 192.168.1.131
-    	Gateway: 192.168.1.1
+        IP address: 192.168.1.131
+        Gateway: 192.168.1.1
     SUCCESS: DHCP initialized
-    
+
     Initializing DNS client
-    	DNS address: 192.168.1.1
+        DNS address: 192.168.1.1
     SUCCESS: DNS client initialized
-    
+
     Initializing SNTP client
-    SNTP time update: May 15, 2020 14:43:16.228 UTC 
+    SNTP time update: May 15, 2020 14:43:16.228 UTC
     SUCCESS: SNTP initialized
-    
+
     Initializing MQTT client
     SUCCESS: MQTT client initialized
-    
+
     Time 1589553799
     Starting MQTT thread
     Sending device twin update with float value
@@ -289,6 +289,7 @@ To use Azure CLI to view device properties:
     ```shell
     az iot hub device-identity show --device-id MySTMDevice --hub-name {YourIoTHubName}
     ```
+
 1. Inspect the properties for your device in the console output.
 
 ## View device telemetry
@@ -299,7 +300,7 @@ To view telemetry in Azure IoT Explorer:
 
 1. In IoT Explorer select **Telemetry**. Confirm that **Use built-in event hub** is set to *Yes*.
 1. Select **Start**.
-1. View the telemetry as the device sends messages to the cloud. 
+1. View the telemetry as the device sends messages to the cloud.
 
     ![Azure IoT Explorer device telemetry](media/azure-iot-explorer-device-telemetry.png)
 
@@ -314,6 +315,7 @@ To use Azure CLI to view device telemetry:
     ```shell
     az iot hub monitor-events --device-id MySTMDevice --hub-name {YourIoTHubName}
     ```
+
 1. View the JSON output in the console.
 
     ```json
@@ -324,6 +326,7 @@ To use Azure CLI to view device telemetry:
         }
     }
     ```
+
 1. Select CTRL+C to end monitoring.
 
 ## Call a direct method on the device
@@ -364,7 +367,7 @@ To use Azure CLI to call a method:
 
 1. View the Termite terminal to confirm the output messages:
 
-    ```
+    ```output
     Received direct method=setLedState, id=1, message=true
     LED is turned ON
     Sending device twin update with bool value

@@ -11,7 +11,7 @@ target:
 - embedded
 ---
 
-<h1>Getting started with the Microchip ATSAME54-XPro evaluation kit</h1>
+# Getting started with the Microchip ATSAME54-XPro evaluation kit
 
 **Total completion time**: 35 minutes
 
@@ -57,6 +57,7 @@ git clone --recursive https://github.com/azure-rtos/getting-started
 The cloned repo contains a setup script that installs and configures the first set of required tools. After you run the setup script, you can install the remaining tools manually. If you installed these tools in another tutorial in the getting started guide, you don't need to do it again.
 
 > Note: The setup script installs the following tools:
+
 > * [GCC](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm): Compile
 > * [CMake](https://cmake.org): Build
 > * [Ninja](https://ninja-build.org): Build
@@ -71,7 +72,7 @@ To run the setup script:
 
     After the installation completes, the Azure IoT Explorer opens automatically. Keep the IoT Explorer open, you'll use it in later steps.
 
-1. After the installation, open a new console window to recognize the configuration changes made by the setup script. Use this console to complete the remaining programming tasks in the tutorial. You can use Windows CMD, Powershell, or Git Bash for Windows.
+1. After the installation, open a new console window to recognize the configuration changes made by the setup script. Use this console to complete the remaining programming tasks in the tutorial. You can use Windows CMD, PowerShell, or Git Bash for Windows.
 1. Run the following code to confirm that CMake version 3.14 or later is installed.
 
     ```shell
@@ -80,7 +81,7 @@ To run the setup script:
 
 To install the remaining tools:
 
-1. Install [Atmel Studio 7](https://www.microchip.com/mplab/avr-support/atmel-studio-7). Atmel Studio is a device development environment that includes the tools to program and flash program the Microchip E54. For this tutorial, you use Atmel Studio only to flash the Microchip E54. The installation takes several minutes, and prompts you several times to approve installation of components.
+1. Install [Atmel Studio 7](https://www.microchip.com/mplab/avr-support/atmel-studio-7). Atmel Studio is a device development environment that includes the tools to program and flash program the Microchip E54. For this tutorial, you use Atmel Studio only to flash the Microchip E54. The installation takes several minutes, and prompts you several times to approve the installation of components.
 
 ## Prepare Azure resources
 
@@ -91,13 +92,13 @@ Use one of the following options to run Azure CLI.
 If you prefer to run Azure CLI locally:
 
 1. If you already have Azure CLI installed locally, run `az --version` to check the version. This tutorial requires Azure CLI 2.10.1 or later.
-1. To install or upgrade, see [Install Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest). If you install Azure CLI locally, you can run CLI commands in the **GCC Command Prompt**, Git Bash for Windows, or Powershell.
+1. To install or upgrade, see [Install Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest). If you install Azure CLI locally, you can run CLI commands in the **GCC Command Prompt**, Git Bash for Windows, or PowerShell.
 
 If you prefer to run Azure CLI in the browser-based Azure Cloud Shell:
 
 1. Use your Azure account credentials to sign into the Azure Cloud shell at https://shell.azure.com/.
     > Note: If this is the first time you've used the Cloud Shell, it prompts you to create storage, which is required to use the Cloud Shell.  Select a subscription to create a storage account and Microsoft Azure Files share.
-1. Select Bash or Powershell as your preferred CLI environment in the **Select environment** dropdown. If you plan to use Azure Cloud Shell, keep your browser open to run the Azure CLI commands in this tutorial.
+1. Select Bash or PowerShell as your preferred CLI environment in the **Select environment** dropdown. If you plan to use Azure Cloud Shell, keep your browser open to run the Azure CLI commands in this tutorial.
 
     ![Select CLI environment](media/cloud-shell-environment.png)
 
@@ -225,7 +226,7 @@ After the build completes, confirm that a binary file was created in the followi
 1. Use the *atprogram* utility to flash the Microchip E54 with the binary image:
     > Note: For more details about using the Atmel-ICE and *atprogram* tools with the Microchip E54, see [Using Atmel-ICE for AVR Programming In Mass Production](http://ww1.microchip.com/downloads/en/AppNotes/00002466A.pdf).
 
-    ```console
+    ```shell
     atprogram --tool edbg --interface SWD --device ATSAME54P20A program --chiperase --file atsame54_azure_iot.bin --verify
     ```
 
@@ -265,22 +266,22 @@ You can use the **Termite** utility to monitor communication and confirm that yo
     ```output
     Starting Azure thread
     Initializing DHCP
-    	IP address: 192.168.1.132
-    	Mask: 255.255.255.0
-    	Gateway: 192.168.1.1
+        IP address: 192.168.1.132
+        Mask: 255.255.255.0
+        Gateway: 192.168.1.1
     SUCCESS: DHCP initialized
-    
+
     Initializing DNS client
-    	DNS address: 192.168.1.1
+        DNS address: 192.168.1.1
     SUCCESS: DNS client initialized
-    
+
     Initializing SNTP client
-    SNTP time update: May 15, 2020 15:43:42.951 UTC 
+    SNTP time update: May 15, 2020 15:43:42.951 UTC
     SUCCESS: SNTP initialized
-    
+
     Initializing MQTT client
     SUCCESS: MQTT client initialized
-    
+
     Time 1589557423
     Starting MQTT thread
     Sending telemetry
@@ -406,7 +407,7 @@ To use Azure CLI to call a method:
 
 1. View the Termite terminal to confirm the output messages:
 
-    ```
+    ```output
     Received direct method=setLedState, id=1, message=true
     LED is turned ON
     Sending device twin update with bool value
@@ -423,6 +424,7 @@ If you continue to another tutorial in this Getting Started guide, you can keep 
 > **Important**: Deleting a resource group is irreversible. The resource group and all the resources contained in it are permanently deleted. Make sure that you do not accidentally delete the wrong resource group or resources.
 
 To delete a resource group by name:
+
 1. Run the [az group delete](https://docs.microsoft.com/cli/azure/group?view=azure-cli-latest#az-group-delete) command. This removes the resource group, the IoT Hub, and the device registration you created.
 
     ```shell
