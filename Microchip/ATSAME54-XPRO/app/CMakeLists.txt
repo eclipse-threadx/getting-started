@@ -12,6 +12,7 @@ set(SOURCES
     mqtt.c
     board_init.c
     main.c
+    prompt.c
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})

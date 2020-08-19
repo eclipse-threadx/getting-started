@@ -14,6 +14,7 @@ set(SOURCES
     mqtt.c
     nx_client.c
     stm_networking.c
+    prompt.c
 )
 
 function(create_target TARGET STARTUP LINKER)

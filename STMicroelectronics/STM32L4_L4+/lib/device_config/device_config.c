@@ -129,12 +129,6 @@ FLASH_Status_t save_to_flash(DevConfig_IoT_Info_t* info)
     char writeData[MAX_READ_BUFF] = { 0 };
     
     // Create credential string using format string
-    // if (sprintf(writeData, format, info->hostname, info->device_id, info->primary_key) < 0) 
-    // {
-    //     printf("Error parsing credentials to store. \n");
-    //     return SAVE_STATUS_ERROR;
-    // }
-    
     if (sprintf(writeData, format, info->hostname, info->device_id, info->primary_key, info->ssid, info->pswd, info->security) < 0) 
     {
         printf("Error parsing credentials to store. \n");
@@ -226,6 +220,7 @@ HAL_StatusTypeDef erase_flash_ST()
 
     if (HAL_FLASHEx_Erase(&EraseInitStruct, &PageError) == HAL_ERROR) {
         if (HAL_FLASHEx_Erase(&EraseInitStruct, &PageError) == HAL_ERROR) {
+            // HAL_FLASHEx_Erase() requires two calls to work, if fails a second time then exit
             printf("Erase PageError: %lu\n", PageError);
             // lock flash
             HAL_FLASH_OB_Lock();
@@ -233,8 +228,6 @@ HAL_StatusTypeDef erase_flash_ST()
             return PageError;
         }
     }
-
-    
 	
 	// Lock flash
 	HAL_FLASH_OB_Lock();

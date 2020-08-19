@@ -74,8 +74,8 @@ bool wifi_softAP_init(SoftAP_WiFi_Info_t *wifi) {
     checkWifiVersion();
 
     // SoftAP configuration
-    u_char ap_ssid[] = "ST_AP_Test";
-    u_char ap_pw[] = "password";
+    uint8_t ap_ssid[] = "ST_AP_Test";
+    uint8_t ap_pw[] = "password";
 
     printf("\nStep 1: Enabling WiFi SoftAP Function:\nPlease connect to the network on "
             "your computer with the following credentials\n\nSSID: %s\nPW: %s\n\n",
@@ -83,7 +83,7 @@ bool wifi_softAP_init(SoftAP_WiFi_Info_t *wifi) {
     printf("Step 2: Visit http://192.168.10.1/ and follow onscreen instructions "
             "to connect to your local WiFi network. \n");
 
-    if (WIFI_ConfigureAP((uint8_t *)(&ap_ssid), (uint8_t *)(&ap_pw), WIFI_ECN_OPEN, 1, 4) != WIFI_STATUS_OK) {
+    if (WIFI_ConfigureAP(ap_ssid, ap_pw, WIFI_ECN_OPEN, 1, 4) != WIFI_STATUS_OK) {
         printf("Error: Wifi configAP driver error \n");
         __BKPT(0);
         return false;
