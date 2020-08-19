@@ -17,10 +17,6 @@ add_subdirectory(${CORE_LIB_DIR}/azure-iot-preview/nx_cloud nx_cloud)
 add_subdirectory(${CORE_LIB_DIR}/azure-iot-preview/azure_iot azure_iot)
 add_subdirectory(${CORE_LIB_DIR}/jsmn jsmn)
 
-# Disable common networking component, STM has it's own
-set(DISABLE_COMMON_NETWORK true)
-add_subdirectory(${CORE_SRC_DIR} core_src)
-
 # Using a local copy of NetXDuo that has been customized for this boards WiFi module
 add_subdirectory(netxduo)
 
