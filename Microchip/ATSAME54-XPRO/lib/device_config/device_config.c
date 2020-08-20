@@ -196,7 +196,6 @@ FLASH_Status_t erase_flash(void)
 }
 
 
-
 /*
  * Read credentials from flash memory and write info to DevConfig struct
  **/

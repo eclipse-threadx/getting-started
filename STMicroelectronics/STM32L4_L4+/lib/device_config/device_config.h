@@ -84,6 +84,4 @@ FLASH_Status_t erase_flash(void);
 // FLASH_Status_t read_flash(char* hostname, char* device_id, char* primary_key);
 FLASH_Status_t read_flash(DevConfig_IoT_Info_t* info);
 
-
-
 #endif // _DEVICE_CONFIG_H
