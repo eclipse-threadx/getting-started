@@ -22,6 +22,9 @@
 #define FLASH_ADDRESS			(SEEPROM_ADDR + 0x8)
 
 
+
+// Helper functions
+
 /* Handler for a HardFault */
 void HardFault_Handler(void);
 
@@ -29,7 +32,7 @@ void HardFault_Handler(void);
 FLASH_Status_t save_to_flash_SAME54(char *writeData);
 FLASH_Status_t read_flash_SAME54(char *readData);
 
-// Helper functions
+
 /**
  ** \brief Hardfault Handler
  * Used to identify when a location outside the reserved area
@@ -45,8 +48,6 @@ void HardFault_Handler(void)
 }
 
 /**
- * \brief Verify the custom data in FLASH
- *
  * Verify the custom data at initial 4 bytes of FLASH
  */
 int8_t verify_seep_signature(void)
@@ -113,8 +114,6 @@ FLASH_Status_t read_flash_SAME54(char *readData)
 // Device Configuration interface functions
 
 /**
- * \brief Verify the SmartEEPROM is setup properly 
- * 
  *	Verify the SmartEEPROM is setup properly 
  */
 bool verify_mem_status(void)
@@ -136,7 +135,8 @@ bool verify_mem_status(void)
 }
 
 /*
- * Verifies if the FLASH has been Azure IoT credentials*/
+ * Verifies if the FLASH has been Azure IoT credentials
+ */
 bool has_credentials(void)
 {
 	uint8_t *FLASH_BUF = (uint8_t *)FLASH_ADDRESS;
