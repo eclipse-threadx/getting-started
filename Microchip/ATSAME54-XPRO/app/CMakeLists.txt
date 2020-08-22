@@ -12,9 +12,14 @@ set(SOURCES
     mqtt.c
     board_init.c
     main.c
+    prompt.c
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})
+target_include_directories(${PROJECT_NAME} 
+    PUBLIC 
+        lib/device_config
+)
 
 target_link_libraries(${PROJECT_NAME}
     PUBLIC
@@ -27,7 +32,9 @@ target_link_libraries(${PROJECT_NAME}
         app_common
         jsmn
         netxdriver
+        device_config
 )
+
 
 target_link_options(${PROJECT_NAME}
     PRIVATE 

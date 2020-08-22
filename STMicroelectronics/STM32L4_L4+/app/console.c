@@ -19,10 +19,7 @@ int __io_putchar(int ch)
 int __io_getchar(void)
 {
 	uint8_t ch;
-	HAL_UART_Receive(&UartHandle, &ch, 1, HAL_MAX_DELAY);
-
-	/* Echo character back to console */
-	HAL_UART_Transmit(&UartHandle, &ch, 1, HAL_MAX_DELAY);
+	HAL_UART_Receive(&UartHandle, &ch, 1, 1);
 
 	/* And cope with Windows */
 	if (ch == '\r') {

@@ -19,7 +19,7 @@ add_subdirectory(${CORE_LIB_DIR}/jsmn jsmn)
 
 # Using a local copy of NetXDuo that has been customized for this boards WiFi module
 add_subdirectory(netxduo)
-
+add_subdirectory(device_config)
 add_subdirectory(stm32cubel4)
 add_subdirectory(netx_driver)
 

@@ -63,7 +63,71 @@ static void checkWifiVersion()
     }
 }
 
-static bool wifi_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
+bool wifi_softAP_init(SoftAP_WiFi_Info_t *wifi) {
+    printf("Initializing WiFi SoftAP\r\n");
+
+    if (WIFI_Init() != WIFI_STATUS_OK) {
+        printf("ERROR: Failed to initialize WIFI module\r\n");
+        return false;
+    }
+
+    checkWifiVersion();
+
+    // SoftAP configuration
+    uint8_t ap_ssid[] = "ST_AP_Test";
+    uint8_t ap_pw[] = "password";
+
+    printf("\nStep 1: Enabling WiFi SoftAP Function:\nPlease connect to the network on "
+            "your computer with the following credentials\n\nSSID: %s\nPW: %s\n\n",
+            ap_ssid, ap_pw);
+    printf("Step 2: Visit http://192.168.10.1/ and follow onscreen instructions "
+            "to connect to your local WiFi network. \n");
+
+    if (WIFI_ConfigureAP(ap_ssid, ap_pw, WIFI_ECN_OPEN, 1, 4) != WIFI_STATUS_OK) {
+        printf("Error: Wifi configAP driver error \n");
+        __BKPT(0);
+        return false;
+    }
+
+    if (WIFI_GetNetworkSettings() != WIFI_STATUS_OK) {
+        printf("Error: Cannot get network settings \n");
+        __BKPT(0);
+        return false;
+    }
+
+    printf("Initializing DHCP\r\n");
+
+    uint8_t ip_address[4];
+    if (WIFI_GetIP_Address(ip_address) != WIFI_STATUS_OK) {
+        return false;
+    }
+
+    uint8_t gateway_address[4];
+    if (WIFI_GetGateway_Address(gateway_address) != WIFI_STATUS_OK) {
+        return false;
+    }
+
+    // Output IP address and gateway address
+    print_address("IP address", ip_address);
+    print_address("Gateway", gateway_address);
+
+    printf("SUCCESS: DHCP initialized\r\n\r\n");
+
+    // Store WiFi credentials into struct
+    if (WIFI_GetSSID(wifi->SSID) != WIFI_STATUS_OK) {
+        return false;
+    }
+    if (WIFI_GetPSWD(wifi->PSWD) != WIFI_STATUS_OK) {
+        return false;
+    }
+    if (WIFI_GetSecurityMode(&(wifi->Security)) != WIFI_STATUS_OK) {
+        return false;
+    }
+
+    return true;
+}
+
+bool wifi_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
 {
     WIFI_Ecn_t security_mode;
 
@@ -184,15 +248,9 @@ static UINT dns_create()
     return NX_SUCCESS;
 }
 
-int stm32_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
+int stm32_network_init()
 {
     UINT status;
-
-    // Intialize Wifi
-    if (!wifi_init(ssid, password, mode))
-    {
-        return NX_NOT_SUCCESSFUL;
-    }
 
     // Initialize the NetX system
     nx_system_initialize();

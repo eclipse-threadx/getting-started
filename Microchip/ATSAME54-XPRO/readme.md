@@ -160,23 +160,7 @@ Confirm that you have the copied the following values from the JSON output to us
 
 ## Prepare the device
 
-To connect the Microchip E54 to Azure, you'll modify a configuration file for Azure IoT settings, rebuild the image, and flash the image to the device.
-
-### Add configuration
-
-1. Open the following file in a text editor:
-
-    > *getting-started\Microchip\ATSAME54-XPRO\app\azure_config.h*
-
-1. Set the Azure IoT device information constants to the values that you saved after you created Azure resources.
-
-    |Constant name|Value|
-    |-------------|-----|
-    |`IOT_HUB_HOSTNAME` |{*Your Iot hub hostName value*}|
-    |`IOT_DEVICE_ID` |{*Your deviceID value*}|
-    |`IOT_PRIMARY_KEY` |{*Your primaryKey value*}|
-
-1. Save and close the file.
+To connect the Microchip E54 to Azure, you'll build the image, flash the image to the device, and configure  Azure IoT settings during runtime via serial terminal.
 
 ### Connect the device
 
@@ -226,7 +210,7 @@ After the build completes, confirm that a binary file was created in the followi
 1. Use the *atprogram* utility to flash the Microchip E54 with the binary image:
     > Note: For more details about using the Atmel-ICE and *atprogram* tools with the Microchip E54, see [Using Atmel-ICE for AVR Programming In Mass Production](http://ww1.microchip.com/downloads/en/AppNotes/00002466A.pdf).
 
-    ```shell
+    ```console
     atprogram --tool edbg --interface SWD --device ATSAME54P20A program --chiperase --file atsame54_azure_iot.bin --verify
     ```
 
@@ -252,6 +236,9 @@ You can use the **Termite** utility to monitor communication and confirm that yo
     ![Termite settings](media/termite-settings.png)
 1. Select OK.
 1. Press the **Reset** button on the device.
+1. In the **Termite** console, you should see serial prompt asking for Azure IoT device information. Use the information you saved from earlier and choose to store these credentials safely in flash. 
+    ![Device Config Prompt](media/microchip_prompt.png)
+
 1. In the **Termite** console, check the following checkpoint values to confirm that the device is initialized and connected to Azure IoT.
 
     |Checkpoint name|Output value|
@@ -287,6 +274,8 @@ You can use the **Termite** utility to monitor communication and confirm that yo
     Sending telemetry
     Sending message {"temperature": 23.50}
     ```
+1. Use the reset button to run the sample again, you should see the Azure IoT device information pop up again with a choice to continue or enter new credentials. Choose to continue with the rest of the sample
+    ![Device Config Reset](media/microchip-reset-prompt.png)
 
 Keep the terminal open to monitor device output in the following steps.
 

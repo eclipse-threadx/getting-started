@@ -14,6 +14,7 @@ set(SOURCES
     mqtt.c
     nx_client.c
     stm_networking.c
+    prompt.c
 )
 
 function(create_target TARGET STARTUP LINKER)
@@ -28,11 +29,14 @@ function(create_target TARGET STARTUP LINKER)
         azrtos::nx_cloud
         azrtos::azure_iot
 
+        device_config
         stm32cubel4
         netx_driver
         app_common
         jsmn
     )
+
+
 
     target_link_options(${TARGET}
         PUBLIC 
