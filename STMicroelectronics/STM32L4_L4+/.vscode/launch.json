@@ -5,20 +5,20 @@
             "name": "GDB Debug",
             "type": "gdb",
             "request": "launch",
-            "cwd": "${workspaceRoot}",
+            "cwd": "${workspaceFolder}",
             "target": "./build/app/stm32l475_azure_iot.elf",
-            "gdbpath" : "arm-none-eabi-gdb",
+            "gdbpath": "arm-none-eabi-gdb",
             "autorun": [
                 "target extended-remote ${input:openOCD.host}",
-]
-        },        
+            ]
+        },
     ],
     "inputs": [
-            {
-                "id": "openOCD.host",
-                "type": "promptString",
-                "default" : "localhost:3333",
-                "description": "Open OCD Debug hostname with port"
-            }
+        {
+            "id": "openOCD.host",
+            "type": "promptString",
+            "default": "localhost:3333",
+            "description": "Open OCD Debug hostname with port"
+        }
     ]
 }
