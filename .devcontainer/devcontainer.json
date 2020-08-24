@@ -17,8 +17,11 @@
 	// Add the IDs of extensions you want installed when the container is created.
 	"extensions": [
         "ms-vscode.cpptools",
-        "ms-code.make-tools",
+        "ms-vscode.make-tools",
+        "twxs.cmake",
         "webfreak.debug",
+        "xaver.clang-format",
+        "vsciot-vscode.vscode-dtdl",
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
