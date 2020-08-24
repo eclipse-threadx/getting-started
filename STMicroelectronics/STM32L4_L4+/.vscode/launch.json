@@ -5,7 +5,7 @@
             "name": "GDB Debug",
             "type": "gdb",
             "request": "launch",
-            "cwd": "${workspaceRoot}",
+            "cwd": "${workspaceFolder}",
             "target": "./build/app/stm32l475_azure_iot.elf",
             "gdbpath" : "arm-none-eabi-gdb",
             "autorun": [

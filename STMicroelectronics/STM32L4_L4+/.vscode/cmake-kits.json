@@ -1,10 +1,6 @@
 [
     {
-        "name": "ARM Cortex-M4",
-        "toolchainFile": "d:/projects/iot/getting-started/cmake/arm-gcc-cortex-m4.cmake"
-    },
-    {
-        "name": "ARM Cortex-M7",
-        "toolchainFile": "d:/projects/iot/getting-started/cmake/arm-gcc-cortex-m7.cmake"
+        "name": "ARM GCC Cortex",
+        "toolchainFile": "${workspaceFolder}/../../cmake/arm-gcc-cortex-m4.cmake"
     }
 ]
