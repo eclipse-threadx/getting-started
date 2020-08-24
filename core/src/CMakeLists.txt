@@ -9,10 +9,10 @@ set(SOURCES
     azure_iot_mqtt/sas_token.c
     azure_iot_mqtt/sha256.c
 
-    azure_iot_nx/azure_iot_ciphersuites.c
     azure_iot_nx/azure_iot_nx_client.c
 
     azure_iot_cert.c
+    azure_iot_ciphersuites.c
     json_utils.c
     newlib_nano.c
     sntp_client.c

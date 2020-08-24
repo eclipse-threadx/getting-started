@@ -23,7 +23,7 @@ typedef void (*threadx_entry)(ULONG parameter);
 typedef struct AZURE_IOT_NX_CLIENT_STRUCT
 {
     NX_SECURE_X509_CERT root_ca_cert;
-    UCHAR nx_azure_iot_tls_metadata_buffer[NX_AZURE_IOT_TLS_METADATA_BUFFER_SIZE];
+    ULONG nx_azure_iot_tls_metadata_buffer[NX_AZURE_IOT_TLS_METADATA_BUFFER_SIZE / sizeof(ULONG)];
     ULONG nx_azure_iot_thread_stack[NX_AZURE_IOT_STACK_SIZE / sizeof(ULONG)];
 
     NX_AZURE_IOT nx_azure_iot;

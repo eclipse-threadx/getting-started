@@ -4,7 +4,13 @@
 #ifndef _AZURE_CONFIG_H
 #define _AZURE_CONFIG_H
 
-#include "wwd_constants.h"
+typedef enum
+{
+    None         = 0,
+    WEP          = 1,
+    WPA_PSK_TKIP = 2,
+    WPA2_PSK_AES = 3
+} WiFi_Mode;
 
 // ----------------------------------------------------------------------------
 // WiFi connection information
@@ -13,7 +19,7 @@
 #define WIFI_PASSWORD       ""
 
 // WIFI Security as defined in lib/wiced_sdk/43xxx_Wi-Fi/wwd_constants.h
-#define WIFI_SECURITY       WICED_SECURITY_WPA2_MIXED_PSK
+#define WIFI_SECURITY       WPA2_PSK_AES
 
 // ----------------------------------------------------------------------------
 // Azure IoT Hub Connection Transport
