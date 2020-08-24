@@ -2,7 +2,7 @@
 # Licensed under the MIT License.
 
 cmake_minimum_required(VERSION 3.10)
-project(stm32_azure_iot C ASM)
+project(stm32l4_azure_iot C ASM)
 
 set(CMAKE_C_STANDARD 99)
 
