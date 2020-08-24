@@ -17,7 +17,7 @@
 	// Add the IDs of extensions you want installed when the container is created.
 	"extensions": [
         "ms-vscode.cpptools",
-        "ms-vscode.make-tools",
+        "ms-vscode.cmake-tools",
         "twxs.cmake",
         "webfreak.debug",
         "xaver.clang-format",
