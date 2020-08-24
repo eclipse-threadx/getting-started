@@ -21,8 +21,7 @@ You can choose to develop locally or develop in [Codespaces](https://github.com/
 
 ### Setup Local Development
 
-
-1. Go to the [Getting Started repository](https://github.com/azure-rtos/getting-started)
+1. Go to the [Getting Started GitHub repository](https://github.com/azure-rtos/getting-started)
 1. Recursively clone the repository to your machine.
 1. Run as Administrator "tools\get-toolchain.bat" from the repository clone to install the required build tools.
 1. Install [Visual Studio Code](https://code.visualstudio.com).
@@ -36,11 +35,12 @@ You can choose to develop locally or develop in [Codespaces](https://github.com/
 
 ### Setup Codespaces Development
 
-1. Install Termite.
-1. Go to the [Getting Started repository](https://github.com/azure-rtos/getting-started)
+1. Go to the [Getting Started GitHub repository](https://github.com/azure-rtos/getting-started).
 1. Choose "Code | Open with Codespaces", to create and launch your Codespaces environment.
 1. Setup your router to forward outside connections to port 3333 to your local machine.
-    > Note: This is required to allow the GDB service running in Codespaces to communicate with the devkit via the local OpenOCD instance
+    > Note: This is required to allow the GDB service running in Codespaces to communicate with the devkit via the local OpenOCD instance.
+
+1. Install [Termite](https://www.compuphase.com/software_termite.htm) for serial port monitoring.
 
 ## Start Debugging
 
@@ -48,7 +48,7 @@ You can choose to develop locally or develop in [Codespaces](https://github.com/
 
     |Devkit  |OpenOCD Command |
     |---------|---------|
-    |STM BL475E-IOT01 |openocd.exe -f "interface/stlink.cfg" -f "target/stm32l4x.cfg" -c "init" -c "reset init" -c "bindto 0.0.0.0" |
+    |STM BL475E-IOT01 |openocd.exe -f "board/stm32l4discovery.cfg" -c "bindto 0.0.0.0" |
 
 1. Select "Add a Folder to your Workspace...", and choose the folder for the devkit of your choice.
     > For example: choose the "STMicroelectronics/STM32L4_L4+" folder for the B-L475-IOT01 devkit.
