@@ -50,17 +50,6 @@
             "target": "./build/app/stm32l475_azure_iot.elf",
             "gdbpath" : "arm-none-eabi-gdb",
             "autorun": [
-                "target extended-remote 10.0.0.131:3333",
-            ]
-        },
-        {
-            "name": "GDB Debug Cloud Remote",
-            "type": "gdb",
-            "request": "launch",
-            "cwd": "${workspaceRoot}",
-            "target": "./build/app/stm32l475_azure_iot.elf",
-            "gdbpath" : "arm-none-eabi-gdb",
-            "autorun": [
                 "target extended-remote winterbug.com:3333",
             ]
         }
