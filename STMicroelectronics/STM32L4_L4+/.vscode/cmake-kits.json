@@ -1,10 +1,10 @@
 [
     {
-        "name": "GSG Cortex m4",
+        "name": "ARM Cortex-M4",
         "toolchainFile": "d:/projects/iot/getting-started/cmake/arm-gcc-cortex-m4.cmake"
     },
     {
-        "name": "GSG Cortex m7",
+        "name": "ARM Cortex-M7",
         "toolchainFile": "d:/projects/iot/getting-started/cmake/arm-gcc-cortex-m7.cmake"
     }
 ]
