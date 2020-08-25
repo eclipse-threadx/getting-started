@@ -8,6 +8,7 @@ This article on debugging is under construction. It refers to products in privat
     |Devkit |Driver |
     |---------|---------|
     |STM BL475E-IOT01 |[STLink](https://www.st.com/en/development-tools/stsw-link004.html) |
+    |STM BL4S5I-IOT01 |[STLink](https://www.st.com/en/development-tools/stsw-link004.html) |
 
 1. Download and unzip [OpenOCD](https://gnutoolchains.com/arm-eabi/openocd) onto your computer and add it to your environment path.
 
@@ -45,7 +46,7 @@ You can choose to develop locally or develop in [Codespaces](https://github.com/
 1. From a new command window run OpenOCD locally, using the appropriate command below:
     |Devkit  |OpenOCD Command |
     |---------|---------|
-    |STM BL475E-IOT01 |openocd.exe -f "board/stm32l4discovery.cfg" -c "bindto 0.0.0.0" |
+    |STM BL475E-IOT01 |openocd.exe -f "board/stm32l4discovery.cfg" -c "bindto 0.0.0.0" -c init -c "reset init"
 
 1. Select "Add a Folder to your Workspace...", and choose the folder for the devkit of your choice.
     > For example: choose the "STMicroelectronics/STM32L4_L4+" folder for the B-L475-IOT01 devkit.
