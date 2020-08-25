@@ -1,12 +1,17 @@
 ---
 page_type: sample
+description: Connecting an MXChip AZ3166 device to Azure IoT using MQTT
 languages:
 - c
 products:
 - azure-iot
 - azure-iot-hub
 - azure-iot-pnp
+- azure-iot-device
 - azure-rtos
+extendedZipContent:
+- path: "/"
+  target: "/"
 ---
 
 # Getting started with the MXChip AZ3166 IoT DevKit
