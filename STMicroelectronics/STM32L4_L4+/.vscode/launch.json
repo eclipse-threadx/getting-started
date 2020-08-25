@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "GDB Debug",
+            "name": "B-L475E-IOT01",
             "type": "gdb",
             "request": "launch",
             "cwd": "${workspaceFolder}",
@@ -12,6 +12,17 @@
                 "target extended-remote ${input:openOCD.host}",
             ]
         },
+        {
+            "name": "B-L4S5I-IOT01",
+            "type": "gdb",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "target": "./build/app/stm32l4S5_azure_iot.elf",
+            "gdbpath": "arm-none-eabi-gdb",
+            "autorun": [
+                "target extended-remote ${input:openOCD.host}",
+            ]
+        },        
     ],
     "inputs": [
         {
