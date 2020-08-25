@@ -26,7 +26,6 @@ You can choose to develop locally or develop in [Codespaces](https://github.com/
 1. Install [Visual Studio Code](https://code.visualstudio.com).
 1. Open Visual Studio Code and install the required extensions:
     * Required
-      * [Native Debug](https://marketplace.visualstudio.com/items?itemName=webfreak.debug)
       * [CMake Tools](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cmake-tools)
     * Recommended
       * [C/C++](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools)

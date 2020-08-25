@@ -3,26 +3,22 @@
     "configurations": [
         {
             "name": "B-L475E-IOT01",
-            "type": "gdb",
+            "type": "cppdbg",
             "request": "launch",
             "cwd": "${workspaceFolder}",
-            "target": "./build/app/stm32l475_azure_iot.elf",
-            "gdbpath": "arm-none-eabi-gdb",
-            "autorun": [
-                "target extended-remote ${input:openOCD.host}",
-            ]
+            "miDebuggerPath": "arm-none-eabi-gdb",
+            "miDebuggerServerAddress": "${input:openOCD.host}",
+            "program": "./build/app/stm32l475_azure_iot.elf",
         },
         {
             "name": "B-L4S5I-IOT01",
-            "type": "gdb",
+            "type": "cppdbg",
             "request": "launch",
             "cwd": "${workspaceFolder}",
-            "target": "./build/app/stm32l4S5_azure_iot.elf",
-            "gdbpath": "arm-none-eabi-gdb",
-            "autorun": [
-                "target extended-remote ${input:openOCD.host}",
-            ]
-        },        
+            "miDebuggerPath": "arm-none-eabi-gdb",
+            "miDebuggerServerAddress": "${input:openOCD.host}",
+            "program": "./build/app/stm32l4S5_azure_iot.elf",
+        },
     ],
     "inputs": [
         {

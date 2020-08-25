@@ -1,23 +1,12 @@
-// For format details, see https://aka.ms/vscode-remote/devcontainer.json or this file's README at:
+// For format details, see https://aka.ms/vscode-remote/devcontainer.json
 {
     "dockerfile": "Dockerfile",
     "extensions": [
         "ms-vscode.cpptools",
         "ms-vscode.cmake-tools",
         "twxs.cmake",
-        "webfreak.debug",
-        "xaver.clang-format",
-        "vsciot-vscode.vscode-dtdl",
+        "xaver.clang-format"
     ],
-    "postCreateCommand": "git submodule update --recursive --init",
 	"remoteUser": "vscode",
-	"build": {
-		"dockerfile": "Dockerfile",
-		"args": {
-			"VARIANT": "buster"
-		}
-	},
-	"settings": {
-		"terminal.integrated.shell.linux": "/bin/bash"
-	}
+    "postCreateCommand": "git submodule update --recursive --init",
 }
