@@ -7,8 +7,11 @@
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "miDebuggerPath": "arm-none-eabi-gdb",
-            "miDebuggerServerAddress": "${input:openOCD.host}",
-            "program": "./build/app/stm32l475_azure_iot.elf",
+            "program": "${cwd}/build/app/stm32l475_azure_iot.elf",
+            "setupCommands": [
+                { "text": "target remote ${input:openOCD.host}" },
+                { "text": "monitor reset init" }
+            ]
         },
         {
             "name": "B-L4S5I-IOT01",
@@ -16,8 +19,11 @@
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "miDebuggerPath": "arm-none-eabi-gdb",
-            "miDebuggerServerAddress": "${input:openOCD.host}",
             "program": "./build/app/stm32l4S5_azure_iot.elf",
+            "setupCommands": [
+                { "text": "target remote ${input:openOCD.host}" },
+                { "text": "monitor reset init" }
+            ]
         },
     ],
     "inputs": [
