@@ -16,7 +16,7 @@
 You can choose to develop locally or develop in [Codespaces](https://github.com/features/codespaces).
 
 * Developing locally requires the installation of the build/debug tools on your local machine to build the application.
-* Developing in Codespaces doesn't require additional installation, however it requires early access to the Codespaces beta.
+* Developing in Codespaces doesn't require additional installation, however it requires early access to the Codespaces beta and also to expose a port on your computer the public internet.
 
 
 ### Setup Local Development
