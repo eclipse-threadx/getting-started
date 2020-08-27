@@ -42,6 +42,10 @@ struct AZURE_IOT_MQTT_STRUCT
     CHAR* mqtt_hub_hostname;
     CHAR* mqtt_model_id;
 
+    CHAR* mqtt_dps_endpoint;
+    CHAR* mqtt_dps_id_scope;
+    CHAR* mqtt_device_registration_id;
+
     UINT reported_property_version;
     UINT desired_property_version;
     CHAR direct_command_request_id[AZURE_IOT_MQTT_DIRECT_COMMAND_RID_SIZE];
@@ -54,7 +58,7 @@ struct AZURE_IOT_MQTT_STRUCT
 
     ULONG mqtt_client_stack[AZURE_IOT_MQTT_CLIENT_STACK_SIZE / sizeof(ULONG)];
 
-    ULONG tls_metadata_buffer[NX_AZURE_IOT_TLS_METADATA_BUFFER_SIZE / sizeof(ULONG)]; 
+    ULONG tls_metadata_buffer[NX_AZURE_IOT_TLS_METADATA_BUFFER_SIZE / sizeof(ULONG)];
     UCHAR tls_packet_buffer[TLS_PACKET_BUFFER];
 
     func_ptr_direct_method cb_ptr_mqtt_invoke_direct_method;
