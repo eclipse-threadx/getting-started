@@ -6,11 +6,16 @@
             "type": "cppdbg",
             "request": "launch",
             "cwd": "${workspaceFolder}",
+            "MIMode": "gdb",
             "miDebuggerPath": "arm-none-eabi-gdb",
             "program": "${cwd}/build/app/stm32l475_azure_iot.elf",
             "setupCommands": [
+                { "text": "set remotetimeout 10" },
                 { "text": "target remote ${input:openOCD.host}" },
-                { "text": "monitor reset init" }
+                { "text": "file ${cwd}/build/app/stm32l475_azure_iot.elf"},
+                { "text": "monitor halt" },
+                { "text": "monitor reset init" },
+                { "text": "load" },
             ]
         },
         {
@@ -21,8 +26,12 @@
             "miDebuggerPath": "arm-none-eabi-gdb",
             "program": "./build/app/stm32l4S5_azure_iot.elf",
             "setupCommands": [
+                { "text": "set remotetimeout 10" },
                 { "text": "target remote ${input:openOCD.host}" },
-                { "text": "monitor reset init" }
+                { "text": "file ${cwd}/build/app/stm32l4S5_azure_iot.elf"},
+                { "text": "monitor halt" },
+                { "text": "monitor reset init" },
+                { "text": "load" },
             ]
         },
     ],
