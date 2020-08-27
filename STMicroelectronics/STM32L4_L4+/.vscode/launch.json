@@ -1,0 +1,37 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "B-L475E-IOT01",
+            "type": "cppdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "miDebuggerPath": "arm-none-eabi-gdb",
+            "program": "${cwd}/build/app/stm32l475_azure_iot.elf",
+            "setupCommands": [
+                { "text": "target remote ${input:openOCD.host}" },
+                { "text": "monitor reset init" }
+            ]
+        },
+        {
+            "name": "B-L4S5I-IOT01",
+            "type": "cppdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "miDebuggerPath": "arm-none-eabi-gdb",
+            "program": "./build/app/stm32l4S5_azure_iot.elf",
+            "setupCommands": [
+                { "text": "target remote ${input:openOCD.host}" },
+                { "text": "monitor reset init" }
+            ]
+        },
+    ],
+    "inputs": [
+        {
+            "id": "openOCD.host",
+            "type": "promptString",
+            "default": "localhost:3333",
+            "description": "Open OCD Debug hostname with port"
+        }
+    ]
+}

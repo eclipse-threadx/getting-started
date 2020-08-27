@@ -1,4 +1,17 @@
-<h1>Getting started with the Microchip ATSAME54-XPro evaluation kit</h1>
+---
+page_type: sample
+languages:
+- c
+products:
+- azure-iot
+- azure-iot-hub
+- azure-iot-pnp
+- azure-rtos
+target:
+- embedded
+---
+
+# Getting started with the Microchip ATSAME54-XPro evaluation kit
 
 **Total completion time**: 35 minutes
 
@@ -35,7 +48,7 @@ Clone the following repo to download all sample device code, setup scripts, and 
 
 To clone the repo, run the following command:
 
-```
+```shell
 git clone --recursive https://github.com/azure-rtos/getting-started
 ```
 
@@ -44,10 +57,12 @@ git clone --recursive https://github.com/azure-rtos/getting-started
 The cloned repo contains a setup script that installs and configures the first set of required tools. After you run the setup script, you can install the remaining tools manually. If you installed these tools in another tutorial in the getting started guide, you don't need to do it again.
 
 > Note: The setup script installs the following tools:
+
 > * [GCC](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm): Compile
 > * [CMake](https://cmake.org): Build
 > * [Ninja](https://ninja-build.org): Build
 > * [Termite](https://www.compuphase.com/software_termite.htm): Monitor
+> * [Azure IoT Explorer](https://github.com/Azure/azure-iot-explorer/releases): Cross-platform utility to  monitor and manage Azure IoT resources
 
 To run the setup script:
 
@@ -55,18 +70,18 @@ To run the setup script:
 
     > *getting-started\tools\get-toolchain.bat*
 
-1. After the installation, open a new console window to recognize the configuration changes made by the setup script. Use this console to complete the remaining programming tasks in the tutorial. You can use Windows CMD, Powershell, or Git Bash for Windows.
+    After the installation completes, the Azure IoT Explorer opens automatically. Keep the IoT Explorer open, you'll use it in later steps.
+
+1. After the installation, open a new console window to recognize the configuration changes made by the setup script. Use this console to complete the remaining programming tasks in the tutorial. You can use Windows CMD, PowerShell, or Git Bash for Windows.
 1. Run the following code to confirm that CMake version 3.14 or later is installed.
 
-    ```
+    ```shell
     cmake --version
     ```
 
 To install the remaining tools:
 
-1. Install [Atmel Studio 7](https://www.microchip.com/mplab/avr-support/atmel-studio-7). Atmel Studio is a device development environment that includes the tools to program and flash program the Microchip E54. For this tutorial, you use Atmel Studio only to flash the Microchip E54. The installation takes several minutes, and prompts you several times to approve installation of components.
-
-1. Install [Azure IoT Explorer](https://github.com/Azure/azure-iot-explorer/releases). You can use this cross-platform utility to monitor and manage Azure IoT resources.
+1. Install [Atmel Studio 7](https://www.microchip.com/mplab/avr-support/atmel-studio-7). Atmel Studio is a device development environment that includes the tools to program and flash program the Microchip E54. For this tutorial, you use Atmel Studio only to flash the Microchip E54. The installation takes several minutes, and prompts you several times to approve the installation of components.
 
 ## Prepare Azure resources
 
@@ -76,14 +91,14 @@ Use one of the following options to run Azure CLI.
 
 If you prefer to run Azure CLI locally:
 
-1. If you already have Azure CLI installed locally, run `az --version` to check the version. This tutorial requires Azure CLI 2.5.1 or later.
-1. To install or upgrade, see [Install Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest). If you install Azure CLI locally, you can run CLI commands in the **GCC Command Prompt**, Git Bash for Windows, or Powershell.
+1. If you already have Azure CLI installed locally, run `az --version` to check the version. This tutorial requires Azure CLI 2.10.1 or later.
+1. To install or upgrade, see [Install Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest). If you install Azure CLI locally, you can run CLI commands in the **GCC Command Prompt**, Git Bash for Windows, or PowerShell.
 
 If you prefer to run Azure CLI in the browser-based Azure Cloud Shell:
 
 1. Use your Azure account credentials to sign into the Azure Cloud shell at https://shell.azure.com/.
     > Note: If this is the first time you've used the Cloud Shell, it prompts you to create storage, which is required to use the Cloud Shell.  Select a subscription to create a storage account and Microsoft Azure Files share.
-1. Select Bash or Powershell as your preferred CLI environment in the **Select environment** dropdown. If you plan to use Azure Cloud Shell, keep your browser open to run the Azure CLI commands in this tutorial.
+1. Select Bash or PowerShell as your preferred CLI environment in the **Select environment** dropdown. If you plan to use Azure Cloud Shell, keep your browser open to run the Azure CLI commands in this tutorial.
 
     ![Select CLI environment](media/cloud-shell-environment.png)
 
@@ -95,22 +110,23 @@ To create an IoT hub:
 
 1. In your CLI console, run the [az extension add](https://docs.microsoft.com/cli/azure/extension?view=azure-cli-latest#az-extension-add) command to add the Microsoft Azure IoT Extension for Azure CLI to your CLI shell. The IOT Extension adds IoT Hub, IoT Edge, and IoT Device Provisioning Service (DPS) specific commands to Azure CLI.
 
-   ```azurecli
+   ```shell
    az extension add --name azure-iot
    ```
 
-1. Run the [az group create](https://docs.microsoft.com/cli/azure/group?view=azure-cli-latest#az-group-create) command to create a resource group. The following command creates a resource group named *MyResourceGroup* in the *eastus* location.
-    > Note: To set an alternate `location`, run [az account list-locations](https://docs.microsoft.com/cli/azure/account?view=azure-cli-latest#az-account-list-locations) to see available locations. Specify the alternate location in the following command in place of *eastus*.
+1. Run the [az group create](https://docs.microsoft.com/cli/azure/group?view=azure-cli-latest#az-group-create) command to create a resource group. The following command creates a resource group named *MyResourceGroup* in the *centralus* region.
 
-    ```azurecli
-    az group create --name MyResourceGroup --location eastus
+    > Note: You can optionally set an alternate `location`. To see available locations, run [az account list-locations](https://docs.microsoft.com/cli/azure/account?view=azure-cli-latest#az-account-list-locations). For this tutorial we recommend using `centralus` as in the example CLI command. The IoT Plug and Play feature that you use later in the tutorial, is currently only available in three regions, including `centralus`.
+
+    ```shell
+    az group create --name MyResourceGroup --location centralus
     ```
 
 1. Run the [az iot hub create](https://docs.microsoft.com/cli/azure/iot/hub?view=azure-cli-latest#az-iot-hub-create) command to create an IoT hub. It might take a few minutes to create an IoT hub.
 
     *YourIotHubName*. Replace this placeholder below with the name you chose for your IoT hub. An IoT hub name must be globally unique in Azure. This placeholder is used in the rest of this tutorial to represent your unique IoT hub name.
 
-    ```azurecli
+    ```shell
     az iot hub create --resource-group MyResourceGroup --name {YourIoTHubName}
     ```
 
@@ -130,7 +146,7 @@ To register a device:
 
     *MyMicrochipDevice*. You can use this name directly for the device in CLI commands in this tutorial. Optionally, use a different name.
 
-    ```azurecli
+    ```shell
     az iot hub device-identity create --device-id MyMicrochipDevice --hub-name {YourIoTHubName}
     ```
 
@@ -210,13 +226,13 @@ After the build completes, confirm that a binary file was created in the followi
 1. Use the *atprogram* utility to flash the Microchip E54 with the binary image:
     > Note: For more details about using the Atmel-ICE and *atprogram* tools with the Microchip E54, see [Using Atmel-ICE for AVR Programming In Mass Production](http://ww1.microchip.com/downloads/en/AppNotes/00002466A.pdf).
 
-    ```
+    ```shell
     atprogram --tool edbg --interface SWD --device ATSAME54P20A program --chiperase --file atsame54_azure_iot.bin --verify
     ```
 
     After the flashing process completes, the console confirms that programming was successful:
 
-    ```
+    ```output
     Firmware check OK
     Programming and verification completed successfully.
     ```
@@ -247,25 +263,25 @@ You can use the **Termite** utility to monitor communication and confirm that yo
 
     The Termite terminal shows the details about the device, your connection, and the checkpoint values.
 
-    ```
+    ```output
     Starting Azure thread
     Initializing DHCP
-    	IP address: 192.168.1.132
-    	Mask: 255.255.255.0
-    	Gateway: 192.168.1.1
+        IP address: 192.168.1.132
+        Mask: 255.255.255.0
+        Gateway: 192.168.1.1
     SUCCESS: DHCP initialized
-    
+
     Initializing DNS client
-    	DNS address: 192.168.1.1
+        DNS address: 192.168.1.1
     SUCCESS: DNS client initialized
-    
+
     Initializing SNTP client
-    SNTP time update: May 15, 2020 15:43:42.951 UTC 
+    SNTP time update: May 15, 2020 15:43:42.951 UTC
     SUCCESS: SNTP initialized
-    
+
     Initializing MQTT client
     SUCCESS: MQTT client initialized
-    
+
     Time 1589557423
     Starting MQTT thread
     Sending telemetry
@@ -276,13 +292,15 @@ Keep the terminal open to monitor device output in the following steps.
 
 ## View device properties
 
+> **Note**: From this point in the tutorial, you can continue these steps, or you can optionally follow the same steps using the IoT Plug and Play preview. IoT Plug and Play provides a standard device model that lets a compatible device advertise its capabilities to an application. This approach simplifies the process of adding, configuring, and interacting with devices. To try IoT Plug and Play with your device, see [Using IoT Plug and Play with Azure RTOS](../../docs/plugandplay.md).
+
 You can use the Azure IoT Explorer to view and manage the properties of your devices. In the following steps, you'll add a connection to your IoT hub in IoT Explorer. With the connection, you can view properties for devices associated with the IoT hub. Optionally, you can perform the same task using Azure CLI.
 
 To add a connection to your IoT hub:
 
 1. In your CLI console, run the [az iot hub show-connection-string](https://docs.microsoft.com/en-us/cli/azure/iot/hub?view=azure-cli-latest#az-iot-hub-show-connection-string) command to get the connection string for your IoT hub.
 
-    ```azurecli
+    ```shell
     az iot hub show-connection-string --name {YourIoTHubName}
     ```
 
@@ -308,7 +326,7 @@ To use Azure CLI to view device properties:
 
 1. Run the [az iot hub device-identity show](https://docs.microsoft.com/en-us/cli/azure/ext/azure-iot/iot/hub/device-identity?view=azure-cli-latest#ext-azure-iot-az-iot-hub-device-identity-show) command.
 
-    ```azurecli
+    ```shell
     az iot hub device-identity show --device-id MyMicrochipDevice --hub-name {YourIoTHubName}
     ```
 
@@ -334,7 +352,7 @@ To use Azure CLI to view device telemetry:
 
 1. In your CLI console, run the [az iot hub monitor-events](https://docs.microsoft.com/en-us/cli/azure/ext/azure-iot/iot/hub?view=azure-cli-latest#ext-azure-iot-az-iot-hub-monitor-events) command. Use the names that you created previously in Azure IoT for your device and IoT hub.
 
-    ```azurecli
+    ```shell
     az iot hub monitor-events --device-id MyMicrochipDevice --hub-name {YourIoTHubName}
     ```
 
@@ -389,7 +407,7 @@ To use Azure CLI to call a method:
 
 1. View the Termite terminal to confirm the output messages:
 
-    ```json
+    ```output
     Received direct method=setLedState, id=1, message=true
     LED is turned ON
     Sending device twin update with bool value
@@ -406,15 +424,16 @@ If you continue to another tutorial in this Getting Started guide, you can keep 
 > **Important**: Deleting a resource group is irreversible. The resource group and all the resources contained in it are permanently deleted. Make sure that you do not accidentally delete the wrong resource group or resources.
 
 To delete a resource group by name:
+
 1. Run the [az group delete](https://docs.microsoft.com/cli/azure/group?view=azure-cli-latest#az-group-delete) command. This removes the resource group, the IoT Hub, and the device registration you created.
 
-    ```azurecli
+    ```shell
     az group delete --name MyResourceGroup
     ```
 
 1. Run the [az group list](https://docs.microsoft.com/cli/azure/group?view=azure-cli-latest#az-group-list) command to confirm the resource group is deleted.  
 
-    ```azurecli
+    ```shell
     az group list
     ```
 

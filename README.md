@@ -5,9 +5,10 @@
 
 # Getting Started with Azure RTOS
 
-This Getting Started guides shows device developers how to start working with Azure RTOS. Each guide will step through from installation of the required toolchains, to connecting the device to Azure IoT Hub.
+This Getting Started guides shows device developers how to start working with Azure RTOS. Each guide will step through from installation of the required toolchain, to connecting the device to Azure IoT Hub using IoT Plug and Play.
 
 * Refer to [Getting Started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824) for additional information on the guides and Azure RTOS.
+* Refer to [IoT Plug and Play](https://docs.microsoft.com/en-us/azure/iot-pnp) for information on the Iot Plug and Play Preview Refresh.
 * Ask questions on the [Azure RTOS Q&A](https://aka.ms/QnA/azure-rtos) site.
 
 ## Getting Started Guides
@@ -15,6 +16,7 @@ This Getting Started guides shows device developers how to start working with Az
 The following board specific guides will get you started with Azure RTOS:
 
 * Getting started with the [Microchip ATSAME54-XPRO](Microchip/ATSAME54-XPRO)
+* Getting started with the [MXCHIP AZ3166](MXChip/AZ3166)
 * Getting started with the [NXP MIMXRT1060-EVK](NXP/MIMXRT1060-EVK)
 * Getting started with the [Renesas AE-Cloud2](Renesas/Synergy)
 * Getting started with the [STMicroelectronics B-L475E-IOT01A / B-L4S5I-IOT01A](STMicroelectronics/STM32L4_L4+)

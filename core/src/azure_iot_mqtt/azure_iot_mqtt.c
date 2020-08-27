@@ -35,14 +35,6 @@
 #define MQTT_TIMEOUT         (10 * TX_TIMER_TICKS_PER_SECOND)
 #define MQTT_KEEP_ALIVE      240
 
-#define MQTT_TOPIC_NAME_LENGTH   300
-#define MQTT_MESSAGE_NAME_LENGTH 1000
-
-CHAR mqtt_topic_buffer[MQTT_TOPIC_NAME_LENGTH] = {0};
-UINT mqtt_topic_length;
-CHAR mqtt_message_buffer[MQTT_MESSAGE_NAME_LENGTH] = {0};
-UINT mqtt_message_length;
-
 #define MQTT_QOS_0 0 // QoS 0 - Deliver at most once
 #define MQTT_QOS_1 1 // QoS 1 - Deliver at least once
 #define MQTT_QOS_2 2 // QoS 2 - Deliver exactly once
@@ -86,7 +78,7 @@ UINT azure_iot_mqtt_register_device_twin_desired_prop_callback(
 }
 
 UINT azure_iot_mqtt_register_device_twin_prop_callback(
-    AZURE_IOT_MQTT* azure_iot_mqtt, func_ptr_device_twin_desired_prop mqtt_device_twin_prop_callback)
+    AZURE_IOT_MQTT* azure_iot_mqtt, func_ptr_device_twin_prop mqtt_device_twin_prop_callback)
 {
     if (azure_iot_mqtt == NULL || azure_iot_mqtt->cb_ptr_mqtt_device_twin_prop_callback != NULL)
     {
@@ -106,17 +98,18 @@ static UINT tls_setup(NXD_MQTT_CLIENT* client,
 
     AZURE_IOT_MQTT* azure_iot_mqtt = (AZURE_IOT_MQTT*)client->nxd_mqtt_packet_receive_context;
 
-    for (UINT index = 0; index < TLS_REMOTE_CERTIFICATE_COUNT; ++index)
+    // Create TLS session.
+    status = _nx_secure_tls_session_create_ext(tls_session,
+        _nx_azure_iot_tls_supported_crypto,
+        _nx_azure_iot_tls_supported_crypto_size,
+        _nx_azure_iot_tls_ciphersuite_map,
+        _nx_azure_iot_tls_ciphersuite_map_size,
+        azure_iot_mqtt->tls_metadata_buffer,
+        sizeof(azure_iot_mqtt->tls_metadata_buffer));
+    if (status != NX_SUCCESS)
     {
-        status = nx_secure_tls_remote_certificate_allocate(tls_session,
-            &azure_iot_mqtt->tls_remote_certificate[index],
-            azure_iot_mqtt->tls_remote_cert_buffer[index],
-            sizeof(azure_iot_mqtt->tls_remote_cert_buffer[index]));
-        if (status != NX_SUCCESS)
-        {
-            printf("Unable to allocate memory for interemediate CA certificate (0x%02x)\r\n", status);
-            return status;
-        }
+        printf("Failed to create TLS session status: %d\r\n", status);
+        return status;
     }
 
     // Add a CA Certificate to our trusted store for verifying incoming server certificates
@@ -175,7 +168,7 @@ static UINT mqtt_publish(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR* mess
 
 static UINT mqtt_publish_float(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR* label, float value)
 {
-    CHAR mqtt_message[200] = {0};
+    CHAR mqtt_message[100];
 
     snprintf(mqtt_message, sizeof(mqtt_message), "{\"%s\":%3.2f}", label, value);
     printf("Sending message %s\r\n", mqtt_message);
@@ -185,28 +178,18 @@ static UINT mqtt_publish_float(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR
 
 static UINT mqtt_publish_bool(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR* label, bool value)
 {
-    CHAR mqtt_message[200] = {0};
+    CHAR mqtt_message[200];
 
-    snprintf(mqtt_message, sizeof(mqtt_message), "{\"%s\":%s}", label, (value ? "true" : false));
+    snprintf(mqtt_message, sizeof(mqtt_message), "{\"%s\":%s}", label, (value ? "true" : "false"));
     printf("Sending message %s\r\n", mqtt_message);
 
     return mqtt_publish(azure_iot_mqtt, topic, mqtt_message);
 }
 
-static UINT mqtt_respond_direct_method(
-    AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR* request_id, MQTT_DIRECT_METHOD_RESPONSE* response)
-{
-    snprintf(topic, MQTT_TOPIC_NAME_LENGTH, DIRECT_METHOD_RESPONSE, response->status, request_id);
-    return mqtt_publish(azure_iot_mqtt, topic, response->message);
-}
-
 static VOID process_direct_method(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR* message)
 {
-    int direct_method_receive_size       = sizeof(DIRECT_METHOD_RECEIVE) - 1;
-    MQTT_DIRECT_METHOD_RESPONSE response = {0, {0}};
-
-    CHAR direct_method_name[64] = {0};
-    CHAR request_id[16]         = {0};
+    INT direct_method_receive_size = sizeof(DIRECT_METHOD_RECEIVE) - 1;
+    CHAR direct_method_name[64]    = {0};
 
     CHAR* location = topic + direct_method_receive_size;
     CHAR* find;
@@ -224,14 +207,17 @@ static VOID process_direct_method(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, C
     find = strstr(location, "$rid=");
     if (find == 0)
     {
+        printf("Error: failed to parse direct method rid\r\n");
         return;
     }
 
     location = find + 5;
+    strncpy(azure_iot_mqtt->direct_command_request_id, location, AZURE_IOT_MQTT_DIRECT_COMMAND_RID_SIZE);
 
-    strcpy(request_id, location);
-
-    printf("Received direct method=%s, id=%s, message=%s\r\n", direct_method_name, request_id, message);
+    printf("Received direct method=%s, rid=%s, message=%s\r\n",
+        direct_method_name,
+        azure_iot_mqtt->direct_command_request_id,
+        message);
 
     if (azure_iot_mqtt->cb_ptr_mqtt_invoke_direct_method == NULL)
     {
@@ -239,30 +225,7 @@ static VOID process_direct_method(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, C
         return;
     }
 
-    azure_iot_mqtt->cb_ptr_mqtt_invoke_direct_method(direct_method_name, message, &response);
-
-    mqtt_respond_direct_method(azure_iot_mqtt, topic, request_id, &response);
-}
-
-static VOID process_device_twin_response(AZURE_IOT_MQTT *azure_iot_mqtt, CHAR *topic, CHAR *message)
-{
-    CHAR device_twin_res_status[16] = {0};
-
-    // Parse the device twin response status
-    CHAR* location = topic + sizeof(DEVICE_TWIN_RES_BASE) - 1;
-    CHAR* find;
-
-    find = strchr(location, '/');
-    if (find == 0)
-    {
-        return;
-    }
-
-    strncpy(device_twin_res_status, location, find - location);
-
-    printf("Processed device twin update response with status=%s\r\n", device_twin_res_status);
-
-    azure_iot_mqtt->cb_ptr_mqtt_device_twin_prop_callback(message);
+    azure_iot_mqtt->cb_ptr_mqtt_invoke_direct_method(azure_iot_mqtt, direct_method_name, message);
 }
 
 static VOID process_c2d_message(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic)
@@ -299,7 +262,7 @@ static VOID process_c2d_message(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic)
 
     location = find + 1;
 
-    strcpy(value, location);
+    strncpy(value, location, sizeof(value));
 
     printf("Received property key=%s, value=%s\r\n", key, value);
 
@@ -309,14 +272,50 @@ static VOID process_c2d_message(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic)
         return;
     }
 
-    azure_iot_mqtt->cb_ptr_mqtt_c2d_message(key, value);
+    azure_iot_mqtt->cb_ptr_mqtt_c2d_message(azure_iot_mqtt, key, value);
+}
+
+static VOID process_device_twin_response(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR* message)
+{
+    INT response_status;
+
+    // Parse the device twin response status
+    CHAR* location = topic + sizeof(DEVICE_TWIN_RES_BASE) - 1;
+    CHAR* find;
+
+    find = strchr(location, '/');
+    if (find == 0)
+    {
+        return;
+    }
+
+    response_status = atoi(location);
+
+    printf("Processed device twin update response with status=%d\r\n", response_status);
+
+    if (response_status == 200)
+    {
+        azure_iot_mqtt->cb_ptr_mqtt_device_twin_prop_callback(azure_iot_mqtt, message);
+    }
 }
 
 static VOID process_device_twin_desired_prop_update(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR* message)
 {
     printf("Received device twin desired property\r\n");
 
-    azure_iot_mqtt->cb_ptr_mqtt_device_twin_desired_prop_callback(message);
+    // Parse the device twin version
+    CHAR* location = topic + sizeof(DEVICE_TWIN_DESIRED_PROP_RES_BASE) - 1;
+
+    location = strstr(location, "$version=");
+    if (location == 0)
+    {
+        printf("Error: Failed to parse version from desired property update\r\n");
+        return;
+    }
+
+    azure_iot_mqtt->desired_property_version = atoi(location + 9);
+
+    azure_iot_mqtt->cb_ptr_mqtt_device_twin_desired_prop_callback(azure_iot_mqtt, message);
 }
 
 static VOID mqtt_disconnect_cb(NXD_MQTT_CLIENT* client_ptr)
@@ -328,131 +327,184 @@ static VOID mqtt_disconnect_cb(NXD_MQTT_CLIENT* client_ptr)
     // Try and reconnect forever
     while (azure_iot_mqtt_connect(azure_iot_mqtt) != NX_SUCCESS)
     {
-        tx_thread_sleep(TX_TIMER_TICKS_PER_SECOND);
+        tx_thread_sleep(10 * TX_TIMER_TICKS_PER_SECOND);
     }
 }
 
 static VOID mqtt_notify_cb(NXD_MQTT_CLIENT* client_ptr, UINT number_of_messages)
 {
+    UINT actual_topic_length;
+    UINT actual_message_length;
     UINT status;
 
     AZURE_IOT_MQTT* azure_iot_mqtt = (AZURE_IOT_MQTT*)client_ptr->nxd_mqtt_packet_receive_context;
 
-    tx_mutex_get(&azure_iot_mqtt->mqtt_mutex, TX_WAIT_FOREVER);
-
-    // Get the mqtt client message
-    status = nxd_mqtt_client_message_get(client_ptr,
-        (UCHAR*)mqtt_topic_buffer,
-        sizeof(mqtt_topic_buffer),
-        &mqtt_topic_length,
-        (UCHAR*)mqtt_message_buffer,
-        sizeof(mqtt_message_buffer),
-        &mqtt_message_length);
-    if (status == NXD_MQTT_SUCCESS)
+    for (int count = 0; count < number_of_messages; ++count)
     {
+        // Get the mqtt client message
+        status = nxd_mqtt_client_message_get(client_ptr,
+            (UCHAR*)azure_iot_mqtt->mqtt_receive_topic_buffer,
+            AZURE_IOT_MQTT_TOPIC_NAME_LENGTH,
+            &actual_topic_length,
+            (UCHAR*)azure_iot_mqtt->mqtt_receive_message_buffer,
+            AZURE_IOT_MQTT_MESSAGE_LENGTH,
+            &actual_message_length);
+        if (status != NXD_MQTT_SUCCESS)
+        {
+            printf("ERROR: nxd_mqtt_client_message_get failed (0x%02x)\r\n", status);
+            continue;
+        }
+
         // Append null string terminators
-        mqtt_topic_buffer[mqtt_topic_length]     = 0;
-        mqtt_message_buffer[mqtt_message_length] = 0;
+        azure_iot_mqtt->mqtt_receive_topic_buffer[actual_topic_length]     = 0;
+        azure_iot_mqtt->mqtt_receive_message_buffer[actual_message_length] = 0;
 
-        printf("[MQTT Received] topic = %s\r\n", mqtt_topic_buffer);
+        printf("[MQTT Received] topic = %s\r\n", azure_iot_mqtt->mqtt_receive_topic_buffer);
 
-        if (strstr((CHAR*)mqtt_topic_buffer, DIRECT_METHOD_RECEIVE))
+        if (strstr((CHAR*)azure_iot_mqtt->mqtt_receive_topic_buffer, DIRECT_METHOD_RECEIVE))
         {
-            process_direct_method(azure_iot_mqtt, mqtt_topic_buffer, mqtt_message_buffer);
+            process_direct_method(
+                azure_iot_mqtt, azure_iot_mqtt->mqtt_receive_topic_buffer, azure_iot_mqtt->mqtt_receive_message_buffer);
         }
-        else if (strstr((CHAR*)mqtt_topic_buffer, DEVICE_TWIN_RES_BASE))
+        else if (strstr((CHAR*)azure_iot_mqtt->mqtt_receive_topic_buffer, DEVICE_MESSAGE_BASE))
         {
-            process_device_twin_response(azure_iot_mqtt, mqtt_topic_buffer, mqtt_message_buffer);
+            process_c2d_message(azure_iot_mqtt, azure_iot_mqtt->mqtt_receive_topic_buffer);
         }
-        else if (strstr((CHAR*)mqtt_topic_buffer, DEVICE_MESSAGE_BASE))
+        else if (strstr((CHAR*)azure_iot_mqtt->mqtt_receive_topic_buffer, DEVICE_TWIN_RES_BASE))
         {
-            process_c2d_message(azure_iot_mqtt, mqtt_topic_buffer);
+            process_device_twin_response(
+                azure_iot_mqtt, azure_iot_mqtt->mqtt_receive_topic_buffer, azure_iot_mqtt->mqtt_receive_message_buffer);
         }
-        else if (strstr((CHAR*)mqtt_topic_buffer, DEVICE_TWIN_DESIRED_PROP_RES_BASE))
+        else if (strstr((CHAR*)azure_iot_mqtt->mqtt_receive_topic_buffer, DEVICE_TWIN_DESIRED_PROP_RES_BASE))
         {
-            process_device_twin_desired_prop_update(azure_iot_mqtt, mqtt_topic_buffer, mqtt_message_buffer);
+            process_device_twin_desired_prop_update(
+                azure_iot_mqtt, azure_iot_mqtt->mqtt_receive_topic_buffer, azure_iot_mqtt->mqtt_receive_message_buffer);
         }
         else
         {
             printf("Unknown topic, no custom processing specified\r\n");
         }
     }
-
-    tx_mutex_put(&azure_iot_mqtt->mqtt_mutex);
 }
 
 // Interact with Azure MQTT
-UINT azure_iot_mqtt_publish_float_telemetry(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, float value)
+UINT azure_iot_mqtt_publish_float_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, float value)
 {
-    CHAR mqtt_publish_topic[100] = {0};
+    CHAR mqtt_publish_topic[100];
     UINT status;
 
-    tx_mutex_get(&azure_iot_mqtt->mqtt_mutex, TX_WAIT_FOREVER);
+    printf("Sending device twin update with float value\r\n");
 
     snprintf(mqtt_publish_topic,
         sizeof(mqtt_publish_topic),
-        PUBLISH_TELEMETRY_TOPIC,
-        azure_iot_mqtt->nxd_mqtt_client.nxd_mqtt_client_id);
-    printf("Sending telemetry with float value\r\n");
+        DEVICE_TWIN_PUBLISH_TOPIC,
+        azure_iot_mqtt->reported_property_version++);
 
     status = mqtt_publish_float(azure_iot_mqtt, mqtt_publish_topic, label, value);
-
-    tx_mutex_put(&azure_iot_mqtt->mqtt_mutex);
-
-    return status;
-}
-
-UINT azure_iot_mqtt_publish_float_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, float value)
-{
-    CHAR mqtt_publish_topic[100] = {0};
-    UINT status;
-
-    tx_mutex_get(&azure_iot_mqtt->mqtt_mutex, TX_WAIT_FOREVER);
-
-    snprintf(mqtt_publish_topic, sizeof(mqtt_publish_topic), DEVICE_TWIN_PUBLISH_TOPIC, azure_iot_mqtt->request_id++);
-    printf("Sending device twin update with float value\r\n");
-
-    status = mqtt_publish_float(azure_iot_mqtt, mqtt_publish_topic, label, value);
-
-    tx_mutex_put(&azure_iot_mqtt->mqtt_mutex);
 
     return status;
 }
 
 UINT azure_iot_mqtt_publish_bool_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, bool value)
 {
-    CHAR mqtt_publish_topic[100] = {0};
-    UINT status;
+    CHAR mqtt_publish_topic[100];
 
-    tx_mutex_get(&azure_iot_mqtt->mqtt_mutex, TX_WAIT_FOREVER);
-
-    snprintf(mqtt_publish_topic, sizeof(mqtt_publish_topic), DEVICE_TWIN_PUBLISH_TOPIC, azure_iot_mqtt->request_id++);
     printf("Sending device twin update with bool value\r\n");
 
-    status = mqtt_publish_bool(azure_iot_mqtt, mqtt_publish_topic, label, value);
+    snprintf(mqtt_publish_topic,
+        sizeof(mqtt_publish_topic),
+        DEVICE_TWIN_PUBLISH_TOPIC,
+        azure_iot_mqtt->reported_property_version++);
 
-    tx_mutex_put(&azure_iot_mqtt->mqtt_mutex);
+    return mqtt_publish_bool(azure_iot_mqtt, mqtt_publish_topic, label, value);
+}
 
-    return status;
+UINT azure_iot_mqtt_publish_float_telemetry(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, float value)
+{
+    CHAR mqtt_publish_topic[100];
+
+    printf("Sending telemetry with float value\r\n");
+
+    snprintf(mqtt_publish_topic,
+        sizeof(mqtt_publish_topic),
+        PUBLISH_TELEMETRY_TOPIC,
+        azure_iot_mqtt->nxd_mqtt_client.nxd_mqtt_client_id);
+
+    return mqtt_publish_float(azure_iot_mqtt, mqtt_publish_topic, label, value);
+}
+
+UINT azure_iot_mqtt_publish_int_desired_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, int value)
+{
+    CHAR mqtt_publish_topic[100];
+    CHAR mqtt_publish_message[100];
+
+    printf("Reporting desired property with int value\r\n");
+
+    snprintf(mqtt_publish_topic,
+        sizeof(mqtt_publish_topic),
+        DEVICE_TWIN_PUBLISH_TOPIC,
+        azure_iot_mqtt->reported_property_version++);
+
+    snprintf(mqtt_publish_message,
+        sizeof(mqtt_publish_message),
+        "{\"%s\":{\"value\":%d,\"ac\":200,\"av\":1}}",
+        label,
+        value);
+
+    return mqtt_publish(azure_iot_mqtt, mqtt_publish_topic, mqtt_publish_message);
+}
+
+UINT azure_iot_mqtt_respond_int_desired_property(
+    AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, int value, int http_status)
+{
+    CHAR mqtt_publish_topic[100];
+    CHAR mqtt_publish_message[100];
+
+    printf("Responding desired property with int value\r\n");
+
+    snprintf(mqtt_publish_topic,
+        sizeof(mqtt_publish_topic),
+        DEVICE_TWIN_PUBLISH_TOPIC,
+        azure_iot_mqtt->reported_property_version++);
+
+    snprintf(mqtt_publish_message,
+        sizeof(mqtt_publish_message),
+        "{\"%s\":{\"value\":%d,\"ac\":%d,\"av\":%d}}",
+        label,
+        value,
+        http_status,
+        azure_iot_mqtt->desired_property_version);
+
+    return mqtt_publish(azure_iot_mqtt, mqtt_publish_topic, mqtt_publish_message);
+}
+
+UINT azure_iot_mqtt_respond_direct_method(AZURE_IOT_MQTT* azure_iot_mqtt, UINT response)
+{
+    CHAR mqtt_publish_topic[100];
+
+    printf("Responding to direct command property with status:%d, rid:%s\r\n",
+        response,
+        azure_iot_mqtt->direct_command_request_id);
+
+    snprintf(mqtt_publish_topic,
+        sizeof(mqtt_publish_topic),
+        DIRECT_METHOD_RESPONSE,
+        response,
+        azure_iot_mqtt->direct_command_request_id);
+
+    return mqtt_publish(azure_iot_mqtt, mqtt_publish_topic, "{}");
 }
 
 UINT azure_iot_mqtt_device_twin_request(AZURE_IOT_MQTT* azure_iot_mqtt)
 {
     CHAR mqtt_publish_topic[100];
-    UINT status;
 
     printf("Requesting device twin model\r\n");
 
-    snprintf(mqtt_publish_topic, sizeof(mqtt_publish_topic), DEVICE_TWIN_REQUEST_TOPIC, azure_iot_mqtt->request_id++);
+    snprintf(mqtt_publish_topic, sizeof(mqtt_publish_topic), DEVICE_TWIN_REQUEST_TOPIC, 0);
 
     // Publish an empty message to request the device twin
-    if ((status = mqtt_publish(azure_iot_mqtt, mqtt_publish_topic, "{}")))
-    {
-        printf("Failed to publish device twin request (0x%02x)\r\n", status);
-        return status;
-    }
-
-    return NX_SUCCESS;
+    return mqtt_publish(azure_iot_mqtt, mqtt_publish_topic, "{}");
 }
 
 UINT azure_iot_mqtt_create(AZURE_IOT_MQTT* azure_iot_mqtt,
@@ -481,7 +533,7 @@ UINT azure_iot_mqtt_create(AZURE_IOT_MQTT* azure_iot_mqtt,
         return NX_PTR_ERROR;
     }
 
-    memset(azure_iot_mqtt, 0, sizeof(&azure_iot_mqtt));
+    memset(azure_iot_mqtt, 0, sizeof(*azure_iot_mqtt));
 
     // Stash the connection information
     azure_iot_mqtt->nx_dns            = nx_dns;
@@ -509,7 +561,7 @@ UINT azure_iot_mqtt_create(AZURE_IOT_MQTT* azure_iot_mqtt,
     }
 
     status = nxd_mqtt_client_receive_notify_set(&azure_iot_mqtt->nxd_mqtt_client, mqtt_notify_cb);
-    if (status)
+    if (status != NXD_MQTT_SUCCESS)
     {
         printf("Error in setting receive notify (0x%02x)\r\n", status);
         nxd_mqtt_client_delete(&azure_iot_mqtt->nxd_mqtt_client);
@@ -524,13 +576,6 @@ UINT azure_iot_mqtt_create(AZURE_IOT_MQTT* azure_iot_mqtt,
         return status;
     }
 
-    status = tx_mutex_create(&azure_iot_mqtt->mqtt_mutex, "Azure MQTT", TX_NO_INHERIT);
-    if (status != TX_SUCCESS)
-    {
-        nxd_mqtt_client_delete(&azure_iot_mqtt->nxd_mqtt_client);
-        return status;
-    }
-
     // Set the receive context (highjacking the packet_receive_context) for callbacks
     azure_iot_mqtt->nxd_mqtt_client.nxd_mqtt_packet_receive_context = azure_iot_mqtt;
 
@@ -541,7 +586,6 @@ UINT azure_iot_mqtt_delete(AZURE_IOT_MQTT* azure_iot_mqtt)
 {
     nxd_mqtt_client_disconnect(&azure_iot_mqtt->nxd_mqtt_client);
     nxd_mqtt_client_delete(&azure_iot_mqtt->nxd_mqtt_client);
-    tx_mutex_delete(&azure_iot_mqtt->mqtt_mutex);
 
     return NXD_MQTT_SUCCESS;
 }
@@ -574,16 +618,6 @@ UINT azure_iot_mqtt_connect(AZURE_IOT_MQTT* azure_iot_mqtt)
     {
         printf("ERROR: Unable to generate SAS token\r\n");
         return NX_PTR_ERROR;
-    }
-
-    status = nx_secure_tls_session_create(&azure_iot_mqtt->nxd_mqtt_client.nxd_mqtt_tls_session,
-        &nx_crypto_tls_ciphers,
-        azure_iot_mqtt->tls_metadata_buffer,
-        sizeof(azure_iot_mqtt->tls_metadata_buffer));
-    if (status != NXD_MQTT_SUCCESS)
-    {
-        printf("Could not create TLS Session (0x%02x)\r\n", status);
-        return status;
     }
 
     status = nxd_mqtt_client_login_set(&azure_iot_mqtt->nxd_mqtt_client,

@@ -33,7 +33,8 @@ UINT azure_iot_nx_client_create(AZURE_IOT_NX_CLIENT* azure_iot_nx_client,
     UINT (*unix_time_callback)(ULONG* unix_time),
     CHAR* iot_hub_hostname,
     CHAR* iot_device_id,
-    CHAR* iot_sas_key)
+    CHAR* iot_sas_key,
+    CHAR* iot_model_id)
 {
     UINT status = 0;
 
@@ -53,7 +54,7 @@ UINT azure_iot_nx_client_create(AZURE_IOT_NX_CLIENT* azure_iot_nx_client,
         return NX_PTR_ERROR;
     }
 
-    memset(azure_iot_nx_client, 0, sizeof(&azure_iot_nx_client));
+    memset(azure_iot_nx_client, 0, sizeof(*azure_iot_nx_client));
 
     /* Create Azure IoT handler. */
     if ((status = nx_azure_iot_create(&azure_iot_nx_client->nx_azure_iot,
@@ -98,7 +99,7 @@ UINT azure_iot_nx_client_create(AZURE_IOT_NX_CLIENT* azure_iot_nx_client,
              _nx_azure_iot_tls_supported_crypto_size,
              _nx_azure_iot_tls_ciphersuite_map,
              _nx_azure_iot_tls_ciphersuite_map_size,
-             azure_iot_nx_client->nx_azure_iot_tls_metadata_buffer,
+             (UCHAR*)azure_iot_nx_client->nx_azure_iot_tls_metadata_buffer,
              sizeof(azure_iot_nx_client->nx_azure_iot_tls_metadata_buffer),
              &azure_iot_nx_client->root_ca_cert)))
     {
@@ -107,11 +108,19 @@ UINT azure_iot_nx_client_create(AZURE_IOT_NX_CLIENT* azure_iot_nx_client,
         return status;
     }
 
-    /* Set symmetric key.  */
+    /* Set symmetric key. */
     if ((status = nx_azure_iot_hub_client_symmetric_key_set(
              &azure_iot_nx_client->iothub_client, (UCHAR*)iot_sas_key, strlen(iot_sas_key))))
     {
         printf("Failed on nx_azure_iot_hub_client_symmetric_key_set!\r\n");
+        return status;
+    }
+
+    /* Set the model Id. */
+    if ((status = nx_azure_iot_hub_client_model_id_set(
+             &azure_iot_nx_client->iothub_client, (UCHAR*)iot_model_id, strlen(iot_model_id))))
+    {
+        printf("Failed on nx_azure_iot_hub_client_model_id_set!\r\n");
         return status;
     }
 

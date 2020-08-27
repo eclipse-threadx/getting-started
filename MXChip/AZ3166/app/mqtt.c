@@ -5,8 +5,8 @@
 
 #include <stdio.h>
 
-#include "sensor.h"
 #include "screen.h"
+#include "sensor.h"
 #include "stm32f4xx_hal.h"
 
 #include "jsmn.h"
@@ -17,7 +17,10 @@
 
 #include "azure_config.h"
 
-#define IOT_MODEL_ID "dtmi:microsoft:gsg;1"
+#define IOT_MODEL_ID "dtmi:com:examples:gsg;1"
+
+#define TELEMETRY_INTERVAL_PROPERTY "telemetryInterval"
+#define LED_STATE_PROPERTY "ledState"
 
 #define TELEMETRY_INTERVAL_EVENT 1
 
@@ -40,58 +43,37 @@ static void set_led_state(bool level)
     }
 }
 
-static void mqtt_direct_method(CHAR* direct_method_name, CHAR* message, MQTT_DIRECT_METHOD_RESPONSE* response)
+static void mqtt_direct_method(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* direct_method_name, CHAR* message)
 {
-    // Default response - 501 Not Implemented
-    int status = 501;
     if (strcmp(direct_method_name, "setLedState") == 0)
     {
+        printf("Direct method=%s invoked\r\n", direct_method_name);
+
         // 'false' - turn LED off
         // 'true'  - turn LED on
         bool arg = (strcmp(message, "true") == 0);
 
         set_led_state(arg);
 
-        // 204 No Content, the server successfully processed the request and is not returning any content.
-        status = 204;
+        // Return success
+        azure_iot_mqtt_respond_direct_method(azure_iot_mqtt, 200);
 
         // Update device twin property
-        azure_iot_mqtt_publish_bool_property(&azure_iot_mqtt, "ledState", arg);
-
-        printf("Direct method=%s invoked\r\n", direct_method_name);
+        azure_iot_mqtt_publish_bool_property(azure_iot_mqtt, LED_STATE_PROPERTY, arg);
     }
     else
     {
         printf("Received direct method=%s is unknown\r\n", direct_method_name);
-    }
-
-    response->status = status;
-    strcpy(response->message, "{}");
-    return;
-}
-
-static void mqtt_c2d_message(CHAR* key, CHAR* value)
-{
-    printf("C2D received Property=%s updated with value=%s\r\n", key, value);
-}
-
-static void mqtt_device_twin_desired_prop(CHAR* message)
-{
-    jsmn_parser parser;
-    jsmntok_t tokens[16];
-    INT token_count;
-
-    jsmn_init(&parser);
-    token_count = jsmn_parse(&parser, message, strlen(message), tokens, 16);
-
-    if (findJsonInt(message, tokens, token_count, "telemetryInterval", &telemetry_interval))
-    {
-        // Set a telemetry event so we pick up the change immediately
-        tx_event_flags_set(&azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR);
+        azure_iot_mqtt_respond_direct_method(azure_iot_mqtt, 501);
     }
 }
 
-static void mqtt_device_twin_prop(CHAR* message)
+static void mqtt_c2d_message(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* key, CHAR* value)
+{
+    printf("Property=%s updated with value=%s\r\n", key, value);
+}
+
+static void mqtt_device_twin_desired_prop(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* message)
 {
     jsmn_parser parser;
     jsmntok_t tokens[64];
@@ -100,11 +82,34 @@ static void mqtt_device_twin_prop(CHAR* message)
     jsmn_init(&parser);
     token_count = jsmn_parse(&parser, message, strlen(message), tokens, 64);
 
-    if (findJsonInt(message, tokens, token_count, "telemetryInterval", &telemetry_interval))
+    if (findJsonInt(message, tokens, token_count, TELEMETRY_INTERVAL_PROPERTY, &telemetry_interval))
+    {
+        // Set a telemetry event so we pick up the change immediately
+        tx_event_flags_set(&azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR);
+
+        // Confirm reception back to hub
+        azure_iot_mqtt_respond_int_desired_property(
+            azure_iot_mqtt, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval, 200);
+    }
+}
+
+static void mqtt_device_twin_prop(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* message)
+{
+    jsmn_parser parser;
+    jsmntok_t tokens[64];
+    INT token_count;
+
+    jsmn_init(&parser);
+    token_count = jsmn_parse(&parser, message, strlen(message), tokens, 64);
+
+    if (findJsonInt(message, tokens, token_count, TELEMETRY_INTERVAL_PROPERTY, &telemetry_interval))
     {
         // Set a telemetry event so we pick up the change immediately
         tx_event_flags_set(&azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR);
     }
+
+    // Report writeable properties to the Hub
+    azure_iot_mqtt_publish_int_desired_property(azure_iot_mqtt, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
 }
 
 UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, ULONG (*sntp_time_get)(VOID))
@@ -115,6 +120,8 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
     hts221_data_t hts221_data;
     lsm6dsl_data_t lsm6dsl_data;
     lis2mdl_data_t lis2mdl_data;
+
+    int telemetry_state = 0;
 
     if ((status = tx_event_flags_create(&azure_iot_flags, "Azure IoT flags")))
     {
@@ -153,32 +160,49 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
         return status;
     }
 
+    // Update ledState property
+    azure_iot_mqtt_publish_bool_property(&azure_iot_mqtt, LED_STATE_PROPERTY, false);
+
     // Request the device twin
     azure_iot_mqtt_device_twin_request(&azure_iot_mqtt);
 
     printf("Starting MQTT loop\r\n");
     while (true)
     {
-        // Read data from sensors
-        lps22hb_data = lps22hb_data_read();
-        hts221_data  = hts221_data_read();
-        lsm6dsl_data = lsm6dsl_data_read();
-        lis2mdl_data = lis2mdl_data_read();
+        switch (telemetry_state)
+        {
+            case 0:
+                // Send the compensated temperature
+                lps22hb_data = lps22hb_data_read();
+                azure_iot_mqtt_publish_float_telemetry(&azure_iot_mqtt, "temperature", lps22hb_data.temperature_degC);
+                break;
 
-        // Send the compensated temperature
-        azure_iot_mqtt_publish_float_telemetry(&azure_iot_mqtt, "temperature", lps22hb_data.temperature_degC);
+            case 1:
+                // Send the compensated pressure
+                lps22hb_data = lps22hb_data_read();
+                azure_iot_mqtt_publish_float_telemetry(&azure_iot_mqtt, "pressure", lps22hb_data.pressure_hPa);
+                break;
 
-        // Send the compensated pressure
-        azure_iot_mqtt_publish_float_telemetry(&azure_iot_mqtt, "pressure", lps22hb_data.pressure_hPa);
+            case 2:
+                // Send the compensated humidity
+                hts221_data = hts221_data_read();
+                azure_iot_mqtt_publish_float_telemetry(&azure_iot_mqtt, "humidity", hts221_data.humidity_perc);
+                break;
 
-        // Send the compensated humidity
-        azure_iot_mqtt_publish_float_telemetry(&azure_iot_mqtt, "humidityPercentage", hts221_data.humidity_perc);
+            case 3:
+                // Send the compensated acceleration
+                lsm6dsl_data = lsm6dsl_data_read();
+                azure_iot_mqtt_publish_float_telemetry(&azure_iot_mqtt, "acceleration", lsm6dsl_data.acceleration_mg[0]);
+                break;
 
-        // Send the compensated acceleration
-        azure_iot_mqtt_publish_float_telemetry(&azure_iot_mqtt, "acceleration", lsm6dsl_data.acceleration_mg[0]);
+            case 4:
+                // Send the compensated magnetic
+                lis2mdl_data = lis2mdl_data_read();
+                azure_iot_mqtt_publish_float_telemetry(&azure_iot_mqtt, "magnetic", lis2mdl_data.magnetic_mG[0]);
+                break;
+            }
 
-        // Send the compensated magnetic
-        azure_iot_mqtt_publish_float_telemetry(&azure_iot_mqtt, "magnetic", lis2mdl_data.magnetic_mG[0]);
+        telemetry_state = (telemetry_state + 1) % 5;
 
         // Sleep
         tx_event_flags_get(

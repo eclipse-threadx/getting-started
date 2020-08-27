@@ -18,7 +18,7 @@
 #define AZURE_THREAD_PRIORITY   4
 
 TX_THREAD azure_thread;
-UCHAR azure_thread_stack[AZURE_THREAD_STACK_SIZE];
+ULONG azure_thread_stack[AZURE_THREAD_STACK_SIZE / sizeof(ULONG)];
 
 extern VOID nx_driver_same54(NX_IP_DRIVER*);
 

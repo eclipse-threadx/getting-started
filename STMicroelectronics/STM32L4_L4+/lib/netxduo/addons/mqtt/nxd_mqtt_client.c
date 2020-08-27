@@ -1395,7 +1395,7 @@ ULONG                         bytes_copied;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nxd_mqtt_process_publish_response                  PORTABLE C      */
-/*                                                           6.0          */
+/*                                                           6.0.1        */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -1432,6 +1432,9 @@ ULONG                         bytes_copied;
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*  06-30-2020     Yuxin Zhou               Modified comment(s), and      */
+/*                                            added ack receive notify,   */
+/*                                            resulting in version 6.0.1  */
 /*                                                                        */
 /**************************************************************************/
 static UINT _nxd_mqtt_process_publish_response(NXD_MQTT_CLIENT *client_ptr, NX_PACKET *packet_ptr)
@@ -1477,6 +1480,15 @@ USHORT                        transmit_packet_id;
                 /* Therefore we verify that packet contains PUBLISH packet with QoS level 1*/
                 if ((fixed_header & 0xF6) == ((MQTT_CONTROL_PACKET_TYPE_PUBLISH << 4) | MQTT_PUBLISH_QOS_LEVEL_1))
                 {
+
+                    /* Check ack notify function.  */
+                    if (client_ptr -> nxd_mqtt_ack_receive_notify)
+                    {
+
+                        /* Call notify function. Note: user routine should not release the packet.  */
+                        client_ptr -> nxd_mqtt_ack_receive_notify(client_ptr, MQTT_CONTROL_PACKET_TYPE_PUBACK, packet_id, transmit_packet_ptr, client_ptr -> nxd_mqtt_ack_receive_context);
+                    }
+
                     /* QoS Level1 message receives an ACK. */
                     /* This message can be released. */
                     _nxd_mqtt_release_transmit_packet(client_ptr, transmit_packet_ptr, previous_packet_ptr);
@@ -1549,6 +1561,14 @@ USHORT                        transmit_packet_id;
                         nx_packet_release(response_packet);
                     }
 
+                    /* Check ack notify function.  */
+                    if (client_ptr -> nxd_mqtt_ack_receive_notify)
+                    {
+
+                        /* Call notify function. Note: user routine should not release the packet.  */
+                        client_ptr -> nxd_mqtt_ack_receive_notify(client_ptr, MQTT_CONTROL_PACKET_TYPE_PUBREL, packet_id, transmit_packet_ptr, client_ptr -> nxd_mqtt_ack_receive_context);
+                    }
+
                     /* This packet can be released. */
                     _nxd_mqtt_release_transmit_packet(client_ptr, transmit_packet_ptr, previous_packet_ptr);
 
@@ -1572,7 +1592,7 @@ USHORT                        transmit_packet_id;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nxd_mqtt_process_sub_unsub_ack                     PORTABLE C      */
-/*                                                           6.0          */
+/*                                                           6.0.1        */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -1609,6 +1629,9 @@ USHORT                        transmit_packet_id;
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*  06-30-2020     Yuxin Zhou               Modified comment(s), and      */
+/*                                            added ack receive notify,   */
+/*                                            resulting in version 6.0.1  */
 /*                                                                        */
 /**************************************************************************/
 static UINT _nxd_mqtt_process_sub_unsub_ack(NXD_MQTT_CLIENT *client_ptr, NX_PACKET *packet_ptr)
@@ -1665,6 +1688,14 @@ ULONG      bytes_copied;
                     return(1);
                 }
 
+                /* Check ack notify function.  */
+                if (client_ptr -> nxd_mqtt_ack_receive_notify)
+                {
+
+                    /* Call notify function. Note: user routine should not release the packet.  */
+                    client_ptr -> nxd_mqtt_ack_receive_notify(client_ptr, MQTT_CONTROL_PACKET_TYPE_SUBACK, packet_id, transmit_packet_ptr, client_ptr -> nxd_mqtt_ack_receive_context);
+                }
+
                 /* Release the transmit packet. */
                 _nxd_mqtt_release_transmit_packet(client_ptr, transmit_packet_ptr, previous_packet_ptr);
 
@@ -1678,6 +1709,14 @@ ULONG      bytes_copied;
                 {
                     /* Invalid remaining_length value. */
                     return(1);
+                }
+
+                /* Check ack notify function.  */
+                if (client_ptr -> nxd_mqtt_ack_receive_notify)
+                {
+
+                    /* Call notify function. Note: user routine should not release the packet.  */
+                    client_ptr -> nxd_mqtt_ack_receive_notify(client_ptr, MQTT_CONTROL_PACKET_TYPE_UNSUBACK, packet_id, transmit_packet_ptr, client_ptr -> nxd_mqtt_ack_receive_context);
                 }
 
                 /* Unsubscribe succeeded. */
@@ -2476,7 +2515,7 @@ VOID _nxd_mqtt_client_connection_end(NXD_MQTT_CLIENT *client_ptr, ULONG wait_opt
     tx_mutex_get(client_ptr -> nxd_mqtt_client_mutex_ptr, NX_WAIT_FOREVER);
 
     /* Mark the session as terminated. */
-  client_ptr -> nxd_mqtt_client_state = NXD_MQTT_CLIENT_STATE_IDLE;
+    client_ptr -> nxd_mqtt_client_state = NXD_MQTT_CLIENT_STATE_IDLE;
 
     /* Release the mutex. */
     tx_mutex_put(client_ptr -> nxd_mqtt_client_mutex_ptr);
@@ -2590,7 +2629,7 @@ NXD_MQTT_CLIENT *client_ptr = (NXD_MQTT_CLIENT *)client;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nxd_mqtt_client_event_process                      PORTABLE C      */
-/*                                                           6.0          */
+/*                                                           6.0.1        */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -2630,6 +2669,9 @@ NXD_MQTT_CLIENT *client_ptr = (NXD_MQTT_CLIENT *)client;
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*  06-30-2020     Yuxin Zhou               Modified comment(s), and      */
+/*                                            corrected mqtt client state,*/
+/*                                            resulting in version 6.0.1  */
 /*                                                                        */
 /**************************************************************************/
 static VOID _nxd_mqtt_client_event_process(VOID *mqtt_client, ULONG common_events, ULONG module_own_events)
@@ -2642,14 +2684,6 @@ NXD_MQTT_CLIENT *client_ptr = (NXD_MQTT_CLIENT *)mqtt_client;
 
     /* Process common events.  */
     NX_PARAMETER_NOT_USED(common_events);
-
-    /* Process module own events.  */
-    if (module_own_events & MQTT_START_EVENT)
-    {
-
-        /* Move MQTT Client state to STARTED */
-        client_ptr -> nxd_mqtt_client_state = NXD_MQTT_CLIENT_STATE_IDLE;
-    }
 
     if (module_own_events & MQTT_TIMEOUT_EVENT)
     {
@@ -2855,7 +2889,7 @@ NXD_MQTT_CLIENT *client_ptr = (NXD_MQTT_CLIENT *)(socket_ptr -> nx_tcp_socket_re
     /* Set the MQTT_NETWORK_DISCONNECT  event.  This event indicates
        that the disconnect is initiated from the network. */
 #ifndef NXD_MQTT_CLOUD_ENABLE
-   tx_event_flags_set(&client_ptr -> nxd_mqtt_events, MQTT_NETWORK_DISCONNECT_EVENT, TX_OR);
+    tx_event_flags_set(&client_ptr -> nxd_mqtt_events, MQTT_NETWORK_DISCONNECT_EVENT, TX_OR);
 #else
     nx_cloud_module_event_set(&(client_ptr -> nxd_mqtt_client_cloud_module), MQTT_NETWORK_DISCONNECT_EVENT);
 #endif /* NXD_MQTT_CLOUD_ENABLE */
@@ -2869,7 +2903,7 @@ NXD_MQTT_CLIENT *client_ptr = (NXD_MQTT_CLIENT *)(socket_ptr -> nx_tcp_socket_re
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nxd_mqtt_client_create                             PORTABLE C      */
-/*                                                           6.0          */
+/*                                                           6.0.1        */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -2911,6 +2945,9 @@ NXD_MQTT_CLIENT *client_ptr = (NXD_MQTT_CLIENT *)(socket_ptr -> nx_tcp_socket_re
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*  06-30-2020     Yuxin Zhou               Modified comment(s), and      */
+/*                                            corrected mqtt client state,*/
+/*                                            resulting in version 6.0.1  */
 /*                                                                        */
 /**************************************************************************/
 UINT _nxd_mqtt_client_create(NXD_MQTT_CLIENT *client_ptr, CHAR *client_name,
@@ -2978,9 +3015,10 @@ UINT    status;
         return(NXD_MQTT_INTERNAL_ERROR);
     }
 
-    /* Set start event to start MQTT.  */
-    nx_cloud_module_event_set(&(client_ptr -> nxd_mqtt_client_cloud_module), MQTT_START_EVENT);
 #endif /* NXD_MQTT_CLOUD_ENABLE */
+
+    /* Update state.  */
+    client_ptr -> nxd_mqtt_client_state = NXD_MQTT_CLIENT_STATE_IDLE;
 
     /* Return.  */
     return(NXD_MQTT_SUCCESS);
@@ -2992,7 +3030,7 @@ UINT    status;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nxd_mqtt_client_create_internal                    PORTABLE C      */
-/*                                                           6.0          */
+/*                                                           6.0.1        */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -3036,6 +3074,9 @@ UINT    status;
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*  06-30-2020     Yuxin Zhou               Modified comment(s), and      */
+/*                                            corrected mqtt client state,*/
+/*                                            resulting in version 6.0.1  */
 /*                                                                        */
 /**************************************************************************/
 static UINT _nxd_mqtt_client_create_internal(NXD_MQTT_CLIENT *client_ptr, CHAR *client_name,
@@ -3129,14 +3170,10 @@ UINT                status;
     /* Record the client_ptr in the socket structure. */
     client_ptr -> nxd_mqtt_client_socket.nx_tcp_socket_reserved_ptr = (VOID *)client_ptr;
 
-    client_ptr -> nxd_mqtt_client_state = NXD_MQTT_CLIENT_STATE_INITIALIZE;
-
 #ifndef NXD_MQTT_CLOUD_ENABLE
     /* Start MQTT thread. */
-    tx_event_flags_set(&client_ptr -> nxd_mqtt_events, MQTT_START_EVENT, TX_OR);
     tx_thread_resume(&(client_ptr -> nxd_mqtt_thread));
 #endif /* NXD_MQTT_CLOUD_ENABLE */
-
     return(NXD_MQTT_SUCCESS);
 }
 
@@ -3571,7 +3608,7 @@ UCHAR               fixed_header;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nxd_mqtt_client_connect                            PORTABLE C      */
-/*                                                           6.0          */
+/*                                                           6.0.1        */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -3629,6 +3666,11 @@ UCHAR               fixed_header;
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*  06-30-2020     Yuxin Zhou               Modified comment(s), and      */
+/*                                            fixed return value when it  */
+/*                                            is set in CONNACK, corrected*/
+/*                                            mqtt client state,          */
+/*                                            resulting in version 6.0.1  */
 /*                                                                        */
 /**************************************************************************/
 UINT _nxd_mqtt_client_connect(NXD_MQTT_CLIENT *client_ptr, NXD_ADDRESS *server_ip, UINT server_port,
@@ -3636,6 +3678,9 @@ UINT _nxd_mqtt_client_connect(NXD_MQTT_CLIENT *client_ptr, NXD_ADDRESS *server_i
 {
 NX_PACKET           *packet_ptr;
 UINT                 status;
+TX_THREAD           *thread_ptr;
+UINT                 new_priority;
+UINT                 old_priority;
 
 
     /* Obtain the mutex. */
@@ -3658,6 +3703,25 @@ UINT                 status;
     {
         tx_mutex_put(client_ptr -> nxd_mqtt_client_mutex_ptr);
         return(NXD_MQTT_ALREADY_CONNECTED);
+    }
+
+    /* Check if client is connecting. */
+    if (client_ptr -> nxd_mqtt_client_state == NXD_MQTT_CLIENT_STATE_CONNECTING)
+    {
+        tx_mutex_put(client_ptr -> nxd_mqtt_client_mutex_ptr);
+        return(NXD_MQTT_CONNECTING);
+    }
+
+    /* Client state must be in IDLE.  */
+    if (client_ptr -> nxd_mqtt_client_state != NXD_MQTT_CLIENT_STATE_IDLE)
+    {
+#ifdef NX_SECURE_ENABLE
+        if (client_ptr -> nxd_mqtt_client_use_tls)
+        {
+            nx_secure_tls_session_delete(&(client_ptr -> nxd_mqtt_tls_session));
+        }
+#endif /* NX_SECURE_ENABLE */
+        return(NXD_MQTT_INVALID_STATE);
     }
 
 #if defined(NX_SECURE_ENABLE) && defined(NXD_MQTT_REQUIRE_TLS)
@@ -3790,6 +3854,16 @@ UINT                 status;
         return(NX_IN_PROGRESS);
     }
 
+    /* Increase priority to the same of internal thread to avoid out of order packet process. */
+#ifndef NXD_MQTT_CLOUD_ENABLE
+    thread_ptr = &(client_ptr -> nxd_mqtt_thread);
+#else
+    thread_ptr = &(client_ptr -> nxd_mqtt_client_cloud_ptr -> nx_cloud_thread);
+#endif /* NXD_MQTT_CLOUD_ENABLE */
+    tx_thread_info_get(thread_ptr, NX_NULL, NX_NULL, NX_NULL, 
+                       &new_priority, NX_NULL, NX_NULL, NX_NULL, NX_NULL);
+    tx_thread_priority_change(tx_thread_identify(), new_priority, &old_priority);
+
     /* If TLS is enabled, start TLS */
 #ifdef NX_SECURE_ENABLE
     if (client_ptr -> nxd_mqtt_client_use_tls)
@@ -3799,6 +3873,9 @@ UINT                 status;
 
         if (status != NX_SUCCESS)
         {
+
+            /* Revert thread priority. */
+            tx_thread_priority_change(tx_thread_identify(), old_priority, &old_priority);
 
             /* End connection. */
             _nxd_mqtt_client_connection_end(client_ptr, NX_NO_WAIT);
@@ -3813,6 +3890,9 @@ UINT                 status;
 
     if (status != NX_SUCCESS)
     {
+
+        /* Revert thread priority. */
+        tx_thread_priority_change(tx_thread_identify(), old_priority, &old_priority);
 
         /* End connection. */
         _nxd_mqtt_client_connection_end(client_ptr, NX_NO_WAIT);
@@ -3832,6 +3912,9 @@ UINT                 status;
 #else
     status = nx_tcp_socket_receive(&client_ptr -> nxd_mqtt_client_socket, &packet_ptr, wait_option);
 #endif /* NX_SECURE_ENABLE */
+
+    /* Revert thread priority. */
+    tx_thread_priority_change(tx_thread_identify(), old_priority, &old_priority);
 
     /* Check status.  */
     if (status)
@@ -5142,7 +5225,7 @@ UINT _nxde_mqtt_client_create(NXD_MQTT_CLIENT *client_ptr, CHAR *client_name, CH
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nxde_mqtt_client_connect                           PORTABLE C      */
-/*                                                           6.0          */
+/*                                                           6.0.1        */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -5181,6 +5264,9 @@ UINT _nxde_mqtt_client_create(NXD_MQTT_CLIENT *client_ptr, CHAR *client_name, CH
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*  06-30-2020     Yuxin Zhou               Modified comment(s), and      */
+/*                                            corrected mqtt client state,*/
+/*                                            resulting in version 6.0.1  */
 /*                                                                        */
 /**************************************************************************/
 UINT _nxde_mqtt_client_connect(NXD_MQTT_CLIENT *client_ptr, NXD_ADDRESS *server_ip, UINT server_port,
@@ -5210,12 +5296,6 @@ UINT status;
         return(NX_INVALID_PORT);
     }
 
-
-    if (client_ptr -> nxd_mqtt_client_state == NXD_MQTT_CLIENT_STATE_INITIALIZE)
-    {
-        return(NXD_MQTT_CLIENT_NOT_RUNNING);
-    }
-
     status = _nxd_mqtt_client_connect(client_ptr, server_ip, server_port, keepalive, clean_session, wait_option);
 
     return(status);
@@ -5226,7 +5306,7 @@ UINT status;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nxde_mqtt_client_secure_connect                    PORTABLE C      */
-/*                                                           6.0          */
+/*                                                           6.0.1        */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -5267,6 +5347,9 @@ UINT status;
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*  06-30-2020     Yuxin Zhou               Modified comment(s), and      */
+/*                                            corrected mqtt client state,*/
+/*                                            resulting in version 6.0.1  */
 /*                                                                        */
 /**************************************************************************/
 #ifdef NX_SECURE_ENABLE
@@ -5292,11 +5375,6 @@ UINT status;
     if (server_port == 0)
     {
         return(NX_INVALID_PORT);
-    }
-
-    if (client_ptr -> nxd_mqtt_client_state == NXD_MQTT_CLIENT_STATE_INITIALIZE)
-    {
-        return(NXD_MQTT_CLIENT_NOT_RUNNING);
     }
 
     status = _nxd_mqtt_client_secure_connect(client_ptr, server_ip, server_port, tls_setup,
@@ -5870,7 +5948,7 @@ UINT _nxde_mqtt_client_disconnect_notify_set(NXD_MQTT_CLIENT *client_ptr, VOID (
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nxd_mqtt_client_cloud_create                       PORTABLE C      */
-/*                                                           6.0          */
+/*                                                           6.0.1        */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -5908,6 +5986,9 @@ UINT _nxde_mqtt_client_disconnect_notify_set(NXD_MQTT_CLIENT *client_ptr, VOID (
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*  06-30-2020     Yuxin Zhou               Modified comment(s), and      */
+/*                                            corrected mqtt client state,*/
+/*                                            resulting in version 6.0.1  */
 /*                                                                        */
 /**************************************************************************/
 UINT _nxd_mqtt_client_cloud_create(NXD_MQTT_CLIENT *client_ptr, CHAR *client_name, CHAR *client_id, UINT client_id_length,
@@ -5956,8 +6037,8 @@ UINT    status;
         return(NXD_MQTT_INTERNAL_ERROR);
     }
 
-    /* Set start event to start MQTT.  */
-    nx_cloud_module_event_set(&(client_ptr -> nxd_mqtt_client_cloud_module), MQTT_START_EVENT);
+    /* Update state.  */
+    client_ptr -> nxd_mqtt_client_state = NXD_MQTT_CLIENT_STATE_IDLE;
 
     return(NXD_MQTT_SUCCESS);
 }

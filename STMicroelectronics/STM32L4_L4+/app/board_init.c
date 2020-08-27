@@ -52,7 +52,7 @@ static void UART_Console_Init(void);
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
 void SPI3_IRQHandler(void);
 
-bool board_init(void)
+void board_init(void)
 {
     // Init Platform
     HAL_Init();
@@ -77,8 +77,6 @@ bool board_init(void)
 
     // Initialize timers
     InitTimers();
-
-    return 0;
 }
 
 static void Init_MEM1_Sensors(void)

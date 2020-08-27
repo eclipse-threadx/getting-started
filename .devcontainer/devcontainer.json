@@ -1,0 +1,12 @@
+// For format details, see https://aka.ms/vscode-remote/devcontainer.json
+{
+    "dockerfile": "Dockerfile",
+    "extensions": [
+        "ms-vscode.cpptools",
+        "ms-vscode.cmake-tools",
+        "twxs.cmake",
+        "xaver.clang-format"
+    ],
+	"remoteUser": "vscode",
+    "postCreateCommand": "git submodule update --recursive --init",
+}
