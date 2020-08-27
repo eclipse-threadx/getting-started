@@ -37,6 +37,8 @@ struct AZURE_IOT_MQTT_STRUCT
     NXD_MQTT_CLIENT nxd_mqtt_client;
     NX_DNS* nx_dns;
 
+    TX_EVENT_FLAGS_GROUP mqtt_event_flags;
+
     CHAR* mqtt_device_id;
     CHAR* mqtt_sas_key;
     CHAR* mqtt_hub_hostname;
@@ -46,6 +48,7 @@ struct AZURE_IOT_MQTT_STRUCT
     CHAR* mqtt_dps_id_scope;
     CHAR* mqtt_device_registration_id;
 
+    UINT dps_retry_interval;
     UINT reported_property_version;
     UINT desired_property_version;
     CHAR direct_command_request_id[AZURE_IOT_MQTT_DIRECT_COMMAND_RID_SIZE];

@@ -24,6 +24,9 @@
 #define MQTT_QOS_1 1 // QoS 1 - Deliver at least once
 #define MQTT_QOS_2 2 // QoS 2 - Deliver exactly once
 
+#define DPS_EVENT_FLAGS_RETRY   0
+#define DPS_EVENT_FLAGS_SUCCESS 1
+
 static UINT tls_setup(NXD_MQTT_CLIENT* client,
     NX_SECURE_TLS_SESSION* tls_session,
     NX_SECURE_X509_CERT* cert,
@@ -132,8 +135,9 @@ static VOID mqtt_notify_cb(NXD_MQTT_CLIENT* client_ptr, UINT number_of_messages)
                     return;
                 }
 
-                INT retry_after = atoi(find + 12);
-                // TODO: stash the retry and poll in the main loop
+                // flag a retry event after the retry interval
+                azure_iot_mqtt->dps_retry_interval = atoi(find + 12);
+                tx_event_flags_set(&azure_iot_mqtt->mqtt_event_flags, DPS_EVENT_FLAGS_RETRY, TX_OR);
             }
             else
             {
@@ -168,6 +172,13 @@ UINT azure_iot_dps_create(AZURE_IOT_MQTT* azure_iot_mqtt,
     azure_iot_mqtt->mqtt_dps_id_scope           = id_scope;
     azure_iot_mqtt->mqtt_device_registration_id = registration_id;
 
+    status = tx_event_flags_create(&azure_iot_mqtt->mqtt_event_flags, "DPS event flags");
+    if (status != TX_SUCCESS)
+    {
+        printf("FAIL: Unable to create DPS event flags (0x%02x)\r\n", status);
+        return false;
+    }
+
     status = nxd_mqtt_client_create(&azure_iot_mqtt->nxd_mqtt_client,
         "MQTT DPS client",
         registration_id,
@@ -182,6 +193,7 @@ UINT azure_iot_dps_create(AZURE_IOT_MQTT* azure_iot_mqtt,
     if (status)
     {
         printf("Failed to create MQTT Client (0x%02x)\r\n", status);
+        tx_event_flags_delete(&azure_iot_mqtt->mqtt_event_flags);
         return status;
     }
 
@@ -189,6 +201,7 @@ UINT azure_iot_dps_create(AZURE_IOT_MQTT* azure_iot_mqtt,
     if (status)
     {
         printf("Error in setting receive notify (0x%02x)\r\n", status);
+        tx_event_flags_delete(&azure_iot_mqtt->mqtt_event_flags);
         nxd_mqtt_client_delete(&azure_iot_mqtt->nxd_mqtt_client);
         return status;
     }
@@ -207,6 +220,7 @@ UINT azure_iot_dps_delete(AZURE_IOT_MQTT* azure_iot_mqtt)
         return NX_PTR_ERROR;
     }
 
+    tx_event_flags_delete(&azure_iot_mqtt->mqtt_event_flags);
     nxd_mqtt_client_disconnect(&azure_iot_mqtt->nxd_mqtt_client);
     nxd_mqtt_client_delete(&azure_iot_mqtt->nxd_mqtt_client);
 
@@ -229,6 +243,7 @@ UINT azure_iot_dps_symmetric_key_set(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* symme
 UINT azure_iot_dps_register(AZURE_IOT_MQTT* azure_iot_mqtt, UINT wait)
 {
     UINT status;
+    ULONG events = 0;
     NXD_ADDRESS server_ip;
     CHAR mqtt_publish_topic[100];
     CHAR message[100];
@@ -322,6 +337,9 @@ UINT azure_iot_dps_register(AZURE_IOT_MQTT* azure_iot_mqtt, UINT wait)
 
     while (true)
     {
+//        tx_event_flags_get(
+//            &azure_iot_mqtt->mqtt_event_flags, SNTP_UPDATE_EVENT, TX_OR_CLEAR, &events, 10 * NX_IP_PERIODIC_RATE);
+
         // Wait for registration response
 
         // Poll for status
