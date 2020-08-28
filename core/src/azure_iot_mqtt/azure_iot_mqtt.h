@@ -39,14 +39,14 @@ struct AZURE_IOT_MQTT_STRUCT
 
     TX_EVENT_FLAGS_GROUP mqtt_event_flags;
 
-    // Hub
+    // Hub config
     CHAR* mqtt_hub_hostname;
 
-    // DPS
+    // DPS config
     CHAR* mqtt_dps_endpoint;
     CHAR* mqtt_dps_id_scope;
 
-    // Device
+    // Device config
     CHAR* mqtt_device_id;
     CHAR* mqtt_sas_key;
     CHAR* mqtt_model_id;
