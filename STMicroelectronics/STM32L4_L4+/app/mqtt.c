@@ -8,6 +8,7 @@
 #include "stm32l475e_iot01.h"
 #include "stm32l475e_iot01_tsensor.h"
 
+#include "azure_iot_dps_mqtt.h"
 #include "azure_iot_mqtt.h"
 #include "json_utils.h"
 #include "sntp_client.h"
@@ -17,7 +18,7 @@
 #define IOT_MODEL_ID "dtmi:com:examples:gsg;1"
 
 #define TELEMETRY_INTERVAL_PROPERTY "telemetryInterval"
-#define LED_STATE_PROPERTY "ledState"
+#define LED_STATE_PROPERTY          "ledState"
 
 #define TELEMETRY_INTERVAL_EVENT 1
 
@@ -120,6 +121,25 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
         printf("FAIL: Unable to create nx_client event flags (0x%02x)\r\n", status);
         return status;
     }
+
+#ifdef ENABLE_DPS
+    // Setup DPS
+    status = azure_iot_dps_create(&azure_iot_mqtt,
+        ip_ptr,
+        pool_ptr,
+        dns_ptr,
+        sntp_time_get,
+        IOT_DPS_HOSTNAME,
+        IOT_DPS_ID_SCOPE,
+        IOT_DPS_REGISTRATION_ID);
+
+    azure_iot_dps_symmetric_key_set(&azure_iot_mqtt, IOT_PRIMARY_KEY);
+
+    status = azure_iot_dps_register(&azure_iot_mqtt, NX_WAIT_FOREVER);
+
+    status = azure_iot_dps_delete(&azure_iot_mqtt);
+
+#endif
 
     // Create Azure MQTT
     status = azure_iot_mqtt_create(&azure_iot_mqtt,

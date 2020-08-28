@@ -25,6 +25,7 @@ typedef struct AZURE_IOT_NX_CLIENT_STRUCT
 
     NX_AZURE_IOT nx_azure_iot;
     NX_AZURE_IOT_HUB_CLIENT iothub_client;
+    NX_AZURE_IOT_PROVISIONING_CLIENT prov_client;
 
     TX_THREAD telemetry_thread;
     ULONG telemetry_thread_stack[AZURE_IOT_NX_STACK_SIZE / sizeof(ULONG)];
@@ -40,6 +41,17 @@ typedef struct AZURE_IOT_NX_CLIENT_STRUCT
     threadx_entry device_twin_thread_entry;
     threadx_entry c2d_thread_entry;
 } AZURE_IOT_NX_CLIENT;
+
+UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CLIENT* azure_iot_nx_client,
+    NX_IP* nx_ip,
+    NX_PACKET_POOL* nx_pool,
+    NX_DNS* nx_dns,
+    UINT (*unix_time_callback)(ULONG* unix_time),
+    CHAR* dps_endpoint,
+    CHAR* dps_id_scope,
+    CHAR* dps_registration_id,
+    CHAR* device_sas_key,
+    CHAR* device_model_id);
 
 UINT azure_iot_nx_client_create(AZURE_IOT_NX_CLIENT* azure_iot_nx_client,
     NX_IP* nx_ip,

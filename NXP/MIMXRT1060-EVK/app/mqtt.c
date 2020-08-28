@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 
+#include "azure_iot_dps_mqtt.h"
 #include "azure_iot_mqtt.h"
 #include "json_utils.h"
 #include "sntp_client.h"
@@ -120,6 +121,29 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
         return status;
     }
 
+#ifdef ENABLE_DPS
+    // Setup DPS
+    status = azure_iot_dps_create(&azure_iot_mqtt,
+        ip_ptr,
+        pool_ptr,
+        dns_ptr,
+        sntp_time_get,
+        IOT_DPS_HOSTNAME,
+        IOT_DPS_ID_SCOPE,
+        IOT_DEVICE_ID);
+    if (status != NX_SUCCESS) 
+    {
+        printf("ERROR: Failed to create DPS client (0x%04x)\r\n", status);
+    }
+
+    azure_iot_dps_symmetric_key_set(&azure_iot_mqtt, IOT_PRIMARY_KEY);
+
+    status = azure_iot_dps_register(&azure_iot_mqtt, NX_WAIT_FOREVER);
+
+    status = azure_iot_dps_delete(&azure_iot_mqtt);
+
+#endif
+
     // Create Azure MQTT
     status = azure_iot_mqtt_create(&azure_iot_mqtt,
         ip_ptr,
@@ -132,7 +156,7 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
         IOT_MODEL_ID);
     if (status != NXD_MQTT_SUCCESS)
     {
-        printf("Error: Failed to create Azure MQTT (0x%02x)\r\n", status);
+        printf("Error: Failed to create Azure MQTT (0x%04x)\r\n", status);
         return status;
     }
 

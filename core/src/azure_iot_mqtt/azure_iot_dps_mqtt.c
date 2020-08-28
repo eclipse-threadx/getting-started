@@ -141,7 +141,8 @@ static VOID mqtt_notify_cb(NXD_MQTT_CLIENT* client_ptr, UINT number_of_messages)
             }
             else
             {
-                printf("Unknown msg_status %d\r\n", msg_status);
+              printf("Unknown msg_status %d, msg=%s\r\n", msg_status,
+                     azure_iot_mqtt->mqtt_receive_message_buffer);
             }
         }
         else
@@ -152,11 +153,10 @@ static VOID mqtt_notify_cb(NXD_MQTT_CLIENT* client_ptr, UINT number_of_messages)
 }
 
 UINT azure_iot_dps_create(AZURE_IOT_MQTT* azure_iot_mqtt,
-    UCHAR* mqtt_stack,
-    UINT mqtt_stack_size,
     NX_IP* nx_ip,
     NX_PACKET_POOL* nx_pool,
     NX_DNS* nx_dns,
+    func_ptr_unix_time_get unix_time_get,
     CHAR* endpoint,
     CHAR* id_scope,
     CHAR* registration_id)
@@ -168,9 +168,10 @@ UINT azure_iot_dps_create(AZURE_IOT_MQTT* azure_iot_mqtt,
     memset(azure_iot_mqtt, 0, sizeof(*azure_iot_mqtt));
 
     azure_iot_mqtt->nx_dns                      = nx_dns;
+    azure_iot_mqtt->unix_time_get               = unix_time_get;
     azure_iot_mqtt->mqtt_dps_endpoint           = endpoint;
     azure_iot_mqtt->mqtt_dps_id_scope           = id_scope;
-    azure_iot_mqtt->mqtt_device_registration_id = registration_id;
+    azure_iot_mqtt->mqtt_device_id = registration_id;
 
     status = tx_event_flags_create(&azure_iot_mqtt->mqtt_event_flags, "DPS event flags");
     if (status != TX_SUCCESS)
@@ -185,8 +186,8 @@ UINT azure_iot_dps_create(AZURE_IOT_MQTT* azure_iot_mqtt,
         strlen(registration_id),
         nx_ip,
         nx_pool,
-        mqtt_stack,
-        mqtt_stack_size,
+        azure_iot_mqtt->mqtt_client_stack,
+        AZURE_IOT_MQTT_CLIENT_STACK_SIZE,
         MQTT_PRIORITY,
         NX_NULL,
         0);
@@ -231,7 +232,7 @@ UINT azure_iot_dps_symmetric_key_set(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* symme
 {
     if (azure_iot_mqtt == NX_NULL)
     {
-        printf("Fail to delete DPS, null pointer\r\n");
+        printf("Fail to set symmetric key, null pointer\r\n");
         return NX_PTR_ERROR;
     }
 
@@ -245,29 +246,26 @@ UINT azure_iot_dps_register(AZURE_IOT_MQTT* azure_iot_mqtt, UINT wait)
     UINT status;
     ULONG events = 0;
     NXD_ADDRESS server_ip;
-    CHAR mqtt_publish_topic[100];
+//    CHAR mqtt_publish_topic[100];
     CHAR message[100];
 
     printf("\tDPS endpoint: %s\r\n", azure_iot_mqtt->mqtt_dps_endpoint);
-    printf("\tDPS id scope: %s\r\n", azure_iot_mqtt->mqtt_dps_id_scope);
-    printf("\tDevice id: %s\r\n", azure_iot_mqtt->mqtt_device_registration_id);
+    printf("\tId scope: %s\r\n", azure_iot_mqtt->mqtt_dps_id_scope);
+    printf("\tRegistration id: %s\r\n", azure_iot_mqtt->mqtt_device_id);
 
-    // Create the username & password
-    snprintf(azure_iot_mqtt->mqtt_username,
-        AZURE_IOT_MQTT_USERNAME_SIZE,
-        USERNAME,
-        azure_iot_mqtt->mqtt_dps_id_scope,
-        azure_iot_mqtt->mqtt_device_registration_id);
+    // Create the nxd_mqtt_client_secure_connect & password
+    snprintf(azure_iot_mqtt->mqtt_username, AZURE_IOT_MQTT_USERNAME_SIZE,
+             USERNAME, azure_iot_mqtt->mqtt_dps_id_scope,
+             azure_iot_mqtt->mqtt_device_id);
 
-    if (!create_dps_sas_token(azure_iot_mqtt->mqtt_sas_key,
-            strlen(azure_iot_mqtt->mqtt_sas_key),
-            azure_iot_mqtt->mqtt_dps_id_scope,
-            azure_iot_mqtt->mqtt_device_registration_id,
+    if (!create_dps_sas_token(
+            azure_iot_mqtt->mqtt_sas_key, strlen(azure_iot_mqtt->mqtt_sas_key),
+            azure_iot_mqtt->mqtt_dps_id_scope, azure_iot_mqtt->mqtt_device_id,
             azure_iot_mqtt->unix_time_get(),
             azure_iot_mqtt->mqtt_password,
             AZURE_IOT_MQTT_PASSWORD_SIZE))
     {
-        printf("ERROR: Unable to generate SAS token\r\n");
+        printf("ERROR: Unable to generate DPS SAS token\r\n");
         return NX_PTR_ERROR;
     }
 
@@ -278,20 +276,21 @@ UINT azure_iot_dps_register(AZURE_IOT_MQTT* azure_iot_mqtt, UINT wait)
         strlen(azure_iot_mqtt->mqtt_password));
     if (status != NXD_MQTT_SUCCESS)
     {
-        printf("Could not create Login Set (0x%02x)\r\n", status);
+        printf("Could not set client login (0x%04x)\r\n", status);
         nx_secure_tls_session_delete(&azure_iot_mqtt->nxd_mqtt_client.nxd_mqtt_tls_session);
         return status;
     }
 
     // Resolve the MQTT server IP address
-    status = nxd_dns_host_by_name_get(azure_iot_mqtt->nx_dns,
-        (UCHAR*)azure_iot_mqtt->mqtt_hub_hostname,
+    status = nxd_dns_host_by_name_get(
+        azure_iot_mqtt->nx_dns, (UCHAR *)azure_iot_mqtt->mqtt_dps_endpoint,
         &server_ip,
         NX_IP_PERIODIC_RATE,
         NX_IP_VERSION_V4);
     if (status != NX_SUCCESS)
     {
-        printf("Unable to resolve DNS for MQTT Server %s (0x%02x)\r\n", azure_iot_mqtt->mqtt_hub_hostname, status);
+      printf("Error: Unable to resolve DNS for DPS MQTT Server %s (0x%04x)\r\n",
+             azure_iot_mqtt->mqtt_dps_endpoint, status);
         nx_secure_tls_session_delete(&azure_iot_mqtt->nxd_mqtt_client.nxd_mqtt_tls_session);
         return status;
     }
@@ -305,7 +304,7 @@ UINT azure_iot_dps_register(AZURE_IOT_MQTT* azure_iot_mqtt, UINT wait)
         MQTT_TIMEOUT);
     if (status != NXD_MQTT_SUCCESS)
     {
-        printf("Could not connect to MQTT server (0x%02x)\r\n", status);
+        printf("Error: Could not connect to DPS MQTT server (0x%04x)\r\n", status);
         nx_secure_tls_session_delete(&azure_iot_mqtt->nxd_mqtt_client.nxd_mqtt_tls_session);
         return status;
     }
@@ -315,13 +314,14 @@ UINT azure_iot_dps_register(AZURE_IOT_MQTT* azure_iot_mqtt, UINT wait)
         &azure_iot_mqtt->nxd_mqtt_client, DPS_REGISTER_SUBSCRIBE, strlen(DPS_REGISTER_SUBSCRIBE), MQTT_QOS_0);
     if (status != NXD_MQTT_SUCCESS)
     {
-        printf("Error in direct method subscribing to server (0x%02x)\r\n", status);
+        printf("Error: Error in DPS registration subscription (0x%04x)\r\n", status);
         nx_secure_tls_session_delete(&azure_iot_mqtt->nxd_mqtt_client.nxd_mqtt_tls_session);
         return status;
     }
 
     // Register the device
-    snprintf(message, sizeof(message), "{\"registrationId\"=\"%s\"}", azure_iot_mqtt->mqtt_device_registration_id);
+    snprintf(message, sizeof(message), "{\"registrationId\"=\"%s\"}",
+             azure_iot_mqtt->mqtt_device_id);
     status = nxd_mqtt_client_publish(&azure_iot_mqtt->nxd_mqtt_client,
         DPS_REGISTER_PUBLISH,
         strlen(DPS_REGISTER_PUBLISH),
@@ -332,13 +332,16 @@ UINT azure_iot_dps_register(AZURE_IOT_MQTT* azure_iot_mqtt, UINT wait)
         NX_WAIT_FOREVER);
     if (status != NX_SUCCESS)
     {
-        printf("Failed to publish %s (0x%02x)\r\n", message, status);
+        printf("DPS: Failed to publish registration %s (0x%04x)\r\n", message, status);
     }
 
     while (true)
     {
-//        tx_event_flags_get(
-//            &azure_iot_mqtt->mqtt_event_flags, SNTP_UPDATE_EVENT, TX_OR_CLEAR, &events, 10 * NX_IP_PERIODIC_RATE);
+        tx_event_flags_get(
+            &azure_iot_mqtt->mqtt_event_flags, DPS_EVENT_FLAGS_RETRY, TX_OR_CLEAR, &events, 10 * NX_IP_PERIODIC_RATE);
+
+        printf("received DPS response\r\b");
+        //        if ()
 
         // Wait for registration response
 
@@ -354,5 +357,8 @@ UINT azure_iot_dps_device_info_get(AZURE_IOT_MQTT* azure_iot_mqtt, UCHAR* iothub
 {
     // mechanism to get the DPS response information
 
+//    iothub_hostname = azure_iot_mqtt->
+//    device_id = azure_iot_mqtt->
+    
     return NXD_MQTT_SUCCESS;
 }

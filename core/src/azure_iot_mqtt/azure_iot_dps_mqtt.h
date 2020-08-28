@@ -30,11 +30,10 @@
 } AZURE_IOT_DPS_MQTT;*/
 
 UINT azure_iot_dps_create(AZURE_IOT_MQTT* azure_iot_mqtt,
-    UCHAR* mqtt_stack,
-    UINT mqtt_stack_size,
     NX_IP* nx_ip,
     NX_PACKET_POOL* nx_pool,
     NX_DNS* nx_dns,
+    func_ptr_unix_time_get unix_time_get,
     CHAR* endpoint,
     CHAR* id_scope,
     CHAR* registration_id);
