@@ -320,7 +320,7 @@ UINT azure_iot_dps_register(AZURE_IOT_MQTT* azure_iot_mqtt, UINT wait)
     }
 
     // Register the device
-    snprintf(message, sizeof(message), "{\"registrationId\"=\"%s\"}",
+    snprintf(message, sizeof(message), "{\"registrationId\":\"%s\"}",
              azure_iot_mqtt->mqtt_device_id);
     status = nxd_mqtt_client_publish(&azure_iot_mqtt->nxd_mqtt_client,
         DPS_REGISTER_PUBLISH,

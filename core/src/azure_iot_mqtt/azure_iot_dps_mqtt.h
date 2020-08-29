@@ -14,21 +14,6 @@
 
 #include "azure_iot_mqtt.h"
 
-/*typedef struct AZURE_IOT_DPS_MQTT_STRUCT
-{
-    NXD_MQTT_CLIENT nxd_mqtt_client;
-    TX_MUTEX mqtt_mutex;
-
-    UCHAR* mqtt_stack;
-
-    NX_DNS* nx_dns;
-    CHAR* dps_id_scope;
-    CHAR* dps_endpoint;
-    CHAR* device_registration_id;
-    CHAR* device_sas_key;
-
-} AZURE_IOT_DPS_MQTT;*/
-
 UINT azure_iot_dps_create(AZURE_IOT_MQTT* azure_iot_mqtt,
     NX_IP* nx_ip,
     NX_PACKET_POOL* nx_pool,
