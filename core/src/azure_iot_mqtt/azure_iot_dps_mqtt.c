@@ -3,88 +3,28 @@
 
 // https://docs.microsoft.com/en-us/azure/iot-dps/iot-dps-mqtt-support
 
-#include "azure_iot_dps_mqtt.h"
+#include <string.h>
+
 #include "azure_iot_cert.h"
+#include "azure_iot_dps_mqtt.h"
 
 #include "azure_iot_mqtt/sas_token.h"
 
-#include <string.h>
+#include "json_utils.h"
 
 #define USERNAME               "%s/registrations/%s/api-version=2019-03-31"
 #define DPS_REGISTER_BASE      "$dps/registrations/res"
 #define DPS_REGISTER_SUBSCRIBE "$dps/registrations/res/#"
 #define DPS_REGISTER_PUBLISH   "$dps/registrations/PUT/iotdps-register/?$rid=1"
-#define DPS_STATUS             "$dps/registrations/GET/iotdps-get-operationstatus/?$rid=1&operationId=%s"
+#define DPS_STATUS_REQUEST     "$dps/registrations/GET/iotdps-get-operationstatus/?$rid=1&operationId=%s"
 
 #define MQTT_PRIORITY   2
 #define MQTT_TIMEOUT    (10 * TX_TIMER_TICKS_PER_SECOND)
 #define MQTT_KEEP_ALIVE 240
 
-#define MQTT_QOS_0 0 // QoS 0 - Deliver at most once
-#define MQTT_QOS_1 1 // QoS 1 - Deliver at least once
-#define MQTT_QOS_2 2 // QoS 2 - Deliver exactly once
-
-#define DPS_EVENT_FLAGS_RETRY   0
-#define DPS_EVENT_FLAGS_SUCCESS 1
-
-static UINT tls_setup(NXD_MQTT_CLIENT* client,
-    NX_SECURE_TLS_SESSION* tls_session,
-    NX_SECURE_X509_CERT* cert,
-    NX_SECURE_X509_CERT* trusted_cert)
-{
-    UINT status;
-
-    AZURE_IOT_MQTT* azure_iot_mqtt = (AZURE_IOT_MQTT*)client->nxd_mqtt_packet_receive_context;
-
-    // Create TLS session.
-    status = _nx_secure_tls_session_create_ext(tls_session,
-        _nx_azure_iot_tls_supported_crypto,
-        _nx_azure_iot_tls_supported_crypto_size,
-        _nx_azure_iot_tls_ciphersuite_map,
-        _nx_azure_iot_tls_ciphersuite_map_size,
-        azure_iot_mqtt->tls_metadata_buffer,
-        sizeof(azure_iot_mqtt->tls_metadata_buffer));
-    if (status != NX_SUCCESS)
-    {
-        printf("Failed to create TLS session status: %d\r\n", status);
-        return status;
-    }
-
-    // Add a CA Certificate to our trusted store for verifying incoming server certificates
-    status = nx_secure_x509_certificate_initialize(trusted_cert,
-        (UCHAR*)azure_iot_root_ca,
-        azure_iot_root_ca_len,
-        NX_NULL,
-        0,
-        NX_NULL,
-        0,
-        NX_SECURE_X509_KEY_TYPE_NONE);
-    if (status != NX_SUCCESS)
-    {
-        printf("Unable to initialize CA certificate (0x%02x)\r\n", status);
-        return status;
-    }
-
-    status = nx_secure_tls_trusted_certificate_add(tls_session, trusted_cert);
-    if (status != NX_SUCCESS)
-    {
-        printf("Unable to add CA certificate to trusted store (0x%02x)\r\n", status);
-        return status;
-    }
-
-    status = nx_secure_tls_session_packet_buffer_set(
-        tls_session, azure_iot_mqtt->tls_packet_buffer, sizeof(azure_iot_mqtt->tls_packet_buffer));
-    if (status != NX_SUCCESS)
-    {
-        printf("Could not set TLS session packet buffer (0x%02x)\r\n", status);
-        return status;
-    }
-
-    // Add a timestamp function for time checking and timestamps in the TLS handshake
-    nx_secure_tls_session_time_function_set(tls_session, azure_iot_mqtt->unix_time_get);
-
-    return NX_SUCCESS;
-}
+#define EVENT_FLAGS_RETRY   1
+#define EVENT_FLAGS_SUCCESS 2
+#define EVENT_FLAGS_FAILED  4
 
 static VOID mqtt_notify_cb(NXD_MQTT_CLIENT* client_ptr, UINT number_of_messages)
 {
@@ -122,11 +62,7 @@ static VOID mqtt_notify_cb(NXD_MQTT_CLIENT* client_ptr, UINT number_of_messages)
             CHAR* location = azure_iot_mqtt->mqtt_receive_topic_buffer + sizeof(DPS_REGISTER_BASE);
             INT msg_status = atoi(location);
 
-            if (msg_status == 200)
-            {
-                // Extract data
-            }
-            else if (msg_status == 202)
+            if (msg_status == 202)
             {
                 CHAR* find = strstr(location, "retry-after=");
                 if (find == 0)
@@ -137,12 +73,15 @@ static VOID mqtt_notify_cb(NXD_MQTT_CLIENT* client_ptr, UINT number_of_messages)
 
                 // flag a retry event after the retry interval
                 azure_iot_mqtt->dps_retry_interval = atoi(find + 12);
-                tx_event_flags_set(&azure_iot_mqtt->mqtt_event_flags, DPS_EVENT_FLAGS_RETRY, TX_OR);
+                tx_event_flags_set(&azure_iot_mqtt->mqtt_event_flags, EVENT_FLAGS_RETRY, TX_OR);
+            }
+            else if (msg_status == 200)
+            {
+                // Extract data
             }
             else
             {
-              printf("Unknown msg_status %d, msg=%s\r\n", msg_status,
-                     azure_iot_mqtt->mqtt_receive_message_buffer);
+                printf("Unknown msg_status %d, msg=%s\r\n", msg_status, azure_iot_mqtt->mqtt_receive_message_buffer);
             }
         }
         else
@@ -167,11 +106,11 @@ UINT azure_iot_dps_create(AZURE_IOT_MQTT* azure_iot_mqtt,
 
     memset(azure_iot_mqtt, 0, sizeof(*azure_iot_mqtt));
 
-    azure_iot_mqtt->nx_dns                      = nx_dns;
-    azure_iot_mqtt->unix_time_get               = unix_time_get;
-    azure_iot_mqtt->mqtt_dps_endpoint           = endpoint;
-    azure_iot_mqtt->mqtt_dps_id_scope           = id_scope;
-    azure_iot_mqtt->mqtt_device_id = registration_id;
+    azure_iot_mqtt->nx_dns            = nx_dns;
+    azure_iot_mqtt->unix_time_get     = unix_time_get;
+    azure_iot_mqtt->mqtt_dps_endpoint = endpoint;
+    azure_iot_mqtt->mqtt_dps_id_scope = id_scope;
+    azure_iot_mqtt->mqtt_device_id    = registration_id;
 
     status = tx_event_flags_create(&azure_iot_mqtt->mqtt_event_flags, "DPS event flags");
     if (status != TX_SUCCESS)
@@ -246,21 +185,24 @@ UINT azure_iot_dps_register(AZURE_IOT_MQTT* azure_iot_mqtt, UINT wait)
     UINT status;
     ULONG events = 0;
     NXD_ADDRESS server_ip;
-//    CHAR mqtt_publish_topic[100];
-    CHAR message[100];
+    CHAR mqtt_publish_topic[256];
+    CHAR mqtt_publish_payload[100];
 
     printf("\tDPS endpoint: %s\r\n", azure_iot_mqtt->mqtt_dps_endpoint);
     printf("\tId scope: %s\r\n", azure_iot_mqtt->mqtt_dps_id_scope);
     printf("\tRegistration id: %s\r\n", azure_iot_mqtt->mqtt_device_id);
 
     // Create the nxd_mqtt_client_secure_connect & password
-    snprintf(azure_iot_mqtt->mqtt_username, AZURE_IOT_MQTT_USERNAME_SIZE,
-             USERNAME, azure_iot_mqtt->mqtt_dps_id_scope,
-             azure_iot_mqtt->mqtt_device_id);
+    snprintf(azure_iot_mqtt->mqtt_username,
+        AZURE_IOT_MQTT_USERNAME_SIZE,
+        USERNAME,
+        azure_iot_mqtt->mqtt_dps_id_scope,
+        azure_iot_mqtt->mqtt_device_id);
 
-    if (!create_dps_sas_token(
-            azure_iot_mqtt->mqtt_sas_key, strlen(azure_iot_mqtt->mqtt_sas_key),
-            azure_iot_mqtt->mqtt_dps_id_scope, azure_iot_mqtt->mqtt_device_id,
+    if (!create_dps_sas_token(azure_iot_mqtt->mqtt_sas_key,
+            strlen(azure_iot_mqtt->mqtt_sas_key),
+            azure_iot_mqtt->mqtt_dps_id_scope,
+            azure_iot_mqtt->mqtt_device_id,
             azure_iot_mqtt->unix_time_get(),
             azure_iot_mqtt->mqtt_password,
             AZURE_IOT_MQTT_PASSWORD_SIZE))
@@ -282,15 +224,16 @@ UINT azure_iot_dps_register(AZURE_IOT_MQTT* azure_iot_mqtt, UINT wait)
     }
 
     // Resolve the MQTT server IP address
-    status = nxd_dns_host_by_name_get(
-        azure_iot_mqtt->nx_dns, (UCHAR *)azure_iot_mqtt->mqtt_dps_endpoint,
+    status = nxd_dns_host_by_name_get(azure_iot_mqtt->nx_dns,
+        (UCHAR*)azure_iot_mqtt->mqtt_dps_endpoint,
         &server_ip,
         NX_IP_PERIODIC_RATE,
         NX_IP_VERSION_V4);
     if (status != NX_SUCCESS)
     {
-      printf("Error: Unable to resolve DNS for DPS MQTT Server %s (0x%04x)\r\n",
-             azure_iot_mqtt->mqtt_dps_endpoint, status);
+        printf("Error: Unable to resolve DNS for DPS MQTT Server %s (0x%04x)\r\n",
+            azure_iot_mqtt->mqtt_dps_endpoint,
+            status);
         nx_secure_tls_session_delete(&azure_iot_mqtt->nxd_mqtt_client.nxd_mqtt_tls_session);
         return status;
     }
@@ -320,27 +263,64 @@ UINT azure_iot_dps_register(AZURE_IOT_MQTT* azure_iot_mqtt, UINT wait)
     }
 
     // Register the device
-    snprintf(message, sizeof(message), "{\"registrationId\":\"%s\"}",
-             azure_iot_mqtt->mqtt_device_id);
-    status = nxd_mqtt_client_publish(&azure_iot_mqtt->nxd_mqtt_client,
-        DPS_REGISTER_PUBLISH,
-        strlen(DPS_REGISTER_PUBLISH),
-        message,
-        strlen(message),
-        NX_FALSE,
-        MQTT_QOS_1,
-        NX_WAIT_FOREVER);
+    snprintf(mqtt_publish_payload, sizeof(mqtt_publish_payload), "{\"registrationId\":\"%s\"}", azure_iot_mqtt->mqtt_device_id);
+    status = mqtt_publish(azure_iot_mqtt, DPS_REGISTER_PUBLISH, mqtt_publish_payload);
     if (status != NX_SUCCESS)
     {
-        printf("DPS: Failed to publish registration %s (0x%04x)\r\n", message, status);
+        printf("ERROR: Failed to publish DPS registration (0x%04x)\r\n", status);
     }
+
+    jsmn_parser parser;
+    jsmntok_t tokens[64];
+    INT token_count;
 
     while (true)
     {
-        tx_event_flags_get(
-            &azure_iot_mqtt->mqtt_event_flags, DPS_EVENT_FLAGS_RETRY, TX_OR_CLEAR, &events, 10 * NX_IP_PERIODIC_RATE);
+        jsmn_init(&parser);
 
-        printf("received DPS response\r\b");
+        events = 0;
+        tx_event_flags_get(&azure_iot_mqtt->mqtt_event_flags,
+            EVENT_FLAGS_RETRY | EVENT_FLAGS_SUCCESS | EVENT_FLAGS_FAILED,
+            TX_OR_CLEAR,
+            &events,
+            10 * NX_IP_PERIODIC_RATE);
+
+        if (events == EVENT_FLAGS_RETRY)
+        {
+            char operation_id[100];
+            token_count = jsmn_parse(&parser,
+                azure_iot_mqtt->mqtt_receive_message_buffer,
+                strlen(azure_iot_mqtt->mqtt_receive_message_buffer),
+                tokens,
+                64);
+
+            if (findJsonString(
+                    azure_iot_mqtt->mqtt_receive_message_buffer, tokens, token_count, "operationId", operation_id))
+            {
+                tx_thread_sleep(azure_iot_mqtt->dps_retry_interval * TX_TIMER_TICKS_PER_SECOND);
+                
+                snprintf(mqtt_publish_topic, sizeof(mqtt_publish_topic), DPS_STATUS_REQUEST, operation_id);
+                status = mqtt_publish(azure_iot_mqtt, mqtt_publish_topic, mqtt_publish_payload);
+                if (status != NX_SUCCESS) 
+                {
+                    printf("ERROR: Failed to poll for DPS status (0x%04x)\r\n", status);
+                }
+            }
+            else
+            {
+                printf("Error: Invalid DPS registration payload, operationId not found\r\n");
+                return NX_FALSE;
+            }
+        }
+        else if (events == EVENT_FLAGS_SUCCESS)
+        {
+        }
+        else
+        {
+            printf("Error: Failed to receive response from DPS\r\n");
+            return NX_FALSE;
+        }
+
         //        if ()
 
         // Wait for registration response
@@ -357,8 +337,8 @@ UINT azure_iot_dps_device_info_get(AZURE_IOT_MQTT* azure_iot_mqtt, UCHAR* iothub
 {
     // mechanism to get the DPS response information
 
-//    iothub_hostname = azure_iot_mqtt->
-//    device_id = azure_iot_mqtt->
-    
+    //    iothub_hostname = azure_iot_mqtt->
+    //    device_id = azure_iot_mqtt->
+
     return NXD_MQTT_SUCCESS;
 }

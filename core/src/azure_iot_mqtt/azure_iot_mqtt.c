@@ -35,12 +35,6 @@
 #define MQTT_TIMEOUT         (10 * TX_TIMER_TICKS_PER_SECOND)
 #define MQTT_KEEP_ALIVE      240
 
-#define MQTT_QOS_0 0 // QoS 0 - Deliver at most once
-#define MQTT_QOS_1 1 // QoS 1 - Deliver at least once
-#define MQTT_QOS_2 2 // QoS 2 - Deliver exactly once
-
-extern const NX_SECURE_TLS_CRYPTO nx_crypto_tls_ciphers;
-
 UINT azure_iot_mqtt_register_direct_method_callback(
     AZURE_IOT_MQTT* azure_iot_mqtt, func_ptr_direct_method mqtt_direct_method_callback)
 {
@@ -89,7 +83,7 @@ UINT azure_iot_mqtt_register_device_twin_prop_callback(
     return NX_SUCCESS;
 }
 
-static UINT tls_setup(NXD_MQTT_CLIENT* client,
+UINT tls_setup(NXD_MQTT_CLIENT* client,
     NX_SECURE_TLS_SESSION* tls_session,
     NX_SECURE_X509_CERT* cert,
     NX_SECURE_X509_CERT* trusted_cert)
@@ -148,7 +142,7 @@ static UINT tls_setup(NXD_MQTT_CLIENT* client,
     return NX_SUCCESS;
 }
 
-static UINT mqtt_publish(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR* message)
+UINT mqtt_publish(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR* message)
 {
     UINT status = nxd_mqtt_client_publish(&azure_iot_mqtt->nxd_mqtt_client,
         topic,

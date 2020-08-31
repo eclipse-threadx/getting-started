@@ -24,6 +24,10 @@
 
 #define TLS_PACKET_BUFFER (5 * 1024)
 
+#define MQTT_QOS_0 0 // QoS 0 - Deliver at most once
+#define MQTT_QOS_1 1 // QoS 1 - Deliver at least once
+#define MQTT_QOS_2 2 // QoS 2 - Deliver exactly once
+
 typedef struct AZURE_IOT_MQTT_STRUCT AZURE_IOT_MQTT;
 
 typedef void (*func_ptr_direct_method)(AZURE_IOT_MQTT*, CHAR*, CHAR*);
@@ -83,6 +87,13 @@ UINT azure_iot_mqtt_register_device_twin_desired_prop_callback(
     AZURE_IOT_MQTT* azure_iot_mqtt, func_ptr_device_twin_desired_prop mqtt_device_twin_desired_prop_update_callback);
 UINT azure_iot_mqtt_register_device_twin_prop_callback(
     AZURE_IOT_MQTT* azure_iot_mqtt, func_ptr_device_twin_prop mqtt_device_twin_prop_callback);
+
+UINT tls_setup(NXD_MQTT_CLIENT* client,
+    NX_SECURE_TLS_SESSION* tls_session,
+    NX_SECURE_X509_CERT* cert,
+    NX_SECURE_X509_CERT* trusted_cert);
+
+UINT mqtt_publish(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR* message);
 
 UINT azure_iot_mqtt_publish_float_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, float value);
 UINT azure_iot_mqtt_publish_bool_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, bool value);
