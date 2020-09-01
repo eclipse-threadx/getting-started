@@ -337,7 +337,7 @@ UINT azure_iot_dps_register(AZURE_IOT_MQTT* azure_iot_mqtt, UINT wait)
     // Wait for an event
     ULONG events = 0;
     tx_event_flags_get(
-        &azure_iot_mqtt->mqtt_event_flags, EVENT_FLAGS_SUCCESS, TX_OR_CLEAR, &events, 20 * NX_IP_PERIODIC_RATE);
+        &azure_iot_mqtt->mqtt_event_flags, EVENT_FLAGS_SUCCESS, TX_OR_CLEAR, &events, 30 * NX_IP_PERIODIC_RATE);
 
     if (events != EVENT_FLAGS_SUCCESS)
     {
