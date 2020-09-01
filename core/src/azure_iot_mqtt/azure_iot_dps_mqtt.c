@@ -249,7 +249,7 @@ UINT azure_iot_dps_register(AZURE_IOT_MQTT* azure_iot_mqtt, UINT wait)
     NXD_ADDRESS server_ip;
     CHAR mqtt_publish_payload[100];
 
-    printf("\tDPS endpoint: %s\r\n", azure_iot_mqtt->mqtt_dps_endpoint);
+    printf("\Endpoint: %s\r\n", azure_iot_mqtt->mqtt_dps_endpoint);
     printf("\tId scope: %s\r\n", azure_iot_mqtt->mqtt_dps_id_scope);
     printf("\tRegistration id: %s\r\n", azure_iot_mqtt->mqtt_device_id);
 
