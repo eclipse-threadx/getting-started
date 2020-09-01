@@ -625,6 +625,7 @@ UINT azure_iot_mqtt_create_with_dps(AZURE_IOT_MQTT* azure_iot_mqtt,
     if (status != NX_SUCCESS)
     {
         printf("ERROR: Failed to create DPS client (0x%04x)\r\n", status);
+        return status;
     }
 
     azure_iot_dps_symmetric_key_set(azure_iot_mqtt, iot_sas_key);
@@ -633,12 +634,15 @@ UINT azure_iot_mqtt_create_with_dps(AZURE_IOT_MQTT* azure_iot_mqtt,
     if (status != NX_SUCCESS)
     {
         printf("ERROR: Failed to register DPS device (0x%04x)\r\n", status);
+        azure_iot_dps_delete(azure_iot_mqtt);
+        return status;
     }
 
     status = azure_iot_dps_delete(azure_iot_mqtt);
     if (status != NX_SUCCESS)
     {
         printf("ERROR: Failed to delete DPS client (0x%04x)\r\n", status);
+        return status;
     }
 
     printf("SUCCESS: MQTT DPS client initialized\r\n\r\n");
