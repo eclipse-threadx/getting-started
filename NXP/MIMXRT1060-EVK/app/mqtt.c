@@ -139,11 +139,35 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
     azure_iot_dps_symmetric_key_set(&azure_iot_mqtt, IOT_PRIMARY_KEY);
 
     status = azure_iot_dps_register(&azure_iot_mqtt, NX_WAIT_FOREVER);
+    if (status != NX_SUCCESS) {
+        printf("ERROR: Failed to register DPS device (0x%04x)\r\n", status);
+    }
 
     status = azure_iot_dps_delete(&azure_iot_mqtt);
+    if (status != NX_SUCCESS) {
+        printf("ERROR: Failed to delete DPS client (0x%04x)\r\n", status);
+    }
 
-#endif
+    CHAR hostname[256];
+    CHAR device_id[64];
+    azure_iot_dps_device_info_get(&azure_iot_mqtt, hostname, device_id);
 
+    // Create Azure MQTT
+    status = azure_iot_mqtt_create(&azure_iot_mqtt,
+        ip_ptr,
+        pool_ptr,
+        dns_ptr,
+        sntp_time_get,
+        (CHAR *)hostname,
+        IOT_DEVICE_ID,
+        IOT_PRIMARY_KEY,
+        IOT_MODEL_ID);
+    if (status != NXD_MQTT_SUCCESS)
+    {
+        printf("Error: Failed to create Azure MQTT (0x%04x)\r\n", status);
+        return status;
+    }
+#else
     // Create Azure MQTT
     status = azure_iot_mqtt_create(&azure_iot_mqtt,
         ip_ptr,
@@ -159,6 +183,7 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
         printf("Error: Failed to create Azure MQTT (0x%04x)\r\n", status);
         return status;
     }
+#endif
 
     // Register callbacks
     azure_iot_mqtt_register_direct_method_callback(&azure_iot_mqtt, mqtt_direct_method);

@@ -40,7 +40,7 @@ bool findJsonString(const char* json, jsmntok_t* tokens, int tokens_count, const
             {
                 value_len = tokens[i + 1].end - tokens[i + 1].start;
                 strncpy(value, json + tokens[i + 1].start, value_len);
-                value[value_len + 1] = 0;
+                value[value_len] = 0;
 
                 printf("Json property %s = %s\r\n", s, value);
                 return true;

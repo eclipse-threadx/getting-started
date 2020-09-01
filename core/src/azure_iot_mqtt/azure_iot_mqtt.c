@@ -534,7 +534,9 @@ UINT azure_iot_mqtt_create(AZURE_IOT_MQTT* azure_iot_mqtt,
     azure_iot_mqtt->unix_time_get     = unix_time_get;
     azure_iot_mqtt->mqtt_device_id    = iot_device_id;
     azure_iot_mqtt->mqtt_sas_key      = iot_sas_key;
-    azure_iot_mqtt->mqtt_hub_hostname = iot_hub_hostname;
+    //    azure_iot_mqtt->mqtt_hub_hostname = iot_hub_hostname;
+    strncpy(azure_iot_mqtt->mqtt_hub_hostname, iot_hub_hostname,
+            AZURE_IOT_MQTT_HOSTNAME_SIZE);
     azure_iot_mqtt->mqtt_model_id     = iot_model_id;
 
     status = nxd_mqtt_client_create(&azure_iot_mqtt->nxd_mqtt_client,

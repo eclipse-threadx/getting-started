@@ -29,6 +29,6 @@ UINT azure_iot_dps_symmetric_key_set(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* symme
 
 UINT azure_iot_dps_register(AZURE_IOT_MQTT* azure_iot_mqtt, UINT wait);
 
-UINT azure_iot_dps_device_info_get(AZURE_IOT_MQTT* azure_iot_mqtt, UCHAR* iothub_hostname, UCHAR* device_id);
+UINT azure_iot_dps_device_info_get(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* iothub_hostname, CHAR* device_id);
 
 #endif

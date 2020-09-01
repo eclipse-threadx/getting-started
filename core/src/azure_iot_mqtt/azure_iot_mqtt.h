@@ -14,7 +14,8 @@
 
 #include "azure_iot_ciphersuites.h"
 
-#define AZURE_IOT_MQTT_USERNAME_SIZE           128
+#define AZURE_IOT_MQTT_HOSTNAME_SIZE           128
+#define AZURE_IOT_MQTT_USERNAME_SIZE           256
 #define AZURE_IOT_MQTT_PASSWORD_SIZE           256
 #define AZURE_IOT_MQTT_TOPIC_NAME_LENGTH       256
 #define AZURE_IOT_MQTT_MESSAGE_LENGTH          512
@@ -41,10 +42,12 @@ struct AZURE_IOT_MQTT_STRUCT
     NXD_MQTT_CLIENT nxd_mqtt_client;
     NX_DNS* nx_dns;
 
+    //TX_MUTEX mqtt_mutex;
     TX_EVENT_FLAGS_GROUP mqtt_event_flags;
+    UINT mqtt_dps_status;
 
     // Hub config
-    CHAR* mqtt_hub_hostname;
+    CHAR mqtt_hub_hostname[AZURE_IOT_MQTT_HOSTNAME_SIZE];
 
     // DPS config
     CHAR* mqtt_dps_endpoint;
@@ -56,6 +59,7 @@ struct AZURE_IOT_MQTT_STRUCT
     CHAR* mqtt_model_id;
 
     UINT dps_retry_interval;
+
     UINT reported_property_version;
     UINT desired_property_version;
     CHAR direct_command_request_id[AZURE_IOT_MQTT_DIRECT_COMMAND_RID_SIZE];
