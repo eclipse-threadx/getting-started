@@ -42,7 +42,7 @@ struct AZURE_IOT_MQTT_STRUCT
     NXD_MQTT_CLIENT nxd_mqtt_client;
     NX_DNS* nx_dns;
 
-    //TX_MUTEX mqtt_mutex;
+    // TX_MUTEX mqtt_mutex;
     TX_EVENT_FLAGS_GROUP mqtt_event_flags;
     UINT mqtt_dps_status;
 
@@ -102,8 +102,8 @@ UINT mqtt_publish(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR* message);
 UINT azure_iot_mqtt_publish_float_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, float value);
 UINT azure_iot_mqtt_publish_bool_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, bool value);
 UINT azure_iot_mqtt_publish_float_telemetry(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, float value);
-UINT azure_iot_mqtt_publish_int_desired_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, int value);
-UINT azure_iot_mqtt_respond_int_desired_property(
+UINT azure_iot_mqtt_publish_int_writeable_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, int value);
+UINT azure_iot_mqtt_respond_int_writeable_property(
     AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, int value, int http_status);
 UINT azure_iot_mqtt_respond_direct_method(AZURE_IOT_MQTT* azure_iot_mqtt, UINT response);
 UINT azure_iot_mqtt_device_twin_request(AZURE_IOT_MQTT* azure_iot_mqtt);
@@ -114,6 +114,16 @@ UINT azure_iot_mqtt_create(AZURE_IOT_MQTT* azure_iot_mqtt,
     NX_DNS* nx_dns,
     func_ptr_unix_time_get unix_time_get,
     CHAR* iot_hub_hostname,
+    CHAR* iot_device_id,
+    CHAR* iot_sas_key,
+    CHAR* iot_model_id);
+UINT azure_iot_mqtt_create_with_dps(AZURE_IOT_MQTT* azure_iot_mqtt,
+    NX_IP* nx_ip,
+    NX_PACKET_POOL* nx_pool,
+    NX_DNS* nx_dns,
+    func_ptr_unix_time_get unix_time_get,
+    CHAR* iot_dps_endpoint,
+    CHAR* iot_dps_id_scope,
     CHAR* iot_device_id,
     CHAR* iot_sas_key,
     CHAR* iot_model_id);

@@ -18,7 +18,6 @@ bool findJsonInt(const char* json, jsmntok_t* tokens, int tokens_count, const ch
             {
                 *value = atoi(json + tokens[i + 1].start);
 
-                printf("Json property %s = %d\r\n", s, *value);
                 return true;
             }
         }
@@ -42,7 +41,6 @@ bool findJsonString(const char* json, jsmntok_t* tokens, int tokens_count, const
                 strncpy(value, json + tokens[i + 1].start, value_len);
                 value[value_len] = 0;
 
-                printf("Json property %s = %s\r\n", s, value);
                 return true;
             }
         }
