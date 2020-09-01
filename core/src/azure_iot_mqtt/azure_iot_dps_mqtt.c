@@ -16,25 +16,24 @@
 #define DPS_REGISTER_BASE      "$dps/registrations/res"
 #define DPS_REGISTER_SUBSCRIBE "$dps/registrations/res/#"
 #define DPS_REGISTER_TOPIC     "$dps/registrations/PUT/iotdps-register/?$rid=1"
-#define DPS_STATUS_TOPIC       "$dps/registrations/GET/iotdps-get-operationstatus/?$rid=1&operationId=%s"
+#define DPS_STATUS_TOPIC       "$dps/registrations/GET/iotdps-get-operationstatus/?$rid=1&operationId="
 
 #define MQTT_PRIORITY   2
 #define MQTT_TIMEOUT    (10 * TX_TIMER_TICKS_PER_SECOND)
 #define MQTT_KEEP_ALIVE 240
 
 #define EVENT_FLAGS_SUCCESS 1
-//#define EVENT_FLAGS_FAILED  2
 
 static VOID processRetry(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR* message)
 {
     UINT status;
+
     jsmn_parser parser;
     jsmntok_t tokens[12];
     INT token_count;
 
+    INT retry_interval;
     CHAR mqtt_publish_topic[256];
-    CHAR operation_id[100];
-    int retry_interval;
 
     CHAR* find = strstr(topic, "retry-after=");
     if (find == 0)
@@ -54,16 +53,19 @@ static VOID processRetry(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR* mess
         tokens,
         12);
 
-    if (!findJsonString(azure_iot_mqtt->mqtt_receive_message_buffer, tokens, token_count, "operationId", operation_id))
+    strncpy(mqtt_publish_topic, DPS_STATUS_TOPIC, sizeof(mqtt_publish_topic));
+    if (!findJsonString(azure_iot_mqtt->mqtt_receive_message_buffer,
+            tokens,
+            token_count,
+            "operationId",
+            mqtt_publish_topic + sizeof(DPS_STATUS_TOPIC) - 1))
     {
         printf("ERROR: Failed to parse DPS operationId\r\n");
     }
 
-    snprintf(mqtt_publish_topic, sizeof(mqtt_publish_topic), DPS_STATUS_TOPIC, operation_id);
-
     tx_thread_sleep(retry_interval * TX_TIMER_TICKS_PER_SECOND);
 
-    status = mqtt_publish(azure_iot_mqtt, mqtt_publish_topic, "");
+    status = mqtt_publish(azure_iot_mqtt, mqtt_publish_topic, "{}");
     if (status != NX_SUCCESS)
     {
         printf("ERROR: Failed to poll for DPS status (0x%04x)\r\n", status);
@@ -72,7 +74,6 @@ static VOID processRetry(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR* mess
 
 static VOID processSuccess(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR* message)
 {
-    //  UINT status;
     jsmn_parser parser;
     jsmntok_t tokens[64];
     INT token_count;
@@ -85,8 +86,6 @@ static VOID processSuccess(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR* me
         tokens,
         64);
 
-    //    findJsonString(azure_iot_mqtt->mqtt_receive_message_buffer, tokens,
-    //    token_count, "deviceId", deviceId);
     if (!findJsonString(azure_iot_mqtt->mqtt_receive_message_buffer,
             tokens,
             token_count,
@@ -127,7 +126,7 @@ static VOID mqtt_notify_cb(NXD_MQTT_CLIENT* client_ptr, UINT number_of_messages)
 
         if (strstr((CHAR*)azure_iot_mqtt->mqtt_receive_topic_buffer, DPS_REGISTER_BASE) == 0)
         {
-            printf("ERROR: Unknown DPS topic\r\n");
+            printf("ERROR: Unknown incoming DPS topic %s\r\n", (CHAR*)azure_iot_mqtt->mqtt_receive_topic_buffer);
             continue;
         }
 
@@ -151,8 +150,8 @@ static VOID mqtt_notify_cb(NXD_MQTT_CLIENT* client_ptr, UINT number_of_messages)
                 break;
 
             default:
-                // TODO return error here
-                return;
+                printf("ERROR: Unknown incoming DPS topic status %d\r\n", msg_status);
+                break;
         }
     }
 
@@ -338,12 +337,12 @@ UINT azure_iot_dps_register(AZURE_IOT_MQTT* azure_iot_mqtt, UINT wait)
     // Wait for an event
     ULONG events = 0;
     tx_event_flags_get(
-        &azure_iot_mqtt->mqtt_event_flags, EVENT_FLAGS_SUCCESS, TX_OR_CLEAR, &events, 10 * NX_IP_PERIODIC_RATE);
+        &azure_iot_mqtt->mqtt_event_flags, EVENT_FLAGS_SUCCESS, TX_OR_CLEAR, &events, 20 * NX_IP_PERIODIC_RATE);
 
     if (events != EVENT_FLAGS_SUCCESS)
     {
         printf("ERROR: Failed to resolve device from DPS\r\n");
-        return NX_FALSE;
+        return NX_NOT_SUCCESSFUL;
     }
 
     return NXD_MQTT_SUCCESS;

@@ -229,9 +229,9 @@ UINT azure_iot_nx_client_entry(
              pool_ptr,
              dns_ptr,
              unix_time_callback,
-             IOT_DPS_HOSTNAME,
+             IOT_DPS_ENDPOINT,
              IOT_DPS_ID_SCOPE,
-             IOT_DPS_REGISTRATION_ID,
+             IOT_DEVICE_ID,
              IOT_PRIMARY_KEY,
              IOT_MODEL_ID)))
     {

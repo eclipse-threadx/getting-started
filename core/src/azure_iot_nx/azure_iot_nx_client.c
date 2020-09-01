@@ -141,19 +141,10 @@ UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CLIENT* azure_iot_nx_client,
         return status;
     }
 
-    //    *iothub_hostname  = sample_iothub_hostname;
-    //    *iothub_device_id = sample_iothub_device_id;
-
-    /* Destroy Provisioning Client.  */
+    // Destroy Provisioning Client.
     nx_azure_iot_provisioning_client_deinitialize(&azure_iot_nx_client->prov_client);
 
-    /*  if ((status = sample_dps_entry(&azure_iot_nx_client, &hostname, &hostname_len,
-                                     &device_id, &device_id_len))) {
-        printf("ERROR: failed DPS registration 0x%08x\r\n", status);
-        return status;
-      }*/
-
-    /* Initialize IoTHub client. */
+    // Initialize IoTHub client.
     if ((status = nx_azure_iot_hub_client_initialize(&azure_iot_nx_client->iothub_client,
              &azure_iot_nx_client->nx_azure_iot,
              (UCHAR*)hostname,

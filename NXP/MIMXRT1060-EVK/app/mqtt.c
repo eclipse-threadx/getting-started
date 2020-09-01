@@ -5,7 +5,6 @@
 
 #include <stdio.h>
 
-#include "azure_iot_dps_mqtt.h"
 #include "azure_iot_mqtt.h"
 #include "json_utils.h"
 #include "sntp_client.h"
