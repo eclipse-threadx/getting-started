@@ -92,7 +92,13 @@ static VOID processSuccess(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR* me
             "assignedHub",
             azure_iot_mqtt->mqtt_hub_hostname))
     {
-        printf("ERROR: DPS failed to parse hostname\r\n");
+        printf("ERROR: DPS failed to parse hub hostname\r\n");
+    }
+
+    if (!findJsonString(azure_iot_mqtt->mqtt_receive_message_buffer, tokens,
+                        token_count, "deviceId",
+                        azure_iot_mqtt->mqtt_device_id)) {
+      printf("ERROR: DPS failed to parse device id\r\n");
     }
 }
 
@@ -173,7 +179,7 @@ UINT azure_iot_dps_create(AZURE_IOT_MQTT* azure_iot_mqtt,
     azure_iot_mqtt->unix_time_get     = unix_time_get;
     azure_iot_mqtt->mqtt_dps_endpoint = endpoint;
     azure_iot_mqtt->mqtt_dps_id_scope = id_scope;
-    azure_iot_mqtt->mqtt_device_id    = registration_id;
+    azure_iot_mqtt->mqtt_dps_registration_id = registration_id;
 
     status = tx_event_flags_create(&azure_iot_mqtt->mqtt_event_flags, "DPS event flags");
     if (status != TX_SUCCESS)
@@ -249,21 +255,21 @@ UINT azure_iot_dps_register(AZURE_IOT_MQTT* azure_iot_mqtt, UINT wait)
     NXD_ADDRESS server_ip;
     CHAR mqtt_publish_payload[100];
 
-    printf("\Endpoint: %s\r\n", azure_iot_mqtt->mqtt_dps_endpoint);
+    printf("\tEndpoint: %s\r\n", azure_iot_mqtt->mqtt_dps_endpoint);
     printf("\tId scope: %s\r\n", azure_iot_mqtt->mqtt_dps_id_scope);
-    printf("\tRegistration id: %s\r\n", azure_iot_mqtt->mqtt_device_id);
+    printf("\tRegistration id: %s\r\n", azure_iot_mqtt->mqtt_dps_registration_id);
 
     // Create the nxd_mqtt_client_secure_connect & password
     snprintf(azure_iot_mqtt->mqtt_username,
         AZURE_IOT_MQTT_USERNAME_SIZE,
         USERNAME,
         azure_iot_mqtt->mqtt_dps_id_scope,
-        azure_iot_mqtt->mqtt_device_id);
+        azure_iot_mqtt->mqtt_dps_registration_id);
 
     if (!create_dps_sas_token(azure_iot_mqtt->mqtt_sas_key,
             strlen(azure_iot_mqtt->mqtt_sas_key),
             azure_iot_mqtt->mqtt_dps_id_scope,
-            azure_iot_mqtt->mqtt_device_id,
+            azure_iot_mqtt->mqtt_dps_registration_id,
             azure_iot_mqtt->unix_time_get(),
             azure_iot_mqtt->mqtt_password,
             AZURE_IOT_MQTT_PASSWORD_SIZE))
@@ -327,7 +333,7 @@ UINT azure_iot_dps_register(AZURE_IOT_MQTT* azure_iot_mqtt, UINT wait)
     snprintf(mqtt_publish_payload,
         sizeof(mqtt_publish_payload),
         "{\"registrationId\":\"%s\"}",
-        azure_iot_mqtt->mqtt_device_id);
+        azure_iot_mqtt->mqtt_dps_registration_id);
     status = mqtt_publish(azure_iot_mqtt, DPS_REGISTER_TOPIC, mqtt_publish_payload);
     if (status != NX_SUCCESS)
     {

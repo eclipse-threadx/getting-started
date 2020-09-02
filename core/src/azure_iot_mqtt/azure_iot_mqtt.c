@@ -570,11 +570,11 @@ UINT azure_iot_mqtt_create(AZURE_IOT_MQTT* azure_iot_mqtt,
     memset(azure_iot_mqtt, 0, sizeof(*azure_iot_mqtt));
 
     // Stash the connection information
-    azure_iot_mqtt->nx_dns         = nx_dns;
-    azure_iot_mqtt->unix_time_get  = unix_time_get;
-    azure_iot_mqtt->mqtt_device_id = iot_device_id;
-    azure_iot_mqtt->mqtt_sas_key   = iot_sas_key;
+    azure_iot_mqtt->nx_dns        = nx_dns;
+    azure_iot_mqtt->unix_time_get = unix_time_get;
     strncpy(azure_iot_mqtt->mqtt_hub_hostname, iot_hub_hostname, AZURE_IOT_MQTT_HOSTNAME_SIZE);
+    strncpy(azure_iot_mqtt->mqtt_device_id, iot_device_id, AZURE_IOT_MQTT_DEVICE_ID_SIZE);
+    azure_iot_mqtt->mqtt_sas_key  = iot_sas_key;
     azure_iot_mqtt->mqtt_model_id = iot_model_id;
 
     // call into common code
@@ -588,7 +588,7 @@ UINT azure_iot_mqtt_create_with_dps(AZURE_IOT_MQTT* azure_iot_mqtt,
     func_ptr_unix_time_get unix_time_get,
     CHAR* iot_dps_endpoint,
     CHAR* iot_dps_id_scope,
-    CHAR* iot_device_id,
+    CHAR* iot_registration_id,
     CHAR* iot_sas_key,
     CHAR* iot_model_id)
 {
@@ -602,7 +602,7 @@ UINT azure_iot_mqtt_create_with_dps(AZURE_IOT_MQTT* azure_iot_mqtt,
         return NX_PTR_ERROR;
     }
 
-    if (iot_dps_endpoint[0] == 0 || iot_dps_id_scope[0] == 0 || iot_device_id[0] == 0 || iot_sas_key[0] == 0)
+    if (iot_dps_endpoint[0] == 0 || iot_dps_id_scope[0] == 0 || iot_registration_id[0] == 0 || iot_sas_key[0] == 0)
     {
         printf("ERROR: IoT DPS connection configuration is empty\r\n");
         return NX_PTR_ERROR;
@@ -611,17 +611,17 @@ UINT azure_iot_mqtt_create_with_dps(AZURE_IOT_MQTT* azure_iot_mqtt,
     memset(azure_iot_mqtt, 0, sizeof(*azure_iot_mqtt));
 
     // Stash the connection information
-    azure_iot_mqtt->nx_dns            = nx_dns;
-    azure_iot_mqtt->unix_time_get     = unix_time_get;
-    azure_iot_mqtt->mqtt_dps_endpoint = iot_dps_endpoint;
-    azure_iot_mqtt->mqtt_dps_id_scope = iot_dps_id_scope;
-    azure_iot_mqtt->mqtt_device_id    = iot_device_id;
-    azure_iot_mqtt->mqtt_sas_key      = iot_sas_key;
-    azure_iot_mqtt->mqtt_model_id     = iot_model_id;
+    azure_iot_mqtt->nx_dns                   = nx_dns;
+    azure_iot_mqtt->unix_time_get            = unix_time_get;
+    azure_iot_mqtt->mqtt_dps_endpoint        = iot_dps_endpoint;
+    azure_iot_mqtt->mqtt_dps_id_scope        = iot_dps_id_scope;
+    azure_iot_mqtt->mqtt_dps_registration_id = iot_registration_id;
+    azure_iot_mqtt->mqtt_sas_key             = iot_sas_key;
+    azure_iot_mqtt->mqtt_model_id            = iot_model_id;
 
     // Setup DPS
     status = azure_iot_dps_create(
-        azure_iot_mqtt, nx_ip, nx_pool, nx_dns, unix_time_get, iot_dps_endpoint, iot_dps_id_scope, iot_device_id);
+        azure_iot_mqtt, nx_ip, nx_pool, nx_dns, unix_time_get, iot_dps_endpoint, iot_dps_id_scope, iot_registration_id);
     if (status != NX_SUCCESS)
     {
         printf("ERROR: Failed to create DPS client (0x%04x)\r\n", status);

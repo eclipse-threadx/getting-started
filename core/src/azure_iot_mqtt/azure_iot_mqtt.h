@@ -15,6 +15,7 @@
 #include "azure_iot_ciphersuites.h"
 
 #define AZURE_IOT_MQTT_HOSTNAME_SIZE           128
+#define AZURE_IOT_MQTT_DEVICE_ID_SIZE          64
 #define AZURE_IOT_MQTT_USERNAME_SIZE           256
 #define AZURE_IOT_MQTT_PASSWORD_SIZE           256
 #define AZURE_IOT_MQTT_TOPIC_NAME_LENGTH       256
@@ -52,9 +53,10 @@ struct AZURE_IOT_MQTT_STRUCT
     // DPS config
     CHAR* mqtt_dps_endpoint;
     CHAR* mqtt_dps_id_scope;
+    CHAR* mqtt_dps_registration_id;
 
     // Device config
-    CHAR* mqtt_device_id;
+    CHAR mqtt_device_id[AZURE_IOT_MQTT_DEVICE_ID_SIZE];
     CHAR* mqtt_sas_key;
     CHAR* mqtt_model_id;
 
