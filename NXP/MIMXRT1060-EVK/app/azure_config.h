@@ -11,10 +11,27 @@
 //#define USE_NX_CLIENT_PREVIEW
 
 // ----------------------------------------------------------------------------
-// Azure IoT Device information
+// Azure IoT Dynamic Provisioning Service
+// Define this to use the DPS service, otherwise direct IoT Hub
 // ----------------------------------------------------------------------------
-#define IOT_HUB_HOSTNAME    ""
-#define IOT_DEVICE_ID       ""
-#define IOT_PRIMARY_KEY     ""
+//#define ENABLE_DPS
+
+// ----------------------------------------------------------------------------
+// Azure IoT Hub config
+// ----------------------------------------------------------------------------
+#define IOT_HUB_HOSTNAME ""
+#define IOT_DEVICE_ID    ""
+
+// ----------------------------------------------------------------------------
+// Azure IoT DPS config
+// ----------------------------------------------------------------------------
+#define IOT_DPS_ENDPOINT        "global.azure-devices-provisioning.net"
+#define IOT_DPS_ID_SCOPE        ""
+#define IOT_DPS_REGISTRATION_ID ""
+
+// ----------------------------------------------------------------------------
+// Azure IoT device config
+// ----------------------------------------------------------------------------
+#define IOT_PRIMARY_KEY ""
 
 #endif // _AZURE_CONFIG_H
