@@ -5,7 +5,8 @@
         "ms-vscode.cpptools",
         "ms-vscode.cmake-tools",
         "twxs.cmake",
-        "xaver.clang-format"
+        "xaver.clang-format".
+	"vsciot-vscode.vscode-iot-workbench"
     ],
 	"remoteUser": "vscode",
     "postCreateCommand": "git submodule update --recursive --init",
