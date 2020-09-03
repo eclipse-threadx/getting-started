@@ -10,7 +10,7 @@ This article on debugging is under construction. It refers to products in privat
     |STM BL475E-IOT01 |[STLink](https://www.st.com/en/development-tools/stsw-link004.html) |
     |STM BL4S5I-IOT01 |[STLink](https://www.st.com/en/development-tools/stsw-link004.html) |
 
-1. Download and unzip [OpenOCD](https://gnutoolchains.com/arm-eabi/openocd) onto your computer and add it to your environment path.
+1. Download and unzip [OpenOCD](https://gnutoolchains.com/arm-eabi/openocd) onto your computer and add its `bin/` folder to your environment path.
 
 ## Setup your Project
 
