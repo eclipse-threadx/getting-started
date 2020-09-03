@@ -2,9 +2,8 @@
 {
     "dockerfile": "Dockerfile",
     "extensions": [
-        "ms-vscode.cpptools",
         "ms-vscode.cmake-tools",
-        "twxs.cmake",
+        "marus25.cortex-debug",
         "xaver.clang-format"
     ],
 	"remoteUser": "vscode",
