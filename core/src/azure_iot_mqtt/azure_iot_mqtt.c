@@ -620,15 +620,12 @@ UINT azure_iot_mqtt_create_with_dps(AZURE_IOT_MQTT* azure_iot_mqtt,
     azure_iot_mqtt->mqtt_model_id            = iot_model_id;
 
     // Setup DPS
-    status = azure_iot_dps_create(
-        azure_iot_mqtt, nx_ip, nx_pool, nx_dns, unix_time_get, iot_dps_endpoint, iot_dps_id_scope, iot_registration_id);
+    status = azure_iot_dps_create(azure_iot_mqtt, nx_ip, nx_pool);
     if (status != NX_SUCCESS)
     {
         printf("ERROR: Failed to create DPS client (0x%04x)\r\n", status);
         return status;
     }
-
-    azure_iot_dps_symmetric_key_set(azure_iot_mqtt, iot_sas_key);
 
     status = azure_iot_dps_register(azure_iot_mqtt, NX_WAIT_FOREVER);
     if (status != NX_SUCCESS)

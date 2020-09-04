@@ -7,14 +7,13 @@
 #include <stdbool.h>
 
 #include "tx_api.h"
-
 #include "nx_api.h"
 #include "nxd_dns.h"
 #include "nxd_mqtt_client.h"
 
 #include "azure_iot_ciphersuites.h"
 
-#define AZURE_IOT_MQTT_HOSTNAME_SIZE           128
+#define AZURE_IOT_MQTT_HOSTNAME_SIZE           100
 #define AZURE_IOT_MQTT_DEVICE_ID_SIZE          64
 #define AZURE_IOT_MQTT_USERNAME_SIZE           256
 #define AZURE_IOT_MQTT_PASSWORD_SIZE           256

@@ -95,10 +95,13 @@ static VOID processSuccess(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR* me
         printf("ERROR: DPS failed to parse hub hostname\r\n");
     }
 
-    if (!findJsonString(azure_iot_mqtt->mqtt_receive_message_buffer, tokens,
-                        token_count, "deviceId",
-                        azure_iot_mqtt->mqtt_device_id)) {
-      printf("ERROR: DPS failed to parse device id\r\n");
+    if (!findJsonString(azure_iot_mqtt->mqtt_receive_message_buffer,
+            tokens,
+            token_count,
+            "deviceId",
+            azure_iot_mqtt->mqtt_device_id))
+    {
+        printf("ERROR: DPS failed to parse device id\r\n");
     }
 }
 
@@ -164,22 +167,9 @@ static VOID mqtt_notify_cb(NXD_MQTT_CLIENT* client_ptr, UINT number_of_messages)
     return;
 }
 
-UINT azure_iot_dps_create(AZURE_IOT_MQTT* azure_iot_mqtt,
-    NX_IP* nx_ip,
-    NX_PACKET_POOL* nx_pool,
-    NX_DNS* nx_dns,
-    func_ptr_unix_time_get unix_time_get,
-    CHAR* endpoint,
-    CHAR* id_scope,
-    CHAR* registration_id)
+UINT azure_iot_dps_create(AZURE_IOT_MQTT* azure_iot_mqtt, NX_IP* nx_ip, NX_PACKET_POOL* nx_pool)
 {
     UINT status;
-
-    azure_iot_mqtt->nx_dns            = nx_dns;
-    azure_iot_mqtt->unix_time_get     = unix_time_get;
-    azure_iot_mqtt->mqtt_dps_endpoint = endpoint;
-    azure_iot_mqtt->mqtt_dps_id_scope = id_scope;
-    azure_iot_mqtt->mqtt_dps_registration_id = registration_id;
 
     status = tx_event_flags_create(&azure_iot_mqtt->mqtt_event_flags, "DPS event flags");
     if (status != TX_SUCCESS)
@@ -190,8 +180,8 @@ UINT azure_iot_dps_create(AZURE_IOT_MQTT* azure_iot_mqtt,
 
     status = nxd_mqtt_client_create(&azure_iot_mqtt->nxd_mqtt_client,
         "MQTT DPS client",
-        registration_id,
-        strlen(registration_id),
+        azure_iot_mqtt->mqtt_dps_registration_id,
+        strlen(azure_iot_mqtt->mqtt_dps_registration_id),
         nx_ip,
         nx_pool,
         azure_iot_mqtt->mqtt_client_stack,
@@ -232,19 +222,6 @@ UINT azure_iot_dps_delete(AZURE_IOT_MQTT* azure_iot_mqtt)
     tx_event_flags_delete(&azure_iot_mqtt->mqtt_event_flags);
     nxd_mqtt_client_disconnect(&azure_iot_mqtt->nxd_mqtt_client);
     nxd_mqtt_client_delete(&azure_iot_mqtt->nxd_mqtt_client);
-
-    return NX_SUCCESS;
-}
-
-UINT azure_iot_dps_symmetric_key_set(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* symmetric_key)
-{
-    if (azure_iot_mqtt == NX_NULL)
-    {
-        printf("Fail to set symmetric key, null pointer\r\n");
-        return NX_PTR_ERROR;
-    }
-
-    azure_iot_mqtt->mqtt_sas_key = symmetric_key;
 
     return NX_SUCCESS;
 }

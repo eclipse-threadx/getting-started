@@ -1,0 +1,57 @@
+{
+  "@id": "urn:examples:getting_started_guide:1",
+  "@type": "CapabilityModel",
+  "displayName": "GSG",
+  "implements": [
+    {
+      "name": "GSG",
+      "schema": {
+        "@id": "urn:examples:gsg:1",
+        "@type": "Interface",
+        "displayName": "Interface",
+        "contents": [
+          {
+            "@type": [
+              "Telemetry",
+              "SemanticType/Temperature"
+            ],
+            "displayName": "Temperature",
+            "name": "temperature",
+            "schema": "double",
+            "unit": "celsius"
+          },
+          {
+            "@type": "Command",
+            "displayName": "Set Led State",
+            "name": "setLedState",
+            "commandType": "synchronous",
+            "durable": false,
+            "request": {
+              "@type": "SchemaField",
+              "displayName": "state",
+              "name": "state",
+              "schema": "boolean"
+            }
+          },
+          {
+            "@type": "Property",
+            "displayName": "Telemetry Interval",
+            "name": "telemetryInterval",
+            "writable": true,
+            "displayUnit": "seconds",
+            "schema": "integer"
+          },
+          {
+            "@type": "Property",
+            "displayName": "LED State",
+            "name": "ledState",
+            "schema": "boolean"
+          }
+        ]
+      }
+    }
+  ],
+  "@context": [
+    "http://azureiot.com/v1/contexts/IoTModel.json"
+  ]
+}
