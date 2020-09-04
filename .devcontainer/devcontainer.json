@@ -2,9 +2,11 @@
 {
     "dockerfile": "Dockerfile",
     "extensions": [
+        "ms-vscode.cpptools",
         "ms-vscode.cmake-tools",
         "marus25.cortex-debug",
-        "xaver.clang-format"
+        "vsciot-vscode.vscode-iot-workbench",
+        "xaver.clang-format",
     ],
 	"remoteUser": "vscode",
     "postCreateCommand": "git submodule update --recursive --init",

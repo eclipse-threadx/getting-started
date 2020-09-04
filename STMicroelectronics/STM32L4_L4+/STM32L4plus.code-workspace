@@ -5,6 +5,9 @@
         }
     ],
     "settings": {
-        "git.ignoreLimitWarning": true
+        "git.ignoreLimitWarning": true,
+        "git.autofetch": true,
+        "cmake.configureOnOpen": true,
+        "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
     }
 }
