@@ -58,9 +58,13 @@ You can choose to develop locally or develop in [Codespaces](https://github.com/
 ## Start Debugging
 
 1. From a new command window run OpenOCD locally, using the appropriate command below:
-    |Devkit  |OpenOCD Command |
+    |Devkit  |Connection Command |
     |---------|---------|
-    |STM BL475E-IOT01 |openocd.exe -f "board/stm32l4discovery.cfg" -c "bindto 0.0.0.0" -c init -c "reset init"
+    |STM BL475E-IOT01 |openocd -f board/stm32l4discovery.cfg -c "bindto 0.0.0.0" -c init -c "reset init" |
+    |STM BL4S5I-IOT01 |openocd -f board/stm32l4discovery.cfg -c "bindto 0.0.0.0" -c init -c "reset init" |
+    |Microchip ATSAME54-XPRO |openocd -f board/microchip_same54_xplained_pro.cfg -c "bindto 0.0.0.0" -c init -c "reset init" |
+    |MXCHIP AZ3166 |openocd -f board/stm32f4discovery.cfg -c "bindto 0.0.0.0" -c init -c "reset init" |
+    |NXP MIMXRT1060-EVK |JLinkGDBServerCL -select USB -device MIMXRT1062xxx6A -speed auto -if SWD |
 
 1. Open the VSCode workspace in the directory for the devkit you would like to debug. For example the STM32L4 devkit workspace is "STMicroelectronics/STM32L4_L4+/STM32L4plus.code-workspace".
 
