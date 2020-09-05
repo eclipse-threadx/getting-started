@@ -2,7 +2,7 @@
 
 This article on debugging is under construction. It refers to products in private beta, and also uses techniques that could expose your internet network to external attack. Care should be taken when following the steps below.
 
-## Install Open OCD
+## Install OpenOCD
 
 1. Install the relevant driver for the devkits on chip debugger:
     |Devkit |Driver |
@@ -17,6 +17,7 @@ This article on debugging is under construction. It refers to products in privat
 You can choose to develop locally or develop in [Codespaces](https://github.com/features/codespaces).
 
 * Developing locally requires the installation of the build/debug tools on your local machine to build the application.
+* Develop locally in a Docker container. The development envrionment will be built automatically on your local mahcine.
 * Developing in Codespaces doesn't require additional installation, however it requires early access to the Codespaces beta and also to expose a port on your computer the public internet.
 
 ### Setup Local Development
@@ -28,9 +29,22 @@ You can choose to develop locally or develop in [Codespaces](https://github.com/
 1. Open Visual Studio Code and install the required extensions:
     * Required
       * [CMake Tools](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cmake-tools)
+      * [Cortex Debug](https://marketplace.visualstudio.com/items?itemName=marus25.cortex-debug)
     * Recommended
       * [C/C++](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools)
       * [CMake](https://marketplace.visualstudio.com/items?itemName=twxs.cmake)
+
+### Setup Docker Development
+
+1. Go to the [Getting Started GitHub repository](https://github.com/azure-rtos/getting-started)
+1. Recursively clone the repository to your machine.
+1. Run as Administrator "tools\get-toolchain.bat" from the repository clone to install the required build tools.
+1. Install [Visual Studio Code](https://code.visualstudio.com).
+1. Install [Docker Desktop](https://www.docker.com)
+1. Open Visual Studio Code and install the required extensions:
+    * Required
+        * [Remote Development](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack)
+1. From the Command Palette (F1), choose "Remote-Containers: Open Folder in Container", and select the root folder of the cloned repository to build the Docker contains and start debugging
 
 ### Setup Codespaces Development
 
@@ -48,12 +62,12 @@ You can choose to develop locally or develop in [Codespaces](https://github.com/
     |---------|---------|
     |STM BL475E-IOT01 |openocd.exe -f "board/stm32l4discovery.cfg" -c "bindto 0.0.0.0" -c init -c "reset init"
 
-1. Select "Add a Folder to your Workspace...", and choose the folder for the devkit of your choice.
-    > For example: choose the "STMicroelectronics/STM32L4_L4+" folder for the B-L475-IOT01 devkit.
+1. Open the VSCode workspace in the directory for the devkit you would like to debug. For example the STM32L4 devkit workspace is "STMicroelectronics/STM32L4_L4+/STM32L4plus.code-workspace".
 
 1. Build the application by pressing "F7"
     1. Choose the "ARM GCC Cortex" CMake kit when prompted
 
 1. Start the debugger by pressing "F5".
     1. For debugging locally, use "localhost:3333" for the OpenOCD hostname.
+    1. For debugging from a local Docker image, use "host.docker.internal:3333".
     1. For debugging via Codespaces, specify {PUBLIC_IP_ADDRESS}:3333
