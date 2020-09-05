@@ -2,15 +2,22 @@
 
 This article on debugging is under construction. It refers to products in private beta, and also uses techniques that could expose your internet network to external attack. Care should be taken when following the steps below.
 
-## Install OpenOCD
+## Install Drivers & Software
+OpenOCD or the J-Link GDB Server can be used to interface your computer with your devkit. Only one is required:
+* OpenOCD can be used for a variety of devkits without any additional hardware. Most devkits have an on-chip debugger supported by OpenOCD.
+* J-Link requires an additional debugging hardware, however this gives you so more advanced features, as well as access to a larger set of devkits.
 
+### OpenOCD
 1. Install the relevant driver for the devkits on chip debugger:
     |Devkit |Driver |
     |---------|---------|
     |STM BL475E-IOT01 |[STLink](https://www.st.com/en/development-tools/stsw-link004.html) |
     |STM BL4S5I-IOT01 |[STLink](https://www.st.com/en/development-tools/stsw-link004.html) |
+1. Download and unzip [OpenOCD](https://gnutoolchains.com/arm-eabi/openocd) to your computer and add its `bin/` folder to your environment path.
 
-1. Download and unzip [OpenOCD](https://gnutoolchains.com/arm-eabi/openocd) onto your computer and add its `bin/` folder to your environment path.
+### J-Link
+
+1. Install the [JLink Software and Documentation Pack](https://www.segger.com/downloads/jlink#J-LinkSoftwareAndDocumentationPack). This includes the GDB Server as well as the neccessary J-Link drivers.
 
 ## Setup your Project
 
@@ -53,7 +60,6 @@ You can choose to develop locally or develop in [Codespaces](https://github.com/
 1. Setup your router to forward outside connections to port 3333 to your local machine. This allows the Codespaces GDB service to communicate with the devkit via the local OpenOCD instance.
     > Warning: This will expose the OpenOCD service to the public network which may result in an external compromise.
 
-
 ## Start Debugging
 
 1. From a new command window run OpenOCD locally, using the appropriate command below:
@@ -63,7 +69,7 @@ You can choose to develop locally or develop in [Codespaces](https://github.com/
     |STM BL4S5I-IOT01 |openocd -f board/stm32l4discovery.cfg -c "bindto 0.0.0.0" -c init -c "reset init" |
     |Microchip ATSAME54-XPRO |openocd -f board/microchip_same54_xplained_pro.cfg -c "bindto 0.0.0.0" -c init -c "reset init" |
     |MXCHIP AZ3166 |openocd -f board/stm32f4discovery.cfg -c "bindto 0.0.0.0" -c init -c "reset init" |
-    |NXP MIMXRT1060-EVK |JLinkGDBServerCL -select USB -device MIMXRT1062xxx6A -speed auto -if SWD |
+    |NXP MIMXRT1060-EVK |JLinkGDBServerCL -select USB -device MIMXRT1062xxx6A -speed auto -if SWD -noLocalhostOnly|
 
 1. Open the VSCode workspace in the directory for the devkit you would like to debug. For example the STM32L4 devkit workspace is "STMicroelectronics/STM32L4_L4+/STM32L4plus.code-workspace".
 
