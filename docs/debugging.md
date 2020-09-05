@@ -53,7 +53,6 @@ You can choose to develop locally or develop in [Codespaces](https://github.com/
 1. Setup your router to forward outside connections to port 3333 to your local machine. This allows the Codespaces GDB service to communicate with the devkit via the local OpenOCD instance.
     > Warning: This will expose the OpenOCD service to the public network which may result in an external compromise.
 
-1. Install [Termite](https://www.compuphase.com/software_termite.htm) for serial port monitoring if desired.
 
 ## Start Debugging
 
@@ -65,9 +64,11 @@ You can choose to develop locally or develop in [Codespaces](https://github.com/
 1. Open the VSCode workspace in the directory for the devkit you would like to debug. For example the STM32L4 devkit workspace is "STMicroelectronics/STM32L4_L4+/STM32L4plus.code-workspace".
 
 1. Build the application by pressing "F7"
-    1. Choose the "ARM GCC Cortex" CMake kit when prompted
+    * Choose the "ARM GCC Cortex" CMake kit when prompted
 
 1. Start the debugger by pressing "F5".
-    1. For debugging locally, use "localhost:3333" for the OpenOCD hostname.
-    1. For debugging from a local Docker image, use "host.docker.internal:3333".
-    1. For debugging via Codespaces, specify {PUBLIC_IP_ADDRESS}:3333
+    * For debugging locally, use "localhost:3333" for the OpenOCD hostname.
+    * For debugging from a local Docker image, use "host.docker.internal:3333".
+    * For debugging via Codespaces, specify {PUBLIC_IP_ADDRESS}:3333
+
+1. Use a serial monitor such as [Termite](https://www.compuphase.com/software_termite.htm) for monitoring the device's output.
