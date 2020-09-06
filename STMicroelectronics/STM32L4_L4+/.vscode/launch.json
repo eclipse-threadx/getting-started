@@ -3,36 +3,26 @@
     "configurations": [
         {
             "name": "B-L475E-IOT01",
-            "type": "cppdbg",
+            "type": "cortex-debug",
+            "executable": "${workspaceFolder}/build/app/stm32l475_azure_iot.elf",
             "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "miDebuggerPath": "arm-none-eabi-gdb",
-            "program": "${workspaceFolder}/build/app/stm32l475_azure_iot.elf",
-            "setupCommands": [
-                { "text": "cd ${workspaceRoot}" },
-                { "text": "target remote ${input:openOCD.host}" },
-                { "text": "file build/app/stm32l475_azure_iot.elf"},
-                { "text": "monitor halt" },
-                { "text": "monitor reset init" },
-                { "text": "load" },
-            ]
+            "servertype": "external",
+            "gdbTarget": "${input:openOCD.host}",
+            "runToMain": true,
+            "device": "STM32L475VG",
+            "svdFile": "${workspaceFolder}/.vscode/STM32L4x5.svd",
         },
         {
             "name": "B-L4S5I-IOT01",
-            "type": "cppdbg",
+            "type": "cortex-debug",
+            "executable": "${workspaceFolder}/build/app/stm32l475_azure_iot.elf",
             "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "miDebuggerPath": "arm-none-eabi-gdb",
-            "program": "${workspaceFolder}/build/app/stm32l4S5_azure_iot.elf",
-            "setupCommands": [
-                { "text": "cd ${workspaceRoot}" },
-                { "text": "target remote ${input:openOCD.host}" },
-                { "text": "file ${workspaceFolder}/build/app/stm32l4S5_azure_iot.elf"},
-                { "text": "monitor halt" },
-                { "text": "monitor reset init" },
-                { "text": "load" },
-            ]
-        },
+            "servertype": "external",
+            "gdbTarget": "${input:openOCD.host}",
+            "runToMain": true,
+            "device": "STM32L475VG",
+            "svdFile": "${workspaceFolder}/.vscode/STM32L4S5.svd",
+        }        
     ],
     "inputs": [
         {

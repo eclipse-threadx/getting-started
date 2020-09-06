@@ -7,7 +7,6 @@ products:
 - azure-iot
 - azure-iot-hub
 - azure-iot-pnp
-- azure-iot-device
 - azure-rtos
 extendedZipContent:
 - path: "/"

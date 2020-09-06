@@ -1,0 +1,30 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "MIMXRT1060-EVK",
+            "type": "cortex-debug",
+            "executable": "${workspaceFolder}/build/app/mimxrt1060_azure_iot.elf",
+            "request": "launch",
+            "servertype": "external",
+            "gdbTarget": "${input:jlink.host}",
+            "runToMain": true,
+            "device": "MIMXRT1062xxx6A",
+            "svdFile": "${workspaceFolder}/.vscode/MIMXRT1062.svd",
+        }      
+    ],
+    "inputs": [
+        {
+            "id": "openOCD.host",
+            "type": "promptString",
+            "default": "localhost:3333",
+            "description": "Open OCD Debug hostname with port"
+        },
+        {
+            "id": "jlink.host",
+            "type": "promptString",
+            "default": "localhost:2331",
+            "description": "Open Jlink Debug hostname with port"
+        }
+    ]
+}

@@ -3,5 +3,5 @@ VisualGDB/
 .vs/
 .azure_config.h
 mcu.mak
-settings.json
 MXChip/AZ3166/lib/wiced_sdk/binary_build/43xxx_Wi-Fi
+.cortex-debug*
