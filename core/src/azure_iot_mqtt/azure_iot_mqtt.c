@@ -12,6 +12,7 @@
 #include "nxd_mqtt_client.h"
 
 #include "azure_iot_cert.h"
+#include "azure_iot_mqtt/azure_iot_dps_mqtt.h"
 #include "azure_iot_mqtt/sas_token.h"
 
 #define USERNAME                "%s/%s/?api-version=2020-05-31-preview&model-id=%s"
@@ -34,12 +35,6 @@
 #define MQTT_CLIENT_PRIORITY 2
 #define MQTT_TIMEOUT         (10 * TX_TIMER_TICKS_PER_SECOND)
 #define MQTT_KEEP_ALIVE      240
-
-#define MQTT_QOS_0 0 // QoS 0 - Deliver at most once
-#define MQTT_QOS_1 1 // QoS 1 - Deliver at least once
-#define MQTT_QOS_2 2 // QoS 2 - Deliver exactly once
-
-extern const NX_SECURE_TLS_CRYPTO nx_crypto_tls_ciphers;
 
 UINT azure_iot_mqtt_register_direct_method_callback(
     AZURE_IOT_MQTT* azure_iot_mqtt, func_ptr_direct_method mqtt_direct_method_callback)
@@ -89,7 +84,7 @@ UINT azure_iot_mqtt_register_device_twin_prop_callback(
     return NX_SUCCESS;
 }
 
-static UINT tls_setup(NXD_MQTT_CLIENT* client,
+UINT tls_setup(NXD_MQTT_CLIENT* client,
     NX_SECURE_TLS_SESSION* tls_session,
     NX_SECURE_X509_CERT* cert,
     NX_SECURE_X509_CERT* trusted_cert)
@@ -148,7 +143,7 @@ static UINT tls_setup(NXD_MQTT_CLIENT* client,
     return NX_SUCCESS;
 }
 
-static UINT mqtt_publish(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR* message)
+UINT mqtt_publish(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR* message)
 {
     UINT status = nxd_mqtt_client_publish(&azure_iot_mqtt->nxd_mqtt_client,
         topic,
@@ -359,8 +354,6 @@ static VOID mqtt_notify_cb(NXD_MQTT_CLIENT* client_ptr, UINT number_of_messages)
         azure_iot_mqtt->mqtt_receive_topic_buffer[actual_topic_length]     = 0;
         azure_iot_mqtt->mqtt_receive_message_buffer[actual_message_length] = 0;
 
-        printf("[MQTT Received] topic = %s\r\n", azure_iot_mqtt->mqtt_receive_topic_buffer);
-
         if (strstr((CHAR*)azure_iot_mqtt->mqtt_receive_topic_buffer, DIRECT_METHOD_RECEIVE))
         {
             process_direct_method(
@@ -382,9 +375,54 @@ static VOID mqtt_notify_cb(NXD_MQTT_CLIENT* client_ptr, UINT number_of_messages)
         }
         else
         {
-            printf("Unknown topic, no custom processing specified\r\n");
+            printf("Unknown topic received, no custom processing specified\r\n");
         }
     }
+}
+
+static UINT azure_iot_mqtt_create_common(AZURE_IOT_MQTT* azure_iot_mqtt, NX_IP* nx_ip, NX_PACKET_POOL* nx_pool)
+{
+    UINT status;
+
+    printf("Initializing MQTT Hub client\r\n");
+
+    status = nxd_mqtt_client_create(&azure_iot_mqtt->nxd_mqtt_client,
+        "MQTT client",
+        azure_iot_mqtt->mqtt_device_id,
+        strlen(azure_iot_mqtt->mqtt_device_id),
+        nx_ip,
+        nx_pool,
+        azure_iot_mqtt->mqtt_client_stack,
+        AZURE_IOT_MQTT_CLIENT_STACK_SIZE,
+        MQTT_CLIENT_PRIORITY,
+        NX_NULL,
+        0);
+    if (status != NXD_MQTT_SUCCESS)
+    {
+        printf("Failed to create MQTT Client (0x%02x)\r\n", status);
+        return status;
+    }
+
+    status = nxd_mqtt_client_receive_notify_set(&azure_iot_mqtt->nxd_mqtt_client, mqtt_notify_cb);
+    if (status != NXD_MQTT_SUCCESS)
+    {
+        printf("Error in setting receive notify (0x%02x)\r\n", status);
+        nxd_mqtt_client_delete(&azure_iot_mqtt->nxd_mqtt_client);
+        return status;
+    }
+
+    status = nxd_mqtt_client_disconnect_notify_set(&azure_iot_mqtt->nxd_mqtt_client, mqtt_disconnect_cb);
+    if (status != NXD_MQTT_SUCCESS)
+    {
+        printf("Error in seting disconnect notification (0x%02x)\r\n", status);
+        nxd_mqtt_client_delete(&azure_iot_mqtt->nxd_mqtt_client);
+        return status;
+    }
+
+    // Set the receive context (highjacking the packet_receive_context) for callbacks
+    azure_iot_mqtt->nxd_mqtt_client.nxd_mqtt_packet_receive_context = azure_iot_mqtt;
+
+    return NXD_MQTT_SUCCESS;
 }
 
 // Interact with Azure MQTT
@@ -433,12 +471,12 @@ UINT azure_iot_mqtt_publish_float_telemetry(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR
     return mqtt_publish_float(azure_iot_mqtt, mqtt_publish_topic, label, value);
 }
 
-UINT azure_iot_mqtt_publish_int_desired_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, int value)
+UINT azure_iot_mqtt_publish_int_writeable_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, int value)
 {
     CHAR mqtt_publish_topic[100];
     CHAR mqtt_publish_message[100];
 
-    printf("Reporting desired property with int value\r\n");
+    printf("Reporting writeable property %s as %d\r\n", label, value);
 
     snprintf(mqtt_publish_topic,
         sizeof(mqtt_publish_topic),
@@ -454,13 +492,13 @@ UINT azure_iot_mqtt_publish_int_desired_property(AZURE_IOT_MQTT* azure_iot_mqtt,
     return mqtt_publish(azure_iot_mqtt, mqtt_publish_topic, mqtt_publish_message);
 }
 
-UINT azure_iot_mqtt_respond_int_desired_property(
+UINT azure_iot_mqtt_respond_int_writeable_property(
     AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, int value, int http_status)
 {
     CHAR mqtt_publish_topic[100];
     CHAR mqtt_publish_message[100];
 
-    printf("Responding desired property with int value\r\n");
+    printf("Responding to desired property %s as %d\r\n", label, value);
 
     snprintf(mqtt_publish_topic,
         sizeof(mqtt_publish_topic),
@@ -517,10 +555,6 @@ UINT azure_iot_mqtt_create(AZURE_IOT_MQTT* azure_iot_mqtt,
     CHAR* iot_sas_key,
     CHAR* iot_model_id)
 {
-    UINT status;
-
-    printf("Initializing MQTT client\r\n");
-
     if (azure_iot_mqtt == NULL)
     {
         printf("ERROR: azure_iot_mqtt is NULL\r\n");
@@ -536,50 +570,82 @@ UINT azure_iot_mqtt_create(AZURE_IOT_MQTT* azure_iot_mqtt,
     memset(azure_iot_mqtt, 0, sizeof(*azure_iot_mqtt));
 
     // Stash the connection information
-    azure_iot_mqtt->nx_dns            = nx_dns;
-    azure_iot_mqtt->unix_time_get     = unix_time_get;
-    azure_iot_mqtt->mqtt_device_id    = iot_device_id;
-    azure_iot_mqtt->mqtt_sas_key      = iot_sas_key;
-    azure_iot_mqtt->mqtt_hub_hostname = iot_hub_hostname;
-    azure_iot_mqtt->mqtt_model_id     = iot_model_id;
+    azure_iot_mqtt->nx_dns        = nx_dns;
+    azure_iot_mqtt->unix_time_get = unix_time_get;
+    strncpy(azure_iot_mqtt->mqtt_hub_hostname, iot_hub_hostname, AZURE_IOT_MQTT_HOSTNAME_SIZE);
+    strncpy(azure_iot_mqtt->mqtt_device_id, iot_device_id, AZURE_IOT_MQTT_DEVICE_ID_SIZE);
+    azure_iot_mqtt->mqtt_sas_key  = iot_sas_key;
+    azure_iot_mqtt->mqtt_model_id = iot_model_id;
 
-    status = nxd_mqtt_client_create(&azure_iot_mqtt->nxd_mqtt_client,
-        "MQTT client",
-        azure_iot_mqtt->mqtt_device_id,
-        strlen(azure_iot_mqtt->mqtt_device_id),
-        nx_ip,
-        nx_pool,
-        azure_iot_mqtt->mqtt_client_stack,
-        AZURE_IOT_MQTT_CLIENT_STACK_SIZE,
-        MQTT_CLIENT_PRIORITY,
-        NX_NULL,
-        0);
-    if (status != NXD_MQTT_SUCCESS)
+    // call into common code
+    return azure_iot_mqtt_create_common(azure_iot_mqtt, nx_ip, nx_pool);
+}
+
+UINT azure_iot_mqtt_create_with_dps(AZURE_IOT_MQTT* azure_iot_mqtt,
+    NX_IP* nx_ip,
+    NX_PACKET_POOL* nx_pool,
+    NX_DNS* nx_dns,
+    func_ptr_unix_time_get unix_time_get,
+    CHAR* iot_dps_endpoint,
+    CHAR* iot_dps_id_scope,
+    CHAR* iot_registration_id,
+    CHAR* iot_sas_key,
+    CHAR* iot_model_id)
+{
+    UINT status;
+
+    printf("Initializing MQTT DPS client\r\n");
+
+    if (azure_iot_mqtt == NULL)
     {
-        printf("Failed to create MQTT Client (0x%02x)\r\n", status);
+        printf("ERROR: azure_iot_mqtt is NULL\r\n");
+        return NX_PTR_ERROR;
+    }
+
+    if (iot_dps_endpoint[0] == 0 || iot_dps_id_scope[0] == 0 || iot_registration_id[0] == 0 || iot_sas_key[0] == 0)
+    {
+        printf("ERROR: IoT DPS connection configuration is empty\r\n");
+        return NX_PTR_ERROR;
+    }
+
+    memset(azure_iot_mqtt, 0, sizeof(*azure_iot_mqtt));
+
+    // Stash the connection information
+    azure_iot_mqtt->nx_dns                   = nx_dns;
+    azure_iot_mqtt->unix_time_get            = unix_time_get;
+    azure_iot_mqtt->mqtt_dps_endpoint        = iot_dps_endpoint;
+    azure_iot_mqtt->mqtt_dps_id_scope        = iot_dps_id_scope;
+    azure_iot_mqtt->mqtt_dps_registration_id = iot_registration_id;
+    azure_iot_mqtt->mqtt_sas_key             = iot_sas_key;
+    azure_iot_mqtt->mqtt_model_id            = iot_model_id;
+
+    // Setup DPS
+    status = azure_iot_dps_create(azure_iot_mqtt, nx_ip, nx_pool);
+    if (status != NX_SUCCESS)
+    {
+        printf("ERROR: Failed to create DPS client (0x%04x)\r\n", status);
         return status;
     }
 
-    status = nxd_mqtt_client_receive_notify_set(&azure_iot_mqtt->nxd_mqtt_client, mqtt_notify_cb);
-    if (status != NXD_MQTT_SUCCESS)
+    status = azure_iot_dps_register(azure_iot_mqtt, NX_WAIT_FOREVER);
+    if (status != NX_SUCCESS)
     {
-        printf("Error in setting receive notify (0x%02x)\r\n", status);
-        nxd_mqtt_client_delete(&azure_iot_mqtt->nxd_mqtt_client);
+        printf("ERROR: Failed to register DPS device (0x%04x)\r\n", status);
+        azure_iot_dps_delete(azure_iot_mqtt);
         return status;
     }
 
-    status = nxd_mqtt_client_disconnect_notify_set(&azure_iot_mqtt->nxd_mqtt_client, mqtt_disconnect_cb);
-    if (status != NXD_MQTT_SUCCESS)
+    status = azure_iot_dps_delete(azure_iot_mqtt);
+    if (status != NX_SUCCESS)
     {
-        printf("Error in seting disconnect notification (0x%02x)\r\n", status);
-        nxd_mqtt_client_delete(&azure_iot_mqtt->nxd_mqtt_client);
+        printf("ERROR: Failed to delete DPS client (0x%04x)\r\n", status);
         return status;
     }
 
-    // Set the receive context (highjacking the packet_receive_context) for callbacks
-    azure_iot_mqtt->nxd_mqtt_client.nxd_mqtt_packet_receive_context = azure_iot_mqtt;
+    printf("SUCCESS: MQTT DPS client initialized\r\n\r\n");
 
-    return NXD_MQTT_SUCCESS;
+    // call into common code
+    return azure_iot_mqtt_create_common(azure_iot_mqtt, nx_ip, nx_pool);
 }
 
 UINT azure_iot_mqtt_delete(AZURE_IOT_MQTT* azure_iot_mqtt)
@@ -697,7 +763,7 @@ UINT azure_iot_mqtt_connect(AZURE_IOT_MQTT* azure_iot_mqtt)
         return status;
     }
 
-    printf("SUCCESS: MQTT client initialized\r\n\r\n");
+    printf("SUCCESS: MQTT Hub client initialized\r\n\r\n");
 
     return NXD_MQTT_SUCCESS;
 }

@@ -8,6 +8,7 @@ set(SOURCES
     stm32cubel4/stm32l4xx_hal_msp.c
     stm32cubel4/stm32l4xx_it.c
 
+    azure_config.h
     board_init.c
     console.c
     main.c
