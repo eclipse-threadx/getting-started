@@ -11,8 +11,8 @@
 #include "cmsis_utils.h"
 
 #include "mqtt.h"
-#include "wwd_networking.h"
 #include "nx_client.h"
+#include "wwd_networking.h"
 
 #include "azure_config.h"
 
@@ -28,6 +28,8 @@ void tx_application_define(void *first_unused_memory);
 void azure_thread_entry(ULONG parameter)
 {
     UINT status;
+
+    printf("Starting Azure thread\r\n\r\n");
 
     if (platform_init(WIFI_SSID, WIFI_PASSWORD, WIFI_MODE) != NX_SUCCESS)
     {

@@ -15,8 +15,8 @@ typedef enum
 // ----------------------------------------------------------------------------
 // WiFi connection config
 // ----------------------------------------------------------------------------
-#define WIFI_SSID     "iot_test"
-#define WIFI_PASSWORD "iot_rulez"
+#define WIFI_SSID     ""
+#define WIFI_PASSWORD ""
 #define WIFI_MODE     WPA2_PSK_AES
 
 // ----------------------------------------------------------------------------
@@ -34,19 +34,15 @@ typedef enum
 // ----------------------------------------------------------------------------
 // Azure IoT Hub config
 // ----------------------------------------------------------------------------
-#define IOT_HUB_HOSTNAME "ryansgsg.azure-devices.net"
-#define IOT_DEVICE_ID    "stm"
+#define IOT_HUB_HOSTNAME ""
+#define IOT_DEVICE_ID    ""
+#define IOT_PRIMARY_KEY  ""
 
 // ----------------------------------------------------------------------------
 // Azure IoT DPS config
 // ----------------------------------------------------------------------------
 #define IOT_DPS_ENDPOINT        "global.azure-devices-provisioning.net"
-#define IOT_DPS_ID_SCOPE        "0ne00165610"
-#define IOT_DPS_REGISTRATION_ID "stm"
-
-// ----------------------------------------------------------------------------
-// Azure IoT device config
-// ----------------------------------------------------------------------------
-#define IOT_PRIMARY_KEY "ZPR7kKgw/+KCuS/CQN1er7Etg7AZ8UEfKOv/5itGRKk="
+#define IOT_DPS_ID_SCOPE        ""
+#define IOT_DPS_REGISTRATION_ID ""
 
 #endif // _AZURE_CONFIG_H
