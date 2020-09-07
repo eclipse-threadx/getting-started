@@ -1,6 +1,6 @@
 // For format details, see https://aka.ms/vscode-remote/devcontainer.json
 {
-    "dockerfile": "Dockerfile",
+    "image": "kartben/azurertos-gnuarm:latest",
     "extensions": [
         "ms-vscode.cpptools",
         "ms-vscode.cmake-tools",
