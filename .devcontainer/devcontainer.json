@@ -1,13 +1,14 @@
 // For format details, see https://aka.ms/vscode-remote/devcontainer.json
 {
-    "image": "kartben/azurertos-gnuarm:latest",
+    "image": "ryanwinter/arm-none-eabi-gcc:latest",
     "extensions": [
-        "ms-vscode.cpptools",
-        "ms-vscode.cmake-tools",
-        "marus25.cortex-debug",
-        "vsciot-vscode.vscode-iot-workbench",
-        "xaver.clang-format",
-    ],
+		"ms-vscode.cpptools",
+		"ms-vscode.cmake-tools",
+		"marus25.cortex-debug",
+		"vsciot-vscode.vscode-iot-workbench",
+		"xaver.clang-format",
+		"ms-azuretools.vscode-docker"
+	],
 	"remoteUser": "vscode",
-    "postCreateCommand": "git submodule update --recursive --init",
+	"postCreateCommand": "git submodule update --recursive --init"
 }

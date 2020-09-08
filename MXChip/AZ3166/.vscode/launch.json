@@ -16,16 +16,15 @@
             ]
         },
         {
-            "name": "MXCHIP: Remote OpenOCD",
+            "name": "MXCHIP: Container OpenOCD",
             "type": "cortex-debug",
             "executable": "${workspaceFolder}/build/app/mxchip_azure_iot.elf",
             "request": "launch",
             "servertype": "external",
             "gdbTarget": "${input:openOCD.host}",
             "runToMain": true,
-            "device": "STM32F412RG",
             "svdFile": "${workspaceFolder}/.vscode/STM32F412.svd",
-        },
+        }
     ],
     "inputs": [
         {
