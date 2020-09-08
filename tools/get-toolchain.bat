@@ -37,19 +37,19 @@ set iot_explorer_name=Azure IoT Explorer v0.11.3
 
 echo Downloading packages...
 echo (1/5) %cmake_name%
-powershell (New-Object Net.WebClient).DownloadFile('%cmake_path%/%cmake_file%', '%TEMP%\%cmake_file%')
+powershell (New-Object System.Net.WebClient).DownloadFile('%cmake_path%/%cmake_file%', '%TEMP%\%cmake_file%')
 
 echo (2/5) %gccarm_name%
-powershell (New-Object Net.WebClient).DownloadFile('%gccarm_path%/%gccarm_file%', '%TEMP%\%gccarm_file%')
+powershell (New-Object System.Net.WebClient).DownloadFile('%gccarm_path%/%gccarm_file%', '%TEMP%\%gccarm_file%')
 
 echo (3/5) %ninja_name%
-powershell (New-Object Net.WebClient).DownloadFile('%ninja_path%/%ninja_file%', '%TEMP%\%ninja_file%')
+powershell (New-Object System.Net.WebClient).DownloadFile('%ninja_path%/%ninja_file%', '%TEMP%\%ninja_file%')
 
 echo (4/5) %termite_name%
-powershell (New-Object Net.WebClient).DownloadFile('%termite_path%/%termite_file%', '%TEMP%\%termite_file%')
+powershell (New-Object System.Net.WebClient).DownloadFile('%termite_path%/%termite_file%', '%TEMP%\%termite_file%')
 
 echo (5/5) %iot_explorer_name%
-powershell (New-Object Net.WebClient).DownloadFile('%iot_explorer_path%/%iot_explorer_file%', '%TEMP%\%iot_explorer_file%')
+powershell (New-Object System.Net.WebClient).DownloadFile('%iot_explorer_path%/%iot_explorer_file%', '%TEMP%\%iot_explorer_file%')
 
 echo.
 
