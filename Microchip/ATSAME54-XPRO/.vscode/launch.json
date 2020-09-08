@@ -2,28 +2,28 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "MXCHIP: Local OpenOCD",
+            "name": "Microchip: Local OpenOCD",
             "type": "cortex-debug",
             "request": "launch",
             "servertype": "openocd",
-            "device": "STM32F412RG",
+            "device": "ATSAME54P20A",
             "runToMain": true,
-            "executable": "${workspaceFolder}/build/app/mxchip_azure_iot.elf",
-            "svdFile": "${workspaceFolder}/.vscode/STM32F412.svd",
+            "executable": "${workspaceFolder}/build/app/atsame54_azure_iot.elf",
+            "svdFile": "${workspaceFolder}/.vscode/ATSAME54P20A.svd",
             "cwd": "${workspaceRoot}",
             "configFiles": [
-                "board/stm32f4discovery.cfg"
+                "board/microchip_same54_xplained_pro.cfg"
             ]
         },
         {
-            "name": "MXCHIP: Remote",
+            "name": "Microchip: Remote",
             "type": "cortex-debug",
-            "executable": "${workspaceFolder}/build/app/mxchip_azure_iot.elf",
+            "executable": "${workspaceFolder}/build/app/atsame54_azure_iot.elf",
             "request": "launch",
             "servertype": "external",
             "gdbTarget": "${input:device.host}",
             "runToMain": true,
-            "svdFile": "${workspaceFolder}/.vscode/STM32F412.svd",
+            "svdFile": "${workspaceFolder}/.vscode/ATSAME54P20A.svd",
         }
     ],
     "inputs": [
