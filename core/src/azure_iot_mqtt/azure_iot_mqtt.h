@@ -7,6 +7,7 @@
 #include <stdbool.h>
 
 #include "tx_api.h"
+
 #include "nx_api.h"
 #include "nxd_dns.h"
 #include "nxd_mqtt_client.h"

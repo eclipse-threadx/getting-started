@@ -15,41 +15,41 @@ if NOT %errorLevel% == 0 (
 
 echo.
 
-set cmake_path=https://github.com/Kitware/CMake/releases/download/v3.18.1/
-set cmake_file=cmake-3.18.1-win32-x86.msi
-set cmake_name=CMake v3.18.1
+set cmake_path=https://github.com/Kitware/CMake/releases/download/v3.18.2
+set cmake_file=cmake-3.18.2-win32-x86.msi
+set cmake_name=CMake v3.18.2
 
-set gccarm_path=https://developer.arm.com/-/media/Files/downloads/gnu-rm/9-2019q4/
+set gccarm_path=https://developer.arm.com/-/media/Files/downloads/gnu-rm/9-2019q4
 set gccarm_file=gcc-arm-none-eabi-9-2019-q4-major-win32-sha2.exe
 set gccarm_name=GCC-ARM 9-2019q4-major
 
-set ninja_path=https://github.com/ninja-build/ninja/releases/download/v1.10.0/
+set ninja_path=https://github.com/ninja-build/ninja/releases/download/v1.10.0
 set ninja_file=ninja-win.zip
 set ninja_name=Ninja v1.10.0
 
-set termite_path=https://www.compuphase.com/software/
+set termite_path=https://www.compuphase.com/software
 set termite_file=termite-3.4.exe
 set termite_name=Termite v3.4
 
-set iot_explorer_path=https://github.com/Azure/azure-iot-explorer/releases/download/v0.11.3/
+set iot_explorer_path=https://github.com/Azure/azure-iot-explorer/releases/download/v0.11.3
 set iot_explorer_file=Azure.IoT.Explorer.preview.0.11.3.msi
 set iot_explorer_name=Azure IoT Explorer v0.11.3
 
 echo Downloading packages...
 echo (1/5) %cmake_name%
-powershell (New-Object Net.WebClient).DownloadFile('%cmake_path%%cmake_file%', '%TEMP%\%cmake_file%')
+powershell (New-Object System.Net.WebClient).DownloadFile('%cmake_path%/%cmake_file%', '%TEMP%\%cmake_file%')
 
 echo (2/5) %gccarm_name%
-powershell (New-Object Net.WebClient).DownloadFile('%gccarm_path%%gccarm_file%', '%TEMP%\%gccarm_file%')
+powershell (New-Object System.Net.WebClient).DownloadFile('%gccarm_path%/%gccarm_file%', '%TEMP%\%gccarm_file%')
 
 echo (3/5) %ninja_name%
-powershell (New-Object Net.WebClient).DownloadFile('%ninja_path%%ninja_file%', '%TEMP%\%ninja_file%')
+powershell (New-Object System.Net.WebClient).DownloadFile('%ninja_path%/%ninja_file%', '%TEMP%\%ninja_file%')
 
 echo (4/5) %termite_name%
-powershell (New-Object Net.WebClient).DownloadFile('%termite_path%%termite_file%', '%TEMP%\%termite_file%')
+powershell (New-Object System.Net.WebClient).DownloadFile('%termite_path%/%termite_file%', '%TEMP%\%termite_file%')
 
 echo (5/5) %iot_explorer_name%
-powershell (New-Object Net.WebClient).DownloadFile('%iot_explorer_path%%iot_explorer_file%', '%TEMP%\%iot_explorer_file%')
+powershell (New-Object System.Net.WebClient).DownloadFile('%iot_explorer_path%/%iot_explorer_file%', '%TEMP%\%iot_explorer_file%')
 
 echo.
 

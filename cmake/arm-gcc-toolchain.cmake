@@ -33,11 +33,13 @@ elseif(COMPILER_ON_PATH)
     # then check on the current path
     get_filename_component(ARM_TOOLCHAIN_PATH ${COMPILER_ON_PATH} DIRECTORY)
     message(STATUS "Using ARM GCC from path = ${ARM_TOOLCHAIN_PATH}")
-elseif(DEFINED VSWHERE_PATH) 
+elseif(VSWHERE_PATH) 
     # try and find if its installed with visual studio
     file(TO_CMAKE_PATH ${VSWHERE_PATH} ARM_TOOLCHAIN_PATH)
-    string(STRIP ${ARM_TOOLCHAIN_PATH} ARM_TOOLCHAIN_PATH)
-    message(STATUS "Using Visual Studio install ${ARM_TOOLCHAIN_PATH} yes")
+    if(ARM_TOOLCHAIN_PATH)
+        string(STRIP ${ARM_TOOLCHAIN_PATH} ARM_TOOLCHAIN_PATH)
+        message(STATUS "Using Visual Studio install ${ARM_TOOLCHAIN_PATH}")
+    endif()
 else() 
     # otherwise just default to the standard installation
     set(ARM_TOOLCHAIN_PATH "C:/Program Files (x86)/GNU Tools Arm Embedded/9 2019-q4-major/bin")
