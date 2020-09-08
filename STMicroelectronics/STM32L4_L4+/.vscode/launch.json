@@ -16,7 +16,17 @@
             ]
         },
         {
-            "name": "STM L47SI: Local OpenOCD",
+            "name": "STM L475E: Remote",
+            "type": "cortex-debug",
+            "executable": "${workspaceFolder}/build/app/stm32l475_azure_iot.elf",
+            "request": "launch",
+            "servertype": "external",
+            "gdbTarget": "${input:device.host}",
+            "runToMain": true,
+            "svdFile": "${workspaceFolder}/.vscode/STM32L4x5.svd",
+        },
+        {
+            "name": "STM L4S5I: Local OpenOCD",
             "type": "cortex-debug",
             "request": "launch",
             "servertype": "openocd",
@@ -28,17 +38,7 @@
             "configFiles": [
                 "board/stm32l4discovery.cfg"
             ]
-        },     
-        {
-            "name": "STM L475E: Remote",
-            "type": "cortex-debug",
-            "executable": "${workspaceFolder}/build/app/stm32l475_azure_iot.elf",
-            "request": "launch",
-            "servertype": "external",
-            "gdbTarget": "${input:device.host}",
-            "runToMain": true,
-            "svdFile": "${workspaceFolder}/.vscode/STM32L4x5.svd",
-        },
+        },        
         {
             "name": "STM L4S5I: Remote",
             "type": "cortex-debug",
