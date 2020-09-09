@@ -127,8 +127,7 @@ UINT tls_setup(NXD_MQTT_CLIENT* client,
         return status;
     }
 
-    // Add a CA Certificate to our trusted store for verifying incoming server
-    // certificates
+    // Add a CA Certificate to our trusted store for verifying incoming server certificates
     status = nx_secure_x509_certificate_initialize(trusted_cert,
         (UCHAR*)azure_iot_root_ca,
         azure_iot_root_ca_len,
