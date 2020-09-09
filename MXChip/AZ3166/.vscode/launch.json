@@ -1,42 +1,37 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-          {
-              "type": "cortex-debug",
-              "request": "launch",
-              "servertype": "openocd",
-              "armToolchainPath": "C:\\Program Files (x86)\\GNU Arm Embedded Toolchain\\9 2020-q2-update\\bin",
-              "cwd": "${workspaceRoot}/build/app",
-              "executable": "${input:sampleName}.elf",
-              "name": "(OpenOCD) Cortex Debug",
-              "device": "STM32F412RG",
-              "runToMain": true,
-              "interface": "swd",
-              "configFiles": [
-                  "interface/stlink.cfg",
-                  "target/stm32f4x.cfg"
-              ],
-              "svdFile": "${cwd}/STM32F412.svd",
-              "swoConfig": {
-                  "enabled": true,
-                  "cpuFrequency": 10000000,
-                  "swoFrequency": 2000000,
-                  "source": "probe"
-              },
-          },
-      ],
-      "inputs": [
-          {
-              "type": "pickString",
-              "id": "sampleName",
-              "description": "Which sample do you want to download and debug?",
-              "options": [
-                  "mxchip_azure_iot"
-              ],
-              "default": "mxchip_azure_iot"
-          }
-      ]
-  }
+        {
+            "name": "MXCHIP: Local OpenOCD",
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "device": "STM32F412RG",
+            "runToMain": true,
+            "executable": "${workspaceFolder}/build/app/mxchip_azure_iot.elf",
+            "svdFile": "${workspaceFolder}/.vscode/STM32F412.svd",
+            "cwd": "${workspaceRoot}",
+            "configFiles": [
+                "board/stm32f4discovery.cfg"
+            ]
+        },
+        {
+            "name": "MXCHIP: Remote",
+            "type": "cortex-debug",
+            "executable": "${workspaceFolder}/build/app/mxchip_azure_iot.elf",
+            "request": "launch",
+            "servertype": "external",
+            "gdbTarget": "${input:device.host}",
+            "runToMain": true,
+            "svdFile": "${workspaceFolder}/.vscode/STM32F412.svd",
+        }
+    ],
+    "inputs": [
+        {
+            "id": "device.host",
+            "type": "promptString",
+            "default": "localhost:3333",
+            "description": "The local hostname with port for GDB to connect to"
+        }
+    ]
+}

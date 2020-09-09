@@ -7,6 +7,7 @@ set(SOURCES
     startup/startup_MIMXRT1062.S
     startup/tx_initialize_low_level.S
 
+    azure_config.h
     nx_client.c
     mqtt.c
     board_init.c

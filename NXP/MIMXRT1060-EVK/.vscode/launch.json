@@ -1,0 +1,34 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "NXP: Local J-Link",
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype":"jlink",
+            "runToMain": true,
+            "executable": "${workspaceFolder}/build/app/mimxrt1060_azure_iot.elf",
+            "device": "MIMXRT1062xxx6A",
+            "svdFile": "${workspaceFolder}/.vscode/MIMXRT1062.svd",
+        },
+        {
+            "name": "NXP: Remote",
+            "type": "cortex-debug",
+            "executable": "${workspaceFolder}/build/app/mimxrt1060_azure_iot.elf",
+            "request": "launch",
+            "servertype": "external",
+            "gdbTarget": "${input:device.host}",
+            "runToMain": true,
+            "device": "MIMXRT1062xxx6A",
+            "svdFile": "${workspaceFolder}/.vscode/MIMXRT1062.svd",
+        }      
+    ],
+    "inputs": [
+        {
+            "id": "device.host",
+            "type": "promptString",
+            "default": "localhost:2331",
+            "description": "The local hostname with port for GDB to connect to"
+        }
+    ]
+}

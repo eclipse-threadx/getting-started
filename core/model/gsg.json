@@ -18,12 +18,17 @@
             "unit": "degreeCelsius"
         },
         {
-            "@type": "Property",
+            "@type": 
+            [
+                "Property", 
+                "TimeSpan"
+            ],
             "name": "telemetryInterval",
             "displayName" : "Telemetry Interval",
             "description": "Specify the interval in seconds for the telemetry.",
             "schema": "integer",
-            "writable": true
+            "writable": true,
+            "unit": "second"
         },
         {
             "@type": "Property",

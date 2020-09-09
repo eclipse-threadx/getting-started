@@ -9,5 +9,6 @@
 #include "jsmn.h"
 
 bool findJsonInt(const char* json, jsmntok_t* tokens, int tokens_count, const char* s, int* value);
+bool findJsonString(const char* json, jsmntok_t* tokens, int tokens_count, const char* s, char* value);
 
 #endif

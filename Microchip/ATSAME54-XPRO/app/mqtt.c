@@ -87,7 +87,7 @@ static void mqtt_device_twin_desired_prop(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* 
         tx_event_flags_set(&azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR);
 
         // Confirm reception back to hub
-        azure_iot_mqtt_respond_int_desired_property(
+        azure_iot_mqtt_respond_int_writeable_property(
             azure_iot_mqtt, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval, 200);
     }
 }
@@ -108,7 +108,7 @@ static void mqtt_device_twin_prop(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* message)
     }
 
     // Report writeable properties to the Hub
-    azure_iot_mqtt_publish_int_desired_property(azure_iot_mqtt, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
+    azure_iot_mqtt_publish_int_writeable_property(azure_iot_mqtt, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
 }
 
 UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, ULONG (*sntp_time_get)(VOID))
@@ -123,7 +123,20 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
         return status;
     }
 
-    // Create Azure MQTT
+#ifdef ENABLE_DPS
+    // Create Azure MQTT for Hub via DPS
+    status = azure_iot_mqtt_create_with_dps(&azure_iot_mqtt,
+        ip_ptr,
+        pool_ptr,
+        dns_ptr,
+        sntp_time_get,
+        IOT_DPS_ENDPOINT,
+        IOT_DPS_ID_SCOPE,
+        IOT_DEVICE_ID,
+        IOT_PRIMARY_KEY,
+        IOT_MODEL_ID);
+#else
+    // Create Azure MQTT for Hub
     status = azure_iot_mqtt_create(&azure_iot_mqtt,
         ip_ptr,
         pool_ptr,
@@ -133,9 +146,11 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
         IOT_DEVICE_ID,
         IOT_PRIMARY_KEY,
         IOT_MODEL_ID);
+#endif
+
     if (status != NXD_MQTT_SUCCESS)
     {
-        printf("Error: Failed to create Azure MQTT (0x%02x)\r\n", status);
+        printf("Error: Failed to create Azure IoT MQTT (0x%04x)\r\n", status);
         return status;
     }
 

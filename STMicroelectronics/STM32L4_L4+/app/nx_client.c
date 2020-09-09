@@ -173,7 +173,7 @@ static void direct_method_thread_entry(ULONG parameter)
             set_led_state(arg);
 
             azure_iot_nx_client_publish_bool_property(&azure_iot_nx_client, "ledState", arg);
-            
+
             http_status = 200;
         }
 
@@ -223,12 +223,22 @@ UINT azure_iot_nx_client_entry(
 {
     UINT status;
 
-    if ((status = tx_event_flags_create(&azure_iot_flags, "Azure IoT flags")))
+#ifdef ENABLE_DPS
+    if ((status = azure_iot_nx_client_dps_create(&azure_iot_nx_client,
+             ip_ptr,
+             pool_ptr,
+             dns_ptr,
+             unix_time_callback,
+             IOT_DPS_ENDPOINT,
+             IOT_DPS_ID_SCOPE,
+             IOT_DEVICE_ID,
+             IOT_PRIMARY_KEY,
+             IOT_MODEL_ID)))
     {
-        printf("FAIL: Unable to create nx_client event flags (0x%02x)\r\n", status);
+        printf("ERROR: failed to create iot client with dps 0x%08x\r\n", status);
         return status;
     }
-
+#else
     if ((status = azure_iot_nx_client_create(&azure_iot_nx_client,
              ip_ptr,
              pool_ptr,
@@ -240,6 +250,13 @@ UINT azure_iot_nx_client_entry(
              IOT_MODEL_ID)))
     {
         printf("ERROR: failed to create iot client 0x%08x\r\n", status);
+        return status;
+    }
+#endif
+
+    if ((status = tx_event_flags_create(&azure_iot_flags, "Azure IoT flags")))
+    {
+        printf("FAIL: Unable to create nx_client event flags (0x%02x)\r\n", status);
         return status;
     }
 

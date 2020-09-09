@@ -1,0 +1,37 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Microchip: Local OpenOCD",
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "device": "ATSAME54P20A",
+            "runToMain": true,
+            "executable": "${workspaceFolder}/build/app/atsame54_azure_iot.elf",
+            "svdFile": "${workspaceFolder}/.vscode/ATSAME54P20A.svd",
+            "cwd": "${workspaceRoot}",
+            "configFiles": [
+                "board/microchip_same54_xplained_pro.cfg"
+            ]
+        },
+        {
+            "name": "Microchip: Remote",
+            "type": "cortex-debug",
+            "executable": "${workspaceFolder}/build/app/atsame54_azure_iot.elf",
+            "request": "launch",
+            "servertype": "external",
+            "gdbTarget": "${input:device.host}",
+            "runToMain": true,
+            "svdFile": "${workspaceFolder}/.vscode/ATSAME54P20A.svd",
+        }
+    ],
+    "inputs": [
+        {
+            "id": "device.host",
+            "type": "promptString",
+            "default": "localhost:3333",
+            "description": "The local hostname with port for GDB to connect to"
+        }
+    ]
+}

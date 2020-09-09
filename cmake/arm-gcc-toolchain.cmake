@@ -33,11 +33,13 @@ elseif(COMPILER_ON_PATH)
     # then check on the current path
     get_filename_component(ARM_TOOLCHAIN_PATH ${COMPILER_ON_PATH} DIRECTORY)
     message(STATUS "Using ARM GCC from path = ${ARM_TOOLCHAIN_PATH}")
-elseif(DEFINED VSWHERE_PATH) 
+elseif(VSWHERE_PATH) 
     # try and find if its installed with visual studio
     file(TO_CMAKE_PATH ${VSWHERE_PATH} ARM_TOOLCHAIN_PATH)
-    string(STRIP ${ARM_TOOLCHAIN_PATH} ARM_TOOLCHAIN_PATH)
-    message(STATUS "Using Visual Studio install ${ARM_TOOLCHAIN_PATH} yes")
+    if(ARM_TOOLCHAIN_PATH)
+        string(STRIP ${ARM_TOOLCHAIN_PATH} ARM_TOOLCHAIN_PATH)
+        message(STATUS "Using Visual Studio install ${ARM_TOOLCHAIN_PATH}")
+    endif()
 else() 
     # otherwise just default to the standard installation
     set(ARM_TOOLCHAIN_PATH "C:/Program Files (x86)/GNU Tools Arm Embedded/9 2019-q4-major/bin")
@@ -47,8 +49,8 @@ endif()
 # perform compiler test with the static library
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
-set(CMAKE_C_COMPILER    ${ARM_TOOLCHAIN_PATH}/${TARGET_TRIPLET}gcc${TOOLCHAIN_EXT})
-set(CMAKE_CXX_COMPILER  ${ARM_TOOLCHAIN_PATH}/${TARGET_TRIPLET}g++${TOOLCHAIN_EXT})
+set(CMAKE_C_COMPILER    ${ARM_TOOLCHAIN_PATH}/${TARGET_TRIPLET}gcc${TOOLCHAIN_EXT} CACHE STRING "")
+set(CMAKE_CXX_COMPILER  ${ARM_TOOLCHAIN_PATH}/${TARGET_TRIPLET}g++${TOOLCHAIN_EXT} CACHE STRING "")
 set(CMAKE_ASM_COMPILER  ${ARM_TOOLCHAIN_PATH}/${TARGET_TRIPLET}gcc${TOOLCHAIN_EXT})
 set(CMAKE_LINKER        ${ARM_TOOLCHAIN_PATH}/${TARGET_TRIPLET}gcc${TOOLCHAIN_EXT})
 set(CMAKE_SIZE_UTIL     ${ARM_TOOLCHAIN_PATH}/${TARGET_TRIPLET}size${TOOLCHAIN_EXT})

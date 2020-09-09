@@ -1,23 +1,14 @@
-// For format details, see https://aka.ms/vscode-remote/devcontainer.json or this file's README at:
+// For format details, see https://aka.ms/vscode-remote/devcontainer.json
 {
-    "dockerfile": "Dockerfile",
+    "image": "ryanwinter/arm-none-eabi-gcc:latest",
     "extensions": [
-        "ms-vscode.cpptools",
-        "ms-vscode.cmake-tools",
-        "twxs.cmake",
-        "webfreak.debug",
-        "xaver.clang-format",
-        "vsciot-vscode.vscode-dtdl",
-    ],
-    "postCreateCommand": "git submodule update --recursive --init",
+		"ms-vscode.cpptools",
+		"ms-vscode.cmake-tools",
+		"marus25.cortex-debug",
+		"vsciot-vscode.vscode-iot-workbench",
+		"xaver.clang-format",
+		"ms-azuretools.vscode-docker"
+	],
 	"remoteUser": "vscode",
-	"build": {
-		"dockerfile": "Dockerfile",
-		"args": {
-			"VARIANT": "buster"
-		}
-	},
-	"settings": {
-		"terminal.integrated.shell.linux": "/bin/bash"
-	}
+	"postCreateCommand": "git submodule update --recursive --init"
 }

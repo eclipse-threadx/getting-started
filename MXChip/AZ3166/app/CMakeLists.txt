@@ -10,6 +10,7 @@ set(SOURCES
 
     stm32cubef4/stm32f4xx_hal_msp.c
    
+    azure_config.h
     nx_client.c
     mqtt.c
     board_init.c
