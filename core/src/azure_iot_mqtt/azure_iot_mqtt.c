@@ -103,7 +103,27 @@ UINT tls_setup(NXD_MQTT_CLIENT* client,
         sizeof(azure_iot_mqtt->tls_metadata_buffer));
     if (status != NX_SUCCESS)
     {
-        printf("Failed to create TLS session status: %d\r\n", status);
+        printf("Failed to create TLS session status (0x%04x)\r\n", status);
+        return status;
+    }
+
+    status = nx_secure_tls_remote_certificate_allocate(tls_session,
+        &azure_iot_mqtt->mqtt_remote_certificate,
+        azure_iot_mqtt->mqtt_remote_cert_buffer,
+        sizeof(azure_iot_mqtt->mqtt_remote_cert_buffer));
+    if (status != NX_SUCCESS)
+    {
+        printf("Failed to create remote certificate buffer (0x%04x)\r\n", status);
+        return status;
+    }
+
+    status = nx_secure_tls_remote_certificate_allocate(tls_session,
+        &azure_iot_mqtt->mqtt_remote_issuer,
+        azure_iot_mqtt->mqtt_remote_issuer_buffer,
+        sizeof(azure_iot_mqtt->mqtt_remote_issuer_buffer));
+    if (status != NX_SUCCESS)
+    {
+        printf("Failed to create remote issuer buffer (0x%04x)\r\n", status);
         return status;
     }
 
@@ -118,14 +138,14 @@ UINT tls_setup(NXD_MQTT_CLIENT* client,
         NX_SECURE_X509_KEY_TYPE_NONE);
     if (status != NX_SUCCESS)
     {
-        printf("Unable to initialize CA certificate (0x%02x)\r\n", status);
+        printf("Unable to initialize CA certificate (0x%04x)\r\n", status);
         return status;
     }
 
     status = nx_secure_tls_trusted_certificate_add(tls_session, trusted_cert);
     if (status != NX_SUCCESS)
     {
-        printf("Unable to add CA certificate to trusted store (0x%02x)\r\n", status);
+        printf("Unable to add CA certificate to trusted store (0x%04x)\r\n", status);
         return status;
     }
 

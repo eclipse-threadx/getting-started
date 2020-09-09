@@ -6,9 +6,9 @@
 #include "tx_api.h"
 
 #include "board_init.h"
+#include "cmsis_utils.h"
 #include "screen.h"
 #include "sntp_client.h"
-#include "cmsis_utils.h"
 
 #include "mqtt.h"
 #include "nx_client.h"
@@ -17,13 +17,13 @@
 #include "azure_config.h"
 
 #define AZURE_THREAD_STACK_SIZE 4096
-#define AZURE_THREAD_PRIORITY 4
+#define AZURE_THREAD_PRIORITY   4
 
 TX_THREAD azure_thread;
 ULONG azure_thread_stack[AZURE_THREAD_STACK_SIZE / sizeof(ULONG)];
 
 void azure_thread_entry(ULONG parameter);
-void tx_application_define(void *first_unused_memory);
+void tx_application_define(void* first_unused_memory);
 
 void azure_thread_entry(ULONG parameter)
 {
@@ -66,16 +66,21 @@ void azure_thread_entry(ULONG parameter)
     }
 }
 
-void tx_application_define(void *first_unused_memory)
+void tx_application_define(void* first_unused_memory)
 {
     systick_interval_set(TX_TIMER_TICKS_PER_SECOND);
 
     // Create Azure thread
-    UINT status = tx_thread_create(&azure_thread, "Azure Thread",
-                              azure_thread_entry, 0,
-                              azure_thread_stack, AZURE_THREAD_STACK_SIZE,
-                              AZURE_THREAD_PRIORITY, AZURE_THREAD_PRIORITY,
-                              TX_NO_TIME_SLICE, TX_AUTO_START);
+    UINT status = tx_thread_create(&azure_thread,
+        "Azure Thread",
+        azure_thread_entry,
+        0,
+        azure_thread_stack,
+        AZURE_THREAD_STACK_SIZE,
+        AZURE_THREAD_PRIORITY,
+        AZURE_THREAD_PRIORITY,
+        TX_NO_TIME_SLICE,
+        TX_AUTO_START);
 
     if (status != TX_SUCCESS)
     {
