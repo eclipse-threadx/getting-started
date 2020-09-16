@@ -8,9 +8,6 @@ products:
 - azure-iot-hub
 - azure-iot-pnp
 - azure-rtos
-extendedZipContent:
-- path: "/"
-  target: "/"
 ---
 
 # Getting started with the MXChip AZ3166 IoT DevKit
