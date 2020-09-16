@@ -47,175 +47,6 @@ static void set_led_state(bool level)
     }
 }
 
-/*static void telemetry_thread_entry(ULONG parameter)
-{
-    NX_PACKET* packet_ptr;
-    UINT status;
-    ULONG events;
-    float temperature = 28.5;
-
-    NX_PARAMETER_NOT_USED(parameter);
-
-    while (true)
-    {
-        // Create a telemetry message packet.
-        if ((status = nx_azure_iot_hub_client_telemetry_message_create(
-                 &azure_iot_nx_client.iothub_client, &packet_ptr, NX_WAIT_FOREVER)))
-        {
-            printf("Telemetry message create failed!: error code = 0x%08x\r\n", status);
-            break;
-        }
-
-        azure_iot_nx_client_publish_float_telemetry(&azure_iot_nx_client, "temperature", temperature);
-
-        tx_event_flags_get(
-            &azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR_CLEAR, &events, telemetry_interval * NX_IP_PERIODIC_RATE);
-    }
-}*/
-
-/*static void device_twin_thread_entry(ULONG parameter)
-{
-    NX_PACKET* packet_ptr;
-    UINT status;
-
-    jsmn_parser parser;
-    jsmntok_t tokens[64];
-    INT token_count;
-
-    NX_PARAMETER_NOT_USED(parameter);
-
-    // Request and parse the device twin properties
-    if ((status = nx_azure_iot_hub_client_device_twin_properties_request(
-             &azure_iot_nx_client.iothub_client, NX_WAIT_FOREVER)))
-    {
-        printf("device twin document request failed!: error code = 0x%08x\r\n", status);
-        return;
-    }
-
-    if ((status = nx_azure_iot_hub_client_device_twin_properties_receive(
-             &azure_iot_nx_client.iothub_client, &packet_ptr, NX_WAIT_FOREVER)))
-    {
-        printf("device twin document receive failed!: error code = 0x%08x\r\n", status);
-        return;
-    }
-
-    while (true)
-    {
-        printf_packet(packet_ptr, "Receive device twin properties: ");
-
-        const CHAR* json_str = (CHAR*)packet_ptr->nx_packet_prepend_ptr;
-        const ULONG json_len = packet_ptr->nx_packet_append_ptr - packet_ptr->nx_packet_prepend_ptr;
-
-        jsmn_init(&parser);
-        token_count = jsmn_parse(&parser, json_str, json_len, tokens, 64);
-
-        if (findJsonInt(json_str, tokens, token_count, "telemetryInterval", &telemetry_interval))
-        {
-            // Set a telemetry event so we pick up the change immediately
-            tx_event_flags_set(&azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR);
-        }
-
-        // Release the received packet, as ownership was passed to the application
-        nx_packet_release(packet_ptr);
-
-        // Wait for a desired property update
-        if ((status = nx_azure_iot_hub_client_device_twin_desired_properties_receive(
-                 &azure_iot_nx_client.iothub_client, &packet_ptr, NX_WAIT_FOREVER)))
-        {
-            printf("Receive desired property receive failed!: error code = 0x%08x\r\n", status);
-            break;
-        }
-    }
-}*/
-
-/*static void direct_method_thread_entry(ULONG parameter)
-{
-    UINT status;
-    NX_PACKET* packet_ptr;
-    UCHAR* method_name_ptr;
-    USHORT method_name_length;
-    VOID* context_ptr;
-    USHORT context_length;
-    CHAR* payload_ptr;
-    USHORT payload_length;
-
-    UINT http_status;
-    CHAR* http_response = "{}";
-
-    NX_PARAMETER_NOT_USED(parameter);
-
-    while (true)
-    {
-        http_status = 501;
-
-        if ((status = nx_azure_iot_hub_client_direct_method_message_receive(&azure_iot_nx_client.iothub_client,
-                 &method_name_ptr,
-                 &method_name_length,
-                 &context_ptr,
-                 &context_length,
-                 &packet_ptr,
-                 NX_WAIT_FOREVER)))
-        {
-            printf("Direct method receive failed!: error code = 0x%08x\r\n", status);
-            break;
-        }
-
-        printf("Receive direct method call: %.*s\r\n", (INT)method_name_length, (CHAR*)method_name_ptr);
-        printf_packet(packet_ptr, "\tpayload: ");
-
-        payload_ptr    = (CHAR*)packet_ptr->nx_packet_prepend_ptr;
-        payload_length = packet_ptr->nx_packet_append_ptr - packet_ptr->nx_packet_prepend_ptr;
-
-        if (strncmp((CHAR*)method_name_ptr, "setLedState", method_name_length) == 0)
-        {
-            bool arg = (strncmp(payload_ptr, "true", payload_length) == 0);
-            set_led_state(arg);
-
-            azure_iot_nx_client_publish_bool_property(&azure_iot_nx_client, "ledState", arg);
-
-            http_status = 200;
-        }
-
-        if ((status = nx_azure_iot_hub_client_direct_method_message_response(&azure_iot_nx_client.iothub_client,
-                 http_status,
-                 context_ptr,
-                 context_length,
-                 (UCHAR*)http_response,
-                 strlen(http_response),
-                 NX_WAIT_FOREVER)))
-        {
-            printf("Direct method response failed!: error code = 0x%08x\r\n", status);
-            break;
-        }
-
-        // Release the received packet, as ownership was passed to the application
-        nx_packet_release(packet_ptr);
-    }
-}*/
-
-/*static void c2d_thread_entry(ULONG parameter)
-{
-    NX_PACKET* packet_ptr;
-    UINT status;
-
-    NX_PARAMETER_NOT_USED(parameter);
-
-    while (true)
-    {
-        if ((status = nx_azure_iot_hub_client_cloud_message_receive(
-                 &azure_iot_nx_client.iothub_client, &packet_ptr, NX_WAIT_FOREVER)))
-        {
-            printf("C2D receive failed!: error code = 0x%08x\r\n", status);
-            break;
-        }
-
-        printf_packet(packet_ptr, "Receive message: ");
-
-        // Release the received packet, as ownership was passed to the application
-        nx_packet_release(packet_ptr);
-    }
-}*/
-
 static void direct_method_cb(AZURE_IOT_NX_CONTEXT* nx_context,
     UCHAR* method,
     USHORT method_length,
@@ -246,13 +77,9 @@ static void direct_method_cb(AZURE_IOT_NX_CONTEXT* nx_context,
              strlen(http_response),
              NX_WAIT_FOREVER)))
     {
-        printf("Direct method response failed!: error code = 0x%08x\r\n", status);
+        printf("Direct method response failed! (0x%08x)\r\n", status);
         return;
     }
-}
-
-static void cloud_to_device_cb(AZURE_IOT_NX_CONTEXT* nx_context)
-{
 }
 
 static void device_twin_desired_property_cb(UCHAR* component_name,
@@ -326,7 +153,7 @@ UINT azure_iot_nx_client_entry(
         IOT_PRIMARY_KEY,
         IOT_MODEL_ID);
 #else
-    status = azure_iot_nx_client_create2(&azure_iot_nx_client,
+    status = azure_iot_nx_client_create(&azure_iot_nx_client,
         ip_ptr,
         pool_ptr,
         dns_ptr,
@@ -345,7 +172,6 @@ UINT azure_iot_nx_client_entry(
 
     // Register the callbacks
     azure_iot_nx_client_register_direct_method(&azure_iot_nx_client, direct_method_cb);
-    azure_iot_nx_client_register_c2d_message(&azure_iot_nx_client, cloud_to_device_cb);
     azure_iot_nx_client_register_device_twin_desired_prop(&azure_iot_nx_client, device_twin_desired_property_cb);
     azure_iot_nx_client_register_device_twin_prop(&azure_iot_nx_client, device_twin_property_cb);
 
@@ -362,14 +188,6 @@ UINT azure_iot_nx_client_entry(
         printf("ERROR: failed to request device twin (0x%08x)\r\n", status);
         return status;
     }
-
-    // Receive the device twin
-    /*    if (status ==  nx_azure_iot_hub_client_device_twin_properties_receive(
-            &azure_iot_nx_client.iothub_client, NX_PACKET * *packet_pptr,
-            UINT wait_option)*/
-
-    // nx_azure_iot_hub_client_device_twin_reported_properties_send(
-    //        &azure_iot_nx_client.iothub_client, )
 
     // Send reported properties
     azure_iot_nx_client_publish_bool_property(&azure_iot_nx_client, LED_STATE_PROPERTY, false);

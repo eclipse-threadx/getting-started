@@ -13,51 +13,35 @@
 #define THREAD_PRIORITY              16
 
 // Incoming events from the middleware
-#define ALL_EVENTS 0xFFF
-//#define CONNECT_EVENT 0x001
-//#define INITIALIZATION_EVENT 0x002
-#define METHOD_DIRECT_METHOD_EVENT          0x004
-#define DEVICE_TWIN_GET_EVENT               0x008
-#define DEVICE_TWIN_DESIRED_PROPERTY_EVENT  0x010
-#define TELEMETRY_SEND_EVENT                0x020
-#define DEVICE_TWIN_REPORTED_PROPERTY_EVENT 0x040
-//#define DISCONNECT_EVENT 0x080
-//#define RECONNECT_EVENT 0x100
-//#define CONNECTED_EVENT 0x200
+#define ALL_EVENTS                         0xFF
+#define DIRECT_METHOD_EVENT                0x01
+#define DEVICE_TWIN_GET_EVENT              0x02
+#define DEVICE_TWIN_DESIRED_PROPERTY_EVENT 0x04
 
 #define MODULE_ID ""
 
 static VOID connection_status_callback(NX_AZURE_IOT_HUB_CLIENT* hub_client_ptr, UINT status)
 {
-    /*  sample_connection_status = status;
-
-      if (status) {
-        printf("Disconnected from IoTHub!: error code = 0x%08x\r\n", status);
-        tx_event_flags_set(&(sample_context.sample_events),
-      SAMPLE_DISCONNECT_EVENT, TX_OR); } else { printf("Connected to
-      IoTHub.\r\n"); tx_event_flags_set(&(sample_context.sample_events),
-      SAMPLE_CONNECTED_EVENT, TX_OR); exponential_backoff_reset();
-      }*/
-}
-
-/*static VOID connection_status_callback(NX_AZURE_IOT_HUB_CLIENT
-*hub_client_ptr, UINT status) { NX_PARAMETER_NOT_USED(hub_client_ptr); if
-(status) { printf("Disconnected from IoTHub!: error code = 0x%08x\r\n", status);
-  } else {
-    printf("Connected to IoTHub.\r\n");
-  }
-}*/
-
-static VOID message_receive_callback_twin(NX_AZURE_IOT_HUB_CLIENT* hub_client_ptr, VOID* context)
-{
-    AZURE_IOT_NX_CONTEXT* nx_context = (AZURE_IOT_NX_CONTEXT*)context;
-    tx_event_flags_set(&nx_context->events, DEVICE_TWIN_GET_EVENT, TX_OR);
+    if (status)
+    {
+        printf("Disconnected from IoTHub (0x%08x)\r\n", status);
+    }
+    else
+    {
+        printf("Connected to IoTHub\r\n");
+    }
 }
 
 static VOID message_receive_direct_method(NX_AZURE_IOT_HUB_CLIENT* hub_client_ptr, VOID* context)
 {
     AZURE_IOT_NX_CONTEXT* nx_context = (AZURE_IOT_NX_CONTEXT*)context;
-    tx_event_flags_set(&nx_context->events, METHOD_DIRECT_METHOD_EVENT, TX_OR);
+    tx_event_flags_set(&nx_context->events, DIRECT_METHOD_EVENT, TX_OR);
+}
+
+static VOID message_receive_callback_twin(NX_AZURE_IOT_HUB_CLIENT* hub_client_ptr, VOID* context)
+{
+    AZURE_IOT_NX_CONTEXT* nx_context = (AZURE_IOT_NX_CONTEXT*)context;
+    tx_event_flags_set(&nx_context->events, DEVICE_TWIN_GET_EVENT, TX_OR);
 }
 
 static VOID message_receive_callback_desire_property(NX_AZURE_IOT_HUB_CLIENT* hub_client_ptr, VOID* context)
@@ -77,8 +61,6 @@ static VOID process_direct_method(AZURE_IOT_NX_CONTEXT* nx_context)
     UCHAR* payload;
     USHORT payload_length;
 
-    printf("Received direct method event\r\n");
-
     if ((status = nx_azure_iot_hub_client_direct_method_message_receive(&nx_context->iothub_client,
              &method_name,
              &method_name_length,
@@ -92,7 +74,7 @@ static VOID process_direct_method(AZURE_IOT_NX_CONTEXT* nx_context)
     }
 
     printf("Receive direct method call: %.*s\r\n", (INT)method_name_length, (CHAR*)method_name);
-    printf_packet(packet, "\tpayload: ");
+    printf_packet(packet, "\tPayload: ");
 
     payload        = packet->nx_packet_prepend_ptr;
     payload_length = packet->nx_packet_append_ptr - packet->nx_packet_prepend_ptr;
@@ -103,7 +85,7 @@ static VOID process_direct_method(AZURE_IOT_NX_CONTEXT* nx_context)
             nx_context, method_name, method_name_length, payload, payload_length, context, context_length);
     }
 
-    // release the received packet, as ownership was passed to the application
+    // Release the received packet, as ownership was passed to the application
     nx_packet_release(packet);
 }
 
@@ -112,11 +94,6 @@ static VOID process_device_twin_get(AZURE_IOT_NX_CONTEXT* nx_context)
     UINT status;
     NX_PACKET* packet_ptr;
     UCHAR buffer[128];
-    //    az_span twin_span;
-
-    /*  if (context->state != SAMPLE_STATE_CONNECTED) {
-        return;
-      }*/
 
     if ((status = nx_azure_iot_hub_client_device_twin_properties_receive(
              &nx_context->iothub_client, &packet_ptr, NX_WAIT_FOREVER)))
@@ -142,6 +119,7 @@ static VOID process_device_twin_get(AZURE_IOT_NX_CONTEXT* nx_context)
         }
     }
 
+    // Release the received packet, as ownership was passed to the application
     nx_packet_release(packet_ptr);
 }
 
@@ -180,6 +158,7 @@ static VOID process_device_twin_desired_property(AZURE_IOT_NX_CONTEXT* nx_contex
         }
     }
 
+    // Release the received packet, as ownership was passed to the application
     nx_packet_release(packet_ptr);
 }
 
@@ -193,14 +172,14 @@ static VOID event_thread(ULONG parameter)
     {
         tx_event_flags_get(&context->events, ALL_EVENTS, TX_OR_CLEAR, &app_events, NX_IP_PERIODIC_RATE);
 
+        if (app_events & DIRECT_METHOD_EVENT)
+        {
+            process_direct_method(context);
+        }
+
         if (app_events & DEVICE_TWIN_GET_EVENT)
         {
             process_device_twin_get(context);
-        }
-
-        if (app_events & METHOD_DIRECT_METHOD_EVENT)
-        {
-            process_direct_method(context);
         }
 
         if (app_events & DEVICE_TWIN_DESIRED_PROPERTY_EVENT)
@@ -220,17 +199,6 @@ UINT azure_iot_nx_client_register_direct_method(AZURE_IOT_NX_CONTEXT* context, f
     }
 
     context->direct_method_cb = callback;
-    return NX_SUCCESS;
-}
-
-UINT azure_iot_nx_client_register_c2d_message(AZURE_IOT_NX_CONTEXT* context, func_ptr_c2d_message callback)
-{
-    if (context == NULL || context->cloud_to_device_cb != NULL)
-    {
-        return NX_PTR_ERROR;
-    }
-
-    context->cloud_to_device_cb = callback;
     return NX_SUCCESS;
 }
 
@@ -257,7 +225,7 @@ UINT azure_iot_nx_client_register_device_twin_prop(AZURE_IOT_NX_CONTEXT* context
     return NX_SUCCESS;
 }
 
-UINT azure_iot_nx_client_create2(AZURE_IOT_NX_CONTEXT* context,
+UINT azure_iot_nx_client_create(AZURE_IOT_NX_CONTEXT* context,
     NX_IP* nx_ip,
     NX_PACKET_POOL* nx_pool,
     NX_DNS* nx_dns,
@@ -268,10 +236,6 @@ UINT azure_iot_nx_client_create2(AZURE_IOT_NX_CONTEXT* context,
     CHAR* iot_model_id)
 {
     UINT status;
-    //    UCHAR* iothub_hostname       = (UCHAR*)iot_hub_hostname;
-    //    UCHAR* iothub_device_id      = (UCHAR*)iot_device_id;
-    //    UINT iothub_hostname_length  = strlen(iot_hub_hostname);
-    //    UINT iothub_device_id_length = strlen(iot_device_id);
 
     printf("Initializing Azure IoT Hub client\r\n");
     printf("\tHub hostname: %s\r\n", iot_hub_hostname);
@@ -321,12 +285,7 @@ UINT azure_iot_nx_client_create2(AZURE_IOT_NX_CONTEXT* context,
         return status;
     }
 
-    /*  if (context->state != SAMPLE_STATE_INIT)
-        {
-        return;
-      }*/
-
-    /* Initialize IoTHub client. */
+    // Initialize IoTHub client.
     if ((status = nx_azure_iot_hub_client_initialize(&context->iothub_client,
              &context->nx_azure_iot,
              (UCHAR*)iot_hub_hostname,
@@ -344,14 +303,18 @@ UINT azure_iot_nx_client_create2(AZURE_IOT_NX_CONTEXT* context,
              &context->root_ca_cert)))
     {
         printf("ERROR: on nx_azure_iot_hub_client_initialize (0x%08x)\r\n", status);
-        //    context->action_result = status;
         return status;
     }
 
     if ((status = nx_azure_iot_hub_client_symmetric_key_set(
              &context->iothub_client, (UCHAR*)iot_sas_key, strlen(iot_sas_key))))
     {
-        printf("ERROR:nx_azure_iot_hub_client_symmetric_key_set (0x%08x)\r\n", status);
+        printf("ERROR: nx_azure_iot_hub_client_symmetric_key_set (0x%08x)\r\n", status);
+    }
+    else if ((status = nx_azure_iot_hub_client_model_id_set(
+                  &context->iothub_client, (UCHAR*)iot_model_id, strlen(iot_model_id))))
+    {
+        printf("ERROR: nx_azure_iot_hub_client_model_id_set (0x%08x)\r\n", status);
     }
     else if ((status = nx_azure_iot_hub_client_connection_status_callback_set(
                   &context->iothub_client, connection_status_callback)))
@@ -387,18 +350,12 @@ UINT azure_iot_nx_client_create2(AZURE_IOT_NX_CONTEXT* context,
     {
         printf("ERROR: device twin desired property callback set (0x%08x)\r\n", status);
     }
-    else if ((status = nx_azure_iot_hub_client_model_id_set(
-                  &context->iothub_client, (UCHAR*)iot_model_id, strlen(iot_model_id))))
-    {
-        printf("ERROR: digital twin modelId set (0x%08x)\r\n", status);
-    }
 
     if (status != NX_AZURE_IOT_SUCCESS)
     {
         nx_azure_iot_hub_client_deinitialize(&context->iothub_client);
     }
 
-    //        context->state = SAMPLE_STATE_CONNECT;
     return status;
 }
 
@@ -714,7 +671,7 @@ UINT azure_iot_nx_client_connect(AZURE_IOT_NX_CONTEXT* context)
     }
 
     if ((status = tx_thread_create(&context->azure_iot_thread,
-             "Telemetry Thread",
+             "Nx Thread",
              event_thread,
              (ULONG)context,
              (UCHAR*)context->azure_iot_thread_stack,
@@ -728,99 +685,7 @@ UINT azure_iot_nx_client_connect(AZURE_IOT_NX_CONTEXT* context)
         return status;
     }
 
-    // Telemetry thread
-    /*    if (azure_iot_nx_client->telemetry_thread_entry != NULL)
-        {
-            if ((status =
-       tx_thread_create(&azure_iot_nx_client->telemetry_thread, "Telemetry
-       Thread", azure_iot_nx_client->telemetry_thread_entry, 0,
-                     (UCHAR*)azure_iot_nx_client->telemetry_thread_stack,
-                     AZURE_IOT_NX_STACK_SIZE,
-                     THREAD_PRIORITY,
-                     THREAD_PRIORITY,
-                     1,
-                     TX_AUTO_START)))
-            {
-                printf("Failed to create telemetry thread!: error code =
-       0x%08x\r\n", status); return status;
-            }
-        }
-
-        // Device twin thread
-        if (azure_iot_nx_client->device_twin_thread_entry != NULL)
-        {
-            if ((status =
-       nx_azure_iot_hub_client_device_twin_enable(&azure_iot_nx_client->iothub_client)))
-            {
-                printf("device twin enabled failed!: error code = 0x%08x\r\n",
-       status); return status;
-            }
-            if ((status =
-       tx_thread_create(&azure_iot_nx_client->device_twin_thread, "Device Twin
-       Thread", azure_iot_nx_client->device_twin_thread_entry, 0,
-                     (UCHAR*)azure_iot_nx_client->device_twin_thread_stack,
-                     AZURE_IOT_NX_STACK_SIZE,
-                     THREAD_PRIORITY,
-                     THREAD_PRIORITY,
-                     0,
-                     TX_AUTO_START)))
-            {
-                printf("Failed to create device twin thread!: error code =
-       0x%08x\r\n", status); return status;
-            }
-        }
-
-        // Direct Method thread
-        if (azure_iot_nx_client->direct_method_thread_entry != NULL)
-        {
-            if ((status =
-       nx_azure_iot_hub_client_direct_method_enable(&azure_iot_nx_client->iothub_client)))
-            {
-                printf("Direct method receive enable failed!: error code =
-       0x%08x\r\n", status); return status;
-            }
-            if ((status =
-       tx_thread_create(&azure_iot_nx_client->direct_method_thread, "Direct
-       Method Thread ", azure_iot_nx_client->direct_method_thread_entry, 0,
-                     (UCHAR*)azure_iot_nx_client->direct_method_thread_stack,
-                     AZURE_IOT_NX_STACK_SIZE,
-                     THREAD_PRIORITY,
-                     THREAD_PRIORITY,
-                     1,
-                     TX_AUTO_START)))
-            {
-                printf("Failed to create direct method thread!: error code =
-       0x%08x\r\n", status); return status;
-            }
-        }
-
-        // C2D thread
-        if (azure_iot_nx_client->c2d_thread_entry != NULL)
-        {
-            if ((status =
-       nx_azure_iot_hub_client_cloud_message_enable(&azure_iot_nx_client->iothub_client)))
-            {
-                printf("C2D receive enable failed!: error code = 0x%08x\r\n",
-       status); return status;
-            }
-
-            if ((status = tx_thread_create(&azure_iot_nx_client->c2d_thread,
-                     "C2D Thread",
-                     azure_iot_nx_client->c2d_thread_entry,
-                     0,
-                     (UCHAR*)azure_iot_nx_client->c2d_thread_stack,
-                     AZURE_IOT_NX_STACK_SIZE,
-                     THREAD_PRIORITY,
-                     THREAD_PRIORITY,
-                     1,
-                     TX_AUTO_START)))
-            {
-                printf("Failed to create c2d thread!: error code = 0x%08x\r\n",
-       status); return status;
-            }
-        }*/
-
-    printf("SUCCESS: Azure IoT Hub client initialized\r\n");
+    printf("SUCCESS: Azure IoT Hub client initialized\r\n\r\n");
 
     return NX_SUCCESS;
 }
@@ -831,35 +696,6 @@ UINT azure_iot_nx_client_disconnect(AZURE_IOT_NX_CONTEXT* context)
 
     return NX_SUCCESS;
 }
-
-/*UINT azure_iot_nx_client_enable_telemetry(AZURE_IOT_NX_CONTEXT* context,
-threadx_entry telemetry_entry)
-{
-    context->telemetry_thread_entry = telemetry_entry;
-    return NX_SUCCESS;
-}
-
-UINT azure_iot_nx_client_enable_device_twin(AZURE_IOT_NX_CONTEXT* context,
-threadx_entry device_twin_entry)
-{
-    context->device_twin_thread_entry = device_twin_entry;
-    return NX_SUCCESS;
-}
-
-UINT azure_iot_nx_client_enable_direct_method(AZURE_IOT_NX_CONTEXT* context,
-threadx_entry direct_method_entry)
-{
-    context->direct_method_thread_entry = direct_method_entry;
-    return NX_SUCCESS;
-}
-
-UINT azure_iot_nx_client_enable_c2d(AZURE_IOT_NX_CONTEXT* context, threadx_entry
-c2d_entry)
-{
-{
-    context->c2d_thread_entry = c2d_entry;
-    return NX_SUCCESS;
-}*/
 
 UINT azure_iot_nx_client_publish_float_telemetry(AZURE_IOT_NX_CONTEXT* context, CHAR* key, float value)
 {
@@ -944,54 +780,15 @@ UINT azure_iot_nx_client_publish_bool_property(AZURE_IOT_NX_CONTEXT* context, CH
     return NX_SUCCESS;
 }
 
-/*UINT azure_nx_client_respond_int_desired_property(
-    AZURE_IOT_NX_CONTEXT* context, CHAR* label, INT value, UINT http_status, UINT version)
-{
-    // CHAR mqtt_publish_topic[100];
-    UINT status;
-    UINT response_status;
-    UINT request_id;
-    CHAR message[100];
-
-    snprintf(
-        message, sizeof(message), "{\"%s\":{\"value\":%d,\"ac\":%d,\"av\":%d}}", label, value, http_status, version);
-
-    if ((status = nx_azure_iot_hub_client_device_twin_reported_properties_send(&context->client.iothub,
-             (UCHAR*)message,
-             strlen(message),
-             &request_id,
-             &response_status,
-             NX_WAIT_FOREVER)))
-    {
-        printf("Device twin reported properties failed!: error code = 0x%08x\r\n", status);
-    }
-
-    if ((response_status < 200) || (response_status >= 300))
-    {
-        printf("device twin report properties failed with code : %d\r\n", response_status);
-        return status;
-    }
-
-    printf("Reported desired property with int value %s\r\n", message);
-
-    return status;
-}*/
-
-/*UINT azure_nx_client_publish_int_desired_property(AZURE_IOT_NX_CONTEXT* context, CHAR* label, UINT value)
-{
-    return azure_nx_client_respond_int_desired_property(context, label, value, 200, 1);
-}*/
-
 UINT azure_nx_client_respond_int_writeable_property(
     AZURE_IOT_NX_CONTEXT* context, CHAR* property, int value, int http_status, int version)
 {
-    // CHAR mqtt_publish_topic[100];
     UINT status;
     UINT response_status;
     UINT request_id;
     CHAR message[100];
 
-    printf("Responding to writeable property %s as %d\r\n", property, value);
+    printf("Responding to writeable property %s = %d\r\n", property, value);
 
     snprintf(
         message, sizeof(message), "{\"%s\":{\"value\":%d,\"ac\":%d,\"av\":%d}}", property, value, http_status, version);
@@ -1003,12 +800,12 @@ UINT azure_nx_client_respond_int_writeable_property(
              &response_status,
              NX_WAIT_FOREVER)))
     {
-        printf("Device twin reported properties failed (0x%08x)\r\n", status);
+        printf("ERROR: device twin reported properties failed (0x%08x)\r\n", status);
     }
 
     if ((response_status < 200) || (response_status >= 300))
     {
-        printf("device twin report properties failed with code: %d\r\n", response_status);
+        printf("ERROR: device twin report properties failed with code: %d\r\n", response_status);
         return status;
     }
 
@@ -1017,7 +814,7 @@ UINT azure_nx_client_respond_int_writeable_property(
 
 VOID printf_packet(NX_PACKET* packet_ptr, CHAR* prepend)
 {
-    printf(prepend);
+    printf("%s", prepend);
 
     while (packet_ptr != NX_NULL)
     {
