@@ -15,8 +15,8 @@ typedef enum
 // ----------------------------------------------------------------------------
 // WiFi connection information
 // ----------------------------------------------------------------------------
-#define WIFI_SSID     ""
-#define WIFI_PASSWORD ""
+#define WIFI_SSID     "This LAN is Our LAN"
+#define WIFI_PASSWORD "weedistight"
 #define WIFI_MODE     WPA2_PSK_AES
 
 // ----------------------------------------------------------------------------
@@ -34,9 +34,9 @@ typedef enum
 // ----------------------------------------------------------------------------
 // Azure IoT Hub config
 // ----------------------------------------------------------------------------
-#define IOT_HUB_HOSTNAME ""
-#define IOT_DEVICE_ID    ""
-#define IOT_PRIMARY_KEY  ""
+#define IOT_HUB_HOSTNAME "gettingstarted.azure-devices.net"
+#define IOT_DEVICE_ID    "spencer_mxchip"
+#define IOT_PRIMARY_KEY  "Ds3u30kgFvlI/FjGD2sRJdM1uLhY75kJJ11n2iByRgY="
 
 // ----------------------------------------------------------------------------
 // Azure IoT DPS config
