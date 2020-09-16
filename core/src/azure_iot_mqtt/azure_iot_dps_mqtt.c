@@ -306,11 +306,24 @@ UINT azure_iot_dps_register(AZURE_IOT_MQTT* azure_iot_mqtt, UINT wait)
         return status;
     }
 
+    // Create the payload
+    if (azure_iot_mqtt->mqtt_model_id == 0)
+    {
+        snprintf(mqtt_publish_payload,
+            sizeof(mqtt_publish_payload),
+            "{\"registrationId\":\"%s\"}",
+            azure_iot_mqtt->mqtt_dps_registration_id);
+    }
+    else
+    {
+        snprintf(mqtt_publish_payload,
+            sizeof(mqtt_publish_payload),
+            "{\"registrationId\":\"%s\",\"payload\":{\"modelId\":\"%s\"}}",
+            azure_iot_mqtt->mqtt_dps_registration_id,
+            azure_iot_mqtt->mqtt_model_id);
+    }
+
     // Register the device
-    snprintf(mqtt_publish_payload,
-        sizeof(mqtt_publish_payload),
-        "{\"registrationId\":\"%s\"}",
-        azure_iot_mqtt->mqtt_dps_registration_id);
     status = mqtt_publish(azure_iot_mqtt, DPS_REGISTER_TOPIC, mqtt_publish_payload);
     if (status != NX_SUCCESS)
     {
