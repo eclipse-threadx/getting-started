@@ -132,6 +132,8 @@ UINT azure_iot_nx_client_entry(
     NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, UINT (*unix_time_callback)(ULONG* unix_time))
 {
     UINT status;
+    ULONG events;
+    float temperature;
 
     if ((status = tx_event_flags_create(&azure_iot_flags, "Azure IoT flags")))
     {
@@ -188,9 +190,6 @@ UINT azure_iot_nx_client_entry(
 
     // Send reported properties
     azure_iot_nx_client_publish_bool_property(&azure_iot_nx_client, LED_STATE_PROPERTY, false);
-
-    ULONG events;
-    float temperature = 28.5;
 
     printf("\r\nStarting Main loop\r\n");
 

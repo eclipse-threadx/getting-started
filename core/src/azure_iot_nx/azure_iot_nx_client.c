@@ -550,7 +550,7 @@ UINT azure_iot_nx_client_connect(AZURE_IOT_NX_CONTEXT* context)
     // Connect to IoTHub client
     if ((status = nx_azure_iot_hub_client_connect(&context->iothub_client, NX_TRUE, NX_WAIT_FOREVER)))
     {
-        printf("Failed on nx_azure_iot_hub_client_connect = 0x%08x\r\n", status);
+        printf("Failed on nx_azure_iot_hub_client_connect (0x%08x)\r\n", status);
         return status;
     }
 
@@ -565,7 +565,7 @@ UINT azure_iot_nx_client_connect(AZURE_IOT_NX_CONTEXT* context)
              1,
              TX_AUTO_START)))
     {
-        printf("Failed to create telemetry thread!: error code = 0x%08x\r\n", status);
+        printf("Failed to create telemetry thread (0x%08x)\r\n", status);
         return status;
     }
 
@@ -597,14 +597,14 @@ UINT azure_iot_nx_client_publish_float_telemetry(AZURE_IOT_NX_CONTEXT* context, 
     if ((status = nx_azure_iot_hub_client_telemetry_message_create(
              &context->iothub_client, &packet_ptr, NX_WAIT_FOREVER)))
     {
-        printf("Telemetry message create failed!: error code = 0x%08x\r\n", status);
+        printf("Telemetry message create failed (0x%08x)\r\n", status);
         return status;
     }
 
     if ((status = nx_azure_iot_hub_client_telemetry_send(
              &context->iothub_client, packet_ptr, (UCHAR*)buffer, strlen(buffer), NX_WAIT_FOREVER)))
     {
-        printf("Telemetry message send failed!: error code = 0x%08x\r\n", status);
+        printf("Telemetry message send failed (0x%08x)\r\n", status);
         nx_azure_iot_hub_client_telemetry_message_delete(packet_ptr);
         return status;
     }
@@ -630,17 +630,17 @@ UINT azure_iot_nx_client_publish_float_property(AZURE_IOT_NX_CONTEXT* context, C
     if ((status = nx_azure_iot_hub_client_device_twin_reported_properties_send(
              &context->iothub_client, (UCHAR*)buffer, strlen(buffer), &request_id, &response_status, NX_WAIT_FOREVER)))
     {
-        printf("Device twin reported properties failed!: error code = 0x%08x\r\n", status);
+        printf("Device twin reported properties failed (0x%08x)\r\n", status);
         return status;
     }
 
     if ((response_status < 200) || (response_status >= 300))
     {
-        printf("device twin report properties failed with code : %d\r\n", response_status);
+        printf("device twin report properties failed (%d)\r\n", response_status);
         return status;
     }
 
-    printf("Device twin property sent: %s.\r\n", buffer);
+    printf("Device twin property sent: %s\r\n", buffer);
 
     return NX_SUCCESS;
 }
@@ -710,7 +710,7 @@ UINT azure_nx_client_respond_int_writeable_property(
 
     if ((response_status < 200) || (response_status >= 300))
     {
-        printf("ERROR: device twin report properties failed with code: %d\r\n", response_status);
+        printf("ERROR: device twin report properties failed (%d)\r\n", response_status);
         return status;
     }
 
