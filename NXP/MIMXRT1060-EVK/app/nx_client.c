@@ -149,7 +149,7 @@ UINT azure_iot_nx_client_entry(
         unix_time_callback,
         IOT_DPS_ENDPOINT,
         IOT_DPS_ID_SCOPE,
-        IOT_DEVICE_ID,
+        IOT_DPS_REGISTRATION_ID,
         IOT_PRIMARY_KEY,
         IOT_MODEL_ID);
 #else
@@ -162,7 +162,6 @@ UINT azure_iot_nx_client_entry(
         IOT_DEVICE_ID,
         IOT_PRIMARY_KEY,
         IOT_MODEL_ID);
-
 #endif
     if (status != NX_SUCCESS)
     {

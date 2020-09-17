@@ -406,10 +406,8 @@ UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CONTEXT* context,
 {
     UINT status;
     CHAR payload[200];
-    CHAR iot_hub_hostname[128] = {0};
-    CHAR iot_device_id[64]     = {0};
-    UINT iot_hub_hostname_len  = sizeof(iot_hub_hostname);
-    UINT iot_device_id_len     = sizeof(iot_device_id);
+    UINT iot_hub_hostname_len = AZURE_IOT_HOST_NAME_SIZE;
+    UINT iot_device_id_len    = AZURE_IOT_DEVICE_ID_SIZE;
 
     printf("Initializing Azure IoT DPS client\r\n");
     printf("\tDPS endpoint: %s\r\n", dps_endpoint);
@@ -430,7 +428,11 @@ UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CONTEXT* context,
 
     memset(context, 0, sizeof(AZURE_IOT_NX_CONTEXT));
 
-    snprintf(payload, sizeof(payload), DPS_PAYLOAD, device_model_id);
+    if (snprintf(payload, sizeof(payload), DPS_PAYLOAD, device_model_id) > sizeof(payload) - 1)
+    {
+        printf("ERROR: insufficient buffer size to create DPS payload\r\n");
+        return NX_SIZE_ERROR;
+    }
 
     // Create Azure IoT handler
     if ((status = nx_azure_iot_create(&context->nx_azure_iot,
@@ -505,9 +507,9 @@ UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CONTEXT* context,
 
     // Get Device info
     else if ((status = nx_azure_iot_provisioning_client_iothub_device_info_get(&context->prov_client,
-                  (UCHAR*)iot_hub_hostname,
+                  (UCHAR*)context->azure_iot_hub_hostname,
                   &iot_hub_hostname_len,
-                  (UCHAR*)iot_device_id,
+                  (UCHAR*)context->azure_iot_device_id,
                   &iot_device_id_len)))
     {
         printf("ERROR: nx_azure_iot_provisioning_client_iothub_device_info_get (0x%08x)\r\n", status);
@@ -519,14 +521,15 @@ UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CONTEXT* context,
 
     printf("SUCCESS: Azure IoT DPS client initialized\r\n\r\n");
 
-    return azure_iot_nx_client_create_common(context, iot_hub_hostname, iot_device_id, device_sas_key, device_model_id);
+    return azure_iot_nx_client_create_common(
+        context, context->azure_iot_hub_hostname, context->azure_iot_device_id, device_sas_key, device_model_id);
 }
 
 UINT azure_iot_nx_client_delete(AZURE_IOT_NX_CONTEXT* context)
 {
     /* Destroy IoTHub Client. */
-    nx_azure_iot_hub_client_disconnect(&context->client.iothub);
-    nx_azure_iot_hub_client_deinitialize(&context->client.iothub);
+    nx_azure_iot_hub_client_disconnect(&context->iothub_client);
+    nx_azure_iot_hub_client_deinitialize(&context->iothub_client);
     nx_azure_iot_delete(&context->nx_azure_iot);
 
     return NX_SUCCESS;
@@ -537,7 +540,7 @@ UINT azure_iot_nx_client_connect(AZURE_IOT_NX_CONTEXT* context)
     UINT status;
 
     // Connect to IoTHub client
-    if ((status = nx_azure_iot_hub_client_connect(&context->client.iothub, NX_TRUE, NX_WAIT_FOREVER)))
+    if ((status = nx_azure_iot_hub_client_connect(&context->iothub_client, NX_TRUE, NX_WAIT_FOREVER)))
     {
         printf("Failed on nx_azure_iot_hub_client_connect = 0x%08x\r\n", status);
         return status;
@@ -565,7 +568,7 @@ UINT azure_iot_nx_client_connect(AZURE_IOT_NX_CONTEXT* context)
 
 UINT azure_iot_nx_client_disconnect(AZURE_IOT_NX_CONTEXT* context)
 {
-    nx_azure_iot_hub_client_disconnect(&context->client.iothub);
+    nx_azure_iot_hub_client_disconnect(&context->iothub_client);
 
     return NX_SUCCESS;
 }
@@ -576,7 +579,11 @@ UINT azure_iot_nx_client_publish_float_telemetry(AZURE_IOT_NX_CONTEXT* context, 
     CHAR buffer[30];
     NX_PACKET* packet_ptr;
 
-    snprintf(buffer, sizeof(buffer), "{\"%s\":%0.2f}", key, value);
+    if (snprintf(buffer, sizeof(buffer), "{\"%s\":%0.2f}", key, value) > sizeof(buffer) - 1)
+    {
+        printf("ERROR: insufficient buffer size to publish float telemetry\r\n");
+        return NX_SIZE_ERROR;
+    }
 
     // Create a telemetry message packet
     if ((status = nx_azure_iot_hub_client_telemetry_message_create(
@@ -587,7 +594,7 @@ UINT azure_iot_nx_client_publish_float_telemetry(AZURE_IOT_NX_CONTEXT* context, 
     }
 
     if ((status = nx_azure_iot_hub_client_telemetry_send(
-             &context->client.iothub, packet_ptr, (UCHAR*)buffer, strlen(buffer), NX_WAIT_FOREVER)))
+             &context->iothub_client, packet_ptr, (UCHAR*)buffer, strlen(buffer), NX_WAIT_FOREVER)))
     {
         printf("Telemetry message send failed!: error code = 0x%08x\r\n", status);
         nx_azure_iot_hub_client_telemetry_message_delete(packet_ptr);
@@ -606,10 +613,14 @@ UINT azure_iot_nx_client_publish_float_property(AZURE_IOT_NX_CONTEXT* context, C
     UINT request_id;
     CHAR buffer[30];
 
-    snprintf(buffer, sizeof(buffer), "{\"%s\":%0.2f}", key, value);
+    if (snprintf(buffer, sizeof(buffer), "{\"%s\":%0.2f}", key, value) > sizeof(buffer) - 1)
+    {
+        printf("ERROR: insufficient buffer size to publish float property\r\n");
+        return NX_SIZE_ERROR;
+    }
 
     if ((status = nx_azure_iot_hub_client_device_twin_reported_properties_send(
-             &context->client.iothub, (UCHAR*)buffer, strlen(buffer), &request_id, &response_status, NX_WAIT_FOREVER)))
+             &context->iothub_client, (UCHAR*)buffer, strlen(buffer), &request_id, &response_status, NX_WAIT_FOREVER)))
     {
         printf("Device twin reported properties failed!: error code = 0x%08x\r\n", status);
         return status;
@@ -631,12 +642,16 @@ UINT azure_iot_nx_client_publish_bool_property(AZURE_IOT_NX_CONTEXT* context, CH
     UINT status;
     UINT response_status;
     UINT request_id;
-    CHAR buffer[30];
+    CHAR buffer[64];
 
-    snprintf(buffer, sizeof(buffer), "{\"%s\":%s}", key, (value ? "true" : "false"));
+    if (snprintf(buffer, sizeof(buffer), "{\"%s\":%s}", key, (value ? "true" : "false")) > sizeof(buffer) - 1)
+    {
+        printf("ERROR: Unsufficient buffer size to publish bool property\r\n");
+        return NX_SIZE_ERROR;
+    }
 
     if ((status = nx_azure_iot_hub_client_device_twin_reported_properties_send(
-             &context->client.iothub, (UCHAR*)buffer, strlen(buffer), &request_id, &response_status, NX_WAIT_FOREVER)))
+             &context->iothub_client, (UCHAR*)buffer, strlen(buffer), &request_id, &response_status, NX_WAIT_FOREVER)))
     {
         printf("Error: device twin reported properties failed (0x%08x)\r\n", status);
         return status;
@@ -663,8 +678,17 @@ UINT azure_nx_client_respond_int_writeable_property(
 
     printf("Responding to writeable property %s = %d\r\n", property, value);
 
-    snprintf(
-        message, sizeof(message), "{\"%s\":{\"value\":%d,\"ac\":%d,\"av\":%d}}", property, value, http_status, version);
+    if (snprintf(message,
+            sizeof(message),
+            "{\"%s\":{\"value\":%d,\"ac\":%d,\"av\":%d}}",
+            property,
+            value,
+            http_status,
+            version) > sizeof(message) - 1)
+    {
+        printf("ERROR: insufficient buffer size to respond to writeable property\r\n");
+        return NX_SIZE_ERROR;
+    }
 
     if ((status = nx_azure_iot_hub_client_device_twin_reported_properties_send(&context->iothub_client,
              (UCHAR*)message,

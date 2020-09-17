@@ -14,6 +14,8 @@
 
 #define NX_AZURE_IOT_STACK_SIZE 2048
 #define AZURE_IOT_STACK_SIZE    2048
+#define AZURE_IOT_HOST_NAME_SIZE 128
+#define AZURE_IOT_DEVICE_ID_SIZE 64
 
 typedef struct AZURE_IOT_NX_CONTEXT_STRUCT AZURE_IOT_NX_CONTEXT;
 
@@ -30,6 +32,9 @@ struct AZURE_IOT_NX_CONTEXT_STRUCT
     ULONG azure_iot_thread_stack[AZURE_IOT_STACK_SIZE / sizeof(ULONG)];
 
     TX_EVENT_FLAGS_GROUP events;
+
+    CHAR azure_iot_hub_hostname[AZURE_IOT_HOST_NAME_SIZE];
+    CHAR azure_iot_device_id[AZURE_IOT_DEVICE_ID_SIZE];
 
     TX_THREAD azure_iot_thread;
 
