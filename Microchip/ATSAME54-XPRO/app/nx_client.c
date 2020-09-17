@@ -206,6 +206,8 @@ UINT azure_iot_nx_client_entry(
 #if __SENSOR_BME280__ == 1
         WeatherClick_waitforRead();
         temperature = Weather_getTemperatureDegC();
+#else
+        temperature = 23.5;
 #endif
 
         azure_iot_nx_client_publish_float_telemetry(&azure_iot_nx_client, "temperature", temperature);
