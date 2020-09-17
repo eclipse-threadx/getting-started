@@ -250,17 +250,21 @@ static VOID process_c2d_message(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHA
     // Get to parameters list
     if ((properties = strstr(topic, ".to")) == 0)
     {
-        printf("Received C2D message with no no parameter list\r\n");
+        printf("Received C2D message has no parameter list\r\n");
         return;
     }
 
     // Find the properties
     if ((properties = strstr(properties, "&")) == 0)
     {
-        printf("Received C2D message with no properties\r\n");
-        return;
+        // No properties, point at the null terminator
+        properties = topic + strlen(topic);
     }
-    properties++;
+    else
+    {
+        // Skip over the '&'
+        properties++;
+    }
 
     if (azure_iot_mqtt->cb_ptr_mqtt_c2d_message == NULL)
     {
