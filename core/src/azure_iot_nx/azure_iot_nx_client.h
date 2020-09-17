@@ -63,7 +63,7 @@ UINT azure_iot_nx_client_create(AZURE_IOT_NX_CONTEXT* context,
     CHAR* iot_sas_key,
     CHAR* iot_model_id);
 
-/*UINT azure_iot_nx_client_dps_create(
+UINT azure_iot_nx_client_dps_create(
     AZURE_IOT_NX_CONTEXT *context,
     NX_IP* nx_ip,
     NX_PACKET_POOL* nx_pool,
@@ -73,7 +73,7 @@ UINT azure_iot_nx_client_create(AZURE_IOT_NX_CONTEXT* context,
     CHAR* dps_id_scope,
     CHAR* dps_registration_id,
     CHAR* device_sas_key,
-    CHAR* device_model_id);*/
+    CHAR* device_model_id);
 
 UINT azure_iot_nx_client_delete(AZURE_IOT_NX_CONTEXT* context);
 UINT azure_iot_nx_client_connect(AZURE_IOT_NX_CONTEXT* context);
