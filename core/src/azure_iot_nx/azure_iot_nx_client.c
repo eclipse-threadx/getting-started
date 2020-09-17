@@ -516,8 +516,16 @@ UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CONTEXT* context,
         return status;
     }
 
-    // Destroy Provisioning Client.
+    // Destroy Provisioning Client
     nx_azure_iot_provisioning_client_deinitialize(&context->prov_client);
+
+    if (status != NX_SUCCESS) {
+      return status;
+    }
+
+    // Null terminate returned values
+    context->azure_iot_hub_hostname[iot_hub_hostname_len] = 0;
+    context->azure_iot_device_id[iot_device_id_len] = 0;
 
     printf("SUCCESS: Azure IoT DPS client initialized\r\n\r\n");
 

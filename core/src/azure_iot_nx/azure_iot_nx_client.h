@@ -12,8 +12,8 @@
 
 #include "azure_iot_ciphersuites.h"
 
-#define NX_AZURE_IOT_STACK_SIZE 2048
-#define AZURE_IOT_STACK_SIZE    2048
+#define NX_AZURE_IOT_STACK_SIZE  2048
+#define AZURE_IOT_STACK_SIZE     2048
 #define AZURE_IOT_HOST_NAME_SIZE 128
 #define AZURE_IOT_DEVICE_ID_SIZE 64
 
@@ -68,8 +68,7 @@ UINT azure_iot_nx_client_create(AZURE_IOT_NX_CONTEXT* context,
     CHAR* iot_sas_key,
     CHAR* iot_model_id);
 
-UINT azure_iot_nx_client_dps_create(
-    AZURE_IOT_NX_CONTEXT *context,
+UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CONTEXT* context,
     NX_IP* nx_ip,
     NX_PACKET_POOL* nx_pool,
     NX_DNS* nx_dns,
@@ -87,9 +86,6 @@ UINT azure_iot_nx_client_publish_float_telemetry(AZURE_IOT_NX_CONTEXT* context, 
 UINT azure_iot_nx_client_publish_float_property(AZURE_IOT_NX_CONTEXT* context, CHAR* key, float value);
 UINT azure_iot_nx_client_publish_bool_property(AZURE_IOT_NX_CONTEXT* context, CHAR* key, bool value);
 
-/*UINT azure_nx_client_respond_int_desired_property(
-    AZURE_IOT_NX_CONTEXT* context, CHAR* label, INT value, UINT http_status, UINT version);
-UINT azure_nx_client_publish_int_desired_property(AZURE_IOT_NX_CONTEXT* context, CHAR* label, UINT value);*/
 UINT azure_nx_client_respond_int_writeable_property(
     AZURE_IOT_NX_CONTEXT* context, CHAR* property, int value, int http_status, int version);
 
