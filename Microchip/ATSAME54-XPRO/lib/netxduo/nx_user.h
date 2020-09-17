@@ -54,6 +54,7 @@
 #define NX_DISABLE_INCLUDE_SOURCE_CODE
 
 #define NX_SECURE_ENABLE
+#define NX_ENABLE_EXTENDED_NOTIFY_SUPPORT
 #define NXD_MQTT_CLOUD_ENABLE
 
 /* Define various build options for the NetX Duo port.  The application should either make changes

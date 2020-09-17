@@ -518,7 +518,7 @@ UINT azure_iot_mqtt_respond_int_writeable_property(
     CHAR mqtt_publish_topic[100];
     CHAR mqtt_publish_message[100];
 
-    printf("Responding to desired property %s as %d\r\n", label, value);
+    printf("Responding to writeable property %s = %d\r\n", label, value);
 
     snprintf(mqtt_publish_topic,
         sizeof(mqtt_publish_topic),

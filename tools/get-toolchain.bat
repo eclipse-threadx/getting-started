@@ -23,17 +23,17 @@ set gccarm_path=https://developer.arm.com/-/media/Files/downloads/gnu-rm/9-2019q
 set gccarm_file=gcc-arm-none-eabi-9-2019-q4-major-win32-sha2.exe
 set gccarm_name=GCC-ARM 9-2019q4-major
 
-set ninja_path=https://github.com/ninja-build/ninja/releases/download/v1.10.0
+set ninja_path=https://github.com/ninja-build/ninja/releases/download/v1.10.1
 set ninja_file=ninja-win.zip
-set ninja_name=Ninja v1.10.0
+set ninja_name=Ninja v1.10.1
 
 set termite_path=https://www.compuphase.com/software
 set termite_file=termite-3.4.exe
 set termite_name=Termite v3.4
 
-set iot_explorer_path=https://github.com/Azure/azure-iot-explorer/releases/download/v0.11.3
-set iot_explorer_file=Azure.IoT.Explorer.preview.0.11.3.msi
-set iot_explorer_name=Azure IoT Explorer v0.11.3
+set iot_explorer_path=https://github.com/Azure/azure-iot-explorer/releases/download/v0.11.4
+set iot_explorer_file=Azure.IoT.Explorer.preview.0.11.4.msi
+set iot_explorer_name=Azure IoT Explorer v0.11.4
 
 echo Downloading packages...
 echo (1/5) %cmake_name%
