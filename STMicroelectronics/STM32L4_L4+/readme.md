@@ -1,6 +1,6 @@
 ---
 page_type: sample
-description: Connecting an STMicroelectronics B-L475E-IOT01A and B-L4S5I-IOT01A devices to Azure IoT using Azure RTOS
+description: Connecting STMicroelectronics B-L475E-IOT01A and B-L4S5I-IOT01A devices to Azure IoT using Azure RTOS
 languages:
 - c
 products:
