@@ -1,6 +1,6 @@
 ---
 page_type: sample
-description: Connecting an MXChip AZ3166 device to Azure IoT using MQTT
+description: Connecting an MXChip AZ3166 device to Azure IoT using Azure RTOS
 languages:
 - c
 products:

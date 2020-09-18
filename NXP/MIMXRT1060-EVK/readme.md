@@ -1,5 +1,6 @@
 ---
 page_type: sample
+description: Connecting an NXP MIMXRT1060-EVK device to Azure IoT using Azure RTOS
 languages:
 - c
 products:
