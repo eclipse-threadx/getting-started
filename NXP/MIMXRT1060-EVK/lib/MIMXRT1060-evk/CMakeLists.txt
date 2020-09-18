@@ -33,7 +33,6 @@ add_library(${TARGET} OBJECT
 target_compile_definitions(${TARGET}
     PUBLIC 
         CPU_MIMXRT1062DVL6A
-        CPU_MIMXRT1052CVL6A_cm7
         SERIAL_PORT_TYPE_UART=1
         XIP_BOOT_HEADER_DCD_ENABLE=1
 

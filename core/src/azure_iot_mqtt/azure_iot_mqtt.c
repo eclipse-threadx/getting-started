@@ -243,43 +243,28 @@ static VOID process_direct_method(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, C
     azure_iot_mqtt->cb_ptr_mqtt_invoke_direct_method(azure_iot_mqtt, direct_method_name, message);
 }
 
-static VOID process_c2d_message(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic)
+static VOID process_c2d_message(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR* message)
 {
-    CHAR key[64]   = {0};
-    CHAR value[64] = {0};
-
-    CHAR* location;
-    CHAR* find;
+    CHAR* properties;
 
     // Get to parameters list
-    find = strstr(topic, ".to");
-    if (find == 0)
+    if ((properties = strstr(topic, ".to")) == 0)
     {
+        printf("Received C2D message has no parameter list\r\n");
         return;
     }
 
-    // Extract the first property
-    find = strstr(find, "&");
-    if (find == 0)
+    // Find the properties
+    if ((properties = strstr(properties, "&")) == 0)
     {
-        return;
+        // No properties, point at the null terminator
+        properties = topic + strlen(topic);
     }
-
-    location = find + 1;
-
-    find = strstr(find, "=");
-    if (find == 0)
+    else
     {
-        return;
+        // Skip over the '&'
+        properties++;
     }
-
-    strncpy(key, location, find - location);
-
-    location = find + 1;
-
-    strncpy(value, location, sizeof(value));
-
-    printf("Received property key=%s, value=%s\r\n", key, value);
 
     if (azure_iot_mqtt->cb_ptr_mqtt_c2d_message == NULL)
     {
@@ -287,7 +272,7 @@ static VOID process_c2d_message(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic)
         return;
     }
 
-    azure_iot_mqtt->cb_ptr_mqtt_c2d_message(azure_iot_mqtt, key, value);
+    azure_iot_mqtt->cb_ptr_mqtt_c2d_message(azure_iot_mqtt, properties, message);
 }
 
 static VOID process_device_twin_response(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR* message)
@@ -381,7 +366,8 @@ static VOID mqtt_notify_cb(NXD_MQTT_CLIENT* client_ptr, UINT number_of_messages)
         }
         else if (strstr((CHAR*)azure_iot_mqtt->mqtt_receive_topic_buffer, DEVICE_MESSAGE_BASE))
         {
-            process_c2d_message(azure_iot_mqtt, azure_iot_mqtt->mqtt_receive_topic_buffer);
+            process_c2d_message(
+                azure_iot_mqtt, azure_iot_mqtt->mqtt_receive_topic_buffer, azure_iot_mqtt->mqtt_receive_message_buffer);
         }
         else if (strstr((CHAR*)azure_iot_mqtt->mqtt_receive_topic_buffer, DEVICE_TWIN_RES_BASE))
         {
@@ -518,7 +504,7 @@ UINT azure_iot_mqtt_respond_int_writeable_property(
     CHAR mqtt_publish_topic[100];
     CHAR mqtt_publish_message[100];
 
-    printf("Responding to desired property %s as %d\r\n", label, value);
+    printf("Responding to writeable property %s = %d\r\n", label, value);
 
     snprintf(mqtt_publish_topic,
         sizeof(mqtt_publish_topic),

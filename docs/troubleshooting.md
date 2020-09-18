@@ -16,6 +16,13 @@ All the troubleshooting steps require that you've completed the following prereq
 * You created an Azure Iot hub, and registered a device, as directed in the tutorial.
 * You built an image for the device, as directed in the tutorial.
 
+## Issue: The source directory does not contain CMakeLists.txt file
+### Description
+This issue can occur when you attempt to build the project. It is the result of the project being incorrectly cloned from GitHub. The project contains multiple submodules that will not be cloned by default unless the **--recursive** flag is used.
+
+### Resolution
+* When you clone the repository using Git, confirm that the **--recursive** option is present.
+
 ## Issue: Device can't connect to Iot hub
 
 ### Description

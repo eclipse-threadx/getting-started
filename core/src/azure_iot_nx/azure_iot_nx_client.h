@@ -8,41 +8,67 @@
 #include "nx_azure_iot_hub_client.h"
 #include "nx_azure_iot_provisioning_client.h"
 
-#include "jsmn.h"
+#include "azure/core/az_json.h"
 
 #include "azure_iot_ciphersuites.h"
 
-#define NX_AZURE_IOT_STACK_SIZE 2048
-#define AZURE_IOT_NX_STACK_SIZE 4096
+#define NX_AZURE_IOT_STACK_SIZE  2048
+#define AZURE_IOT_STACK_SIZE     2048
+#define AZURE_IOT_HOST_NAME_SIZE 128
+#define AZURE_IOT_DEVICE_ID_SIZE 64
 
-typedef void (*threadx_entry)(ULONG parameter);
+typedef struct AZURE_IOT_NX_CONTEXT_STRUCT AZURE_IOT_NX_CONTEXT;
 
-typedef struct AZURE_IOT_NX_CLIENT_STRUCT
+typedef void (*func_ptr_direct_method)(AZURE_IOT_NX_CONTEXT*, UCHAR*, USHORT, UCHAR*, USHORT, VOID*, USHORT);
+typedef void (*func_ptr_device_twin_desired_prop)(UCHAR*, UINT, UCHAR*, UINT, az_json_reader, UINT, VOID*);
+typedef void (*func_ptr_device_twin_prop)(UCHAR*, UINT, UCHAR*, UINT, az_json_reader, UINT, VOID*);
+typedef ULONG (*func_ptr_unix_time_get)(VOID);
+
+struct AZURE_IOT_NX_CONTEXT_STRUCT
 {
     NX_SECURE_X509_CERT root_ca_cert;
     ULONG nx_azure_iot_tls_metadata_buffer[NX_AZURE_IOT_TLS_METADATA_BUFFER_SIZE / sizeof(ULONG)];
     ULONG nx_azure_iot_thread_stack[NX_AZURE_IOT_STACK_SIZE / sizeof(ULONG)];
+    ULONG azure_iot_thread_stack[AZURE_IOT_STACK_SIZE / sizeof(ULONG)];
+
+    TX_EVENT_FLAGS_GROUP events;
+
+    CHAR azure_iot_hub_hostname[AZURE_IOT_HOST_NAME_SIZE];
+    CHAR azure_iot_device_id[AZURE_IOT_DEVICE_ID_SIZE];
+
+    TX_THREAD azure_iot_thread;
 
     NX_AZURE_IOT nx_azure_iot;
-    NX_AZURE_IOT_HUB_CLIENT iothub_client;
-    NX_AZURE_IOT_PROVISIONING_CLIENT prov_client;
 
-    TX_THREAD telemetry_thread;
-    ULONG telemetry_thread_stack[AZURE_IOT_NX_STACK_SIZE / sizeof(ULONG)];
-    TX_THREAD c2d_thread;
-    ULONG c2d_thread_stack[AZURE_IOT_NX_STACK_SIZE / sizeof(ULONG)];
-    TX_THREAD direct_method_thread;
-    ULONG direct_method_thread_stack[AZURE_IOT_NX_STACK_SIZE / sizeof(ULONG)];
-    TX_THREAD device_twin_thread;
-    ULONG device_twin_thread_stack[AZURE_IOT_NX_STACK_SIZE / sizeof(ULONG)];
+    union CLIENT_UNION {
+        NX_AZURE_IOT_HUB_CLIENT iothub;
+        NX_AZURE_IOT_PROVISIONING_CLIENT dps;
+    } client;
 
-    threadx_entry telemetry_thread_entry;
-    threadx_entry direct_method_thread_entry;
-    threadx_entry device_twin_thread_entry;
-    threadx_entry c2d_thread_entry;
-} AZURE_IOT_NX_CLIENT;
+#define iothub_client client.iothub
+#define prov_client   client.dps
 
-UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CLIENT* azure_iot_nx_client,
+    func_ptr_direct_method direct_method_cb;
+    func_ptr_device_twin_desired_prop device_twin_desired_prop_cb;
+    func_ptr_device_twin_prop device_twin_get_cb;
+};
+
+UINT azure_iot_nx_client_register_direct_method(AZURE_IOT_NX_CONTEXT* context, func_ptr_direct_method callback);
+UINT azure_iot_nx_client_register_device_twin_desired_prop(
+    AZURE_IOT_NX_CONTEXT* context, func_ptr_device_twin_desired_prop callback);
+UINT azure_iot_nx_client_register_device_twin_prop(AZURE_IOT_NX_CONTEXT* context, func_ptr_device_twin_prop callback);
+
+UINT azure_iot_nx_client_create(AZURE_IOT_NX_CONTEXT* context,
+    NX_IP* nx_ip,
+    NX_PACKET_POOL* nx_pool,
+    NX_DNS* nx_dns,
+    UINT (*unix_time_callback)(ULONG* unix_time),
+    CHAR* iot_hub_hostname,
+    CHAR* iot_device_id,
+    CHAR* iot_sas_key,
+    CHAR* iot_model_id);
+
+UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CONTEXT* context,
     NX_IP* nx_ip,
     NX_PACKET_POOL* nx_pool,
     NX_DNS* nx_dns,
@@ -53,31 +79,16 @@ UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CLIENT* azure_iot_nx_client,
     CHAR* device_sas_key,
     CHAR* device_model_id);
 
-UINT azure_iot_nx_client_create(AZURE_IOT_NX_CLIENT* azure_iot_nx_client,
-    NX_IP* nx_ip,
-    NX_PACKET_POOL* nx_pool,
-    NX_DNS* nx_dns,
-    UINT (*unix_time_callback)(ULONG* unix_time),
-    CHAR* iot_hub_hostname,
-    CHAR* iot_device_id,
-    CHAR* iot_sas_key,
-    CHAR* iot_model_id);
-UINT azure_iot_nx_client_delete(AZURE_IOT_NX_CLIENT* azure_iot_nx_client);
+UINT azure_iot_nx_client_delete(AZURE_IOT_NX_CONTEXT* context);
+UINT azure_iot_nx_client_connect(AZURE_IOT_NX_CONTEXT* context);
 
-UINT azure_iot_nx_client_connect(AZURE_IOT_NX_CLIENT* azure_iot_nx_client);
-UINT azure_iot_nx_client_disconnect(AZURE_IOT_NX_CLIENT* azure_iot_nx_client);
+UINT azure_iot_nx_client_publish_float_telemetry(AZURE_IOT_NX_CONTEXT* context, CHAR* key, float value);
+UINT azure_iot_nx_client_publish_float_property(AZURE_IOT_NX_CONTEXT* context, CHAR* key, float value);
+UINT azure_iot_nx_client_publish_bool_property(AZURE_IOT_NX_CONTEXT* context, CHAR* key, bool value);
 
-UINT azure_iot_nx_client_enable_telemetry(AZURE_IOT_NX_CLIENT* azure_iot_nx_client, threadx_entry telemetry_entry);
-UINT azure_iot_nx_client_enable_device_twin(AZURE_IOT_NX_CLIENT* azure_iot_nx_client, threadx_entry device_twin_entry);
-UINT azure_iot_nx_client_enable_direct_method(
-    AZURE_IOT_NX_CLIENT* azure_iot_nx_client, threadx_entry direct_method_entry);
-UINT azure_iot_nx_client_enable_c2d(AZURE_IOT_NX_CLIENT* azure_iot_nx_client, threadx_entry c2d_entry);
+UINT azure_nx_client_respond_int_writeable_property(
+    AZURE_IOT_NX_CONTEXT* context, CHAR* property, int value, int http_status, int version);
 
-UINT azure_iot_nx_client_publish_float_telemetry(
-    AZURE_IOT_NX_CLIENT* azure_iot_nx_client, CHAR* key, float value, NX_PACKET* packet_ptr);
-UINT azure_iot_nx_client_publish_float_property(AZURE_IOT_NX_CLIENT* azure_iot_nx_client, CHAR* key, float value);
-UINT azure_iot_nx_client_publish_bool_property(AZURE_IOT_NX_CLIENT* azure_iot_nx_client, CHAR* key, bool value);
-
-VOID printf_packet(NX_PACKET* packet_ptr);
+VOID printf_packet(NX_PACKET* packet_ptr, CHAR* prepend);
 
 #endif

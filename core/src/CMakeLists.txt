@@ -11,6 +11,7 @@ set(SOURCES
     azure_iot_mqtt/sha256.c
 
     azure_iot_nx/azure_iot_nx_client.c
+    azure_iot_nx/nx_azure_iot_pnp_helpers.c
 
     azure_iot_cert.c
     azure_iot_ciphersuites.c

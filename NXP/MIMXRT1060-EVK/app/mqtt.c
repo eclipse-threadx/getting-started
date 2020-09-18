@@ -64,9 +64,9 @@ static void mqtt_direct_method(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* direct_meth
     }
 }
 
-static void mqtt_c2d_message(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* key, CHAR* value)
+static void mqtt_c2d_message(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* properties, CHAR* message)
 {
-    printf("Property=%s updated with value=%s\r\n", key, value);
+    printf("Received C2D message, properties='%s', message='%s'\r\n", properties, message);
 }
 
 static void mqtt_device_twin_desired_prop(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* message)
