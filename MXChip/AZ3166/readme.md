@@ -45,7 +45,7 @@ Clone the following repo to download all sample device code, setup scripts, and 
 To clone the repo, run the following command in Ubuntu bash command line:
 
 ```shell
-git clone --recursive https://github.com/azure-rtos/getting-started
+git clone --recursive https://github.com/VSChina/devkit-rtos-getting-started.git
 ```
 
 ### Install the tools
@@ -63,7 +63,7 @@ To run the setup script:
 
 1. Open a console app with administrator privileges, go to the following path in the repo, and run the setup script named *get-toolchain.bat*. If you use File Explorer, right-click the file and select **Run As Administrator**.
 
-    > *getting-started\tools\get-toolchain.bat*
+    > *devkit-rtos-getting-started\tools\get-toolchain.bat*
 
     After the installation completes, the Azure IoT Explorer opens automatically. Keep the IoT Explorer open, you'll use it in later steps.
 
@@ -155,7 +155,7 @@ To connect the MXChip DevKit to Azure, you'll modify a configuration file for Wi
 
 ### Add configuration
 
-1. In VSCode or any other text editor, edit the file `getting-started/MXChip/AZ3166/app/azure_config.h` to set the Wi-Fi constants to the following values from your local environment.
+1. In VSCode or any other text editor, edit the file `devkit-rtos-getting-started/MXChip/AZ3166/app/azure_config.h` to set the Wi-Fi constants to the following values from your local environment.
 
     |Constant name|Value|
     |-------------|-----|
@@ -184,11 +184,11 @@ To connect the MXChip DevKit to Azure, you'll modify a configuration file for Wi
 
 In your console or in File Explorer, run the script *rebuild.bat* at the following path to build the image:
 
-> *getting-started\MXChip\AZ3166\tools\rebuild.bat*
+> *devkit-rtos-getting-started\MXChip\AZ3166\tools\rebuild.bat*
 
 After the build completes, confirm that the binary files were created in the following path:
 
-> *getting-started/MXChip/AZ3166/build/app/mxchip_azure_iot.bin*
+> *devkit-rtos-getting-started/MXChip/AZ3166/build/app/mxchip_azure_iot.bin*
 
 ### Flash the image
 
