@@ -477,6 +477,27 @@ UINT azure_iot_mqtt_publish_bool_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* 
     return mqtt_publish_bool(azure_iot_mqtt, mqtt_publish_topic, label, value);
 }
 
+UINT azure_iot_mqtt_publish_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, CHAR* value)
+{
+    CHAR mqtt_publish_topic[100];
+    CHAR mqtt_publish_message[100];
+
+    printf("Reporting property %s as %s\r\n", label, value);
+
+    snprintf(mqtt_publish_topic,
+        sizeof(mqtt_publish_topic),
+        DEVICE_TWIN_PUBLISH_TOPIC,
+        azure_iot_mqtt->reported_property_version++);
+
+    snprintf(mqtt_publish_message,
+        sizeof(mqtt_publish_message),
+        "{\"%s\":\"%s\"}",
+        label,
+        value);
+
+    return mqtt_publish(azure_iot_mqtt, mqtt_publish_topic, mqtt_publish_message);
+}
+
 UINT azure_iot_mqtt_publish_float_telemetry(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, float value)
 {
     CHAR mqtt_publish_topic[100];
@@ -489,6 +510,22 @@ UINT azure_iot_mqtt_publish_float_telemetry(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR
         azure_iot_mqtt->nxd_mqtt_client.nxd_mqtt_client_id);
 
     return mqtt_publish_float(azure_iot_mqtt, mqtt_publish_topic, label, value);
+}
+
+UINT azure_iot_mqtt_publish_telemetry(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* message)
+{
+    CHAR mqtt_publish_topic[100];
+
+    printf("Sending telemetry\r\n");
+
+    snprintf(mqtt_publish_topic,
+        sizeof(mqtt_publish_topic),
+        PUBLISH_TELEMETRY_TOPIC,
+        azure_iot_mqtt->nxd_mqtt_client.nxd_mqtt_client_id);
+
+    printf("Sending message %s\r\n", message);
+
+    return mqtt_publish(azure_iot_mqtt, mqtt_publish_topic, message);
 }
 
 UINT azure_iot_mqtt_publish_int_writeable_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, int value)

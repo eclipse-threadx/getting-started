@@ -1,0 +1,188 @@
+{
+    "@id": "dtmi:com:mxchip:mxchip_iot_devkit:example:RTOSGetStarted;1",
+    "@type": "Interface",
+    "displayName": "PnPGetStarted",
+    "description": "Reports current temperature , humidity and pressure from MXCHIP IoT Devkit.",
+    "contents": [
+      {
+        "@type": "Telemetry",
+        "name": "temperature",
+        "displayName" : "Temperature",
+        "unit": "°C",
+        "schema": "double"
+      },
+      {
+        "@type": "Telemetry",
+        "name": "humidity",
+        "displayName" : "Humidity",
+        "unit": "%",
+        "schema": "double"
+      },
+      {
+        "@type": "Telemetry",
+        "name": "pressure",
+        "displayName" : "Pressure",
+        "unit": "hPa",
+        "schema": "double"
+      },
+      {
+        "@type": "Telemetry",
+        "name": "magnetometerX",
+        "displayName" : "Magnetometer X",
+        "unit": "mgauss",
+        "schema": "double"
+      },
+      {
+        "@type": "Telemetry",
+        "name": "magnetometerY",
+        "displayName" : "Magnetometer Y",
+        "unit": "mgauss",
+        "schema": "double"
+      },
+      {
+        "@type": "Telemetry",
+        "name": "magnetometerZ",
+        "displayName" : "Magnetometer Z",
+        "unit": "mgauss",
+        "schema": "double"
+      },
+      {
+        "@type": "Telemetry",
+        "name": "accelerometerX",
+        "displayName" : "Accelerometer X",
+        "unit": "mg",
+        "schema": "double"
+      },
+      {
+        "@type": "Telemetry",
+        "name": "accelerometerY",
+        "displayName" : "Accelerometer Y",
+        "unit": "mg",
+        "schema": "double"
+      },
+      {
+        "@type": "Telemetry",
+        "name": "accelerometerZ",
+        "displayName" : "Accelerometer Z",
+        "unit": "mg",
+        "schema": "double"
+      },
+      {
+        "@type": "Telemetry",
+        "name": "gyroscopeX",
+        "displayName" : "Gyroscope X",
+        "unit": "mdps",
+        "schema": "double"
+      },
+      {
+        "@type": "Telemetry",
+        "name": "gyroscopeY",
+        "displayName" : "Gyroscope Y",
+        "unit": "mdps",
+        "schema": "double"
+      },
+      {
+        "@type": "Telemetry",
+        "name": "gyroscopeZ",
+        "displayName" : "Gyroscope Z",
+        "unit": "mdps",
+        "schema": "double"
+      },
+      {
+        "@type": "Property",
+        "name": "telemetryInterval",
+        "displayName": "Telemetry Interval",
+        "description": "Control the frequency of the telemetry loop.",
+        "schema": "integer",
+        "writable": true
+      },
+      {
+        "@type": "Property",
+        "name": "manufacturer",
+        "displayName": "Manufacturer",
+        "schema": "string",
+        "description": "Company name of the device manufacturer."
+      },
+      {
+        "@type": "Property",
+        "name": "model",
+        "displayName": "Device model",
+        "schema": "string",
+        "description": "Device model name or ID."
+      },
+      {
+        "@type": "Property",
+        "name": "swVersion",
+        "displayName": "Software version",
+        "schema": "string",
+        "description": "Version of the software on device."
+      },
+      {
+        "@type": "Property",
+        "name": "osName",
+        "displayName": "Operating system name",
+        "schema": "string",
+        "description": "Name of the operating system on the device."
+      },
+      {
+        "@type": "Property",
+        "name": "processorArchitecture",
+        "displayName": "Processor architecture",
+        "schema": "string",
+        "description": "Architecture of the processor on the device."
+      },
+      {
+        "@type": "Property",
+        "name": "processorManufacturer",
+        "displayName": "Processor manufacturer",
+        "schema": "string",
+        "description": "Name of the manufacturer of the processor on the device."
+      },
+      {
+        "@type": "Property",
+        "name": "totalStorage",
+        "displayName": "Total storage",
+        "schema": "integer",
+        "description": "Total available storage on the device in kilobytes."
+      },
+      {
+        "@type": "Property",
+        "name": "totalMemory",
+        "displayName": "Total memory",
+        "schema": "integer",
+        "description": "Total available memory on the device in kilobytes."
+      },
+      {
+        "@type": "Command",
+        "name": "turnOnLed",
+        "displayName": "Turn On Led",
+        "description": "Turn On Led."
+      },
+      {
+        "@type": "Command",
+        "name": "turnOffLed",
+        "displayName": "Turn Off Led",
+        "description": "Turn Off Led."
+      },
+      {
+        "@type": "Command",
+        "name": "displayText",
+        "displayName": "Display Text",
+        "description": "Display text on screen.",
+        "request": {
+          "name": "text",
+          "displayName": "Text",
+          "description": "Text displayed on the screen.",
+          "schema": "string"
+        }
+      },
+      {
+        "@type": "Component",
+        "schema": "dtmi:com:mxchip:mxchip_iot_devkit:DeviceManagement:DeviceInformation;1",
+        "name": "deviceInformation",
+        "displayName": "Device Information",
+        "description": "Interface with basic device hardware information."
+      }
+    ],
+    "@context": "dtmi:dtdl:context;2"
+  }
