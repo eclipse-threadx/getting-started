@@ -15,7 +15,7 @@
  * Definitions
  ******************************************************************************/
 #define OV7725_SCCB_ADDR 0x21U
-#define OV7725_REVISION 0x7721U
+#define OV7725_REVISION  0x7721U
 
 #define OV7725_WriteReg(handle, reg, val)                            \
     SCCB_WriteReg(OV7725_SCCB_ADDR, kSCCB_RegAddr8Bit, (reg), (val), \

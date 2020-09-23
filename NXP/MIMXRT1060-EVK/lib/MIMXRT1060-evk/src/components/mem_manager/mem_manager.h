@@ -9,6 +9,7 @@
 #ifndef __MEM_MANAGER_H__
 #define __MEM_MANAGER_H__
 
+#include "fsl_common.h"
 /*!
  * @addtogroup MemManager
  * @{
@@ -26,17 +27,61 @@
 #define MEM_MANAGER_ENABLE_TRACE (0)
 #endif
 
+/*
+ * @brief Configures the memory manager remove memory buffer.
+ */
 #ifndef MEM_MANAGER_BUFFER_REMOVE
 #define MEM_MANAGER_BUFFER_REMOVE (0)
 #endif
 
+/*
+ * @brief Configures the memory manager pre configure.
+ */
+#ifndef MEM_MANAGER_PRE_CONFIGURE
+#define MEM_MANAGER_PRE_CONFIGURE (1)
+#endif
+
 #if (defined(MEM_MANAGER_ENABLE_TRACE) && (MEM_MANAGER_ENABLE_TRACE > 0U))
-#define MEM_POOL_SIZE (56U)
-#define MEM_BLOCK_SIZE (24U)
-#else
+#ifndef MEM_POOL_SIZE
 #define MEM_POOL_SIZE (32U)
+#endif
+#ifndef MEM_BLOCK_SIZE
 #define MEM_BLOCK_SIZE (16U)
 #endif
+#else
+#ifndef MEM_POOL_SIZE
+#define MEM_POOL_SIZE (20U)
+#endif
+#ifndef MEM_BLOCK_SIZE
+#define MEM_BLOCK_SIZE (4U)
+#endif
+#endif
+
+/* Default memory allocator */
+#ifndef MEM_BufferAlloc
+#define MEM_BufferAlloc(numBytes) MEM_BufferAllocWithId(numBytes, 0)
+#endif
+
+#if (defined(MEM_MANAGER_PRE_CONFIGURE) && (MEM_MANAGER_PRE_CONFIGURE > 0U))
+/*
+ * Defines pools by block size and number of blocks. Must be aligned to 4 bytes.
+ * Defines block as  (blockSize ,numberOfBlocks,  id)
+ */
+#ifndef PoolsDetails_c
+#define PoolsDetails_c _block_set_(64, 8, 0) _eol_ _block_set_(128, 2, 0) _eol_ _block_set_(256, 6, 0) _eol_
+#endif
+#define MEM_BLOCK_DATA_BUFFER_NONAME_DEFINE(blockSize, numberOfBlocks, id)                                        \
+    uint32_t g_poolBuffer##blockSize##_##numberOfBlocks##_##id[(MEM_POOL_SIZE + numberOfBlocks * MEM_BLOCK_SIZE + \
+                                                                numberOfBlocks * blockSize + 3U) >>               \
+                                                               2U];
+
+#define MEM_BLOCK_BUFFER_NONAME_DEFINE(blockSize, numberOfBlocks, id)                   \
+    MEM_BLOCK_DATA_BUFFER_NONAME_DEFINE(blockSize, numberOfBlocks, id)                  \
+    const static mem_config_t g_poolHeadBuffer##blockSize##_##numberOfBlocks##_##id = { \
+        (blockSize), (numberOfBlocks), (id), (0), (uint8_t *)&g_poolBuffer####blockSize##_##numberOfBlocks##_##id[0]}
+#define MEM_BLOCK_NONAME_BUFFER(blockSize, numberOfBlocks, id) \
+    (uint8_t *)&g_poolHeadBuffer##blockSize##_##numberOfBlocks##_##id
+#endif /*MEM_MANAGER_PRE_CONFIGURE*/
 
 /*!
  * @brief Defines the memory buffer
@@ -64,6 +109,7 @@
 #define MEM_BLOCK_BUFFER_DEFINE(name, numberOfBlocks, blockSize, id)  \
     MEM_BLOCK_DATA_BUFFER_DEFINE(name, numberOfBlocks, blockSize, id) \
     mem_config_t g_poolHeadBuffer##name = {(blockSize), (numberOfBlocks), (id), (0), (uint8_t *)&g_poolBuffer##name[0]}
+
 /*!                                                                     \
  * @brief Gets the memory buffer pointer                                 \
  *                                                                       \
@@ -114,6 +160,14 @@ typedef struct _mem_config
 #if defined(__cplusplus)
 extern "C" {
 #endif /* _cplusplus */
+#if (defined(MEM_MANAGER_PRE_CONFIGURE) && (MEM_MANAGER_PRE_CONFIGURE > 0U))
+/*!
+ * @brief  Initialises the Memory Manager.
+ *
+ */
+mem_status_t MEM_Init(void);
+
+#endif
 
 /*!
  * @brief Add memory buffer to memory manager buffer list.
@@ -147,18 +201,20 @@ mem_status_t MEM_AddBuffer(uint8_t *buffer);
  *
  * @param buffer                     Pointer the memory pool buffer, use MEM_BLOCK_BUFFER Macro as the input parameter.
  *
- * @retval kStatus_MemSuccess         Memory manager remove buffer succeed.
+ * @retval kStatus_MemSuccess        Memory manager remove buffer succeed.
  * @retval kStatus_MemUnknownError    Memory manager remove buffer error occurred.
  */
 mem_status_t MEM_RemoveBuffer(uint8_t *buffer);
 #endif /* MEM_MANAGER_BUFFER_REMOVE */
 /*!
- * @brief Memory buffer allocate.
+ * @brief Allocate a block from the memory pools. The function uses the
+ *        numBytes argument to look up a pool with adequate block sizes.
  *
  * @param numBytes           The number of bytes will be allocated.
+ * @param poolId             The ID of the pool where to search for a free buffer.
  * @retval Memory buffer address when allocate success, NULL when allocate fail.
  */
-void *MEM_BufferAlloc(uint32_t numBytes);
+void *MEM_BufferAllocWithId(uint32_t numBytes, uint8_t poolId);
 
 /*!
  * @brief Memory buffer free .
@@ -176,6 +232,26 @@ mem_status_t MEM_BufferFree(void *buffer);
  * @retval The size of a given buffer.
  */
 uint16_t MEM_BufferGetSize(void *buffer);
+
+/*!
+ * @brief Frees all allocated blocks by selected source and in selected pool.
+ *
+ * @param poolId                     Selected pool Id (4 LSBs of poolId parameter) and selected
+ *                                   source Id (4 MSBs of poolId parameter).
+ * @retval kStatus_MemSuccess        Memory free succeed.
+ * @retval kStatus_MemFreeError      Memory free error occurred.
+ */
+mem_status_t MEM_BufferFreeAllWithId(uint8_t poolId);
+
+/*!
+ * @brief Memory buffer realloc.
+ *
+ * @param buffer                     The memory buffer address will be reallocated.
+ * @param new_size                   The number of bytes will be reallocated
+ * @retval kStatus_MemSuccess        Memory free succeed.
+ * @retval kStatus_MemFreeError      Memory free error occurred.
+ */
+void *MEM_BufferRealloc(void *buffer, uint32_t new_size);
 
 #if (defined(MEM_MANAGER_ENABLE_TRACE) && (MEM_MANAGER_ENABLE_TRACE > 0U))
 /*!

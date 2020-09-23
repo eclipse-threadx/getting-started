@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NXP
+ * Copyright 2018-2019 NXP
  * All rights reserved.
  *
  *
@@ -19,10 +19,27 @@
  */
 
 /*******************************************************************************
- * Definitions
+ * Public macro
  ******************************************************************************/
 /*! @brief Definition of GPIO adapter handle size. */
 #define HAL_GPIO_HANDLE_SIZE (16U)
+
+/*!
+ * @brief Defines the gpio handle
+ *
+ * This macro is used to define a 4 byte aligned gpio handle.
+ * Then use "(hal_gpio_handle_t)name" to get the gpio handle.
+ *
+ * The macro should be global and could be optional. You could also define gpio handle by yourself.
+ *
+ * This is an example,
+ * @code
+ * GPIO_HANDLE_DEFINE(gpioHandle);
+ * @endcode
+ *
+ * @param name The name string of the gpio handle.
+ */
+#define GPIO_HANDLE_DEFINE(name) uint32_t name[((HAL_GPIO_HANDLE_SIZE + sizeof(uint32_t) - 1U) / sizeof(uint32_t))]
 
 /*! @brief Definition of GPIO adapter isr priority. */
 #ifndef HAL_GPIO_ISR_PRIORITY
@@ -41,6 +58,9 @@
 #endif /* defined(__GIC_PRIO_BITS) */
 #endif /* HAL_GPIO_ISR_PRIORITY */
 
+/*******************************************************************************
+ * Definitions
+ ******************************************************************************/
 /*! @brief The handle of GPIO adapter. */
 typedef void *hal_gpio_handle_t;
 
@@ -84,36 +104,6 @@ typedef struct _hal_gpio_pin_config
 } hal_gpio_pin_config_t;
 
 /*******************************************************************************
- * Public macro
- ******************************************************************************/
-/*!
- * @brief Defines the gpio handle buffer
- *
- * This macro is used to define the gpio handle buffer for gpio queue.
- * And then uses the macro GPIO_HANDLE_BUFFER_GET to get the gpio handle buffer pointer.
- * The macro should not be used in a suitable position for its user.
- *
- * This macro is optional, gpio handle buffer could also be defined by yourself.
- *
- * This is a example,
- * @code
- * GPIO_HANDLE_BUFFER_DEFINE(gpioHandle);
- * @endcode
- *
- * @param name The name string of the gpio handle buffer.
- */
-#define GPIO_HANDLE_BUFFER_DEFINE(name) uint32_t gpioHandleBuffer##name[((HAL_GPIO_HANDLE_SIZE - 1) >> 2) + 1] = {0}
-/*!                                                                             \
- * @brief Gets the gpio buffer pointer                                     \
- *                                                                              \
- * This macro is used to get the gpio buffer pointer. The macro should     \
- * not be used before the macro GPIO_HANDLE_BUFFER_DEFINE is used.         \
- *                                                                              \
- * @param name The memory name string of the buffer.                            \
- */
-#define GPIO_HANDLE_BUFFER_GET(name) (hal_gpio_handle_t) & gpioHandleBuffer##name[0]
-
-/*******************************************************************************
  * API
  ******************************************************************************/
 
@@ -125,22 +115,24 @@ extern "C" {
  * @brief Initializes an GPIO instance with the GPIO handle and the user configuration structure.
  *
  * This function configures the GPIO module with user-defined settings. The user can configure the configuration
- * structure. The parameter handle is a pointer to point to a memory space of size #HAL_GPIO_HANDLE_SIZE allocated by
- * the caller. Example below shows how to use this API to configure the GPIO.
+ * structure. The parameter gpioHandle is a pointer to point to a memory space of size #HAL_GPIO_HANDLE_SIZE allocated
+ * by the caller. Example below shows how to use this API to configure the GPIO.
  *  @code
- *   GPIO_HANDLE_BUFFER_DEFINE(g_GpioHandle);
+ *   GPIO_HANDLE_DEFINE(g_GpioHandle);
  *   hal_gpio_pin_config_t config;
  *   config.direction = kHAL_GpioDirectionOut;
  *   config.port = 0;
  *   config.pin = 0;
  *   config.level = 0;
- *   HAL_GpioInit(GPIO_HANDLE_BUFFER_GET(g_GpioHandle), &config);
+ *   HAL_GpioInit((hal_gpio_handle_t)g_GpioHandle, &config);
  *  @endcode
  *
  * @param gpioHandle GPIO handle pointer.
- * The handle should be 4 byte aligned, because unaligned access does not support on some devices.
- * The macro GPIO_HANDLE_BUFFER_GET is used to get the gpio buffer pointer,
- * and should not be used before the macro GPIO_HANDLE_BUFFER_DEFINE is used.
+ * The handle should be 4 byte aligned, because unaligned access doesn't be supported on some devices.
+ * You can define the handle in the following two ways:
+ * #GPIO_HANDLE_DEFINE(gpioHandle);
+ * or
+ * uint32_t gpioHandle[((HAL_GPIO_HANDLE_SIZE + sizeof(uint32_t) - 1U) / sizeof(uint32_t))];
  * @param pinConfig Pointer to user-defined configuration structure.
  * @retval kStatus_HAL_GpioError An error occurred while initializing the GPIO.
  * @retval kStatus_HAL_GpioPinConflict The pair of the pin and port passed by pinConfig is initialized.
@@ -154,8 +146,7 @@ hal_gpio_status_t HAL_GpioInit(hal_gpio_handle_t gpioHandle, hal_gpio_pin_config
  * This function disables the trigger mode.
  *
  * @param gpioHandle GPIO handle pointer.
- * The macro GPIO_HANDLE_BUFFER_GET is used to get the gpio buffer pointer,
- * and should not be used before the macro GPIO_HANDLE_BUFFER_DEFINE is used.
+ * The handle should be 4 byte aligned, because unaligned access doesn't be supported on some devices.
  * @retval kStatus_HAL_GpioSuccess GPIO de-initialization succeed
  */
 hal_gpio_status_t HAL_GpioDeinit(hal_gpio_handle_t gpioHandle);
@@ -166,8 +157,7 @@ hal_gpio_status_t HAL_GpioDeinit(hal_gpio_handle_t gpioHandle);
  * This function gets the pin voltage. 0 - low level voltage, 1 - high level voltage.
  *
  * @param gpioHandle GPIO handle pointer.
- * The macro GPIO_HANDLE_BUFFER_GET is used to get the gpio buffer pointer,
- * and should not be used before the macro GPIO_HANDLE_BUFFER_DEFINE is used.
+ * The handle should be 4 byte aligned, because unaligned access doesn't be supported on some devices.
  * @param pinState A pointer to save the pin state.
  * @retval kStatus_HAL_GpioSuccess Get successfully.
  */
@@ -179,8 +169,7 @@ hal_gpio_status_t HAL_GpioGetInput(hal_gpio_handle_t gpioHandle, uint8_t *pinSta
  * This function sets the pin voltage. 0 - low level voltage, 1 - high level voltage.
  *
  * @param gpioHandle GPIO handle pointer.
- * The macro GPIO_HANDLE_BUFFER_GET is used to get the gpio buffer pointer,
- * and should not be used before the macro GPIO_HANDLE_BUFFER_DEFINE is used.
+ * The handle should be 4 byte aligned, because unaligned access doesn't be supported on some devices.
  * @param pinState Pin state.
  * @retval kStatus_HAL_GpioSuccess Set successfully.
  */
@@ -193,8 +182,7 @@ hal_gpio_status_t HAL_GpioSetOutput(hal_gpio_handle_t gpioHandle, uint8_t pinSta
  * #hal_gpio_interrupt_trigger_t.
  *
  * @param gpioHandle GPIO handle pointer.
- * The macro GPIO_HANDLE_BUFFER_GET is used to get the gpio buffer pointer,
- * and should not be used before the macro GPIO_HANDLE_BUFFER_DEFINE is used.
+ * The handle should be 4 byte aligned, because unaligned access doesn't be supported on some devices.
  * @param gpioTrigger A pointer to save the pin trigger mode value.
  * @retval kStatus_HAL_GpioSuccess Get successfully.
  * @retval kStatus_HAL_GpioError The pin is the ouput setting.
@@ -208,8 +196,7 @@ hal_gpio_status_t HAL_GpioGetTriggerMode(hal_gpio_handle_t gpioHandle, hal_gpio_
  * #hal_gpio_interrupt_trigger_t.
  *
  * @param gpioHandle GPIO handle pointer.
- * The macro GPIO_HANDLE_BUFFER_GET is used to get the gpio buffer pointer,
- * and should not be used before the macro GPIO_HANDLE_BUFFER_DEFINE is used.
+ * The handle should be 4 byte aligned, because unaligned access doesn't be supported on some devices.
  * @param gpioTrigger The pin trigger mode value.
  * @retval kStatus_HAL_GpioSuccess Set successfully.
  * @retval kStatus_HAL_GpioError The pin is the ouput setting.
@@ -224,8 +211,7 @@ hal_gpio_status_t HAL_GpioSetTriggerMode(hal_gpio_handle_t gpioHandle, hal_gpio_
  * function. After the callback called, the GPIO pin state can be got by calling function #HAL_GpioGetInput.
  *
  * @param gpioHandle GPIO handle pointer.
- * The macro GPIO_HANDLE_BUFFER_GET is used to get the gpio buffer pointer,
- * and should not be used before the macro GPIO_HANDLE_BUFFER_DEFINE is used.
+ * The handle should be 4 byte aligned, because unaligned access doesn't be supported on some devices.
  * @param callback The callback function.
  * @param callbackParam The parameter of the callback function.
  * @retval kStatus_HAL_GpioSuccess Successfully install the callback.
@@ -240,8 +226,7 @@ hal_gpio_status_t HAL_GpioInstallCallback(hal_gpio_handle_t gpioHandle,
  * This function enables or disables the GPIO wake-up feature.
  *
  * @param gpioHandle GPIO handle pointer.
- * The macro GPIO_HANDLE_BUFFER_GET is used to get the gpio buffer pointer,
- * and should not be used before the macro GPIO_HANDLE_BUFFER_DEFINE is used.
+ * The handle should be 4 byte aligned, because unaligned access doesn't be supported on some devices.
  * @param enable enable or disable (0 - disable, 1 - enable).
  * @retval kStatus_HAL_GpioError An error occurred.
  * @retval kStatus_HAL_GpioSuccess Set successfully.
@@ -254,8 +239,7 @@ hal_gpio_status_t HAL_GpioWakeUpSetting(hal_gpio_handle_t gpioHandle, uint8_t en
  * This function is used to prepare to enter low power consumption.
  *
  * @param gpioHandle GPIO handle pointer.
- * The macro GPIO_HANDLE_BUFFER_GET is used to get the gpio buffer pointer,
- * and should not be used before the macro GPIO_HANDLE_BUFFER_DEFINE is used.
+ * The handle should be 4 byte aligned, because unaligned access doesn't be supported on some devices.
  * @retval kStatus_HAL_GpioSuccess Successful operation.
  */
 hal_gpio_status_t HAL_GpioEnterLowpower(hal_gpio_handle_t gpioHandle);
@@ -266,8 +250,7 @@ hal_gpio_status_t HAL_GpioEnterLowpower(hal_gpio_handle_t gpioHandle);
  * This function is used to restore from low power consumption.
  *
  * @param gpioHandle GPIO handle pointer.
- * The macro GPIO_HANDLE_BUFFER_GET is used to get the gpio buffer pointer,
- * and should not be used before the macro GPIO_HANDLE_BUFFER_DEFINE is used.
+ * The handle should be 4 byte aligned, because unaligned access doesn't be supported on some devices.
  * @retval kStatus_HAL_GpioSuccess Successful operation.
  */
 hal_gpio_status_t HAL_GpioExitLowpower(hal_gpio_handle_t gpioHandle);

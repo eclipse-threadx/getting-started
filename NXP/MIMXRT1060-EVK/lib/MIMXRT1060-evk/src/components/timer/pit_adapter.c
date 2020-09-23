@@ -50,6 +50,7 @@ static void HAL_TimerInterruptHandle(uint8_t instance)
 }
 
 #if (defined(FSL_FEATURE_SOC_PIT_COUNT) && (FSL_FEATURE_SOC_PIT_COUNT > 0U))
+void PIT_IRQHandler(void);
 void PIT_IRQHandler(void)
 {
     HAL_TimerInterruptHandle(0);
@@ -59,7 +60,7 @@ void PIT_IRQHandler(void)
     __DSB();
 #endif
 }
-
+void PIT0_IRQHandler(void);
 void PIT0_IRQHandler(void)
 {
     HAL_TimerInterruptHandle(0);
@@ -72,6 +73,7 @@ void PIT0_IRQHandler(void)
 #endif /* FSL_FEATURE_SOC_PIT_COUNT */
 
 #if (defined(FSL_FEATURE_SOC_PIT_COUNT) && (FSL_FEATURE_SOC_PIT_COUNT > 1U))
+void PIT1_IRQHandler(void);
 void PIT1_IRQHandler(void)
 {
     HAL_TimerInterruptHandle(1);
@@ -137,13 +139,13 @@ hal_timer_status_t HAL_TimerInit(hal_timer_handle_t halTimerHandle, hal_timer_co
     halTimerState->timerClock_Hz = halTimerConfig->srcClock_Hz;
     /* Set timer period for channel 0 */
     PIT_SetTimerPeriod(s_PitBase[halTimerState->instance], kPIT_Chnl_0,
-                       USEC_TO_COUNT(halTimerState->timeout, halTimerState->timerClock_Hz));
+                       (uint32_t)USEC_TO_COUNT(halTimerState->timeout, halTimerState->timerClock_Hz));
     /* Enable timer interrupts for channel 0 */
-    PIT_EnableInterrupts(s_PitBase[halTimerState->instance], kPIT_Chnl_0, kPIT_TimerInterruptEnable);
+    PIT_EnableInterrupts(s_PitBase[halTimerState->instance], kPIT_Chnl_0, (uint32_t)kPIT_TimerInterruptEnable);
     s_timerHandle[halTimerState->instance] = halTimerHandle;
 
     NVIC_SetPriority((IRQn_Type)irqId, HAL_TIMER_ISR_PRIORITY);
-    EnableIRQ(irqId);
+    (void)EnableIRQ(irqId);
     return kStatus_HAL_TimerSuccess;
 }
 
@@ -185,19 +187,19 @@ uint32_t HAL_TimerGetMaxTimeout(hal_timer_handle_t halTimerHandle)
     uint32_t reserveCount;
     assert(halTimerHandle);
     hal_timer_handle_struct_t *halTimerState = halTimerHandle;
-    reserveCount                             = (uint32_t)MSEC_TO_COUNT((4), (halTimerState->timerClock_Hz));
-    if (reserveCount < MSEC_TO_COUNT((1), (halTimerState->timerClock_Hz)))
+    reserveCount                             = (uint32_t)MSEC_TO_COUNT((4U), (halTimerState->timerClock_Hz));
+    if (reserveCount < MSEC_TO_COUNT((1U), (halTimerState->timerClock_Hz)))
     {
         return 1000;
     }
-    return COUNT_TO_USEC(0xFFFFFFFF - reserveCount, halTimerState->timerClock_Hz);
+    return (uint32_t)COUNT_TO_USEC((0xFFFFFFFFUL - reserveCount), halTimerState->timerClock_Hz);
 }
 /* return micro us */
 uint32_t HAL_TimerGetCurrentTimerCount(hal_timer_handle_t halTimerHandle)
 {
     assert(halTimerHandle);
     hal_timer_handle_struct_t *halTimerState = halTimerHandle;
-    return COUNT_TO_USEC(PIT_GetCurrentTimerCount(s_PitBase[halTimerState->instance], kPIT_Chnl_0),
+    return (uint32_t)COUNT_TO_USEC(PIT_GetCurrentTimerCount(s_PitBase[halTimerState->instance], kPIT_Chnl_0),
                          halTimerState->timerClock_Hz);
 }
 
@@ -207,9 +209,11 @@ hal_timer_status_t HAL_TimerUpdateTimeout(hal_timer_handle_t halTimerHandle, uin
     assert(halTimerHandle);
     hal_timer_handle_struct_t *halTimerState = halTimerHandle;
     halTimerState->timeout                   = timeout;
-    tickCount                                = USEC_TO_COUNT(halTimerState->timeout, halTimerState->timerClock_Hz);
-    if ((tickCount < 1) || (tickCount > 0xfffffff0))
+    tickCount                                = (uint32_t)USEC_TO_COUNT(halTimerState->timeout, halTimerState->timerClock_Hz);
+    if ((tickCount < 1U) || (tickCount > 0xfffffff0U))
+    {
         return kStatus_HAL_TimerOutOfRanger;
+    }
     PIT_SetTimerPeriod(s_PitBase[halTimerState->instance], kPIT_Chnl_0, tickCount);
     return kStatus_HAL_TimerSuccess;
 }

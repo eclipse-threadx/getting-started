@@ -193,10 +193,10 @@ void LPSPI_MasterInit(LPSPI_Type *base, const lpspi_master_config_t *masterConfi
 
     uint32_t instance = LPSPI_GetInstance(base);
     /* Enable LPSPI clock */
-    CLOCK_EnableClock(s_lpspiClocks[instance]);
+    (void)CLOCK_EnableClock(s_lpspiClocks[instance]);
 
 #if defined(LPSPI_PERIPH_CLOCKS)
-    CLOCK_EnableClock(s_LpspiPeriphClocks[instance]);
+    (void)CLOCK_EnableClock(s_LpspiPeriphClocks[instance]);
 #endif
 
 #endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
@@ -284,10 +284,10 @@ void LPSPI_SlaveInit(LPSPI_Type *base, const lpspi_slave_config_t *slaveConfig)
 
     uint32_t instance = LPSPI_GetInstance(base);
     /* Enable LPSPI clock */
-    CLOCK_EnableClock(s_lpspiClocks[instance]);
+    (void)CLOCK_EnableClock(s_lpspiClocks[instance]);
 
 #if defined(LPSPI_PERIPH_CLOCKS)
-    CLOCK_EnableClock(s_LpspiPeriphClocks[instance]);
+    (void)CLOCK_EnableClock(s_LpspiPeriphClocks[instance]);
 #endif
 
 #endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
@@ -373,10 +373,10 @@ void LPSPI_Deinit(LPSPI_Type *base)
 
     uint32_t instance = LPSPI_GetInstance(base);
     /* Enable LPSPI clock */
-    CLOCK_DisableClock(s_lpspiClocks[instance]);
+    (void)CLOCK_DisableClock(s_lpspiClocks[instance]);
 
 #if defined(LPSPI_PERIPH_CLOCKS)
-    CLOCK_DisableClock(s_LpspiPeriphClocks[instance]);
+    (void)CLOCK_DisableClock(s_LpspiPeriphClocks[instance]);
 #endif
 
 #endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
@@ -577,7 +577,7 @@ uint32_t LPSPI_MasterSetDelayTimes(LPSPI_Type *base,
                                    lpspi_delay_type_t whichDelay,
                                    uint32_t srcClock_Hz)
 {
-    uint32_t realDelay, bestDelay;
+    uint64_t realDelay, bestDelay;
     uint32_t scaler, bestScaler;
     uint32_t diff, min_diff;
     uint64_t initialDelayNanoSec;
@@ -656,7 +656,7 @@ uint32_t LPSPI_MasterSetDelayTimes(LPSPI_Type *base,
         calculation into several steps to ensure accurate calculated results
         */
         realDelay = 1000000000U;
-        realDelay *= (scaler + 1U + additionalScaler);
+        realDelay *= ((uint64_t)scaler + 1UL + (uint64_t)additionalScaler);
         realDelay /= clockDividedPrescaler;
 
         /* calculate the delay difference based on the conditional statement
@@ -664,7 +664,7 @@ uint32_t LPSPI_MasterSetDelayTimes(LPSPI_Type *base,
          */
         if (realDelay >= delayTimeInNanoSec)
         {
-            diff = realDelay - delayTimeInNanoSec;
+            diff = (uint32_t)(realDelay - (uint64_t)delayTimeInNanoSec);
             if (min_diff > diff)
             {
                 /* a better match found */
@@ -679,7 +679,7 @@ uint32_t LPSPI_MasterSetDelayTimes(LPSPI_Type *base,
     LPSPI_MasterSetDelayScaler(base, bestScaler, whichDelay);
 
     /* return the actual calculated delay value (in ns) */
-    return bestDelay;
+    return (uint32_t)bestDelay;
 }
 
 /*Transactional APIs -- Master*/
@@ -822,12 +822,16 @@ status_t LPSPI_MasterTransferBlocking(LPSPI_Type *base, lpspi_transfer_t *transf
 
     /*The TX and RX FIFO sizes are always the same*/
     uint32_t fifoSize       = LPSPI_GetRxFifoSize(base);
-    uint32_t rxFifoMaxBytes = 4U * fifoSize;
+    uint32_t rxFifoMaxBytes = MIN(bytesPerFrame, 4U) * fifoSize;
     uint32_t whichPcs       = (transfer->configFlags & LPSPI_MASTER_PCS_MASK) >> LPSPI_MASTER_PCS_SHIFT;
 
     bool isPcsContinuous = ((transfer->configFlags & (uint32_t)kLPSPI_MasterPcsContinuous) != 0U);
     bool isRxMask        = false;
     bool isByteSwap      = ((transfer->configFlags & (uint32_t)kLPSPI_MasterByteSwap) != 0U);
+
+#if SPI_RETRY_TIMES
+    uint32_t waitTimes;
+#endif
 
     LPSPI_FlushFifo(base, true, true);
     LPSPI_ClearStatusFlags(base, (uint32_t)kLPSPI_AllStatusFlag);
@@ -880,9 +884,20 @@ status_t LPSPI_MasterTransferBlocking(LPSPI_Type *base, lpspi_transfer_t *transf
         }
 
         /*Wait until TX FIFO is not full*/
+#if SPI_RETRY_TIMES
+        waitTimes = SPI_RETRY_TIMES;
+        while ((LPSPI_GetTxFifoCount(base) == fifoSize) && (--waitTimes != 0U))
+#else
         while (LPSPI_GetTxFifoCount(base) == fifoSize)
+#endif
         {
         }
+#if SPI_RETRY_TIMES
+        if (waitTimes == 0U)
+        {
+            return kStatus_SPI_Timeout;
+        }
+#endif
 
         /* To prevent rxfifo overflow, ensure transmitting and receiving are executed in parallel */
         if (((NULL == rxData) || (rxRemainingByteCount - txRemainingByteCount) < rxFifoMaxBytes))
@@ -900,7 +915,12 @@ status_t LPSPI_MasterTransferBlocking(LPSPI_Type *base, lpspi_transfer_t *transf
         /*Check whether there is RX data in RX FIFO . Read out the RX data so that the RX FIFO would not overrun.*/
         if (rxData != NULL)
         {
+#if SPI_RETRY_TIMES
+            waitTimes = SPI_RETRY_TIMES;
+            while ((LPSPI_GetRxFifoCount(base) != 0U) && (--waitTimes != 0U))
+#else
             while (LPSPI_GetRxFifoCount(base) != 0U)
+#endif
             {
                 readData = LPSPI_ReadData(base);
                 if (rxRemainingByteCount < bytesEachRead)
@@ -913,15 +933,32 @@ status_t LPSPI_MasterTransferBlocking(LPSPI_Type *base, lpspi_transfer_t *transf
 
                 rxRemainingByteCount -= bytesEachRead;
             }
+#if SPI_RETRY_TIMES
+            if (waitTimes == 0U)
+            {
+                return kStatus_SPI_Timeout;
+            }
+#endif
         }
     }
 
     /* After write all the data in TX FIFO , should write the TCR_CONTC to 0 to de-assert the PCS. Note that TCR
      * register also use the TX FIFO.
      */
-    while ((LPSPI_GetTxFifoCount(base) == fifoSize))
+#if SPI_RETRY_TIMES
+    waitTimes = SPI_RETRY_TIMES;
+    while ((LPSPI_GetTxFifoCount(base) == fifoSize) && (--waitTimes != 0U))
+#else
+    while (LPSPI_GetTxFifoCount(base) == fifoSize)
+#endif
     {
     }
+#if SPI_RETRY_TIMES
+    if (waitTimes == 0U)
+    {
+        return kStatus_SPI_Timeout;
+    }
+#endif
     base->TCR = (base->TCR & ~(LPSPI_TCR_CONTC_MASK));
 
     /*Read out the RX data in FIFO*/
@@ -929,7 +966,12 @@ status_t LPSPI_MasterTransferBlocking(LPSPI_Type *base, lpspi_transfer_t *transf
     {
         while (rxRemainingByteCount > 0U)
         {
+#if SPI_RETRY_TIMES
+            waitTimes = SPI_RETRY_TIMES;
+            while ((LPSPI_GetRxFifoCount(base) != 0U) && (--waitTimes != 0U))
+#else
             while (LPSPI_GetRxFifoCount(base) != 0U)
+#endif
             {
                 readData = LPSPI_ReadData(base);
 
@@ -943,14 +985,31 @@ status_t LPSPI_MasterTransferBlocking(LPSPI_Type *base, lpspi_transfer_t *transf
 
                 rxRemainingByteCount -= bytesEachRead;
             }
+#if SPI_RETRY_TIMES
+            if (waitTimes == 0U)
+            {
+                return kStatus_SPI_Timeout;
+            }
+#endif
         }
     }
     else
     {
         /* If no RX buffer, then transfer is not complete until transfer complete flag sets */
-        while (0U == (LPSPI_GetStatusFlags(base) & (uint32_t)kLPSPI_TransferCompleteFlag))
+#if SPI_RETRY_TIMES
+        waitTimes = SPI_RETRY_TIMES;
+        while (((LPSPI_GetStatusFlags(base) & (uint32_t)kLPSPI_TransferCompleteFlag) == 0U) && (--waitTimes != 0U))
+#else
+        while ((LPSPI_GetStatusFlags(base) & (uint32_t)kLPSPI_TransferCompleteFlag) == 0U)
+#endif
         {
         }
+#if SPI_RETRY_TIMES
+        if (waitTimes == 0U)
+        {
+            return kStatus_SPI_Timeout;
+        }
+#endif
     }
 
     return kStatus_Success;
@@ -1096,9 +1155,21 @@ status_t LPSPI_MasterTransferNonBlocking(LPSPI_Type *base, lpspi_master_handle_t
     (void)EnableIRQ(s_lpspiIRQ[LPSPI_GetInstance(base)]);
 
     /*TCR is also shared the FIFO , so wait for TCR written.*/
+#if SPI_RETRY_TIMES
+    uint32_t waitTimes = SPI_RETRY_TIMES;
+    while ((LPSPI_GetTxFifoCount(base) != 0U) && (--waitTimes != 0U))
+#else
     while (LPSPI_GetTxFifoCount(base) != 0U)
+#endif
     {
     }
+#if SPI_RETRY_TIMES
+    if (waitTimes == 0U)
+    {
+        return kStatus_SPI_Timeout;
+    }
+#endif
+
     /*Fill up the TX data in FIFO */
     LPSPI_MasterTransferFillUpTxFifo(base, handle);
 
@@ -1365,6 +1436,7 @@ void LPSPI_MasterTransferHandleIRQ(LPSPI_Type *base, lpspi_master_handle_t *hand
         {
             if ((LPSPI_GetStatusFlags(base) & (uint32_t)kLPSPI_TransferCompleteFlag) != 0U)
             {
+                LPSPI_ClearStatusFlags(base, (uint32_t)kLPSPI_TransferCompleteFlag);
                 /* Complete the transfer and disable the interrupts */
                 LPSPI_MasterTransferComplete(base, handle);
             }
@@ -1548,9 +1620,20 @@ status_t LPSPI_SlaveTransferNonBlocking(LPSPI_Type *base, lpspi_slave_handle_t *
     (void)EnableIRQ(s_lpspiIRQ[LPSPI_GetInstance(base)]);
 
     /*TCR is also shared the FIFO , so wait for TCR written.*/
+#if SPI_RETRY_TIMES
+    uint32_t waitTimes = SPI_RETRY_TIMES;
+    while ((LPSPI_GetTxFifoCount(base) != 0U) && (--waitTimes != 0U))
+#else
     while (LPSPI_GetTxFifoCount(base) != 0U)
+#endif
     {
     }
+#if SPI_RETRY_TIMES
+    if (waitTimes == 0U)
+    {
+        return kStatus_SPI_Timeout;
+    }
+#endif
 
     /*Fill up the TX data in FIFO */
     if (handle->txData != NULL)
@@ -1806,6 +1889,7 @@ void LPSPI_SlaveTransferHandleIRQ(LPSPI_Type *base, lpspi_slave_handle_t *handle
             if (((LPSPI_GetStatusFlags(base) & (uint32_t)kLPSPI_FrameCompleteFlag) != 0U) &&
                 (LPSPI_GetTxFifoCount(base) == 0U))
             {
+                LPSPI_ClearStatusFlags(base, (uint32_t)kLPSPI_FrameCompleteFlag);
                 /* Complete the transfer and disable the interrupts */
                 LPSPI_SlaveTransferComplete(base, handle);
             }
@@ -2023,11 +2107,7 @@ static void LPSPI_CommonIRQHandler(LPSPI_Type *base, void *param)
     {
         s_lpspiSlaveIsr(base, (lpspi_slave_handle_t *)param);
     }
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 
 #if defined(LPSPI0)

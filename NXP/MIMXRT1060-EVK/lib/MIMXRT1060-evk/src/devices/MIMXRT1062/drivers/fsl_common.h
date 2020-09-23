@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015-2016, Freescale Semiconductor, Inc.
- * Copyright 2016-2019 NXP
+ * Copyright 2016-2020 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -47,8 +47,8 @@
 
 /*! @name Driver version */
 /*@{*/
-/*! @brief common driver version 2.2.2. */
-#define FSL_COMMON_DRIVER_VERSION (MAKE_VERSION(2, 2, 2))
+/*! @brief common driver version 2.2.4. */
+#define FSL_COMMON_DRIVER_VERSION (MAKE_VERSION(2, 2, 4))
 /*@}*/
 
 /* Debug console type definition. */
@@ -139,6 +139,9 @@ enum _status_groups
     kStatusGroup_SEMC = 100,                  /*!< Group number for SEMC status codes. */
     kStatusGroup_ApplicationRangeStart = 101, /*!< Starting number for application groups. */
     kStatusGroup_IAP = 102,                   /*!< Group number for IAP status codes */
+    kStatusGroup_SFA = 103,                   /*!< Group number for SFA status codes*/
+    kStatusGroup_SPC = 104,                   /*!< Group number for SPC status codes. */
+    kStatusGroup_PUF = 105,                   /*!< Group number for PUF status codes. */
 
     kStatusGroup_HAL_GPIO = 121,              /*!< Group number for HAL GPIO status codes. */
     kStatusGroup_HAL_UART = 122,              /*!< Group number for HAL UART status codes. */
@@ -164,18 +167,22 @@ enum _status_groups
     kStatusGroup_CODEC = 148,                 /*!< Group number for codec status codes. */
     kStatusGroup_ASRC = 149,                 /*!< Group number for codec status ASRC. */
     kStatusGroup_OTFAD = 150,                 /*!< Group number for codec status codes. */
+    kStatusGroup_SDIOSLV = 151,                 /*!< Group number for SDIOSLV status codes. */
+
 };
 
-/*! @brief Generic status return codes. */
+/*! \public
+ * @brief Generic status return codes.
+ */
 enum
 {
-    kStatus_Success = MAKE_STATUS(kStatusGroup_Generic, 0),
-    kStatus_Fail = MAKE_STATUS(kStatusGroup_Generic, 1),
-    kStatus_ReadOnly = MAKE_STATUS(kStatusGroup_Generic, 2),
-    kStatus_OutOfRange = MAKE_STATUS(kStatusGroup_Generic, 3),
-    kStatus_InvalidArgument = MAKE_STATUS(kStatusGroup_Generic, 4),
-    kStatus_Timeout = MAKE_STATUS(kStatusGroup_Generic, 5),
-    kStatus_NoTransferInProgress = MAKE_STATUS(kStatusGroup_Generic, 6),
+    kStatus_Success = MAKE_STATUS(kStatusGroup_Generic, 0),  /*!< Generic status for Success. */
+    kStatus_Fail = MAKE_STATUS(kStatusGroup_Generic, 1),      /*!< Generic status for Fail. */
+    kStatus_ReadOnly = MAKE_STATUS(kStatusGroup_Generic, 2),    /*!< Generic status for read only failure. */
+    kStatus_OutOfRange = MAKE_STATUS(kStatusGroup_Generic, 3),   /*!< Generic status for out of range access. */
+    kStatus_InvalidArgument = MAKE_STATUS(kStatusGroup_Generic, 4),   /*!< Generic status for invalid argument check. */
+    kStatus_Timeout = MAKE_STATUS(kStatusGroup_Generic, 5),   /*!< Generic status for timeout. */
+    kStatus_NoTransferInProgress = MAKE_STATUS(kStatusGroup_Generic, 6),   /*!< Generic status for no transfer in progress. */
 };
 
 /*! @brief Type used for all status and error return values. */
@@ -220,12 +227,29 @@ typedef int32_t status_t;
 /*! Macro to convert a microsecond period to raw count value */
 #define USEC_TO_COUNT(us, clockFreqInHz) (uint64_t)(((uint64_t)(us) * (clockFreqInHz)) / 1000000U)
 /*! Macro to convert a raw count value to microsecond */
-#define COUNT_TO_USEC(count, clockFreqInHz) (uint64_t)((uint64_t)count * 1000000U / clockFreqInHz)
+#define COUNT_TO_USEC(count, clockFreqInHz) (uint64_t)((uint64_t)(count) * 1000000U / (clockFreqInHz))
 
 /*! Macro to convert a millisecond period to raw count value */
-#define MSEC_TO_COUNT(ms, clockFreqInHz) (uint64_t)((uint64_t)ms * clockFreqInHz / 1000U)
+#define MSEC_TO_COUNT(ms, clockFreqInHz) (uint64_t)((uint64_t)(ms) * (clockFreqInHz) / 1000U)
 /*! Macro to convert a raw count value to millisecond */
-#define COUNT_TO_MSEC(count, clockFreqInHz) (uint64_t)((uint64_t)count * 1000U / clockFreqInHz)
+#define COUNT_TO_MSEC(count, clockFreqInHz) (uint64_t)((uint64_t)(count) * 1000U / (clockFreqInHz))
+/* @} */
+
+/*! @name ISR exit barrier
+ * @{
+ *
+ * ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate overlapping
+ * exception return operation might vector to incorrect interrupt.
+ * For Cortex-M7, if core speed much faster than peripheral register write speed,
+ * the peripheral interrupt flags may be still set after exiting ISR, this results to
+ * the same error similar with errata 83869.
+ */
+#if (defined __CORTEX_M) && ((__CORTEX_M == 4U) || (__CORTEX_M == 7U))
+#define SDK_ISR_EXIT_BARRIER __DSB()
+#else
+#define SDK_ISR_EXIT_BARRIER
+#endif
+
 /* @} */
 
 /*! @name Alignment variable definition macros */
@@ -465,7 +489,7 @@ void DefaultISR(void);
         }
 
 #if defined(FSL_FEATURE_NUMBER_OF_LEVEL1_INT_VECTORS) && (FSL_FEATURE_NUMBER_OF_LEVEL1_INT_VECTORS > 0)
-        if (interrupt >= FSL_FEATURE_NUMBER_OF_LEVEL1_INT_VECTORS)
+        if ((uint32_t)interrupt >= (uint32_t)FSL_FEATURE_NUMBER_OF_LEVEL1_INT_VECTORS)
         {
             return kStatus_Fail;
         }
@@ -503,7 +527,7 @@ void DefaultISR(void);
         }
 
 #if defined(FSL_FEATURE_NUMBER_OF_LEVEL1_INT_VECTORS) && (FSL_FEATURE_NUMBER_OF_LEVEL1_INT_VECTORS > 0)
-        if (interrupt >= FSL_FEATURE_NUMBER_OF_LEVEL1_INT_VECTORS)
+        if ((uint32_t)interrupt >= (uint32_t)FSL_FEATURE_NUMBER_OF_LEVEL1_INT_VECTORS)
         {
             return kStatus_Fail;
         }

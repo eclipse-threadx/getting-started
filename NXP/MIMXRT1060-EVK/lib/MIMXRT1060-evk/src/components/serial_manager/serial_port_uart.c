@@ -52,7 +52,7 @@ typedef struct _serial_uart_state
     serial_uart_send_state_t tx;
     serial_uart_recv_state_t rx;
 #endif
-    uint8_t usartHandleBuffer[HAL_UART_HANDLE_SIZE];
+    UART_HANDLE_DEFINE(usartHandleBuffer);
 } serial_uart_state_t;
 
 /*******************************************************************************

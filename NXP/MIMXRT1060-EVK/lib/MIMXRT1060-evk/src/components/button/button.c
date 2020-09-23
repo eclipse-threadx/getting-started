@@ -30,9 +30,9 @@
  * Definitions
  ******************************************************************************/
 
-#define BUTTON_SR_ALLOC() uint32_t buttonPrimask;
+#define BUTTON_SR_ALLOC()       uint32_t buttonPrimask;
 #define BUTTON_ENTER_CRITICAL() buttonPrimask = DisableGlobalIRQ();
-#define BUTTON_EXIT_CRITICAL() EnableGlobalIRQ(buttonPrimask);
+#define BUTTON_EXIT_CRITICAL()  EnableGlobalIRQ(buttonPrimask);
 
 typedef enum _button_press_status
 {
@@ -47,7 +47,7 @@ typedef struct _button_state
     struct _button_state *next;
     button_callback_t callback;
     void *callbackParam;
-    uint8_t gpioHandle[HAL_GPIO_HANDLE_SIZE];
+    GPIO_HANDLE_DEFINE(gpioHandle);
     volatile uint32_t pushPeriodCount;
     volatile uint32_t pushPeriodCountLast;
     struct
@@ -68,14 +68,14 @@ typedef struct _button_state
 typedef struct _button_list
 {
     volatile uint32_t periodCount;
-    uint8_t timerHandle[TIMER_HANDLE_SIZE];
+    TIMER_MANAGER_HANDLE_DEFINE(timerHandle);
 #if defined(OSA_USED)
 
 #if (defined(BUTTON_USE_COMMON_TASK) && (BUTTON_USE_COMMON_TASK > 0U))
     common_task_message_t commonTaskMsg;
 #else
-    uint8_t eventHandle[OSA_EVENT_HANDLE_SIZE];
-    uint8_t taskHandle[OSA_TASK_HANDLE_SIZE];
+    OSA_EVENT_HANDLE_DEFINE(eventHandle);
+    OSA_TASK_HANDLE_DEFINE(taskHandle);
 #endif
 
 #endif
@@ -265,7 +265,7 @@ static void BUTTON_OpenTimer(void)
     uint8_t initTimer = 0U;
 
     BUTTON_ENTER_CRITICAL();
-    initTimer = (uint8_t)(!s_buttonList.timerOpenedNesting);
+    initTimer = (uint8_t)(!(bool)s_buttonList.timerOpenedNesting);
     s_buttonList.timerOpenedNesting++;
     BUTTON_EXIT_CRITICAL();
 
@@ -276,7 +276,7 @@ static void BUTTON_OpenTimer(void)
         assert(kStatus_TimerSuccess == timerStatus);
         timerStatus = TM_InstallCallback(s_buttonList.timerHandle, BUTTON_TimerEvent, &s_buttonList);
         assert(kStatus_TimerSuccess == timerStatus);
-        timerStatus = TM_Start(s_buttonList.timerHandle, kTimerModeIntervalTimer, BUTTON_TIMER_INTERVAL);
+        timerStatus = TM_Start(s_buttonList.timerHandle, (uint8_t)kTimerModeLowPowerTimer, BUTTON_TIMER_INTERVAL);
         assert(kStatus_TimerSuccess == timerStatus);
         (void)timerStatus;
     }
@@ -291,7 +291,7 @@ static void BUTTON_CloseTimer(void)
     if (s_buttonList.timerOpenedNesting > 0U)
     {
         s_buttonList.timerOpenedNesting--;
-        deinitTimer = (uint8_t)(!s_buttonList.timerOpenedNesting);
+        deinitTimer = (uint8_t)(!(bool)s_buttonList.timerOpenedNesting);
     }
     BUTTON_EXIT_CRITICAL();
 
@@ -311,7 +311,7 @@ button_status_t BUTTON_Init(button_handle_t buttonHandle, button_config_t *butto
     hal_gpio_status_t gpioStatus;
     BUTTON_SR_ALLOC();
 
-    assert(buttonHandle && buttonConfig);
+    assert((NULL != buttonHandle) && (NULL != buttonConfig));
     assert(BUTTON_HANDLE_SIZE >= sizeof(button_state_t));
 
     buttonState = (button_state_t *)buttonHandle;

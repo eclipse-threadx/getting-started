@@ -4,16 +4,12 @@
 #include "board_init.h"
 
 #include "board.h"
-#include "peripherals.h"
 #include "pin_mux.h"
 
 void board_init()
 {
-    // init board hardware
-    BOARD_InitBootPins();
-    BOARD_InitBootClocks();
-    BOARD_InitBootPeripherals();
-
-    // init fsl debug console
+    BOARD_ConfigMPU();
+    BOARD_InitPins();
+    BOARD_BootClockRUN();
     BOARD_InitDebugConsole();
 }

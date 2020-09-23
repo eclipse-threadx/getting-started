@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
- * Copyright 2016-2019 NXP
+ * Copyright 2016-2020 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -22,9 +22,9 @@
 
 /*! @brief Clock setting */
 /* Max SD clock divisor from base clock */
-#define USDHC_MAX_DVS ((USDHC_SYS_CTRL_DVS_MASK >> USDHC_SYS_CTRL_DVS_SHIFT) + 1U)
-#define USDHC_MAX_CLKFS ((USDHC_SYS_CTRL_SDCLKFS_MASK >> USDHC_SYS_CTRL_SDCLKFS_SHIFT) + 1U)
-#define USDHC_PREV_DVS(x) ((x) -= 1U)
+#define USDHC_MAX_DVS          ((USDHC_SYS_CTRL_DVS_MASK >> USDHC_SYS_CTRL_DVS_SHIFT) + 1U)
+#define USDHC_MAX_CLKFS        ((USDHC_SYS_CTRL_SDCLKFS_MASK >> USDHC_SYS_CTRL_SDCLKFS_SHIFT) + 1U)
+#define USDHC_PREV_DVS(x)      ((x) -= 1U)
 #define USDHC_PREV_CLKFS(x, y) ((x) >>= (y))
 /*! @brief USDHC ADMA table address align size */
 #define USDHC_ADMA_TABLE_ADDRESS_ALIGN (4U)
@@ -1814,6 +1814,37 @@ void USDHC_EnableStandardTuning(USDHC_Type *base, uint32_t tuningStartTap, uint3
     }
 }
 
+#if FSL_FEATURE_USDHC_HAS_HS400_MODE
+/*!
+ * brief config the strobe DLL delay target and update interval
+ *
+ * param base USDHC peripheral base address.
+ * param delayTarget delay target
+ * param updateInterval update interval
+ */
+void USDHC_ConfigStrobeDLL(USDHC_Type *base, uint32_t delayTarget, uint32_t updateInterval)
+{
+    assert(delayTarget <= (USDHC_STROBE_DLL_CTRL_STROBE_DLL_CTRL_SLV_DLY_TARGET_MASK >>
+                           USDHC_STROBE_DLL_CTRL_STROBE_DLL_CTRL_SLV_DLY_TARGET_SHIFT));
+
+    /* reset strobe dll firstly */
+    base->STROBE_DLL_CTRL |= USDHC_STROBE_DLL_CTRL_STROBE_DLL_CTRL_RESET_MASK;
+    /* clear reset and other register fields */
+    base->STROBE_DLL_CTRL = 0;
+    /* configure the DELAY target and update interval */
+    base->STROBE_DLL_CTRL |= USDHC_STROBE_DLL_CTRL_STROBE_DLL_CTRL_ENABLE_MASK |
+                             USDHC_STROBE_DLL_CTRL_STROBE_DLL_CTRL_SLV_UPDATE_INT(updateInterval) |
+                             USDHC_STROBE_DLL_CTRL_STROBE_DLL_CTRL_SLV_DLY_TARGET(delayTarget);
+
+    while (
+        (USDHC_GetStrobeDLLStatus(base) & (USDHC_STROBE_DLL_STATUS_STROBE_DLL_STS_SLV_LOCK_MASK |
+                                           USDHC_STROBE_DLL_STATUS_STROBE_DLL_STS_REF_LOCK_MASK)) !=
+        ((USDHC_STROBE_DLL_STATUS_STROBE_DLL_STS_SLV_LOCK_MASK | USDHC_STROBE_DLL_STATUS_STROBE_DLL_STS_REF_LOCK_MASK)))
+    {
+    }
+}
+#endif
+
 /*!
  * brief the auto tuning enbale for CMD/DATA line
  *
@@ -1887,9 +1918,9 @@ static void USDHC_TransferHandleCommand(USDHC_Type *base, usdhc_handle_t *handle
         }
         else
         {
-            if ((handle->data == NULL) && (handle->callback.TransferComplete != NULL))
+            if (handle->callback.TransferComplete != NULL)
             {
-                handle->callback.TransferComplete(base, handle, kStatus_Success, handle->userData);
+                handle->callback.TransferComplete(base, handle, kStatus_USDHC_SendCommandSuccess, handle->userData);
             }
         }
     }
@@ -1917,7 +1948,7 @@ static void USDHC_TransferHandleData(USDHC_Type *base, usdhc_handle_t *handle, u
             /* std tuning process only need to wait BRR */
             if (handle->data->dataType == (uint32_t)kUSDHC_TransferDataTuning)
             {
-                transferStatus = kStatus_Success;
+                transferStatus = kStatus_USDHC_TransferDataComplete;
             }
             else
             {
@@ -1938,7 +1969,15 @@ static void USDHC_TransferHandleData(USDHC_Type *base, usdhc_handle_t *handle, u
 
             if (IS_USDHC_FLAG_SET(interruptFlags, kUSDHC_DataCompleteFlag))
             {
-                transferStatus = kStatus_Success;
+                transferStatus = kStatus_USDHC_TransferDataComplete;
+
+#if defined(FSL_SDK_ENABLE_DRIVER_CACHE_CONTROL) && FSL_SDK_ENABLE_DRIVER_CACHE_CONTROL
+                if (handle->data->rxData != NULL)
+                {
+                    DCACHE_InvalidateByRange((uint32_t)(handle->data->rxData),
+                                             (handle->data->blockSize) * (handle->data->blockCount));
+                }
+#endif
             }
         }
     }
@@ -2065,11 +2104,7 @@ void USDHC_TransferHandleIRQ(USDHC_Type *base, usdhc_handle_t *handle)
 void USDHC0_DriverIRQHandler(void)
 {
     s_usdhcIsr(s_usdhcBase[0U], s_usdhcHandle[0U]);
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #endif
 
@@ -2077,11 +2112,7 @@ void USDHC0_DriverIRQHandler(void)
 void USDHC1_DriverIRQHandler(void)
 {
     s_usdhcIsr(s_usdhcBase[1U], s_usdhcHandle[1U]);
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #endif
 
@@ -2089,11 +2120,7 @@ void USDHC1_DriverIRQHandler(void)
 void USDHC2_DriverIRQHandler(void)
 {
     s_usdhcIsr(s_usdhcBase[2U], s_usdhcHandle[2U]);
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 
 #endif

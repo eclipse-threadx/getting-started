@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013 - 2014, Freescale Semiconductor, Inc.
- * Copyright 2016-2018 NXP
+ * Copyright 2016-2020 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -16,10 +16,14 @@
  * Declarations
  ******************************************************************************/
 /*! @brief Bare Metal does not use timer. */
+#ifndef FSL_OSA_BM_TIMER_NONE
 #define FSL_OSA_BM_TIMER_NONE 0U
+#endif
 
 /*! @brief Bare Metal uses SYSTICK as timer. */
+#ifndef FSL_OSA_BM_TIMER_SYSTICK
 #define FSL_OSA_BM_TIMER_SYSTICK 1U
+#endif
 
 /*! @brief Configure what timer is used in Bare Metal. */
 #ifndef FSL_OSA_BM_TIMER_CONFIG
@@ -36,7 +40,9 @@ typedef uint32_t event_flags_t;
 #define OSA_WAIT_FOREVER 0xFFFFFFFFU
 
 /*! @brief How many tasks can the bare metal support. */
+#ifndef TASK_MAX_NUM
 #define TASK_MAX_NUM 7
+#endif
 
 /*! @brief OSA's time range in millisecond, OSA time wraps if exceeds this value. */
 #define FSL_OSA_TIME_RANGE 0xFFFFFFFFU
@@ -53,16 +59,9 @@ extern void DefaultISR(void);
  */
 
 /*!
- * @brief Defines a task.
- *
- * This macro defines resources for a task statically. Then, the OSA_TaskCreate
- * creates the task based-on these resources.
- *
- * @param task The task function.
- * @param stackSize The stack size this task needs in bytes.
+ * @brief To provide unified priority for upper layer, OSA layer makes conversation.
  */
-
-#define PRIORITY_OSA_TO_RTOS(osa_prio) (osa_prio)
+#define PRIORITY_OSA_TO_RTOS(osa_prio)  (osa_prio)
 #define PRIORITY_RTOS_TO_OSA(rtos_prio) (rtos_prio)
 
 /*! @}*/

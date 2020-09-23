@@ -65,7 +65,7 @@ hal_rng_status_t HAL_RngGetData(void *pRandomNo, uint32_t dataSize)
 
     for (uint32_t i = 0; i < dataSize; i++)
     {
-        ((uint8_t *)pRandomNo)[i] = rand() & 0xFF;
+        ((uint8_t *)pRandomNo)[i] = (uint8_t)rand() & 0xFFU;
     }
     return kStatus_HAL_RngSuccess;
 }

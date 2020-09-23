@@ -28,7 +28,7 @@
 #if ((RTE_SPI0 && defined(LPSPI0)) || (RTE_SPI1 && defined(LPSPI1)) || (RTE_SPI2 && defined(LPSPI2)) || \
      (RTE_SPI3 && defined(LPSPI3)) || (RTE_SPI4 && defined(LPSPI4)) || (RTE_SPI5 && defined(LPSPI5)))
 
-#define ARM_LPSPI_DRV_VERSION ARM_DRIVER_VERSION_MAJOR_MINOR(2, 1) /* driver version */
+#define ARM_LPSPI_DRV_VERSION ARM_DRIVER_VERSION_MAJOR_MINOR(2, 2) /* driver version */
 
 /*
  * ARMCC does not support split the data section automatically, so the driver
@@ -572,10 +572,11 @@ static int32_t LPSPI_EdmaSend(const void *data, uint32_t num, cmsis_lpspi_edma_d
     int32_t ret;
     status_t status;
     lpspi_transfer_t xfer = {0};
+    uint32_t datawidth    = (lpspi->resource->base->TCR & LPSPI_TCR_FRAMESZ_MASK) >> LPSPI_TCR_FRAMESZ_SHIFT;
 
     xfer.rxData   = NULL;
     xfer.txData   = (uint8_t *)data;
-    xfer.dataSize = num;
+    xfer.dataSize = num * ((datawidth + 8U) / 8U);
 
     LPSPI_SetTransferConfigFlags(LPSPI_IsMaster(lpspi->resource->base), lpspi->resource->instance, &xfer);
 
@@ -612,10 +613,11 @@ static int32_t LPSPI_EdmaReceive(void *data, uint32_t num, cmsis_lpspi_edma_driv
     int32_t ret;
     status_t status;
     lpspi_transfer_t xfer = {0};
+    uint32_t datawidth    = (lpspi->resource->base->TCR & LPSPI_TCR_FRAMESZ_MASK) >> LPSPI_TCR_FRAMESZ_SHIFT;
 
     xfer.txData   = NULL;
     xfer.rxData   = (uint8_t *)data;
-    xfer.dataSize = num;
+    xfer.dataSize = num * ((datawidth + 8U) / 8U);
 
     LPSPI_SetTransferConfigFlags(LPSPI_IsMaster(lpspi->resource->base), lpspi->resource->instance, &xfer);
 
@@ -655,10 +657,11 @@ static int32_t LPSPI_EdmaTransfer(const void *data_out,
     int32_t ret;
     status_t status;
     lpspi_transfer_t xfer = {0};
+    uint32_t datawidth    = (lpspi->resource->base->TCR & LPSPI_TCR_FRAMESZ_MASK) >> LPSPI_TCR_FRAMESZ_SHIFT;
 
     xfer.txData   = (uint8_t *)data_out;
     xfer.rxData   = (uint8_t *)data_in;
-    xfer.dataSize = num;
+    xfer.dataSize = num * ((datawidth + 8U) / 8U);
 
     LPSPI_SetTransferConfigFlags(LPSPI_IsMaster(lpspi->resource->base), lpspi->resource->instance, &xfer);
 
@@ -693,6 +696,7 @@ static uint32_t LPSPI_EdmaGetCount(cmsis_lpspi_edma_driver_state_t *lpspi)
 {
     uint32_t cnt;
     size_t bytes;
+    uint32_t datawidth = (lpspi->resource->base->TCR & LPSPI_TCR_FRAMESZ_MASK) >> LPSPI_TCR_FRAMESZ_SHIFT;
 
     if (LPSPI_IsMaster(lpspi->resource->base))
     {
@@ -706,6 +710,7 @@ static uint32_t LPSPI_EdmaGetCount(cmsis_lpspi_edma_driver_state_t *lpspi)
                 EDMA_GetRemainingMajorLoopCount(lpspi->dmaResource->rxEdmaBase, lpspi->dmaResource->rxEdmaChannel);
         cnt = lpspi->handle->slaveHandle.totalByteCount - bytes;
     }
+    cnt /= ((datawidth + 8U) / 8U);
     return cnt;
 }
 
@@ -943,10 +948,11 @@ static int32_t LPSPI_InterruptSend(const void *data, uint32_t num, cmsis_lpspi_i
     int32_t ret;
     status_t status;
     lpspi_transfer_t xfer = {0};
+    uint32_t datawidth    = (lpspi->resource->base->TCR & LPSPI_TCR_FRAMESZ_MASK) >> LPSPI_TCR_FRAMESZ_SHIFT;
 
     xfer.rxData   = NULL;
     xfer.txData   = (uint8_t *)data;
-    xfer.dataSize = num;
+    xfer.dataSize = num * ((datawidth + 8U) / 8U);
 
     LPSPI_SetTransferConfigFlags(LPSPI_IsMaster(lpspi->resource->base), lpspi->resource->instance, &xfer);
 
@@ -983,10 +989,11 @@ static int32_t LPSPI_InterruptReceive(void *data, uint32_t num, cmsis_lpspi_inte
     int32_t ret;
     status_t status;
     lpspi_transfer_t xfer = {0};
+    uint32_t datawidth    = (lpspi->resource->base->TCR & LPSPI_TCR_FRAMESZ_MASK) >> LPSPI_TCR_FRAMESZ_SHIFT;
 
     xfer.txData   = NULL;
     xfer.rxData   = (uint8_t *)data;
-    xfer.dataSize = num;
+    xfer.dataSize = num * ((datawidth + 8U) / 8U);
 
     LPSPI_SetTransferConfigFlags(LPSPI_IsMaster(lpspi->resource->base), lpspi->resource->instance, &xfer);
 
@@ -1026,10 +1033,11 @@ static int32_t LPSPI_InterruptTransfer(const void *data_out,
     int32_t ret;
     status_t status;
     lpspi_transfer_t xfer = {0};
+    uint32_t datawidth    = (lpspi->resource->base->TCR & LPSPI_TCR_FRAMESZ_MASK) >> LPSPI_TCR_FRAMESZ_SHIFT;
 
     xfer.txData   = (uint8_t *)data_out;
     xfer.rxData   = (uint8_t *)data_in;
-    xfer.dataSize = num;
+    xfer.dataSize = num * ((datawidth + 8U) / 8U);
 
     LPSPI_SetTransferConfigFlags(LPSPI_IsMaster(lpspi->resource->base), lpspi->resource->instance, &xfer);
 
@@ -1062,14 +1070,19 @@ static int32_t LPSPI_InterruptTransfer(const void *data_out,
 }
 static uint32_t LPSPI_InterruptGetCount(cmsis_lpspi_interrupt_driver_state_t *lpspi)
 {
+    uint32_t cnt;
+    uint32_t datawidth = (lpspi->resource->base->TCR & LPSPI_TCR_FRAMESZ_MASK) >> LPSPI_TCR_FRAMESZ_SHIFT;
     if (LPSPI_IsMaster(lpspi->resource->base))
     {
-        return lpspi->handle->masterHandle.totalByteCount - lpspi->handle->masterHandle.rxRemainingByteCount;
+        cnt = lpspi->handle->masterHandle.totalByteCount - lpspi->handle->masterHandle.rxRemainingByteCount;
     }
     else
     {
-        return lpspi->handle->slaveHandle.totalByteCount - lpspi->handle->slaveHandle.rxRemainingByteCount;
+        cnt = lpspi->handle->slaveHandle.totalByteCount - lpspi->handle->slaveHandle.rxRemainingByteCount;
     }
+    cnt /= ((datawidth + 8U) / 8U);
+
+    return cnt;
 }
 
 static int32_t LPSPI_InterruptControl(uint32_t control, uint32_t arg, cmsis_lpspi_interrupt_driver_state_t *lpspi)

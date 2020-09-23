@@ -30,8 +30,8 @@ uint32_t InstallIRQHandler(IRQn_Type irq, uint32_t irqHandler)
     extern uint32_t Image$$VECTOR_RAM$$Base[];
     extern uint32_t Image$$RW_m_data$$Base[];
 
-#define __VECTOR_TABLE Image$$VECTOR_ROM$$Base
-#define __VECTOR_RAM Image$$VECTOR_RAM$$Base
+#define __VECTOR_TABLE          Image$$VECTOR_ROM$$Base
+#define __VECTOR_RAM            Image$$VECTOR_RAM$$Base
 #define __RAM_VECTOR_TABLE_SIZE (((uint32_t)Image$$RW_m_data$$Base - (uint32_t)Image$$VECTOR_RAM$$Base))
 #elif defined(__ICCARM__)
     extern uint32_t __RAM_VECTOR_TABLE_SIZE[];
@@ -64,12 +64,7 @@ uint32_t InstallIRQHandler(IRQn_Type irq, uint32_t irqHandler)
     __VECTOR_RAM[irq + 16] = irqHandler;
 
     EnableGlobalIRQ(irqMaskValue);
-
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 
     return ret;
 }
@@ -164,7 +159,44 @@ void SDK_Free(void *ptr)
  *
  * @param count  Counts of loop needed for dalay.
  */
+#if defined(SDK_DELAY_USE_DWT) && defined(DWT)
+void enableCpuCycleCounter(void)
+{
+    /* Make sure the DWT trace fucntion is enabled. */
+    if (CoreDebug_DEMCR_TRCENA_Msk != (CoreDebug_DEMCR_TRCENA_Msk & CoreDebug->DEMCR))
+    {
+        CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+    }
+
+    /* CYCCNT not supported on this device. */
+    assert(DWT_CTRL_NOCYCCNT_Msk != (DWT->CTRL & DWT_CTRL_NOCYCCNT_Msk));
+
+    /* Read CYCCNT directly if CYCCENT has already been enabled, otherwise enable CYCCENT first. */
+    if (DWT_CTRL_CYCCNTENA_Msk != (DWT_CTRL_CYCCNTENA_Msk & DWT->CTRL))
+    {
+        DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+    }
+}
+
+uint32_t getCpuCycleCount(void)
+{
+    return DWT->CYCCNT;
+}
+#elif defined __XCC__
+extern uint32_t xthal_get_ccount(void);
+void enableCpuCycleCounter(void)
+{
+    /* do nothing */
+}
+
+uint32_t getCpuCycleCount(void)
+{
+    return xthal_get_ccount();
+}
+#endif
+
 #ifndef __XCC__
+#if (!defined(SDK_DELAY_USE_DWT)) || (!defined(DWT))
 #if defined(__CC_ARM) /* This macro is arm v5 specific */
 /* clang-format off */
 __ASM static void DelayLoop(uint32_t count)
@@ -194,11 +226,14 @@ static void DelayLoop(uint32_t count)
         "    BNE    loop                \n");
 }
 #endif /* defined(__CC_ARM) */
-
+#endif /* (!defined(SDK_DELAY_USE_DWT)) || (!defined(DWT)) */
+#endif /* __XCC__ */
 /*!
  * @brief Delay at least for some time.
- *  Please note that, this API uses while loop for delay, different run-time environments make the time not precise,
- *  if precise delay count was needed, please implement a new delay function with hardware timer.
+ *  Please note that, if not uses DWT, this API will use while loop for delay, different run-time environments have
+ *  effect on the delay time. If precise delay is needed, please enable DWT delay. The two parmeters delay_us and
+ *  coreClock_Hz have limitation. For example, in the platform with 1GHz coreClock_Hz, the delay_us only supports
+ *  up to 4294967 in current code. If long time delay is needed, please implement a new delay function.
  *
  * @param delay_us  Delay time in unit of microsecond.
  * @param coreClock_Hz  Core clock frequency with Hz.
@@ -209,17 +244,37 @@ void SDK_DelayAtLeastUs(uint32_t delay_us, uint32_t coreClock_Hz)
     uint64_t count = USEC_TO_COUNT(delay_us, coreClock_Hz);
     assert(count <= UINT32_MAX);
 
+#if defined(SDK_DELAY_USE_DWT) && defined(DWT) || (defined __XCC__) /* Use DWT for better accuracy */
+
+    enableCpuCycleCounter();
+    /* Calculate the count ticks. */
+    count += getCpuCycleCount();
+
+    if (count > UINT32_MAX)
+    {
+        count -= UINT32_MAX;
+        /* Wait for cyccnt overflow. */
+        while (count < getCpuCycleCount())
+        {
+        }
+    }
+
+    /* Wait for cyccnt reach count value. */
+    while (count > getCpuCycleCount())
+    {
+    }
+#else
     /* Divide value may be different in various environment to ensure delay is precise.
      * Every loop count includes three instructions, due to Cortex-M7 sometimes executes
-     * two instructions in one period, through test here set divide 2. Other M cores use
-     * divide 4. By the way, divide 2 or 4 could let odd count lost precision, but it does
+     * two instructions in one period, through test here set divide 1.5. Other M cores use
+     * divide 4. By the way, divide 1.5 or 4 could let the count lose precision, but it does
      * not matter because other instructions outside while loop is enough to fill the time.
      */
 #if (__CORTEX_M == 7)
-    count = count / 2U;
+    count = count / 3U * 2U;
 #else
     count = count / 4U;
 #endif
     DelayLoop((uint32_t)count);
+#endif /* defined(SDK_DELAY_USE_DWT) && defined(DWT) || (defined __XCC__) */
 }
-#endif

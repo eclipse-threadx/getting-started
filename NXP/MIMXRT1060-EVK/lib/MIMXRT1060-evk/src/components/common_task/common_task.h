@@ -21,13 +21,19 @@
 #if defined(OSA_USED)
 
 /*! @brief Definition of common task max msg queue count. */
+#ifndef COMMON_TASK_MAX_MSGQ_COUNT
 #define COMMON_TASK_MAX_MSGQ_COUNT (8U)
+#endif
 
 /*! @brief Definition of common task priority. */
+#ifndef COMMON_TASK_PRIORITY
 #define COMMON_TASK_PRIORITY (9U)
+#endif
 
 /*! @brief Definition of common task stack size. */
+#ifndef COMMON_TASK_STACK_SIZE
 #define COMMON_TASK_STACK_SIZE (2000U)
+#endif
 
 /*! @brief The status type of common task */
 typedef enum _common_task_status
@@ -105,8 +111,8 @@ common_task_status_t COMMON_TASK_post_message(common_task_message_t *msg);
 }
 #endif
 
-/*! @}*/
-
 #endif
+
+/*! @}*/
 
 #endif

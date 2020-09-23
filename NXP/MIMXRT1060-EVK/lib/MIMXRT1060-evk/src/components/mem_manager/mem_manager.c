@@ -6,8 +6,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include "fsl_common.h"
-#include "generic_list.h"
 #include "mem_manager.h"
 #if (defined(MEM_MANAGER_ENABLE_TRACE) && (MEM_MANAGER_ENABLE_TRACE > 0U))
 #include "fsl_debug_console.h"
@@ -25,6 +23,27 @@
 #elif defined(__CC_ARM) || defined(__ARMCC_VERSION)
 #define __mem_get_LR() __return_address()
 #endif
+
+#if (defined(MEM_MANAGER_PRE_CONFIGURE) && (MEM_MANAGER_PRE_CONFIGURE > 0U))
+#undef _block_set_
+#undef _eol_
+
+#define _eol_       ;
+#define _block_set_ MEM_BLOCK_BUFFER_NONAME_DEFINE
+
+PoolsDetails_c
+
+#undef _block_set_
+#undef _number_of_blocks_
+#undef _eol_
+#undef _pool_id_
+
+#define _eol_       ,
+#define _block_set_ MEM_BLOCK_NONAME_BUFFER
+
+    static uint8_t *s_PoolList[] = {PoolsDetails_c};
+#endif /*MEM_MANAGER_PRE_CONFIGURE*/
+
 /*****************************************************************************
 ******************************************************************************
 * Private type definitions
@@ -33,12 +52,10 @@
 /*! @brief Buffer pools structure*/
 typedef struct _mem_pool_structure
 {
-    list_label_t freeAnchor;
     struct _mem_pool_structure *nextPool;
     uint8_t *pHeap;
     uint32_t heapSize;
 #if (defined(MEM_MANAGER_ENABLE_TRACE) && (MEM_MANAGER_ENABLE_TRACE > 0U))
-    list_label_t allocatedAnchor;
     uint16_t allocatedBlocksPeak;
     uint16_t poolFragmentWaste;
     uint16_t poolTotalFragmentWaste;
@@ -54,8 +71,8 @@ typedef struct _mem_pool_structure
 /*! @brief Header description for buffers.*/
 typedef struct _block_list_header
 {
-    list_element_t link;
-    mem_pool_structure_t *pParentPool;
+    uint16_t allocated;
+    uint16_t blockSize;
 #if (defined(MEM_MANAGER_ENABLE_TRACE) && (MEM_MANAGER_ENABLE_TRACE > 0U))
     uint32_t caller;
     uint16_t allocatedBytes;
@@ -100,7 +117,17 @@ static mem_manager_info_t s_memmanager = {0};
 * Private functions
 ******************************************************************************
 *****************************************************************************/
-static mem_status_t MEM_Init(void)
+
+/*****************************************************************************
+******************************************************************************
+* Public functions
+******************************************************************************
+*****************************************************************************/
+/*!
+ * @brief  Initialises the Memory Manager.
+ *
+ */
+mem_status_t MEM_Init(void)
 {
     static bool initialized = false;
     assert(sizeof(mem_pool_structure_t) == MEM_POOL_SIZE);
@@ -113,16 +140,17 @@ static mem_status_t MEM_Init(void)
         s_memmanager.allocationFailures = 0;
         s_memmanager.freeFailures       = 0;
 #endif /*MEM_MANAGER_ENABLE_TRACE*/
+#if (defined(MEM_MANAGER_PRE_CONFIGURE) && (MEM_MANAGER_PRE_CONFIGURE > 0U))
+        for (uint8_t i = 0; i < (sizeof(s_PoolList) / sizeof(s_PoolList[0])); i++)
+        {
+            (void)MEM_AddBuffer((uint8_t *)s_PoolList[i]);
+        }
+#endif /*MEM_MANAGER_PRE_CONFIGURE*/
         initialized = true;
     }
     return kStatus_MemSuccess;
 }
 
-/*****************************************************************************
-******************************************************************************
-* Public functions
-******************************************************************************
-*****************************************************************************/
 /*!
  * @brief Add memory buffer to memory manager buffer list.
  *
@@ -147,33 +175,19 @@ static mem_status_t MEM_Init(void)
 mem_status_t MEM_AddBuffer(uint8_t *buffer)
 {
     mem_config_t *memConfig     = (mem_config_t *)(void *)buffer;
-    mem_pool_structure_t *pPool = (mem_pool_structure_t *)memConfig->pbuffer;
+    mem_pool_structure_t *pPool = (mem_pool_structure_t *)(void *)memConfig->pbuffer;
     uint8_t *pHeap              = memConfig->pbuffer + sizeof(mem_pool_structure_t);
     mem_pool_structure_t *pPrevPool, *pTempPool;
-    uint16_t blockNum;
 
     assert(buffer);
     assert(memConfig->numberOfBlocks);
     assert(memConfig->blockSize);
 
     uint32_t regPrimask = DisableGlobalIRQ();
-    blockNum            = memConfig->numberOfBlocks;
+#if (defined(MEM_MANAGER_PRE_CONFIGURE) && (MEM_MANAGER_PRE_CONFIGURE == 0U))
     (void)MEM_Init();
-    pPool->pHeap = pHeap;
-    LIST_Init((list_handle_t)(void *)&pPool->freeAnchor, blockNum);
-#if (defined(MEM_MANAGER_ENABLE_TRACE) && (MEM_MANAGER_ENABLE_TRACE > 0U))
-    LIST_Init((list_handle_t)(void *)&pPool->allocatedAnchor, blockNum);
-#endif /*MEM_MANAGER_ENABLE_TRACE*/
-    while (0U != blockNum)
-    {
-        /* Add block to list of free memory. */
-        (void)LIST_AddTail((list_handle_t)(void *)&pPool->freeAnchor,
-                           (list_element_handle_t)(void *)&((block_list_header_t *)(void *)pHeap)->link);
-        ((block_list_header_t *)(void *)pHeap)->pParentPool = pPool;
-        /* Add block size (without list header)*/
-        pHeap = (uint8_t *)&pHeap[memConfig->blockSize + sizeof(block_list_header_t)];
-        blockNum--;
-    }
+#endif
+    pPool->pHeap     = pHeap;
     pPool->numBlocks = memConfig->numberOfBlocks;
     pPool->blockSize = memConfig->blockSize;
     pPool->poolId    = *(uint16_t *)(void *)(&buffer[4]);
@@ -240,7 +254,7 @@ mem_status_t MEM_RemoveBuffer(uint8_t *buffer)
 {
     mem_config_t *memConfig     = (mem_config_t *)(void *)buffer;
     mem_pool_structure_t *pPool = (mem_pool_structure_t *)memConfig->pbuffer;
-    uint8_t *pHeap = (uint8_t *)((mem_pool_structure_t *)memConfig->pbuffer + sizeof(mem_pool_structure_t));
+    uint8_t *pHeap              = memConfig->pbuffer + sizeof(mem_pool_structure_t);
     mem_pool_structure_t *pPrevPool, *pTempPool;
 
     assert(buffer);
@@ -279,12 +293,14 @@ mem_status_t MEM_RemoveBuffer(uint8_t *buffer)
 #endif // MEM_MANAGER_BUFFER_REMOVE
 
 /*!
- * @brief Memory buffer allocate.
+ * @brief Allocate a block from the memory pools. The function uses the
+ *        numBytes argument to look up a pool with adequate block sizes.
  *
  * @param numBytes           The number of bytes will be allocated.
+ * @param poolId             The ID of the pool where to search for a free buffer.
  * @retval Memory buffer address when allocate success, NULL when allocate fail.
  */
-void *MEM_BufferAlloc(uint32_t numBytes)
+void *MEM_BufferAllocWithId(uint32_t numBytes, uint8_t poolId)
 {
 #if (defined(MEM_MANAGER_ENABLE_TRACE) && (MEM_MANAGER_ENABLE_TRACE > 0U))
     uint32_t fragmentWaste = 0;
@@ -296,40 +312,41 @@ void *MEM_BufferAlloc(uint32_t numBytes)
 
     while (0U != numBytes)
     {
-        if ((numBytes <= pPool->blockSize))
+        if ((numBytes <= pPool->blockSize) && (pPool->poolId == poolId))
         {
-            pBlock = (block_list_header_t *)(void *)LIST_RemoveHead((list_handle_t)(void *)&pPool->freeAnchor);
-
-            if (NULL != pBlock)
+            for (uint32_t i = 0; i < pPool->numBlocks; i++)
             {
+                pBlock = (block_list_header_t *)(void *)(pPool->pHeap + i * ((uint32_t)pPool->blockSize + (uint32_t)sizeof(block_list_header_t)));
+                if ((NULL != pBlock) && (0U == pBlock->allocated))
+                {
 #if (defined(MEM_MANAGER_ENABLE_TRACE) && (MEM_MANAGER_ENABLE_TRACE > 0U))
-                pBlock->allocatedBytes = (uint16_t)numBytes;
-                pBlock->caller         = (uint32_t)((uint32_t *)__mem_get_LR);
-                (void)LIST_AddTail((list_handle_t)(void *)&pPool->allocatedAnchor,
-                                   (list_element_handle_t)(void *)&((block_list_header_t *)pBlock)->link);
+                    pBlock->allocatedBytes = (uint16_t)numBytes;
+                    pBlock->caller         = (uint32_t)((uint32_t *)__mem_get_LR());
 #endif /*MEM_MANAGER_ENABLE_TRACE*/
-                pBlock++;
-                pPool->allocatedBlocks++;
+                    pBlock->allocated = 1;
+                    pBlock->blockSize = pPool->blockSize;
+                    pBlock++;
+                    pPool->allocatedBlocks++;
 #if (defined(MEM_MANAGER_ENABLE_TRACE) && (MEM_MANAGER_ENABLE_TRACE > 0U))
-                if (pPool->allocatedBlocks > pPool->allocatedBlocksPeak)
-                {
-                    pPool->allocatedBlocksPeak = pPool->allocatedBlocks;
-                }
-                fragmentWaste = pPool->blockSize - numBytes;
-                if (fragmentWaste > pPool->poolFragmentWastePeak)
-                {
-                    pPool->poolFragmentWastePeak = (uint16_t)fragmentWaste;
-                }
-                pPool->poolFragmentWaste = (uint16_t)fragmentWaste;
-                pPool->poolTotalFragmentWaste += (uint16_t)fragmentWaste;
-                if (fragmentWaste < pPool->poolFragmentMinWaste)
-                {
-                    pPool->poolFragmentMinWaste = (uint16_t)fragmentWaste;
-                }
-                pBlock->allocatedBytes = (uint16_t)numBytes;
+                    if (pPool->allocatedBlocks > pPool->allocatedBlocksPeak)
+                    {
+                        pPool->allocatedBlocksPeak = pPool->allocatedBlocks;
+                    }
+                    fragmentWaste = pPool->blockSize - numBytes;
+                    if (fragmentWaste > pPool->poolFragmentWastePeak)
+                    {
+                        pPool->poolFragmentWastePeak = (uint16_t)fragmentWaste;
+                    }
+                    pPool->poolFragmentWaste = (uint16_t)fragmentWaste;
+                    pPool->poolTotalFragmentWaste += (uint16_t)fragmentWaste;
+                    if (fragmentWaste < pPool->poolFragmentMinWaste)
+                    {
+                        pPool->poolFragmentMinWaste = (uint16_t)fragmentWaste;
+                    }
 #endif /*MEM_MANAGER_ENABLE_TRACE*/
-                EnableGlobalIRQ(regPrimask);
-                return pBlock;
+                    EnableGlobalIRQ(regPrimask);
+                    return pBlock;
+                }
             }
         }
         /* Try next pool*/
@@ -357,44 +374,29 @@ mem_status_t MEM_BufferFree(void *buffer /* IN: Block of memory to free*/
 )
 {
     block_list_header_t *pBlock;
-    mem_pool_structure_t *pParentPool;
-    mem_pool_structure_t *pool;
-
     uint32_t regPrimask = DisableGlobalIRQ();
+
     do
     {
         if (NULL == buffer)
         {
             break;
         }
-        pBlock      = (block_list_header_t *)buffer - 1;
-        pParentPool = (mem_pool_structure_t *)pBlock->pParentPool;
-
-        assert(((uint8_t *)pBlock >= (uint8_t *)pParentPool->pHeap) &&
-               ((uint8_t *)pBlock <= ((uint8_t *)pParentPool->pHeap + pParentPool->heapSize)));
-
-        pool = s_memmanager.pPool;
-        while (NULL != pool)
+        pBlock = (block_list_header_t *)buffer - 1;
+        assert(pBlock);
+        if (1U == pBlock->allocated)
         {
-            if (pParentPool == pool)
-            {
-#if (defined(MEM_MANAGER_ENABLE_TRACE) && (MEM_MANAGER_ENABLE_TRACE > 0U))
-                (void)LIST_RemoveElement((list_element_handle_t)(void *)&((block_list_header_t *)pBlock)->link);
-#endif /*MEM_MANAGER_ENABLE_TRACE*/
-                (void)LIST_AddTail((list_handle_t)(void *)&pParentPool->freeAnchor,
-                                   (list_element_handle_t)(void *)&pBlock->link);
-                pParentPool->allocatedBlocks--;
-                EnableGlobalIRQ(regPrimask);
-                return kStatus_MemSuccess;
-            }
-            pool = pool->nextPool;
+            (void)memset(pBlock, 0x0, sizeof(block_list_header_t));
+            EnableGlobalIRQ(regPrimask);
+            return kStatus_MemSuccess;
         }
-        break;
-    } while (true);
 
 #if (defined(MEM_MANAGER_ENABLE_TRACE) && (MEM_MANAGER_ENABLE_TRACE > 0U))
-    s_memmanager.freeFailures++;
+        s_memmanager.freeFailures++;
 #endif /*MEM_MANAGER_ENABLE_TRACE*/
+
+    } while (false);
+
     EnableGlobalIRQ(regPrimask);
     return kStatus_MemFreeError;
 }
@@ -408,20 +410,109 @@ mem_status_t MEM_BufferFree(void *buffer /* IN: Block of memory to free*/
 uint16_t MEM_BufferGetSize(void *buffer) /* IN: Block of memory to get size*/
 {
     block_list_header_t *pBlock;
-    mem_pool_structure_t *pParentPool;
-
     uint32_t regPrimask = DisableGlobalIRQ();
 
-    pBlock      = (block_list_header_t *)buffer - 1;
-    pParentPool = (mem_pool_structure_t *)pBlock->pParentPool;
+    pBlock = (block_list_header_t *)buffer - 1;
 
     if (buffer != NULL)
     {
         EnableGlobalIRQ(regPrimask);
-        return pParentPool->blockSize;
+        return pBlock->blockSize;
     }
     EnableGlobalIRQ(regPrimask);
     return 0;
+}
+
+/*!
+ * @brief Frees all allocated blocks by selected source and in selected pool.
+ *
+ * @param poolId                     Selected pool Id (4 LSBs of poolId parameter) and selected
+ *                                   source Id (4 MSBs of poolId parameter).
+ * @retval kStatus_MemSuccess        Memory free succeed.
+ * @retval kStatus_MemFreeError      Memory free error occurred.
+ */
+mem_status_t MEM_BufferFreeAllWithId(uint8_t poolId)
+{
+    mem_pool_structure_t *pPool = s_memmanager.pPool;
+    block_list_header_t *pBlock;
+
+    uint32_t regPrimask = DisableGlobalIRQ();
+
+    while (pPool != NULL)
+    {
+        if (pPool->poolId == poolId)
+        {
+            for (uint16_t i = 0; i < pPool->numBlocks; i++)
+            {
+                pBlock = (block_list_header_t *)(void *)(pPool->pHeap + i * (pPool->blockSize + sizeof(block_list_header_t)));
+                (void)memset(pBlock, 0x0, sizeof(block_list_header_t));
+            }
+#if (defined(MEM_MANAGER_ENABLE_TRACE) && (MEM_MANAGER_ENABLE_TRACE > 0U))
+            pPool->allocatedBlocksPeak    = 0;
+            pPool->poolTotalFragmentWaste = 0;
+            pPool->poolFragmentWaste      = 0;
+            pPool->poolFragmentWastePeak  = 0;
+            pPool->poolFragmentMinWaste   = 0xffff;
+#endif /*MEM_MANAGER_ENABLE_TRACE*/
+        }
+        pPool = pPool->nextPool;
+    }
+
+    EnableGlobalIRQ(regPrimask);
+    return kStatus_MemSuccess;
+}
+
+/*!
+ * @brief Memory buffer realloc.
+ *
+ * @param buffer                     The memory buffer address will be reallocated.
+ * @param new_size                   The number of bytes will be reallocated
+ * @retval kStatus_MemSuccess        Memory free succeed.
+ * @retval kStatus_MemFreeError      Memory free error occurred.
+ */
+void *MEM_BufferRealloc(void *buffer, uint32_t new_size)
+{
+    void *realloc_buffer = NULL;
+    uint16_t block_size  = 0U;
+
+    if (new_size == 0U)
+    {
+        /* new requested size is 0, free old buffer */
+        (void)MEM_BufferFree(buffer);
+        realloc_buffer = NULL;
+    }
+    else if (buffer == NULL)
+    {
+        /* input buffer is NULL simply allocate a new buffer and return it */
+        realloc_buffer = MEM_BufferAllocWithId(new_size, 0U);
+    }
+    else
+    {
+        block_size = MEM_BufferGetSize(buffer);
+
+        if ((uint16_t)new_size <= block_size)
+        {
+            /* current buffer is large enough for the new requested size
+               we can still use it */
+            realloc_buffer = buffer;
+        }
+        else
+        {
+            /* not enough space in the current block, creating a new one */
+            realloc_buffer = MEM_BufferAllocWithId(new_size, 0U);
+
+            if (realloc_buffer != NULL)
+            {
+                /* copy input buffer data to new buffer */
+                (void)memcpy(realloc_buffer, buffer, (uint32_t)block_size);
+
+                /* free old buffer */
+                (void)MEM_BufferFree(buffer);
+            }
+        }
+    }
+
+    return realloc_buffer;
 }
 
 /*!
@@ -431,7 +522,6 @@ uint16_t MEM_BufferGetSize(void *buffer) /* IN: Block of memory to get size*/
 #if (defined(MEM_MANAGER_ENABLE_TRACE) && (MEM_MANAGER_ENABLE_TRACE > 0U))
 void MEM_Trace(void)
 {
-    uint32_t i;
     mem_pool_structure_t *pPool = s_memmanager.pPool;
     block_list_header_t *pBlock;
     (void)PRINTF("MEM_Trace debug information, Pools Number:%d   allocationFailures: %d  freeFailures:%d \r\n",
@@ -449,13 +539,12 @@ void MEM_Trace(void)
             pPool->numBlocks, pPool->allocatedBlocks, pPool->allocatedBlocksPeak, pPool->poolFragmentWaste,
             pPool->poolFragmentWastePeak, pPool->poolFragmentMinWaste, pPool->poolTotalFragmentWaste);
         (void)PRINTF("Currently pool meory block allocate status: \r\n");
-        pBlock = (block_list_header_t *)(void *)LIST_GetHead((list_handle_t)(void *)&pPool->allocatedAnchor);
-        i      = 0;
-        while (NULL != pBlock)
+        for (uint32_t i = 0; i < pPool->numBlocks; i++)
         {
-            (void)PRINTF("Block %d caller : 0x%x Allocated  bytes: %d  \r\n", i++, pBlock->caller,
+            pBlock = (block_list_header_t *)(pPool->pHeap + i * (pPool->blockSize + sizeof(block_list_header_t)));
+
+            (void)PRINTF("Block %d caller : 0x%x Allocated %d bytes: %d  \r\n", i, pBlock->caller, pBlock->allocated,
                          pBlock->allocatedBytes);
-            pBlock = (block_list_header_t *)(void *)LIST_GetNext((list_element_handle_t)(void *)pBlock);
         }
         /* Try next pool*/
         pPool = pPool->nextPool;

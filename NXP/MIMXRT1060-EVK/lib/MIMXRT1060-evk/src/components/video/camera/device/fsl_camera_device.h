@@ -21,34 +21,34 @@ typedef struct _camera_device_handle camera_device_handle_t;
 typedef enum _camera_device_cmd
 {
     kCAMERA_DeviceAutoFocus, /*!< Auto focus. */
-#define CAMERA_AUTO_FOCUS_ON 1
+#define CAMERA_AUTO_FOCUS_ON  1
 #define CAMERA_AUTO_FOCUS_OFF 0
 
     kCAMERA_DeviceLightMode, /*!< Light mode. */
-#define CAMERA_LIGHT_MODE_AUTO 0
-#define CAMERA_LIGHT_MODE_SUNNY 1
+#define CAMERA_LIGHT_MODE_AUTO   0
+#define CAMERA_LIGHT_MODE_SUNNY  1
 #define CAMERA_LIGHT_MODE_CLOUDY 2
 #define CAMERA_LIGHT_MODE_OFFICE 3
-#define CAMERA_LIGHT_MODE_HOME 4
-#define CAMERA_LIGHT_MODE_NIGHT 5
+#define CAMERA_LIGHT_MODE_HOME   4
+#define CAMERA_LIGHT_MODE_NIGHT  5
 
     kCAMERA_DeviceSaturation, /*!< Saturation, pass in adjust value, such as -2, -1, 0, 1, 2... */
     kCAMERA_DeviceBrightness, /*!< Brightness, pass in adjust value, such as -2, -1, 0, 1, 2... */
     kCAMERA_DeviceContrast,   /*!< Contrast, pass in adjust value, such as -2, -1, 0, 1, 2... */
 
     kCAMERA_DeviceSpecialEffect,              /*!< Special effect. */
-#define CAMERA_SPECIAL_EFFECT_NORMAL 0        /* Normal. */
-#define CAMERA_SPECIAL_EFFECT_BW 1            /* B & W */
-#define CAMERA_SPECIAL_EFFECT_SEPIA 2         /* Sepia. */
-#define CAMERA_SPECIAL_EFFECT_BLUISH 3        /* Bluish. */
-#define CAMERA_SPECIAL_EFFECT_REDISH 4        /* Redish. */
-#define CAMERA_SPECIAL_EFFECT_GREENISH 5      /* Greenish. */
-#define CAMERA_SPECIAL_EFFECT_NEGTIVE 6       /* Negtive. */
+#define CAMERA_SPECIAL_EFFECT_NORMAL        0 /* Normal. */
+#define CAMERA_SPECIAL_EFFECT_BW            1 /* B & W */
+#define CAMERA_SPECIAL_EFFECT_SEPIA         2 /* Sepia. */
+#define CAMERA_SPECIAL_EFFECT_BLUISH        3 /* Bluish. */
+#define CAMERA_SPECIAL_EFFECT_REDISH        4 /* Redish. */
+#define CAMERA_SPECIAL_EFFECT_GREENISH      5 /* Greenish. */
+#define CAMERA_SPECIAL_EFFECT_NEGTIVE       6 /* Negtive. */
 #define CAMERA_SPECIAL_EFFECT_OVER_EXPOSURE 7 /* OverExposure. */
-#define CAMERA_SPECIAL_EFFECT_SOLARIZE 8      /* Solarize. */
+#define CAMERA_SPECIAL_EFFECT_SOLARIZE      8 /* Solarize. */
 
     kCAMERA_DeviceNightMode,               /*!< Night mode. */
-#define CAMERA_NIGHT_MODE_DISABLED 0       /* Disable. */
+#define CAMERA_NIGHT_MODE_DISABLED       0 /* Disable. */
 #define CAMERA_NIGHT_MODE_AUTO_FR_DIVBY2 1 /* Use automatic frame rate, max reduction to 1/2 frame rate. */
 #define CAMERA_NIGHT_MODE_AUTO_FR_DIVBY4 4 /* Use automatic frame rate, max reduction to 1/4 frame rate. */
 #define CAMERA_NIGHT_MODE_AUTO_FR_DIVBY8 8 /* Use automatic frame rate, max reduction to 1/8 frame rate. */

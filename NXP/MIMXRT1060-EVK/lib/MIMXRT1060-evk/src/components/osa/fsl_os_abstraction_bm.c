@@ -52,23 +52,23 @@
 /*! @brief Type for an semaphore */
 typedef struct Semaphore
 {
-    uint32_t time_start;       /*!< The time to start timeout                        */
-    uint32_t timeout;          /*!< Timeout to wait in milliseconds                  */
-    volatile bool isWaiting;   /*!< Is any task waiting for a timeout on this object */
-    volatile uint8_t semCount; /*!< The count value of the object                    */
+    uint32_t time_start;        /*!< The time to start timeout                        */
+    uint32_t timeout;           /*!< Timeout to wait in milliseconds                  */
+    volatile uint8_t isWaiting; /*!< Is any task waiting for a timeout on this object */
+    volatile uint8_t semCount;  /*!< The count value of the object                    */
 
 } semaphore_t;
 
 /*! @brief Type for a mutex */
 typedef struct Mutex
 {
-    uint32_t time_start;     /*!< The time to start timeout                       */
-    uint32_t timeout;        /*!< Timeout to wait in milliseconds                 */
-    volatile bool isWaiting; /*!< Is any task waiting for a timeout on this mutex */
-    volatile bool isLocked;  /*!< Is the object locked or not                     */
+    uint32_t time_start;        /*!< The time to start timeout                       */
+    uint32_t timeout;           /*!< Timeout to wait in milliseconds                 */
+    volatile uint8_t isWaiting; /*!< Is any task waiting for a timeout on this mutex */
+    volatile uint8_t isLocked;  /*!< Is the object locked or not                     */
 } mutex_t;
 
-#define gIdleTaskPriority_c ((task_priority_t)0)
+#define gIdleTaskPriority_c    ((task_priority_t)0)
 #define gInvalidTaskPriority_c ((task_priority_t)-1)
 
 /*! @brief Type for a task handler, returned by the OSA_TaskCreate function */
@@ -80,7 +80,7 @@ typedef struct TaskControlBlock
     osa_task_ptr_t p_func;        /*!< Task's entry                           */
     osa_task_priority_t priority; /*!< Task's priority                        */
     osa_task_param_t param;       /*!< Task's parameter                       */
-    bool haveToRun;               /*!< Task was signaled                      */
+    uint8_t haveToRun;            /*!< Task was signaled                      */
 } task_control_block_t;
 
 /*! @brief Type for a task pointer */
@@ -98,17 +98,17 @@ typedef struct Event
 #if (defined(FSL_OSA_TASK_ENABLE) && (FSL_OSA_TASK_ENABLE > 0U))
     task_handler_t waitingTask; /*!< Handler to the waiting task                      */
 #endif
-    bool autoClear;          /*!< Auto clear or manual clear                       */
-    volatile bool isWaiting; /*!< Is any task waiting for a timeout on this event  */
+    uint8_t autoClear;          /*!< Auto clear or manual clear                       */
+    volatile uint8_t isWaiting; /*!< Is any task waiting for a timeout on this event  */
 } event_t;
 
 /*! @brief Type for a message queue */
 typedef struct MsgQueue
 {
-    volatile bool isWaiting; /*!< Is any task waiting for a timeout    */
-    uint32_t time_start;     /*!< The time to start timeout            */
-    uint32_t timeout;        /*!< Timeout to wait in milliseconds      */
-    uint32_t size;           /*!< The size(byte) of a single message   */
+    volatile uint8_t isWaiting; /*!< Is any task waiting for a timeout    */
+    uint32_t time_start;        /*!< The time to start timeout            */
+    uint32_t timeout;           /*!< Timeout to wait in milliseconds      */
+    uint32_t size;              /*!< The size(byte) of a single message   */
 #if (defined(FSL_OSA_TASK_ENABLE) && (FSL_OSA_TASK_ENABLE > 0U))
     task_handler_t waitingTask; /*!< Handler to the waiting task          */
 #endif
@@ -132,7 +132,7 @@ typedef struct _osa_state
     volatile uint32_t interruptDisableCount;
     volatile uint32_t tickCounter;
 #if (defined(FSL_OSA_TASK_ENABLE) && (FSL_OSA_TASK_ENABLE > 0U))
-    uint8_t mainTaskHandle[OSA_TASK_HANDLE_SIZE];
+    OSA_TASK_HANDLE_DEFINE(mainTaskHandle);
 #endif
 } osa_state_t;
 
@@ -147,8 +147,12 @@ __WEAK_FUNC void main_task(osa_task_param_t arg)
 }
 __WEAK_FUNC void OSA_TimeInit(void);
 __WEAK_FUNC uint32_t OSA_TimeDiff(uint32_t time_start, uint32_t time_end);
+#if (defined(FSL_OSA_TASK_ENABLE) && (FSL_OSA_TASK_ENABLE > 0U))
 osa_status_t OSA_Init(void);
+#endif /* FSL_OSA_TASK_ENABLE */
+#if (defined(FSL_OSA_TASK_ENABLE) && (FSL_OSA_TASK_ENABLE > 0U))
 void OSA_Start(void);
+#endif /* FSL_OSA_TASK_ENABLE */
 
 /*! *********************************************************************************
 *************************************************************************************
@@ -181,7 +185,7 @@ void *OSA_MemoryAllocate(uint32_t length)
 
     if (NULL != p)
     {
-        memset(p, 0, length);
+        (void)memset(p, 0, length);
     }
 
     return p;
@@ -297,6 +301,7 @@ osa_status_t OSA_TaskSetPriority(osa_task_handle_t taskHandle, osa_task_priority
     list_element_handle_t list_element;
     task_control_block_t *tcb         = NULL;
     task_control_block_t *ptaskStruct = (task_control_block_t *)taskHandle;
+    uint32_t regPrimask;
 
     ptaskStruct->priority = taskPriority;
     (void)LIST_RemoveElement(&ptaskStruct->link);
@@ -314,9 +319,9 @@ osa_status_t OSA_TaskSetPriority(osa_task_handle_t taskHandle, osa_task_priority
     }
     if (ptaskStruct->priority > tcb->priority)
     {
-        OSA_InterruptDisable();
+        OSA_EnterCritical(&regPrimask);
         (void)LIST_AddTail(&s_osaState.taskList, (list_element_handle_t)(void *)&(ptaskStruct->link));
-        OSA_InterruptEnable();
+        OSA_ExitCritical(regPrimask);
     }
 
     return KOSA_StatusSuccess;
@@ -339,11 +344,12 @@ osa_status_t OSA_TaskCreate(osa_task_handle_t taskHandle, osa_task_def_t *thread
     list_status_t listStatus;
     task_control_block_t *tcb         = NULL;
     task_control_block_t *ptaskStruct = (task_control_block_t *)taskHandle;
+    uint32_t regPrimask;
     assert(sizeof(task_control_block_t) == OSA_TASK_HANDLE_SIZE);
     assert(taskHandle);
 
     ptaskStruct->p_func    = thread_def->pthread;
-    ptaskStruct->haveToRun = true;
+    ptaskStruct->haveToRun = 1U;
     ptaskStruct->priority  = (uint16_t)PRIORITY_OSA_TO_RTOS(thread_def->tpriority);
     ptaskStruct->param     = task_param;
 
@@ -353,14 +359,13 @@ osa_status_t OSA_TaskCreate(osa_task_handle_t taskHandle, osa_task_def_t *thread
         tcb = (task_control_block_t *)(void *)list_element;
         if (ptaskStruct->priority <= tcb->priority)
         {
-            OSA_InterruptDisable();
+            OSA_EnterCritical(&regPrimask);
             listStatus = LIST_AddPrevElement(&tcb->link, &ptaskStruct->link);
+            OSA_ExitCritical(regPrimask);
             if (listStatus == (list_status_t)kLIST_DuplicateError)
             {
-                OSA_InterruptEnable();
                 return KOSA_StatusError;
             }
-            OSA_InterruptEnable();
             break;
         }
         list_element = LIST_GetNext(list_element);
@@ -368,10 +373,10 @@ osa_status_t OSA_TaskCreate(osa_task_handle_t taskHandle, osa_task_def_t *thread
 
     if ((NULL == tcb) || (ptaskStruct->priority > tcb->priority))
     {
-        OSA_InterruptDisable();
+        OSA_EnterCritical(&regPrimask);
         listStatus = LIST_AddTail(&s_osaState.taskList, (list_element_handle_t)(void *)&(ptaskStruct->link));
         assert(listStatus == kLIST_Ok);
-        OSA_InterruptEnable();
+        OSA_ExitCritical(regPrimask);
     }
 
     return KOSA_StatusSuccess;
@@ -389,11 +394,12 @@ osa_status_t OSA_TaskCreate(osa_task_handle_t taskHandle, osa_task_def_t *thread
 #if (defined(FSL_OSA_TASK_ENABLE) && (FSL_OSA_TASK_ENABLE > 0U))
 osa_status_t OSA_TaskDestroy(osa_task_handle_t taskHandle)
 {
+    uint32_t regPrimask;
     assert(taskHandle);
 
-    OSA_InterruptDisable();
+    OSA_EnterCritical(&regPrimask);
     (void)LIST_RemoveElement(taskHandle);
-    OSA_InterruptEnable();
+    OSA_ExitCritical(regPrimask);
     return KOSA_StatusSuccess;
 }
 #endif
@@ -483,9 +489,9 @@ osa_status_t OSA_SemaphoreCreate(osa_semaphore_handle_t semaphoreHandle, uint32_
     assert(semaphoreHandle);
 
     pSemStruct->semCount   = (uint8_t)initValue;
-    pSemStruct->isWaiting  = false;
-    pSemStruct->time_start = 0u;
-    pSemStruct->timeout    = 0u;
+    pSemStruct->isWaiting  = 0U;
+    pSemStruct->time_start = 0U;
+    pSemStruct->timeout    = 0U;
     return KOSA_StatusSuccess;
 }
 /*FUNCTION**********************************************************************
@@ -501,7 +507,7 @@ osa_status_t OSA_SemaphoreDestroy(osa_semaphore_handle_t semaphoreHandle)
     semaphore_t *pSemStruct = (semaphore_t *)semaphoreHandle;
 
     /* Destroy semaphoreHandle's data */
-    memset(pSemStruct, 0, sizeof(semaphore_t));
+    (void)memset(pSemStruct, 0, sizeof(semaphore_t));
 
     return KOSA_StatusSuccess;
 }
@@ -521,6 +527,7 @@ osa_status_t OSA_SemaphoreDestroy(osa_semaphore_handle_t semaphoreHandle)
 osa_status_t OSA_SemaphoreWait(osa_semaphore_handle_t semaphoreHandle, uint32_t millisec)
 {
     semaphore_t *pSemStruct = (semaphore_t *)semaphoreHandle;
+    uint32_t regPrimask;
     assert(semaphoreHandle);
 #if (FSL_OSA_BM_TIMER_CONFIG != FSL_OSA_BM_TIMER_NONE)
     uint32_t currentTime;
@@ -529,10 +536,10 @@ osa_status_t OSA_SemaphoreWait(osa_semaphore_handle_t semaphoreHandle, uint32_t 
 
     if (0U != pSemStruct->semCount)
     {
-        OSA_DisableIRQGlobal();
+        OSA_EnterCritical(&regPrimask);
         pSemStruct->semCount--;
-        pSemStruct->isWaiting = false;
-        OSA_EnableIRQGlobal();
+        pSemStruct->isWaiting = 0U;
+        OSA_ExitCritical(regPrimask);
         return KOSA_StatusSuccess;
     }
     else
@@ -543,24 +550,24 @@ osa_status_t OSA_SemaphoreWait(osa_semaphore_handle_t semaphoreHandle, uint32_t 
             return KOSA_StatusTimeout;
         }
 #if (FSL_OSA_BM_TIMER_CONFIG != FSL_OSA_BM_TIMER_NONE)
-        else if (false != pSemStruct->isWaiting)
+        else if (0U != pSemStruct->isWaiting)
         {
             /* Check for timeout */
             currentTime = OSA_TimeGetMsec();
             if (pSemStruct->timeout < OSA_TimeDiff(pSemStruct->time_start, currentTime))
             {
-                OSA_DisableIRQGlobal();
-                pSemStruct->isWaiting = false;
-                OSA_EnableIRQGlobal();
+                OSA_EnterCritical(&regPrimask);
+                pSemStruct->isWaiting = 0U;
+                OSA_ExitCritical(regPrimask);
                 return KOSA_StatusTimeout;
             }
         }
         else if (millisec != osaWaitForever_c) /* If don't wait forever, start the timer */
         {
             /* Start the timeout counter */
-            OSA_DisableIRQGlobal();
-            pSemStruct->isWaiting = true;
-            OSA_EnableIRQGlobal();
+            OSA_EnterCritical(&regPrimask);
+            pSemStruct->isWaiting = 1U;
+            OSA_ExitCritical(regPrimask);
             pSemStruct->time_start = OSA_TimeGetMsec();
             pSemStruct->timeout    = millisec;
         }
@@ -585,6 +592,7 @@ osa_status_t OSA_SemaphoreWait(osa_semaphore_handle_t semaphoreHandle, uint32_t 
 osa_status_t OSA_SemaphorePost(osa_semaphore_handle_t semaphoreHandle)
 {
     semaphore_t *pSemStruct = (semaphore_t *)semaphoreHandle;
+    uint32_t regPrimask;
     assert(semaphoreHandle);
 
     /* The max value is 0xFF */
@@ -592,9 +600,9 @@ osa_status_t OSA_SemaphorePost(osa_semaphore_handle_t semaphoreHandle)
     {
         return KOSA_StatusError;
     }
-    OSA_DisableIRQGlobal();
+    OSA_EnterCritical(&regPrimask);
     ++pSemStruct->semCount;
-    OSA_EnableIRQGlobal();
+    OSA_ExitCritical(regPrimask);
 
     return KOSA_StatusSuccess;
 }
@@ -612,8 +620,8 @@ osa_status_t OSA_MutexCreate(osa_mutex_handle_t mutexHandle)
     assert(sizeof(mutex_t) == OSA_MUTEX_HANDLE_SIZE);
     assert(mutexHandle);
 
-    pMutexStruct->isLocked   = false;
-    pMutexStruct->isWaiting  = false;
+    pMutexStruct->isLocked   = 0U;
+    pMutexStruct->isWaiting  = 0U;
     pMutexStruct->time_start = 0u;
     pMutexStruct->timeout    = 0u;
     return KOSA_StatusSuccess;
@@ -636,15 +644,16 @@ osa_status_t OSA_MutexLock(osa_mutex_handle_t mutexHandle, uint32_t millisec)
     uint32_t currentTime;
 #endif
     mutex_t *pMutexStruct = (mutex_t *)mutexHandle;
+    uint32_t regPrimask;
 
     /* Always check first. Deal with timeout only if not available. */
-    if (false == pMutexStruct->isLocked)
+    if (0U == pMutexStruct->isLocked)
     {
         /* Get the lock and return success */
-        OSA_DisableIRQGlobal();
-        pMutexStruct->isLocked  = true;
-        pMutexStruct->isWaiting = false;
-        OSA_EnableIRQGlobal();
+        OSA_EnterCritical(&regPrimask);
+        pMutexStruct->isLocked  = 1U;
+        pMutexStruct->isWaiting = 0U;
+        OSA_ExitCritical(regPrimask);
         return KOSA_StatusSuccess;
     }
     else
@@ -655,24 +664,24 @@ osa_status_t OSA_MutexLock(osa_mutex_handle_t mutexHandle, uint32_t millisec)
             return KOSA_StatusTimeout;
         }
 #if (FSL_OSA_BM_TIMER_CONFIG != FSL_OSA_BM_TIMER_NONE)
-        else if (pMutexStruct->isWaiting != false)
+        else if (pMutexStruct->isWaiting != 0U)
         {
             /* Check for timeout */
             currentTime = OSA_TimeGetMsec();
             if (pMutexStruct->timeout < OSA_TimeDiff(pMutexStruct->time_start, currentTime))
             {
-                OSA_DisableIRQGlobal();
-                pMutexStruct->isWaiting = false;
-                OSA_EnableIRQGlobal();
+                OSA_EnterCritical(&regPrimask);
+                pMutexStruct->isWaiting = 0U;
+                OSA_ExitCritical(regPrimask);
                 return KOSA_StatusTimeout;
             }
         }
         else if (millisec != osaWaitForever_c) /* If dont't wait forever, start timer. */
         {
             /* Start the timeout counter */
-            OSA_DisableIRQGlobal();
-            pMutexStruct->isWaiting = true;
-            OSA_EnableIRQGlobal();
+            OSA_EnterCritical(&regPrimask);
+            pMutexStruct->isWaiting = 1U;
+            OSA_ExitCritical(regPrimask);
             pMutexStruct->time_start = OSA_TimeGetMsec();
             pMutexStruct->timeout    = millisec;
         }
@@ -694,11 +703,12 @@ osa_status_t OSA_MutexLock(osa_mutex_handle_t mutexHandle, uint32_t millisec)
 osa_status_t OSA_MutexUnlock(osa_mutex_handle_t mutexHandle)
 {
     mutex_t *pMutexStruct = (mutex_t *)mutexHandle;
+    uint32_t regPrimask;
     assert(mutexHandle);
 
-    OSA_DisableIRQGlobal();
-    pMutexStruct->isLocked = false;
-    OSA_EnableIRQGlobal();
+    OSA_EnterCritical(&regPrimask);
+    pMutexStruct->isLocked = 0U;
+    OSA_ExitCritical(regPrimask);
     return KOSA_StatusSuccess;
 }
 /*FUNCTION**********************************************************************
@@ -714,7 +724,7 @@ osa_status_t OSA_MutexDestroy(osa_mutex_handle_t mutexHandle)
     mutex_t *pMutexStruct = (mutex_t *)mutexHandle;
 
     /* Destory mutexHandle's data */
-    memset(pMutexStruct, 0, sizeof(mutex_t));
+    (void)memset(pMutexStruct, 0, sizeof(mutex_t));
 
     return KOSA_StatusSuccess;
 }
@@ -731,9 +741,9 @@ osa_status_t OSA_EventCreate(osa_event_handle_t eventHandle, uint8_t autoClear)
     assert(sizeof(event_t) == OSA_EVENT_HANDLE_SIZE);
     assert(eventHandle);
 
-    pEventStruct->isWaiting  = false;
+    pEventStruct->isWaiting  = 0U;
     pEventStruct->flags      = 0;
-    pEventStruct->autoClear  = (bool)autoClear;
+    pEventStruct->autoClear  = autoClear;
     pEventStruct->time_start = 0u;
     pEventStruct->timeout    = 0u;
 #if (defined(FSL_OSA_TASK_ENABLE) && (FSL_OSA_TASK_ENABLE > 0U))
@@ -751,17 +761,18 @@ osa_status_t OSA_EventCreate(osa_event_handle_t eventHandle, uint8_t autoClear)
 osa_status_t OSA_EventSet(osa_event_handle_t eventHandle, osa_event_flags_t flagsToSet)
 {
     event_t *pEventStruct;
+    uint32_t regPrimask;
     pEventStruct = (event_t *)eventHandle;
     /* Set flags ensuring atomic operation */
-    OSA_DisableIRQGlobal();
+    OSA_EnterCritical(&regPrimask);
     pEventStruct->flags |= flagsToSet;
 #if (defined(FSL_OSA_TASK_ENABLE) && (FSL_OSA_TASK_ENABLE > 0U))
     if (pEventStruct->waitingTask != NULL)
     {
-        pEventStruct->waitingTask->haveToRun = true;
+        pEventStruct->waitingTask->haveToRun = 1U;
     }
 #endif
-    OSA_EnableIRQGlobal();
+    OSA_ExitCritical(regPrimask);
 
     return KOSA_StatusSuccess;
 }
@@ -775,20 +786,47 @@ osa_status_t OSA_EventSet(osa_event_handle_t eventHandle, osa_event_flags_t flag
 osa_status_t OSA_EventClear(osa_event_handle_t eventHandle, osa_event_flags_t flagsToClear)
 {
     event_t *pEventStruct;
+    uint32_t regPrimask;
     pEventStruct = (event_t *)eventHandle;
     /* Clear flags ensuring atomic operation */
-    OSA_DisableIRQGlobal();
+    OSA_EnterCritical(&regPrimask);
     pEventStruct->flags &= ~flagsToClear;
     if (0U != pEventStruct->flags)
     {
 #if (defined(FSL_OSA_TASK_ENABLE) && (FSL_OSA_TASK_ENABLE > 0U))
         if (NULL != pEventStruct->waitingTask)
         {
-            pEventStruct->waitingTask->haveToRun = true;
+            pEventStruct->waitingTask->haveToRun = 1U;
         }
 #endif
     }
-    OSA_EnableIRQGlobal();
+    OSA_ExitCritical(regPrimask);
+
+    return KOSA_StatusSuccess;
+}
+/*FUNCTION**********************************************************************
+ *
+ * Function Name : OSA_EventGet
+ * Description   : This function is used to get event's flags that specified by prameter
+ * flagsMask, and the flags (user specified) are obatianed by parameter pFlagsOfEvent. So
+ * you should pass the parameter 0xffffffff to specify you want to get all.
+ * Return        :KOSA_StatusSuccess if event flags were successfully got, KOSA_StatusError if failed.
+ *
+ *END**************************************************************************/
+osa_status_t OSA_EventGet(osa_event_handle_t eventHandle, osa_event_flags_t flagsMask, osa_event_flags_t *pFlagsOfEvent)
+{
+    event_t *pEventStruct;
+    pEventStruct = (event_t *)eventHandle;
+    OSA_SR_ALLOC();
+
+    if (NULL == pFlagsOfEvent)
+    {
+        return KOSA_StatusError;
+    }
+
+    OSA_ENTER_CRITICAL();
+    *pFlagsOfEvent = pEventStruct->flags & flagsMask;
+    OSA_EXIT_CRITICAL();
 
     return KOSA_StatusSuccess;
 }
@@ -814,6 +852,7 @@ osa_status_t OSA_EventWait(osa_event_handle_t eventHandle,
                            osa_event_flags_t *pSetFlags)
 {
     event_t *pEventStruct;
+    uint32_t regPrimask;
 #if (FSL_OSA_BM_TIMER_CONFIG != FSL_OSA_BM_TIMER_NONE)
     uint32_t currentTime;
 #endif
@@ -825,7 +864,7 @@ osa_status_t OSA_EventWait(osa_event_handle_t eventHandle,
 
     pEventStruct = (event_t *)eventHandle;
 
-    OSA_DisableIRQGlobal();
+    OSA_EnterCritical(&regPrimask);
 #if (defined(FSL_OSA_TASK_ENABLE) && (FSL_OSA_TASK_ENABLE > 0U))
 #if (TASK_MAX_NUM > 0)
     pEventStruct->waitingTask = OSA_TaskGetCurrentHandle();
@@ -837,8 +876,8 @@ osa_status_t OSA_EventWait(osa_event_handle_t eventHandle,
     /* Check the event flag first, if does not meet wait condition, deal with timeout. */
     if (((0U == waitAll) && (0U != *pSetFlags)) || (*pSetFlags == flagsToWait))
     {
-        pEventStruct->isWaiting = false;
-        if (true == pEventStruct->autoClear)
+        pEventStruct->isWaiting = 0U;
+        if (1U == pEventStruct->autoClear)
         {
             pEventStruct->flags &= ~flagsToWait;
         }
@@ -852,20 +891,20 @@ osa_status_t OSA_EventWait(osa_event_handle_t eventHandle,
             retVal = KOSA_StatusTimeout;
         }
 #if (FSL_OSA_BM_TIMER_CONFIG != FSL_OSA_BM_TIMER_NONE)
-        else if (false != pEventStruct->isWaiting)
+        else if (0U != pEventStruct->isWaiting)
         {
             /* Check for timeout */
             currentTime = OSA_TimeGetMsec();
             if (pEventStruct->timeout < OSA_TimeDiff(pEventStruct->time_start, currentTime))
             {
-                pEventStruct->isWaiting = false;
+                pEventStruct->isWaiting = 0U;
                 retVal                  = KOSA_StatusTimeout;
             }
         }
         else if (millisec != osaWaitForever_c) /* If no timeout, don't start the timer */
         {
             /* Start the timeout counter */
-            pEventStruct->isWaiting  = true;
+            pEventStruct->isWaiting  = 1U;
             pEventStruct->time_start = OSA_TimeGetMsec();
             pEventStruct->timeout    = millisec;
         }
@@ -873,12 +912,12 @@ osa_status_t OSA_EventWait(osa_event_handle_t eventHandle,
         else
         {
 #if (defined(FSL_OSA_TASK_ENABLE) && (FSL_OSA_TASK_ENABLE > 0U))
-            pEventStruct->waitingTask->haveToRun = false;
+            pEventStruct->waitingTask->haveToRun = 0U;
 #endif
         }
     }
 
-    OSA_EnableIRQGlobal();
+    OSA_ExitCritical(regPrimask);
 
     return retVal;
 }
@@ -896,7 +935,7 @@ osa_status_t OSA_EventDestroy(osa_event_handle_t eventHandle)
     event_t *pEventStruct = (event_t *)eventHandle;
 
     /* Destroy eventHandle's data */
-    memset(pEventStruct, 0, sizeof(event_t));
+    (void)memset(pEventStruct, 0, sizeof(event_t));
 
     return KOSA_StatusSuccess;
 }
@@ -936,6 +975,7 @@ osa_status_t OSA_MsgQPut(osa_msgq_handle_t msgqHandle, osa_msg_handle_t pMessage
     assert(msgqHandle);
     msg_queue_t *pQueue;
     osa_status_t status = KOSA_StatusSuccess;
+    uint32_t regPrimask;
 
     uint8_t *pMsgArray;
 
@@ -946,7 +986,7 @@ osa_status_t OSA_MsgQPut(osa_msgq_handle_t msgqHandle, osa_msg_handle_t pMessage
         return KOSA_StatusError;
     }
 
-    OSA_DisableIRQGlobal();
+    OSA_EnterCritical(&regPrimask);
     if (pQueue->number >= pQueue->max)
     {
         status = KOSA_StatusError;
@@ -960,7 +1000,7 @@ osa_status_t OSA_MsgQPut(osa_msgq_handle_t msgqHandle, osa_msg_handle_t pMessage
         }
 
         pQueue->number++;
-        pQueue->tail += pQueue->size;
+        pQueue->tail += (uint16_t)pQueue->size;
 
         if (pQueue->tail >= (pQueue->max * pQueue->size))
         {
@@ -969,11 +1009,11 @@ osa_status_t OSA_MsgQPut(osa_msgq_handle_t msgqHandle, osa_msg_handle_t pMessage
 #if (defined(FSL_OSA_TASK_ENABLE) && (FSL_OSA_TASK_ENABLE > 0U))
         if (NULL != pQueue->waitingTask)
         {
-            pQueue->waitingTask->haveToRun = true;
+            pQueue->waitingTask->haveToRun = 1U;
         }
 #endif
     }
-    OSA_EnableIRQGlobal();
+    OSA_ExitCritical(regPrimask);
     return status;
 }
 /*FUNCTION**********************************************************************
@@ -994,6 +1034,7 @@ osa_status_t OSA_MsgQGet(osa_msgq_handle_t msgqHandle, osa_msg_handle_t pMessage
     assert(msgqHandle);
     msg_queue_t *pQueue;
     osa_status_t status = KOSA_StatusSuccess;
+    uint32_t regPrimask;
 
     uint8_t *pMsgArray;
 
@@ -1012,7 +1053,7 @@ osa_status_t OSA_MsgQGet(osa_msgq_handle_t msgqHandle, osa_msg_handle_t pMessage
     pQueue->waitingTask = OSA_TaskGetCurrentHandle();
 #endif
 
-    OSA_DisableIRQGlobal();
+    OSA_EnterCritical(&regPrimask);
     if (0U != pQueue->number)
     {
         pMsgArray = (uint8_t *)pMessage;
@@ -1022,8 +1063,8 @@ osa_status_t OSA_MsgQGet(osa_msgq_handle_t msgqHandle, osa_msg_handle_t pMessage
         }
 
         pQueue->number--;
-        pQueue->head += pQueue->size;
-        pQueue->isWaiting = false;
+        pQueue->head += (uint16_t)pQueue->size;
+        pQueue->isWaiting = 0U;
 
         if (pQueue->head >= (pQueue->max * pQueue->size))
         {
@@ -1039,21 +1080,21 @@ osa_status_t OSA_MsgQGet(osa_msgq_handle_t msgqHandle, osa_msg_handle_t pMessage
             status = KOSA_StatusTimeout;
         }
 #if (FSL_OSA_BM_TIMER_CONFIG != FSL_OSA_BM_TIMER_NONE)
-        else if (false != pQueue->isWaiting)
+        else if (0U != pQueue->isWaiting)
         {
             /* Check for timeout */
             status      = KOSA_StatusIdle; /* Before a timeout, the status should be idle. */
             currentTime = OSA_TimeGetMsec();
             if (pQueue->timeout < OSA_TimeDiff(pQueue->time_start, currentTime))
             {
-                pQueue->isWaiting = false;
+                pQueue->isWaiting = 0U;
                 status            = KOSA_StatusTimeout;
             }
         }
         else if (millisec != osaWaitForever_c) /* If no timeout, don't start the timer */
         {
             /* Start the timeout counter */
-            pQueue->isWaiting  = true;
+            pQueue->isWaiting  = 1U;
             pQueue->time_start = OSA_TimeGetMsec();
             pQueue->timeout    = millisec;
             status             = KOSA_StatusIdle;
@@ -1062,12 +1103,12 @@ osa_status_t OSA_MsgQGet(osa_msgq_handle_t msgqHandle, osa_msg_handle_t pMessage
         else
         {
 #if (defined(FSL_OSA_TASK_ENABLE) && (FSL_OSA_TASK_ENABLE > 0U))
-            pQueue->waitingTask->haveToRun = false;
+            pQueue->waitingTask->haveToRun = 0U;
 #endif
             status = KOSA_StatusIdle;
         }
     }
-    OSA_EnableIRQGlobal();
+    OSA_ExitCritical(regPrimask);
 
     return status;
 }
@@ -1086,7 +1127,7 @@ osa_status_t OSA_MsgQDestroy(osa_msgq_handle_t msgqHandle)
 
     /* Destory msgqHandle's data */
     /* OSA_MsgQGet() & OSA_MsgQPut() will check queueMem, if NULL will return an error. */
-    memset(pQueue, 0, sizeof(msg_queue_t));
+    (void)memset(pQueue, 0, sizeof(msg_queue_t));
 
     return KOSA_StatusSuccess;
 }
@@ -1189,7 +1230,7 @@ void OSA_Start(void)
         {
             tcb                       = (task_control_block_t *)(void *)list_element;
             s_osaState.curTaskHandler = (osa_task_handle_t)tcb;
-            if (false != tcb->haveToRun)
+            if (0U != tcb->haveToRun)
             {
                 if (NULL != tcb->p_func)
                 {

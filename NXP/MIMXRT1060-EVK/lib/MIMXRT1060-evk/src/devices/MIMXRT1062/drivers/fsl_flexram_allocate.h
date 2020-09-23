@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NXP
+ * Copyright 2019-2020 NXP
  * All rights reserved.
  *
  *
@@ -22,8 +22,8 @@
 
 /*! @name Driver version */
 /*@{*/
-/*! @brief Driver version 2.0.6. */
-#define FSL_FLEXRAM_DRIVER_VERSION (MAKE_VERSION(2U, 0U, 6U))
+/*! @brief Driver version 2.0.7. */
+#define FSL_FLEXRAM_DRIVER_VERSION (MAKE_VERSION(2U, 0U, 7U))
 /*@}*/
 
 /*! @brief FLEXRAM bank type */

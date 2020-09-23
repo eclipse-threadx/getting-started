@@ -53,7 +53,7 @@ extern "C" {
  * @brief Codec i2c bus initilization.
  *
  * @param handle i2c master handle.
- * @param i2CInstance instance number of the i2c bus, such as 0 is corresponding to I2C0.
+ * @param i2cInstance instance number of the i2c bus, such as 0 is corresponding to I2C0.
  * @param i2cBaudrate i2c baudrate.
  * @param i2cSourceClockHz i2c source clock frequency.
  * @return kStatus_HAL_I2cSuccess is success, else initial failed.

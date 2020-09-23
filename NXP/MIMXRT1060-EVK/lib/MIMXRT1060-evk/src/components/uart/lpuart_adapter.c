@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NXP
+ * Copyright 2018, 2020 NXP
  * All rights reserved.
  *
  *
@@ -282,13 +282,23 @@ hal_uart_status_t HAL_UartInit(hal_uart_handle_t handle, hal_uart_config_t *conf
     s_UartState[uartHandle->instance] = uartHandle;
 /* Enable interrupt in NVIC. */
 #if defined(FSL_FEATURE_LPUART_HAS_SEPARATE_RX_TX_IRQ) && FSL_FEATURE_LPUART_HAS_SEPARATE_RX_TX_IRQ
-    NVIC_SetPriority((IRQn_Type)s_LpuartRxIRQ[uartHandle->instance], HAL_UART_ISR_PRIORITY);
-    EnableIRQ(s_LpuartRxIRQ[uartHandle->instance]);
-    NVIC_SetPriority((IRQn_Type)s_LpuartTxIRQ[uartHandle->instance], HAL_UART_ISR_PRIORITY);
-    EnableIRQ(s_LpuartTxIRQ[uartHandle->instance]);
+#if defined(FSL_FEATURE_SOC_INTMUX_COUNT) && (FSL_FEATURE_SOC_INTMUX_COUNT > 0)
+    if (s_LpuartRxIRQ[uartHandle->instance] < FSL_FEATURE_NUMBER_OF_LEVEL1_INT_VECTORS)
+#endif
+    {
+        NVIC_SetPriority((IRQn_Type)s_LpuartRxIRQ[uartHandle->instance], HAL_UART_ISR_PRIORITY);
+        EnableIRQ(s_LpuartRxIRQ[uartHandle->instance]);
+        NVIC_SetPriority((IRQn_Type)s_LpuartTxIRQ[uartHandle->instance], HAL_UART_ISR_PRIORITY);
+        EnableIRQ(s_LpuartTxIRQ[uartHandle->instance]);
+    }
 #else
-    NVIC_SetPriority((IRQn_Type)s_LpuartIRQ[uartHandle->instance], HAL_UART_ISR_PRIORITY);
-    (void)EnableIRQ(s_LpuartIRQ[uartHandle->instance]);
+#if defined(FSL_FEATURE_SOC_INTMUX_COUNT) && (FSL_FEATURE_SOC_INTMUX_COUNT > 0)
+    if (s_LpuartIRQ[uartHandle->instance] < FSL_FEATURE_NUMBER_OF_LEVEL1_INT_VECTORS)
+#endif
+    {
+        NVIC_SetPriority((IRQn_Type)s_LpuartIRQ[uartHandle->instance], HAL_UART_ISR_PRIORITY);
+        (void)EnableIRQ(s_LpuartIRQ[uartHandle->instance]);
+    }
 #endif
 #endif
 
@@ -712,12 +722,7 @@ void LPUART0_LPUART1_RX_IRQHandler(void)
             HAL_UartInterruptHandle(1);
         }
     }
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 void LPUART0_LPUART1_TX_IRQHandler(void)
 {
@@ -737,12 +742,7 @@ void LPUART0_LPUART1_TX_IRQHandler(void)
             HAL_UartInterruptHandle(1);
         }
     }
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #else
 void LPUART0_LPUART1_IRQHandler(void);
@@ -777,12 +777,7 @@ void LPUART0_LPUART1_IRQHandler(void)
             HAL_UartInterruptHandle(1);
         }
     }
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #endif
 #endif
@@ -793,33 +788,18 @@ void LPUART0_LPUART1_IRQHandler(void)
 void LPUART0_TX_IRQHandler(void)
 {
     HAL_UartInterruptHandle(0);
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 void LPUART0_RX_IRQHandler(void)
 {
     HAL_UartInterruptHandle(0);
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #else
 void LPUART0_IRQHandler(void)
 {
     HAL_UartInterruptHandle(0);
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #endif
 #endif
@@ -831,33 +811,18 @@ void LPUART0_IRQHandler(void)
 void LPUART1_TX_IRQHandler(void)
 {
     HAL_UartInterruptHandle(1);
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 void LPUART1_RX_IRQHandler(void)
 {
     HAL_UartInterruptHandle(1);
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #else
 void LPUART1_IRQHandler(void)
 {
     HAL_UartInterruptHandle(1);
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #endif
 #endif
@@ -868,33 +833,18 @@ void LPUART1_IRQHandler(void)
 void LPUART2_TX_IRQHandler(void)
 {
     HAL_UartInterruptHandle(2);
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 void LPUART2_RX_IRQHandler(void)
 {
     HAL_UartInterruptHandle(2);
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #else
 void LPUART2_IRQHandler(void)
 {
     HAL_UartInterruptHandle(2);
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #endif
 #endif
@@ -904,33 +854,18 @@ void LPUART2_IRQHandler(void)
 void LPUART3_TX_IRQHandler(void)
 {
     HAL_UartInterruptHandle(3);
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 void LPUART3_RX_IRQHandler(void)
 {
     HAL_UartInterruptHandle(3);
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #else
 void LPUART3_IRQHandler(void)
 {
     HAL_UartInterruptHandle(3);
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #endif
 #endif
@@ -940,33 +875,18 @@ void LPUART3_IRQHandler(void)
 void LPUART4_TX_IRQHandler(void)
 {
     HAL_UartInterruptHandle(4);
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 void LPUART4_RX_IRQHandler(void)
 {
     HAL_UartInterruptHandle(4);
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #else
 void LPUART4_IRQHandler(void)
 {
     HAL_UartInterruptHandle(4);
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #endif
 #endif
@@ -976,33 +896,18 @@ void LPUART4_IRQHandler(void)
 void LPUART5_TX_IRQHandler(void)
 {
     HAL_UartInterruptHandle(5);
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 void LPUART5_RX_IRQHandler(void)
 {
     HAL_UartInterruptHandle(5);
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #else
 void LPUART5_IRQHandler(void)
 {
     HAL_UartInterruptHandle(5);
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #endif
 #endif
@@ -1012,33 +917,18 @@ void LPUART5_IRQHandler(void)
 void LPUART6_TX_IRQHandler(void)
 {
     HAL_UartInterruptHandle(6);
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 void LPUART6_RX_IRQHandler(void)
 {
     HAL_UartInterruptHandle(6);
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #else
 void LPUART6_IRQHandler(void)
 {
     HAL_UartInterruptHandle(6);
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #endif
 #endif
@@ -1048,33 +938,18 @@ void LPUART6_IRQHandler(void)
 void LPUART7_TX_IRQHandler(void)
 {
     HAL_UartInterruptHandle(7);
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 void LPUART7_RX_IRQHandler(void)
 {
     HAL_UartInterruptHandle(7);
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #else
 void LPUART7_IRQHandler(void)
 {
     HAL_UartInterruptHandle(7);
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #endif
 #endif
@@ -1084,33 +959,18 @@ void LPUART7_IRQHandler(void)
 void LPUART8_TX_IRQHandler(void)
 {
     HAL_UartInterruptHandle(8);
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 void LPUART8_RX_IRQHandler(void)
 {
     HAL_UartInterruptHandle(8);
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #else
 void LPUART8_IRQHandler(void)
 {
     HAL_UartInterruptHandle(8);
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #endif
 #endif
@@ -1119,12 +979,7 @@ void LPUART8_IRQHandler(void)
 void M4_0_LPUART_IRQHandler(void)
 {
     HAL_UartInterruptHandle(LPUART_GetInstance(CM4_0__LPUART));
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #endif
 
@@ -1132,12 +987,7 @@ void M4_0_LPUART_IRQHandler(void)
 void M4_1_LPUART_IRQHandler(void)
 {
     HAL_UartInterruptHandle(LPUART_GetInstance(CM4_1__LPUART));
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #endif
 
@@ -1145,12 +995,7 @@ void M4_1_LPUART_IRQHandler(void)
 void M4_LPUART_IRQHandler(void)
 {
     HAL_UartInterruptHandle(LPUART_GetInstance(CM4__LPUART));
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #endif
 
@@ -1158,12 +1003,7 @@ void M4_LPUART_IRQHandler(void)
 void DMA_UART0_INT_IRQHandler(void)
 {
     HAL_UartInterruptHandle(LPUART_GetInstance(DMA__LPUART0));
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #endif
 
@@ -1171,12 +1011,7 @@ void DMA_UART0_INT_IRQHandler(void)
 void DMA_UART1_INT_IRQHandler(void)
 {
     HAL_UartInterruptHandle(LPUART_GetInstance(DMA__LPUART1));
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #endif
 
@@ -1184,12 +1019,7 @@ void DMA_UART1_INT_IRQHandler(void)
 void DMA_UART2_INT_IRQHandler(void)
 {
     HAL_UartInterruptHandle(LPUART_GetInstance(DMA__LPUART2));
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #endif
 
@@ -1197,12 +1027,7 @@ void DMA_UART2_INT_IRQHandler(void)
 void DMA_UART3_INT_IRQHandler(void)
 {
     HAL_UartInterruptHandle(LPUART_GetInstance(DMA__LPUART3));
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #endif
 
@@ -1210,12 +1035,7 @@ void DMA_UART3_INT_IRQHandler(void)
 void DMA_UART4_INT_IRQHandler(void)
 {
     HAL_UartInterruptHandle(LPUART_GetInstance(DMA__LPUART4));
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #endif
 
@@ -1223,12 +1043,7 @@ void DMA_UART4_INT_IRQHandler(void)
 void ADMA_UART0_INT_IRQHandler(void)
 {
     HAL_UartInterruptHandle(LPUART_GetInstance(ADMA__LPUART0));
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #endif
 
@@ -1236,12 +1051,7 @@ void ADMA_UART0_INT_IRQHandler(void)
 void ADMA_UART1_INT_IRQHandler(void)
 {
     HAL_UartInterruptHandle(LPUART_GetInstance(ADMA__LPUART1));
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #endif
 
@@ -1249,12 +1059,7 @@ void ADMA_UART1_INT_IRQHandler(void)
 void ADMA_UART2_INT_IRQHandler(void)
 {
     HAL_UartInterruptHandle(LPUART_GetInstance(ADMA__LPUART2));
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #endif
 
@@ -1262,12 +1067,7 @@ void ADMA_UART2_INT_IRQHandler(void)
 void ADMA_UART3_INT_IRQHandler(void)
 {
     HAL_UartInterruptHandle(LPUART_GetInstance(ADMA__LPUART3));
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate
-  overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #endif
 

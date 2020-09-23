@@ -27,9 +27,9 @@ typedef struct _ft5406_rt_touch_data
 } ft5406_rt_touch_data_t;
 
 #define TOUCH_POINT_GET_EVENT(T) ((touch_event_t)((T).XH >> 6))
-#define TOUCH_POINT_GET_ID(T) ((T).YH >> 4)
-#define TOUCH_POINT_GET_X(T) ((((T).XH & 0x0f) << 8) | (T).XL)
-#define TOUCH_POINT_GET_Y(T) ((((T).YH & 0x0f) << 8) | (T).YL)
+#define TOUCH_POINT_GET_ID(T)    ((T).YH >> 4)
+#define TOUCH_POINT_GET_X(T)     ((((T).XH & 0x0f) << 8) | (T).XL)
+#define TOUCH_POINT_GET_Y(T)     ((((T).YH & 0x0f) << 8) | (T).YL)
 
 status_t FT5406_RT_Init(ft5406_rt_handle_t *handle, LPI2C_Type *base)
 {
@@ -146,6 +146,12 @@ status_t FT5406_RT_GetMultiTouch(ft5406_rt_handle_t *handle,
     {
         ft5406_rt_touch_data_t *touch_data = (ft5406_rt_touch_data_t *)(void *)(handle->touch_buf);
         int i;
+
+        /* Check for valid number of touches - otherwise ignore touch information */
+        if (touch_data->TD_STATUS > FT5406_RT_MAX_TOUCHES)
+        {
+            touch_data->TD_STATUS = 0;
+        }
 
         /* Decode number of touches */
         if (touch_count)

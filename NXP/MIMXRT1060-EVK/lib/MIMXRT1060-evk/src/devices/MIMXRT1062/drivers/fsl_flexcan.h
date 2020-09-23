@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * Copyright 2016-2019 NXP
+ * Copyright 2016-2020 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -21,8 +21,8 @@
 
 /*! @name Driver version */
 /*@{*/
-/*! @brief FlexCAN driver version 2.5.0. */
-#define FSL_FLEXCAN_DRIVER_VERSION (MAKE_VERSION(2, 5, 0))
+/*! @brief FlexCAN driver version. */
+#define FSL_FLEXCAN_DRIVER_VERSION (MAKE_VERSION(2, 5, 2))
 /*@}*/
 
 #if !(defined(FLEXCAN_WAIT_TIMEOUT) && FLEXCAN_WAIT_TIMEOUT)

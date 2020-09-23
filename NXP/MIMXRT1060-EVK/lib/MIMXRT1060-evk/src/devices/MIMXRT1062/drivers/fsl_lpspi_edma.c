@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * Copyright 2016-2017 NXP
+ * Copyright 2016-2019 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -387,7 +387,7 @@ status_t LPSPI_MasterTransferEDMA(LPSPI_Type *base, lpspi_master_edma_handle_t *
     transferConfigRx.srcAddr   = (uint32_t)rxAddr + dif;
     transferConfigRx.srcOffset = 0;
 
-    transferConfigRx.majorLoopCounts = (uint8_t)handle->readRegRemainingTimes;
+    transferConfigRx.majorLoopCounts = handle->readRegRemainingTimes;
 
     /* Store the initially configured eDMA minor byte transfer count into the LPSPI handle */
     handle->nbytes = (uint8_t)transferConfigRx.minorLoopBytes;

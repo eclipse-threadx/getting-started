@@ -20,7 +20,7 @@
  ******************************************************************************/
 
 #define LED_ENTER_CRITICAL() uint32_t regPrimask = DisableGlobalIRQ();
-#define LED_EXIT_CRITICAL() EnableGlobalIRQ(regPrimask);
+#define LED_EXIT_CRITICAL()  EnableGlobalIRQ(regPrimask);
 
 /* LED control type enumeration */
 typedef enum _led_control_type
@@ -77,10 +77,12 @@ typedef struct _led_pin
 typedef struct _led_state
 {
     struct _led_state *next;
-    uint8_t gpioHandle[sizeof(led_config_t) / sizeof(led_pin_config_t)][HAL_GPIO_HANDLE_SIZE];
+    uint32_t gpioHandle[sizeof(led_config_t) / sizeof(led_pin_config_t)]
+                       [((HAL_GPIO_HANDLE_SIZE + sizeof(uint32_t) - 1U) / sizeof(uint32_t))];
     volatile uint32_t expiryPeriodCount;
 #if (defined(LED_DIMMING_ENABLEMENT) && (LED_DIMMING_ENABLEMENT > 0U))
-    uint8_t pwmHandle[sizeof(led_config_t) / sizeof(led_pin_config_t)][HAL_PWM_HANDLE_SIZE];
+    uint32_t pwmHandle[sizeof(led_config_t) / sizeof(led_pin_config_t)]
+                      [((HAL_PWM_HANDLE_SIZE + sizeof(uint32_t) - 1U) / sizeof(uint32_t))];
 #endif
     uint32_t flashCycle;
     led_color_t settingColor;
@@ -107,7 +109,7 @@ typedef struct _led_list
 {
     led_state_t *ledState;
     volatile uint32_t periodCount;
-    uint8_t timerHandle[TIMER_HANDLE_SIZE];
+    TIMER_MANAGER_HANDLE_DEFINE(timerHandle);
 } led_list_t;
 
 /*******************************************************************************
@@ -312,7 +314,7 @@ led_status_t LED_Init(led_handle_t ledHandle, led_config_t *ledConfig)
     uint8_t rgbDimmingFlag = 0;
 #endif
 
-    assert(ledHandle && ledConfig);
+    assert((NULL != ledHandle) && (NULL != ledConfig));
     assert(LED_HANDLE_SIZE >= sizeof(led_state_t));
 
     if (kLED_TypeRgb == ledConfig->type)
@@ -341,7 +343,7 @@ led_status_t LED_Init(led_handle_t ledHandle, led_config_t *ledConfig)
             {
                 break;
             }
-            if (kStatus_TimerSuccess != TM_Start(s_ledList.timerHandle, kTimerModeIntervalTimer, LED_TIMER_INTERVAL))
+            if (kStatus_TimerSuccess != TM_Start(s_ledList.timerHandle, (uint8_t)kTimerModeIntervalTimer, LED_TIMER_INTERVAL))
             {
                 break;
             }
@@ -491,7 +493,7 @@ led_status_t LED_TurnOnOff(led_handle_t ledHandle, uint8_t turnOnOff)
 
     ledState               = (led_state_t *)ledHandle;
     ledState->controlType  = (uint16_t)kLED_TurnOffOn;
-    ledState->currentColor = turnOnOff ? ledState->settingColor : (led_color_t)kLED_Black;
+    ledState->currentColor = (1U == turnOnOff) ? ledState->settingColor : (led_color_t)kLED_Black;
     status                 = LED_SetStatus(ledState, ledState->currentColor, 0);
     return status;
 }
@@ -522,7 +524,7 @@ led_status_t LED_Flash(led_handle_t ledHandle, led_flash_config_t *ledFlash)
     assert(ledHandle);
     assert(ledFlash);
     assert(ledFlash->times);
-    assert(ledFlash->duty <= 100);
+    assert(ledFlash->duty <= 100U);
 
     ledState = (led_state_t *)ledHandle;
 

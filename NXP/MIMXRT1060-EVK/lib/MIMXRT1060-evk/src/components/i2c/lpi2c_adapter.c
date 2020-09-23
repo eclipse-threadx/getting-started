@@ -49,7 +49,7 @@ static LPI2C_Type *const s_i2cBases[] = LPI2C_BASE_PTRS;
  * Code
  ******************************************************************************/
 
-hal_i2c_status_t HAL_I2cGetStatus(status_t status)
+static hal_i2c_status_t HAL_I2cGetStatus(status_t status)
 {
     hal_i2c_status_t returnStatus;
     switch (status)
@@ -100,7 +100,7 @@ static void HAL_I2cMasterCallback(LPI2C_Type *base, lpi2c_master_handle_t *handl
 
     i2cMasterHandle = (hal_i2c_master_t *)callbackParam;
 
-    if (i2cMasterHandle->callback)
+    if (NULL != i2cMasterHandle->callback)
     {
         i2cMasterHandle->callback(i2cMasterHandle, HAL_I2cGetStatus(status), i2cMasterHandle->callbackParam);
     }
@@ -113,7 +113,7 @@ static void HAL_I2cSlaveCallback(LPI2C_Type *base, lpi2c_slave_transfer_t *xfer,
 
     i2cSlaveHandle = (hal_i2c_slave_t *)callbackParam;
 
-    if (i2cSlaveHandle->callback)
+    if (NULL != i2cSlaveHandle->callback)
     {
         i2cSlaveHandle->transfer.event            = (hal_i2c_slave_transfer_event_t)xfer->event;
         i2cSlaveHandle->transfer.data             = xfer->data;
@@ -133,11 +133,7 @@ hal_i2c_status_t HAL_I2cMasterInit(hal_i2c_master_handle_t handle, const hal_i2c
 
     assert(handle);
     assert(config);
-
-    if (HAL_I2C_MASTER_HANDLE_SIZE < sizeof(hal_i2c_master_t))
-    {
-        return kStatus_HAL_I2cError;
-    }
+    assert(HAL_I2C_MASTER_HANDLE_SIZE >= sizeof(hal_i2c_master_t));
 
     i2cMasterHandle = (hal_i2c_master_t *)handle;
 
@@ -158,17 +154,13 @@ hal_i2c_status_t HAL_I2cSlaveInit(hal_i2c_slave_handle_t handle, const hal_i2c_s
 
     assert(handle);
     assert(config);
-
-    if (HAL_I2C_SLAVE_HANDLE_SIZE < sizeof(hal_i2c_slave_t))
-    {
-        return kStatus_HAL_I2cError;
-    }
+    assert(HAL_I2C_SLAVE_HANDLE_SIZE >= sizeof(hal_i2c_slave_t));
 
     i2cSlaveHandle = (hal_i2c_slave_t *)handle;
 
     LPI2C_SlaveGetDefaultConfig(&i2cConfig);
     i2cConfig.enableSlave    = config->enableSlave;
-    i2cConfig.address0       = config->slaveAddress;
+    i2cConfig.address0       = (uint8_t)config->slaveAddress;
     i2cSlaveHandle->instance = config->instance;
 
     LPI2C_SlaveInit(s_i2cBases[i2cSlaveHandle->instance], &i2cConfig, config->srcClock_Hz);

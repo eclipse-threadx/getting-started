@@ -54,8 +54,8 @@
  * and CSICR18[2:9]. So merge them into an uint32_t value, place CSICR18 control
  * bits to [8:15].
  */
-#define CSI_CSICR1_INT_EN_MASK 0xFFFF0000U
-#define CSI_CSICR3_INT_EN_MASK 0x000000FFU
+#define CSI_CSICR1_INT_EN_MASK  0xFFFF0000U
+#define CSI_CSICR3_INT_EN_MASK  0x000000FFU
 #define CSI_CSICR18_INT_EN_MASK 0x0000FF00U
 
 #if ((~CSI_CSICR1_INT_EN_MASK) &                                                                             \

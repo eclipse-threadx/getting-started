@@ -38,8 +38,8 @@ extern serial_handle_t g_serialHandle; /*!< serial manager handle */
 
 /*! @brief Definition select redirect toolchain printf, scanf to uart or not. */
 #define DEBUGCONSOLE_REDIRECT_TO_TOOLCHAIN 0U /*!< Select toolchain printf and scanf. */
-#define DEBUGCONSOLE_REDIRECT_TO_SDK 1U       /*!< Select SDK version printf, scanf. */
-#define DEBUGCONSOLE_DISABLE 2U               /*!< Disable debugconsole function. */
+#define DEBUGCONSOLE_REDIRECT_TO_SDK       1U /*!< Select SDK version printf, scanf. */
+#define DEBUGCONSOLE_DISABLE               2U /*!< Disable debugconsole function. */
 
 /*! @brief Definition to select sdk or toolchain printf, scanf. The macro only support
  * to be redefined in project setting.
@@ -59,19 +59,28 @@ extern serial_handle_t g_serialHandle; /*!< serial manager handle */
  *  if SDK_DEBUGCONSOLE defined to 2,it represents disable debugconsole function.
  */
 #if SDK_DEBUGCONSOLE == DEBUGCONSOLE_DISABLE /* Disable debug console */
-#define PRINTF
-#define SCANF
-#define PUTCHAR
-#define GETCHAR
+#define PRINTF(...) \
+    do              \
+    {               \
+    } while (0)
+#define SCANF(...) \
+    do             \
+    {              \
+    } while (0)
+#define PUTCHAR(...) \
+    do               \
+    {                \
+    } while (0)
+#define GETCHAR() -1
 #elif SDK_DEBUGCONSOLE == DEBUGCONSOLE_REDIRECT_TO_SDK /* Select printf, scanf, putchar, getchar of SDK version. */
-#define PRINTF DbgConsole_Printf
-#define SCANF DbgConsole_Scanf
+#define PRINTF  DbgConsole_Printf
+#define SCANF   DbgConsole_Scanf
 #define PUTCHAR DbgConsole_Putchar
 #define GETCHAR DbgConsole_Getchar
 #elif SDK_DEBUGCONSOLE == DEBUGCONSOLE_REDIRECT_TO_TOOLCHAIN /* Select printf, scanf, putchar, getchar of toolchain. \ \
                                                               */
-#define PRINTF printf
-#define SCANF scanf
+#define PRINTF  printf
+#define SCANF   scanf
 #define PUTCHAR putchar
 #define GETCHAR getchar
 #endif /* SDK_DEBUGCONSOLE */
