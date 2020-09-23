@@ -109,7 +109,8 @@ UINT mqtt_publish(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR* message);
 
 UINT azure_iot_mqtt_publish_float_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, float value);
 UINT azure_iot_mqtt_publish_bool_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, bool value);
-UINT azure_iot_mqtt_publish_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, CHAR* value);
+UINT azure_iot_mqtt_publish_int_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* component, CHAR* label, int value);
+UINT azure_iot_mqtt_publish_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* component, CHAR* label, CHAR* value);
 UINT azure_iot_mqtt_publish_float_telemetry(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, float value);
 UINT azure_iot_mqtt_publish_telemetry(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* message);
 UINT azure_iot_mqtt_publish_int_writeable_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, int value);

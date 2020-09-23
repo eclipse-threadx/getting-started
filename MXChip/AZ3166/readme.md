@@ -229,9 +229,7 @@ You can use the **Termite** utility to monitor communication and confirm that yo
 
     ![Termite](./media/termite.png)
 
-## View device properties
-
-> **Note**: From this point in the tutorial, you can continue these steps, or you can optionally follow the same steps using the IoT Plug and Play preview. IoT Plug and Play provides a standard device model that lets a compatible device advertise its capabilities to an application. This approach simplifies the process of adding, configuring, and interacting with devices. To try IoT Plug and Play with your device, see [Using IoT Plug and Play with Azure RTOS](../../docs/plugandplay.md).
+## Interact with the device using Azure IoT Explorer
 
 You can use the Azure IoT Explorer to view and manage the properties of your devices. In the following steps, you'll add a connection to your IoT hub in IoT Explorer. With the connection, you can view properties for devices associated with the IoT hub. Optionally, you can perform the same task using Azure CLI.
 
@@ -251,108 +249,6 @@ To add a connection to your IoT hub:
     ![Azure IoT Explorer connection string](media/azure-iot-explorer-create-connection.png)
 
 If the connection succeeds, the Azure IoT Explorer switches to a **Devices** view and lists your device.
-
-To view device properties using Azure IoT Explorer:
-
-1. Select the link for your device identity. IoT Explorer displays details for the device.
-
-    ![Azure IoT Explorer device identity](media/azure-iot-explorer-device-identity.png)
-
-1. Inspect the properties for your device in the **Device identity** panel. 
-1. Optionally, click the **Device twin** panel and inspect additional device properties.
-
-To use Azure CLI to view device properties:
-
-1. Run the [az iot hub device-identity show](https://docs.microsoft.com/en-us/cli/azure/ext/azure-iot/iot/hub/device-identity?view=azure-cli-latest#ext-azure-iot-az-iot-hub-device-identity-show) command.
-
-    ```shell
-    az iot hub device-identity show --device-id MyMXChipDevice --hub-name {YourIoTHubName}
-    ```
-
-1. Inspect the properties for your device in the console output.
-
-## View device telemetry
-
-With Azure IoT Explorer, you can view the flow of telemetry from your device to the cloud. Optionally, you can perform the same task using Azure CLI.
-
-To view telemetry in Azure IoT Explorer:
-
-1. In IoT Explorer select **Telemetry**. Confirm that **Use built-in event hub** is set to *Yes*.
-1. Select **Start**.
-1. View the telemetry as the device sends messages to the cloud.
-
-    ![Azure IoT Explorer device telemetry](media/azure-iot-explorer-device-telemetry.png)
-
-    Note: You can also monitor telemetry from the device by using the Termite terminal.
-
-1. Select **Stop** to end receiving events.
-
-To use Azure CLI to view device telemetry:
-
-1. In your CLI console, run the [az iot hub monitor-events](https://docs.microsoft.com/en-us/cli/azure/ext/azure-iot/iot/hub?view=azure-cli-latest#ext-azure-iot-az-iot-hub-monitor-events) command. Use the names that you created previously in Azure IoT for your device and IoT hub.
-
-    ```shell
-    az iot hub monitor-events --device-id MyMXChipDevice --hub-name {YourIoTHubName}
-    ```
-
-1. View the JSON output in the console.
-
-    ```json
-    {
-        "event": {
-            "origin": "MyMXChipDevice",
-            "payload": "{\"temperature\": 25}"
-        }
-    }
-    ```
-
-1. Select CTRL+C to end monitoring.
-
-## Call a direct method on the device
-
-You can also use Azure IoT Explorer to call a direct method that you have implemented on your device. Direct methods have a name, and can optionally have a JSON payload, configurable connection, and method timeout. In this section, you call a method that enables you to turn an LED on or off. Optionally, you can perform the same task using Azure CLI.
-
-To call a method in Azure IoT Explorer:
-
-1. Select **Direct method**.
-1. In the **Direct method** panel add the following values for the method name and payload. The payload value *true* indicates to turn the LED on.
-    * **Method name**: `setLedState`
-    * **Payload**: `true`
-1. Select **Invoke method**. The LED light should turn on.
-
-    ![Azure IoT Explorer invoke method](media/azure-iot-explorer-invoke-method.png)
-1. Change **Payload** to *false*, and again select **Invoke method**. The LED light should turn off.
-1. Optionally, you can view the output in Termite to monitor the status of the methods.
-
-To use Azure CLI to call a method:
-
-1. Run the [az iot hub invoke-device-method](https://docs.microsoft.com/en-us/cli/azure/ext/azure-iot/iot/hub?view=azure-cli-latest#ext-azure-iot-az-iot-hub-invoke-device-method) command, and specify the method name and payload. For this method, setting `method-payload` to `true` turns the LED on, and setting it to `false` turns it off.
-
-    <!-- Inline code tag and CSS to wrap long code lines. -->
-    <code style="white-space : pre-wrap !important;">
-    az iot hub invoke-device-method --device-id MyMXChipDevice --method-name setLedState --method-payload true --hub-name {YourIoTHubName}
-    </code>
-
-    The CLI console shows the status of your method call on the device, where `204` indicates success.
-
-    ```json
-    {
-      "payload": {},
-      "status": 204
-    }
-    ```
-
-1. Check your device to confirm the LED state.
-
-1. View the Termite terminal to confirm the output messages:
-
-    ```output
-    Received direct method=setLedState, id=1, message=true
-    LED is turned ON
-    Sending device twin update with bool value
-    Sending message {"ledState":true}
-    Direct method=setLedState invoked
-    ```
 
 ## Debugging
 

@@ -18,6 +18,8 @@
 
 #define IOT_MODEL_ID "dtmi:com:mxchip:mxchip_iot_devkit:example:RTOSGetStarted;1"
 
+#define IOT_MODEL_COMPONENT_NAME    "deviceInformation"
+
 #define TELEMETRY_INTERVAL_PROPERTY "telemetryInterval"
 #define LED_STATE_PROPERTY          "ledState"
 
@@ -93,18 +95,18 @@ static void azure_iot_mqtt_publish_device_property_all(AZURE_IOT_MQTT* azure_iot
 {
     ULONG pro_events;
 
-    azure_iot_mqtt_publish_property(azure_iot_mqtt, DEVICE_INFO_MANUfACTURER_PROPERTY, MANUfACTURER_PROPERTY);
-    azure_iot_mqtt_publish_property(azure_iot_mqtt, DEVICE_INFO_MODEL_PROPERTY, MODEL_PROPERTY);
+    azure_iot_mqtt_publish_property(azure_iot_mqtt, IOT_MODEL_COMPONENT_NAME, DEVICE_INFO_MANUfACTURER_PROPERTY, MANUfACTURER_PROPERTY);
+    azure_iot_mqtt_publish_property(azure_iot_mqtt, IOT_MODEL_COMPONENT_NAME, DEVICE_INFO_MODEL_PROPERTY, MODEL_PROPERTY);
     tx_event_flags_get(&azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR_CLEAR, &pro_events, properties_interval * NX_IP_PERIODIC_RATE);
 
-    azure_iot_mqtt_publish_property(azure_iot_mqtt, DEVICE_INFO_SWVERSION_PROPERTY, SWVERSION_PROPERTY);
-    azure_iot_mqtt_publish_property(azure_iot_mqtt, DEVICE_INFO_OSNAME_PROPERTY, OSNAME_PROPERTY);
-    azure_iot_mqtt_publish_property(azure_iot_mqtt, DEVICE_INFO_PROCESSORARCHITECTURE_PROPERTY, PROCESSORARCHITECTURE_PROPERTY);
+    azure_iot_mqtt_publish_property(azure_iot_mqtt, IOT_MODEL_COMPONENT_NAME, DEVICE_INFO_SWVERSION_PROPERTY, SWVERSION_PROPERTY);
+    azure_iot_mqtt_publish_property(azure_iot_mqtt, IOT_MODEL_COMPONENT_NAME, DEVICE_INFO_OSNAME_PROPERTY, OSNAME_PROPERTY);
+    azure_iot_mqtt_publish_property(azure_iot_mqtt, IOT_MODEL_COMPONENT_NAME, DEVICE_INFO_PROCESSORARCHITECTURE_PROPERTY, PROCESSORARCHITECTURE_PROPERTY);
     tx_event_flags_get(&azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR_CLEAR, &pro_events, properties_interval * NX_IP_PERIODIC_RATE);
     
-    azure_iot_mqtt_publish_property(azure_iot_mqtt, DEVICE_INFO_PROCESSORMANUfACTURER_PROPERTY, PROCESSORMANUfACTURER_PROPERTY);
-    azure_iot_mqtt_publish_int_writeable_property(azure_iot_mqtt, DEVICE_INFO_TOTALSTORAGE_PROPERTY, TOTALSTORAGE_PROPERTY);
-    azure_iot_mqtt_publish_int_writeable_property(azure_iot_mqtt, DEVICE_INFO_TOTAKMEMORY_PROPERTY, TOTAKMEMORY_PROPERTY);
+    azure_iot_mqtt_publish_property(azure_iot_mqtt, IOT_MODEL_COMPONENT_NAME, DEVICE_INFO_PROCESSORMANUfACTURER_PROPERTY, PROCESSORMANUfACTURER_PROPERTY);
+    azure_iot_mqtt_publish_int_property(azure_iot_mqtt, IOT_MODEL_COMPONENT_NAME, DEVICE_INFO_TOTALSTORAGE_PROPERTY, TOTALSTORAGE_PROPERTY);
+    azure_iot_mqtt_publish_int_property(azure_iot_mqtt, IOT_MODEL_COMPONENT_NAME, DEVICE_INFO_TOTAKMEMORY_PROPERTY, TOTAKMEMORY_PROPERTY);
     tx_event_flags_get(&azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR_CLEAR, &pro_events, properties_interval * NX_IP_PERIODIC_RATE);
 }
 

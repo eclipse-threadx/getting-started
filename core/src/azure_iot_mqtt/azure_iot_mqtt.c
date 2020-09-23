@@ -477,10 +477,41 @@ UINT azure_iot_mqtt_publish_bool_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* 
     return mqtt_publish_bool(azure_iot_mqtt, mqtt_publish_topic, label, value);
 }
 
-UINT azure_iot_mqtt_publish_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label, CHAR* value)
+UINT azure_iot_mqtt_publish_int_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* component, CHAR* label, int value)
 {
+    CHAR property_message[128];
+    snprintf(property_message, sizeof(property_message), "{");
+    snprintf(property_message + strlen(property_message), sizeof(property_message), "\"%s\":%d", label, value);
+    snprintf(property_message + strlen(property_message), sizeof(property_message), "}");
+
     CHAR mqtt_publish_topic[100];
-    CHAR mqtt_publish_message[100];
+    CHAR mqtt_publish_message[256];
+
+    printf("Reporting property %s as %d\r\n", label, value);
+
+    snprintf(mqtt_publish_topic,
+        sizeof(mqtt_publish_topic),
+        DEVICE_TWIN_PUBLISH_TOPIC,
+        azure_iot_mqtt->reported_property_version++);
+
+    snprintf(mqtt_publish_message,
+        sizeof(mqtt_publish_message),
+        "{\"%s\":%s}",
+        component,
+        property_message);
+
+    return mqtt_publish(azure_iot_mqtt, mqtt_publish_topic, mqtt_publish_message);
+}
+
+UINT azure_iot_mqtt_publish_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* component, CHAR* label, CHAR* value)
+{
+    CHAR property_message[128];
+    snprintf(property_message, sizeof(property_message), "{");
+    snprintf(property_message + strlen(property_message), sizeof(property_message), "\"%s\":\"%s\"", label, value);
+    snprintf(property_message + strlen(property_message), sizeof(property_message), "}");
+
+    CHAR mqtt_publish_topic[100];
+    CHAR mqtt_publish_message[256];
 
     printf("Reporting property %s as %s\r\n", label, value);
 
@@ -491,9 +522,9 @@ UINT azure_iot_mqtt_publish_property(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* label
 
     snprintf(mqtt_publish_message,
         sizeof(mqtt_publish_message),
-        "{\"%s\":\"%s\"}",
-        label,
-        value);
+        "{\"%s\":%s}",
+        component,
+        property_message);
 
     return mqtt_publish(azure_iot_mqtt, mqtt_publish_topic, mqtt_publish_message);
 }

@@ -97,62 +97,6 @@
         "writable": true
       },
       {
-        "@type": "Property",
-        "name": "manufacturer",
-        "displayName": "Manufacturer",
-        "schema": "string",
-        "description": "Company name of the device manufacturer."
-      },
-      {
-        "@type": "Property",
-        "name": "model",
-        "displayName": "Device model",
-        "schema": "string",
-        "description": "Device model name or ID."
-      },
-      {
-        "@type": "Property",
-        "name": "swVersion",
-        "displayName": "Software version",
-        "schema": "string",
-        "description": "Version of the software on device."
-      },
-      {
-        "@type": "Property",
-        "name": "osName",
-        "displayName": "Operating system name",
-        "schema": "string",
-        "description": "Name of the operating system on the device."
-      },
-      {
-        "@type": "Property",
-        "name": "processorArchitecture",
-        "displayName": "Processor architecture",
-        "schema": "string",
-        "description": "Architecture of the processor on the device."
-      },
-      {
-        "@type": "Property",
-        "name": "processorManufacturer",
-        "displayName": "Processor manufacturer",
-        "schema": "string",
-        "description": "Name of the manufacturer of the processor on the device."
-      },
-      {
-        "@type": "Property",
-        "name": "totalStorage",
-        "displayName": "Total storage",
-        "schema": "integer",
-        "description": "Total available storage on the device in kilobytes."
-      },
-      {
-        "@type": "Property",
-        "name": "totalMemory",
-        "displayName": "Total memory",
-        "schema": "integer",
-        "description": "Total available memory on the device in kilobytes."
-      },
-      {
         "@type": "Command",
         "name": "turnOnLed",
         "displayName": "Turn On Led",
