@@ -260,9 +260,15 @@ With the information available in the model, IoT Explorer can create a custom UI
 
 ![IoT Plug and Play in Azure IoT Explorer](media/azure-iot-explorer-view-component1.png)
 
+---
+
 ![IoT Plug and Play in Azure IoT Explorer](media/azure-iot-explorer-view-component2.png)
 
+---
+
 ![IoT Plug and Play in Azure IoT Explorer](media/azure-iot-explorer-view-component3.png)
+
+---
 
 ![IoT Plug and Play in Azure IoT Explorer](media/azure-iot-explorer-view-component4.png)
 
