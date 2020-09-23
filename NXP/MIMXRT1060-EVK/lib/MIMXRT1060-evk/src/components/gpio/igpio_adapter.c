@@ -36,7 +36,7 @@ typedef struct _hal_gpio_state
  * Prototypes
  ******************************************************************************/
 
-static void HAL_GpioInterruptHandle(uint8_t port, uint32_t intFlag);
+static void HAL_GpioInterruptHandle(uint8_t port);
 
 /*******************************************************************************
  * Variables
@@ -48,27 +48,22 @@ static hal_gpio_state_t *s_GpioHead;
  * Code
  ******************************************************************************/
 
-static void HAL_GpioInterruptCallback(uint8_t port)
+static void HAL_GpioInterruptHandle(uint8_t port)
 {
-    GPIO_Type *gpioList[] = GPIO_BASE_PTRS;
+    hal_gpio_state_t *head = s_GpioHead;
+    GPIO_Type *gpioList[]  = GPIO_BASE_PTRS;
     uint32_t intFlag;
 
+    /* Get and clear gpio pin interrupt Flag */
     intFlag = GPIO_PortGetInterruptFlags(gpioList[port]);
     GPIO_PortClearInterruptFlags(gpioList[port], intFlag);
 
-    HAL_GpioInterruptHandle(port, intFlag);
-}
-
-static void HAL_GpioInterruptHandle(uint8_t port, uint32_t intFlag)
-{
-    hal_gpio_state_t *head = s_GpioHead;
-
-    while (head)
+    while (NULL != head)
     {
         /* Check which triger is ON! */
-        if (kHAL_GpioInterruptDisable != head->pin.trigger)
+        if (kHAL_GpioInterruptDisable != (hal_gpio_interrupt_trigger_t)head->pin.trigger)
         {
-            if ((port == head->pin.port) && (intFlag & (1 << head->pin.pin)))
+            if ((port == head->pin.port) && (0U != (intFlag & (1U << head->pin.pin))))
             {
                 if ((NULL != head->callback))
                 {
@@ -85,7 +80,7 @@ static void HAL_GpioInterruptHandle(uint8_t port, uint32_t intFlag)
 void GPIO1_Combined_0_15_IRQHandler(void);
 void GPIO1_Combined_0_15_IRQHandler(void)
 {
-    HAL_GpioInterruptCallback(1);
+    HAL_GpioInterruptHandle(1);
 
 #if defined __CORTEX_M && (__CORTEX_M == 4U)
     __DSB();
@@ -94,7 +89,7 @@ void GPIO1_Combined_0_15_IRQHandler(void)
 void GPIO1_Combined_16_31_IRQHandler(void);
 void GPIO1_Combined_16_31_IRQHandler(void)
 {
-    HAL_GpioInterruptCallback(1);
+    HAL_GpioInterruptHandle(1);
 
 #if defined __CORTEX_M && (__CORTEX_M == 4U)
     __DSB();
@@ -106,7 +101,7 @@ void GPIO1_Combined_16_31_IRQHandler(void)
 void GPIO2_Combined_0_15_IRQHandler(void);
 void GPIO2_Combined_0_15_IRQHandler(void)
 {
-    HAL_GpioInterruptCallback(2);
+    HAL_GpioInterruptHandle(2);
 
 #if defined __CORTEX_M && (__CORTEX_M == 4U)
     __DSB();
@@ -115,7 +110,7 @@ void GPIO2_Combined_0_15_IRQHandler(void)
 void GPIO2_Combined_16_31_IRQHandler(void);
 void GPIO2_Combined_16_31_IRQHandler(void)
 {
-    HAL_GpioInterruptCallback(2);
+    HAL_GpioInterruptHandle(2);
 
 #if defined __CORTEX_M && (__CORTEX_M == 4U)
     __DSB();
@@ -127,7 +122,7 @@ void GPIO2_Combined_16_31_IRQHandler(void)
 void GPIO3_Combined_0_15_IRQHandler(void);
 void GPIO3_Combined_0_15_IRQHandler(void)
 {
-    HAL_GpioInterruptCallback(3);
+    HAL_GpioInterruptHandle(3);
 
 #if defined __CORTEX_M && (__CORTEX_M == 4U)
     __DSB();
@@ -136,7 +131,7 @@ void GPIO3_Combined_0_15_IRQHandler(void)
 void GPIO3_Combined_16_31_IRQHandler(void);
 void GPIO3_Combined_16_31_IRQHandler(void)
 {
-    HAL_GpioInterruptCallback(3);
+    HAL_GpioInterruptHandle(3);
 
 #if defined __CORTEX_M && (__CORTEX_M == 4U)
     __DSB();
@@ -148,7 +143,7 @@ void GPIO3_Combined_16_31_IRQHandler(void)
 void GPIO4_Combined_0_15_IRQHandler(void);
 void GPIO4_Combined_0_15_IRQHandler(void)
 {
-    HAL_GpioInterruptCallback(4);
+    HAL_GpioInterruptHandle(4);
 
 #if defined __CORTEX_M && (__CORTEX_M == 4U)
     __DSB();
@@ -157,7 +152,7 @@ void GPIO4_Combined_0_15_IRQHandler(void)
 void GPIO4_Combined_16_31_IRQHandler(void);
 void GPIO4_Combined_16_31_IRQHandler(void)
 {
-    HAL_GpioInterruptCallback(4);
+    HAL_GpioInterruptHandle(4);
 
 #if defined __CORTEX_M && (__CORTEX_M == 4U)
     __DSB();
@@ -169,7 +164,7 @@ void GPIO4_Combined_16_31_IRQHandler(void)
 void GPIO5_Combined_0_15_IRQHandler(void);
 void GPIO5_Combined_0_15_IRQHandler(void)
 {
-    HAL_GpioInterruptCallback(5);
+    HAL_GpioInterruptHandle(5);
 
 #if defined __CORTEX_M && (__CORTEX_M == 4U)
     __DSB();
@@ -178,7 +173,7 @@ void GPIO5_Combined_0_15_IRQHandler(void)
 void GPIO5_Combined_16_31_IRQHandler(void);
 void GPIO5_Combined_16_31_IRQHandler(void)
 {
-    HAL_GpioInterruptCallback(5);
+    HAL_GpioInterruptHandle(5);
 
 #if defined __CORTEX_M && (__CORTEX_M == 4U)
     __DSB();
@@ -190,10 +185,10 @@ void GPIO5_Combined_16_31_IRQHandler(void)
 void GPIO6_7_8_9_IRQHandler(void);
 void GPIO6_7_8_9_IRQHandler(void)
 {
-    HAL_GpioInterruptCallback(6);
-    HAL_GpioInterruptCallback(7);
-    HAL_GpioInterruptCallback(8);
-    HAL_GpioInterruptCallback(9);
+    HAL_GpioInterruptHandle(6);
+    HAL_GpioInterruptHandle(7);
+    HAL_GpioInterruptHandle(8);
+    HAL_GpioInterruptHandle(9);
 
 #if defined __CORTEX_M && (__CORTEX_M == 4U)
     __DSB();
@@ -297,7 +292,7 @@ hal_gpio_status_t HAL_GpioInit(hal_gpio_handle_t gpioHandle, hal_gpio_pin_config
     gpioState = (hal_gpio_state_t *)gpioHandle;
 
     /* Check if the port is vaild */
-    if (0 == gpioList[pinConfig->port])
+    if (NULL == gpioList[pinConfig->port])
     {
         return kStatus_HAL_GpioError;
     }
@@ -316,10 +311,10 @@ hal_gpio_status_t HAL_GpioInit(hal_gpio_handle_t gpioHandle, hal_gpio_pin_config
 
     gpioState->pin.pin       = pinConfig->pin;
     gpioState->pin.port      = pinConfig->port;
-    gpioState->pin.direction = pinConfig->direction;
-    gpioState->pin.trigger   = kHAL_GpioInterruptDisable;
+    gpioState->pin.direction = (uint16_t)pinConfig->direction;
+    gpioState->pin.trigger   = (uint16_t)kHAL_GpioInterruptDisable;
 
-    if (kHAL_GpioDirectionOut == pinConfig->direction)
+    if (kHAL_GpioDirectionOut == (hal_gpio_direction_t)pinConfig->direction)
     {
         gpioPinconfig.direction = kGPIO_DigitalOutput;
     }
@@ -343,7 +338,7 @@ hal_gpio_status_t HAL_GpioDeinit(hal_gpio_handle_t gpioHandle)
 
     if ((uint16_t)kHAL_GpioDirectionIn == gpioState->pin.direction)
     {
-        GPIO_PortDisableInterrupts(gpioList[gpioState->pin.port], (1 << gpioState->pin.pin));
+        GPIO_PortDisableInterrupts(gpioList[gpioState->pin.port], (uint32_t)(1U << gpioState->pin.pin));
     }
 
     HAL_GpioRemoveItem(&s_GpioHead, gpioState);
@@ -400,7 +395,7 @@ hal_gpio_status_t HAL_GpioGetTriggerMode(hal_gpio_handle_t gpioHandle, hal_gpio_
 
     gpioStateHandle = (hal_gpio_state_t *)gpioHandle;
 
-    if (kHAL_GpioDirectionOut == gpioStateHandle->pin.direction)
+    if (kHAL_GpioDirectionOut == (hal_gpio_direction_t)gpioStateHandle->pin.direction)
     {
         return kStatus_HAL_GpioError;
     }
@@ -422,7 +417,7 @@ hal_gpio_status_t HAL_GpioSetTriggerMode(hal_gpio_handle_t gpioHandle, hal_gpio_
 
     gpioStateHandle = (hal_gpio_state_t *)gpioHandle;
 
-    if (kHAL_GpioDirectionOut == gpioStateHandle->pin.direction)
+    if (kHAL_GpioDirectionOut == (hal_gpio_direction_t)gpioStateHandle->pin.direction)
     {
         return kStatus_HAL_GpioError;
     }
@@ -464,17 +459,17 @@ hal_gpio_status_t HAL_GpioSetTriggerMode(hal_gpio_handle_t gpioHandle, hal_gpio_
         if (gpioStateHandle->pin.pin <= 15)
         {
             NVIC_SetPriority(gpioLowIRQsList[gpioStateHandle->pin.port], HAL_GPIO_ISR_PRIORITY);
-            EnableIRQ(gpioLowIRQsList[gpioStateHandle->pin.port]);
+            (void)EnableIRQ(gpioLowIRQsList[gpioStateHandle->pin.port]);
         }
         else
         {
             NVIC_SetPriority(gpioHighIRQsList[gpioStateHandle->pin.port], HAL_GPIO_ISR_PRIORITY);
-            EnableIRQ(gpioHighIRQsList[gpioStateHandle->pin.port]);
+            (void)EnableIRQ(gpioHighIRQsList[gpioStateHandle->pin.port]);
         }
     }
     else
     {
-        GPIO_PortDisableInterrupts(gpioList[gpioStateHandle->pin.port], (1U << gpioStateHandle->pin.pin));
+        GPIO_PortDisableInterrupts(gpioList[gpioStateHandle->pin.port], (uint32_t)(1 << gpioStateHandle->pin.pin));
     }
 
     /* Enable Global Interrupt */
@@ -490,7 +485,7 @@ hal_gpio_status_t HAL_GpioWakeUpSetting(hal_gpio_handle_t gpioHandle, uint8_t en
 
     gpioStateHandle = (hal_gpio_state_t *)gpioHandle;
 
-    if (kHAL_GpioDirectionOut == gpioStateHandle->pin.direction)
+    if (kHAL_GpioDirectionOut == (hal_gpio_direction_t)gpioStateHandle->pin.direction)
     {
         return kStatus_HAL_GpioError;
     }

@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
- * Copyright 2016-2019 NXP
+ * Copyright 2016-2020 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -17,9 +17,9 @@
  * Definitions
  ******************************************************************************/
 
-#define FREQ_1MHz (1000000UL)
+#define FREQ_1MHz             (1000000UL)
 #define FLEXSPI_DLLCR_DEFAULT (0x100UL)
-#define FLEXSPI_LUT_KEY_VAL (0x5AF05AF0UL)
+#define FLEXSPI_LUT_KEY_VAL   (0x5AF05AF0UL)
 
 enum
 {
@@ -246,7 +246,7 @@ void FLEXSPI_Init(FLEXSPI_Type *base, const flexspi_config_t *config)
 
 #if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
     /* Enable the flexspi clock */
-    CLOCK_EnableClock(s_flexspiClock[FLEXSPI_GetInstance(base)]);
+    (void)CLOCK_EnableClock(s_flexspiClock[FLEXSPI_GetInstance(base)]);
 #endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 
 #if defined(FSL_FEATURE_FLEXSPI_HAS_RESET) && FSL_FEATURE_FLEXSPI_HAS_RESET
@@ -358,10 +358,20 @@ void FLEXSPI_GetDefaultConfig(flexspi_config_t *config)
     config->ahbConfig.ahbBusTimeoutCycle   = 0xFFFFU;
     config->ahbConfig.resumeWaitCycle      = 0x20U;
     (void)memset(config->ahbConfig.buffer, 0, sizeof(config->ahbConfig.buffer));
-    for (uint8_t i = 0; i < (uint32_t)FSL_FEATURE_FLEXSPI_AHB_BUFFER_COUNT; i++)
+    /* Use invalid master ID 0xF and buffer size 0 for the first several buffers. */
+    for (uint8_t i = 0; i < ((uint8_t)FSL_FEATURE_FLEXSPI_AHB_BUFFER_COUNT - 2U); i++)
     {
         config->ahbConfig.buffer[i].enablePrefetch = true; /* Default enable AHB prefetch. */
-        config->ahbConfig.buffer[i].bufferSize     = 256;  /* Default buffer size 256 bytes*/
+        config->ahbConfig.buffer[i].masterIndex = 0xFU; /* Invalid master index which is not used, so will never hit. */
+        config->ahbConfig.buffer[i].bufferSize =
+            0; /* Default buffer size 0 for buffer0 to buffer(FSL_FEATURE_FLEXSPI_AHB_BUFFER_COUNT - 3U)*/
+    }
+
+    for (uint8_t i = ((uint8_t)FSL_FEATURE_FLEXSPI_AHB_BUFFER_COUNT - 2U);
+         i < (uint8_t)FSL_FEATURE_FLEXSPI_AHB_BUFFER_COUNT; i++)
+    {
+        config->ahbConfig.buffer[i].enablePrefetch = true; /* Default enable AHB prefetch. */
+        config->ahbConfig.buffer[i].bufferSize     = 256U; /* Default buffer size 256 bytes. */
     }
     config->ahbConfig.enableClearAHBBufferOpt = false;
     config->ahbConfig.enableReadAddressOpt    = false;
@@ -499,7 +509,7 @@ void FLEXSPI_UpdateLUT(FLEXSPI_Type *base, uint32_t index, const uint32_t *cmd, 
 {
     assert(index < 64U);
 
-    uint8_t i = 0;
+    uint32_t i = 0;
     volatile uint32_t *lutBase;
 
     /* Wait for bus idle before change flash configuration. */
@@ -1042,11 +1052,7 @@ void FLEXSPI_TransferHandleIRQ(FLEXSPI_Type *base, flexspi_handle_t *handle)
 void FLEXSPI_DriverIRQHandler(void)
 {
     s_flexspiIsr(FLEXSPI, s_flexspiHandle[0]);
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #endif
 
@@ -1054,22 +1060,14 @@ void FLEXSPI_DriverIRQHandler(void)
 void FLEXSPI0_DriverIRQHandler(void)
 {
     s_flexspiIsr(FLEXSPI0, s_flexspiHandle[0]);
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #endif
 #if defined(FLEXSPI1)
 void FLEXSPI1_DriverIRQHandler(void)
 {
     s_flexspiIsr(FLEXSPI1, s_flexspiHandle[1]);
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #endif
 
@@ -1077,22 +1075,14 @@ void FLEXSPI1_DriverIRQHandler(void)
 void LSIO_OCTASPI0_INT_DriverIRQHandler(void)
 {
     s_flexspiIsr(LSIO__FLEXSPI0, s_flexspiHandle[0]);
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #endif
 #if defined(LSIO__FLEXSPI1)
 void LSIO_OCTASPI1_INT_DriverIRQHandler(void)
 {
     s_flexspiIsr(LSIO__FLEXSPI1, s_flexspiHandle[1]);
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #endif
 

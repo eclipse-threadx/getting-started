@@ -6,9 +6,9 @@
 
 // ----------------------------------------------------------------------------
 // Azure IoT Hub Connection Transport
-// Define this to use the nx client, otherwise MQTT
+// Define this to use MQTT, else Azure RTOS SDK for Azure IoT
 // ----------------------------------------------------------------------------
-//#define USE_NX_CLIENT_PREVIEW
+#define ENABLE_MQTT
 
 // ----------------------------------------------------------------------------
 // Azure IoT Dynamic Provisioning Service
@@ -21,7 +21,7 @@
 // ----------------------------------------------------------------------------
 #define IOT_HUB_HOSTNAME ""
 #define IOT_DEVICE_ID    ""
-#define IOT_PRIMARY_KEY ""
+#define IOT_PRIMARY_KEY  ""
 
 // ----------------------------------------------------------------------------
 // Azure IoT DPS config

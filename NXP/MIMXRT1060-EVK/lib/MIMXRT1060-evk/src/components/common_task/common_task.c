@@ -26,8 +26,8 @@
  ******************************************************************************/
 typedef struct _common_task_state
 {
-    uint8_t commonTaskHandle[OSA_TASK_HANDLE_SIZE];
-    MSGQ_HANDLE_BUFFER_DEFINE(msgqhandle, COMMON_TASK_MAX_MSGQ_COUNT, sizeof(void *));
+    OSA_TASK_HANDLE_DEFINE(commonTaskHandle);
+    OSA_MSGQ_HANDLE_DEFINE(msgqhandle, COMMON_TASK_MAX_MSGQ_COUNT, sizeof(void *));
     uint8_t isInitialized;
 } common_task_state_t;
 

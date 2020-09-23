@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
- * Copyright 2016-2019 NXP
+ * Copyright 2016-2020 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -1175,7 +1175,7 @@ status_t FLEXIO_MCULCD_TransferGetCount(FLEXIO_MCULCD_Type *base, flexio_mculcd_
     *count = handle->dataCount - handle->remainingCount;
 
 #if (16 == FLEXIO_MCULCD_DATA_BUS_WIDTH)
-    *count *= 2;
+    *count *= 2U;
 #endif
 
     return kStatus_Success;

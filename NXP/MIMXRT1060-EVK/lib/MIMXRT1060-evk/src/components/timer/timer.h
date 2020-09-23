@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NXP
+ * Copyright 2018-2020 NXP
  * All rights reserved.
  *
  *
@@ -74,22 +74,46 @@ typedef struct _hal_timer_config
                                                SOC corresponding RM.Invalid instance value will cause initialization failure. */
 } hal_timer_config_t;
 
+/*! @brief Definition of timer adapter handle size. */
 #define HAL_TIMER_HANDLE_SIZE                (20U)
+
+/*!
+ * @brief Defines the timer handle
+ *
+ * This macro is used to define a 4 byte aligned timer handle.
+ * Then use "(hal_timer_handle_t)name" to get the timer handle.
+ *
+ * The macro should be global and could be optional. You could also define timer handle by yourself.
+ *
+ * This is an example,
+ * @code
+ * TIMER_HANDLE_DEFINE(timerHandle);
+ * @endcode
+ *
+ * @param name The name string of the timer handle.
+ */
+#define TIMER_HANDLE_DEFINE(name) uint32_t name[((HAL_TIMER_HANDLE_SIZE + sizeof(uint32_t) - 1U) / sizeof(uint32_t))]
 
 /*! @brief HAL timer handle. */
 typedef void* hal_timer_handle_t;
 
 #if defined(__GIC_PRIO_BITS)
+#ifndef HAL_TIMER_ISR_PRIORITY
 #define HAL_TIMER_ISR_PRIORITY (25U)
+#endif
 #else
 #if defined(configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY)
+#ifndef HAL_TIMER_ISR_PRIORITY
 #define HAL_TIMER_ISR_PRIORITY (configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY)
+#endif
 #else
 /* The default value 3 is used to support different ARM Core, such as CM0P, CM4, CM7, and CM33, etc.
  * The minimum number of priority bits implemented in the NVIC is 2 on these SOCs. The value of mininum
  * priority is 3 (2^2 - 1). So, the default value is 3.
  */
+#ifndef HAL_TIMER_ISR_PRIORITY
 #define HAL_TIMER_ISR_PRIORITY (3U)
+#endif
 #endif
 #endif
 
@@ -108,18 +132,21 @@ typedef void* hal_timer_handle_t;
  * @note This API should be called at the beginning of the application using the timer adapter.
  * For Initializes timer adapter,
  *  @code
- *   uint32_t halTimerHandleBuffer[((HAL_TIMER_HANDLE_SIZE + sizeof(uint32_t) - 1) / sizeof(uitn32_t))];
- *   hal_timer_handle_t halTimerHandle = (hal_timer_handle_t)&halTimerHandleBuffer[0];
+ *   TIMER_HANDLE_DEFINE(halTimerHandle);
  *   hal_timer_config_t halTimerConfig;
  *   halTimerConfig.timeout = 1000;
  *   halTimerConfig.srcClock_Hz = BOARD_GetTimeSrcClock();
  *   halTimerConfig.instance = 0;
- *   HAL_TimerInit(halTimerHandle, &halTimerConfig);
+ *   HAL_TimerInit((hal_timer_handle_t)halTimerHandle, &halTimerConfig);
  *  @endcode
  *
  * @param halTimerHandle HAL timer adapter handle, the handle buffer with size #HAL_TIMER_HANDLE_SIZE
  * should be allocated at upper level.
- * The handle should be 4 byte aligned, because unaligned access does not support on some devices.
+ * The handle should be 4 byte aligned, because unaligned access doesn't be supported on some devices.
+ * You can define the handle in the following two ways:
+ * #TIMER_HANDLE_DEFINE(halTimerHandle);
+ * or
+ * uint32_t halTimerHandle[((HAL_TIMER_HANDLE_SIZE + sizeof(uint32_t) - 1U) / sizeof(uint32_t))];
  * @param halTimerConfig A pointer to the HAL timer configuration structure
  * @retval kStatus_HAL_TimerSuccess The timer adapter module initialization succeed.
  * @retval kStatus_HAL_TimerOutOfRanger The timer adapter instance out of ranger.
@@ -182,7 +209,7 @@ uint32_t HAL_TimerGetCurrentTimerCount(hal_timer_handle_t halTimerHandle);
  * @note This API should be called when need set the timeout of the timer interrupt..
  *
  * @param halTimerHandle     HAL timer adapter handle
- * @param Timeout            Timeout time, should be used microseconds.
+ * @param timeout            Timeout time, should be used microseconds.
  * @retval kStatus_HAL_TimerSuccess The timer adapter module update timeout succeed.
  * @retval kStatus_HAL_TimerOutOfRanger The timer adapter set the timeout out of ranger.
  */

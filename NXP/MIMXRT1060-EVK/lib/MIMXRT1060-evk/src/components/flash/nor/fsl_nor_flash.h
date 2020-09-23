@@ -68,7 +68,7 @@ extern "C" {
  *        }
  *        nor_config_t config =
  *        {
- *            .memControlConfig = (void *)&spifiNorconfig;
+ *            .memControlConfig = (void *)\&spifiNorconfig;
  *            .driverBaseAddr   = (void *)SPIFI0;
  *        }
  * @param handle    The NOR Flash handler.
@@ -98,24 +98,43 @@ status_t Nor_Flash_Read(nor_handle_t *handle, uint32_t address, uint8_t *buffer,
 status_t Nor_Flash_Page_Program(nor_handle_t *handle, uint32_t address, uint8_t *buffer);
 
 /*!
+ * @brief Program data to NOR Flash.
+ *
+ * @param handle    The NOR Flash handler.
+ * @param address  The address to be programed.
+ * @param buffer  The buffer to be programed to the page.
+ * @param length  The data length to be programed to the page.
+ * @retval execution status
+ */
+status_t Nor_Flash_Program(nor_handle_t *handle, uint32_t address, uint8_t *buffer, uint32_t length);
+
+/*!
  * @brief Erase sector.
  *
  * @param handle    The NOR Flash handler.
  * @param address   The start address to be erased.
- * @param size_Byte Erase sector size.
  * @retval execution status
  */
-status_t Nor_Flash_Erase_Sector(nor_handle_t *handle, uint32_t address, uint32_t size_Byte);
+status_t Nor_Flash_Erase_Sector(nor_handle_t *handle, uint32_t address);
 
 /*!
  * @brief Erase block.
  *
  * @param handle    The NOR Flash handler.
  * @param address   The start address to be erased.
- * @param size_Byte Erase block size.
  * @retval execution status
  */
-status_t Nor_Flash_Erase_Block(nor_handle_t *handle, uint32_t address, uint32_t size_Byte);
+status_t Nor_Flash_Erase_Block(nor_handle_t *handle, uint32_t address);
+
+/*!
+ * @brief Erase flash with any size.
+ *
+ * @param handle    The NOR Flash handler.
+ * @param address   The start address to be erased.
+ * @param size_Byte Erase flash size.
+ * @retval execution status
+ */
+status_t Nor_Flash_Erase(nor_handle_t *handle, uint32_t address, uint32_t size_Byte);
 
 /*!
  * @brief Erase Chip NOR Flash .

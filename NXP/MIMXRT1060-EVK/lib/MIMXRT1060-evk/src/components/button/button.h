@@ -24,17 +24,41 @@
 /*! @brief The handle of button */
 typedef void *button_handle_t;
 
-#define BUTTON_HANDLE_DEFINE(name, count) uint32_t g_buttonHandle##name[count][((BUTTON_HANDLE_SIZE - 1U) >> 2U) + 1U];
-/*!                                                                      \
- * @brief Gets the button buffer pointer                                 \
- *                                                                       \
- * This macro is used to get the button buffer pointer. The macro should \
- * not be used before the macro BUTTON_HANDLE_DEFINE is used.            \
- *                                                                       \
- * @param name The button name string of the buffer.                     \
- *  @param index The button count.                                       \
+/*!
+ * @brief Defines the button handle
+ *
+ * This macro is used to define a 4 byte aligned button handle.
+ * Then use "(button_handle_t)name" to get the button handle.
+ *
+ * The macro should be global and could be optional. You could also define button handle by yourself.
+ *
+ * This is an example,
+ * @code
+ * BUTTON_HANDLE_DEFINE(buttonHandle);
+ * @endcode
+ *
+ * @param name The name string of the button handle.
  */
-#define BUTTON_HANDLE_GET(name, index) ((button_handle_t)&g_buttonHandle##name[index][0])
+#define BUTTON_HANDLE_DEFINE(name) uint32_t name[((BUTTON_HANDLE_SIZE + sizeof(uint32_t) - 1U) / sizeof(uint32_t))]
+
+/*!
+ * @brief Defines the button handle array
+ *
+ * This macro is used to define a 4 byte aligned button handle array.
+ * Then use "(button_handle_t)name[0]" to get the first button handle.
+ *
+ * The macro should be global and could be optional. You could also define these button handle by yourself.
+ *
+ * This is an example,
+ * @code
+ * BUTTON_HANDLE_DEFINE(buttonHandleArray, 1);
+ * @endcode
+ *
+ * @param name The name string of the button handle array.
+ * @param count The amount of button handle.
+ */
+#define BUTTON_HANDLE_ARRAY_DEFINE(name, count) \
+    uint32_t name[count][((BUTTON_HANDLE_SIZE + sizeof(uint32_t) - 1U) / sizeof(uint32_t))]
 
 /*! @brief Definition of button timer interval,unit is ms. */
 #define BUTTON_TIMER_INTERVAL (25U)
@@ -49,13 +73,19 @@ typedef void *button_handle_t;
 #define BUTTON_DOUBLE_CLICK_THRESHOLD (200U)
 
 /*! @brief Definition to determine whether use common task. */
+#ifndef BUTTON_USE_COMMON_TASK
 #define BUTTON_USE_COMMON_TASK (1U)
+#endif
 
 /*! @brief Definition of button task priority. */
+#ifndef BUTTON_TASK_PRIORITY
 #define BUTTON_TASK_PRIORITY (2U)
+#endif
 
 /*! @brief Definition of button task stack size. */
+#ifndef BUTTON_TASK_STACK_SIZE
 #define BUTTON_TASK_STACK_SIZE (1000U)
+#endif
 
 /*! @brief Definition of button event. */
 #define BUTTON_EVENT_BUTTON (1U)
@@ -129,18 +159,36 @@ extern "C" {
  * by the caller.
  *
  * Example below shows how to use this API to configure the button.
+ * For one button,
  *  @code
- *   uint32_t s_buttonHandleBuffer[((BUTTON_HANDLE_SIZE + sizeof(uint32_t) - 1) / sizeof(uitn32_t))];
- *   button_handle_t s_buttonHandle = (button_handle_t)&s_buttonHandleBuffer[0];
+ *   static BUTTON_HANDLE_DEFINE(s_buttonHandle);
  *   button_config_t buttonConfig;
  *   buttonConfig.gpio.port = 0;
  *   buttonConfig.gpio.pin = 1;
  *   buttonConfig.gpio.pinStateDefault = 0;
- *   BUTTON_Init(s_buttonHandle, &buttonConfig);
+ *   BUTTON_Init((button_handle_t)s_buttonHandle, &buttonConfig);
+ *  @endcode
+ * For multiple buttons,
+ *  @code
+ *   static BUTTON_HANDLE_ARRAY_DEFINE(s_buttonArrayHandle, count);
+ *   button_config_t buttonArrayConfig[count];
+ *   for(uint8_t i = 0U; i < count; i++)
+ *   {
+ *       buttonArrayConfig[i].gpio.port = 0;
+ *       buttonArrayConfig[i].gpio.pin = 1;
+ *       buttonArrayConfig[i].gpio.pinStateDefault = 0;
+ *       BUTTON_Init((button_handle_t)s_buttonArrayHandle[i], &buttonArrayConfig[i]);
+ *   }
  *  @endcode
  *
  * @param buttonHandle Pointer to point to a memory space of size #BUTTON_HANDLE_SIZE allocated by the caller.
- * The handle should be 4 byte aligned, because unaligned access does not support on some devices.
+ * The handle should be 4 byte aligned, because unaligned access doesn't be supported on some devices.
+ * You can define one handle in the following two ways:
+ * #BUTTON_HANDLE_DEFINE(buttonHandle);
+ * or
+ * uint32_t buttonHandle[((BUTTON_HANDLE_SIZE + sizeof(uint32_t) - 1U) / sizeof(uint32_t))];
+ * You can define multiple handles in the following way:
+ * #BUTTON_HANDLE_ARRAY_DEFINE(buttonHandleArray, count);
  * @param buttonConfig Pointer to user-defined configuration structure.
  * @return Indicates whether initialization was successful or not.
  * @retval kStatus_BUTTON_Error An error occurred.

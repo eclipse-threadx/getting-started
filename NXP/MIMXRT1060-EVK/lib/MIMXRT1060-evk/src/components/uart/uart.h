@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NXP
+ * Copyright 2018-2020 NXP
  * All rights reserved.
  *
  *
@@ -22,7 +22,14 @@
  * Definitions
  ******************************************************************************/
 
-/*! @brief Enable or disable UART adapter non-blocking mode (1 - enable, 0 - disable) */
+/*! @brief Enable or disable UART adapter non-blocking mode (1 - enable, 0 - disable)
+ * 
+ * When defined DEBUG_CONSOLE_TRANSFER_NON_BLOCKING and the interrupt of the UART peripheral with 
+ * setting instance is not routed to interrupt controller directly, the enablement and priority of 
+ * the peripheral interrupt are not configured by UART adapter. 
+ * Please configure the interrupt in the application layer. Such as, if the interrupt of UART peripheral routes to INTMUX,
+ * please call function INTMUX_EnableInterrupt of INTMUX to enable the interrupt of the instance.
+ */
 #ifdef DEBUG_CONSOLE_TRANSFER_NON_BLOCKING
 #define UART_ADAPTER_NON_BLOCKING_MODE (1U)
 #else
@@ -34,16 +41,22 @@
 #endif
 
 #if defined(__GIC_PRIO_BITS)
+#ifndef HAL_UART_ISR_PRIORITY
 #define HAL_UART_ISR_PRIORITY (25U)
+#endif
 #else
 #if defined(configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY)
+#ifndef HAL_UART_ISR_PRIORITY
 #define HAL_UART_ISR_PRIORITY (configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY)
+#endif
 #else
 /* The default value 3 is used to support different ARM Core, such as CM0P, CM4, CM7, and CM33, etc.
  * The minimum number of priority bits implemented in the NVIC is 2 on these SOCs. The value of mininum
  * priority is 3 (2^2 - 1). So, the default value is 3.
  */
+#ifndef HAL_UART_ISR_PRIORITY
 #define HAL_UART_ISR_PRIORITY (3U)
+#endif
 #endif
 #endif
 
@@ -51,15 +64,36 @@
 #define HAL_UART_ADAPTER_LOWPOWER (0U)
 #endif /* HAL_UART_ADAPTER_LOWPOWER */
 
+/*! @brief Definition of uart adapter handle size. */
 #if (defined(UART_ADAPTER_NON_BLOCKING_MODE) && (UART_ADAPTER_NON_BLOCKING_MODE > 0U))
 #define HAL_UART_HANDLE_SIZE (90U + HAL_UART_ADAPTER_LOWPOWER * 16U)
 #else
 #define HAL_UART_HANDLE_SIZE (4U + HAL_UART_ADAPTER_LOWPOWER * 16U)
 #endif
 
-/*! @brief Whether enable transactional function of the UART. (0 - disable, 1 - enable) */
-#define HAL_UART_TRANSFER_MODE (0U)
+/*!
+ * @brief Defines the uart handle
+ *
+ * This macro is used to define a 4 byte aligned uart handle.
+ * Then use "(hal_uart_handle_t)name" to get the uart handle.
+ *
+ * The macro should be global and could be optional. You could also define uart handle by yourself.
+ *
+ * This is an example,
+ * @code
+ * UART_HANDLE_DEFINE(uartHandle);
+ * @endcode
+ *
+ * @param name The name string of the uart handle.
+ */
+#define UART_HANDLE_DEFINE(name) uint32_t name[((HAL_UART_HANDLE_SIZE + sizeof(uint32_t) - 1U) / sizeof(uint32_t))]
 
+/*! @brief Whether enable transactional function of the UART. (0 - disable, 1 - enable) */
+#ifndef HAL_UART_TRANSFER_MODE
+#define HAL_UART_TRANSFER_MODE (0U)
+#endif
+
+/*! @brief The handle of uart adapter. */
 typedef void *hal_uart_handle_t;
 
 /*! @brief UART status */
@@ -138,8 +172,7 @@ extern "C" {
  * structure. The parameter handle is a pointer to point to a memory space of size #HAL_UART_HANDLE_SIZE allocated by
  * the caller. Example below shows how to use this API to configure the UART.
  *  @code
- *   uint32_t g_UartHandleBuffer[((HAL_UART_HANDLE_SIZE + sizeof(uint32_t) - 1) / sizeof(uitn32_t))];
- *   hal_uart_handle_t g_UartHandle = (hal_uart_handle_t)&g_UartHandleBuffer[0];
+ *   UART_HANDLE_DEFINE(g_UartHandle);
  *   hal_uart_config_t config;
  *   config.srcClock_Hz = 48000000;
  *   config.baudRate_Bps = 115200U;
@@ -148,11 +181,15 @@ extern "C" {
  *   config.enableRx = 1;
  *   config.enableTx = 1;
  *   config.instance = 0;
- *   HAL_UartInit(g_UartHandle, &config);
+ *   HAL_UartInit((hal_uart_handle_t)g_UartHandle, &config);
  *  @endcode
  *
  * @param handle Pointer to point to a memory space of size #HAL_UART_HANDLE_SIZE allocated by the caller.
- * The handle should be 4 byte aligned, because unaligned access does not support on some devices.
+ * The handle should be 4 byte aligned, because unaligned access doesn't be supported on some devices.
+ * You can define the handle in the following two ways:
+ * #UART_HANDLE_DEFINE(handle);
+ * or
+ * uint32_t handle[((HAL_UART_HANDLE_SIZE + sizeof(uint32_t) - 1U) / sizeof(uint32_t))];
  * @param config Pointer to user-defined configuration structure.
  * @retval kStatus_HAL_UartBaudrateNotSupport Baudrate is not support in current clock source.
  * @retval kStatus_HAL_UartSuccess UART initialization succeed
@@ -182,9 +219,9 @@ hal_uart_status_t HAL_UartDeinit(hal_uart_handle_t handle);
  * This function polls the RX register, waits for the RX register to be full or for RX FIFO to
  * have data, and reads data from the RX register.
  *
- * @note The function #HAL_UartReceiveBlocking and the function #HAL_UartTransferReceiveNonBlocking
+ * @note The function #HAL_UartReceiveBlocking and the function HAL_UartTransferReceiveNonBlocking
  * cannot be used at the same time.
- * And, the function #HAL_UartTransferAbortReceive cannot be used to abort the transmission of this function.
+ * And, the function HAL_UartTransferAbortReceive cannot be used to abort the transmission of this function.
  *
  * @param handle UART handle pointer.
  * @param data Start address of the buffer to store the received data.
@@ -201,9 +238,9 @@ hal_uart_status_t HAL_UartReceiveBlocking(hal_uart_handle_t handle, uint8_t *dat
  * This function polls the TX register, waits for the TX register to be empty or for the TX FIFO
  * to have room and writes data to the TX buffer.
  *
- * @note The function #HAL_UartSendBlocking and the function #HAL_UartTransferSendNonBlocking
+ * @note The function #HAL_UartSendBlocking and the function HAL_UartTransferSendNonBlocking
  * cannot be used at the same time.
- * And, the function #HAL_UartTransferAbortSend cannot be used to abort the transmission of this function.
+ * And, the function HAL_UartTransferAbortSend cannot be used to abort the transmission of this function.
  *
  * @param handle UART handle pointer.
  * @param data Start address of the data to write.

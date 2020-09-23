@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NXP
+ * Copyright 2018-2020 NXP
  * All rights reserved.
  *
  *
@@ -9,8 +9,10 @@
 #ifndef __TIMERS_MANAGER_H__
 #define __TIMERS_MANAGER_H__
 
+#include "fsl_common.h"
+#include "generic_list.h"
 /*!
- * @addtogroup Timer Manager
+ * @addtogroup Timer_Manager
  * @{
  */
 
@@ -75,6 +77,32 @@
 #ifndef TM_ENABLE_TIME_STAMP
 #define TM_ENABLE_TIME_STAMP (0)
 #endif
+
+/*! @brief Definition of timer manager handle size. */
+
+#if (defined(GENERIC_LIST_LIGHT) && (GENERIC_LIST_LIGHT > 0U))
+#define TIMER_HANDLE_SIZE (40U)
+#else
+#define TIMER_HANDLE_SIZE (40U)
+#endif
+
+/*!
+ * @brief Defines the timer manager handle
+ *
+ * This macro is used to define a 4 byte aligned timer manager handle.
+ * Then use "(eeprom_handle_t)name" to get the timer manager handle.
+ *
+ * The macro should be global and could be optional. You could also define timer manager handle by yourself.
+ *
+ * This is an example,
+ * @code
+ * TIMER_MANAGER_HANDLE_DEFINE(timerManagerHandle);
+ * @endcode
+ *
+ * @param name The name string of the timer manager handle.
+ */
+#define TIMER_MANAGER_HANDLE_DEFINE(name) uint32_t name[(TIMER_HANDLE_SIZE + sizeof(uint32_t) - 1U) / sizeof(uint32_t)]
+
 /*****************************************************************************
 ******************************************************************************
 * Public type definitions
@@ -115,18 +143,6 @@ typedef struct _timer_config
  */
 typedef void *timer_handle_t;
 
-#define TIMER_HANDLE_SIZE (48U)
-#define TIME_HANDLE_DEFINE(name) uint32_t g_timerHandle##name[(TIMER_HANDLE_SIZE + 3U) / 4U];
-/*!                                                                      \
- * @brief Gets the timer buffer pointer                                 \
- *                                                                       \
- * This macro is used to get the memory buffer pointer. The macro should \
- * not be used before the macro TIME_HANDLE_DEFINE is used.         \
- *                                                                       \
- * @param name The timer name string of the buffer.                     \
- */
-#define TIMER_HANDLE_GET(name) ((timer_handle_t)&g_timerHandle##name[0])
-
 /*
  * @brief   Timer callback fiction
  */
@@ -136,6 +152,11 @@ typedef void (*timer_callback_t)(void *param);
  * \brief   Converts the macro argument from seconds to microseconds
  */
 #define TmSecondsToMicroseconds(n) ((uint64_t)((n)*1000000UL))
+
+/*
+ * \brief   Converts the macro argument from seconds to milliseconds
+ */
+#define TmSecondsToMilliseconds(n) ((uint32_t)((n)*1000UL))
 
 /*
  * \brief   Converts the macro argument from microseconds to seconds
@@ -196,7 +217,11 @@ void TM_EnterLowpower(void);
  * @brief Open a timer with user handle.
  *
  * @param timerHandle              Pointer to a memory space of size #TIMER_HANDLE_SIZE allocated by the caller.
- * The handle should be 4 byte aligned, because unaligned access does not support on some devices.
+ * The handle should be 4 byte aligned, because unaligned access doesn't be supported on some devices.
+ * You can define the handle in the following two ways:
+ * #TIMER_MANAGER_HANDLE_DEFINE(timerHandle);
+ * or
+ * uint32_t timerHandle[((TIMER_HANDLE_SIZE + sizeof(uint32_t) - 1U) / sizeof(uint32_t))];
  * @retval kStatus_TimerSuccess    Timer open succeed.
  * @retval kStatus_TimerError      An error occurred.
  */
@@ -228,16 +253,18 @@ timer_status_t TM_InstallCallback(timer_handle_t timerHandle, timer_callback_t c
  * @brief  Start a specified timer
  *
  * @param timerHandle    the handle of the timer
- * @param timeMode       the mode of the timer, for example: kTimerModeSingleShot for the timer will expire
+ * @param timerType       The mode of the timer, for example: kTimerModeSingleShot for the timer will expire
  *                       only once, kTimerModeIntervalTimer, the timer will restart each time it expires.
- * @param timerTimeout   the timer timeout in milliseconds unit for kTimerModeSingleShot, kTimerModeIntervalTimer
+ *                       If low power mode is used at the same time. It should be set like this: kTimerModeSingleShot |
+ * kTimerModeLowPowerTimer
+ * @param timerTimeout   The timer timeout in milliseconds unit for kTimerModeSingleShot, kTimerModeIntervalTimer
  *                       and kTimerModeLowPowerTimer,if kTimerModeSetMinuteTimer timeout for minutes unit, if
  *                       kTimerModeSetSecondTimer the timeout for seconds unit.
  *
  * @retval kStatus_TimerSuccess    Timer start succeed.
  * @retval kStatus_TimerError      An error occurred.
  */
-timer_status_t TM_Start(timer_handle_t timerHandle, timer_mode_t timerType, uint32_t timerTimeout);
+timer_status_t TM_Start(timer_handle_t timerHandle, uint8_t timerType, uint32_t timerTimeout);
 
 /*!
  * @brief  Stop a specified timer
@@ -279,7 +306,8 @@ uint32_t TM_GetRemainingTime(timer_handle_t timerHandle);
 /*!
  * @brief Get the first expire time of timer
  *
- * @param timerHandle    the handle of the timer
+ * @param timerType  The mode of the timer, for example: kTimerModeSingleShot for the timer will expire
+ *                   only once, kTimerModeIntervalTimer, the timer will restart each time it expires.
  *
  * @retval return the first expire time of all timer.
  */

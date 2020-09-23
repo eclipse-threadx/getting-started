@@ -8,8 +8,150 @@
 
 #ifndef _FSL_CODEC_ADAPTER_H_
 #define _FSL_CODEC_ADAPTER_H_
+#include "fsl_common.h"
 
-#include "fsl_codec_common.h"
+#ifdef CODEC_WM8904_ENABLE
+#include "fsl_wm8904_adapter.h"
+
+#if ((defined HAL_CODEC_HANDLER_SIZE) && (HAL_CODEC_HANDLER_SIZE < HAL_CODEC_WM8904_HANDLER_SIZE))
+#undef HAL_CODEC_HANDLER_SIZE
+#define HAL_CODEC_HANDLER_SIZE HAL_CODEC_WM8904_HANDLER_SIZE
+#endif
+
+#if (!(defined HAL_CODEC_HANDLER_SIZE))
+#define HAL_CODEC_HANDLER_SIZE HAL_CODEC_WM8904_HANDLER_SIZE
+#endif
+#endif /* CODEC_WM8904_ENABLE */
+
+#ifdef CODEC_WM8960_ENABLE
+#include "fsl_wm8960_adapter.h"
+
+#if ((defined HAL_CODEC_HANDLER_SIZE) && (HAL_CODEC_HANDLER_SIZE < HAL_CODEC_WM8960_HANDLER_SIZE))
+#undef HAL_CODEC_HANDLER_SIZE
+#define HAL_CODEC_HANDLER_SIZE HAL_CODEC_WM8960_HANDLER_SIZE
+#endif
+
+#if (!(defined HAL_CODEC_HANDLER_SIZE))
+#define HAL_CODEC_HANDLER_SIZE HAL_CODEC_WM8960_HANDLER_SIZE
+#endif
+
+#endif /* CODEC_WM8960_ENABLE */
+
+#ifdef CODEC_WM8524_ENABLE
+#include "fsl_wm8524_adapter.h"
+
+#if ((defined HAL_CODEC_HANDLER_SIZE) && (HAL_CODEC_HANDLER_SIZE < HAL_CODEC_WM8524_HANDLER_SIZE))
+#undef HAL_CODEC_HANDLER_SIZE
+#define HAL_CODEC_HANDLER_SIZE HAL_CODEC_WM8524_HANDLER_SIZE
+#endif
+
+#if (!(defined HAL_CODEC_HANDLER_SIZE))
+#define HAL_CODEC_HANDLER_SIZE HAL_CODEC_WM8524_HANDLER_SIZE
+#endif
+
+#endif /* CODEC_WM8524_ENABLE */
+
+#ifdef CODEC_SGTL5000_ENABLE
+#include "fsl_sgtl_adapter.h"
+
+#if ((defined HAL_CODEC_HANDLER_SIZE) && (HAL_CODEC_HANDLER_SIZE < HAL_CODEC_SGTL_HANDLER_SIZE))
+#undef HAL_CODEC_HANDLER_SIZE
+#define HAL_CODEC_HANDLER_SIZE HAL_CODEC_SGTL_HANDLER_SIZE
+#endif
+
+#if (!(defined HAL_CODEC_HANDLER_SIZE))
+#define HAL_CODEC_HANDLER_SIZE HAL_CODEC_SGTL_HANDLER_SIZE
+#endif
+
+#endif /* CODEC_SGTL5000_ENABLE */
+
+#ifdef CODEC_DA7212_ENABLE
+#include "fsl_da7212_adapter.h"
+
+#if ((defined HAL_CODEC_HANDLER_SIZE) && (HAL_CODEC_HANDLER_SIZE < HAL_CODEC_DA7212_HANDLER_SIZE))
+#undef HAL_CODEC_HANDLER_SIZE
+#define HAL_CODEC_HANDLER_SIZE HAL_CODEC_DA7212_HANDLER_SIZE
+#endif
+
+#if (!(defined HAL_CODEC_HANDLER_SIZE))
+#define HAL_CODEC_HANDLER_SIZE HAL_CODEC_DA7212_HANDLER_SIZE
+#endif
+
+#endif /* CODEC_DA7212_ENABLE */
+
+#ifdef CODEC_CS42888_ENABLE
+#include "fsl_cs42888_adapter.h"
+
+#if ((defined HAL_CODEC_HANDLER_SIZE) && (HAL_CODEC_HANDLER_SIZE < HAL_CODEC_CS42888_HANDLER_SIZE))
+#undef HAL_CODEC_HANDLER_SIZE
+#define HAL_CODEC_HANDLER_SIZE HAL_CODEC_CS42888_HANDLER_SIZE
+#endif
+
+#if (!(defined HAL_CODEC_HANDLER_SIZE))
+#define HAL_CODEC_HANDLER_SIZE HAL_CODEC_CS42888_HANDLER_SIZE
+#endif
+
+#endif /* CODEC_CS42888_ENABLE */
+
+#ifdef CODEC_AK4497_ENABLE
+#include "fsl_ak4497_adapter.h"
+
+#if ((defined HAL_CODEC_HANDLER_SIZE) && (HAL_CODEC_HANDLER_SIZE < HAL_CODEC_AK4497_HANDLER_SIZE))
+#undef HAL_CODEC_HANDLER_SIZE
+#define HAL_CODEC_HANDLER_SIZE HAL_CODEC_AK4497_HANDLER_SIZE
+#endif
+
+#if (!(defined HAL_CODEC_HANDLER_SIZE))
+#define HAL_CODEC_HANDLER_SIZE HAL_CODEC_AK4497_HANDLER_SIZE
+#endif
+
+#endif /* CODEC_AK4497_ENABLE */
+
+#ifdef CODEC_AK4458_ENABLE
+#include "fsl_ak4458_adapter.h"
+
+#if ((defined HAL_CODEC_HANDLER_SIZE) && (HAL_CODEC_HANDLER_SIZE < HAL_CODEC_AK4458_HANDLER_SIZE))
+#undef HAL_CODEC_HANDLER_SIZE
+#define HAL_CODEC_HANDLER_SIZE HAL_CODEC_AK4458_HANDLER_SIZE
+#endif
+
+#if (!(defined HAL_CODEC_HANDLER_SIZE))
+#define HAL_CODEC_HANDLER_SIZE HAL_CODEC_AK4458_HANDLER_SIZE
+#endif
+
+#endif /* CODEC_AK4458_ENABLE */
+
+#ifdef CODEC_TFA9XXX_ENABLE
+#include "fsl_tfa9xxx_adapter.h"
+
+#if ((defined HAL_CODEC_HANDLER_SIZE) && (HAL_CODEC_HANDLER_SIZE < HAL_CODEC_TFA98XX_HANDLER_SIZE))
+#undef HAL_CODEC_HANDLER_SIZE
+#define HAL_CODEC_HANDLER_SIZE HAL_CODEC_TFA98XX_HANDLER_SIZE
+#endif
+
+#if (!(defined HAL_CODEC_HANDLER_SIZE))
+#define HAL_CODEC_HANDLER_SIZE HAL_CODEC_TFA98XX_HANDLER_SIZE
+#endif
+
+#endif /* CODEC_TFA9XXX_ENABLE */
+
+#ifdef CODEC_TFA9896_ENABLE
+#include "fsl_tfa9896_adapter.h"
+
+#if ((defined HAL_CODEC_HANDLER_SIZE) && (HAL_CODEC_HANDLER_SIZE < HAL_CODEC_TFA9896_HANDLER_SIZE))
+#undef HAL_CODEC_HANDLER_SIZE
+#define HAL_CODEC_HANDLER_SIZE HAL_CODEC_TFA9896_HANDLER_SIZE
+#endif
+
+#if (!(defined HAL_CODEC_HANDLER_SIZE))
+#define HAL_CODEC_HANDLER_SIZE HAL_CODEC_TFA9896_HANDLER_SIZE
+#endif
+
+#endif /* CODEC_TFA9896_ENABLE */
+
+#ifndef HAL_CODEC_HANDLER_SIZE
+#define HAL_CODEC_HANDLER_SIZE 128U
+#endif
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
@@ -24,6 +166,8 @@ enum _codec_type
     kCODEC_CS42888,  /*!< CS42888 */
     kCODEC_AK4497,   /*!< AK4497 */
     kCODEC_AK4458,   /*!< ak4458 */
+    kCODEC_TFA9XXX,  /*!< tfa9xxx */
+    kCODEC_TFA9896,  /*!< tfa9896 */
 };
 /*******************************************************************************
  * API
@@ -39,7 +183,7 @@ extern "C" {
  * @param config codec configuration.
  * @return kStatus_Success is success, else initial failed.
  */
-status_t HAL_CODEC_Init(codec_handle_t *handle, void *config);
+status_t HAL_CODEC_Init(void *handle, void *config);
 
 /*!
  * @brief Codec de-initilization.
@@ -47,7 +191,7 @@ status_t HAL_CODEC_Init(codec_handle_t *handle, void *config);
  * @param handle codec handle.
  * @return kStatus_Success is success, else de-initial failed.
  */
-status_t HAL_CODEC_Deinit(codec_handle_t *handle);
+status_t HAL_CODEC_Deinit(void *handle);
 
 /*!
  * @brief set audio data format.
@@ -58,27 +202,27 @@ status_t HAL_CODEC_Deinit(codec_handle_t *handle);
  * @param bitWidth bit width.
  * @return kStatus_Success is success, else configure failed.
  */
-status_t HAL_CODEC_SetFormat(codec_handle_t *handle, uint32_t mclk, uint32_t sampleRate, uint32_t bitWidth);
+status_t HAL_CODEC_SetFormat(void *handle, uint32_t mclk, uint32_t sampleRate, uint32_t bitWidth);
 
 /*!
  * @brief set audio codec module volume.
  *
  * @param handle codec handle.
- * @param channel audio codec play channel, can be a value or combine value of _codec_play_channel.
+ * @param playChannel audio codec play channel, can be a value or combine value of _codec_play_channel.
  * @param volume volume value, support 0 ~ 100, 0 is mute, 100 is the maximum volume value.
  * @return kStatus_Success is success, else configure failed.
  */
-status_t HAL_CODEC_SetVolume(codec_handle_t *handle, uint32_t playChannel, uint32_t volume);
+status_t HAL_CODEC_SetVolume(void *handle, uint32_t playChannel, uint32_t volume);
 
 /*!
  * @brief set audio codec module mute.
  *
  * @param handle codec handle.
- * @param channel audio codec play channel, can be a value or combine value of _codec_play_channel.
+ * @param playChannel audio codec play channel, can be a value or combine value of _codec_play_channel.
  * @param isMute true is mute, false is unmute.
  * @return kStatus_Success is success, else configure failed.
  */
-status_t HAL_CODEC_SetMute(codec_handle_t *handle, uint32_t playChannel, bool isMute);
+status_t HAL_CODEC_SetMute(void *handle, uint32_t playChannel, bool isMute);
 
 /*!
  * @brief set audio codec module power.
@@ -88,17 +232,17 @@ status_t HAL_CODEC_SetMute(codec_handle_t *handle, uint32_t playChannel, bool is
  * @param powerOn true is power on, false is power down.
  * @return kStatus_Success is success, else configure failed.
  */
-status_t HAL_CODEC_SetPower(codec_handle_t *handle, codec_module_t module, bool powerOn);
+status_t HAL_CODEC_SetPower(void *handle, uint32_t module, bool powerOn);
 
 /*!
  * @brief codec set record source.
  *
  * @param handle codec handle.
- * @param source audio codec record source, can be a value or combine value of _codec_record_source.
+ * @param recordSource audio codec record source, can be a value or combine value of _codec_record_source.
  *
  * @return kStatus_Success is success, else configure failed.
  */
-status_t HAL_CODEC_SetRecord(codec_handle_t *handle, uint32_t recordSource);
+status_t HAL_CODEC_SetRecord(void *handle, uint32_t recordSource);
 
 /*!
  * @brief codec set record channel.
@@ -111,7 +255,7 @@ status_t HAL_CODEC_SetRecord(codec_handle_t *handle, uint32_t recordSource);
 
  * @return kStatus_Success is success, else configure failed.
  */
-status_t HAL_CODEC_SetRecordChannel(codec_handle_t *handle, uint32_t leftRecordChannel, uint32_t rightRecordChannel);
+status_t HAL_CODEC_SetRecordChannel(void *handle, uint32_t leftRecordChannel, uint32_t rightRecordChannel);
 
 /*!
  * @brief codec set play source.
@@ -121,7 +265,7 @@ status_t HAL_CODEC_SetRecordChannel(codec_handle_t *handle, uint32_t leftRecordC
  *
  * @return kStatus_Success is success, else configure failed.
  */
-status_t HAL_CODEC_SetPlay(codec_handle_t *handle, uint32_t playSource);
+status_t HAL_CODEC_SetPlay(void *handle, uint32_t playSource);
 
 /*!
  * @brief codec module control.
@@ -136,7 +280,7 @@ status_t HAL_CODEC_SetPlay(codec_handle_t *handle, uint32_t playSource);
  *  codec specific driver for detail configurations.
  * @return kStatus_Success is success, else configure failed.
  */
-status_t HAL_CODEC_ModuleControl(codec_handle_t *handle, codec_module_ctrl_cmd_t cmd, uint32_t data);
+status_t HAL_CODEC_ModuleControl(void *handle, uint32_t cmd, uint32_t data);
 
 #if defined(__cplusplus)
 }

@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * Copyright 2016-2019 NXP
+ * Copyright 2016-2020 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -1022,6 +1022,13 @@ static status_t LPI2C_RunTransferStateMachine(LPI2C_Type *base, lpi2c_master_han
 
     /* Check for errors. */
     status = LPI2C_MasterGetStatusFlags(base);
+    /* For the last byte, nack flag is expected.
+       Do not check and clear kLPI2C_MasterNackDetectFlag for the last byte,
+       in case FIFO is emptied when stop command has not been sent. */
+    if (handle->remainingBytes == 0U)
+    {
+        status &= ~(uint32_t)kLPI2C_MasterNackDetectFlag;
+    }
     result = LPI2C_MasterCheckAndClearError(base, status);
     if (kStatus_Success != result)
     {
@@ -1041,7 +1048,6 @@ static status_t LPI2C_RunTransferStateMachine(LPI2C_Type *base, lpi2c_master_han
         switch (handle->state)
         {
             case (uint8_t)kSendCommandState:
-            {
                 /* Make sure there is room in the tx fifo for the next command. */
                 if (0U == txCount--)
                 {
@@ -1078,7 +1084,6 @@ static status_t LPI2C_RunTransferStateMachine(LPI2C_Type *base, lpi2c_master_han
                     }
                 }
                 break;
-            }
 
             case (uint8_t)kIssueReadCommandState:
                 /* Make sure there is room in the tx fifo for the read command. */
@@ -1282,6 +1287,9 @@ status_t LPI2C_MasterTransferNonBlocking(LPI2C_Type *base,
     /* Disable LPI2C IRQ sources while we configure stuff. */
     LPI2C_MasterDisableInterrupts(base, (uint32_t)kMasterIrqFlags);
 
+    /* Reset FIFO in case there are data. */
+    base->MCR |= LPI2C_MCR_RRF_MASK | LPI2C_MCR_RTF_MASK;
+
     /* Save transfer into handle. */
     handle->transfer = *transfer;
 
@@ -1401,6 +1409,7 @@ void LPI2C_MasterTransferHandleIRQ(LPI2C_Type *base, lpi2c_master_handle_t *hand
 {
     bool isDone = false;
     status_t result;
+    size_t txCount;
 
     /* Don't do anything if we don't have a valid handle. */
     if (NULL == handle)
@@ -1417,10 +1426,22 @@ void LPI2C_MasterTransferHandleIRQ(LPI2C_Type *base, lpi2c_master_handle_t *hand
 
     if ((result != kStatus_Success) || isDone)
     {
-        /* XXX need to handle data that may be in rx fifo below watermark level? */
-
-        /* XXX handle error, terminate xfer */
-
+        /* Handle error, terminate xfer */
+        if (result != kStatus_Success)
+        {
+            LPI2C_MasterTransferAbort(base, handle);
+        }
+        /* Check whether there is data in tx FIFO not sent out, is there is then the last transfer was NACKed by slave
+         */
+        LPI2C_MasterGetFifoCounts(base, NULL, &txCount);
+        if (txCount != 0U)
+        {
+            result = kStatus_LPI2C_Nak;
+            /* Reset fifos. */
+            base->MCR |= LPI2C_MCR_RRF_MASK | LPI2C_MCR_RTF_MASK;
+            /* Send a stop command to finalize the transfer. */
+            base->MTDR = (uint32_t)kStopCmd;
+        }
         /* Disable internal IRQ enables. */
         LPI2C_MasterDisableInterrupts(base, (uint32_t)kMasterIrqFlags);
 
@@ -2129,11 +2150,7 @@ static void LPI2C_CommonIRQHandler(LPI2C_Type *base, uint32_t instance)
         /* Slave mode. */
         s_lpi2cSlaveIsr(base, s_lpi2cSlaveHandle[instance]);
     }
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #endif
 

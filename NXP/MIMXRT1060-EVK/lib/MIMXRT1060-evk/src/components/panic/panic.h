@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * Copyright 2016-2018 NXP
+ * Copyright 2016-2020 NXP
  *
  *
  * This is the header file for the Panic module.
@@ -48,7 +48,9 @@ typedef struct _panic_data
 * Public macros
 *************************************************************************************
 ********************************************************************************** */
+#ifndef PANIC_ENABLE_LOG
 #define PANIC_ENABLE_LOG (1)
+#endif
 
 #define ID_PANIC(grp, value) ((panic_id_t)(((panic_id_t)(grp) << 16) + ((panic_id_t)(value))))
 
@@ -65,7 +67,7 @@ typedef struct _panic_data
  * @param id                         Panic ID
  * @param location                   location address where the Panic occurred
  * @param extra1                     extra1 parameter to be stored in Panic structure.
- * @param extra1                     extra2 parameter to be stored in Panic structure
+ * @param extra2                     extra2 parameter to be stored in Panic structure
  * @retval No return vaule.
  */
 void panic(panic_id_t id, uint32_t location, uint32_t extra1, uint32_t extra2);

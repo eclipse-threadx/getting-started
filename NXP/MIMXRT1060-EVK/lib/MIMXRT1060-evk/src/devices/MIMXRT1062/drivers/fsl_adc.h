@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
- * Copyright 2016-2019 NXP
+ * Copyright 2016-2020 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -231,7 +231,6 @@ void ADC_Deinit(ADC_Type *base);
  *  config->clockDriver =                   kADC_ClockDriver1;
  *  config->resolution =                    kADC_Resolution12Bit;
  * @endcode
- * @param base   ADC peripheral base address.
  * @param config Pointer to the configuration structure.
  */
 void ADC_GetDefaultConfig(adc_config_t *config);
@@ -376,7 +375,7 @@ static inline void ADC_EnableHardwareTrigger(ADC_Type *base, bool enable)
  * manual for more information.
  *
  * @param base ADC peripheral base address.
- * @param Pointer to "adc_hardware_compare_config_t" structure.
+ * @param config Pointer to "adc_hardware_compare_config_t" structure.
  *
  */
 void ADC_SetHardwareCompareConfig(ADC_Type *base, const adc_hardware_compare_config_t *config);
@@ -413,8 +412,16 @@ static inline uint32_t ADC_GetStatusFlags(ADC_Type *base)
  */
 void ADC_ClearStatusFlags(ADC_Type *base, uint32_t mask);
 
+/*!
+ *@}
+ */
+
 #if defined(__cplusplus)
 }
 #endif
+
+/*!
+ *@}
+ */
 
 #endif /* _FSL_ADC_H_ */

@@ -27,18 +27,19 @@
 /*! @brief SEMC status. */
 enum
 {
-    kStatus_SEMC_InvalidDeviceType            = MAKE_STATUS(kStatusGroup_SEMC, 0),
-    kStatus_SEMC_IpCommandExecutionError      = MAKE_STATUS(kStatusGroup_SEMC, 1),
-    kStatus_SEMC_AxiCommandExecutionError     = MAKE_STATUS(kStatusGroup_SEMC, 2),
-    kStatus_SEMC_InvalidMemorySize            = MAKE_STATUS(kStatusGroup_SEMC, 3),
-    kStatus_SEMC_InvalidIpcmdDataSize         = MAKE_STATUS(kStatusGroup_SEMC, 4),
-    kStatus_SEMC_InvalidAddressPortWidth      = MAKE_STATUS(kStatusGroup_SEMC, 5),
-    kStatus_SEMC_InvalidDataPortWidth         = MAKE_STATUS(kStatusGroup_SEMC, 6),
-    kStatus_SEMC_InvalidSwPinmuxSelection     = MAKE_STATUS(kStatusGroup_SEMC, 7),
-    kStatus_SEMC_InvalidBurstLength           = MAKE_STATUS(kStatusGroup_SEMC, 8),
-    kStatus_SEMC_InvalidColumnAddressBitWidth = MAKE_STATUS(kStatusGroup_SEMC, 9),
-    kStatus_SEMC_InvalidBaseAddress           = MAKE_STATUS(kStatusGroup_SEMC, 10),
-    kStatus_SEMC_InvalidTimerSetting          = MAKE_STATUS(kStatusGroup_SEMC, 11),
+    kStatus_SEMC_InvalidDeviceType        = MAKE_STATUS(kStatusGroup_SEMC, 0), /*!< Invalid device type. */
+    kStatus_SEMC_IpCommandExecutionError  = MAKE_STATUS(kStatusGroup_SEMC, 1), /*!< IP command execution error. */
+    kStatus_SEMC_AxiCommandExecutionError = MAKE_STATUS(kStatusGroup_SEMC, 2), /*!< Axi command execution error. */
+    kStatus_SEMC_InvalidMemorySize        = MAKE_STATUS(kStatusGroup_SEMC, 3), /*!< Invalid memory size. */
+    kStatus_SEMC_InvalidIpcmdDataSize     = MAKE_STATUS(kStatusGroup_SEMC, 4), /*!< Invalid IP command data size. */
+    kStatus_SEMC_InvalidAddressPortWidth  = MAKE_STATUS(kStatusGroup_SEMC, 5), /*!< Invalid address port width. */
+    kStatus_SEMC_InvalidDataPortWidth     = MAKE_STATUS(kStatusGroup_SEMC, 6), /*!< Invalid data port width. */
+    kStatus_SEMC_InvalidSwPinmuxSelection = MAKE_STATUS(kStatusGroup_SEMC, 7), /*!< Invalid SW pin mux selection. */
+    kStatus_SEMC_InvalidBurstLength       = MAKE_STATUS(kStatusGroup_SEMC, 8), /*!< Invalid burst length. */
+    kStatus_SEMC_InvalidColumnAddressBitWidth =
+        MAKE_STATUS(kStatusGroup_SEMC, 9),                                 /*!< Invalid column address bit width. */
+    kStatus_SEMC_InvalidBaseAddress  = MAKE_STATUS(kStatusGroup_SEMC, 10), /*!< Invalid base address. */
+    kStatus_SEMC_InvalidTimerSetting = MAKE_STATUS(kStatusGroup_SEMC, 11), /*!< Invalid timer setting. */
 };
 
 /*! @brief SEMC memory device type. */

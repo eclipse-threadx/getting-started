@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
- * Copyright 2016-2019 NXP
+ * Copyright 2016-2020 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -178,7 +178,7 @@ void ADC_ETC_Deinit(ADC_ETC_Type *base);
  *   config->TSC1triggerPriority = 0U;
  *   config->clockPreDivider = 0U;
  *   config->XBARtriggerMask = 0U;
- * @endCode
+ * @endcode
  *
  * @param config Pointer to "adc_etc_config_t" structure.
  */
@@ -280,7 +280,7 @@ static inline void ADC_ETC_ClearDMAStatusFlags(ADC_ETC_Type *base, uint32_t mask
 }
 
 /*!
- * @brief When enable ,all logical will be reset.
+ * @brief When enable, all logical will be reset.
  *
  * @param base ADC_ETC peripheral base address.
  * @param enable Enable/Disable the software reset.
@@ -325,8 +325,12 @@ static inline void ADC_ETC_DoSoftwareTrigger(ADC_ETC_Type *base, uint32_t trigge
  */
 uint32_t ADC_ETC_GetADCConversionValue(ADC_ETC_Type *base, uint32_t triggerGroup, uint32_t chainGroup);
 
+/* @} */
+
 #if defined(__cplusplus)
 }
 #endif
+
+/* @} */
 
 #endif /* _FSL_ADC_ETC_H_ */

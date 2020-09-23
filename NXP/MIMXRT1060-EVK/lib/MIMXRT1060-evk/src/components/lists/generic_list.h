@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2019 NXP
+ * Copyright 2018-2020 NXP
  * All rights reserved.
  *
  *
@@ -9,6 +9,7 @@
 #ifndef _GENERIC_LIST_H_
 #define _GENERIC_LIST_H_
 
+#include "fsl_common.h"
 /*!
  * @addtogroup GenericList
  * @{
@@ -25,7 +26,9 @@
 * Public macro definitions
 *************************************************************************************
 ********************************************************************************** */
-
+#ifndef GENERIC_LIST_LIGHT
+#define GENERIC_LIST_LIGHT (0)
+#endif
 /*! *********************************************************************************
 *************************************************************************************
 * Public type definitions
@@ -39,6 +42,7 @@ typedef enum _list_status
     kLIST_Full           = MAKE_STATUS(kStatusGroup_LIST, 2), /*!< FULL */
     kLIST_Empty          = MAKE_STATUS(kStatusGroup_LIST, 3), /*!< Empty */
     kLIST_OrphanElement  = MAKE_STATUS(kStatusGroup_LIST, 4), /*!< Orphan Element */
+    kLIST_NotSupport     = MAKE_STATUS(kStatusGroup_LIST, 5), /*!< Not Support  */
 } list_status_t;
 
 /*! @brief The list structure*/
@@ -49,7 +53,14 @@ typedef struct list_label
     uint16_t size;                 /*!< list size */
     uint16_t max;                  /*!< list max number of elements */
 } list_label_t, *list_handle_t;
-
+#if (defined(GENERIC_LIST_LIGHT) && (GENERIC_LIST_LIGHT > 0U))
+/*! @brief The list element*/
+typedef struct list_element_tag
+{
+    struct list_element_tag *next; /*!< next list element   */
+    struct list_label *list;       /*!< pointer to the list */
+} list_element_t, *list_element_handle_t;
+#else
 /*! @brief The list element*/
 typedef struct list_element_tag
 {
@@ -57,7 +68,7 @@ typedef struct list_element_tag
     struct list_element_tag *prev; /*!< previous list element */
     struct list_label *list;       /*!< pointer to the list */
 } list_element_t, *list_element_handle_t;
-
+#endif
 /*! *********************************************************************************
 *************************************************************************************
 * Public prototypes
@@ -156,6 +167,7 @@ list_status_t LIST_RemoveElement(list_element_handle_t element);
 /*!
  * @brief Links an element in the previous position relative to a given member of a list.
  *
+ * @param list - Handle of the list.
  * @param element - Handle of the element.
  * @param newElement - New element to insert before the given member.
  *

@@ -22,7 +22,7 @@
 /*! @brief Macro to define resolution. */
 #define FSL_VIDEO_RESOLUTION(width, height) ((uint32_t)(width) | ((uint32_t)(height) << 16U))
 
-#define FSL_VIDEO_EXTRACT_WIDTH(resolution) ((uint16_t)((resolution)&0xFFFFU))
+#define FSL_VIDEO_EXTRACT_WIDTH(resolution)  ((uint16_t)((resolution)&0xFFFFU))
 #define FSL_VIDEO_EXTRACT_HEIGHT(resolution) ((uint16_t)((resolution) >> 16U))
 
 /*! @brief Pixel format definition. */

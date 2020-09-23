@@ -140,7 +140,7 @@ static csi_frag_handle_t *s_csiHandle[ARRAY_SIZE(s_csiBases)];
 static const IRQn_Type s_csiIRQ[] = CSI_IRQS;
 
 /* CSI ISR for transactional APIs. */
-#if defined ( __ARMCC_VERSION ) && ( __ARMCC_VERSION >= 6010050 )
+#if defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
 static csi_isr_t s_csiIsr = (csi_isr_t)DefaultISR;
 #else
 static csi_isr_t s_csiIsr;
@@ -913,7 +913,7 @@ void CSI_TransferHandleIRQ(CSI_Type *base, csi_handle_t *handle)
 
 #else /* CSI_DRIVER_FRAG_MODE */
 
-#if defined(__CC_ARM) 
+#if defined(__CC_ARM)
 __asm void CSI_ExtractYFromYUYV(void *datBase, const void *dmaBase, size_t count)
 {
     /* clang-format off */
@@ -1382,11 +1382,7 @@ void CSI_FragModeTransferHandleIRQ(CSI_Type *base, csi_frag_handle_t *handle)
 void CSI_DriverIRQHandler(void)
 {
     s_csiIsr(CSI, s_csiHandle[0]);
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #endif
 
@@ -1394,10 +1390,6 @@ void CSI_DriverIRQHandler(void)
 void CSI0_DriverIRQHandler(void)
 {
     s_csiIsr(CSI, s_csiHandle[0]);
-/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate overlapping
-  exception return operation might vector to incorrect interrupt */
-#if defined __CORTEX_M && (__CORTEX_M == 4U)
-    __DSB();
-#endif
+    SDK_ISR_EXIT_BARRIER;
 }
 #endif

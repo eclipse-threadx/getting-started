@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NXP
+ * Copyright 2018-2020 NXP
  * All rights reserved.
  *
  *
@@ -39,16 +39,41 @@ typedef void *led_handle_t;
 #define LED_HANDLE_SIZE ((16U * 3U) + 36U)
 #endif
 
-#define LED_HANDLE_DEFINE(name) uint32_t g_ledHandle##name[((LED_HANDLE_SIZE - 1U) >> 2U) + 1U];
-/*!                                                                      \
- * @brief Gets the memory buffer pointer                                 \
- *                                                                       \
- * This macro is used to get the memory buffer pointer. The macro should \
- * not be used before the macro MEM_BLOCK_BUFFER_DEFINE is used.         \
- *                                                                       \
- * @param name The memory name string of the buffer.                     \
+/*!
+ * @brief Defines the led handle
+ *
+ * This macro is used to define a 4 byte aligned led handle.
+ * Then use "(led_handle_t)name" to get the led handle.
+ *
+ * The macro should be global and could be optional. You could also define led handle by yourself.
+ *
+ * This is an example,
+ * @code
+ * LED_HANDLE_DEFINE(ledHandle);
+ * @endcode
+ *
+ * @param name The name string of the led handle.
  */
-#define LED_HANDLE(name) ((led_handle_t)&g_ledHandle##name[0])
+#define LED_HANDLE_DEFINE(name) uint32_t name[((LED_HANDLE_SIZE + sizeof(uint32_t) - 1U) / sizeof(uint32_t))]
+
+/*!
+ * @brief Defines the led handle array
+ *
+ * This macro is used to define a 4 byte aligned led handle array.
+ * Then use "(led_handle_t)name[0]" to get the first led handle.
+ *
+ * The macro should be global and could be optional. You could also define these led handle by yourself.
+ *
+ * This is an example,
+ * @code
+ * LED_HANDLE_ARRAY_DEFINE(ledHandleArray,1);
+ * @endcode
+ *
+ * @param name The name string of the led handle array.
+ * @param count The amount of led handle.
+ */
+#define LED_HANDLE_ARRAY_DEFINE(name, count) \
+    uint32_t name[count][((LED_HANDLE_SIZE + sizeof(uint32_t) - 1U) / sizeof(uint32_t))]
 
 /*! @brief Definition of LED timer interval,unit is ms. */
 #define LED_TIMER_INTERVAL (100U)
@@ -183,20 +208,18 @@ extern "C" {
  * Example below shows how to use this API to configure the LED.
  * For monochrome LED,
  *  @code
- *   uint32_t s_ledMonochromeHandleBuffer[((LED_HANDLE_SIZE + sizeof(uint32_t) - 1) / sizeof(uitn32_t))];
- *   led_handle_t s_ledMonochromeHandle = (led_handle_t)&s_ledMonochromeHandleBuffer[0];
+ *   static LED_HANDLE_DEFINE(s_ledMonochromeHandle);
  *   led_config_t ledMonochromeConfig;
  *   ledMonochromeConfig.type = kLED_TypeMonochrome;
  *   ledMonochromeConfig.ledMonochrome.monochromePin.dimmingEnable = 0;
  *   ledMonochromeConfig.ledMonochrome.monochromePin.gpio.port = 0;
  *   ledMonochromeConfig.ledMonochrome.monochromePin.gpio.pin = 1;
  *   ledMonochromeConfig.ledMonochrome.monochromePin.gpio.pinStateDefault = 0;
- *   LED_Init(s_ledMonochromeHandle, &ledMonochromeConfig);
+ *   LED_Init((led_handle_t)s_ledMonochromeHandle, &ledMonochromeConfig);
  *  @endcode
  * For rgb LED,
  *  @code
- *   uint32_t s_ledRgbHandleBuffer[((LED_HANDLE_SIZE + sizeof(uint32_t) - 1) / sizeof(uitn32_t))];
- *   led_handle_t s_ledRgbHandle = (led_handle_t)&s_ledRgbHandleBuffer[0];
+ *   static LED_HANDLE_DEFINE(s_ledRgbHandle);
  *   led_config_t ledRgbConfig;
  *   ledRgbConfig.type = kLED_TypeRgb;
  *   ledRgbConfig.ledRgb.redPin.dimmingEnable = 0;
@@ -211,12 +234,11 @@ extern "C" {
  *   ledRgbConfig.ledRgb.bluePin.gpio.port = 0;
  *   ledRgbConfig.ledRgb.bluePin.gpio.pin = 3;
  *   ledRgbConfig.ledRgb.bluePin.gpio.pinStateDefault = 0;
- *   LED_Init(s_ledRgbHandle, &ledRgbConfig);
+ *   LED_Init((led_handle_t)s_ledRgbHandle, &ledRgbConfig);
  *  @endcode
  * For dimming monochrome LED,
  *  @code
- *   uint32_t s_ledMonochromeHandleBuffer[((LED_HANDLE_SIZE + sizeof(uint32_t) - 1) / sizeof(uitn32_t))];
- *   led_handle_t s_ledMonochromeHandle = (led_handle_t)&s_ledMonochromeHandleBuffer[0];
+ *   static LED_HANDLE_DEFINE(s_ledMonochromeHandle);
  *   led_config_t ledMonochromeConfig;
  *   ledMonochromeConfig.type = kLED_TypeMonochrome;
  *   ledMonochromeConfig.ledMonochrome.monochromePin.dimmingEnable = 1;
@@ -224,12 +246,33 @@ extern "C" {
  *   ledMonochromeConfig.ledMonochrome.monochromePin.dimming.instance = 0;
  *   ledMonochromeConfig.ledMonochrome.monochromePin.dimming.channel = 1;
  *   ledMonochromeConfig.ledMonochrome.monochromePin.dimming.pinStateDefault = 0;
- *   LED_Init(s_ledMonochromeHandle, &ledMonochromeConfig);
+ *   LED_Init((led_handle_t)s_ledMonochromeHandle, &ledMonochromeConfig);
+ *  @endcode
+ * For multiple LEDs,
+ *  @code
+ *   static LED_HANDLE_ARRAY_DEFINE(s_ledArrayHandle, count);
+ *   led_config_t ledArrayConfig[count];
+ *   for(uint8_t i = 0; i < count; i++ )
+ *   {
+ *       ledArrayConfig[i].type = kLED_TypeMonochrome;
+ *       ledArrayConfig[i].ledMonochrome.monochromePin.dimmingEnable = 1;
+ *       ledArrayConfig[i].ledMonochrome.monochromePin.dimming.sourceClock = 48000000;
+ *       ledArrayConfig[i].ledMonochrome.monochromePin.dimming.instance = 0;
+ *       ledArrayConfig[i].ledMonochrome.monochromePin.dimming.channel = 1;
+ *       ledArrayConfig[i].ledMonochrome.monochromePin.dimming.pinStateDefault = 0;
+ *       LED_Init((led_handle_t)s_ledArrayHandle[i], &ledArrayConfig[i]);
+ *   }
  *  @endcode
  *
  * @param ledHandle Pointer to point to a memory space of size #LED_HANDLE_SIZE allocated by the caller.
- * The handle should be 4 byte aligned, because unaligned access does not support on some devices.
- * @param ledConfig Pointer to user-defined configuration structure.
+ * The handle should be 4 byte aligned, because unaligned access doesn't be supported on some devices.
+ * You can define one handle in the following two ways:
+ * #LED_HANDLE_DEFINE(ledHandle);
+ * or
+ * uint32_t ledHandle[((LED_HANDLE_SIZE + sizeof(uint32_t) - 1U) / sizeof(uint32_t))];
+ * You can define multiple handles in the following way:
+ * #LED_HANDLE_ARRAY_DEFINE(ledHandleArray, count);
+ * @param  ledConfig Pointer to user-defined configuration structure.
  * @retval kStatus_LED_Error An error occurred.
  * @retval kStatus_LED_Success LED initialization succeed.
  */

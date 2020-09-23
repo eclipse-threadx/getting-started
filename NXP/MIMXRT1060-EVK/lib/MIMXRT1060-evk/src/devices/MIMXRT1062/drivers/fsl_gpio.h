@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
- * Copyright 2016-2019 NXP
+ * Copyright 2016-2020 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -72,7 +72,7 @@ extern "C" {
  *
  * @param base GPIO base pointer.
  * @param pin Specifies the pin number
- * @param initConfig pointer to a @ref gpio_pin_config_t structure that
+ * @param Config pointer to a @ref gpio_pin_config_t structure that
  *        contains the configuration information.
  */
 void GPIO_PinInit(GPIO_Type *base, uint32_t pin, const gpio_pin_config_t *Config);
@@ -228,7 +228,7 @@ static inline uint8_t GPIO_ReadPadStatus(GPIO_Type *base, uint32_t pin)
  *
  * @param base GPIO base pointer.
  * @param pin GPIO port pin number.
- * @param pininterruptMode pointer to a @ref gpio_interrupt_mode_t structure
+ * @param pinInterruptMode pointer to a @ref gpio_interrupt_mode_t structure
  *        that contains the interrupt mode information.
  */
 void GPIO_PinSetInterruptConfig(GPIO_Type *base, uint32_t pin, gpio_interrupt_mode_t pinInterruptMode);

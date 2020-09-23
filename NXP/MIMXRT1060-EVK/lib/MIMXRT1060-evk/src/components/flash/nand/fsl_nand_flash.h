@@ -71,7 +71,7 @@ extern "C" {
  *        }
  *        nand_config_t config =
  *        {
- *            .memControlConfig = (void *)&semcNandconfig;
+ *            .memControlConfig = (void *)\&semcNandconfig;
  *            .driverBaseAddr   = (void *)SEMC;
  *        }
  * @param handle    The NAND Flash handler.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NXP
+ * Copyright 2019-2020 NXP
  * All rights reserved.
  *
  *
@@ -13,13 +13,13 @@
  * Definitions
  ******************************************************************************/
 
-#define NOR_CMD_INDEX_READ CMD_INDEX_READ               /*!< 0*/
-#define NOR_CMD_INDEX_READSTATUS CMD_INDEX_READSTATUS   /*!< 1*/
+#define NOR_CMD_INDEX_READ        CMD_INDEX_READ        /*!< 0*/
+#define NOR_CMD_INDEX_READSTATUS  CMD_INDEX_READSTATUS  /*!< 1*/
 #define NOR_CMD_INDEX_WRITEENABLE CMD_INDEX_WRITEENABLE /*!< 2*/
 #define NOR_CMD_INDEX_ERASESECTOR 3                     /*!< 3*/
 #define NOR_CMD_INDEX_PAGEPROGRAM CMD_INDEX_WRITE       /*!< 4*/
-#define NOR_CMD_INDEX_CHIPERASE 5                       /*!< 5*/
-#define NOR_CMD_INDEX_DUMMY 6                           /*!< 6*/
+#define NOR_CMD_INDEX_CHIPERASE   5                     /*!< 5*/
+#define NOR_CMD_INDEX_DUMMY       6                     /*!< 6*/
 
 #define NOR_CMD_LUT_SEQ_IDX_READSTATUS_XPI \
     2 /*!< 2  Read status DPI/QPI/OPI sequence id in lookupTable stored in config block*/
@@ -28,8 +28,8 @@
 #define NOR_CMD_LUT_SEQ_IDX_RESTORE_NOCMD \
     14 /*!< 14 Restore 0-4-4/0-8-8 mode sequence id in lookupTable stored in config block*/
 
-#define NOR_CMD_LUT_SEQ_IDX_READ 0U        /*!< Read LUT sequence id in lookupTable stored in config block*/
-#define NOR_CMD_LUT_SEQ_IDX_READSTATUS 1U  /*!< Read Status LUT sequence id in lookupTable stored in config block*/
+#define NOR_CMD_LUT_SEQ_IDX_READ        0U /*!< Read LUT sequence id in lookupTable stored in config block*/
+#define NOR_CMD_LUT_SEQ_IDX_READSTATUS  1U /*!< Read Status LUT sequence id in lookupTable stored in config block*/
 #define NOR_CMD_LUT_SEQ_IDX_WRITESTATUS 2U /*!< Write Status LUT sequence id in lookupTable stored in config block*/
 #define NOR_CMD_LUT_SEQ_IDX_WRITEENABLE 3U /*!< Write enable LUT sequence id in lookupTable stored in config block*/
 #define NOR_CMD_LUT_SEQ_IDX_WRITECONFIG \
@@ -39,10 +39,10 @@
 #define NOR_CMD_LUT_SEQ_IDX_READCONFIG \
     6U /*!< Read configuration LUT sequence id in lookupTable stored in config block*/
 #define NOR_CMD_LUT_SEQ_IDX_ERASESECTOR 7U /*!< Erase sector LUT sequence id in lookupTable stored in config block*/
-#define NOR_CMD_LUT_SEQ_IDX_READID 8U /*!< Read manifacture ID LUT sequence id in lookupTable stored in config block*/
-#define NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM 9U /*!< Page program LUT sequence id in lookupTable stored in config block*/
-#define NOR_CMD_LUT_SEQ_IDX_CHIPERASE 11U  /*!< Chip erase LUT sequence id in lookupTable stored in config block*/
-#define NOR_CMD_LUT_SEQ_IDX_ERASEBLOCK 12U /*!< Block erase LUT sequence id in lookupTable stored in config block*/
+#define NOR_CMD_LUT_SEQ_IDX_READID      8U /*!< Read manifacture ID LUT sequence id in lookupTable stored in config block*/
+#define NOR_CMD_LUT_SEQ_IDX_PAGEPROGRAM 9U  /*!< Page program LUT sequence id in lookupTable stored in config block*/
+#define NOR_CMD_LUT_SEQ_IDX_CHIPERASE   11U /*!< Chip erase LUT sequence id in lookupTable stored in config block*/
+#define NOR_CMD_LUT_SEQ_IDX_ERASEBLOCK  12U /*!< Block erase LUT sequence id in lookupTable stored in config block*/
 #define NOR_CMD_LUT_SEQ_IDX_READ_SFDP \
     13U /*!< Read SFDP information sequence id in lookupTable id stored in config block*/
 #define NOR_CMD_LUT_SEQ_IDX_EXIT_NOCMD \
@@ -77,6 +77,10 @@ enum
         MAKE_STATUS(kStatusGroup_SDK_FLEXSPINOR, 13), /*!< Enter octal mode failure*/
     kStatus_FLEXSPINOR_UnprotectMemoryFailed =
         MAKE_STATUS(kStatusGroup_SDK_FLEXSPINOR, 14), /*!< Unprotect memory failure*/
+    kStatus_FLEXSPINOR_RestoreStandardSPIModeFailed =
+        MAKE_STATUS(kStatusGroup_SDK_FLEXSPINOR, 15), /*!< Restore standard SPI mode*/
+    kStatus_FLEXSPINOR_UnsupportedDDRMode = MAKE_STATUS(kStatusGroup_SDK_FLEXSPINOR, 16), /*!< Unsupported DDR mode*/
+    kStatus_FLEXSPINOR_SFDPParseFailed    = MAKE_STATUS(kStatusGroup_SDK_FLEXSPINOR, 17), /*!< SFDP parse failure*/
 };
 
 /*! @brief Serial NOR device type */
@@ -107,8 +111,8 @@ typedef enum _serial_nor_command_mode
     kSerialNorCommandMode_2_2_2    = 1, /*!< Command mode is 2-3-2 mode*/
     kSerialNorCommandMode_4s_4s_4s = 2, /*!< Command mode is 4s-4s-4s mode*/
     kSerialNorCommandMode_4d_4d_4d = 3, /*!< Command mode is 4d-4d-4d mode*/
-    kSerialNorCommandMode_8d_8d_8d = 4, /*!< Command mode is 8s-8s-8s mode*/
-    kSerialNorCommandMode_8s_8s_8s = 5, /*!< Command mode is 8d-8d-8d mode*/
+    kSerialNorCommandMode_8s_8s_8s = 4, /*!< Command mode is 8s-8s-8s mode*/
+    kSerialNorCommandMode_8d_8d_8d = 5, /*!< Command mode is 8d-8d-8d mode*/
     kSerialNorCommandMode_max      = 6, /*!< Command mode maximum limit*/
 } serial_nor_command_mode_t;
 

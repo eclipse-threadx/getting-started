@@ -21,8 +21,8 @@
  **********************************************************************************************************************/
 /*! @name Driver version */
 /*@{*/
-/*! @brief LPSPI EDMA driver version 2.0.4. */
-#define FSL_LPSPI_EDMA_DRIVER_VERSION (MAKE_VERSION(2, 0, 4))
+/*! @brief LPSPI EDMA driver version 2.0.5. */
+#define FSL_LPSPI_EDMA_DRIVER_VERSION (MAKE_VERSION(2, 0, 5))
 /*@}*/
 
 /*!

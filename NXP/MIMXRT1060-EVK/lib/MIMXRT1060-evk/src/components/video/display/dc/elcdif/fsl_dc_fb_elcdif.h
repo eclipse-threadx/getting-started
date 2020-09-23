@@ -20,8 +20,8 @@
  * Definitions
  ******************************************************************************/
 
-#define DC_FB_ELCDIF_MAX_LAYER 1 /* Only support one layer currently. */
-#define DC_FB_ELCDIF_DEFAULT_PIXEL_FORMAT kVIDEO_PixelFormatRGB565
+#define DC_FB_ELCDIF_MAX_LAYER                   1 /* Only support one layer currently. */
+#define DC_FB_ELCDIF_DEFAULT_PIXEL_FORMAT        kVIDEO_PixelFormatRGB565
 #define DC_FB_ELCDIF_DEFAULT_PIXEL_FORMAT_ELCDIF kELCDIF_PixelFormatRGB565
 
 /*! @brief Data for ELCDIF display controller layer. */

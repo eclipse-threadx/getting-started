@@ -70,6 +70,7 @@
     .global ENET_IRQHandler
     .thumb_func
 __nx_ENET_IRQHandler:
+    .thumb_func
 ENET_IRQHandler:
     PUSH    {r0, lr}
 #ifdef TX_ENABLE_EXECUTION_CHANGE_NOTIFY

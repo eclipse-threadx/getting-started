@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019, NXP
+ * Copyright 2017-2020, NXP
  * All rights reserved.
  *
  *
@@ -264,7 +264,7 @@ void DCDC_SetClockSource(DCDC_Type *base, dcdc_clock_source_t clockSource);
 void DCDC_GetDefaultDetectionConfig(dcdc_detection_config_t *config);
 
 /*!
- * @breif Configure the DCDC detection.
+ * @brief Configure the DCDC detection.
  *
  * @param base DCDC peripheral base address.
  * @param config Pointer to configuration structure. See to "dcdc_detection_config_t"
@@ -307,7 +307,7 @@ void DCDC_ResetCurrentAlertSignal(DCDC_Type *base, bool enable);
  * @brief Set the bangap trim value to trim bandgap voltage.
  *
  * @param base DCDC peripheral base address.
- * @param TrimValue The bangap trim value. Available range is 0U-31U.
+ * @param trimValue The bangap trim value. Available range is 0U-31U.
  */
 static inline void DCDC_SetBandgapVoltageTrimValue(DCDC_Type *base, uint32_t trimValue)
 {
@@ -485,8 +485,12 @@ void DCDC_BootIntoDCM(DCDC_Type *base);
  */
 void DCDC_BootIntoCCM(DCDC_Type *base);
 
+/* @} */
+
 #if defined(__cplusplus)
 }
 #endif
+
+/* @} */
 
 #endif /* __FSL_DCDC_H__ */

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NXP
+ * Copyright 2018-2019 NXP
  * All rights reserved.
  *
  *
@@ -10,16 +10,20 @@
 #define __HAL_I2C_ADAPTER_H__
 
 /*!
- * @addtogroup hal_i2c_driver
+ * @addtogroup I2C_Adapter
  * @{
  */
 
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
+/*! @brief HAL I2C master handle size. */
 #define HAL_I2C_MASTER_HANDLE_SIZE (80U)
-#define HAL_I2C_SLAVE_HANDLE_SIZE (80U)
 
+/*! @brief HAL I2C slave handle size. */
+#define HAL_I2C_SLAVE_HANDLE_SIZE (88U)
+
+/*! @brief HAL I2C status. */
 typedef enum _hal_i2c_status
 {
     kStatus_HAL_I2cSuccess         = kStatus_Success,                      /*!< Successfully */
@@ -118,8 +122,47 @@ typedef struct _hal_i2c_slave_transfer
                                 start. */
 } hal_i2c_slave_transfer_t;
 
+/*! @brief HAL I2C master handle. */
 typedef void *hal_i2c_master_handle_t;
+
+/*! @brief HAL I2C slave handle. */
 typedef void *hal_i2c_slave_handle_t;
+
+/*!
+ * @brief Defines the I2C master handle
+ *
+ * This macro is used to define a 4 byte aligned I2C master handle.
+ * Then use "(hal_i2c_master_handle_t)name" to get the I2C master handle.
+ *
+ * The macro should be global and could be optional. You could also define I2C master handle by yourself.
+ *
+ * This is an example,
+ * @code
+ *   HAL_I2C_MASTER_HANDLE_DEFINE(i2cMasterHandle);
+ * @endcode
+ *
+ * @param name The name string of the I2C master handle.
+ */
+#define HAL_I2C_MASTER_HANDLE_DEFINE(name) \
+    uint32_t name[(HAL_I2C_MASTER_HANDLE_SIZE + sizeof(uint32_t) - 1U) / sizeof(uint32_t)]
+
+/*!
+ * @brief Defines the I2C slave handle
+ *
+ * This macro is used to define a 4 byte aligned I2C slave handle.
+ * Then use "(hal_i2c_slave_handle_t)name" to get the I2C slave handle.
+ *
+ * The macro should be global and could be optional. You could also define I2C slave handle by yourself.
+ *
+ * This is an example,
+ * @code
+ *   HAL_I2C_SLAVE_HANDLE_DEFINE(i2cSlaveHandle);
+ * @endcode
+ *
+ * @param name The name string of the I2C slave handle.
+ */
+#define HAL_I2C_SLAVE_HANDLE_DEFINE(name) \
+    uint32_t name[(HAL_I2C_SLAVE_HANDLE_SIZE + sizeof(uint32_t) - 1U) / sizeof(uint32_t)]
 
 /*!
  * @brief Master completion callback function pointer type.
@@ -172,20 +215,23 @@ extern "C" {
  * structure. The parameter handle is a pointer to point to a memory space
  * of size #HAL_I2C_MASTER_HANDLE_SIZE allocated by the caller.
  *
- * This is an example.
+ * Example below shows how to use this API to configure the I2C master.
  * @code
- *  uint32_t g_i2cMasterHandleBuffer[((HAL_I2C_MASTER_HANDLE_SIZE + sizeof(uint32_t) - 1) / sizeof(uitn32_t))];
- *  hal_i2c_master_handle_t g_i2cMasterHandle = (hal_i2c_master_handle_t)&g_i2cMasterHandleBuffer[0];
- *  hal_i2c_master_config_t masterConfig;
- *  masterConfig.enableMaster = true;
- *  masterConfig.baudRate_Bps = 100000U;
- *  masterConfig.srcClock_Hz = 12000000U;
- *  masterConfig.instance = 0;
- *  HAL_I2cMasterInit(g_i2cMasterHandle, &masterConfig);
+ *   HAL_I2C_MASTER_HANDLE_DEFINE(i2cMasterHandle);
+ *   hal_i2c_master_config_t masterConfig;
+ *   masterConfig.enableMaster   = true;
+ *   masterConfig.baudRate_Bps   = 100000U;
+ *   masterConfig.srcClock_Hz    = 12000000U;
+ *   masterConfig.instance       = 0;
+ *   HAL_I2cMasterInit((hal_i2c_master_handle_t)i2cMasterHandle, &masterConfig);
  * @endcode
  *
  * @param handle Pointer to point to a memory space of size #HAL_I2C_MASTER_HANDLE_SIZE allocated by the caller.
- * The handle should be 4 byte aligned, because unaligned access does not support on some devices.
+ * The handle should be 4 byte aligned, because unaligned access doesn't be supported on some devices.
+ * You can define the handle in the following two ways:
+ * #HAL_I2C_MASTER_HANDLE_DEFINE(handle);
+ * or
+ * uint32_t handle[((HAL_I2C_MASTER_HANDLE_SIZE + sizeof(uint32_t) - 1U) / sizeof(uint32_t))];
  * @param config A pointer to the master configuration structure
  * @retval kStatus_HAL_I2cError An error occurred.
  * @retval kStatus_HAL_I2cSuccess i2c master initialization succeed
@@ -202,20 +248,23 @@ hal_i2c_status_t HAL_I2cMasterInit(hal_i2c_master_handle_t handle, const hal_i2c
  * structure. The parameter handle is a pointer to point to a memory space
  * of size #HAL_I2C_SLAVE_HANDLE_SIZE allocated by the caller.
  *
- * This is an example.
+ * Example below shows how to use this API to configure the I2C slave.
  * @code
- *  uint8_t g_i2cSlaveHandleBuffer[HAL_I2C_SLAVE_HANDLE_SIZE];
- *  hal_i2c_slave_handle_t g_i2cSlaveHandle = (hal_i2c_slave_handle_t)&g_i2cSlaveHandleBuffer[0];
- *  hal_i2c_slave_config_t slaveConfig;
- *  slaveConfig.enableSlave = true;
- *  slaveConfig.slaveAddress = 0x01U;
- *  slaveConfig.srcClock_Hz = 12000000U;
- *  slaveConfig.instance = 0;
- *  HAL_I2cSlaveInit(g_i2cSlaveHandle, &slaveConfig);
+ *   HAL_I2C_SLAVE_HANDLE_DEFINE(i2cSlaveHandle);
+ *   hal_i2c_slave_config_t slaveConfig;
+ *   slaveConfig.enableSlave     = true;
+ *   slaveConfig.slaveAddress    = 0x01U;
+ *   slaveConfig.srcClock_Hz     = 12000000U;
+ *   slaveConfig.instance        = 0;
+ *   HAL_I2cSlaveInit((hal_i2c_slave_handle_t)i2cSlaveHandle, &slaveConfig);
  * @endcode
  *
  * @param handle Pointer to point to a memory space of size #HAL_I2C_SLAVE_HANDLE_SIZE allocated by the caller.
- * The handle should be 4 byte aligned, because unaligned access does not support on some devices.
+ * The handle should be 4 byte aligned, because unaligned access doesn't be supported on some devices.
+ * You can define the handle in the following two ways:
+ * #HAL_I2C_SLAVE_HANDLE_DEFINE(handle);
+ * or
+ * uint32_t handle[((HAL_I2C_SLAVE_HANDLE_SIZE + sizeof(uint32_t) - 1U) / sizeof(uint32_t))];
  * @param config A pointer to the slave configuration structure
  * @retval kStatus_HAL_I2cError An error occurred.
  * @retval kStatus_HAL_I2cSuccess i2c slave initialization succeed
@@ -409,7 +458,7 @@ hal_i2c_status_t HAL_I2cSlaveTransferInstallCallback(hal_i2c_slave_handle_t hand
  *
  * The set of events received by the callback is customizable. To do so, set the @a eventMask parameter to
  * the OR'd combination of #hal_i2c_slave_transfer_event_t enumerators for the events you wish to receive.
- * The #kHAL_I2cSlaveTransmitEvent and #kLPHAL_I2cSlaveReceiveEvent events are always enabled and do not need
+ * The #kHAL_I2cSlaveTransmitEvent and #kHAL_I2cSlaveReceiveEvent events are always enabled and do not need
  * to be included in the mask. Alternatively, pass 0 to get a default set of only the transmit and
  * receive events that are always enabled. In addition, the #kHAL_I2cSlaveAllEvents constant is provided as
  * a convenient way to enable all events.

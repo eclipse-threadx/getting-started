@@ -10,19 +10,20 @@
 #define _FSL_CODEC_COMMON_H_
 
 #include "fsl_common.h"
+#include "fsl_codec_adapter.h"
+
+/*!
+ * @addtogroup codec_common
+ * @{
+ */
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
 /*! @name Driver version */
 /*@{*/
-/*! @brief CLOCK driver version 2.1.1. */
-#define FSL_CODEC_DRIVER_VERSION (MAKE_VERSION(2, 1, 1))
+/*! @brief CLOCK driver version 2.2.0. */
+#define FSL_CODEC_DRIVER_VERSION (MAKE_VERSION(2, 2, 0))
 /*@}*/
-
-/*! @brief CODEC handle buffer size */
-#ifndef CODEC_HANDLE_SIZE
-#define CODEC_HANDLE_SIZE (128U)
-#endif
 
 /*! @brief codec maximum volume range */
 #define CODEC_VOLUME_MAX_VALUE (100U)
@@ -238,9 +239,9 @@ typedef struct _codec_capability
  */
 struct _codec_handle
 {
-    codec_config_t *codecConfig;               /*!< codec configuration function pointer */
-    const codec_capability_t *codecCapability; /*!< codec capability */
-    uint8_t codecDevHandle[CODEC_HANDLE_SIZE]; /*!< codec device handle */
+    codec_config_t *codecConfig;                    /*!< codec configuration function pointer */
+    const codec_capability_t *codecCapability;      /*!< codec capability */
+    uint8_t codecDevHandle[HAL_CODEC_HANDLER_SIZE]; /*!< codec device handle */
 };
 
 /*******************************************************************************
@@ -327,7 +328,7 @@ status_t CODEC_SetPower(codec_handle_t *handle, codec_module_t module, bool powe
  * @brief codec set record source.
  *
  * @param handle codec handle.
- * @param source audio codec record source, can be a value or combine value of _codec_record_source.
+ * @param recordRource audio codec record source, can be a value or combine value of _codec_record_source.
  *
  * @return kStatus_Success is success, else configure failed.
  */
@@ -359,5 +360,6 @@ status_t CODEC_SetPlay(codec_handle_t *handle, uint32_t playSource);
 #if defined(__cplusplus)
 }
 #endif
+/*! @} */
 
 #endif /* _FSL_CODEC_COMMON_H_ */
