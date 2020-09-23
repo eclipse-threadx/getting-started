@@ -145,7 +145,19 @@ UINT azure_iot_nx_client_entry(
         return status;
     }
 
-#ifdef ENABLE_DPS
+#if defined(ENABLE_DPS) && defined(ENABLE_X509)
+    status = azure_iot_nx_client_dps_x509_create(&azure_iot_nx_client,
+        ip_ptr,
+        pool_ptr,
+        dns_ptr,
+        unix_time_callback,
+        IOT_DPS_ENDPOINT,
+        IOT_DPS_ID_SCOPE,
+        IOT_DPS_REGISTRATION_ID,
+        IOT_DPS_X509_CERT,
+        IOT_X509_PRIVATE_KEY,
+        IOT_MODEL_ID);
+#elif defined(ENABLE_DPS)
     status = azure_iot_nx_client_dps_create(&azure_iot_nx_client,
         ip_ptr,
         pool_ptr,
