@@ -53,10 +53,10 @@ void azure_thread_entry(ULONG parameter)
         return;
     }
 
-#ifdef USE_NX_CLIENT_PREVIEW
-    if ((status = azure_iot_nx_client_entry(&nx_ip, &nx_pool, &nx_dns_client, sntp_time)))
-#else
+#ifdef ENABLE_MQTT
     if ((status = azure_iot_mqtt_entry(&nx_ip, &nx_pool, &nx_dns_client, sntp_time_get)))
+#else
+    if ((status = azure_iot_nx_client_entry(&nx_ip, &nx_pool, &nx_dns_client, sntp_time)))
 #endif
     {
         printf("Failed to run Azure IoT (0x%04x)\r\n", status);
@@ -69,12 +69,16 @@ void tx_application_define(void* first_unused_memory)
     systick_interval_set(TX_TIMER_TICKS_PER_SECOND);
 
     // Create Azure thread
-    UINT status = tx_thread_create(
-        &azure_thread, "Azure Thread",
-        azure_thread_entry, 0,
-        azure_thread_stack, AZURE_THREAD_STACK_SIZE,
-        AZURE_THREAD_PRIORITY, AZURE_THREAD_PRIORITY,
-        TX_NO_TIME_SLICE, TX_AUTO_START);
+    UINT status = tx_thread_create(&azure_thread,
+        "Azure Thread",
+        azure_thread_entry,
+        0,
+        azure_thread_stack,
+        AZURE_THREAD_STACK_SIZE,
+        AZURE_THREAD_PRIORITY,
+        AZURE_THREAD_PRIORITY,
+        TX_NO_TIME_SLICE,
+        TX_AUTO_START);
 
     if (status != TX_SUCCESS)
     {

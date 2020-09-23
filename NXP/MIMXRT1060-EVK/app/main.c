@@ -54,10 +54,10 @@ void azure_thread_entry(ULONG parameter)
         return;
     }
 
-#ifdef USE_NX_CLIENT_PREVIEW
-    if ((status = azure_iot_nx_client_entry(&nx_ip, &nx_pool, &nx_dns_client, sntp_time)))
-#else
+#ifdef ENABLE_MQTT
     if ((status = azure_iot_mqtt_entry(&nx_ip, &nx_pool, &nx_dns_client, sntp_time_get)))
+#else
+    if ((status = azure_iot_nx_client_entry(&nx_ip, &nx_pool, &nx_dns_client, sntp_time)))
 #endif
     {
         printf("Failed to run Azure IoT (0x%04x)\r\n", status);
@@ -91,6 +91,6 @@ void tx_application_define(void* first_unused_memory)
 int main(void)
 {
     tx_kernel_enter();
-    
+
     return 0;
 }
