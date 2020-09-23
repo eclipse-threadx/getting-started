@@ -250,6 +250,23 @@ To add a connection to your IoT hub:
 
 If the connection succeeds, the Azure IoT Explorer switches to a **Devices** view and lists your device.
 
+Azure IoT explorer needs a local copy of the model file that matches the Model ID your device sends. The model file lets Azure IoT explorer display the telemetry, properties, and commands that your device implements.Configure a local folder from **Home->IoT Plug and Play Settings->Add Local Folder** where you stored the [RTOSGetStarted.json](../../core/model/RTOSGetStarted.json).
+
+Once the device is successfully connected to IoT Hub, you should be able to see the Model ID in the IoT Plug and Play tab of IoT Explorer as shown in the screenshot below:
+
+![IoT Plug and Play in Azure IoT Explorer](media/azure-iot-explorer-list-component.png)
+
+With the information available in the model, IoT Explorer can create a custom UI to interact with the device, below you can see how the telemetry is displayed and the UI to invoke the commands.
+
+![IoT Plug and Play in Azure IoT Explorer](media/azure-iot-explorer-view-component1.png)
+
+![IoT Plug and Play in Azure IoT Explorer](media/azure-iot-explorer-view-component2.png)
+
+![IoT Plug and Play in Azure IoT Explorer](media/azure-iot-explorer-view-component3.png)
+
+![IoT Plug and Play in Azure IoT Explorer](media/azure-iot-explorer-view-component4.png)
+
+
 ## Debugging
 
 You can debug the firmware application in VS Code using [OpenOCD](http://openocd.org/) and [GDB](https://www.gnu.org/software/gdb/).
