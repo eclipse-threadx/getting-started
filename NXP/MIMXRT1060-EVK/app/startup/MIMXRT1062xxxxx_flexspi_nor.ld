@@ -40,7 +40,7 @@ MEMORY
   m_interrupts          (RX)  : ORIGIN = 0x60002000, LENGTH = 0x00000400
   m_text                (RX)  : ORIGIN = 0x60002400, LENGTH = 0x007FDC00
   m_data                (RW)  : ORIGIN = 0x20000000, LENGTH = 0x00020000
-  m_data2               (RW)  : ORIGIN = 0x20200000, LENGTH = 0x000C0000 
+  m_data2               (RW)  : ORIGIN = 0x20200000, LENGTH = 0x000C0000
 }
 
 /* Define output sections */
@@ -255,5 +255,3 @@ SECTIONS
   ASSERT(__StackLimit >= __HeapLimit, "region m_data overflowed with stack and heap")
 }
 
-/* Set the RAM segment used end for threadx */
-PROVIDE( __RAM_segment_used_end__ = 0 );

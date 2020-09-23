@@ -33,12 +33,12 @@
 @
     .global     _tx_thread_system_stack_ptr
     .global     _tx_initialize_unused_memory
-    .global     __RAM_segment_used_end__
+    .global     __heap_limit @__RAM_segment_used_end__
     .global     _tx_timer_interrupt
     .global     __main
     .global     __tx_SVCallHandler
     .global     __tx_PendSVHandler
-    .global     _vectors
+    .global     __isr_vector
     .global     __tx_NMIHandler                     @ NMI
     .global     __tx_BadHandler                     @ HardFault
     .global     __tx_SVCallHandler                  @ SVCall
@@ -108,20 +108,20 @@ _tx_initialize_low_level:
 @    /* Set base of available memory to end of non-initialised RAM area.  */
 @     
     LDR     r0, =_tx_initialize_unused_memory       @ Build address of unused memory pointer
-    LDR     r1, =__RAM_segment_used_end__           @ Build first free address   
+    LDR     r1, =__heap_limit @__RAM_segment_used_end__           @ Build first free address   
     ADD     r1, r1, #4                              @ 
     STR     r1, [r0]                                @ Setup first unused memory pointer
 @
 @    /* Setup Vector Table Offset Register.  */
 @    
     MOV     r0, #0xE000E000                         @ Build address of NVIC registers
-    LDR     r1, =_vectors                           @ Pickup address of vector table  
+    LDR     r1, =__isr_vector                       @ Pickup address of vector table  
     STR     r1, [r0, #0xD08]                        @ Set vector table address   
 @
 @    /* Set system stack pointer from vector value.  */
 @
     LDR     r0, =_tx_thread_system_stack_ptr        @ Build address of system stack pointer
-    LDR     r1, =_vectors                           @ Pickup address of vector table
+    LDR     r1, =__isr_vector                       @ Pickup address of vector table
     LDR     r1, [r1]                                @ Pickup reset stack pointer
     STR     r1, [r0]                                @ Save system stack pointer
 @
