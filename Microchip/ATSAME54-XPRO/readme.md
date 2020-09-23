@@ -59,7 +59,6 @@ The cloned repo contains a setup script that installs and configures the first s
 
 > * [GCC](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm): Compile
 > * [CMake](https://cmake.org): Build
-> * [Ninja](https://ninja-build.org): Build
 > * [Termite](https://www.compuphase.com/software_termite.htm): Monitor
 > * [Azure IoT Explorer](https://github.com/Azure/azure-iot-explorer/releases): Cross-platform utility to  monitor and manage Azure IoT resources
 
