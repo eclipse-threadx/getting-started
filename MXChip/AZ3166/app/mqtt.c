@@ -182,6 +182,10 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
     screen_print("Azure IoT", L0);
     while (true)
     {
+        // Sleep
+        tx_event_flags_get(
+            &azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR_CLEAR, &events, telemetry_interval * NX_IP_PERIODIC_RATE);        
+
         switch (telemetry_state)
         {
             case 0:
@@ -217,10 +221,6 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
         }
 
         telemetry_state = (telemetry_state + 1) % 5;
-
-        // Sleep
-        tx_event_flags_get(
-            &azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR_CLEAR, &events, telemetry_interval * NX_IP_PERIODIC_RATE);
     }
 
     return NXD_MQTT_SUCCESS;
