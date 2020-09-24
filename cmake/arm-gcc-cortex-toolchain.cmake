@@ -8,6 +8,11 @@ set(TARGET_TRIPLET "arm-none-eabi-")
 # do some windows specific logic
 if(WIN32)
     set(TOOLCHAIN_EXT ".exe")
+    
+    # use the repo version of ninja on Windows as there is no Ninja installer
+    set(CMAKE_MAKE_PROGRAM ${CMAKE_CURRENT_LIST_DIR}/ninja CACHE STRING "Ninja location")
+    
+    # locate if the arm gcc compiler is installed via visual studio
     execute_process(
         COMMAND ${CMAKE_CURRENT_LIST_DIR}/vswhere.exe -latest -requires Component.MDD.Linux.GCC.arm -find **/gcc_arm/bin
         OUTPUT_VARIABLE VSWHERE_PATH
@@ -78,3 +83,5 @@ set(CMAKE_C_FLAGS_RELEASE "-O3")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 set(CMAKE_ASM_FLAGS_RELEASE "")
 set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-flto")
+
+

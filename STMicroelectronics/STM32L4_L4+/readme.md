@@ -57,13 +57,12 @@ The cloned repo contains a setup script that installs and configures the require
 > Note: The setup script installs the following tools:
 > * [GCC](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm): Compile
 > * [CMake](https://cmake.org): Build
-> * [Ninja](https://ninja-build.org): Build
 > * [Termite](https://www.compuphase.com/software_termite.htm): Monitor COM port output for connected devices
 > * [Azure IoT Explorer](https://github.com/Azure/azure-iot-explorer/releases): Cross-platform utility to  monitor and manage Azure IoT resources
 
 To run the setup script:
 
-1. Open a console app with administrator privileges, go to the following path in the repo, and run the setup script named *get-toolchain.bat*. If you use File Explorer, right-click the file and select **Run As Administrator**.
+1. From File Explorer, navigate to the following path in the repo and run the setup script named *get-toolchain.bat*:
 
     > *getting-started\tools\get-toolchain.bat*
 
