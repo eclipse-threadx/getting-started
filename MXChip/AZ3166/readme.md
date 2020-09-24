@@ -326,6 +326,71 @@ To delete a resource group by name:
     az group list
     ```
 
+## Review the Code
+
+- To download sample code, run the following command on your desktop machine.
+
+   ```cmd/sh
+   git clone https://github.com/VSChina/devkit-rtos-getting-started.git
+   ```
+
+    > If **git** is not installed in your development environment, you can download it from [https://git-scm.com/download](https://git-scm.com/download).
+
+
+- To learn how to define the interface by [DTDL v2](https://github.com/Azure/opendigitaltwins-dtdl/blob/master/DTDL/v2/dtdlv2.md), open the `core/model/RTOSGetStarted.json`. 
+    - It defines the telemetry, property and command supported by this sample.
+- To learn how the telemetry is sent to the Azure IoT, open the `MXChip\AZ3166\app\mqtt.c` file
+    - The function **azure_iot_mqtt_entry** gets the sensor data and sends multiple telemetries.
+- To learn how property values are reported to the Azure IoT, open the `MXChip\AZ3166\app\mqtt.c` file
+    - The function **azure_iot_mqtt_entry** sends multiple read only properties.
+    - The function **mqtt_device_twin_desired_prop** handles the writeable property and then registered as callback in function **azure_iot_mqtt_entry**.
+- To learn how the DevKit device responds to commands for LED actions and  OLED display text action called from the IoT Central application, open the `MXChip\AZ3166\app\mqtt.c` file
+    - The function **mqtt_device_method** processes the commands, and then registered as callback in function **azure_iot_mqtt_entry**.
+
+
+## MXChip Device Details
+
+The MXChip IoT DevKit device implemented by this sample has the following characteristics:
+
+#### Telemetry
+
+Field name|Units|Minimum|Maximum|Decimal places
+-|-|-|-|-
+humidity|%|0|100|0
+temp|°C|-40|120|0
+pressure|hPa|260|1260|0
+magnetometerX|mgauss|-1000|1000|0
+magnetometerY|mgauss|-1000|1000|0
+magnetometerZ|mgauss|-1000|1000|0
+accelerometerX|mg|-2000|2000|0
+accelerometerY|mg|-2000|2000|0
+accelerometerZ|mg|-2000|2000|0
+gyroscopeX|mdps|-2000|2000|0
+gyroscopeY|mdps|-2000|2000|0
+gyroscopeZ|mdps|-2000|2000|0
+
+#### Properties
+
+Display name|Field name|Data type|Writable/Read only
+-|-|-|-
+Manufacturer|manufacturer|string|Read only
+Device model|model|string|Read only
+Software version|swVersion|string|Read only
+Operating system name|osName|string|Read only
+Processor architecture|processorArchitecture|string|Read only
+Processor manufacturer|processorManufacturer|string|Read only
+Total storage|totalStorage|long|Read only
+Total memory|totalMemory|long|Read only
+Telemetry Interval|telemetryInterval|integer|Writable
+
+#### Commands
+
+Field name|Input field name|Input field type
+-|-|-
+turnOnLed|/|/
+turnOffLed|/|/
+displayText|text|string
+
 ## Next Steps
 
 In this tutorial you built a custom image that contains Azure RTOS sample code, and then flashed the image to the MXChip AZ3166 IoT DevKit device. You also used the Azure CLI to create Azure resources, connect the MXChip DevKit securely to Azure, view telemetry, and send messages.
