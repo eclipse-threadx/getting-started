@@ -87,8 +87,10 @@ UINT azure_iot_nx_client_dps_x509_create(AZURE_IOT_NX_CONTEXT* context,
     CHAR* dps_endpoint,
     CHAR* dps_id_scope,
     CHAR* dps_registration_id,
-    CHAR* x509_self_signed_cert,
-    CHAR* x509_private_key,
+    UCHAR* device_cert,
+    UINT x509_cert_len,
+    UCHAR* private_key,
+    UINT x509_key_len,
     CHAR* device_model_id);
 
 UINT azure_iot_nx_client_delete(AZURE_IOT_NX_CONTEXT* context);
