@@ -24,7 +24,7 @@
 
 #define EVENT_FLAGS_SUCCESS 1
 
-extern CHAR *azure_iot_x509_hostname;
+extern CHAR* azure_iot_x509_hostname;
 
 static VOID process_retry(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR* message)
 {
