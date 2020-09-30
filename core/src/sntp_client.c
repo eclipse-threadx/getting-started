@@ -1,6 +1,6 @@
 /* Copyright (c) Microsoft Corporation.
    Licensed under the MIT License. */
-   
+
 #include "sntp_client.h"
 
 #include <time.h>
@@ -11,16 +11,22 @@
 
 #include "networking.h"
 
-#define SNTP_THREAD_STACK_SIZE  2048
-#define SNTP_THREAD_PRIORITY    9
+#define SNTP_THREAD_STACK_SIZE 2048
+#define SNTP_THREAD_PRIORITY   9
 
-#define SNTP_SERVER             "pool.ntp.org"
-
-#define SNTP_UPDATE_EVENT       1
-#define SNTP_NEW_TIME           2
+#define SNTP_UPDATE_EVENT 1
+#define SNTP_NEW_TIME     2
 
 // Seconds between Unix Epoch (1/1/1970) and NTP Epoch (1/1/1999)
-#define UNIX_TO_NTP_EPOCH_SECS  0x83AA7E80
+#define UNIX_TO_NTP_EPOCH_SECS 0x83AA7E80
+
+static const char* SNTP_SERVER[] = {
+    "0.pool.ntp.org",
+    "1.pool.ntp.org",
+    "2.pool.ntp.org",
+    "3.pool.ntp.org",
+};
+static UINT sntp_server_count = 0;
 
 static ULONG sntp_thread_stack[SNTP_THREAD_STACK_SIZE / sizeof(ULONG)];
 static TX_THREAD mqtt_client_thread;
@@ -31,17 +37,17 @@ static TX_EVENT_FLAGS_GROUP sntp_flags;
 // Variables to keep track of time
 static TX_MUTEX time_mutex;
 static ULONG sntp_last_time = 0;
-static ULONG tx_last_ticks = 0;
-static bool first_sync = false;
+static ULONG tx_last_ticks  = 0;
+static bool first_sync      = false;
 
-int _gettimeofday(struct timeval *tp, void *tzvp);
+int _gettimeofday(struct timeval* tp, void* tzvp);
 
 static void print_address(CHAR* preable, NXD_ADDRESS address)
 {
     if (address.nxd_ip_version == NX_IP_VERSION_V4)
     {
         ULONG ipv4 = address.nxd_ip_address.v4;
-    
+
         printf("\t%s: %d.%d.%d.%d\r\n",
             preable,
             (u_int8_t)(ipv4 >> 24),
@@ -79,7 +85,7 @@ static void set_sntp_time()
 
     // Stash the Unix and ThreadX times
     sntp_last_time = seconds - UNIX_TO_NTP_EPOCH_SECS;
-    tx_last_ticks = tx_time_get();
+    tx_last_ticks  = tx_time_get();
 
     tx_mutex_put(&time_mutex);
 
@@ -105,12 +111,21 @@ static UINT sntp_client_run()
     UINT status;
     NXD_ADDRESS sntp_address;
 
-    status = nxd_dns_host_by_name_get(&nx_dns_client, (UCHAR *)SNTP_SERVER, &sntp_address, 5 * NX_IP_PERIODIC_RATE, NX_IP_VERSION_V4);
+    printf("\tSNTP server %s\r\n", SNTP_SERVER[sntp_server_count]);
+
+    status = nxd_dns_host_by_name_get(&nx_dns_client,
+        (UCHAR*)SNTP_SERVER[sntp_server_count],
+        &sntp_address,
+        5 * NX_IP_PERIODIC_RATE,
+        NX_IP_VERSION_V4);
     if (status != NX_SUCCESS)
     {
-        printf("\tFAIL: Unable to resolve DNS for SNTP Server %s (0x%02x)\r\n", SNTP_SERVER, status);
+        printf("\tFAIL: Unable to resolve DNS for SNTP Server %s (0x%02x)\r\n", SNTP_SERVER[sntp_server_count], status);
         return status;
     }
+
+    // rotate to the next sntp dns service
+    sntp_server_count = (sntp_server_count + 1) % (sizeof(SNTP_SERVER) / sizeof(&SNTP_SERVER));
 
     print_address("SNTP IP address", sntp_address);
     status = nxd_sntp_client_initialize_unicast(&sntp_client, &sntp_address);
@@ -123,7 +138,7 @@ static UINT sntp_client_run()
 
     // Run Unicast client
     status = nx_sntp_client_run_unicast(&sntp_client);
-    if (status != NX_SUCCESS) 
+    if (status != NX_SUCCESS)
     {
         printf("\tFAIL: Unable to start unicast SNTP client (0x%02x)\r\n", status);
         nx_sntp_client_stop(&sntp_client);
@@ -144,14 +159,14 @@ static void sntp_thread_entry(ULONG info)
 
     // status = nx_sntp_client_create(&sntp_client, &nx_ip, 0, &nx_pool, NX_NULL, NX_NULL, NULL);
     status = nx_sntp_client_create(&sntp_client, &nx_ip, 0, nx_ip.nx_ip_default_packet_pool, NX_NULL, NX_NULL, NULL);
-    if (status != NX_SUCCESS) 
+    if (status != NX_SUCCESS)
     {
         printf("\tFAIL: SNTP client create failed (0x%02x)\r\n", status);
         return;
     }
 
     status = nx_sntp_client_set_local_time(&sntp_client, 0, 0);
-    if (status != NX_SUCCESS) 
+    if (status != NX_SUCCESS)
     {
         printf("\tFAIL: Unable to set local time for SNTP client (0x%02x)\r\n", status);
         nx_sntp_client_delete(&sntp_client);
@@ -160,7 +175,7 @@ static void sntp_thread_entry(ULONG info)
 
     // Setup time update callback function
     status = nx_sntp_client_set_time_update_notify(&sntp_client, time_update_callback);
-    if (status != NX_SUCCESS) 
+    if (status != NX_SUCCESS)
     {
         printf("\tFAIL: Unable to set time update notify CB (0x%02x)\r\n", status);
         nx_sntp_client_delete(&sntp_client);
@@ -256,11 +271,14 @@ UINT sntp_start()
 
     status = tx_thread_create(&mqtt_client_thread,
         "SNTP client thread",
-        sntp_thread_entry, 
+        sntp_thread_entry,
         (ULONG)NULL,
-        &sntp_thread_stack, SNTP_THREAD_STACK_SIZE, 
-        SNTP_THREAD_PRIORITY, SNTP_THREAD_PRIORITY,
-        TX_NO_TIME_SLICE, TX_AUTO_START);
+        &sntp_thread_stack,
+        SNTP_THREAD_STACK_SIZE,
+        SNTP_THREAD_PRIORITY,
+        SNTP_THREAD_PRIORITY,
+        TX_NO_TIME_SLICE,
+        TX_AUTO_START);
     if (status != TX_SUCCESS)
     {
         printf("Unable to create SNTP thread (0x%02x)\r\n", status);
@@ -271,10 +289,10 @@ UINT sntp_start()
 }
 
 // newlibc-nano stub
-int _gettimeofday(struct timeval *tp, void *tzvp)
+int _gettimeofday(struct timeval* tp, void* tzvp)
 {
-    tp->tv_sec = sntp_time_get();
+    tp->tv_sec  = sntp_time_get();
     tp->tv_usec = 0;
-    
+
     return 0;
 }
