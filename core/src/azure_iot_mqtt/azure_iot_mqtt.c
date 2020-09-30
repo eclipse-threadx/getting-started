@@ -36,6 +36,24 @@
 #define MQTT_TIMEOUT         (10 * TX_TIMER_TICKS_PER_SECOND)
 #define MQTT_KEEP_ALIVE      240
 
+CHAR *azure_iot_x509_hostname;
+
+static ULONG azure_iot_certificate_verify(NX_SECURE_TLS_SESSION* session, NX_SECURE_X509_CERT* certificate)
+{
+    UINT status;
+
+    // Check certicate matches the correct address
+    status = nx_secure_x509_common_name_dns_check(
+        certificate, (UCHAR *)azure_iot_x509_hostname,
+        strlen(azure_iot_x509_hostname));
+    if (status)
+    {
+        printf("Error in certificate verification: DNS name did not match CN\r\n");
+    }
+
+    return status;
+}
+
 UINT azure_iot_mqtt_register_direct_method_callback(
     AZURE_IOT_MQTT* azure_iot_mqtt, func_ptr_direct_method mqtt_direct_method_callback)
 {
@@ -154,6 +172,15 @@ UINT tls_setup(NXD_MQTT_CLIENT* client,
     if (status != NX_SUCCESS)
     {
         printf("Could not set TLS session packet buffer (0x%02x)\r\n", status);
+        return status;
+    }
+
+    // Setup the callback invoked when TLS has a certificate it wants to verify so we can
+    // do additional checks not done automatically by TLS.
+    status = nx_secure_tls_session_certificate_callback_set(tls_session, azure_iot_certificate_verify);
+    if (status)
+    {
+        printf("Failed to set the session certificate callback: status: %d", status);
         return status;
     }
 
@@ -716,6 +743,9 @@ UINT azure_iot_mqtt_connect(AZURE_IOT_MQTT* azure_iot_mqtt)
         nx_secure_tls_session_delete(&azure_iot_mqtt->nxd_mqtt_client.nxd_mqtt_tls_session);
         return status;
     }
+
+    // Stash the hostname in a global variable so we can verify the cert at connect
+    azure_iot_x509_hostname = azure_iot_mqtt->mqtt_hub_hostname;
 
     status = nxd_mqtt_client_secure_connect(&azure_iot_mqtt->nxd_mqtt_client,
         &server_ip,
