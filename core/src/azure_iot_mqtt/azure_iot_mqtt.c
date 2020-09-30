@@ -36,7 +36,7 @@
 #define MQTT_TIMEOUT         (10 * TX_TIMER_TICKS_PER_SECOND)
 #define MQTT_KEEP_ALIVE      240
 
-CHAR *azure_iot_x509_hostname;
+CHAR* azure_iot_x509_hostname;
 
 static ULONG azure_iot_certificate_verify(NX_SECURE_TLS_SESSION* session, NX_SECURE_X509_CERT* certificate)
 {
@@ -44,8 +44,7 @@ static ULONG azure_iot_certificate_verify(NX_SECURE_TLS_SESSION* session, NX_SEC
 
     // Check certicate matches the correct address
     status = nx_secure_x509_common_name_dns_check(
-        certificate, (UCHAR *)azure_iot_x509_hostname,
-        strlen(azure_iot_x509_hostname));
+        certificate, (UCHAR*)azure_iot_x509_hostname, strlen(azure_iot_x509_hostname));
     if (status)
     {
         printf("Error in certificate verification: DNS name did not match CN\r\n");
@@ -122,26 +121,6 @@ UINT tls_setup(NXD_MQTT_CLIENT* client,
     if (status != NX_SUCCESS)
     {
         printf("Failed to create TLS session status (0x%04x)\r\n", status);
-        return status;
-    }
-
-    status = nx_secure_tls_remote_certificate_allocate(tls_session,
-        &azure_iot_mqtt->mqtt_remote_certificate,
-        azure_iot_mqtt->mqtt_remote_cert_buffer,
-        sizeof(azure_iot_mqtt->mqtt_remote_cert_buffer));
-    if (status != NX_SUCCESS)
-    {
-        printf("Failed to create remote certificate buffer (0x%04x)\r\n", status);
-        return status;
-    }
-
-    status = nx_secure_tls_remote_certificate_allocate(tls_session,
-        &azure_iot_mqtt->mqtt_remote_issuer,
-        azure_iot_mqtt->mqtt_remote_issuer_buffer,
-        sizeof(azure_iot_mqtt->mqtt_remote_issuer_buffer));
-    if (status != NX_SUCCESS)
-    {
-        printf("Failed to create remote issuer buffer (0x%04x)\r\n", status);
         return status;
     }
 
