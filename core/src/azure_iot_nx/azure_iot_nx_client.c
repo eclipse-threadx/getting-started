@@ -592,13 +592,24 @@ UINT azure_iot_nx_client_dps_x509_create(AZURE_IOT_NX_CONTEXT* context,
         return status;
     }
 
-    // do some conversions
-    printf("----- INITIALIZE CERT -----\n");
-    printf("device_cert_len = %d\n", (int)x509_cert_len);
-    printf("private_key_len = %d\n", (int)x509_key_len);
-    printf("device_cert = %s\n", device_cert);
+    // Initialize CA certificate.
+    printf("----- INITIALIZE ROOT CA CERTIFICATE -----\n");
+    if ((status = nx_secure_x509_certificate_initialize(&context->root_ca_cert,
+             (UCHAR*)azure_iot_root_ca,
+             (USHORT)azure_iot_root_ca_len,
+             NX_NULL,
+             0,
+             NULL,
+             0,
+             NX_SECURE_X509_KEY_TYPE_NONE)))
+    {
+        printf("Failed to initialize ROOT CA certificate!: error code = 0x%08x\r\n", status);
+        nx_azure_iot_delete(&context->nx_azure_iot);
+        return status;
+    }
 
     /* Initialize the device certificate.  */
+    printf("----- INITIALIZE DEVICE CERTIFICATE -----\n");
     if ((status = nx_secure_x509_certificate_initialize(&device_certificate, (UCHAR*)device_cert, (USHORT)x509_cert_len, NX_NULL, 0,
                                                         (UCHAR*)private_key, (USHORT)x509_key_len, NX_SECURE_X509_KEY_TYPE_RSA_PKCS1_DER)))
     {
@@ -606,8 +617,8 @@ UINT azure_iot_nx_client_dps_x509_create(AZURE_IOT_NX_CONTEXT* context,
         return status;
     }
 
-    printf("----- INITIALIZE PROVISIONING CLIENT -----\n");
     // Initialize IoT provisioning client
+    printf("----- INITIALIZE PROVISIONING CLIENT -----\n");
     if ((status = nx_azure_iot_provisioning_client_initialize(&context->prov_client,
              &context->nx_azure_iot,
              (UCHAR*)dps_endpoint,
@@ -628,8 +639,8 @@ UINT azure_iot_nx_client_dps_x509_create(AZURE_IOT_NX_CONTEXT* context,
         return status;
     }
 
-    printf("----- SET PROVISIONING CLIENT CERT -----\n");
     /* Set device certificate.  */
+    printf("----- SET PROVISIONING CLIENT CERT -----\n");
     if ((status = nx_azure_iot_provisioning_client_device_cert_set(&context->prov_client, &device_certificate)))
     {
         printf("Failed on nx_azure_iot_provisioning_client_device_cert_set!: error code = 0x%08x\r\n", status);
@@ -637,20 +648,26 @@ UINT azure_iot_nx_client_dps_x509_create(AZURE_IOT_NX_CONTEXT* context,
     }
 
     // Set the payload containing the model Id
-    else if ((status = nx_azure_iot_provisioning_client_registration_payload_set(
+    printf("----- SET PROVISIONING CLIENT PAYLOAD -----\n");
+    if ((status = nx_azure_iot_provisioning_client_registration_payload_set(
                   &context->prov_client, (UCHAR*)payload, strlen(payload))))
     {
         printf("Error: nx_azure_iot_provisioning_client_registration_payload_set (0x%08x\r\n", status);
+        return status;
     }
 
     // Register device
-    else if ((status = nx_azure_iot_provisioning_client_register(&context->prov_client, NX_WAIT_FOREVER)))
+    printf("----- REGISTER PROVISIONING CLIENT -----\n");
+    if ((status = nx_azure_iot_provisioning_client_register(&context->prov_client, NX_WAIT_FOREVER)))
     {
         printf("ERROR: nx_azure_iot_provisioning_client_register (0x%08x)\r\n", status);
+        return status;
     }
 
     // Get Device info
-    else if ((status = nx_azure_iot_provisioning_client_iothub_device_info_get(&context->prov_client,
+    printf("----- SUCCESS: DEVICE PROVISIONED -----\n");
+    printf("----- GET IOTHUB DEVICE INFO -----\n");
+    if ((status = nx_azure_iot_provisioning_client_iothub_device_info_get(&context->prov_client,
                   (UCHAR*)context->azure_iot_hub_hostname,
                   &iot_hub_hostname_len,
                   (UCHAR*)context->azure_iot_device_id,
