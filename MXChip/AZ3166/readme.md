@@ -55,13 +55,12 @@ The cloned repo contains a setup script that installs and configures the require
 > Note: The setup script installs the following tools:
 > * [GCC](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm): Compile
 > * [CMake](https://cmake.org): Build
-> * [Ninja](https://ninja-build.org): Build
 > * [Termite](https://www.compuphase.com/software_termite.htm): Monitor COM port output for connected devices
 > * [Azure IoT Explorer](https://github.com/Azure/azure-iot-explorer/releases): Cross-platform utility to  monitor and manage Azure IoT resources
 
 To run the setup script:
 
-1. Open a console app with administrator privileges, go to the following path in the repo, and run the setup script named *get-toolchain.bat*. If you use File Explorer, right-click the file and select **Run As Administrator**.
+1. From File Explorer, navigate to the following path in the repo and run the setup script named *get-toolchain.bat*:
 
     > *getting-started\tools\get-toolchain.bat*
 
@@ -155,22 +154,13 @@ To connect the MXChip DevKit to Azure, you'll modify a configuration file for Wi
 
 ### Add configuration
 
-1. In VSCode or any other text editor, edit the file `getting-started/MXChip/AZ3166/app/azure_config.h` to set the Wi-Fi constants to the following values from your local environment.
+1. In a text editor, edit the file *getting-started\MXChip\AZ3166\app\azure_config.h* to set the Wi-Fi constants to the following values from your local environment.
 
     |Constant name|Value|
     |-------------|-----|
     |`WIFI_SSID` |{*Your Wi-Fi ssid*}|
     |`WIFI_PASSWORD` |{*Your Wi-Fi password*}|
-    |`WIFI_SECURITY` |{*Your Wi-Fi security type*}|
-
-    For the value of the `WIFI_SECURITY` constant, you can use one of the most common Wi-Fi modes from the following list, or check the file */MXChip/AZ3166/lib/wiced_sdk/43xxx_Wi-Fi/wwd_constants.h* for a complete list of Wi-Fi mode values.
-
-    |Wi-Fi security mode|Value to assign to the `WIFI_SECURITY` constant|
-    |-------------|-----|
-    |None |`WICED_SECURITY_OPEN`|
-    |WEP |`WICED_SECURITY_WEP_PSK`|
-    |WPA2_PSK_AES |`WICED_SECURITY_WPA2_AES_PSK`|
-    |WPA2_PSK_TKIP |`WICED_SECURITY_WPA2_MIXED_PSK`|
+    |`WIFI_MODE` |{*Your Wi-Fi security type*}|
 
 1. Edit the same file to set the Azure IoT device information constants to the values that you saved after you created Azure resources.
 
@@ -188,7 +178,7 @@ In your console or in File Explorer, run the script *rebuild.bat* at the followi
 
 After the build completes, confirm that the binary files were created in the following path:
 
-> *getting-started/MXChip/AZ3166/build/app/mxchip_azure_iot.bin*
+> *getting-started\MXChip/AZ3166\build\app\mxchip_azure_iot.bin*
 
 ### Flash the image
 

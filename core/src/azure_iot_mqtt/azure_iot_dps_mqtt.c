@@ -24,7 +24,9 @@
 
 #define EVENT_FLAGS_SUCCESS 1
 
-static VOID processRetry(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR* message)
+extern CHAR* azure_iot_x509_hostname;
+
+static VOID process_retry(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR* message)
 {
     UINT status;
 
@@ -72,7 +74,7 @@ static VOID processRetry(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR* mess
     }
 }
 
-static VOID processSuccess(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR* message)
+static VOID process_success(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR* message)
 {
     jsmn_parser parser;
     jsmntok_t tokens[64];
@@ -146,13 +148,13 @@ static VOID mqtt_notify_cb(NXD_MQTT_CLIENT* client_ptr, UINT number_of_messages)
         switch (msg_status)
         {
             case 202:
-                processRetry(azure_iot_mqtt,
+                process_retry(azure_iot_mqtt,
                     azure_iot_mqtt->mqtt_receive_topic_buffer,
                     azure_iot_mqtt->mqtt_receive_message_buffer);
                 break;
 
             case 200:
-                processSuccess(azure_iot_mqtt,
+                process_success(azure_iot_mqtt,
                     azure_iot_mqtt->mqtt_receive_topic_buffer,
                     azure_iot_mqtt->mqtt_receive_message_buffer);
                 tx_event_flags_set(&azure_iot_mqtt->mqtt_event_flags, EVENT_FLAGS_SUCCESS, TX_OR);
@@ -281,6 +283,9 @@ UINT azure_iot_dps_register(AZURE_IOT_MQTT* azure_iot_mqtt, UINT wait)
         nx_secure_tls_session_delete(&azure_iot_mqtt->nxd_mqtt_client.nxd_mqtt_tls_session);
         return status;
     }
+
+    // Stash the hostname so we can verify the cert at connect
+    azure_iot_x509_hostname = azure_iot_mqtt->mqtt_dps_endpoint;
 
     status = nxd_mqtt_client_secure_connect(&azure_iot_mqtt->nxd_mqtt_client,
         &server_ip,
