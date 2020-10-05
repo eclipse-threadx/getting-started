@@ -15,7 +15,7 @@
 #include "azure_iot_mqtt/azure_iot_dps_mqtt.h"
 #include "azure_iot_mqtt/sas_token.h"
 
-#define USERNAME                "%s/%s/?api-version=2020-05-31-preview&model-id=%s"
+#define USERNAME                "%s/%s/?api-version=2020-09-30&model-id=%s"
 #define PUBLISH_TELEMETRY_TOPIC "devices/%s/messages/events/"
 
 #define DEVICE_MESSAGE_BASE  "messages/devicebound/"
