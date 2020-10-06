@@ -453,7 +453,7 @@ target_include_directories(${TARGET}
     PUBLIC 
         .
         src
-		addons/dhcp
+        ports/cortex_m4/gnu/inc
 		addons/dns
         addons/sntp
         addons/mqtt

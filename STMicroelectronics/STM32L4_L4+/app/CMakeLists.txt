@@ -2,7 +2,6 @@
 # Licensed under the MIT License.
 
 set(SOURCES
-    startup/system_stm32l4xx.c
     startup/tx_initialize_low_level.S
     
     stm32cubel4/stm32l4xx_hal_msp.c
