@@ -1,11 +1,11 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-set(LINKER_SCRIPT "${CMAKE_CURRENT_LIST_DIR}/startup/MIMXRT1062xxxxx_flexspi_nor.ld")
+set(LINKER_SCRIPT "${CMAKE_CURRENT_LIST_DIR}/startup/gcc/MIMXRT1062xxxxx_flexspi_nor.ld")
 
 set(SOURCES
-    startup/startup_MIMXRT1062.S
-    startup/tx_initialize_low_level.S
+    startup/gcc/startup_MIMXRT1062.S
+    startup/gcc/tx_initialize_low_level.S
 
     azure_config.h
     nx_client.c

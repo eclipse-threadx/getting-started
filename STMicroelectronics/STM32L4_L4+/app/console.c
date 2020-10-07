@@ -5,11 +5,6 @@
 
 #include "board_init.h"
 
-int __io_putchar(int ch);
-int __io_getchar(void);
-int _read(int file, char *ptr, int len);
-int _write(int file, char *ptr, int len);
-
 int __io_putchar(int ch)
 {
 	HAL_UART_Transmit(&UartHandle, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
