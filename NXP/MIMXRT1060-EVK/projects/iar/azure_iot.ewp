@@ -143,7 +143,7 @@
                 <option>
                     <name>FPU2</name>
                     <version>0</version>
-                    <state>7</state>
+                    <state>6</state>
                 </option>
                 <option>
                     <name>NrRegs</name>
@@ -1172,7 +1172,7 @@
                 </option>
                 <option>
                     <name>OGChipSelectEditMenu</name>
-                    <state>STM32L4S5VI	ST STM32L4S5VI</state>
+                    <state>MIMXRT1062xxx6A	NXP MIMXRT1062xxx6A</state>
                 </option>
                 <option>
                     <name>GenLowLevelInterface</name>
@@ -1211,7 +1211,7 @@
                 <option>
                     <name>GBECoreSlave</name>
                     <version>28</version>
-                    <state>39</state>
+                    <state>41</state>
                 </option>
                 <option>
                     <name>OGUseCmsis</name>
@@ -1228,16 +1228,16 @@
                 <option>
                     <name>CoreVariant</name>
                     <version>28</version>
-                    <state>39</state>
+                    <state>41</state>
                 </option>
                 <option>
                     <name>GFPUDeviceSlave</name>
-                    <state>STM32L4S5VI	ST STM32L4S5VI</state>
+                    <state>MIMXRT1062xxx6A	NXP MIMXRT1062xxx6A</state>
                 </option>
                 <option>
                     <name>FPU2</name>
                     <version>0</version>
-                    <state>4</state>
+                    <state>6</state>
                 </option>
                 <option>
                     <name>NrRegs</name>
@@ -1251,7 +1251,7 @@
                 <option>
                     <name>GFPUCoreSlave2</name>
                     <version>28</version>
-                    <state>39</state>
+                    <state>41</state>
                 </option>
                 <option>
                     <name>OGCMSISPackSelectDevice</name>

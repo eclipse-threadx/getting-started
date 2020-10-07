@@ -799,7 +799,7 @@
                 </option>
                 <option>
                     <name>IlinkIcfFile</name>
-                    <state>D:\projects\iot\getting-started\STMicroelectronics\STM32L4_L4+\app\startup\iar\stm32l4s5xx_flash.icf</state>
+                    <state>$PROJ_DIR$\..\..\app\startup\iar\stm32l4s5xx_flash.icf</state>
                 </option>
                 <option>
                     <name>IlinkIcfFileSlave</name>
@@ -1882,7 +1882,7 @@
                 </option>
                 <option>
                     <name>IlinkIcfFile</name>
-                    <state>$PROJ_DIR$\..\..\projects\iar\src\stm32l4s5xx_flash.icf</state>
+                    <state>$PROJ_DIR$\..\..\app\startup\iar\stm32l4s5xx_flash.icf</state>
                 </option>
                 <option>
                     <name>IlinkIcfFileSlave</name>
