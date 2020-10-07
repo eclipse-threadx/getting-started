@@ -1529,7 +1529,7 @@
                 </option>
                 <option>
                     <name>MemFile</name>
-                    <state></state>
+                    <state>$TOOLKIT_DIR$\CONFIG\debugger\NXP\MIMXRT1062xxx6A.ddf</state>
                 </option>
                 <option>
                     <name>RunToEnable</name>
@@ -1569,11 +1569,11 @@
                 </option>
                 <option>
                     <name>OCDynDriverList</name>
-                    <state>ARMSIM_ID</state>
+                    <state>CMSISDAP_ID</state>
                 </option>
                 <option>
                     <name>OCLastSavedByProductVersion</name>
-                    <state></state>
+                    <state>8.50.1.24770</state>
                 </option>
                 <option>
                     <name>UseFlashLoader</name>
@@ -1597,7 +1597,7 @@
                 </option>
                 <option>
                     <name>FlashLoadersV3</name>
-                    <state></state>
+                    <state>$TOOLKIT_DIR$\config\flashloader\NXP\FlashIMXRT1060_EVK_FlexSPI.board</state>
                 </option>
                 <option>
                     <name>OCImagesSuppressCheck1</name>
@@ -1665,7 +1665,7 @@
                 </option>
                 <option>
                     <name>OCMulticoreNrOfCores</name>
-                    <state></state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>OCMulticoreWorkspace</name>
@@ -1781,7 +1781,7 @@
                 <option>
                     <name>CMSISDAPResetList</name>
                     <version>1</version>
-                    <state>10</state>
+                    <state>4</state>
                 </option>
                 <option>
                     <name>CMSISDAPHWResetDuration</name>
