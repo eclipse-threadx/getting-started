@@ -1,10 +1,11 @@
 /* Copyright (c) Microsoft Corporation.
    Licensed under the MIT License. */
-   
+
+#ifdef __GNUC__
+
 #include <stdio.h>
 #include <errno.h>
 
-#include <sys/types.h>
 #include <sys/stat.h>
 
 extern int errno;
@@ -73,3 +74,5 @@ int _getpid(void)
 {
     return -1;
 }
+
+#endif

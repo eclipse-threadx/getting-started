@@ -235,9 +235,6 @@ void SDHC0_Handler           ( void ) __attribute__ ((weak, alias("Dummy_Handler
 void SDHC1_Handler           ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
 #endif
 
-extern void __tx_PendSVHandler(void);
-extern void __tx_SysTickHandler(void);
-
 /* Exception Table */
 __attribute__ ((section(".vectors")))
 //const DeviceVectors exception_table = {
@@ -259,8 +256,8 @@ const DeviceVectors _vectors = {
         .pfnSVCall_Handler      = (void*) SVCall_Handler,
         .pfnDebugMonitor_Handler = (void*) DebugMonitor_Handler,
         .pvReservedM3           = (void*) (0UL), /* Reserved */
-        .pfnPendSV_Handler      = (void*) __tx_PendSVHandler, /* PendSV Handler */
-        .pfnSysTick_Handler     = (void*) __tx_SysTickHandler, /* SysTick Handler */
+        .pfnPendSV_Handler      = (void*) PendSV_Handler, /* PendSV Handler */
+        .pfnSysTick_Handler     = (void*) SysTick_Handler, /* SysTick Handler */
 
         /* Configurable interrupts */
         .pfnPM_Handler          = (void*) PM_Handler,             /*  0 Power Manager */
@@ -391,7 +388,7 @@ const DeviceVectors _vectors = {
         .pvReserved83           = (void*) (0UL),                  /* 83 Reserved */
 #endif
 #ifdef ID_GMAC
-        .pfnGMAC_Handler        = (void*) __nx_driver_same54_ethernet_isr,           /* 84 Ethernet MAC */
+        .pfnGMAC_Handler        = (void*) GMAC_Handler,           /* 84 Ethernet MAC */
 #else
         .pvReserved84           = (void*) (0UL),                  /* 84 Reserved */
 #endif
