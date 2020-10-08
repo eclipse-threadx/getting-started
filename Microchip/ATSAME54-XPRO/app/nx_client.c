@@ -22,7 +22,7 @@
 
 #include "azure_config.h"
 
-#define IOT_MODEL_ID "dtmi:com:examples:gsg;1"
+#define IOT_MODEL_ID "dtmi:com:example:azurertos:gsg;1"
 #define TELEMETRY_INTERVAL_PROPERTY "telemetryInterval"
 #define LED_STATE_PROPERTY          "ledState"
 #define SET_LED_STATE_COMMAND       "setLedState"
