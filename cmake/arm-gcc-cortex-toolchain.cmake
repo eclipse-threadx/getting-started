@@ -2,7 +2,7 @@
 # Licensed under the MIT License.
 
 set(CMAKE_SYSTEM_NAME Generic)
-set(CMAKE_SYSTEM_PROCESSOR arm)
+
 set(TARGET_TRIPLET "arm-none-eabi-")
 
 # do some windows specific logic
@@ -17,16 +17,7 @@ if(WIN32)
         COMMAND ${CMAKE_CURRENT_LIST_DIR}/vswhere.exe -latest -requires Component.MDD.Linux.GCC.arm -find **/gcc_arm/bin
         OUTPUT_VARIABLE VSWHERE_PATH
     )
-else()
-    set(TOOLCHAIN_EXT "")
 endif(WIN32)
-
-# default to Release build
-if(NOT CMAKE_BUILD_TYPE)
-        set(CMAKE_BUILD_TYPE "Debug" CACHE STRING
-            "Choose the type of build, options are: Debug Release."
-            FORCE)
-endif()
 
 find_program(COMPILER_ON_PATH "${TARGET_TRIPLET}gcc${TOOLCHAIN_EXT}")
 
@@ -51,7 +42,7 @@ else()
     message(STATUS "Using ARM GCC from default Windows toolchain directory ${ARM_TOOLCHAIN_PATH}")
 endif()
 
-# perform compiler test with the static library
+# Perform compiler test with the static library
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
 set(CMAKE_C_COMPILER    ${ARM_TOOLCHAIN_PATH}/${TARGET_TRIPLET}gcc${TOOLCHAIN_EXT} CACHE STRING "")
@@ -73,15 +64,3 @@ set(CMAKE_C_FLAGS 	"${MCPU_FLAGS} ${VFP_FLAGS} ${SPECS_FLAGS} ${CMAKE_COMMON_FLA
 set(CMAKE_CXX_FLAGS "${MCPU_FLAGS} ${VFP_FLAGS} ${SPECS_FLAGS} ${CMAKE_COMMON_FLAGS}")
 set(CMAKE_ASM_FLAGS "${MCPU_FLAGS} ${VFP_FLAGS} ${SPECS_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS "${LD_FLAGS} -fno-common -Wl,--gc-sections,-print-memory-usage")
-
-set(CMAKE_C_FLAGS_DEBUG "-O0 -g")
-set(CMAKE_CXX_ASM_FLAGS_DEBUG "-O0 -g")
-set(CMAKE_C_ASM_FLAGS_DEBUG "-g")
-set(CMAKE_EXE_LINKER_FLAGS_DEBUG "")
-
-set(CMAKE_C_FLAGS_RELEASE "-O3")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-set(CMAKE_ASM_FLAGS_RELEASE "")
-set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-flto")
-
-

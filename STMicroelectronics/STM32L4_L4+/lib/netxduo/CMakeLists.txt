@@ -453,7 +453,7 @@ target_include_directories(${TARGET}
     PUBLIC 
         .
         src
-        ports/cortex_m4/gnu/inc
+        ports/cortex_m4/${THREADX_TOOLCHAIN}/inc
         addons/dns
         addons/sntp
         addons/mqtt
