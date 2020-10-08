@@ -1,4 +1,6 @@
 build/
+Debug/
+Release/
 VisualGDB/
 .vs/
 .azure_config.h
