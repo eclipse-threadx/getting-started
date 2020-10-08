@@ -6,8 +6,9 @@ set(TARGET atmel_start)
 set(SOURCES
     src/atmel_start.c
     src/driver_init.c
-    src/ethernet_phy/ethernet_phy.c
     src/ethernet_phy_main.c
+    src/stdio_start.c
+    src/ethernet_phy/ethernet_phy.c
     src/hal/src/hal_atomic.c
     src/hal/src/hal_cache.c
     src/hal/src/hal_delay.c
@@ -18,9 +19,6 @@ set(SOURCES
     src/hal/src/hal_mac_async.c
     src/hal/src/hal_sleep.c
     src/hal/src/hal_usart_sync.c
-    src/hal/utils/src/utils_assert.c
-    src/hal/utils/src/utils_event.c
-    src/hal/utils/src/utils_list.c
     src/hpl/cmcc/hpl_cmcc.c
     src/hpl/core/hpl_core_m4.c
     src/hpl/core/hpl_init.c
@@ -33,10 +31,7 @@ set(SOURCES
     src/hpl/pm/hpl_pm.c
     src/hpl/ramecc/hpl_ramecc.c
     src/hpl/sercom/hpl_sercom.c
-    src/stdio_redirect/read.c
-    src/stdio_redirect/write.c
     src/stdio_redirect/stdio_io.c
-    src/stdio_start.c
     src/temperature_sensor/BME280_WeatherClick/Bosch_BME280.c
     src/temperature_sensor/temperature_sensor.c
 )

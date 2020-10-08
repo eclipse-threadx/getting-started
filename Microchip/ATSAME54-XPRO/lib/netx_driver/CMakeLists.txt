@@ -4,7 +4,7 @@
 set(SOURCES
     src/nx_driver_same54.c
     src/nx_driver_same54.h
-    src/nx_driver_same54_low_level.S
+    src/gcc/nx_driver_same54_low_level.S
 )
 
 set(TARGET netxdriver)

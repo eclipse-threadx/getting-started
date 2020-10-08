@@ -1,17 +1,17 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-set(LINKER_SCRIPT "${CMAKE_CURRENT_LIST_DIR}/startup/same54p20a_flash.ld")
+set(LINKER_SCRIPT "${CMAKE_CURRENT_LIST_DIR}/startup/gcc/same54p20a_flash.ld")
 
 set(SOURCES
-    startup/startup_same54.c
-    startup/system_same54.c
-    startup/tx_initialize_low_level.S
+    startup/gcc/tx_initialize_low_level.S
+    startup/gcc/startup_same54.c
 
     azure_config.h
     nx_client.c
     mqtt.c
     board_init.c
+    console.c
     main.c
 )
 
