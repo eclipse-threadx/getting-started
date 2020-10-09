@@ -10,10 +10,12 @@ if(WIN32)
 endif(WIN32)
 
 # Set up the CMake variables for compiler and assembler
-set(CMAKE_C_COMPILER "${EWARM_ROOT_DIR}/bin/iccarm.exe" "${CPU_FLAGS} -e")
-set(CMAKE_CXX_COMPILER "${EWARM_ROOT_DIR}/bin/iccarm.exe" "${CPU_FLAGS} --c++")
-set(CMAKE_ASM_COMPILER "${EWARM_ROOT_DIR}/bin/iasmarm.exe" "${CPU_FLAGS} -r")
+set(CMAKE_C_COMPILER "${EWARM_ROOT_DIR}/bin/iccarm.exe")
+set(CMAKE_CXX_COMPILER "${EWARM_ROOT_DIR}/bin/iccarm.exe")
+set(CMAKE_ASM_COMPILER "${EWARM_ROOT_DIR}/bin/iasmarm.exe")
 
-# Set up the CMake variables for the linker
+set(CMAKE_C_FLAGS "${CPU_FLAGS} -On")
+set(CMAKE_CXX_FLAGS "${CPU_FLAGS}")
+set(CMAKE_ASM_FLAGS "${CPU_FLAGS}")
 set(CMAKE_C_LINK_FLAGS "--semihosting")
 set(CMAKE_CXX_LINK_FLAGS "--semihosting")
