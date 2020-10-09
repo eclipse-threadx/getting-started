@@ -12,8 +12,8 @@ define symbol __ICFEDIT_region_SRAM2_start__ = 0x10000000;
 define symbol __ICFEDIT_region_SRAM2_end__   = 0x10007FFF;
 
 /*-Sizes-*/
-define symbol __ICFEDIT_size_cstack__ = 0x800;
-define symbol __ICFEDIT_size_heap__   = 0x400;
+define symbol __ICFEDIT_size_cstack__ = 0x1000;
+define symbol __ICFEDIT_size_heap__   = 0x1000;
 /**** End of ICF editor section. ###ICF###*/
 
 /* need more HEAP to run with mosquitto and RSA keys  0x7000 (exactly 0x6B6C )instead of 0x5800 with firewall ! */

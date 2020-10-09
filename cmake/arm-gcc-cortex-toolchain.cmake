@@ -5,6 +5,11 @@ set(CMAKE_SYSTEM_NAME Generic)
 
 set(TARGET_TRIPLET "arm-none-eabi-")
 
+# default to Debug build
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Choose the type of build, options are: Debug Release." FORCE)
+endif()
+
 # do some windows specific logic
 if(WIN32)
     set(TOOLCHAIN_EXT ".exe")
