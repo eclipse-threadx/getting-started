@@ -23,13 +23,8 @@
 /*                                                                        */
 /*  APPLICATION INTERFACE DEFINITION                       RELEASE        */
 /*                                                                        */
-#ifdef __PRODUCT_NETXDUO__
 /*    nxd_sntp_client.h                                   PORTABLE C      */
 /*                                                           6.0          */
-#else
-/*    nx_sntp_client.h                                    PORTABLE C      */
-/*                                                           6.0          */
-#endif
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -65,11 +60,7 @@ extern   "C" {
 #endif
 
 
-#ifdef __PRODUCT_NETXDUO__
 #define NXD_SNTP_ID                              0x534E5460UL
-#else
-#define NX_SNTP_ID                               0x534E5460UL
-#endif
 
 
 /* Conversion between seconds and timer ticks. This must equal the 
@@ -573,11 +564,7 @@ extern   "C" {
         TX_THREAD                       nx_sntp_client_thread;                   /* The SNTP Client processing thread                               */
         TX_MUTEX                        nx_sntp_client_mutex;                    /* The SNTP Client mutex for protecting access                     */ 
         UCHAR                           nx_sntp_client_thread_stack[NX_SNTP_CLIENT_THREAD_STACK_SIZE];  /* Stack size for SNTP client thread        */
-#ifdef __PRODUCT_NETXDUO__
         NXD_ADDRESS                     nx_sntp_server_ip_address;               /* Client's current time server IP address.  */
-#else
-        ULONG                           nx_sntp_server_ip_address;               /* Client's current time server IP address.  */
-#endif
         NX_UDP_SOCKET                   nx_sntp_client_udp_socket;               /* Client UDP socket for sending and receiving time updates.  */
         UINT                            nx_sntp_client_first_update_pending;     /* First SNTP update not yet received with current server   */
         UINT                            nx_sntp_client_time_start_wait;          /* Initial time at start of receiving broadcast SNTP updates */
@@ -586,19 +573,10 @@ extern   "C" {
         UINT                            nx_sntp_valid_server_status;             /* Server status; if receiving valid updates, status is TRUE */
         UINT                            nx_sntp_client_protocol_mode;            /* Mode of operation, either unicast or broadcast */
         UINT                            nx_sntp_client_broadcast_initialized;    /* Client task is ready to receive broadcast time data.  */
-#ifdef __PRODUCT_NETXDUO__
         NXD_ADDRESS                     nx_sntp_broadcast_time_server;           /* Client's broadcast SNTP server */
         NXD_ADDRESS                     nx_sntp_multicast_server_address;        /* IP address Client should listen on to receive broadcasts from a multicast server.  */
-#else
-        ULONG                           nx_sntp_broadcast_time_server;           /* Client's broadcast SNTP server */
-        ULONG                           nx_sntp_multicast_server_address;        /* IP address Client should listen on to receive broadcasts from a multicast server.  */
-#endif
         UINT                            nx_sntp_client_unicast_initialized;      /* Client task is ready to receive unicast time data.  */
-#ifdef __PRODUCT_NETXDUO__
         NXD_ADDRESS                     nx_sntp_unicast_time_server;             /* Client's unicast time server.  */
-#else
-        ULONG                           nx_sntp_unicast_time_server;             /* Client's unicast time server.  */
-#endif
         ULONG                           nx_sntp_client_unicast_poll_interval;    /* Unicast interval at which client is polling the time server.  */
         UINT                            nx_sntp_client_backoff_count;            /* Count of times the back off rate has been applied to the poll interval */
         TX_TIMER                        nx_sntp_update_timer;                    /* SNTP update timer; expires when no data received for specified time lapse.  */
@@ -643,10 +621,8 @@ extern   "C" {
 #define   nx_sntp_client_delete                             _nx_sntp_client_delete
 #define   nx_sntp_client_get_local_time                     _nx_sntp_client_get_local_time
 #define   nx_sntp_client_get_local_time_extended            _nx_sntp_client_get_local_time_extended
-#ifdef __PRODUCT_NETXDUO__
 #define   nxd_sntp_client_initialize_broadcast              _nxd_sntp_client_initialize_broadcast
 #define   nxd_sntp_client_initialize_unicast                _nxd_sntp_client_initialize_unicast
-#endif
 #define   nx_sntp_client_initialize_broadcast               _nx_sntp_client_initialize_broadcast
 #define   nx_sntp_client_initialize_unicast                 _nx_sntp_client_initialize_unicast
 #define   nx_sntp_client_receiving_updates                  _nx_sntp_client_receiving_updates
@@ -669,10 +645,8 @@ extern   "C" {
 #define   nx_sntp_client_delete                             _nxe_sntp_client_delete
 #define   nx_sntp_client_get_local_time                     _nxe_sntp_client_get_local_time
 #define   nx_sntp_client_get_local_time_extended            _nxe_sntp_client_get_local_time_extended
-#ifdef __PRODUCT_NETXDUO__
 #define   nxd_sntp_client_initialize_broadcast              _nxde_sntp_client_initialize_broadcast
 #define   nxd_sntp_client_initialize_unicast                _nxde_sntp_client_initialize_unicast
-#endif
 #define   nx_sntp_client_initialize_broadcast               _nxe_sntp_client_initialize_broadcast
 #define   nx_sntp_client_initialize_unicast                 _nxe_sntp_client_initialize_unicast
 #define   nx_sntp_client_receiving_updates                  _nxe_sntp_client_receiving_updates
@@ -699,13 +673,9 @@ UINT   nx_sntp_client_create(NX_SNTP_CLIENT *client_ptr, NX_IP *ip_ptr, UINT ifa
 UINT    nx_sntp_client_delete (NX_SNTP_CLIENT *client_ptr);
 UINT    nx_sntp_client_get_local_time(NX_SNTP_CLIENT *client_ptr, ULONG *seconds, ULONG *fraction, CHAR *buffer); 
 UINT    nx_sntp_client_get_local_time_extended(NX_SNTP_CLIENT *client_ptr, ULONG *seconds, ULONG *fraction, CHAR *buffer, UINT buffer_size);
-#ifdef __PRODUCT_NETXDUO__
 UINT    nxd_sntp_client_initialize_broadcast(NX_SNTP_CLIENT *client_ptr, NXD_ADDRESS *multicast_server_address, NXD_ADDRESS *broadcast_time_server);
-#endif
 UINT    nx_sntp_client_initialize_broadcast(NX_SNTP_CLIENT *client_ptr,  ULONG multicast_server_address, ULONG broadcast_time_server);
-#ifdef __PRODUCT_NETXDUO__
 UINT    nxd_sntp_client_initialize_unicast(NX_SNTP_CLIENT *client_ptr, NXD_ADDRESS *unicast_time_server);
-#endif
 UINT    nx_sntp_client_initialize_unicast(NX_SNTP_CLIENT *client_ptr, ULONG unicast_time_server);
 UINT    nx_sntp_client_receiving_updates(NX_SNTP_CLIENT *client_ptr, UINT *server_status);
 UINT    nx_sntp_client_run_broadcast(NX_SNTP_CLIENT *client_ptr);
@@ -738,20 +708,12 @@ UINT    _nx_sntp_client_get_local_time(NX_SNTP_CLIENT *client_ptr, ULONG *second
 UINT    _nxe_sntp_client_get_local_time(NX_SNTP_CLIENT *client_ptr, ULONG *seconds, ULONG *fraction, CHAR *buffer); 
 UINT    _nx_sntp_client_get_local_time_extended(NX_SNTP_CLIENT *client_ptr, ULONG *seconds, ULONG *fraction, CHAR *buffer, UINT buffer_size); 
 UINT    _nxe_sntp_client_get_local_time_extended(NX_SNTP_CLIENT *client_ptr, ULONG *seconds, ULONG *fraction, CHAR *buffer, UINT buffer_size);
-#ifdef __PRODUCT_NETXDUO__
 UINT    _nxde_sntp_client_initialize_broadcast(NX_SNTP_CLIENT *client_ptr, NXD_ADDRESS *multicast_server_address, NXD_ADDRESS *broadcast_time_server);
 UINT    _nxd_sntp_client_initialize_broadcast(NX_SNTP_CLIENT *client_ptr, NXD_ADDRESS *multicast_server_address, NXD_ADDRESS *broadcast_time_server);
-#else
-UINT    _nx_sntp_client_initialize_broadcast(NX_SNTP_CLIENT *client_ptr, ULONG multicast_server_address, ULONG broadcast_time_server);
-#endif
 UINT    _nx_sntp_client_initialize_broadcast(NX_SNTP_CLIENT *client_ptr, ULONG multicast_server_address, ULONG broadcast_time_server);
 UINT    _nxe_sntp_client_initialize_broadcast(NX_SNTP_CLIENT *client_ptr, ULONG multicast_server_address, ULONG broadcast_time_server);
-#ifdef __PRODUCT_NETXDUO__
 UINT    _nxde_sntp_client_initialize_unicast(NX_SNTP_CLIENT *client_ptr, NXD_ADDRESS *unicast_time_server);
 UINT    _nxd_sntp_client_initialize_unicast(NX_SNTP_CLIENT *client_ptr, NXD_ADDRESS *unicast_time_server);
-#else
-UINT    _nx_sntp_client_initialize_unicast(NX_SNTP_CLIENT *client_ptr, ULONG unicast_time_server);
-#endif
 UINT    _nx_sntp_client_initialize_unicast(NX_SNTP_CLIENT *client_ptr, ULONG unicast_time_server);
 UINT    _nxe_sntp_client_initialize_unicast(NX_SNTP_CLIENT *client_ptr, ULONG unicast_time_server);
 UINT    _nx_sntp_client_receiving_updates(NX_SNTP_CLIENT *client_ptr, UINT *server_status);

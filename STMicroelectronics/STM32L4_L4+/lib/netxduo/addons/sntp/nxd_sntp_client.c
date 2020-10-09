@@ -23,13 +23,8 @@
 /*                                                                        */
 /*  APPLICATION INTERFACE DEFINITION                       RELEASE        */
 /*                                                                        */
-#ifdef __PRODUCT_NETXDUO__
 /*    nxd_sntp_client.c                                   PORTABLE C      */
 /*                                                           6.0          */
-#else
-/*    nx_sntp_client.c                                    PORTABLE C      */
-/*                                                           6.0          */
-#endif
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -60,15 +55,10 @@
 #include "nx_api.h"
 #include "nx_udp.h" 
 
-#ifdef __PRODUCT_NETXDUO__
 #include "nx_ipv4.h"
 #include "nxd_sntp_client.h"
 #ifdef FEATURE_NX_IPV6
 #include "nx_ipv6.h"
-#endif
-#else
-#include "nx_ip.h"
-#include "nx_sntp_client.h"
 #endif
 
 
@@ -237,11 +227,7 @@ UINT status;
     memset(client_ptr, 0, sizeof(NX_SNTP_CLIENT));
 
     /* Set the Client ID to indicate the SNTP client thread is ready.  */
-#ifdef __PRODUCT_NETXDUO__
     client_ptr -> nx_sntp_client_id = NXD_SNTP_ID;
-#else
-    client_ptr -> nx_sntp_client_id = NX_SNTP_ID;
-#endif
 
     /* Set the IP instance.  */
     client_ptr -> nx_sntp_client_ip_ptr   =  ip_ptr;
@@ -250,7 +236,6 @@ UINT status;
     client_ptr -> nx_sntp_client_interface_index = iface_index;
 
     /* Check for minimal packet size requirement. */
-#ifdef __PRODUCT_NETXDUO__
 #ifndef NX_DISABLE_IPV4
     if  (packet_pool_ptr -> nx_packet_pool_payload_size < 
             (sizeof(NX_IPV4_HEADER) + sizeof(NX_UDP_HEADER) + NX_SNTP_CLIENT_PACKET_DATA_SIZE))
@@ -269,15 +254,6 @@ UINT status;
              sizeof(NX_IPV6_HEADER) + sizeof(NX_UDP_HEADER) + NX_SNTP_CLIENT_PACKET_DATA_SIZE)
                   40 bytes                   8 bytes                    48 bytes
     */ 
-#else
-    if  (packet_pool_ptr -> nx_packet_pool_payload_size < 
-            (sizeof(NX_IP_HEADER) + sizeof(NX_UDP_HEADER) + NX_SNTP_CLIENT_PACKET_DATA_SIZE))
-    {
-
-        return NX_SNTP_INSUFFICIENT_PACKET_PAYLOAD;
-    }
-
-#endif
 
     client_ptr -> nx_sntp_client_packet_pool_ptr =  packet_pool_ptr;
 
@@ -444,11 +420,7 @@ UINT status;
 
 
     /* Check for the validity of input parameter.  */
-#ifdef __PRODUCT_NETXDUO__
     if ((client_ptr == NX_NULL) || (client_ptr -> nx_sntp_client_id != NXD_SNTP_ID))
-#else
-    if ((client_ptr == NX_NULL) || (client_ptr -> nx_sntp_client_id != NX_SNTP_ID))
-#endif
     {
 
         /* Return error status.  */
@@ -707,7 +679,6 @@ UINT  _nx_sntp_client_create_time_request_packet(NX_SNTP_CLIENT *client_ptr, NX_
 }
 
 
-#ifdef __PRODUCT_NETXDUO__
 /**************************************************************************/ 
 /*                                                                        */ 
 /*  FUNCTION                                               RELEASE        */ 
@@ -771,39 +742,25 @@ UINT  status;
     /* Return completion status.  */
     return status;
 }
-#endif
 
 
 /**************************************************************************/ 
 /*                                                                        */ 
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
-#ifdef __PRODUCT_NETXDUO__
 /*    _nxd_sntp_client_initialize_unicast                 PORTABLE C      */ 
 /*                                                           6.0          */
-#else
-/*    _nx_sntp_client_initialize_unicast                  PORTABLE C      */ 
-/*                                                           6.0          */
-#endif
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
 /*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
-#ifdef __PRODUCT_NETXDUO__
 /*    This function sets up the Client to operate in unicast mode with the*/
 /*    supplied IPv4 or IPv6 SNTP server as the primary (current) server.  */
 /*                                                                        */ 
 /*    For adding IPv4 and IPv6 SNTP servers to the unicast server list,   */
 /*    use the nxd_sntp_client_duo_add_unicast_server_to_list service.     */ 
-#else
-/*    This function sets up the Client to operate in unicast mode with the*/
-/*    supplied IPv4 SNTP server as the primary (current) server.          */
-/*                                                                        */ 
-/*    For adding IPv4 SNTP servers to the unicast server list, use the    */
-/*    nx_sntp_client_add_unicast_server_to_list service.                  */ 
-#endif
 /*                                                                        */ 
 /*   INPUT                                                                */ 
 /*                                                                        */ 
@@ -831,11 +788,7 @@ UINT  status;
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
-#ifdef __PRODUCT_NETXDUO__
 UINT  _nxd_sntp_client_initialize_unicast(NX_SNTP_CLIENT *client_ptr, NXD_ADDRESS *unicast_time_server)
-#else
-UINT  _nx_sntp_client_initialize_unicast(NX_SNTP_CLIENT *client_ptr, ULONG unicast_time_server)
-#endif
 {
 
 
@@ -845,7 +798,6 @@ UINT  _nx_sntp_client_initialize_unicast(NX_SNTP_CLIENT *client_ptr, ULONG unica
     /* Initialize the number of times we've increased the backoff rate to zero. */
     client_ptr -> nx_sntp_client_backoff_count = 0;
 
-#ifdef __PRODUCT_NETXDUO__
     /* Clear the Client's current server IP.  */
     memset(&client_ptr -> nx_sntp_server_ip_address, 0, sizeof(NXD_ADDRESS));
 
@@ -866,16 +818,6 @@ UINT  _nx_sntp_client_initialize_unicast(NX_SNTP_CLIENT *client_ptr, ULONG unica
 
 #endif /* FEATURE_NX_IPV6 */
 
-#else
-    /* Clear the Client's current server IP.  */
-    client_ptr -> nx_sntp_server_ip_address = 0;
-
-    /* Set as the Client's unicast server.  */
-    client_ptr -> nx_sntp_unicast_time_server = unicast_time_server;
-
-    /* Set as the Client's current SNTP server.  */
-    client_ptr -> nx_sntp_server_ip_address = client_ptr -> nx_sntp_unicast_time_server;
-#endif
 
     /* Set the Client operational mode to unicast mode.  */
     client_ptr -> nx_sntp_client_protocol_mode = UNICAST_MODE;
@@ -968,7 +910,6 @@ UINT status;
 }
 
 
-#ifdef __PRODUCT_NETXDUO__
 /**************************************************************************/ 
 /*                                                                        */ 
 /*  FUNCTION                                               RELEASE        */ 
@@ -1031,7 +972,6 @@ NXD_ADDRESS duo_unicast_time_server;
     return(NX_NOT_SUPPORTED);
 #endif /* NX_DISABLE_IPV4 */
 }
-#endif
 
 
 /**************************************************************************/ 
@@ -1405,7 +1345,6 @@ ULONG   sntp_events;
 }
 
 
-#ifdef __PRODUCT_NETXDUO__
 /**************************************************************************/ 
 /*                                                                        */ 
 /*  FUNCTION                                               RELEASE        */ 
@@ -1485,31 +1424,21 @@ UINT status;
     /* Return completion status.  */
     return status;
 }
-#endif
 
 /**************************************************************************/ 
 /*                                                                        */ 
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
-#ifdef __PRODUCT_NETXDUO__
 /*    _nxd_sntp_client_initialize_broadcast               PORTABLE C      */ 
 /*                                                           6.0          */
-#else
-/*    _nx_sntp_client_initialize_broadcast                PORTABLE C      */ 
-/*                                                           6.0          */
-#endif
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
 /*                                                                        */
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
-#ifdef __PRODUCT_NETXDUO__
 /*    This function sets up the Client to operate in broadcast mode with  */
 /*    either an IPv6 or an IPv4 broadcast server.                         */
-#else
-/*    This function sets up the Client to operate in broadcast mode.      */
-#endif
 /*                                                                        */
 /*   INPUT                                                                */ 
 /*                                                                        */ 
@@ -1535,15 +1464,10 @@ UINT status;
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
 /*                                                                        */
 /**************************************************************************/
-#ifdef __PRODUCT_NETXDUO__
 UINT  _nxd_sntp_client_initialize_broadcast(NX_SNTP_CLIENT *client_ptr, NXD_ADDRESS *multicast_server_address, NXD_ADDRESS *broadcast_server_address)
-#else
-UINT  _nx_sntp_client_initialize_broadcast(NX_SNTP_CLIENT *client_ptr, ULONG multicast_server_address, ULONG broadcast_server_address)
-#endif
 {
 
 
-#ifdef __PRODUCT_NETXDUO__
     /* Clear Client's current server IP.  */
     memset(&client_ptr -> nx_sntp_server_ip_address, 0, sizeof(NXD_ADDRESS));
 
@@ -1592,31 +1516,6 @@ UINT  _nx_sntp_client_initialize_broadcast(NX_SNTP_CLIENT *client_ptr, ULONG mul
 
 #endif /* FEATURE_NX_IPV6 */
     }
-#else
-    /* Clear Client's current server IP.  */
-    client_ptr -> nx_sntp_server_ip_address = 0;
-    
-    /* Was a multicast IP was supplied. */
-    if(multicast_server_address != 0)
-    {
-        /* Set the Client multicast server.  */
-        client_ptr -> nx_sntp_multicast_server_address = multicast_server_address;
-
-        /* Set this as the Client's current SNTP server. */
-        client_ptr -> nx_sntp_server_ip_address = multicast_server_address;
-    }
-    /* No multicast address supplied, so was a broadcast address specified? */
-    else if(broadcast_server_address != 0)
-    {
-
-        /* Set the Client broadcast server.  */
-        client_ptr -> nx_sntp_broadcast_time_server = broadcast_server_address;
-
-        /* Set this as the Client's current SNTP server. */
-        client_ptr -> nx_sntp_server_ip_address = broadcast_server_address;
-    }
-
-#endif
 
     /* Set client to work in broadcast (non unicast) mode.  */
     client_ptr -> nx_sntp_client_protocol_mode = BROADCAST_MODE;
@@ -1714,7 +1613,6 @@ UINT status;
 }
 
 
-#ifdef __PRODUCT_NETXDUO__
 /**************************************************************************/ 
 /*                                                                        */ 
 /*  FUNCTION                                               RELEASE        */ 
@@ -1794,7 +1692,6 @@ NXD_ADDRESS server_address;
     return(NX_NOT_SUPPORTED);
 #endif /* NX_DISABLE_IPV4 */
 }
-#endif
 
 
 /**************************************************************************/ 
@@ -2382,7 +2279,6 @@ NX_SNTP_TIME local_time;
 
     /* Check for minimal packet size requirement. */
 
-#ifdef __PRODUCT_NETXDUO__
 
     /* IPv6 packets require more space for the IPv6 header. */
     if (client_ptr -> nx_sntp_server_ip_address.nxd_ip_version == NX_IP_VERSION_V6)
@@ -2435,20 +2331,6 @@ NX_SNTP_TIME local_time;
         }
 #endif /* NX_DISABLE_IPV4 */
     }
-#else
-    if  (client_ptr -> nx_sntp_client_packet_pool_ptr -> nx_packet_pool_payload_size < 
-                (sizeof(NX_IP_HEADER) + sizeof(NX_UDP_HEADER) + NX_SNTP_CLIENT_PACKET_DATA_SIZE))
-    {
-
-        /* Release the mutex. */
-        tx_mutex_put(&client_ptr -> nx_sntp_client_mutex);
-    
-        nx_packet_release(packet_ptr);
-
-        return NX_SNTP_INSUFFICIENT_PACKET_PAYLOAD;
-    }
-
-#endif /* __PRODUCT_NETXDUO__ */
 
 
     /* Convert the local time into the request's transmit time stamp field.  */
@@ -2479,11 +2361,7 @@ NX_SNTP_TIME local_time;
     tx_mutex_put(&client_ptr -> nx_sntp_client_mutex);
 
     /* Send the time request packet.  */
-#ifdef __PRODUCT_NETXDUO__
     status =  nxd_udp_socket_send(&(client_ptr -> nx_sntp_client_udp_socket), packet_ptr, &client_ptr -> nx_sntp_server_ip_address, NX_SNTP_SERVER_UDP_PORT);
-#else
-    status =  nx_udp_socket_send(&(client_ptr -> nx_sntp_client_udp_socket), packet_ptr, client_ptr -> nx_sntp_server_ip_address, NX_SNTP_SERVER_UDP_PORT);
-#endif
 
 
     /* Check for error.  */
@@ -2560,16 +2438,11 @@ UINT  _nx_sntp_client_receive_time_update(NX_SNTP_CLIENT *client_ptr, ULONG time
 UINT            status;
 UINT            length;
 NX_PACKET       *receive_packet;
-#ifndef NX_SNTP_CLIENT_CHECK_DISABLE 
+#ifndef NX_SNTP_CLIENT_CHECK_DISABLE
 UINT            sender_port;
 NX_UDP_HEADER   *udp_header_ptr;
-#ifdef __PRODUCT_NETXDUO__
 NXD_ADDRESS     source_ip_address, destination_ip_address;
-#else
-#endif
-ULONG           source_ip_address, destination_ip_address;
-NX_IP_HEADER    *ip_header_ptr;
-#endif
+#endif /* NX_SNTP_CLIENT_CHECK_DISABLE */
 
     /* Loop to receive packets. */
     for(;;)
@@ -2592,7 +2465,7 @@ NX_IP_HEADER    *ip_header_ptr;
             return status;
         }
         
-#ifndef NX_SNTP_CLIENT_CHECK_DISABLE 
+#ifndef NX_SNTP_CLIENT_CHECK_DISABLE
         /* Check the sender port in the UDP packet header.  */  
         udp_header_ptr = (NX_UDP_HEADER *)(receive_packet -> nx_packet_prepend_ptr - sizeof(NX_UDP_HEADER));
         sender_port = (UINT)udp_header_ptr -> nx_udp_header_word_0 >> NX_SHIFT_BY_16; 
@@ -2607,7 +2480,6 @@ NX_IP_HEADER    *ip_header_ptr;
             continue;
         }
 
-#ifdef __PRODUCT_NETXDUO__
 
         /* If this an IPv6 packet? An SNTP client with an IPv6 SNTP server will only accept IPv6 packets.   */
         if ((receive_packet -> nx_packet_ip_version == NX_IP_VERSION_V6) && 
@@ -2768,69 +2640,6 @@ NX_IP_HEADER    *ip_header_ptr;
 
             continue;
         }
-#else
-        ip_header_ptr =  (NX_IP_HEADER *) (receive_packet -> nx_packet_prepend_ptr - sizeof(NX_UDP_HEADER) - sizeof(NX_IP_HEADER));
-
-        /* Copy into a local variable. */
-        source_ip_address =  ip_header_ptr -> nx_ip_header_source_ip;
-
-        /* Copy into a local variable. */
-        destination_ip_address =  ip_header_ptr -> nx_ip_header_destination_ip;
-
-        if (client_ptr -> nx_sntp_client_protocol_mode == UNICAST_MODE)
-        {
-            /* Compare the sender address with the Client's current sntp server. */
-            if (source_ip_address != client_ptr -> nx_sntp_server_ip_address)
-            {
-                /* This is an untrusted server or the client had a broadcast server already,
-                   reject this packet and return an error condition.  */
-
-                /* No further need for the receive packet. Release back to the client pool.  */
-                nx_packet_release(receive_packet);
-
-                continue;
-            }
-        }
-        else /* BROADCAST_MODE */
-        {
-
-            ULONG network_mask;
-            UINT  iface_index;
-
-            /* Compare the sender address with the Client's current sntp server. */
-            if (source_ip_address != client_ptr -> nx_sntp_server_ip_address)
-            {
-
-                /* This is an untrusted server or the client had a broadcast server already,
-                   reject this packet and return an error condition.  */
-
-                /* No further need for the receive packet. Release back to the client pool.  */
-                nx_packet_release(receive_packet);
-
-                continue;
-            }
-
-            /* Set a local variable on the SNTP network index. */
-            iface_index = client_ptr -> nx_sntp_client_interface_index;
-
-            /* Set a local variable to the network mask. */
-            network_mask = client_ptr -> nx_sntp_client_ip_ptr -> nx_ip_interface[iface_index].nx_interface_ip_network_mask;
-
-            /* Now verify this is a broadcast packet. */
-            if ((destination_ip_address & ~network_mask) != ~network_mask)
-            {                                        
-
-                /* This is not a broadcast packet on the local network.  */
-
-                /* No further need for the receive packet. Release back to the client pool.  */
-                nx_packet_release(receive_packet);
-
-                continue;
-            }
-        }
-
-#endif
-
 #endif /* NX_SNTP_CLIENT_CHECK_DISABLE */
 
         /* Check that the packet has the proper length for an NTP message.  */
