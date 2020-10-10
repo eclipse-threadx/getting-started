@@ -25,8 +25,6 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 target_link_libraries(${PROJECT_NAME}
     azrtos::threadx
     azrtos::netxduo
-    azrtos::nx_cloud
-    azrtos::azure_iot
 
     stm32cubef4
     wiced_sdk
