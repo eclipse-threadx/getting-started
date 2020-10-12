@@ -15,7 +15,7 @@
 /**                                                                       */
 /** NetX Component                                                        */
 /**                                                                       */
-/**   Internet Protocol (IP) for STM32L475E-IOT01A1                       */
+/**   Internet Protocol (IP) for STM32L4XX                                */
 /**                                                                       */
 /**************************************************************************/
 /**************************************************************************/
@@ -26,7 +26,7 @@
 /*  COMPONENT DEFINITION                                   RELEASE        */
 /*                                                                        */
 /*    nx_ip.h                                             PORTABLE C      */
-/*                                                           6.0          */
+/*                                                           6.1          */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -42,6 +42,8 @@
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */
 /**************************************************************************/
 
@@ -99,7 +101,7 @@
 
 
 
-#if 0 /* Not support for STM32L475E-IOT01A1.  */
+#if 0 /* Not support for STM32L4XX.  */
 /* Define IP function prototypes.  */
 UINT   _nx_ip_auxiliary_packet_pool_set(NX_IP *ip_ptr, NX_PACKET_POOL *auxiliary_pool);
 USHORT _nx_ip_checksum_compute(NX_PACKET *packet_ptr, ULONG protocol, UINT data_length,
@@ -122,7 +124,7 @@ UINT _nx_ip_create(NX_IP *ip_ptr, CHAR *name, ULONG ip_address, ULONG network_ma
                    VOID *memory_ptr, ULONG memory_size, UINT priority);
 UINT _nx_ip_delete(NX_IP *ip_ptr);
 
-#if 0 /* Not support for STM32L475E-IOT01A1.  */
+#if 0 /* Not support for STM32L4XX.  */
 VOID _nx_ip_delete_queue_clear(NX_PACKET *head_ptr);
 VOID _nx_ip_deferred_link_status_process(NX_IP *ip_ptr);
 VOID _nx_ip_driver_link_status_event(NX_IP *ip_ptr, UINT interface_index);
@@ -157,7 +159,7 @@ UINT _nxd_ip_raw_packet_source_send(NX_IP *ip_ptr, NX_PACKET *packet_ptr, NXD_AD
 
 VOID _nx_ip_initialize(VOID);
 
-#if 0 /* Not support for STM32L475E-IOT01A1.  */
+#if 0 /* Not support for STM32L4XX.  */
 VOID _nx_ip_periodic_timer_entry(ULONG ip_address);
 VOID _nx_ip_packet_receive(NX_IP *ip_ptr, NX_PACKET *packet_ptr);
 VOID _nx_ip_packet_deferred_receive(NX_IP *ip_ptr, NX_PACKET *packet_ptr);
@@ -188,7 +190,7 @@ UINT _nxe_ip_create(NX_IP *ip_ptr, CHAR *name, ULONG ip_address, ULONG network_m
                     VOID *memory_ptr, ULONG memory_size, UINT priority, UINT ip_control_block_size);
 UINT _nxe_ip_delete(NX_IP *ip_ptr);
 
-#if 0 /* Not support for STM32L475E-IOT01A1.  */
+#if 0 /* Not support for STM32L4XX.  */
 UINT _nxe_ip_driver_direct_command(NX_IP *ip_ptr, UINT command, ULONG *return_value_ptr);
 UINT _nxe_ip_driver_interface_direct_command(NX_IP *ip_ptr, UINT command, UINT interface_index, ULONG *return_value_ptr);
 UINT _nxe_ip_auxiliary_packet_pool_set(NX_IP *ip_ptr, NX_PACKET_POOL *auxiliary_pool);

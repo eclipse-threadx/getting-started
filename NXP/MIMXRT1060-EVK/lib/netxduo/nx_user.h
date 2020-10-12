@@ -51,14 +51,14 @@
 #ifndef NX_USER_H
 #define NX_USER_H
 
-#define NX_DISABLE_INCLUDE_SOURCE_CODE
-
 #define NX_SECURE_ENABLE
-#define NX_ENABLE_EXTENDED_NOTIFY_SUPPORT
+#define NX_DNS_CLIENT_USER_CREATE_PACKET_POOL
+
 #define NXD_MQTT_CLOUD_ENABLE
+
 #define NX_ENABLE_IP_PACKET_FILTER
 
-#define NX_DNS_CLIENT_USER_CREATE_PACKET_POOL
+#define NX_SNTP_CLIENT_MIN_SERVER_STRATUM 3
 
 /* Define various build options for the NetX Duo port.  The application should either make changes
    here by commenting or un-commenting the conditional compilation defined OR supply the defines

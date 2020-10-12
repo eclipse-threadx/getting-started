@@ -9,7 +9,6 @@
 /*                                                                        */
 /**************************************************************************/
 
-
 /**************************************************************************/
 /**************************************************************************/
 /**                                                                       */
@@ -19,7 +18,6 @@
 /**                                                                       */
 /**************************************************************************/
 /**************************************************************************/
-
 
 /**************************************************************************/
 /*                                                                        */
@@ -48,26 +46,34 @@
 /*                                                                        */
 /**************************************************************************/
 
-
 #ifndef NX_USER_H
 #define NX_USER_H
 
-#define NX_DISABLE_IPV6
-#define NX_DISABLE_INCLUDE_SOURCE_CODE
-#define NX_DNS_CLIENT_USER_CREATE_PACKET_POOL
+/* Secure */
+#define NX_SECURE_ENABLE
 
+/* SNTP */
+#define NX_SNTP_CLIENT_MIN_SERVER_STRATUM 3
 #define NX_SNTP_CLIENT_MESSAGE_CHECK_DISABLE
 
-#define NX_SECURE_ENABLE
-#define NX_ENABLE_EXTENDED_NOTIFY_SUPPORT
+/* Azure IoT Security Module */
+#define NX_ENABLE_IP_PACKET_FILTER
+
+/* Enable MQTT Cloud */
 #define NXD_MQTT_CLOUD_ENABLE
 
-#define NX_PACKET_ALIGNMENT             32
-#define NX_PACKET_HEADER_PAD
-#define NX_PACKET_HEADER_PAD_SIZE       2
+/* Override wait option as the L475/L4S5 doesnt support 0 wait time */
+#define NX_AZURE_IOT_PROVISIONING_CLIENT_CONNECT_WAIT_OPTION (40 * NX_IP_PERIODIC_RATE)
+
+/* NetX */
+#define NX_DNS_CLIENT_USER_CREATE_PACKET_POOL
+#define NX_DNS_CLIENT_CLEAR_QUEUE
+#define NX_ENABLE_EXTENDED_NOTIFY_SUPPORT
+#define NX_DISABLE_IPV6
+#define NX_PACKET_ALIGNMENT 32
 
 #define NX_DISABLE_ICMPV4_RX_CHECKSUM
-#define NX_DISABLE_ICMPV4_TX_CHECKSUM  
+#define NX_DISABLE_ICMPV4_TX_CHECKSUM
 #define NX_DISABLE_IP_RX_CHECKSUM
 #define NX_DISABLE_IP_TX_CHECKSUM
 #define NX_DISABLE_TCP_RX_CHECKSUM
@@ -75,15 +81,12 @@
 #define NX_DISABLE_UDP_RX_CHECKSUM
 #define NX_DISABLE_UDP_TX_CHECKSUM
 
-
 /* Define various build options for the NetX Duo port.  The application should either make changes
    here by commenting or un-commenting the conditional compilation defined OR supply the defines
    though the compiler's equivalent of the -D option.  */
 
-
 /* Override various options with default values already assigned in nx_api.h or nx_port.h. Please
    also refer to nx_port.h for descriptions on each of these options.  */
-
 
 /* Configuration options for Interface */
 
@@ -106,7 +109,6 @@
 /*
 #define NX_ENABLE_INTERFACE_CAPABILITY
 */
-
 
 /* Configuration options for IP */
 
@@ -148,7 +150,6 @@
 /*
 #define NX_MAX_MULTICAST_GROUPS     7
 */
-
 
 /* Configuration options for IPv6 */
 
@@ -251,7 +252,6 @@
 #define NX_PATH_MTU_INCREASE_WAIT_INTERVAL               600
 */
 
-
 /* Configuration options for Neighbor Discovery.  */
 /* Define values used for Neighbor Discovery protocol.
    The default values are suggested by RFC2461, chapter 10. */
@@ -314,7 +314,6 @@
 #define NX_IPV6_PREFIX_LIST_TABLE_SIZE  8
 */
 
-
 /* Configuration options for IPSEC */
 
 /* This define enables IPSEC in NetX Duo.  */
@@ -322,14 +321,12 @@
 #define NX_IPSEC_ENABLE
 */
 
-
 /* Configuration options for NAT */
 
 /* This define enables NAT process in NetX Duo.  */
 /*
 #define NX_NAT_ENABLE
 */
-
 
 /* Configuration options for IGMP */
 
@@ -387,7 +384,6 @@
 /*
 #define NX_ARP_DEFEND_INTERVAL  10
 */
-
 
 /* Configuration options for TCP */
 
@@ -670,7 +666,6 @@
 #define NX_DISABLE_UDP_INFO
 */
 
-
 /* Configuration options for Packet Pool */
 
 /* This define specifies the size of the physical packet header. The default value is 16 (based on
@@ -772,4 +767,3 @@
 */
 
 #endif
-

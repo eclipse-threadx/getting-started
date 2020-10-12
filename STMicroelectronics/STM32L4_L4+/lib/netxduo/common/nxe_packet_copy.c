@@ -15,7 +15,7 @@
 /**                                                                       */
 /** NetX Component                                                        */
 /**                                                                       */
-/**   Packet Pool Management (Packet) for STM32L475E-IOT01A1              */
+/**   Packet Pool Management (Packet) for STM32L4XX                       */
 /**                                                                       */
 /**************************************************************************/
 /**************************************************************************/
@@ -38,7 +38,7 @@ NX_CALLER_CHECKING_EXTERNS
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nxe_packet_copy                                    PORTABLE C      */
-/*                                                           6.0          */
+/*                                                           6.1          */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -73,6 +73,8 @@ NX_CALLER_CHECKING_EXTERNS
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */
 /**************************************************************************/
 UINT  _nxe_packet_copy(NX_PACKET *packet_ptr, NX_PACKET **new_packet_ptr,

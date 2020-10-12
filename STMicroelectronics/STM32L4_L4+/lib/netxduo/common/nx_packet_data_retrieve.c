@@ -15,7 +15,7 @@
 /**                                                                       */
 /** NetX Component                                                        */
 /**                                                                       */
-/**   Packet Pool Management (Packet) for STM32L475E-IOT01A1              */
+/**   Packet Pool Management (Packet) for STM32L4XX                       */
 /**                                                                       */
 /**************************************************************************/
 /**************************************************************************/
@@ -34,7 +34,7 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_packet_data_retrieve                            PORTABLE C      */
-/*                                                           6.0          */
+/*                                                           6.1          */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -67,6 +67,9 @@
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*  09-30-2020     Yuxin Zhou               Modified comment(s), and      */
+/*                                            verified memcpy use cases,  */
+/*                                            resulting in version 6.1    */
 /*                                                                        */
 /**************************************************************************/
 UINT  _nx_packet_data_retrieve(NX_PACKET *packet_ptr, VOID *buffer_start, ULONG *bytes_copied)
@@ -99,7 +102,8 @@ ULONG  bytes_to_copy;
         bytes_to_copy = (ULONG)(packet_ptr -> nx_packet_append_ptr - packet_ptr -> nx_packet_prepend_ptr);
 
         /* Copy data to destination. */
-        memcpy(destination_ptr, packet_ptr -> nx_packet_prepend_ptr, bytes_to_copy);
+        /* Note: The buffer size must be not less than packet_ptr -> nx_packet_length.  */
+        memcpy(destination_ptr, packet_ptr -> nx_packet_prepend_ptr, bytes_to_copy); /* Use case of memcpy is verified. The buffer is provided by user.  */
 
         remaining_bytes -= bytes_to_copy;
         destination_ptr += bytes_to_copy;

@@ -15,7 +15,7 @@
 /**                                                                       */
 /** NetX Component                                                        */
 /**                                                                       */
-/**   Internet Protocol version 6 (IPv6) for STM32L475E-IOT01A1           */
+/**   Internet Protocol version 6 (IPv6) for STM32L4XX                    */
 /**                                                                       */
 /**************************************************************************/
 /**************************************************************************/
@@ -26,7 +26,7 @@
 /*  COMPONENT DEFINITION                                   RELEASE        */
 /*                                                                        */
 /*    nx_ipv6.h                                           PORTABLE C      */
-/*                                                           6.0          */
+/*                                                           6.1          */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -45,6 +45,8 @@
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */
 /**************************************************************************/
 
@@ -220,7 +222,7 @@ enum NX_IPV6_OPTION_STATE
 
 
 
-#if 0 /* Not support for STM32L475E-IOT01A1.  */
+#if 0 /* Not support for STM32L4XX.  */
 /* Define IPv6 internal functions. */
 
 UINT  _nxd_ipv6_default_router_add_internal(NX_IP *ip_ptr, ULONG *router_addr, ULONG router_lifetime, NX_INTERFACE *if_ptr, INT router_type, NX_IPV6_DEFAULT_ROUTER_ENTRY **_new_entry);

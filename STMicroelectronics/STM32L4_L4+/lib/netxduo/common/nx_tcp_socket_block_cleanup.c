@@ -15,7 +15,7 @@
 /**                                                                       */
 /** NetX Component                                                        */
 /**                                                                       */
-/**   Transmission Control Protocol (TCP) for STM32L475E-IOT01A1          */
+/**   Transmission Control Protocol (TCP) for STM32L4XX                   */
 /**                                                                       */
 /**************************************************************************/
 /**************************************************************************/
@@ -34,7 +34,7 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_tcp_socket_block_cleanup                        PORTABLE C      */
-/*                                                           6.0          */
+/*                                                           6.1          */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -68,6 +68,8 @@
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */
 /**************************************************************************/
 VOID  _nx_tcp_socket_block_cleanup(NX_TCP_SOCKET *socket_ptr)

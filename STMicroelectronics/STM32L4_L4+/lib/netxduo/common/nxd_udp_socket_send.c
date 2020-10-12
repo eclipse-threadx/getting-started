@@ -15,7 +15,7 @@
 /**                                                                       */
 /** NetX Component                                                        */
 /**                                                                       */
-/**   User Datagram Protocol (UDP) for STM32L475E-IOT01A1                 */
+/**   User Datagram Protocol (UDP) for STM32L4XX                          */
 /**                                                                       */
 /**************************************************************************/
 /**************************************************************************/
@@ -35,7 +35,7 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nxd_udp_socket_send                                PORTABLE C      */
-/*                                                           6.0          */
+/*                                                           6.1          */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -79,6 +79,8 @@
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */
 /**************************************************************************/
 UINT  _nxd_udp_socket_send(NX_UDP_SOCKET *socket_ptr,
