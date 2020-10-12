@@ -109,30 +109,34 @@ static VOID process_device_twin_get(AZURE_IOT_NX_CONTEXT* nx_context)
     if (packet_ptr->nx_packet_length > (ULONG)(packet_ptr->nx_packet_append_ptr - packet_ptr->nx_packet_prepend_ptr))
     {
         printf("ERROR: json is large than nx_packet\r\n");
+        nx_packet_release(packet_ptr);
+        return;
+    }
+
+    if ((status = nx_azure_iot_json_reader_init(&json_reader, packet_ptr)))
+    {
+        printf("ERROR: failed to initialize json reader (0x%08x)\r\n", status);
+        nx_packet_release(packet_ptr);
         return;
     }
 
     if (nx_context->device_twin_get_cb)
     {
-        if ((status = nx_azure_iot_json_reader_init(&json_reader, packet_ptr)))
+        if ((status = nx_azure_iot_pnp_helper_twin_data_parse(&json_reader,
+                 NX_FALSE,
+                 NX_NULL,
+                 0,
+                 buffer,
+                 sizeof(buffer),
+                 nx_context->device_twin_get_cb,
+                 nx_context)))
         {
-            printf("Failed to initialize json reader: error code = 0x%08x\r\n", status);
-        }
-        else if ((status = nx_azure_iot_pnp_helper_twin_data_parse(&json_reader,
-                      NX_FALSE,
-                      NX_NULL,
-                      0,
-                      buffer,
-                      sizeof(buffer),
-                      nx_context->device_twin_get_cb,
-                      nx_context)))
-        {
-            printf("ERROR: failed to parse twin data!: error code = 0x%08x\r\n", status);
+            printf("ERROR: failed to parse twin data (0x%08x)\r\n", status);
         }
     }
 
-    // Release the received packet, as ownership was passed to the application
-    nx_packet_release(packet_ptr);
+    // Deinit the reader, the reader owns the NX_PACKET at this point, so will release it
+    nx_azure_iot_json_reader_deinit(&json_reader);
 }
 
 static VOID process_device_twin_desired_property(AZURE_IOT_NX_CONTEXT* nx_context)
@@ -141,6 +145,7 @@ static VOID process_device_twin_desired_property(AZURE_IOT_NX_CONTEXT* nx_contex
     NX_PACKET* packet_ptr;
     NX_AZURE_IOT_JSON_READER json_reader;
     UCHAR buffer[128];
+
     if ((status = nx_azure_iot_hub_client_device_twin_desired_properties_receive(
              &nx_context->iothub_client, &packet_ptr, NX_WAIT_FOREVER)))
     {
@@ -153,30 +158,34 @@ static VOID process_device_twin_desired_property(AZURE_IOT_NX_CONTEXT* nx_contex
     if (packet_ptr->nx_packet_length > (ULONG)(packet_ptr->nx_packet_append_ptr - packet_ptr->nx_packet_prepend_ptr))
     {
         printf("ERROR: json is large than nx_packet\r\n");
+        nx_packet_release(packet_ptr);
+        return;
+    }
+
+    if ((status = nx_azure_iot_json_reader_init(&json_reader, packet_ptr)))
+    {
+        printf("ERROR: failed to initialize json reader (0x%08x)\r\n", status);
+        nx_packet_release(packet_ptr);
         return;
     }
 
     if (nx_context->device_twin_desired_prop_cb)
     {
-        if ((status = nx_azure_iot_json_reader_init(&json_reader, packet_ptr)))
+        if ((status = nx_azure_iot_pnp_helper_twin_data_parse(&json_reader,
+                 NX_TRUE,
+                 NX_NULL,
+                 0,
+                 buffer,
+                 sizeof(buffer),
+                 nx_context->device_twin_desired_prop_cb,
+                 nx_context)))
         {
-            printf("Failed to initialize json reader: error code = 0x%08x\r\n", status);
-        }
-        else if ((status = nx_azure_iot_pnp_helper_twin_data_parse(&json_reader,
-                      NX_TRUE,
-                      NX_NULL,
-                      0,
-                      buffer,
-                      sizeof(buffer),
-                      nx_context->device_twin_desired_prop_cb,
-                      nx_context)))
-        {
-            printf("ERROR: failed to parse twin data!: error code = 0x%08x\r\n", status);
+            printf("ERROR: failed to parse twin data (0x%08x)\r\n", status);
         }
     }
 
-    // Release the received packet, as ownership was passed to the application
-    nx_packet_release(packet_ptr);
+    // Deinit the reader, the reader owns the NX_PACKET at this point, so will release it
+    nx_azure_iot_json_reader_deinit(&json_reader);
 }
 
 static VOID event_thread(ULONG parameter)
