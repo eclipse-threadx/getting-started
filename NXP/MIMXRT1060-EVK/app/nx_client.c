@@ -94,9 +94,9 @@ static void device_twin_desired_property_cb(UCHAR* component_name,
     {
         status = nx_azure_iot_json_reader_token_int32_get(&property_value_reader, &telemetry_interval);
         if (status == NX_AZURE_IOT_SUCCESS)
+        {
             // Set a telemetry event so we pick up the change immediately
             tx_event_flags_set(&azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR);
-        {
 
             // Confirm reception back to hub
             azure_nx_client_respond_int_writeable_property(
