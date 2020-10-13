@@ -227,7 +227,7 @@ UINT azure_iot_nx_client_entry(
                 // Send the compensated humidity
                 hts221_data = hts221_data_read();
                 azure_iot_nx_client_publish_float_telemetry(
-                    &azure_iot_nx_client, "humidityPercentage", hts221_data.humidity_perc);
+                    &azure_iot_nx_client, "humidity", hts221_data.humidity_perc);
                 break;
 
             case 3:
