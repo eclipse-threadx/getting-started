@@ -1,13 +1,13 @@
 /*
 ** ###################################################################
-**     Processors:          MIMXRT1062CVJ5A
-**                          MIMXRT1062CVL5A
-**                          MIMXRT1062DVJ6A
-**                          MIMXRT1062DVL6A
+**     Processors:          MIMXRT1052CVJ5B
+**                          MIMXRT1052CVL5B
+**                          MIMXRT1052DVJ6B
+**                          MIMXRT1052DVL6B
 **
 **     Compiler:            IAR ANSI C/C++ Compiler for ARM
-**     Reference manual:    IMXRT1060RM Rev.1, 12/2018 | IMXRT1060SRM Rev.3
-**     Version:             rev. 0.1, 2017-01-10
+**     Reference manual:    IMXRT1050RM Rev.2.1, 12/2018 | IMXRT1050SRM Rev.2
+**     Version:             rev. 1.0, 2018-09-21
 **     Build:               b191015
 **
 **     Abstract:
@@ -32,7 +32,7 @@ define symbol m_interrupts_start       = 0x60002000;
 define symbol m_interrupts_end         = 0x600023FF;
 
 define symbol m_text_start             = 0x60002400;
-define symbol m_text_end               = 0x607FFFFF;
+define symbol m_text_end               = 0x63FFFFFF;
 
 define symbol m_interrupts_ram_start   = 0x20000000;
 define symbol m_interrupts_ram_end     = 0x20000000 + __ram_vector_table_offset__;
@@ -41,7 +41,7 @@ define symbol m_data_start             = m_interrupts_ram_start + __ram_vector_t
 define symbol m_data_end               = 0x2001FFFF;
 
 define symbol m_data2_start            = 0x20200000;
-define symbol m_data2_end              = 0x202BFFFF;
+define symbol m_data2_end              = 0x2023FFFF;
 
 define exported symbol m_boot_hdr_conf_start = 0x60000000;
 define symbol m_boot_hdr_ivt_start           = 0x60001000;
