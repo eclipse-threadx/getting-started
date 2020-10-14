@@ -4,7 +4,7 @@
 ![](https://github.com/azure-rtos/getting-started/workflows/MIMXRT1060-EVK/badge.svg)
 ![](https://github.com/azure-rtos/getting-started/workflows/STM32L4_L4+/badge.svg)
 
-# Getting Started with Azure RTOS
+# Getting Started with Azure RTOS and Azure IoT
 
 This Getting Started guides shows device developers how to start working with Azure RTOS. Each guide will step through from installation of the required toolchain, to connecting the device to Azure IoT Hub using IoT Plug and Play.
 
@@ -14,14 +14,20 @@ This Getting Started guides shows device developers how to start working with Az
 
 ## Getting Started Guides
 
-The following board specific guides will get you started with Azure RTOS:
+The following board specific guides will get you started with Azure RTOS and Azure IoT:
 
-* Getting started with the [Microchip ATSAME54-XPRO](Microchip/ATSAME54-XPRO)
-* Getting started with the [MXCHIP AZ3166](MXChip/AZ3166)
-* Getting started with the [NXP MIMXRT1050-EVKB](NXP/MIMXRT1050-EVKB)
-* Getting started with the [NXP MIMXRT1060-EVK](NXP/MIMXRT1060-EVK)
-* Getting started with the [Renesas AE-Cloud2](Renesas/Synergy)
-* Getting started with the [STMicroelectronics B-L475E-IOT01A / B-L4S5I-IOT01A](STMicroelectronics/STM32L4_L4+)
+* Microchip: 
+  * [ATSAME54-XPRO](Microchip/ATSAME54-XPRO)
+* MXCHIP: 
+  * [AZ3166](MXChip/AZ3166)
+* NXP: 
+  * [MIMXRT1050-EVKB](NXP/MIMXRT1050-EVKB)
+  * [MIMXRT1060-EVK](NXP/MIMXRT1060-EVK)
+* Renesas: 
+  * [AE-Cloud2](Renesas/Synergy)
+* STMicroelectronics: 
+  * [B-L475E-IOT01A](STMicroelectronics/STM32L4_L4+)
+  * [B-L4S5I-IOT01A](STMicroelectronics/STM32L4_L4+)
 
 Once you have successfully completed a guide, please read [Using Azure RTOS in the Getting Started Guides](/docs/using-azure-rtos.md) for information on how the guides use Azure RTOS to connect with Azure IoT.
 
