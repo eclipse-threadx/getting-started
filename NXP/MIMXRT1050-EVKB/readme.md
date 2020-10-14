@@ -1,6 +1,6 @@
 ---
 page_type: sample
-description: Connecting an NXP MIMXRT1060-EVK device to Azure IoT using Azure RTOS
+description: Connecting an NXP MIMXRT1050-EVKB device to Azure IoT using Azure RTOS
 languages:
 - c
 products:
@@ -10,11 +10,11 @@ products:
 - azure-rtos
 ---
 
-# Getting started with the NXP MIMXRT1060-EVK Evaluation kit
+# Getting started with the NXP MIMXRT1050-EVKB Evaluation kit
 
 **Total completion time**:  30 minutes
 
-In this tutorial you use Azure RTOS to connect the NXP MIMXRT1060-EVK Evaluation kit (hereafter, the NXP EVK) to Azure IoT. The article is part of the series [Getting Started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824). The series introduces device developers to Azure RTOS, and shows how to connect several device evaluation kits to Azure IoT.
+In this tutorial you use Azure RTOS to connect the NXP MIMXRT1050-EVKB Evaluation kit (hereafter, the NXP EVK) to Azure IoT. The article is part of the series [Getting Started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824). The series introduces device developers to Azure RTOS, and shows how to connect several device evaluation kits to Azure IoT.
 
 You will complete the following tasks:
 
@@ -30,7 +30,7 @@ You will complete the following tasks:
 * [Git](https://git-scm.com/downloads)
 * Hardware
 
-    > * The [NXP MIMXRT1060-EVK](https://www.nxp.com/design/development-boards/i-mx-evaluation-and-development-boards/mimxrt1060-evk-i-mx-rt1060-evaluation-kit:MIMXRT1060-EVK) (NXP EVK)
+    > * The [NXP MIMXRT1050-EVKB](https://www.nxp.com/design/development-boards/i-mx-evaluation-and-development-boards/i-mx-rt1050-evaluation-kit:MIMXRT1050-EVK) (NXP EVK)
     > * USB 2.0 A male to Micro USB male cable
     > * Wired Ethernet access
     > * Ethernet cable
@@ -158,7 +158,7 @@ To connect the NXP EVK to Azure, you'll modify a configuration file for the Azur
 
 1. Open the following file in a text editor:
 
-    > *getting-started\NXP\MIMXRT1060-EVK\app\azure_config.h*
+    > *getting-started\NXP\MIMXRT1050-EVKB\app\azure_config.h*
 
 1. Set the Azure IoT device information constants to the values that you saved after you created Azure resources.
 
@@ -174,11 +174,11 @@ To connect the NXP EVK to Azure, you'll modify a configuration file for the Azur
 
 In your console or in File Explorer, run the script *rebuild.bat* at the following path to build the image:
 
-> *getting-started\NXP\MIMXRT1060-EVK\tools\rebuild.bat*
+> *getting-started\NXP\MIMXRT1050-EVKB\tools\rebuild.bat*
 
 After the build completes, confirm that a binary file was created in the following path:
 
-> *getting-started\NXP\MIMXRT1060-EVK\build\app\mimxrt1060_azure_iot.bin*
+> *getting-started\NXP\MIMXRT1050-EVKB\build\app\mimxrt1050_azure_iot.bin*
 
 ### Flash the image
 
@@ -188,7 +188,7 @@ After the build completes, confirm that a binary file was created in the followi
 
 1. Connect the Micro USB cable to the Micro USB port on the NXP EVK, and then connect it to your computer. After the device powers up, a solid green LED shows the power status.
 1. In File Explorer, find the NXP EVK device connected to your computer.
-1. Copy the image file *mimxrt1060_azure_iot.bin* that you created in the previous section, and paste it into the root folder of the NXP EVK. The flashing process starts automatically.
+1. Copy the image file *mimxrt1050_azure_iot.bin* that you created in the previous section, and paste it into the root folder of the NXP EVK. The flashing process starts automatically.
 
     > Note: During the flashing process, a red LED blinks rapidly on the NXP EVK. The process completes in a few seconds without further notification.
 1. Use the Ethernet cable to connect the NXP EVK to an Ethernet port.
