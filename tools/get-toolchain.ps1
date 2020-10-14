@@ -18,10 +18,10 @@ $termite_file = 'termite-3.4.exe'
 $termite_name = 'Termite v3.4'
 $termite_hash = 'CA440B6C7F6EAA812BA5F8BF42AED86E02022CA50A1C72585168C9B671D0FE19'
 
-$iot_explorer_path = 'https://github.com/Azure/azure-iot-explorer/releases/download/v0.11.4'
-$iot_explorer_file = 'Azure.IoT.Explorer.preview.0.11.4.msi'
-$iot_explorer_name = 'Azure IoT Explorer v0.11.4'
-$iot_explorer_hash = '8CAA36336C1C4C55C70D868904639263F56D5D20CB59DC0A18F6817DC0AEC900'
+$iot_explorer_path = 'https://github.com/Azure/azure-iot-explorer/releases/download/v0.12.0'
+$iot_explorer_file = 'Azure.IoT.Explorer.preview.0.12.0.msi'
+$iot_explorer_name = 'Azure IoT Explorer v0.12.0'
+$iot_explorer_hash = 'F0A50F1C5B4DAC4D14E0DBF12470C86C94612A5BDDB96D9E9D45277320BD2E49'
 
 echo "`nDownloading packages..."
 

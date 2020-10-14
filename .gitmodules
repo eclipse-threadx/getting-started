@@ -1,12 +1,9 @@
 [submodule "core/lib/threadx"]
 	path = core/lib/threadx
-	url = http://github.com/azure-rtos/threadx.git
+	url = https://github.com/azure-rtos/threadx.git
 [submodule "core/lib/netxduo"]
 	path = core/lib/netxduo
-	url = http://github.com/azure-rtos/netxduo.git
-[submodule "core/lib/azure-iot-preview"]
-	path = core/lib/azure-iot-preview
-	url = https://github.com/azure-rtos/azure-iot-preview
+	url = https://github.com/azure-rtos/netxduo.git
 [submodule "core/lib/jsmn/src"]
 	path = core/lib/jsmn/src
 	url = https://github.com/zserge/jsmn

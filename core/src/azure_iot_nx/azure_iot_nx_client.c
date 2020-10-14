@@ -55,7 +55,7 @@ static VOID process_direct_method(AZURE_IOT_NX_CONTEXT* nx_context)
 {
     UINT status;
     NX_PACKET* packet;
-    UCHAR* method_name;
+    const UCHAR* method_name;
     USHORT method_name_length;
     VOID* context;
     USHORT context_length;
@@ -94,6 +94,7 @@ static VOID process_device_twin_get(AZURE_IOT_NX_CONTEXT* nx_context)
 {
     UINT status;
     NX_PACKET* packet_ptr;
+    NX_AZURE_IOT_JSON_READER json_reader;
     UCHAR buffer[128];
 
     if ((status = nx_azure_iot_hub_client_device_twin_properties_receive(
@@ -108,27 +109,43 @@ static VOID process_device_twin_get(AZURE_IOT_NX_CONTEXT* nx_context)
     if (packet_ptr->nx_packet_length > (ULONG)(packet_ptr->nx_packet_append_ptr - packet_ptr->nx_packet_prepend_ptr))
     {
         printf("ERROR: json is large than nx_packet\r\n");
+        nx_packet_release(packet_ptr);
+        return;
+    }
+
+    if ((status = nx_azure_iot_json_reader_init(&json_reader, packet_ptr)))
+    {
+        printf("ERROR: failed to initialize json reader (0x%08x)\r\n", status);
+        nx_packet_release(packet_ptr);
         return;
     }
 
     if (nx_context->device_twin_get_cb)
     {
-        if ((status = nx_azure_iot_pnp_helper_twin_data_parse(
-                 packet_ptr, NX_FALSE, NX_NULL, 0, buffer, sizeof(buffer), nx_context->device_twin_get_cb, nx_context)))
+        if ((status = nx_azure_iot_pnp_helper_twin_data_parse(&json_reader,
+                 NX_FALSE,
+                 NX_NULL,
+                 0,
+                 buffer,
+                 sizeof(buffer),
+                 nx_context->device_twin_get_cb,
+                 nx_context)))
         {
-            printf("ERROR: failed to parse twin data!: error code = 0x%08x\r\n", status);
+            printf("ERROR: failed to parse twin data (0x%08x)\r\n", status);
         }
     }
 
-    // Release the received packet, as ownership was passed to the application
-    nx_packet_release(packet_ptr);
+    // Deinit the reader, the reader owns the NX_PACKET at this point, so will release it
+    nx_azure_iot_json_reader_deinit(&json_reader);
 }
 
 static VOID process_device_twin_desired_property(AZURE_IOT_NX_CONTEXT* nx_context)
 {
     UINT status;
     NX_PACKET* packet_ptr;
+    NX_AZURE_IOT_JSON_READER json_reader;
     UCHAR buffer[128];
+
     if ((status = nx_azure_iot_hub_client_device_twin_desired_properties_receive(
              &nx_context->iothub_client, &packet_ptr, NX_WAIT_FOREVER)))
     {
@@ -141,12 +158,20 @@ static VOID process_device_twin_desired_property(AZURE_IOT_NX_CONTEXT* nx_contex
     if (packet_ptr->nx_packet_length > (ULONG)(packet_ptr->nx_packet_append_ptr - packet_ptr->nx_packet_prepend_ptr))
     {
         printf("ERROR: json is large than nx_packet\r\n");
+        nx_packet_release(packet_ptr);
+        return;
+    }
+
+    if ((status = nx_azure_iot_json_reader_init(&json_reader, packet_ptr)))
+    {
+        printf("ERROR: failed to initialize json reader (0x%08x)\r\n", status);
+        nx_packet_release(packet_ptr);
         return;
     }
 
     if (nx_context->device_twin_desired_prop_cb)
     {
-        if ((status = nx_azure_iot_pnp_helper_twin_data_parse(packet_ptr,
+        if ((status = nx_azure_iot_pnp_helper_twin_data_parse(&json_reader,
                  NX_TRUE,
                  NX_NULL,
                  0,
@@ -155,12 +180,12 @@ static VOID process_device_twin_desired_property(AZURE_IOT_NX_CONTEXT* nx_contex
                  nx_context->device_twin_desired_prop_cb,
                  nx_context)))
         {
-            printf("ERROR: failed to parse twin data!: error code = 0x%08x\r\n", status);
+            printf("ERROR: failed to parse twin data (0x%08x)\r\n", status);
         }
     }
 
-    // Release the received packet, as ownership was passed to the application
-    nx_packet_release(packet_ptr);
+    // Deinit the reader, the reader owns the NX_PACKET at this point, so will release it
+    nx_azure_iot_json_reader_deinit(&json_reader);
 }
 
 static VOID event_thread(ULONG parameter)
@@ -519,13 +544,14 @@ UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CONTEXT* context,
     // Destroy Provisioning Client
     nx_azure_iot_provisioning_client_deinitialize(&context->prov_client);
 
-    if (status != NX_SUCCESS) {
-      return status;
+    if (status != NX_SUCCESS)
+    {
+        return status;
     }
 
     // Null terminate returned values
     context->azure_iot_hub_hostname[iot_hub_hostname_len] = 0;
-    context->azure_iot_device_id[iot_device_id_len] = 0;
+    context->azure_iot_device_id[iot_device_id_len]       = 0;
 
     printf("SUCCESS: Azure IoT DPS client initialized\r\n\r\n");
 
@@ -619,6 +645,7 @@ UINT azure_iot_nx_client_publish_float_property(AZURE_IOT_NX_CONTEXT* context, C
     UINT status;
     UINT response_status;
     UINT request_id;
+    ULONG version;
     CHAR buffer[30];
 
     if (snprintf(buffer, sizeof(buffer), "{\"%s\":%0.2f}", key, value) > sizeof(buffer) - 1)
@@ -627,8 +654,13 @@ UINT azure_iot_nx_client_publish_float_property(AZURE_IOT_NX_CONTEXT* context, C
         return NX_SIZE_ERROR;
     }
 
-    if ((status = nx_azure_iot_hub_client_device_twin_reported_properties_send(
-             &context->iothub_client, (UCHAR*)buffer, strlen(buffer), &request_id, &response_status, NX_WAIT_FOREVER)))
+    if ((status = nx_azure_iot_hub_client_device_twin_reported_properties_send(&context->iothub_client,
+             (UCHAR*)buffer,
+             strlen(buffer),
+             &request_id,
+             &response_status,
+             &version,
+             NX_WAIT_FOREVER)))
     {
         printf("Device twin reported properties failed (0x%08x)\r\n", status);
         return status;
@@ -650,6 +682,7 @@ UINT azure_iot_nx_client_publish_bool_property(AZURE_IOT_NX_CONTEXT* context, CH
     UINT status;
     UINT response_status;
     UINT request_id;
+    ULONG version;
     CHAR buffer[64];
 
     if (snprintf(buffer, sizeof(buffer), "{\"%s\":%s}", key, (value ? "true" : "false")) > sizeof(buffer) - 1)
@@ -658,8 +691,13 @@ UINT azure_iot_nx_client_publish_bool_property(AZURE_IOT_NX_CONTEXT* context, CH
         return NX_SIZE_ERROR;
     }
 
-    if ((status = nx_azure_iot_hub_client_device_twin_reported_properties_send(
-             &context->iothub_client, (UCHAR*)buffer, strlen(buffer), &request_id, &response_status, NX_WAIT_FOREVER)))
+    if ((status = nx_azure_iot_hub_client_device_twin_reported_properties_send(&context->iothub_client,
+             (UCHAR*)buffer,
+             strlen(buffer),
+             &request_id,
+             &response_status,
+             &version,
+             NX_WAIT_FOREVER)))
     {
         printf("Error: device twin reported properties failed (0x%08x)\r\n", status);
         return status;
@@ -682,6 +720,7 @@ UINT azure_nx_client_respond_int_writeable_property(
     UINT status;
     UINT response_status;
     UINT request_id;
+    ULONG version_dt;
     CHAR message[100];
 
     printf("Responding to writeable property %s = %d\r\n", property, value);
@@ -703,6 +742,7 @@ UINT azure_nx_client_respond_int_writeable_property(
              strlen(message),
              &request_id,
              &response_status,
+             &version_dt,
              NX_WAIT_FOREVER)))
     {
         printf("ERROR: device twin reported properties failed (0x%08x)\r\n", status);
