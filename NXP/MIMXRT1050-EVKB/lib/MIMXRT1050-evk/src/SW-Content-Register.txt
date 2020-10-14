@@ -1,0 +1,190 @@
+Release Name: MCUXpresso Software Development Kit (SDK)
+Release Version: 2.8.2
+Package License: LA_OPT_NXP_Software_License.txt - Production Use, Section 2.3 applies
+
+SDK_Peripheral_Driver      Name: SDK Peripheral Driver                       
+                           Version: 2.x.x                                    
+                           Outgoing License: BSD-3-Clause                    
+                           License File: COPYING-BSD-3                       
+                           Format: source code                               
+                           Description: Peripheral drivers are designed for  
+                           the most common use cases identified for the      
+                           underlying hardware block.                        
+                           Location: devices/<device>/drivers                
+                           Origin: NXP (BSD-3-Clause)                        
+
+SDK_Examples               Name: SDK examples                                
+                           Version: NA                                       
+                           Outgoing License: BSD-3-Clause                    
+                           License File: COPYING-BSD-3                       
+                           Format: source code, binary, project files, linker
+                           files                                             
+                           Description: SDK out of box examples to show how  
+                           to use peripheral drivers and integrate           
+                           middleware.                                       
+                           Location: boards/<board>/                         
+                           Origin: NXP (BSD-3-Clause)                        
+
+SDK_Device                 Name: SDK SoC files                               
+                           Version: NA                                       
+                           Outgoing License: BSD-3-Clause                    
+                           License File: COPYING-BSD-3                       
+                           Format: source code, linker files                 
+                           Description: Device system files, template files, 
+                           IDE related startup and linker files.             
+                           Location: devices/<device>/                       
+                           Origin: NXP (BSD-3-Clause)                        
+
+cmsis                      Name: CMSIS                                       
+                           Version: 5.6.0                                    
+                           Outgoing License: Apache License 2.0              
+                           License File: CMSIS/LICENSE.txt                   
+                           Format: source code                               
+                           Description: Vendor-independent hardware          
+                           abstraction layer for microcontrollers that are   
+                           based on Arm® Cortex® processors, distributed by  
+                           ARM. cores                                        
+                           Location: CMSIS/                                  
+                           Origin: ARM (Apache-2.0) -                        
+                           https://github.com/ARM-software/CMSIS_5/releases/t
+                           ag/5.6.0                                          
+
+SDK_Components             Name: SDK components and board peripheral drivers 
+                           Version: NA                                       
+                           Outgoing License: BSD-3-Clause                    
+                           License File: COPYING-BSD-3                       
+                           Format: source code                               
+                           Description: SDK components and board peripheral  
+                           drivers, for example, flash and codec drivers.    
+                           Location: components/                             
+                           Origin: NXP (BSD-3-Clause)                        
+
+cmsis_drivers              Name: SDK CMSIS Peripheral Drivers                
+                           Version: 2.x.x                                    
+                           Outgoing License: Apache License 2.0              
+                           License File: CMSIS/LICENSE.txt                   
+                           Format: source code                               
+                           Description: CMSIS Peripheral drivers are designed
+                           to provide hardware independent APIs which make   
+                           application reusable across a wide range of       
+                           supported microcontroller devices.                
+                           Location: devices/<device>/cmsis_drivers          
+                           Origin: NXP (Apache License 2.0)                  
+
+freemaster-examples        Name: FreeMASTER                                  
+                           Version: 3.0.2                                    
+                           Outgoing License: BSD-3-Clause                    
+                           License File: COPYING-BSD-3                       
+                           Format: source code & header files                
+                           Description: FreeMASTER example applications      
+                           Location: boards/<board>/freemaster_examples      
+                           Origin: NXP. Portions by Bernard Kobos gauge.js   
+                           (MIT, http://bernii.github.io/gauge.js)           
+
+sdmmc                      Name: SD MMC SDIO Card middleware                 
+                           Version: 2.2.7                                    
+                           Outgoing License: BSC-3-Clause                    
+                           License File: COPYING-BSD-3                       
+                           Format: source code                               
+                           Description: A software component support SD card,
+                           eMMC card, SDIO card.                             
+                           Location: middleware/sdmmc                        
+                           Origin: NXP (BSD-3-Clause)                        
+
+rtcesl                     Name: rtcesl                                      
+                           Version: 4.5.1                                    
+                           Outgoing License: BSD-3-Clause                    
+                           License File: COPYING-BSD-3                       
+                           Format: object code & header files                
+                           Description: NXP Real Time Control Embedded       
+                           Software Library.                                 
+                           Location: middleware/rtcesl                       
+                           Origin: NXP (BSD-3-Clause)                        
+
+motor_control              Name: motor_control                               
+                           Version: 1.1.0                                    
+                           Outgoing License: BSD-3-Clause                    
+                           License File: COPYING-BSD-3                       
+                           Format: source code                               
+                           Description: Motor control examples for PMSM and  
+                           BLDC motors.                                      
+                           Location: middleware/motor_control                
+                           Origin: NXP (BSD-3-Clause)                        
+
+motor_control - jQuery     Name: motor_control                               
+                           Version: v3.7.1 (2015-Feb)                        
+                           Outgoing License: Commercial                      
+                           License File: http://www.jqwidgets.com/license/   
+                           Format: library                                   
+                           Description: Advanced jQuery and HTML5 UI         
+                           framework.                                        
+                           Location: middleware/motor_control/freemaster     
+                           Origin: jQWidgets                                 
+
+motor_control - JavaScript Name: motor_control                               
+                           Version: v1.11.1                                  
+                           Outgoing License: Open Source - MIT               
+                           (jquery.org/license)                              
+                           License File: jquery.org/license                  
+                           Format: source code                               
+                           Description: Cross-platform JavaScript library.   
+                           Location: middleware/motor_control/freemaster     
+                           Origin: jQuery Foundation, Inc.                   
+
+gradle                     Name: Gradle                                      
+                           Version: 4.1                                      
+                           Outgoing License: Apache-2-Clause                 
+                           License File:                                     
+                           https://github.com/gradle/gradle/blob/master/LICEN
+                           SE                                                
+                           Format: binary library                            
+                           Description: Gradle build tool                    
+                           Location:                                         
+                           boards/<board>/aws_examples/remote_control_android
+                           /gradle,                                          
+                           boards/<board>/aws_examples/led_wifi_android/gradl
+                           e,                                                
+                           boards/<board>/aws_examples/device_configuration_a
+                           ndroid/gradle                                     
+                           Origin: Gradle Inc (Apache-2-Clause)              
+                           Url: https://github.com/gradle/gradle             
+
+AwsRemoteControl           Name: AWS Remote Control                          
+                           Version: 1.0                                      
+                           Outgoing License: Apache-2-Clause & BSD           
+                           License File:                                     
+                           http://www.apache.org/licenses/LICENSE-2.0,       
+                           COPYING-BSD-3                                     
+                           Format: binary                                    
+                           Description: AWS Remote Control example Android   
+                           application                                       
+                           Location:                                         
+                           boards/<board>/aws_examples/remote_control_android
+                           /AwsRemoteControl.apk                             
+                           Origin: Android Open Source Project & NXP         
+                           (Apache-2-Clause & BSD)                           
+
+AwsDeviceConfiguration     Name: AWS Device Configuration                    
+                           Version: 1.0                                      
+                           Outgoing License: Apache-2-Clause & BSD           
+                           License File:                                     
+                           http://www.apache.org/licenses/LICENSE-2.0,       
+                           COPYING-BSD-3                                     
+                           Format: binary                                    
+                           Description: AWS Device Configuration example     
+                           Android application                               
+                           Location:                                         
+                           boards/<board>/aws_examples/device_configuration_a
+                           ndroid/AwsDeviceConfiguration.apk                 
+                           Origin: Android Open Source Project & NXP         
+                           (Apache-2-Clause & BSD)                           
+
+mflash                     Name: NXP's FLASH programming support library     
+                           Version: 1.0.0                                    
+                           Outgoing License: BSD-3-Clause                    
+                           License File: COPYING-BSD-3                       
+                           Format: source code, header files                 
+                           Description: NXP's FLASH programming support      
+                           library                                           
+                           Location: middleware/mflash                       
+                           Origin: NXP (BSD-3-Clause)                        

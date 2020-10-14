@@ -15,7 +15,7 @@
 /**                                                                       */
 /** NetX Component                                                        */
 /**                                                                       */
-/**   Internet Protocol (IP) for STM32L475E-IOT01A1                       */
+/**   Internet Protocol (IP) for STM32L4XX                                */
 /**                                                                       */
 /**************************************************************************/
 /**************************************************************************/
@@ -35,7 +35,7 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_ip_create                                       PORTABLE C      */
-/*                                                           6.0          */
+/*                                                           6.1          */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -80,6 +80,8 @@
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */
 /**************************************************************************/
 UINT  _nx_ip_create(NX_IP *ip_ptr, CHAR *name, ULONG ip_address, ULONG network_mask,
@@ -91,7 +93,7 @@ TX_INTERRUPT_SAVE_AREA
 
 NX_IP     *tail_ptr;
 UINT       i;
-UINT       old_threshold;
+UINT       old_threshold = 0;
 TX_THREAD *current_thread;
 
 #ifdef NX_DISABLE_IPV4

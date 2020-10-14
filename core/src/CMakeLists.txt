@@ -41,7 +41,5 @@ target_include_directories(${TARGET}
 target_link_libraries(${TARGET}
     azrtos::threadx
     azrtos::netxduo
-    azrtos::nx_cloud
-    azrtos::azure_iot
     jsmn
 )

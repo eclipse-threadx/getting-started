@@ -15,7 +15,7 @@
 /**                                                                       */
 /** NetX Component                                                        */
 /**                                                                       */
-/**   Internet Protocol (IP) for STM32L475E-IOT01A1                       */
+/**   Internet Protocol (IP) for STM32L4XX                                */
 /**                                                                       */
 /**************************************************************************/
 /**************************************************************************/
@@ -26,7 +26,7 @@
 /*  COMPONENT DEFINITION                                   RELEASE        */
 /*                                                                        */
 /*    nx_ipv4.h                                           PORTABLE C      */
-/*                                                           6.0          */
+/*                                                           6.1          */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -42,6 +42,8 @@
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */
 /**************************************************************************/
 
@@ -145,7 +147,7 @@ typedef  struct NX_IPV4_HEADER_STRUCT
     ULONG nx_ip_header_destination_ip;
 } NX_IPV4_HEADER;
 
-#if 0 /* Not support for STM32L475E-IOT01A1.  */
+#if 0 /* Not support for STM32L4XX.  */
 /* Define IPv4 internal function prototypes.  */
 VOID  _nx_ip_forward_packet_process(NX_IP *ip_ptr, NX_PACKET *packet_ptr);
 VOID  _nx_ip_fragment_forward_packet(NX_IP *ip_ptr, NX_PACKET *packet_ptr, ULONG destination_ip, ULONG fragment, ULONG next_hop_address);

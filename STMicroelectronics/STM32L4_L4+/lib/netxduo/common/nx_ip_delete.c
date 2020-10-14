@@ -15,7 +15,7 @@
 /**                                                                       */
 /** NetX Component                                                        */
 /**                                                                       */
-/**   Internet Protocol (IP) for STM32L475E-IOT01A1                       */
+/**   Internet Protocol (IP) for STM32L4XX                                */
 /**                                                                       */
 /**************************************************************************/
 /**************************************************************************/
@@ -35,7 +35,7 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_ip_delete                                       PORTABLE C      */
-/*                                                           6.0          */
+/*                                                           6.1          */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -79,6 +79,8 @@
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */
 /**************************************************************************/
 UINT  _nx_ip_delete(NX_IP *ip_ptr)
@@ -92,24 +94,21 @@ TX_INTERRUPT_SAVE_AREA
     /* Get mutex protection.  */
     tx_mutex_get(&(ip_ptr -> nx_ip_protection), TX_WAIT_FOREVER);
 
-    /* Disable interrupts.  */
-    TX_DISABLE
-
-
     /* Determine if the IP instance has any sockets bound to it.  */
     if ((ip_ptr -> nx_ip_udp_created_sockets_count) || (ip_ptr -> nx_ip_tcp_created_sockets_count))
     {
 
         /* Still sockets bound to this IP instance.  They must all be deleted prior
-           to deleting the IP instance.  Restore the interrupt posture and return
+           to deleting the IP instance.  Release the mutex and return
            an error code.  */
-        TX_RESTORE
-
         tx_mutex_put(&(ip_ptr -> nx_ip_protection));
 
         return(NX_SOCKETS_BOUND);
     }
 
+    /* Disable interrupts.  */
+    TX_DISABLE
+    
     /* Remove the IP instance from the created list.  */
 
     /* See if the IP instance is the only one on the list.  */

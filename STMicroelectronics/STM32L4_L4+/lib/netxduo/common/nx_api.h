@@ -15,7 +15,7 @@
 /**                                                                       */
 /** NetX Component                                                        */
 /**                                                                       */
-/**   Application Interface (API) for STM32L475E-IOT01A1                  */
+/**   Application Interface (API) for STM32L4XX                           */
 /**                                                                       */
 /**************************************************************************/
 /**************************************************************************/
@@ -26,7 +26,7 @@
 /*  APPLICATION INTERFACE DEFINITION                       RELEASE        */
 /*                                                                        */
 /*    nx_api.h                                            PORTABLE C      */
-/*                                                           6.0.2        */
+/*                                                           6.1          */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -45,13 +45,10 @@
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
-/*  06-30-2020     Yuxin Zhou               Modified comment(s), fixed    */
+/*  09-30-2020     Yuxin Zhou               Modified comment(s), fixed    */
 /*                                            ThreadX version check,      */
 /*                                            updated product constants,  */
-/*                                            resulting in version 6.0.1  */
-/*  08-14-2020     Yuxin Zhou               Modified comment(s), and      */
-/*                                            updated product constants,  */
-/*                                            resulting in version 6.0.2  */
+/*                                            resulting in version 6.1    */
 /*                                                                        */
 /**************************************************************************/
 
@@ -458,8 +455,8 @@ VOID _nx_trace_event_update(TX_TRACE_BUFFER_ENTRY *event, ULONG timestamp, ULONG
 /* Define basic constants for the NetX TCP/IP Stack.  */
 #define AZURE_RTOS_NETXDUO
 #define NETXDUO_MAJOR_VERSION                    6
-#define NETXDUO_MINOR_VERSION                    0
-#define NETXDUO_PATCH_VERSION                    2
+#define NETXDUO_MINOR_VERSION                    1
+#define NETXDUO_PATCH_VERSION                    0
 
 /* Define the following symbols for backward compatibility */
 #define EL_PRODUCT_NETXDUO
@@ -503,11 +500,9 @@ VOID _nx_trace_event_update(TX_TRACE_BUFFER_ENTRY *event, ULONG timestamp, ULONG
 
 #define NX_PATH_MTU_INCREASE_WAIT_INTERVAL_TICKS (NX_PATH_MTU_INCREASE_WAIT_INTERVAL * NX_IP_PERIODIC_RATE)
 
-/* By default IPv6 is enabled. */
+/* Force to disable IPv6 on STM32L4XX. */
 #ifndef NX_DISABLE_IPV6
-#ifndef FEATURE_NX_IPV6
-#define FEATURE_NX_IPV6
-#endif /* FEATURE_NX_IPV6 */
+#define NX_DISABLE_IPV6
 #endif /* NX_DISABLE_IPV6 */
 
 /* Remove the IPv6 component if NX_DISABLE_IPV6 is defined. */
@@ -2965,7 +2960,7 @@ typedef struct NX_IP_DRIVER_STRUCT
 
 #ifdef NX_DISABLE_ERROR_CHECKING
 
-#if 0 /* Not support for STM32L475E-IOT01A1.  */
+#if 0 /* Not support for STM32L4XX.  */
 /* Services without error checking.  */
 /* APIs for ARP. */
 #define nx_arp_dynamic_entries_invalidate               _nx_arp_dynamic_entries_invalidate
@@ -2981,7 +2976,7 @@ typedef struct NX_IP_DRIVER_STRUCT
 #define nx_arp_static_entry_delete                      _nx_arp_static_entry_delete
 #endif
 
-#if 0 /* Not support for STM32L475E-IOT01A1.  */
+#if 0 /* Not support for STM32L4XX.  */
 /* APIs for ICMP. */
 #define nx_icmp_enable                                  _nx_icmp_enable
 #define nx_icmp_info_get                                _nx_icmp_info_get
@@ -2992,7 +2987,7 @@ typedef struct NX_IP_DRIVER_STRUCT
 #define nxd_icmpv6_ra_flag_callback_set                 _nxd_icmpv6_ra_flag_callback_set
 #endif
 
-#if 0 /* Not support for STM32L475E-IOT01A1.  */
+#if 0 /* Not support for STM32L4XX.  */
 /* APIs for IGMP. */
 #define nx_igmp_enable                                  _nx_igmp_enable
 #define nx_igmp_info_get                                _nx_igmp_info_get
@@ -3004,7 +2999,7 @@ typedef struct NX_IP_DRIVER_STRUCT
 #define nx_igmp_multicast_join                          _nx_igmp_multicast_join
 #endif
 
-#if 0 /* Not support for STM32L475E-IOT01A1.  */
+#if 0 /* Not support for STM32L4XX.  */
 /* APIs for IP. */
 #define nx_ip_address_change_notify                     _nx_ip_address_change_notify
 #define nx_ip_address_get                               _nx_ip_address_get
@@ -3015,7 +3010,7 @@ typedef struct NX_IP_DRIVER_STRUCT
 #define nx_ip_create                                    _nx_ip_create
 #define nx_ip_delete                                    _nx_ip_delete
 
-#if 0 /* Not support for STM32L475E-IOT01A1.  */
+#if 0 /* Not support for STM32L4XX.  */
 #define nx_ip_driver_direct_command                     _nx_ip_driver_direct_command
 #define nx_ip_driver_interface_direct_command           _nx_ip_driver_interface_direct_command
 #define nx_ip_forwarding_disable                        _nx_ip_forwarding_disable
@@ -3062,7 +3057,7 @@ typedef struct NX_IP_DRIVER_STRUCT
 #define nxd_ipv6_stateless_address_autoconfig_enable    _nxd_ipv6_stateless_address_autoconfig_enable
 #endif
 
-#if 0 /* Not support for STM32L475E-IOT01A1.  */
+#if 0 /* Not support for STM32L4XX.  */
 /* APIs for RAW service. */
 #define nx_ip_raw_packet_disable                        _nx_ip_raw_packet_disable
 #define nx_ip_raw_packet_enable                         _nx_ip_raw_packet_enable
@@ -3075,7 +3070,7 @@ typedef struct NX_IP_DRIVER_STRUCT
 #define nxd_ip_raw_packet_source_send                   _nxd_ip_raw_packet_source_send
 #endif
 
-#if 0 /* Not support for STM32L475E-IOT01A1.  */
+#if 0 /* Not support for STM32L4XX.  */
 /* APIs for ND cache. */
 #define nxd_nd_cache_entry_set                          _nxd_nd_cache_entry_set
 #define nxd_nd_cache_entry_delete                       _nxd_nd_cache_entry_delete
@@ -3098,7 +3093,7 @@ typedef struct NX_IP_DRIVER_STRUCT
 #define nx_packet_release                               _nx_packet_release
 #define nx_packet_transmit_release                      _nx_packet_transmit_release
 
-#if 0 /* Not support for STM32L475E-IOT01A1.  */
+#if 0 /* Not support for STM32L4XX.  */
 /* APIs for RARP. */
 #define nx_rarp_disable                                 _nx_rarp_disable
 #define nx_rarp_enable                                  _nx_rarp_enable
@@ -3171,7 +3166,7 @@ typedef struct NX_IP_DRIVER_STRUCT
 
 #else
 
-#if 0 /* Not support for STM32L475E-IOT01A1.  */
+#if 0 /* Not support for STM32L4XX.  */
 /* Services with error checking.  */
 /* APIs for ARP. */
 #define nx_arp_dynamic_entries_invalidate               _nxe_arp_dynamic_entries_invalidate
@@ -3187,7 +3182,7 @@ typedef struct NX_IP_DRIVER_STRUCT
 #define nx_arp_static_entry_delete                      _nxe_arp_static_entry_delete
 #endif
 
-#if 0 /* Not support for STM32L475E-IOT01A1.  */
+#if 0 /* Not support for STM32L4XX.  */
 /* APIs for ICMP. */
 #define nx_icmp_enable                                  _nxe_icmp_enable
 #define nx_icmp_info_get                                _nxe_icmp_info_get
@@ -3198,7 +3193,7 @@ typedef struct NX_IP_DRIVER_STRUCT
 #define nxd_icmpv6_ra_flag_callback_set                 _nxde_icmpv6_ra_flag_callback_set
 #endif
 
-#if 0 /* Not support for STM32L475E-IOT01A1.  */
+#if 0 /* Not support for STM32L4XX.  */
 /* APIs for IGMP. */
 #define nx_igmp_enable                                  _nxe_igmp_enable
 #define nx_igmp_info_get                                _nxe_igmp_info_get
@@ -3210,7 +3205,7 @@ typedef struct NX_IP_DRIVER_STRUCT
 #define nx_igmp_multicast_leave                         _nxe_igmp_multicast_leave
 #endif
 
-#if 0 /* Not support for STM32L475E-IOT01A1.  */
+#if 0 /* Not support for STM32L4XX.  */
 /* APIs for IP. */
 #define nx_ip_address_change_notify                     _nxe_ip_address_change_notify
 #define nx_ip_address_get                               _nxe_ip_address_get
@@ -3221,7 +3216,7 @@ typedef struct NX_IP_DRIVER_STRUCT
 #define nx_ip_create(i, n, a, m, d, l, p, s, y)         _nxe_ip_create(i, n, a, m, d, l, p, s, y, sizeof(NX_IP))
 #define nx_ip_delete                                    _nxe_ip_delete
 
-#if 0 /* Not support for STM32L475E-IOT01A1.  */
+#if 0 /* Not support for STM32L4XX.  */
 #define nx_ip_driver_direct_command                     _nxe_ip_driver_direct_command
 #define nx_ip_driver_interface_direct_command           _nxe_ip_driver_interface_direct_command
 #define nx_ip_forwarding_disable                        _nxe_ip_forwarding_disable
@@ -3268,7 +3263,7 @@ typedef struct NX_IP_DRIVER_STRUCT
 #define nxd_ipv6_stateless_address_autoconfig_enable    _nxde_ipv6_stateless_address_autoconfig_enable
 #endif
 
-#if 0 /* Not support for STM32L475E-IOT01A1.  */
+#if 0 /* Not support for STM32L4XX.  */
 /* APIs for RAW service. */
 #define nx_ip_raw_packet_disable                        _nxe_ip_raw_packet_disable
 #define nx_ip_raw_packet_enable                         _nxe_ip_raw_packet_enable
@@ -3281,7 +3276,7 @@ typedef struct NX_IP_DRIVER_STRUCT
 #define nxd_ip_raw_packet_source_send                   _nxde_ip_raw_packet_source_send
 #endif
 
-#if 0 /* Not support for STM32L475E-IOT01A1.  */
+#if 0 /* Not support for STM32L4XX.  */
 /* APIs for ND cache. */
 #define nxd_nd_cache_entry_set                          _nxde_nd_cache_entry_set
 #define nxd_nd_cache_entry_delete                       _nxde_nd_cache_entry_delete
@@ -3304,7 +3299,7 @@ typedef struct NX_IP_DRIVER_STRUCT
 #define nx_packet_release(p)                            _nxe_packet_release(&p)
 #define nx_packet_transmit_release(p)                   _nxe_packet_transmit_release(&p)
 
-#if 0 /* Not support for STM32L475E-IOT01A1.  */
+#if 0 /* Not support for STM32L4XX.  */
 /* APIs for RARP. */
 #define nx_rarp_disable                                 _nxe_rarp_disable
 #define nx_rarp_enable                                  _nxe_rarp_enable

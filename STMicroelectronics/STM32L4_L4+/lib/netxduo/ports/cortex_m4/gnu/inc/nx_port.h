@@ -15,7 +15,7 @@
 /**                                                                       */ 
 /** NetX Component                                                        */
 /**                                                                       */
-/**   Port Specific                                                       */
+/**   Port Specific for STM32L475E-IOT01A1                                */
 /**                                                                       */
 /**************************************************************************/
 /**************************************************************************/
@@ -25,8 +25,8 @@
 /*                                                                        */ 
 /*  PORT SPECIFIC C INFORMATION                            RELEASE        */ 
 /*                                                                        */ 
-/*    nx_port.h                                         Cortex-M4/GNU     */ 
-/*                                                           6.0.2        */
+/*    nx_port.h                                         Cortex-M4/GNU     */  
+/*                                                           6.1          */
 /*                                                                        */
 /*  AUTHOR                                                                */
 /*                                                                        */
@@ -42,11 +42,7 @@
 /*                                                                        */ 
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
-/*  08-14-2020     Yuxin Zhou               Modified comment(s),  and     */
-/*                                            corrected the code of       */
-/*                                            getting system state,       */
-/*                                            resulting in version 6.0.2  */
+/*  09-30-2020     Yuxin Zhou               Initial Version 6.1           */
 /*                                                                        */
 /**************************************************************************/
 
@@ -55,6 +51,9 @@
 
 /* Determine if the optional NetX user define file should be used.  */
 
+/* 
+#define NX_INCLUDE_USER_DEFINE_FILE
+*/
 #ifdef NX_INCLUDE_USER_DEFINE_FILE
 
 
@@ -69,16 +68,6 @@
 
 #define NX_LITTLE_ENDIAN    1
 
-
-/* By default IPv6 is enabled. */
-
-#ifndef FEATURE_NX_IPV6
-#define FEATURE_NX_IPV6
-#endif /* FEATURE_NX_IPV6 */
-
-#ifdef NX_DISABLE_IPV6 
-#undef FEATURE_NX_IPV6 
-#endif /* !NX_DISABLE_IPV6 */
 
 #include <stdio.h>
 #include <string.h>
@@ -194,7 +183,7 @@
 
 #ifdef NX_SYSTEM_INIT
 CHAR                            _nx_version_id[] = 
-                                    "Copyright (c) Microsoft Corporation. All rights reserved.  *  NetX Duo Cortex-M4/GNU Version 6.0 *";
+                                    "Copyright (c) Microsoft Corporation. All rights reserved.  *  NetX Duo Cortex-M4/GNU Version 6.1 *";
 #else
 extern  CHAR                    _nx_version_id[];
 #endif
