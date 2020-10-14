@@ -21,9 +21,7 @@ target_link_libraries(${PROJECT_NAME}
     PUBLIC
         azrtos::threadx
         azrtos::netxduo
-        azrtos::nx_cloud
-        azrtos::azure_iot
-        
+         
         atmel_start
         app_common
         jsmn

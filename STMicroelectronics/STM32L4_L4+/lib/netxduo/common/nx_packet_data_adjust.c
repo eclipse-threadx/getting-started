@@ -15,7 +15,7 @@
 /**                                                                       */
 /** NetX Component                                                        */
 /**                                                                       */
-/**   Packet Pool Management (Packet) for STM32L475E-IOT01A1              */
+/**   Packet Pool Management (Packet) for STM32L4XX                       */
 /**                                                                       */
 /**************************************************************************/
 /**************************************************************************/
@@ -34,7 +34,7 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_packet_data_adjust                              PORTABLE C      */
-/*                                                           6.0          */
+/*                                                           6.1          */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -67,6 +67,9 @@
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*  09-30-2020     Yuxin Zhou               Modified comment(s), and      */
+/*                                            verified memcpy use cases,  */
+/*                                            resulting in version 6.1    */
 /*                                                                        */
 /**************************************************************************/
 UINT  _nx_packet_data_adjust(NX_PACKET *packet_ptr, ULONG header_size)
@@ -113,7 +116,7 @@ NX_PACKET      *work_ptr;
         shift_size = (ULONG)((ALIGN_TYPE)packet_ptr -> nx_packet_append_ptr - (ALIGN_TYPE)packet_ptr -> nx_packet_prepend_ptr);
 
         /* Move the data, */
-        memmove(packet_ptr -> nx_packet_data_start + header_size, packet_ptr -> nx_packet_prepend_ptr, shift_size);
+        memmove(packet_ptr -> nx_packet_data_start + header_size, packet_ptr -> nx_packet_prepend_ptr, shift_size); /* Use case of memmove is verified.  */
 
         /* Update the prepend and append pointer.  */
         packet_ptr -> nx_packet_prepend_ptr = packet_ptr -> nx_packet_data_start + header_size;
@@ -150,14 +153,14 @@ NX_PACKET      *work_ptr;
         }
 
         /* Firstly, append the overflowing data to the new packet.. */
-        memcpy(work_ptr -> nx_packet_prepend_ptr, data_start, append_size);
-        work_ptr -> nx_packet_append_ptr = (UCHAR *)((ALIGN_TYPE)work_ptr -> nx_packet_prepend_ptr + append_size);
+        memcpy(work_ptr -> nx_packet_prepend_ptr, data_start, append_size); /* Use case of memcpy is verified. */
+        work_ptr -> nx_packet_append_ptr = (UCHAR *)((ALIGN_TYPE)work_ptr -> nx_packet_prepend_ptr + append_size); /* Use case of memcpy is verified.  */
 
         /* Secondly, calculate the shift data size.  */
         shift_size = (ULONG)(((ALIGN_TYPE)packet_ptr -> nx_packet_append_ptr - (ALIGN_TYPE)packet_ptr -> nx_packet_prepend_ptr) - append_size);
 
         /* Move the data.  */
-        memmove(packet_ptr -> nx_packet_data_start + header_size, packet_ptr -> nx_packet_prepend_ptr, shift_size);
+        memmove(packet_ptr -> nx_packet_data_start + header_size, packet_ptr -> nx_packet_prepend_ptr, shift_size); /* Use case of memmove is verified.  */
 
         /* Update the prepend and append pointer.  */
         packet_ptr -> nx_packet_prepend_ptr = packet_ptr -> nx_packet_data_start + header_size;

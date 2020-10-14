@@ -10,6 +10,7 @@
 
 #include "nx_api.h"
 #include "nx_azure_iot_hub_client.h"
+
 #include "nx_azure_iot_provisioning_client.h"
 
 // These are sample files, user can build their own certificate and ciphersuites
@@ -46,7 +47,7 @@ static void set_led_state(bool level)
 }
 
 static void direct_method_cb(AZURE_IOT_NX_CONTEXT* nx_context,
-    UCHAR* method,
+    const UCHAR* method,
     USHORT method_length,
     UCHAR* payload,
     USHORT payload_length,
@@ -84,15 +85,17 @@ static void device_twin_desired_property_cb(UCHAR* component_name,
     UINT component_name_len,
     UCHAR* property_name,
     UINT property_name_len,
-    az_json_reader property_value_reader,
+    NX_AZURE_IOT_JSON_READER property_value_reader,
     UINT version,
     VOID* userContextCallback)
 {
+    UINT status;
     AZURE_IOT_NX_CONTEXT* nx_context = (AZURE_IOT_NX_CONTEXT*)userContextCallback;
 
     if (strncmp((CHAR*)property_name, TELEMETRY_INTERVAL_PROPERTY, property_name_len) == 0)
     {
-        if (az_succeeded(az_json_token_get_int32(&property_value_reader.token, &telemetry_interval)))
+        status = nx_azure_iot_json_reader_token_int32_get(&property_value_reader, &telemetry_interval);
+        if (status == NX_AZURE_IOT_SUCCESS)
         {
             // Set a telemetry event so we pick up the change immediately
             tx_event_flags_set(&azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR);
@@ -108,15 +111,17 @@ static void device_twin_property_cb(UCHAR* component_name,
     UINT component_name_len,
     UCHAR* property_name,
     UINT property_name_len,
-    az_json_reader property_value_reader,
+    NX_AZURE_IOT_JSON_READER property_value_reader,
     UINT version,
     VOID* userContextCallback)
 {
+    UINT status;
     AZURE_IOT_NX_CONTEXT* nx_context = (AZURE_IOT_NX_CONTEXT*)userContextCallback;
 
     if (strncmp((CHAR*)property_name, TELEMETRY_INTERVAL_PROPERTY, property_name_len) == 0)
     {
-        if (az_succeeded(az_json_token_get_int32(&property_value_reader.token, &telemetry_interval)))
+        status = nx_azure_iot_json_reader_token_int32_get(&property_value_reader, &telemetry_interval);
+        if (status == NX_AZURE_IOT_SUCCESS)
         {
             // Set a telemetry event so we pick up the change immediately
             tx_event_flags_set(&azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR);

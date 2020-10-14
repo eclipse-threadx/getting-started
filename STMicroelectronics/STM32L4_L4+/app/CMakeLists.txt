@@ -26,8 +26,6 @@ function(create_target TARGET STARTUP LINKER)
     target_link_libraries(${TARGET}
         azrtos::threadx
         azrtos::netxduo
-        azrtos::nx_cloud
-        azrtos::azure_iot
 
         stm32cubel4
         netx_driver

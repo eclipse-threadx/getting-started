@@ -15,7 +15,7 @@
 /**                                                                       */
 /** NetX Component                                                        */
 /**                                                                       */
-/**   Packet Pool Management (Packet) for STM32L475E-IOT01A1              */
+/**   Packet Pool Management (Packet) for STM32L4XX                       */
 /**                                                                       */
 /**************************************************************************/
 /**************************************************************************/
@@ -34,7 +34,7 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _nx_packet_data_append                              PORTABLE C      */
-/*                                                           6.0          */
+/*                                                           6.1          */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -71,6 +71,9 @@
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*  09-30-2020     Yuxin Zhou               Modified comment(s), and      */
+/*                                            verified memcpy use cases,  */
+/*                                            resulting in version 6.1    */
 /*                                                                        */
 /**************************************************************************/
 UINT  _nx_packet_data_append(NX_PACKET *packet_ptr, VOID *data_start, ULONG data_size,
@@ -262,7 +265,7 @@ NX_PACKET *work_ptr;               /* Working packet pointer     */
 #endif /* NX_DISABLE_PACKET_CHAIN */
 
         /* Copy the data into the current packet buffer.  */
-        memcpy(work_ptr -> nx_packet_append_ptr, source_ptr, copy_size);
+        memcpy(work_ptr -> nx_packet_append_ptr, source_ptr, copy_size); /* Use case of memcpy is verified. */
 
         /* Adjust the remaining data size.  */
         data_size =  data_size - copy_size;
