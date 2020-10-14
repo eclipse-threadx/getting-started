@@ -9,55 +9,29 @@
 /*                                                                        */
 /**************************************************************************/
 
-
-/**************************************************************************/
-/**************************************************************************/
-/**                                                                       */
-/** NetX Component                                                        */
-/**                                                                       */
-/**   User Specific                                                       */
-/**                                                                       */
-/**************************************************************************/
-/**************************************************************************/
-
-
-/**************************************************************************/
-/*                                                                        */
-/*  PORT SPECIFIC C INFORMATION                            RELEASE        */
-/*                                                                        */
-/*    nx_user.h                                           PORTABLE C      */
-/*                                                           6.0          */
-/*                                                                        */
-/*  AUTHOR                                                                */
-/*                                                                        */
-/*    William E. Lamie, Microsoft Corporation                             */
-/*                                                                        */
-/*  DESCRIPTION                                                           */
-/*                                                                        */
-/*    This file contains user defines for configuring NetX in specific    */
-/*    ways. This file will have an effect only if the application and     */
-/*    NetX library are built with NX_INCLUDE_USER_DEFINE_FILE defined.    */
-/*    Note that all the defines in this file may also be made on the      */
-/*    command line when building NetX library and application objects.    */
-/*                                                                        */
-/*  RELEASE HISTORY                                                       */
-/*                                                                        */
-/*    DATE              NAME                      DESCRIPTION             */
-/*                                                                        */
-/*  05-19-2020     William E. Lamie         Initial Version 6.0           */
-/*                                                                        */
-/**************************************************************************/
-
 #ifndef NX_USER_H
 #define NX_USER_H
 
-#define NX_DISABLE_INCLUDE_SOURCE_CODE
-
 #define NX_SECURE_ENABLE
 #define NX_ENABLE_EXTENDED_NOTIFY_SUPPORT
+#define NX_DNS_CLIENT_USER_CREATE_PACKET_POOL
+
 #define NXD_MQTT_CLOUD_ENABLE
 
-#define NX_DNS_CLIENT_USER_CREATE_PACKET_POOL
+#define NX_ENABLE_IP_PACKET_FILTER
+
+#define NX_SNTP_CLIENT_MIN_SERVER_STRATUM 3
+
+#define NX_PACKET_ALIGNMENT 32
+#define NX_DISABLE_ICMPV4_RX_CHECKSUM
+#define NX_DISABLE_ICMPV4_TX_CHECKSUM  
+#define NX_DISABLE_IP_RX_CHECKSUM
+#define NX_DISABLE_IP_TX_CHECKSUM
+#define NX_DISABLE_TCP_RX_CHECKSUM
+#define NX_DISABLE_TCP_TX_CHECKSUM
+#define NX_DISABLE_UDP_RX_CHECKSUM
+#define NX_DISABLE_UDP_TX_CHECKSUM
+#define NX_TCP_ACK_EVERY_N_PACKETS  2
 
 /* Define various build options for the NetX Duo port.  The application should either make changes
    here by commenting or un-commenting the conditional compilation defined OR supply the defines
@@ -319,7 +293,9 @@
 /* Defined, IGMP v2 support is disabled.  By default NetX Duo
    is built with IGMPv2 enabled .  By uncommenting this option,
    NetX Duo reverts back to IGMPv1 only. */
+/*
 #define NX_DISABLE_IGMPV2
+*/
 
 /* Configuration options for ARP */
 
@@ -426,9 +402,9 @@
 
 /* This define specifies the number of TCP packets to receive before sending an ACK. */
 /* The default value is 2: ack every 2 packets.                                      */
-
+/*
 #define NX_TCP_ACK_EVERY_N_PACKETS  2
-
+*/
 
 /* Automatically define NX_TCP_ACK_EVERY_N_PACKETS to 1 if NX_TCP_IMMEDIATE_ACK is defined.
    This is needed for backward compatibility. */
@@ -536,7 +512,9 @@
 /* Defiend, this option disables checksum logic on received ICMPv4 packets.
    Note that if NX_DISABLE_ICMP_RX_CHECKSUM is defined, this option is
    automatically defined. By default this option is not defined.*/
+/*
 #define NX_DISABLE_ICMPV4_RX_CHECKSUM
+*/
 
 /* Defiend, this option disables checksum logic on received ICMPv6 packets.
    Note that if NX_DISABLE_ICMP_RX_CHECKSUM is defined, this option is
@@ -555,7 +533,9 @@
 /* Defiend, this option disables checksum logic on transmitted ICMPv4 packets.
    Note that if NX_DISABLE_ICMP_TX_CHECKSUM is defined, this option is
    automatically defined. By default this option is not defined.*/
+/*
 #define NX_DISABLE_ICMPV4_TX_CHECKSUM
+*/
 
 /* Defiend, this option disables checksum logic on transmitted ICMPv6 packets.
    Note that if NX_DISABLE_ICMP_TX_CHECKSUM is defined, this option is
@@ -573,52 +553,79 @@
 
 /* Defined, this option disables checksum logic on received IP packets. This is useful if the link-layer
    has reliable checksum or CRC logic.  */
+/*
 #define NX_DISABLE_IP_RX_CHECKSUM
+*/
 
 /* Defined, this option disables checksum logic on transmitted IP packets.  */
+/*
 #define NX_DISABLE_IP_TX_CHECKSUM
+*/
 
 /* Defined, this option disables checksum logic on received TCP packets.  */
+/*
 #define NX_DISABLE_TCP_RX_CHECKSUM
+*/
 
 /* Defined, this option disables checksum logic on transmitted TCP packets.  */
+/*
 #define NX_DISABLE_TCP_TX_CHECKSUM
+*/
 
 /* Defined, this option disables checksum logic on received UDP packets.  */
+/*
 #define NX_DISABLE_UDP_RX_CHECKSUM
+*/
 
 /* Defined, this option disables checksum logic on transmitted UDP packets.  Note that
    IPV6 requires the UDP checksum computed for outgoing packets.  If this option is
    defined, the IPv6 NetX Duo host must ensure the UDP checksum is computed elsewhere
    before the packet is transmitted. */
+/*
 #define NX_DISABLE_UDP_TX_CHECKSUM
-
+*/
 
 /* Configuration options for statistics.  */
 
 /* Defined, ARP information gathering is disabled.  */
+/*
 #define NX_DISABLE_ARP_INFO
+*/
 
 /* Defined, IP information gathering is disabled.  */
+/*
 #define NX_DISABLE_IP_INFO
+*/
 
 /* Defined, ICMP information gathering is disabled.  */
+/*
 #define NX_DISABLE_ICMP_INFO
+*/
 
 /* Defined, IGMP information gathering is disabled.  */
+/*
 #define NX_DISABLE_IGMP_INFO
+*/
 
 /* Defined, packet information gathering is disabled.  */
+/*
 #define NX_DISABLE_PACKET_INFO
+*/
 
 /* Defined, RARP information gathering is disabled.  */
+/*
 #define NX_DISABLE_RARP_INFO
+*/
 
 /* Defined, TCP information gathering is disabled.  */
+/*
 #define NX_DISABLE_TCP_INFO
+*/
 
 /* Defined, UDP information gathering is disabled.  */
+/*
 #define NX_DISABLE_UDP_INFO
+*/
 
 /* Configuration options for Packet Pool */
 
@@ -635,7 +642,9 @@
 */
 
 /* Defined, this option disables the addition size checking on received packets.  */
+/*
 #define NX_DISABLE_RX_SIZE_CHECKING
+*/
 
 /* Defined, packet debug infromation is enabled.  */
 /*
@@ -649,7 +658,9 @@
 */
 
 /* Defined, packet header and payload are aligned automatically by the value. The default value is sizeof(ULONG). */
+/*
 #define NX_PACKET_ALIGNMENT 32
+*/
 
 /* If defined, the packet chain feature is removed. */
 /*
@@ -665,9 +676,9 @@
 
 /* Defined, this option bypasses the basic NetX error checking. This define is typically used
    after the application is fully debugged.  */
-
+/*
 #define NX_DISABLE_ERROR_CHECKING
-
+*/
 
 /* Defined, this option enables deferred driver packet handling. This allows the driver to place a raw
    packet on the IP instance and have the driver's real processing routine called from the NetX internal
