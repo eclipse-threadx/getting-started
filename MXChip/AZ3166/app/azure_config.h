@@ -34,15 +34,16 @@ typedef enum
 // ----------------------------------------------------------------------------
 // Azure IoT Hub config
 // ----------------------------------------------------------------------------
-#define IOT_HUB_HOSTNAME "gettingstarted.azure-devices.net"
-#define IOT_DEVICE_ID    "gsg_test_device"
-#define IOT_PRIMARY_KEY  "Chyz57v9QXOvinUBHbOviNsHnzmD5wc/+SfWa29d89yDdl5ZsnajEL7BrFDHeKYL5TmZMwlIphmTCtm6GgoSgg=="
+#define IOT_HUB_HOSTNAME "getting-started-guide-iot-hub.azure-devices.net"
+#define IOT_DEVICE_ID    "spmcdono-device"
+#define IOT_PRIMARY_KEY  "PL64MzYs6513H5q3XAJ9XQ8g/pu6sI0Bj7IHJm6E04Q="
+// #define IOT_PRIMARY_KEY  ""
 
 // ----------------------------------------------------------------------------
 // Azure IoT DPS config
 // ----------------------------------------------------------------------------
 #define IOT_DPS_ENDPOINT        "global.azure-devices-provisioning.net"
-#define IOT_DPS_ID_SCOPE        "0ne00191969"
+#define IOT_DPS_ID_SCOPE        "0ne0019BD5E"
 #define IOT_DPS_REGISTRATION_ID "global.azure-devices-provisioning.net"
 
 // ----------------------------------------------------------------------------

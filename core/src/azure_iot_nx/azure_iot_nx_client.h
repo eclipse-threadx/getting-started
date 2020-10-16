@@ -79,6 +79,16 @@ UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CONTEXT* context,
     CHAR* device_sas_key,
     CHAR* device_model_id);
 
+UINT azure_iot_nx_client_x509_create_common(AZURE_IOT_NX_CONTEXT* context,
+    CHAR* iot_hub_hostname,
+    CHAR* iot_device_id,
+    CHAR* device_model_id,
+    UCHAR* device_cert,
+    UINT x509_cert_len,
+    UCHAR* private_key,
+    UINT x509_key_len,
+    NX_SECURE_X509_CERT* device_certificate_ptr);
+
 UINT azure_iot_nx_client_dps_x509_create(AZURE_IOT_NX_CONTEXT* context,
     NX_IP* nx_ip,
     NX_PACKET_POOL* nx_pool,
