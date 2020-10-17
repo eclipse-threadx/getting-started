@@ -55,7 +55,7 @@ void azure_thread_entry(ULONG parameter)
     }
     screen_print("SNTP inited", L0);
 
-#ifdef ENABLE_MQTT
+#ifdef ENABLE_LEGACY_MQTT
     if ((status = azure_iot_mqtt_entry(&nx_ip, &nx_pool[0], &nx_dns_client, sntp_time_get)))
 #else
     if ((status = azure_iot_nx_client_entry(&nx_ip, &nx_pool[0], &nx_dns_client, sntp_time)))
