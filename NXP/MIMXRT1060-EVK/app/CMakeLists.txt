@@ -6,10 +6,9 @@ set(LINKER_SCRIPT "${CMAKE_CURRENT_LIST_DIR}/startup/MIMXRT1062xxxxx_flexspi_nor
 set(SOURCES
     startup/startup_MIMXRT1062.S
     startup/tx_initialize_low_level.S
-
+    legacy/mqtt.c
     azure_config.h
     nx_client.c
-    mqtt.c
     board_init.c
     console.c
     main.c
@@ -36,6 +35,11 @@ set_target_properties(${PROJECT_NAME}
     PROPERTIES 
         LINK_DEPENDS ${LINKER_SCRIPT}
         SUFFIX ".elf"
+)
+
+target_include_directories(${PROJECT_NAME} 
+    PUBLIC 
+        .
 )
 
 create_bin_output(${PROJECT_NAME})

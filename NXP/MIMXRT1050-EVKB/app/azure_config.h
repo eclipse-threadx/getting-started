@@ -6,15 +6,15 @@
 
 // ----------------------------------------------------------------------------
 // Azure IoT Hub Connection Transport
-// Define this to use MQTT, else Azure RTOS SDK for Azure IoT
+// Define to use the legacy MQTT connection, else Azure RTOS SDK for Azure IoT
 // ----------------------------------------------------------------------------
-//#define ENABLE_MQTT
+//#define ENABLE_LEGACY_MQTT
 
 // ----------------------------------------------------------------------------
-// Azure IoT Dynamic Provisioning Service
-// Define this to use the DPS service, otherwise direct IoT Hub
+// Azure IoT Hub Connection Transport
+// Define to use the legacy MQTT connection, else Azure RTOS SDK for Azure IoT
 // ----------------------------------------------------------------------------
-//#define ENABLE_DPS
+//#define ENABLE_LEGACY_MQTT
 
 // ----------------------------------------------------------------------------
 // Azure IoT Hub config
