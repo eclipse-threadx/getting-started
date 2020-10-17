@@ -42,6 +42,11 @@ function(create_target TARGET STARTUP LINKER)
             SUFFIX ".elf"
     )
 
+    target_include_directories(${TARGET} 
+        PUBLIC 
+            .
+    )
+
     create_bin_output(${TARGET})
     firmware_size(${TARGET})
 endfunction()

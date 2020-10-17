@@ -6,13 +6,13 @@ on:
     paths:
       - 'core/**'
       - 'cmake/**'
-      - 'STMicroelectronics/STM32L4_L4+/**'
+      - 'STMicroelectronics/STM32L4_L4\+/**'
   pull_request:
     branches: [ master ]
     paths:
       - 'core/**'
       - 'cmake/**'
-      - 'STMicroelectronics/STM32L4_L4+/**'
+      - 'STMicroelectronics/STM32L4_L4\+/**'
 
 defaults:
   run:
@@ -43,4 +43,3 @@ jobs:
         run: |
           cmake -Bbuild -GNinja -DCMAKE_TOOLCHAIN_FILE="../../cmake/arm-gcc-cortex-m4.cmake" 
           cmake --build build
-          
