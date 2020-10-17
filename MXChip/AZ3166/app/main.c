@@ -10,7 +10,7 @@
 #include "screen.h"
 #include "sntp_client.h"
 
-#include "mqtt.h"
+#include "legacy/mqtt.h"
 #include "nx_client.h"
 #include "wwd_networking.h"
 

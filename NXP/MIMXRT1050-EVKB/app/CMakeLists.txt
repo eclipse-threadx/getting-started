@@ -6,10 +6,9 @@ set(LINKER_SCRIPT "${CMAKE_CURRENT_LIST_DIR}/startup/MIMXRT1052xxxxx_flexspi_nor
 set(SOURCES
     startup/startup_MIMXRT1052.S
     startup/tx_initialize_low_level.S
-
+    legacy/mqtt.c
     azure_config.h
     nx_client.c
-    mqtt.c
     board_init.c
     console.c
     main.c

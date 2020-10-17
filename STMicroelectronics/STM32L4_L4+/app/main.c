@@ -10,7 +10,7 @@
 #include "sntp_client.h"
 #include "stm_networking.h"
 
-#include "mqtt.h"
+#include "legacy/mqtt.h"
 #include "nx_client.h"
 
 #include "azure_config.h"

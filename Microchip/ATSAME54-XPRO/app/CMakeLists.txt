@@ -7,10 +7,9 @@ set(SOURCES
     startup/startup_same54.c
     startup/system_same54.c
     startup/tx_initialize_low_level.S
-
+    legacy/mqtt.c
     azure_config.h
     nx_client.c
-    mqtt.c
     board_init.c
     main.c
 )
