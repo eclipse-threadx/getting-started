@@ -42,7 +42,7 @@ function(create_target TARGET STARTUP LINKER)
             SUFFIX ".elf"
     )
 
-    target_include_directories(${PROJECT_NAME} 
+    target_include_directories(${TARGET} 
         PUBLIC 
             .
     )
