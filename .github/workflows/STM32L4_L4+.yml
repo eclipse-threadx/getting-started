@@ -16,7 +16,7 @@ on:
 
 defaults:
   run:
-    working-directory: STMicroelectronics/STM32L4_L4\+
+    working-directory: STMicroelectronics/STM32L4_L4+
 
 jobs:
   build:
