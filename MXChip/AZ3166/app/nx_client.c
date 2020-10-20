@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 
+#include "screen.h"
 #include "sensor.h"
 #include "stm32f4xx_hal.h"
 
