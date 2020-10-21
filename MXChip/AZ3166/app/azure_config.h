@@ -36,7 +36,7 @@ typedef enum
 // ----------------------------------------------------------------------------
 #define IOT_HUB_HOSTNAME "getting-started-guide-iot-hub.azure-devices.net"
 #define IOT_DEVICE_ID    "spmcdono-device"
-#define IOT_PRIMARY_KEY  "PL64MzYs6513H5q3XAJ9XQ8g/pu6sI0Bj7IHJm6E04Q="
+#define IOT_PRIMARY_KEY  "v6Ht1YZZeB9VOC6UWQFkkiSmzYTRQNBzWptIdSmM/OAiRu+jIUKdHKb0xt9nuQsumFf4WUlOqNqhDPTiEmRjrg=="
 // #define IOT_PRIMARY_KEY  ""
 
 // ----------------------------------------------------------------------------

@@ -59,7 +59,18 @@ Create IoT Hub
 Create DPS
 Link DPS to IoT Hub
 
-## CR
+## Create Self-Signed Cert
+```bash
+openssl genrsa -out private_key.pem 2048
+# Common Name = global.azure-devices-provisioning.net
+# all other metadata does not matter
+openssl req -new -key private_key.pem -out cert_sign_req.csr
+openssl x509 -req -days 365 -in cert_sign_req.csr -signkey private_key.pem -out X509testcert.pem
+openssl x509 -outform DER -inform PEM -in X509testcert.pem -out device_cert_formatted.der
+openssl rsa -inform PEM -outform DER -in private_key.pem -out private_key_formatted.der
+xxd -i device_cert_formatted.der > cert.c
+xxd -i private_key_formatted.der >> cert.c # append key to certificate file
+```
 
 1) Create an azure portal account, an IoT Hub, and a Device Provisioning Service (DPS)
 2) Generate a self-signed cert using OpenSSL

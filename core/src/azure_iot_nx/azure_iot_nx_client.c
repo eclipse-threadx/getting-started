@@ -859,7 +859,7 @@ UINT azure_iot_nx_client_connect(AZURE_IOT_NX_CONTEXT* context)
         printf("Failed on nx_azure_iot_hub_client_connect (0x%08x)\r\n", status);
         return status;
     }
-
+    printf("Time to create connection thread\r\n");
     if ((status = tx_thread_create(&context->azure_iot_thread,
              "Nx Thread",
              event_thread,

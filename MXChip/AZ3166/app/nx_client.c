@@ -188,21 +188,21 @@ UINT azure_iot_nx_client_entry(
         return status;
     }
 
-    printf("back into main fn, register callbacks\n");
+    printf("back into main fn, register callbacks\r\n");
 
     // Register the callbacks
     azure_iot_nx_client_register_direct_method(&azure_iot_nx_client, direct_method_cb);
     azure_iot_nx_client_register_device_twin_desired_prop(&azure_iot_nx_client, device_twin_desired_property_cb);
     azure_iot_nx_client_register_device_twin_prop(&azure_iot_nx_client, device_twin_property_cb);
 
-    printf("connect to IoT Hub\n");
+    printf("connect to IoT Hub\r\n");
     if ((status = azure_iot_nx_client_connect(&azure_iot_nx_client)))
     {
         printf("ERROR: failed to connect nx client (0x%08x)\r\n", status);
         return status;
     }
 
-    printf("CONNECTED TO IOT HUB, now request device twin\n");
+    printf("CONNECTED TO IOT HUB, now request device twin\r\n");
     // Request the device twin for writeable property update
     if ((status = nx_azure_iot_hub_client_device_twin_properties_request(
              &azure_iot_nx_client.iothub_client, NX_WAIT_FOREVER)))
