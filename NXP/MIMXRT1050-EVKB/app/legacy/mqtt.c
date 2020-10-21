@@ -39,7 +39,7 @@ static void set_led_state(bool level)
     }
 }
 
-static void mqtt_direct_method(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* direct_method_name, CHAR* message)
+static void mqtt_direct_method(AZURE_IOT_MQTT* iot_mqtt, CHAR* direct_method_name, CHAR* message)
 {
     if (strcmp(direct_method_name, "setLedState") == 0)
     {
@@ -52,24 +52,24 @@ static void mqtt_direct_method(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* direct_meth
         set_led_state(arg);
 
         // Return success
-        azure_iot_mqtt_respond_direct_method(azure_iot_mqtt, 200);
+        azure_iot_mqtt_respond_direct_method(iot_mqtt, 200);
 
         // Update device twin property
-        azure_iot_mqtt_publish_bool_property(azure_iot_mqtt, LED_STATE_PROPERTY, arg);
+        azure_iot_mqtt_publish_bool_property(iot_mqtt, LED_STATE_PROPERTY, arg);
     }
     else
     {
         printf("Received direct method=%s is unknown\r\n", direct_method_name);
-        azure_iot_mqtt_respond_direct_method(azure_iot_mqtt, 501);
+        azure_iot_mqtt_respond_direct_method(iot_mqtt, 501);
     }
 }
 
-static void mqtt_c2d_message(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* properties, CHAR* message)
+static void mqtt_c2d_message(AZURE_IOT_MQTT* iot_mqtt, CHAR* properties, CHAR* message)
 {
     printf("Received C2D message, properties='%s', message='%s'\r\n", properties, message);
 }
 
-static void mqtt_device_twin_desired_prop(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* message)
+static void mqtt_device_twin_desired_prop(AZURE_IOT_MQTT* iot_mqtt, CHAR* message)
 {
     jsmn_parser parser;
     jsmntok_t tokens[64];
@@ -85,11 +85,11 @@ static void mqtt_device_twin_desired_prop(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* 
 
         // Confirm reception back to hub
         azure_iot_mqtt_respond_int_writeable_property(
-            azure_iot_mqtt, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval, 200);
+            iot_mqtt, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval, 200);
     }
 }
 
-static void mqtt_device_twin_prop(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* message)
+static void mqtt_device_twin_prop(AZURE_IOT_MQTT* iot_mqtt, CHAR* message)
 {
     jsmn_parser parser;
     jsmntok_t tokens[64];
@@ -105,10 +105,10 @@ static void mqtt_device_twin_prop(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* message)
     }
 
     // Report writeable properties to the Hub
-    azure_iot_mqtt_publish_int_writeable_property(azure_iot_mqtt, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
+    azure_iot_mqtt_publish_int_writeable_property(iot_mqtt, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
 }
 
-UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, ULONG (*sntp_time_get)(VOID))
+UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, ULONG (*time_get)(VOID))
 {
     UINT status;
     ULONG events;
@@ -126,7 +126,7 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
         ip_ptr,
         pool_ptr,
         dns_ptr,
-        sntp_time_get,
+        time_get,
         IOT_DPS_ENDPOINT,
         IOT_DPS_ID_SCOPE,
         IOT_DPS_REGISTRATION_ID,
@@ -138,7 +138,7 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
         ip_ptr,
         pool_ptr,
         dns_ptr,
-        sntp_time_get,
+        time_get,
         IOT_HUB_HOSTNAME,
         IOT_DEVICE_ID,
         IOT_PRIMARY_KEY,
