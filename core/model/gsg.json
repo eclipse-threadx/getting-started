@@ -1,6 +1,6 @@
 {
     "@context": "dtmi:dtdl:context;2",
-    "@id": "dtmi:com:examples:gsg;1",
+    "@id": "dtmi:com:example:azurertos:gsg;1",
     "@type": "Interface",
     "displayName": "Getting Started Guide",
     "description": "Example model for the Azure RTOS Getting Started Guides",

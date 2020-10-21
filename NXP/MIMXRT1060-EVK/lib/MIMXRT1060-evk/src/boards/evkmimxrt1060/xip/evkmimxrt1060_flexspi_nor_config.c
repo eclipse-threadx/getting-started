@@ -30,10 +30,9 @@ const flexspi_nor_config_t qspiflash_config = {
             .readSampleClkSrc = kFlexSPIReadSampleClk_LoopbackFromDqsPad,
             .csHoldTime       = 3u,
             .csSetupTime      = 3u,
-            // Enable DDR mode, Wordaddassable, Safe configuration, Differential clock
-            .sflashPadType = kSerialFlash_4Pads,
-            .serialClkFreq = kFlexSpiSerialClk_100MHz,
-            .sflashA1Size  = 8u * 1024u * 1024u,
+            .sflashPadType    = kSerialFlash_4Pads,
+            .serialClkFreq    = kFlexSpiSerialClk_100MHz,
+            .sflashA1Size     = 8u * 1024u * 1024u,
             .lookupTable =
                 {
                     // Read LUTs
@@ -43,7 +42,7 @@ const flexspi_nor_config_t qspiflash_config = {
         },
     .pageSize           = 256u,
     .sectorSize         = 4u * 1024u,
-    .blockSize          = 256u * 1024u,
+    .blockSize          = 64u * 1024u,
     .isUniformBlockSize = false,
 };
 #endif /* XIP_BOOT_HEADER_ENABLE */

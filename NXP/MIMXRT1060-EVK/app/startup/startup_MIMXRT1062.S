@@ -21,8 +21,6 @@
     .section .isr_vector, "a"
     .align 2
     .globl __isr_vector
-    .globl _vectors
-_vectors:
 __isr_vector:
     .long   __StackTop                                      /* Top of Stack */
     .long   Reset_Handler                                   /* Reset Handler */
@@ -38,8 +36,8 @@ __isr_vector:
     .long   SVC_Handler                                     /* SVCall Handler*/
     .long   DebugMon_Handler                                /* Debug Monitor Handler*/
     .long   0                                               /* Reserved*/
-    .long   __tx_PendSVHandler                              /* PendSV Handler*/
-    .long   __tx_SysTickHandler                             /* SysTick Handler*/
+    .long  PendSV_Handler                                   /* PendSV Handler*/
+    .long  SysTick_Handler                                  /* SysTick Handler*/
 
                                                             /* External Interrupts*/
     .long   DMA0_DMA16_IRQHandler                           /* DMA channel 0/16 transfer complete*/
@@ -156,7 +154,7 @@ __isr_vector:
     .long   USDHC2_IRQHandler                               /* USDHC2 interrupt*/
     .long   USB_OTG2_IRQHandler                             /* USBO2 USB OTG2*/
     .long   USB_OTG1_IRQHandler                             /* USBO2 USB OTG1*/
-    .long   __nx_ENET_IRQHandler                            /* ENET interrupt*/
+    .long   ENET_IRQHandler                                 /* ENET interrupt*/
     .long   ENET_1588_Timer_IRQHandler                      /* ENET_1588_Timer interrupt*/
     .long   XBAR1_IRQ_0_1_IRQHandler                        /* XBAR1 interrupt*/
     .long   XBAR1_IRQ_2_3_IRQHandler                        /* XBAR1 interrupt*/

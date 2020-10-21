@@ -9,5 +9,6 @@
 extern UART_HandleTypeDef UartHandle;
 
 void board_init(void);
+int hardware_rand(void);
 
 #endif // _BOARD_INIT_H

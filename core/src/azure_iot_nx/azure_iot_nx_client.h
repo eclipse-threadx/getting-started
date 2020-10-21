@@ -8,20 +8,20 @@
 #include "nx_azure_iot_hub_client.h"
 #include "nx_azure_iot_provisioning_client.h"
 
-#include "azure/core/az_json.h"
+#include "nx_azure_iot_json_reader.h"
 
 #include "azure_iot_ciphersuites.h"
 
-#define NX_AZURE_IOT_STACK_SIZE  2048
-#define AZURE_IOT_STACK_SIZE     2048
+#define NX_AZURE_IOT_STACK_SIZE  (2*1024)
+#define AZURE_IOT_STACK_SIZE     (3*1024)
 #define AZURE_IOT_HOST_NAME_SIZE 128
 #define AZURE_IOT_DEVICE_ID_SIZE 64
 
 typedef struct AZURE_IOT_NX_CONTEXT_STRUCT AZURE_IOT_NX_CONTEXT;
 
-typedef void (*func_ptr_direct_method)(AZURE_IOT_NX_CONTEXT*, UCHAR*, USHORT, UCHAR*, USHORT, VOID*, USHORT);
-typedef void (*func_ptr_device_twin_desired_prop)(UCHAR*, UINT, UCHAR*, UINT, az_json_reader, UINT, VOID*);
-typedef void (*func_ptr_device_twin_prop)(UCHAR*, UINT, UCHAR*, UINT, az_json_reader, UINT, VOID*);
+typedef void (*func_ptr_direct_method)(AZURE_IOT_NX_CONTEXT*, const UCHAR*, USHORT, UCHAR*, USHORT, VOID*, USHORT);
+typedef void (*func_ptr_device_twin_desired_prop)(UCHAR*, UINT, UCHAR*, UINT, NX_AZURE_IOT_JSON_READER, UINT, VOID*);
+typedef void (*func_ptr_device_twin_prop)(UCHAR*, UINT, UCHAR*, UINT, NX_AZURE_IOT_JSON_READER, UINT, VOID*);
 typedef ULONG (*func_ptr_unix_time_get)(VOID);
 
 struct AZURE_IOT_NX_CONTEXT_STRUCT

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 - 2019 NXP
+ * Copyright 2018 - 2020 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -1108,8 +1108,6 @@ static inline void CLOCK_SetMode(clock_mode_t mode)
  * This function will return the external XTAL OSC frequency if it is selected as the source of OSC,
  * otherwise internal 24MHz RC OSC frequency will be returned.
  *
- * @param osc   OSC type to get frequency.
- *
  * @return  Clock frequency; If the clock is invalid, returns 0.
  */
 static inline uint32_t CLOCK_GetOscFreq(void)
@@ -1151,7 +1149,7 @@ uint32_t CLOCK_GetPerClkFreq(void);
  * This function checks the current clock configurations and then calculates
  * the clock frequency for a specific clock name defined in clock_name_t.
  *
- * @param clockName Clock names defined in clock_name_t
+ * @param name Clock names defined in clock_name_t
  * @return Clock frequency value in hertz
  */
 uint32_t CLOCK_GetFreq(clock_name_t name);
@@ -1178,7 +1176,7 @@ static inline uint32_t CLOCK_GetCpuClkFreq(void)
  * 1. Use external crystal oscillator.
  * 2. Bypass the external crystal oscillator, using input source clock directly.
  *
- * After this function, please call @ref CLOCK_SetXtal0Freq to inform clock driver
+ * After this function, please call CLOCK_SetXtal0Freq to inform clock driver
  * the external clock frequency.
  *
  * @param bypassXtalOsc Pass in true to bypass the external crystal oscillator.
@@ -1192,7 +1190,7 @@ void CLOCK_InitExternalClk(bool bypassXtalOsc);
  *
  * This function disables the external 24MHz clock.
  *
- * After this function, please call @ref CLOCK_SetXtal0Freq to set external clock
+ * After this function, please call CLOCK_SetXtal0Freq to set external clock
  * frequency to 0.
  */
 void CLOCK_DeinitExternalClk(void);
@@ -1250,7 +1248,7 @@ void CLOCK_DeinitRcOsc24M(void);
 /*! @brief Enable USB HS clock.
  *
  * This function only enables the access to USB HS prepheral, upper layer
- * should first call the @ref CLOCK_EnableUsbhs0PhyPllClock to enable the PHY
+ * should first call the CLOCK_EnableUsbhs0PhyPllClock to enable the PHY
  * clock to use USB HS.
  *
  * @param src  USB HS does not care about the clock source, here must be @ref kCLOCK_UsbSrcUnused.
@@ -1263,7 +1261,7 @@ bool CLOCK_EnableUsbhs0Clock(clock_usb_src_t src, uint32_t freq);
 /*! @brief Enable USB HS clock.
  *
  * This function only enables the access to USB HS prepheral, upper layer
- * should first call the @ref CLOCK_EnableUsbhs0PhyPllClock to enable the PHY
+ * should first call the CLOCK_EnableUsbhs0PhyPllClock to enable the PHY
  * clock to use USB HS.
  *
  * @param src  USB HS does not care about the clock source, here must be @ref kCLOCK_UsbSrcUnused.

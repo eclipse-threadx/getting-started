@@ -9,53 +9,16 @@
 /*                                                                        */
 /**************************************************************************/
 
-
-/**************************************************************************/
-/**************************************************************************/
-/**                                                                       */
-/** NetX Component                                                        */
-/**                                                                       */
-/**   User Specific                                                       */
-/**                                                                       */
-/**************************************************************************/
-/**************************************************************************/
-
-
-/**************************************************************************/
-/*                                                                        */
-/*  PORT SPECIFIC C INFORMATION                            RELEASE        */
-/*                                                                        */
-/*    nx_user.h                                           PORTABLE C      */
-/*                                                           6.0          */
-/*                                                                        */
-/*  AUTHOR                                                                */
-/*                                                                        */
-/*    William E. Lamie, Microsoft Corporation                             */
-/*                                                                        */
-/*  DESCRIPTION                                                           */
-/*                                                                        */
-/*    This file contains user defines for configuring NetX in specific    */
-/*    ways. This file will have an effect only if the application and     */
-/*    NetX library are built with NX_INCLUDE_USER_DEFINE_FILE defined.    */
-/*    Note that all the defines in this file may also be made on the      */
-/*    command line when building NetX library and application objects.    */
-/*                                                                        */
-/*  RELEASE HISTORY                                                       */
-/*                                                                        */
-/*    DATE              NAME                      DESCRIPTION             */
-/*                                                                        */
-/*  05-19-2020     William E. Lamie         Initial Version 6.0           */
-/*                                                                        */
-/**************************************************************************/
-
 #ifndef NX_USER_H
 #define NX_USER_H
 
-#define NX_DISABLE_INCLUDE_SOURCE_CODE
-
 #define NX_SECURE_ENABLE
 #define NX_ENABLE_EXTENDED_NOTIFY_SUPPORT
+#define NX_ENABLE_IP_PACKET_FILTER
+
 #define NXD_MQTT_CLOUD_ENABLE
+
+#define NX_SNTP_CLIENT_MIN_SERVER_STRATUM 3
 
 /* Define various build options for the NetX Duo port.  The application should either make changes
    here by commenting or un-commenting the conditional compilation defined OR supply the defines

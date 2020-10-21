@@ -10,6 +10,7 @@ set(TX_USER_FILE "${CMAKE_CURRENT_LIST_DIR}/threadx/tx_user.h" CACHE STRING "Ena
 
 # Define NetXDuo user configuration
 set(NX_USER_FILE "${CMAKE_CURRENT_LIST_DIR}/netxduo/nx_user.h" CACHE STRING "Enable NX user configuration")
+set(NXD_ENABLE_AZURE_IOT ON CACHE BOOL "Enable Azure IoT")
 set(NXD_ENABLE_FILE_SERVERS OFF CACHE BOOL "Disable fileX dependency by netxduo")
 
 # Disable ASC
@@ -18,15 +19,7 @@ set(NX_AZURE_DISABLE_IOT_SECURITY_MODULE ON CACHE BOOL "Disable ASC")
 # Core libraries
 add_subdirectory(${CORE_LIB_DIR}/threadx threadx)
 add_subdirectory(${CORE_LIB_DIR}/netxduo netxduo)
-add_subdirectory(${CORE_LIB_DIR}/azure-iot-preview/nx_cloud nx_cloud)
-add_subdirectory(${CORE_LIB_DIR}/azure-iot-preview/azure_iot azure_iot)
 add_subdirectory(${CORE_LIB_DIR}/jsmn jsmn)
-
-# Bind the nx_cloud preview include into the existing netxduo
-target_include_directories(netxduo 
-    PUBLIC
-        ${CORE_LIB_DIR}/azure-iot-preview/nx_cloud
-)
 
 add_subdirectory(netx_driver)
 add_subdirectory(MIMXRT1060-evk)

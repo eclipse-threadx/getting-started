@@ -13,7 +13,7 @@ typedef enum
 } WiFi_Mode;
 
 // ----------------------------------------------------------------------------
-// WiFi connection information
+// WiFi connection config
 // ----------------------------------------------------------------------------
 #define WIFI_SSID     "Spencer MSFT PC"
 #define WIFI_PASSWORD "@azureiot"
@@ -21,9 +21,9 @@ typedef enum
 
 // ----------------------------------------------------------------------------
 // Azure IoT Hub Connection Transport
-// Define this to use the nx client, otherwise MQTT
+// Define to use the legacy MQTT connection, else Azure RTOS SDK for Azure IoT
 // ----------------------------------------------------------------------------
-#define USE_NX_CLIENT_PREVIEW
+//#define ENABLE_LEGACY_MQTT
 
 // ----------------------------------------------------------------------------
 // Azure IoT Dynamic Provisioning Service
