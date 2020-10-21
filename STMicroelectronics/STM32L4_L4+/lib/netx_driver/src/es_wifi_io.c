@@ -70,7 +70,7 @@ static  void SPI_WIFI_DelayUs(uint32_t);
   * @param  hspi: SPI handle
   * @retval None
   */
-void SPI_WIFI_MspInit(SPI_HandleTypeDef* hspi)
+void SPI_WIFI_MspInit(SPI_HandleTypeDef* _hspi)
 {
   
   GPIO_InitTypeDef GPIO_Init;
@@ -480,7 +480,7 @@ void SPI_WIFI_DelayUs(uint32_t n)
   * @retval None
   */
 
-void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
+void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *_hspi)
 {
   if (spi_rx_event)
   {
@@ -495,7 +495,7 @@ void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
   *               the configuration information for SPI module.
   * @retval None
   */
-void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
+void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *_hspi)
 {
   if (spi_tx_event)
   {
