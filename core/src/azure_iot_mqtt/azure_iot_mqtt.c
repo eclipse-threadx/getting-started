@@ -191,7 +191,10 @@ static UINT mqtt_publish_float(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR
 {
     CHAR mqtt_message[100];
 
-    snprintf(mqtt_message, sizeof(mqtt_message), "{\"%s\":%3.2f}", label, value);
+    int decvalue = value;
+    int fracvalue = abs(100 * (value - (long)value));
+    
+    snprintf(mqtt_message, sizeof(mqtt_message), "{\"%s\":%d.%2d}", label, decvalue, fracvalue);
     printf("Sending message %s\r\n", mqtt_message);
 
     return mqtt_publish(azure_iot_mqtt, topic, mqtt_message);
