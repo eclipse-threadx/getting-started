@@ -4,9 +4,9 @@
 set(SOURCES
     startup/${THREADX_TOOLCHAIN}/startup_MIMXRT1062.S
     startup/${THREADX_TOOLCHAIN}/tx_initialize_low_level.S
+    legacy/mqtt.c
     azure_config.h
     nx_client.c
-    mqtt.c
     board_init.c
     console.c
     main.c
@@ -30,6 +30,7 @@ set_target_properties(${PROJECT_NAME}
         SUFFIX ".elf"
 )
 
+<<<<<<< HEAD
 post_build(${PROJECT_NAME})
 
 if(THREADX_TOOLCHAIN STREQUAL "iar")
@@ -41,3 +42,12 @@ else()
         PRIVATE 
             -T${CMAKE_CURRENT_LIST_DIR}/startup/gnu/MIMXRT1062xxxxx_flexspi_nor.ld -Wl,-Map=${PROJECT_NAME}.map)
 endif()
+=======
+target_include_directories(${PROJECT_NAME} 
+    PUBLIC 
+        .
+)
+
+create_bin_output(${PROJECT_NAME})
+firmware_size(${PROJECT_NAME})
+>>>>>>> 34dfa2208822b469070a14987be10424ba048aee

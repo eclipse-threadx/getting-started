@@ -613,7 +613,10 @@ UINT azure_iot_nx_client_publish_float_telemetry(AZURE_IOT_NX_CONTEXT* context, 
     CHAR buffer[30];
     NX_PACKET* packet_ptr;
 
-    if (snprintf(buffer, sizeof(buffer), "{\"%s\":%0.2f}", key, value) > sizeof(buffer) - 1)
+    int intvalue = value;
+    int fracvalue = abs(100 * (value - (long)value));
+
+    if (snprintf(buffer, sizeof(buffer), "{\"%s\":%d.%2d}", key, intvalue, fracvalue) > sizeof(buffer) - 1)
     {
         printf("ERROR: insufficient buffer size to publish float telemetry\r\n");
         return NX_SIZE_ERROR;
@@ -648,7 +651,10 @@ UINT azure_iot_nx_client_publish_float_property(AZURE_IOT_NX_CONTEXT* context, C
     ULONG version;
     CHAR buffer[30];
 
-    if (snprintf(buffer, sizeof(buffer), "{\"%s\":%0.2f}", key, value) > sizeof(buffer) - 1)
+    int intvalue = value;
+    int fracvalue = abs(100 * (value - (long)value));
+
+    if (snprintf(buffer, sizeof(buffer), "{\"%s\":%d.%2d}", key, intvalue, fracvalue) > sizeof(buffer) - 1)
     {
         printf("ERROR: insufficient buffer size to publish float property\r\n");
         return NX_SIZE_ERROR;

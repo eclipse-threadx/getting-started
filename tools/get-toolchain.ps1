@@ -3,10 +3,10 @@
 
 echo "`nInstalling prerequisites. Please leave the window open until the installation completes."
 
-$cmake_path = 'https://github.com/Kitware/CMake/releases/download/v3.18.3'
-$cmake_file = 'cmake-3.18.3-win32-x86.msi'
-$cmake_name = 'CMake v3.18.3'
-$cmake_hash = 'F39D53371F5330F0C18C544A78F9654B9F799050B157783BD9E0E20F28F27821'
+$cmake_path = 'https://github.com/Kitware/CMake/releases/download/v3.18.4'
+$cmake_file = 'cmake-3.18.4-win32-x86.msi'
+$cmake_name = 'CMake v3.18.4'
+$cmake_hash = 'A92A7CE26FC4BBB6F22590468D1260C95F82EB2C06C0DFDE0F810AD5979D0490'
 
 $gccarm_path = 'https://developer.arm.com/-/media/Files/downloads/gnu-rm/9-2019q4'
 $gccarm_file = 'gcc-arm-none-eabi-9-2019-q4-major-win32-sha2.exe'
@@ -18,10 +18,10 @@ $termite_file = 'termite-3.4.exe'
 $termite_name = 'Termite v3.4'
 $termite_hash = 'CA440B6C7F6EAA812BA5F8BF42AED86E02022CA50A1C72585168C9B671D0FE19'
 
-$iot_explorer_path = 'https://github.com/Azure/azure-iot-explorer/releases/download/v0.12.0'
-$iot_explorer_file = 'Azure.IoT.Explorer.preview.0.12.0.msi'
-$iot_explorer_name = 'Azure IoT Explorer v0.12.0'
-$iot_explorer_hash = 'F0A50F1C5B4DAC4D14E0DBF12470C86C94612A5BDDB96D9E9D45277320BD2E49'
+$iot_explorer_path = 'https://github.com/Azure/azure-iot-explorer/releases/download/v0.13.0'
+$iot_explorer_file = 'Azure.IoT.Explorer.preview.0.13.0.msi'
+$iot_explorer_name = 'Azure IoT Explorer v0.13.0'
+$iot_explorer_hash = 'BF8DF6BC98A3E6F8262DC435779B44E6840C568ADAB8949004546449F2400D1E'
 
 echo "`nDownloading packages..."
 

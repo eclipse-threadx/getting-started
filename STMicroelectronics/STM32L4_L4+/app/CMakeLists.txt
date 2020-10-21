@@ -3,15 +3,13 @@
 
 set(SOURCES
     startup/${THREADX_TOOLCHAIN}/tx_initialize_low_level.S
-    
     stm32cubel4/stm32l4xx_hal_msp.c
     stm32cubel4/stm32l4xx_it.c
-
+    legacy/mqtt.c
     azure_config.h
     board_init.c
     console.c
     main.c
-    mqtt.c
     nx_client.c
     stm_networking.c
 )
@@ -35,6 +33,11 @@ function(create_target TARGET STARTUP LINKER)
     set_target_properties(${TARGET}
         PROPERTIES 
             SUFFIX ".elf"
+    )
+
+    target_include_directories(${TARGET} 
+        PUBLIC 
+            .
     )
 
     post_build(${TARGET})

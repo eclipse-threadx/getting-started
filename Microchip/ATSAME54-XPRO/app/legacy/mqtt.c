@@ -5,6 +5,9 @@
 
 #include <stdio.h>
 
+#include "Bosch_BME280.h"
+#include "atmel_start.h"
+
 #include "azure_iot_mqtt.h"
 #include "json_utils.h"
 #include "sntp_client.h"
@@ -27,19 +30,19 @@ static void set_led_state(bool level)
 {
     if (level)
     {
+        // Pin level set to "low" state
         printf("LED is turned ON\r\n");
-        // The User LED on the board shares the same pin as ENET RST so is unusable
-        // USER_LED_ON();
     }
     else
     {
+        // Pin level set to "high" state
         printf("LED is turned OFF\r\n");
-        // The User LED on the board shares the same pin as ENET RST so is unusable
-        // USER_LED_OFF();
     }
+
+    gpio_set_pin_level(PC18, !level);
 }
 
-static void mqtt_direct_method(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* direct_method_name, CHAR* message)
+static void mqtt_direct_method(AZURE_IOT_MQTT* iot_mqtt, CHAR* direct_method_name, CHAR* message)
 {
     if (strcmp(direct_method_name, "setLedState") == 0)
     {
@@ -52,24 +55,25 @@ static void mqtt_direct_method(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* direct_meth
         set_led_state(arg);
 
         // Return success
-        azure_iot_mqtt_respond_direct_method(azure_iot_mqtt, 200);
+        azure_iot_mqtt_respond_direct_method(iot_mqtt, 200);
 
         // Update device twin property
-        azure_iot_mqtt_publish_bool_property(azure_iot_mqtt, LED_STATE_PROPERTY, arg);
+        azure_iot_mqtt_publish_bool_property(iot_mqtt, LED_STATE_PROPERTY, arg);
     }
     else
     {
         printf("Received direct method=%s is unknown\r\n", direct_method_name);
-        azure_iot_mqtt_respond_direct_method(azure_iot_mqtt, 501);
+        azure_iot_mqtt_respond_direct_method(iot_mqtt, 501);
     }
 }
 
-static void mqtt_c2d_message(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* properties, CHAR* message)
+static void mqtt_c2d_message(AZURE_IOT_MQTT* iot_mqtt, CHAR* properties, CHAR* message)
 {
     printf("Received C2D message, properties='%s', message='%s'\r\n", properties, message);
 }
 
-static void mqtt_device_twin_desired_prop(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* message)
+
+static void mqtt_device_twin_desired_prop(AZURE_IOT_MQTT* iot_mqtt, CHAR* message)
 {
     jsmn_parser parser;
     jsmntok_t tokens[64];
@@ -85,11 +89,11 @@ static void mqtt_device_twin_desired_prop(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* 
 
         // Confirm reception back to hub
         azure_iot_mqtt_respond_int_writeable_property(
-            azure_iot_mqtt, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval, 200);
+            iot_mqtt, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval, 200);
     }
 }
 
-static void mqtt_device_twin_prop(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* message)
+static void mqtt_device_twin_prop(AZURE_IOT_MQTT* iot_mqtt, CHAR* message)
 {
     jsmn_parser parser;
     jsmntok_t tokens[64];
@@ -105,10 +109,10 @@ static void mqtt_device_twin_prop(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* message)
     }
 
     // Report writeable properties to the Hub
-    azure_iot_mqtt_publish_int_writeable_property(azure_iot_mqtt, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
+    azure_iot_mqtt_publish_int_writeable_property(iot_mqtt, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
 }
 
-UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, ULONG (*sntp_time_get)(VOID))
+UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, ULONG (*time_get)(VOID))
 {
     UINT status;
     ULONG events;
@@ -126,10 +130,10 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
         ip_ptr,
         pool_ptr,
         dns_ptr,
-        sntp_time_get,
+        time_get,
         IOT_DPS_ENDPOINT,
         IOT_DPS_ID_SCOPE,
-        IOT_DPS_REGISTRATION_ID,
+        IOT_DEVICE_ID,
         IOT_PRIMARY_KEY,
         IOT_MODEL_ID);
 #else
@@ -138,7 +142,7 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
         ip_ptr,
         pool_ptr,
         dns_ptr,
-        sntp_time_get,
+        time_get,
         IOT_HUB_HOSTNAME,
         IOT_DEVICE_ID,
         IOT_PRIMARY_KEY,
@@ -171,17 +175,24 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
     // Request the device twin
     azure_iot_mqtt_device_twin_request(&azure_iot_mqtt);
 
-    printf("\r\nStarting MQTT loop\r\n");
+    printf("Starting MQTT loop\r\n");
     while (true)
     {
-        temperature = 28.5;
-
         // Sleep
         tx_event_flags_get(
             &azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR_CLEAR, &events, telemetry_interval * NX_IP_PERIODIC_RATE);
+                    
+#if __SENSOR_BME280__ == 1
+        // Print the compensated temperature readings
+        WeatherClick_waitforRead();
+        temperature = Weather_getTemperatureDegC();
+#else
+        temperature = 23.5;
+#endif
 
         // Send the temperature as a telemetry event
         azure_iot_mqtt_publish_float_telemetry(&azure_iot_mqtt, "temperature", temperature);
+
     }
 
     return NXD_MQTT_SUCCESS;
