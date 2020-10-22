@@ -4,6 +4,7 @@
 [submodule "core/lib/netxduo"]
 	path = core/lib/netxduo
 	url = https://github.com/azure-rtos/netxduo.git
+	branch = 1702f992c3a898e161a89e6f1466b38b89b1de10
 [submodule "core/lib/jsmn/src"]
 	path = core/lib/jsmn/src
 	url = https://github.com/zserge/jsmn
