@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<EmbeddedProfile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <ToolchainID>com.sysprogs.gnuarm.arm-eabi</ToolchainID>
+  <ToolchainVersion>
+    <GCC>9.2.1</GCC>
+    <GDB>8.0</GDB>
+    <Revision>1</Revision>
+  </ToolchainVersion>
+  <BspID>com.sysprogs.atstart.ATSAME54P20A</BspID>
+  <BspVersion>1.0</BspVersion>
+  <McuID>ATSAME54P20A</McuID>
+  <MCUProperties>
+    <Entries />
+  </MCUProperties>
+  <BSPSourceFolderName>Device-specific files</BSPSourceFolderName>
+  <MCUMakFile>mcu.mak</MCUMakFile>
+  <ReferencedFrameworks />
+  <FrameworkProperties>
+    <Entries />
+  </FrameworkProperties>
+  <TestFrameworkProperties>
+    <Entries />
+  </TestFrameworkProperties>
+</EmbeddedProfile>
