@@ -3223,6 +3223,12 @@
                         </group>
                     </group>
                     <file>
+                        <name>$PROJ_DIR$\..\..\..\..\core\lib\netxduo\addons\azure_iot\nx_azure_iot.c</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\..\core\lib\netxduo\addons\azure_iot\nx_azure_iot.h</name>
+                    </file>
+                    <file>
                         <name>$PROJ_DIR$\..\..\..\..\core\lib\netxduo\addons\azure_iot\nx_azure_iot_hub_client.c</name>
                     </file>
                     <file>
