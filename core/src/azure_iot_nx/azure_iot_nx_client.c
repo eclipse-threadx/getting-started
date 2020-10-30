@@ -218,7 +218,7 @@ static VOID event_thread(ULONG parameter)
 }
 
 NX_SECURE_X509_CERT device_certificate;
-NX_SECURE_X509_CERT iothub_device_certificate;
+// NX_SECURE_X509_CERT iot_hub_device_certificate;
 UINT azure_iot_nx_client_x509_create_common(AZURE_IOT_NX_CONTEXT* context,
     CHAR* iot_hub_hostname,
     CHAR* iot_device_id,
@@ -281,7 +281,7 @@ UINT azure_iot_nx_client_x509_create_common(AZURE_IOT_NX_CONTEXT* context,
 
     /* Initialize the device certificate.  */
     printf("----- INITIALIZE DEVICE CERTIFICATE -----\n");
-    if ((status = nx_secure_x509_certificate_initialize(&iothub_device_certificate, (UCHAR*)device_cert, (USHORT)x509_cert_len, NX_NULL, 0,
+    if ((status = nx_secure_x509_certificate_initialize(device_certificate_ptr, (UCHAR*)device_cert, (USHORT)x509_cert_len, NX_NULL, 0,
                                                         (UCHAR*)private_key, (USHORT)x509_key_len, NX_SECURE_X509_KEY_TYPE_RSA_PKCS1_DER)))
     {
         printf("Failed on nx_secure_x509_certificate_initialize!: error code = 0x%08x\r\n", status);
@@ -289,7 +289,7 @@ UINT azure_iot_nx_client_x509_create_common(AZURE_IOT_NX_CONTEXT* context,
     }
 
     /* Set device certificate.  */
-    else if ((status = nx_azure_iot_hub_client_device_cert_set(&context->iothub_client, &iothub_device_certificate)))
+    else if ((status = nx_azure_iot_hub_client_device_cert_set(&context->iothub_client, device_certificate_ptr)))
     {
         printf("Failed on nx_azure_iot_hub_client_device_cert_set!: error code = 0x%08x\r\n", status);
     }
@@ -347,11 +347,9 @@ UINT azure_iot_nx_client_x509_create_common(AZURE_IOT_NX_CONTEXT* context,
         printf("ERROR: device twin desired property callback set (0x%08x)\r\n", status);
     }
 
-    printf("finish initializing shit\n");
     if (status != NX_AZURE_IOT_SUCCESS)
     {
         nx_azure_iot_hub_client_deinitialize(&context->iothub_client);
-        printf("didn't work, deinitialize\n");
     }
 
     return status;
