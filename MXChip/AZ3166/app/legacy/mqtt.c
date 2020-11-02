@@ -180,6 +180,7 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
 
     printf("Starting MQTT loop\r\n");
     screen_print("Azure IoT", L0);
+
     while (true)
     {
         // Sleep
