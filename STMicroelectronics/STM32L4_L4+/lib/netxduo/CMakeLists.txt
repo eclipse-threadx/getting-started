@@ -433,7 +433,7 @@ set(SOURCES
     ${CORE_LIB_DIR}/netxduo/nx_secure/src/nx_secure_x509_store_certificate_remove.c
     ${CORE_LIB_DIR}/netxduo/nx_secure/src/nx_secure_x509_subject_alt_names_find.c
     ${CORE_LIB_DIR}/netxduo/nx_secure/src/nx_secure_x509_wildcard_compare.c
-    
+
     ${CORE_LIB_DIR}/netxduo/addons/dns/nxd_dns.c
     ${CORE_LIB_DIR}/netxduo/addons/sntp/nxd_sntp_client.c
     ${CORE_LIB_DIR}/netxduo/addons/mqtt/nxd_mqtt_client.c
@@ -444,9 +444,6 @@ set(TARGET netxduo)
 
 add_library(${TARGET} OBJECT)
 add_library("azrtos::${TARGET}" ALIAS ${TARGET})
-
-#add_subdirectory(${CORE_LIB_DIR}/netxduo/crypto_libraries nextduo_crypto_libraries)
-#add_subdirectory(${CORE_LIB_DIR}/netxduo/nx_secure nextduo_nx_secure)
 
 # Append Azure IoT file if the user wants it
 if(NXD_ENABLE_AZURE_IOT)
@@ -460,16 +457,10 @@ if(NXD_ENABLE_AZURE_IOT)
 
     set(ENV{AZ_SDK_C_NO_SAMPLES} TRUE)
     add_subdirectory(${CORE_LIB_DIR}/netxduo/addons/azure_iot/azure-sdk-for-c azure_sdk_for_c)
-    target_link_libraries(${TARGET} 
+    target_link_libraries(${TARGET}
         PUBLIC 
-            az::iot::hub 
+            az::iot::hub
             az::iot::provisioning)
-
-    if(${NX_AZURE_DISABLE_IOT_SECURITY_MODULE})
-        target_compile_definitions(${TARGET} PUBLIC -DNX_AZURE_DISABLE_IOT_SECURITY_MODULE)
-    else()
-        add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/azure_iot/azure_iot_security_module)
-    endif()            
 endif()
 
 target_sources(${TARGET}
@@ -480,6 +471,7 @@ target_sources(${TARGET}
 target_compile_definitions(${TARGET}
     PUBLIC 
         NX_INCLUDE_USER_DEFINE_FILE
+        NX_AZURE_DISABLE_IOT_SECURITY_MODULE
 )
 
 target_include_directories(${TARGET} 

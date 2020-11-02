@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 
+#include "screen.h"
 #include "sensor.h"
 #include "stm32f4xx_hal.h"
 
@@ -201,6 +202,7 @@ UINT azure_iot_nx_client_entry(
     azure_iot_nx_client_publish_bool_property(&azure_iot_nx_client, LED_STATE_PROPERTY, false);
 
     printf("\r\nStarting Main loop\r\n");
+    screen_print("Azure IoT", L0);
 
     while (true)
     {
