@@ -8,7 +8,7 @@
 // 0 - BME280 sensor is not present
 // 1 - BME280 sensor is present
 // ----------------------------------------------------------------------------
-#define __SENSOR_BME280__ 1
+#define __SENSOR_BME280__ 0
 
 // ----------------------------------------------------------------------------
 // Azure IoT Hub Connection Transport

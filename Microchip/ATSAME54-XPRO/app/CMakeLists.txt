@@ -16,6 +16,7 @@ set(SOURCES
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
+target_include_directories(atsame54_azure_iot PRIVATE ../../../Users/spmcdono/Documents/work/getting-started/core/lib/threadx/common_smp/inc ../../../Users/spmcdono/Documents/work/getting-started/Microchip/ATSAME54-XPRO/build/lib/netxduo/custom_inc)
 target_link_libraries(${PROJECT_NAME}
     PUBLIC
         azrtos::threadx

@@ -12,8 +12,8 @@
 
 #include "azure_iot_ciphersuites.h"
 
-#define NX_AZURE_IOT_STACK_SIZE  (3*1024) // MOD
-#define AZURE_IOT_STACK_SIZE     (5*1024) // MOD
+#define NX_AZURE_IOT_STACK_SIZE  (2*1024)
+#define AZURE_IOT_STACK_SIZE     (3*1024)
 #define AZURE_IOT_HOST_NAME_SIZE 128
 #define AZURE_IOT_DEVICE_ID_SIZE 64
 
