@@ -13,7 +13,7 @@ bool findJsonInt(const char* json, jsmntok_t* tokens, int tokens_count, const ch
     {
         if (tokens[i].type == JSMN_STRING && tokens[i + 1].type == JSMN_PRIMITIVE)
         {
-            if ((strlen(s) == tokens[i].end - tokens[i].start) &&
+            if (((int)strlen(s) == tokens[i].end - tokens[i].start) &&
                 (strncmp(json + tokens[i].start, s, tokens[i].end - tokens[i].start) == 0))
             {
                 *value = atoi(json + tokens[i + 1].start);
@@ -35,7 +35,7 @@ bool findJsonString(const char* json, jsmntok_t* tokens, int tokens_count, const
         if (tokens[i].type == JSMN_STRING && tokens[i + 1].type == JSMN_STRING)
         {
             key_len = tokens[i].end - tokens[i].start;
-            if ((strlen(s) == key_len) && (strncmp(json + tokens[i].start, s, key_len) == 0))
+            if (((int)strlen(s) == key_len) && (strncmp(json + tokens[i].start, s, key_len) == 0))
             {
                 value_len = tokens[i + 1].end - tokens[i + 1].start;
                 strncpy(value, json + tokens[i + 1].start, value_len);
