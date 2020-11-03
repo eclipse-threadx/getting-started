@@ -21,6 +21,9 @@
 #define MODULE_ID   ""
 #define DPS_PAYLOAD "{\"modelId\":\"%s\"}"
 
+#define DPS_PAYLOAD_SIZE    200
+#define PUBLISH_BUFFER_SIZE 64
+
 static VOID connection_status_callback(NX_AZURE_IOT_HUB_CLIENT* hub_client_ptr, UINT status)
 {
     if (status)
@@ -95,7 +98,7 @@ static VOID process_device_twin_get(AZURE_IOT_NX_CONTEXT* nx_context)
     UINT status;
     NX_PACKET* packet_ptr;
     NX_AZURE_IOT_JSON_READER json_reader;
-    UCHAR buffer[128];
+    UCHAR buffer[PUBLISH_BUFFER_SIZE];
 
     if ((status = nx_azure_iot_hub_client_device_twin_properties_receive(
              &nx_context->iothub_client, &packet_ptr, NX_WAIT_FOREVER)))
@@ -127,7 +130,7 @@ static VOID process_device_twin_get(AZURE_IOT_NX_CONTEXT* nx_context)
                  NX_NULL,
                  0,
                  buffer,
-                 sizeof(buffer),
+                 PUBLISH_BUFFER_SIZE,
                  nx_context->device_twin_get_cb,
                  nx_context)))
         {
@@ -430,7 +433,7 @@ UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CONTEXT* context,
     CHAR* device_model_id)
 {
     UINT status;
-    CHAR payload[200];
+    CHAR payload[DPS_PAYLOAD_SIZE];
     UINT iot_hub_hostname_len = AZURE_IOT_HOST_NAME_SIZE;
     UINT iot_device_id_len    = AZURE_IOT_DEVICE_ID_SIZE;
 
@@ -453,7 +456,7 @@ UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CONTEXT* context,
 
     memset(context, 0, sizeof(AZURE_IOT_NX_CONTEXT));
 
-    if (snprintf(payload, sizeof(payload), DPS_PAYLOAD, device_model_id) > sizeof(payload) - 1)
+    if (snprintf(payload, sizeof(payload), DPS_PAYLOAD, device_model_id) > DPS_PAYLOAD_SIZE - 1)
     {
         printf("ERROR: insufficient buffer size to create DPS payload\r\n");
         return NX_SIZE_ERROR;
@@ -610,13 +613,13 @@ UINT azure_iot_nx_client_disconnect(AZURE_IOT_NX_CONTEXT* context)
 UINT azure_iot_nx_client_publish_float_telemetry(AZURE_IOT_NX_CONTEXT* context, CHAR* key, float value)
 {
     UINT status;
-    CHAR buffer[30];
+    CHAR buffer[PUBLISH_BUFFER_SIZE];
     NX_PACKET* packet_ptr;
 
-    int intvalue = value;
+    int intvalue  = value;
     int fracvalue = abs(100 * (value - (long)value));
 
-    if (snprintf(buffer, sizeof(buffer), "{\"%s\":%d.%2d}", key, intvalue, fracvalue) > sizeof(buffer) - 1)
+    if (snprintf(buffer, PUBLISH_BUFFER_SIZE, "{\"%s\":%d.%2d}", key, intvalue, fracvalue) > PUBLISH_BUFFER_SIZE - 1)
     {
         printf("ERROR: insufficient buffer size to publish float telemetry\r\n");
         return NX_SIZE_ERROR;
@@ -649,12 +652,12 @@ UINT azure_iot_nx_client_publish_float_property(AZURE_IOT_NX_CONTEXT* context, C
     UINT response_status;
     UINT request_id;
     ULONG version;
-    CHAR buffer[30];
+    CHAR buffer[PUBLISH_BUFFER_SIZE];
 
-    int intvalue = value;
+    int intvalue  = value;
     int fracvalue = abs(100 * (value - (long)value));
 
-    if (snprintf(buffer, sizeof(buffer), "{\"%s\":%d.%2d}", key, intvalue, fracvalue) > sizeof(buffer) - 1)
+    if (snprintf(buffer, PUBLISH_BUFFER_SIZE, "{\"%s\":%d.%2d}", key, intvalue, fracvalue) > PUBLISH_BUFFER_SIZE - 1)
     {
         printf("ERROR: insufficient buffer size to publish float property\r\n");
         return NX_SIZE_ERROR;
@@ -689,9 +692,9 @@ UINT azure_iot_nx_client_publish_bool_property(AZURE_IOT_NX_CONTEXT* context, CH
     UINT response_status;
     UINT request_id;
     ULONG version;
-    CHAR buffer[64];
+    CHAR buffer[PUBLISH_BUFFER_SIZE];
 
-    if (snprintf(buffer, sizeof(buffer), "{\"%s\":%s}", key, (value ? "true" : "false")) > sizeof(buffer) - 1)
+    if (snprintf(buffer, PUBLISH_BUFFER_SIZE, "{\"%s\":%s}", key, (value ? "true" : "false")) > PUBLISH_BUFFER_SIZE - 1)
     {
         printf("ERROR: Unsufficient buffer size to publish bool property\r\n");
         return NX_SIZE_ERROR;
@@ -727,17 +730,17 @@ UINT azure_nx_client_respond_int_writeable_property(
     UINT response_status;
     UINT request_id;
     ULONG version_dt;
-    CHAR message[100];
+    CHAR message[PUBLISH_BUFFER_SIZE];
 
     printf("Responding to writeable property %s = %d\r\n", property, value);
 
     if (snprintf(message,
-            sizeof(message),
+            PUBLISH_BUFFER_SIZE,
             "{\"%s\":{\"value\":%d,\"ac\":%d,\"av\":%d}}",
             property,
             value,
             http_status,
-            version) > sizeof(message) - 1)
+            version) > PUBLISH_BUFFER_SIZE - 1)
     {
         printf("ERROR: insufficient buffer size to respond to writeable property\r\n");
         return NX_SIZE_ERROR;

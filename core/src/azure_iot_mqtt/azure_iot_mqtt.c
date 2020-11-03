@@ -348,7 +348,7 @@ static VOID mqtt_notify_cb(NXD_MQTT_CLIENT* client_ptr, UINT number_of_messages)
 
     AZURE_IOT_MQTT* azure_iot_mqtt = (AZURE_IOT_MQTT*)client_ptr->nxd_mqtt_packet_receive_context;
 
-    for (int count = 0; count < number_of_messages; ++count)
+    for (UINT count = 0; count < number_of_messages; ++count)
     {
         // Get the mqtt client message
         status = nxd_mqtt_client_message_get(client_ptr,
