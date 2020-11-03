@@ -65,8 +65,6 @@ void _exit(int status)
 
 void _kill(int pid, int sig)
 {
-    (void)pid;
-    (void)sig;
     return;
 }
 
