@@ -15,8 +15,8 @@ typedef enum
 // ----------------------------------------------------------------------------
 // WiFi connection config
 // ----------------------------------------------------------------------------
-#define WIFI_SSID     "Spencer MSFT PC"
-#define WIFI_PASSWORD "@azureiot"
+#define WIFI_SSID     "Daddy Leroy"
+#define WIFI_PASSWORD "leroyjenkins"
 #define WIFI_MODE     WPA2_PSK_AES
 
 // ----------------------------------------------------------------------------
@@ -49,6 +49,6 @@ typedef enum
 // ----------------------------------------------------------------------------
 // Azure IoT DPS X509 config
 // ----------------------------------------------------------------------------
-#define ENABLE_X509
+// #define ENABLE_X509
 
 #endif // _AZURE_CONFIG_H

@@ -126,3 +126,26 @@ Credits: Jelani Brandon, Ricardo Minguez Pablos (Rido), Ryan Walker
 		
 		
 		
+
+Client Key Print
+nx_secure_tls_send_clienthello.c#205
+```c
+// MOD
+printf("CLIENT_RANDOM ");
+for (UINT i = 0; i < sizeof(tls_session -> nx_secure_tls_key_material.nx_secure_tls_client_random); i++) 
+{
+	printf("%02x", tls_session -> nx_secure_tls_key_material.nx_secure_tls_client_random[i]);
+}
+printf(" ");
+printf("\n");
+```
+
+nx_secure_tls_generate_keys.c#239
+```c
+// MOD
+for (UINT i = 0; i < 48; i++)
+{
+	printf("%02x", master_sec[i]);
+}
+printf("\r\n");
+```
