@@ -19,6 +19,7 @@
 #include "azure_iot_nx_client.h"
 
 #include "azure_config.h"
+#include "azure_dps_x509_cert_config.h"
 
 #define IOT_MODEL_ID                "dtmi:com:example:azurertos:gsg;1"
 #define TELEMETRY_INTERVAL_PROPERTY "telemetryInterval"
@@ -151,8 +152,7 @@ UINT azure_iot_nx_client_entry(
     }
 
 #if defined(ENABLE_DPS) && defined(ENABLE_X509)
-#include "azure_dps_x509_cert_config.h"
-    status = azure_iot_nx_client_dps_x509_create(&azure_iot_nx_client,
+    status = azure_iot_nx_client_dps_create(&azure_iot_nx_client,
         ip_ptr,
         pool_ptr,
         dns_ptr,
@@ -160,6 +160,7 @@ UINT azure_iot_nx_client_entry(
         IOT_DPS_ENDPOINT,
         IOT_DPS_ID_SCOPE,
         IOT_DPS_REGISTRATION_ID,
+        IOT_PRIMARY_KEY,
         (UCHAR*)iot_x509_device_cert,
         iot_x509_device_cert_len,
         (UCHAR*)iot_x509_private_key,

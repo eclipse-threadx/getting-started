@@ -58,6 +58,7 @@ UINT azure_iot_nx_client_register_device_twin_desired_prop(
     AZURE_IOT_NX_CONTEXT* context, func_ptr_device_twin_desired_prop callback);
 UINT azure_iot_nx_client_register_device_twin_prop(AZURE_IOT_NX_CONTEXT* context, func_ptr_device_twin_prop callback);
 
+NX_SECURE_X509_CERT device_certificate;
 UINT azure_iot_nx_client_create(AZURE_IOT_NX_CONTEXT* context,
     NX_IP* nx_ip,
     NX_PACKET_POOL* nx_pool,
@@ -77,30 +78,10 @@ UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CONTEXT* context,
     CHAR* dps_id_scope,
     CHAR* dps_registration_id,
     CHAR* device_sas_key,
-    CHAR* device_model_id);
-
-UINT azure_iot_nx_client_x509_create_common(AZURE_IOT_NX_CONTEXT* context,
-    CHAR* iot_hub_hostname,
-    CHAR* iot_device_id,
-    CHAR* device_model_id,
-    UCHAR* device_cert,
-    UINT x509_cert_len,
-    UCHAR* private_key,
-    UINT x509_key_len,
-    NX_SECURE_X509_CERT* device_certificate_ptr);
-
-UINT azure_iot_nx_client_dps_x509_create(AZURE_IOT_NX_CONTEXT* context,
-    NX_IP* nx_ip,
-    NX_PACKET_POOL* nx_pool,
-    NX_DNS* nx_dns,
-    UINT (*unix_time_callback)(ULONG* unix_time),
-    CHAR* dps_endpoint,
-    CHAR* dps_id_scope,
-    CHAR* dps_registration_id,
-    UCHAR* device_cert,
-    UINT x509_cert_len,
-    UCHAR* private_key,
-    UINT x509_key_len,
+    UCHAR* device_x509_cert,
+    UINT device_x509_cert_len,
+    UCHAR* device_x509_key,
+    UINT device_x509_key_len,
     CHAR* device_model_id);
 
 UINT azure_iot_nx_client_delete(AZURE_IOT_NX_CONTEXT* context);
