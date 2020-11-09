@@ -36,7 +36,7 @@ typedef enum
 // ----------------------------------------------------------------------------
 #define IOT_HUB_HOSTNAME "getting-started-guide-iot-hub.azure-devices.net"
 #define IOT_DEVICE_ID    "spmcdono-device"
-#define IOT_PRIMARY_KEY  "v6Ht1YZZeB9VOC6UWQFkkiSmzYTRQNBzWptIdSmM/OAiRu+jIUKdHKb0xt9nuQsumFf4WUlOqNqhDPTiEmRjrg=="
+#define IOT_PRIMARY_KEY  ""
 // #define IOT_PRIMARY_KEY  ""
 
 // ----------------------------------------------------------------------------
@@ -48,6 +48,7 @@ typedef enum
 
 // ----------------------------------------------------------------------------
 // Azure IoT DPS X509 config
+// NOTE: Please make sure IOT_PRIMARY_KEY == "" to use x509 certificate
 // ----------------------------------------------------------------------------
 #define ENABLE_X509
 
