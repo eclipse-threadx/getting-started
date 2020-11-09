@@ -323,7 +323,7 @@ void ssd1306_Polyline(const SSD1306_VERTEX *par_vertex, uint16_t par_size, SSD13
 }
 /*Convert Degrees to Radians*/
 static float ssd1306_DegToRad(float par_deg) {
-	return par_deg * 3.14 / 180.0;
+	return par_deg * 3.14f / 180.0f;
 }
 /*Normalize degree to [0;360]*/
 static uint16_t ssd1306_NormalizeTo0_360(uint16_t par_deg) {
