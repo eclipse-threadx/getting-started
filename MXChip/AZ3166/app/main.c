@@ -90,7 +90,6 @@ void tx_application_define(void* first_unused_memory)
 
 int main(void)
 {
-    printf("testing debugger\n");
     // Initialise the board
     board_init();
 
