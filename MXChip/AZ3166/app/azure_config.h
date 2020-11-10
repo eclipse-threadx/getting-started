@@ -47,7 +47,7 @@ typedef enum
 // ----------------------------------------------------------------------------
 // Azure IoT DPS config
 // ----------------------------------------------------------------------------
-#define IOT_DPS_ENDPOINT        ""
+#define IOT_DPS_ENDPOINT        "global.azure-devices-provisioning.net"
 #define IOT_DPS_ID_SCOPE        ""
 #define IOT_DPS_REGISTRATION_ID ""
 
