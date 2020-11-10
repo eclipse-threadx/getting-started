@@ -29,15 +29,20 @@ typedef enum
 // Azure IoT Dynamic Provisioning Service
 // Define this to use the DPS service, otherwise direct IoT Hub
 // ----------------------------------------------------------------------------
-#define ENABLE_DPS
+// #define ENABLE_DPS
+
+// ----------------------------------------------------------------------------
+// Azure IoT DPS X509 config
+// Define this to connect to DPS or Iot Hub using a self-signed X509 certificate
+// ----------------------------------------------------------------------------
+#define ENABLE_X509
 
 // ----------------------------------------------------------------------------
 // Azure IoT Hub config
 // ----------------------------------------------------------------------------
-#define IOT_HUB_HOSTNAME "getting-started-guide-iot-hub.azure-devices.net"
-#define IOT_DEVICE_ID    "spmcdono-device"
-#define IOT_PRIMARY_KEY  ""
-// #define IOT_PRIMARY_KEY  ""
+#define IOT_HUB_HOSTNAME "spmcdono-iothub.azure-devices.net"
+#define IOT_DEVICE_ID    "spmcdono-device-x509-iothub"
+#define IOT_PRIMARY_KEY  "KFia2aLcnmICm+hT+O3mX2iLjvdtZvV9s6N9XBiYLTY="
 
 // ----------------------------------------------------------------------------
 // Azure IoT DPS config
@@ -45,11 +50,5 @@ typedef enum
 #define IOT_DPS_ENDPOINT        "global.azure-devices-provisioning.net"
 #define IOT_DPS_ID_SCOPE        "0ne0019BD5E"
 #define IOT_DPS_REGISTRATION_ID "global.azure-devices-provisioning.net"
-
-// ----------------------------------------------------------------------------
-// Azure IoT DPS X509 config
-// NOTE: Please make sure IOT_PRIMARY_KEY == "" to use x509 certificate
-// ----------------------------------------------------------------------------
-#define ENABLE_X509
 
 #endif // _AZURE_CONFIG_H

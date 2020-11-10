@@ -67,6 +67,10 @@ UINT azure_iot_nx_client_create(AZURE_IOT_NX_CONTEXT* context,
     CHAR* iot_hub_hostname,
     CHAR* iot_device_id,
     CHAR* iot_sas_key,
+    UCHAR* device_x509_cert,
+    UINT device_x509_cert_len,
+    UCHAR* device_x509_key,
+    UINT device_x509_key_len,
     CHAR* iot_model_id);
 
 UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CONTEXT* context,

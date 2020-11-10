@@ -387,6 +387,10 @@ UINT azure_iot_nx_client_create(AZURE_IOT_NX_CONTEXT* context,
     CHAR* iot_hub_hostname,
     CHAR* iot_device_id,
     CHAR* iot_sas_key,
+    UCHAR* device_x509_cert,
+    UINT device_x509_cert_len,
+    UCHAR* device_x509_key,
+    UINT device_x509_key_len,
     CHAR* iot_model_id)
 {
     UINT status;
@@ -396,8 +400,8 @@ UINT azure_iot_nx_client_create(AZURE_IOT_NX_CONTEXT* context,
         printf("ERROR: context is NULL\r\n");
         return NX_PTR_ERROR;
     }
-
-    if (iot_hub_hostname[0] == 0 || iot_device_id[0] == 0 || iot_sas_key[0] == 0)
+    if (iot_hub_hostname[0] == 0 || iot_device_id[0] == 0 || 
+        (iot_sas_key[0] == 0 && device_x509_cert == NULL && device_x509_key == NULL))
     {
         printf("ERROR: IoT Hub connection configuration is empty\r\n");
         return NX_PTR_ERROR;
@@ -418,6 +422,23 @@ UINT azure_iot_nx_client_create(AZURE_IOT_NX_CONTEXT* context,
     {
         printf("ERROR: failed on nx_azure_iot_create (0x%08x)\r\n", status);
         return status;
+    }
+
+    // Set credentials
+    if(!(device_x509_cert == NULL || device_x509_key == NULL ||
+        device_x509_cert_len <= 0 || device_x509_key_len <= 0))
+    {
+        // X509 Certificate
+        if ((status = nx_secure_x509_certificate_initialize(
+             &device_certificate, (UCHAR *)device_x509_cert,
+             (USHORT)device_x509_cert_len, NX_NULL, 0,
+             (UCHAR *)device_x509_key, (USHORT)device_x509_key_len,
+             NX_SECURE_X509_KEY_TYPE_RSA_PKCS1_DER))) 
+        {
+            printf("Failed on nx_secure_x509_certificate_initialize!: error code = "
+                "0x%08x\r\n",
+                status);
+        }
     }
 
     // Initialize CA certificate.
