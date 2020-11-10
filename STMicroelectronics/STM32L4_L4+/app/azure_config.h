@@ -15,8 +15,8 @@ typedef enum
 // ----------------------------------------------------------------------------
 // WiFi connection config
 // ----------------------------------------------------------------------------
-#define WIFI_SSID     "Daddy Leroy"
-#define WIFI_PASSWORD "leroyjenkins"
+#define WIFI_SSID     ""
+#define WIFI_PASSWORD ""
 #define WIFI_MODE     WPA2_PSK_AES
 
 // ----------------------------------------------------------------------------
@@ -29,26 +29,26 @@ typedef enum
 // Azure IoT Dynamic Provisioning Service
 // Define this to use the DPS service, otherwise direct IoT Hub
 // ----------------------------------------------------------------------------
-#define ENABLE_DPS
+// #define ENABLE_DPS
+
+// ----------------------------------------------------------------------------
+// Azure IoT DPS Self-Signed X509Certificate
+// Define this to connect to DPS or Iot Hub using a self-signed X509 certificate
+// ----------------------------------------------------------------------------
+// #define ENABLE_X509
 
 // ----------------------------------------------------------------------------
 // Azure IoT Hub config
 // ----------------------------------------------------------------------------
-#define IOT_HUB_HOSTNAME "getting-started-guide-iot-hub.azure-devices.net"
-#define IOT_DEVICE_ID    "spmcdono-device"
-#define IOT_PRIMARY_KEY  "v6Ht1YZZeB9VOC6UWQFkkiSmzYTRQNBzWptIdSmM/OAiRu+jIUKdHKb0xt9nuQsumFf4WUlOqNqhDPTiEmRjrg=="
-// #define IOT_PRIMARY_KEY  ""
+#define IOT_HUB_HOSTNAME ""
+#define IOT_DEVICE_ID    ""
+#define IOT_PRIMARY_KEY  ""
 
 // ----------------------------------------------------------------------------
 // Azure IoT DPS config
 // ----------------------------------------------------------------------------
-#define IOT_DPS_ENDPOINT        "global.azure-devices-provisioning.net"
-#define IOT_DPS_ID_SCOPE        "0ne0019BD5E"
-#define IOT_DPS_REGISTRATION_ID "global.azure-devices-provisioning.net"
-
-// ----------------------------------------------------------------------------
-// Azure IoT DPS X509 config
-// ----------------------------------------------------------------------------
-#define ENABLE_X509
+#define IOT_DPS_ENDPOINT        ""
+#define IOT_DPS_ID_SCOPE        ""
+#define IOT_DPS_REGISTRATION_ID ""
 
 #endif // _AZURE_CONFIG_H

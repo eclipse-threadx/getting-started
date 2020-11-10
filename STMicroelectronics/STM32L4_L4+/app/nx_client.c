@@ -146,9 +146,9 @@ UINT azure_iot_nx_client_entry(
         return status;
     }
 
-#if defined(ENABLE_DPS) && defined(ENABLE_X509)
-#include "azure_dps_x509_cert_config.h"
-    status = azure_iot_nx_client_dps_x509_create(&azure_iot_nx_client,
+#ifdef ENABLE_DPS
+#   ifdef ENABLE_X509
+    status = azure_iot_nx_client_dps_create(&azure_iot_nx_client,
         ip_ptr,
         pool_ptr,
         dns_ptr,
@@ -156,12 +156,13 @@ UINT azure_iot_nx_client_entry(
         IOT_DPS_ENDPOINT,
         IOT_DPS_ID_SCOPE,
         IOT_DPS_REGISTRATION_ID,
+        "",
         (UCHAR*)iot_x509_device_cert,
         iot_x509_device_cert_len,
         (UCHAR*)iot_x509_private_key,
         iot_x509_private_key_len,
         IOT_MODEL_ID);
-#elif defined(ENABLE_DPS)
+#   else
     status = azure_iot_nx_client_dps_create(&azure_iot_nx_client,
         ip_ptr,
         pool_ptr,
@@ -171,8 +172,28 @@ UINT azure_iot_nx_client_entry(
         IOT_DPS_ID_SCOPE,
         IOT_DPS_REGISTRATION_ID,
         IOT_PRIMARY_KEY,
+        NULL,
+        0,
+        NULL,
+        0,
         IOT_MODEL_ID);
+#   endif
 #else
+#   ifdef ENABLE_X509
+    status = azure_iot_nx_client_create(&azure_iot_nx_client,
+        ip_ptr,
+        pool_ptr,
+        dns_ptr,
+        unix_time_callback,
+        IOT_HUB_HOSTNAME,
+        IOT_DEVICE_ID,
+        "",
+        (UCHAR*)iot_x509_device_cert,
+        iot_x509_device_cert_len,
+        (UCHAR*)iot_x509_private_key,
+        iot_x509_private_key_len,
+        IOT_MODEL_ID);
+#   else
     status = azure_iot_nx_client_create(&azure_iot_nx_client,
         ip_ptr,
         pool_ptr,
@@ -181,7 +202,12 @@ UINT azure_iot_nx_client_entry(
         IOT_HUB_HOSTNAME,
         IOT_DEVICE_ID,
         IOT_PRIMARY_KEY,
+        NULL,
+        0,
+        NULL,
+        0,
         IOT_MODEL_ID);
+#   endif
 #endif
     if (status != NX_SUCCESS)
     {
