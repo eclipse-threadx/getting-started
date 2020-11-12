@@ -1,5 +1,5 @@
-#ifndef _AZURE_DPS_X509_CERT_CONFIG_H
-#define _AZURE_DPS_X509_CERT_CONFIG_H
+#ifndef _AZURE_DEVICE_X509_CERT_CONFIG_H
+#define _AZURE_DEVICE_X509_CERT_CONFIG_H
 
 // ----------------------------------------------------------------------------
 // Azure IoT X509 Device Certificate

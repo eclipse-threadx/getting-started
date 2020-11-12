@@ -20,7 +20,7 @@
 #include "azure_iot_nx_client.h"
 
 #include "azure_config.h"
-#include "azure_dps_x509_cert_config.h"
+#include "azure_device_x509_cert_config.h"
 
 #define IOT_MODEL_ID                "dtmi:com:example:azurertos:gsg;1"
 #define TELEMETRY_INTERVAL_PROPERTY "telemetryInterval"

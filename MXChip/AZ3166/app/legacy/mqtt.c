@@ -127,21 +127,7 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
         return status;
     }
 
-#if defined(ENABLE_DPS) && defined(ENABLE_X509)
-    // Create Azure MQTT for Hub via DPS
-    status = azure_iot_mqtt_create_with_dps(&azure_iot_mqtt,
-        ip_ptr,
-        pool_ptr,
-        dns_ptr,
-        time_get,
-        IOT_DPS_ENDPOINT,
-        IOT_DPS_ID_SCOPE,
-        IOT_DPS_REGISTRATION_ID,
-        IOT_PRIMARY_KEY,
-        IOT_MODEL_ID);
-        
-#elif defined(ENABLE_DPS)
-
+#ifdef ENABLE_DPS
     // Create Azure MQTT for Hub via DPS
     status = azure_iot_mqtt_create_with_dps(&azure_iot_mqtt,
         ip_ptr,
