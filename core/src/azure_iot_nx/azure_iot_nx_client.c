@@ -274,7 +274,7 @@ static UINT azure_iot_nx_client_create_common(AZURE_IOT_NX_CONTEXT* context,
     {
         // X509 Certificate
         if ((status = nx_azure_iot_hub_client_device_cert_set(
-               &context->iothub_client, &device_certificate))) 
+               &context->iothub_client, &context->device_certificate))) 
         {
             printf("Failed on nx_azure_iot_hub_client_device_cert_set!: error code = "
                 "0x%08x\r\n",
@@ -430,7 +430,7 @@ UINT azure_iot_nx_client_create(AZURE_IOT_NX_CONTEXT* context,
     {
         // X509 Certificate
         if ((status = nx_secure_x509_certificate_initialize(
-             &device_certificate, (UCHAR *)device_x509_cert,
+             &context->device_certificate, (UCHAR *)device_x509_cert,
              (USHORT)device_x509_cert_len, NX_NULL, 0,
              (UCHAR *)device_x509_key, (USHORT)device_x509_key_len,
              NX_SECURE_X509_KEY_TYPE_RSA_PKCS1_DER))) 
@@ -571,7 +571,7 @@ UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CONTEXT* context,
     {
         // X509 Certificate
         if ((status = nx_secure_x509_certificate_initialize(
-             &device_certificate, (UCHAR *)device_x509_cert,
+             &context->device_certificate, (UCHAR *)device_x509_cert,
              (USHORT)device_x509_cert_len, NX_NULL, 0,
              (UCHAR *)device_x509_key, (USHORT)device_x509_key_len,
              NX_SECURE_X509_KEY_TYPE_RSA_PKCS1_DER))) 
@@ -584,7 +584,7 @@ UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CONTEXT* context,
     
 
     if ((status = nx_azure_iot_provisioning_client_device_cert_set(&context->prov_client,
-                                                                   &device_certificate))) {
+                                                                   &context->device_certificate))) {
       printf("Failed on nx_azure_iot_hub_client_device_cert_set!: error code = "
              "0x%08x\r\n",
              status);

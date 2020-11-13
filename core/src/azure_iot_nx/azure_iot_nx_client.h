@@ -51,6 +51,9 @@ struct AZURE_IOT_NX_CONTEXT_STRUCT
     func_ptr_direct_method direct_method_cb;
     func_ptr_device_twin_desired_prop device_twin_desired_prop_cb;
     func_ptr_device_twin_prop device_twin_get_cb;
+
+    NX_SECURE_X509_CERT device_certificate;
+
 };
 
 UINT azure_iot_nx_client_register_direct_method(AZURE_IOT_NX_CONTEXT* context, func_ptr_direct_method callback);
@@ -58,7 +61,6 @@ UINT azure_iot_nx_client_register_device_twin_desired_prop(
     AZURE_IOT_NX_CONTEXT* context, func_ptr_device_twin_desired_prop callback);
 UINT azure_iot_nx_client_register_device_twin_prop(AZURE_IOT_NX_CONTEXT* context, func_ptr_device_twin_prop callback);
 
-NX_SECURE_X509_CERT device_certificate;
 UINT azure_iot_nx_client_create(AZURE_IOT_NX_CONTEXT* context,
     NX_IP* nx_ip,
     NX_PACKET_POOL* nx_pool,
