@@ -6,25 +6,23 @@
     "description": "Example model for the Azure RTOS Getting Started Guides",
     "contents": [
         {
-            "@type": 
-            [
-                "Telemetry", 
+            "@type": [
+                "Telemetry",
                 "Temperature"
             ],
             "name": "temperature",
-            "displayName" : "Temperature",
-            "description" : "Temperature in degrees Celsius.",
+            "displayName": "Temperature",
+            "description": "Temperature in degrees Celsius.",
             "schema": "double",
             "unit": "degreeCelsius"
         },
         {
-            "@type": 
-            [
-                "Property", 
+            "@type": [
+                "Property",
                 "TimeSpan"
             ],
             "name": "telemetryInterval",
-            "displayName" : "Telemetry Interval",
+            "displayName": "Telemetry Interval",
             "description": "Specify the interval in seconds for the telemetry.",
             "schema": "integer",
             "writable": true,
@@ -33,14 +31,14 @@
         {
             "@type": "Property",
             "name": "ledState",
-            "displayName" : "LED state",
+            "displayName": "LED state",
             "description": "Returns the current state of the onboard LED.",
             "schema": "boolean"
         },
         {
             "@type": "Command",
             "name": "setLedState",
-            "displayName" : "Set LED state",
+            "displayName": "Set LED state",
             "description": "Sets the state of the onboard LED.",
             "request": {
                 "name": "state",

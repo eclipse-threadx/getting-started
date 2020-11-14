@@ -13,12 +13,6 @@
 #include "nx_azure_iot_json_reader.h"
 #include "nx_azure_iot_provisioning_client.h"
 
-#include "jsmn.h"
-#include "json_utils.h"
-
-// These are sample files, user can build their own certificate and ciphersuites
-#include "azure_iot_cert.h"
-#include "azure_iot_ciphersuites.h"
 #include "azure_iot_nx_client.h"
 
 #include "azure_config.h"

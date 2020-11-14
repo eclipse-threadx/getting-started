@@ -22,7 +22,7 @@
 #define DPS_PAYLOAD "{\"modelId\":\"%s\"}"
 
 #define DPS_PAYLOAD_SIZE    200
-#define PUBLISH_BUFFER_SIZE 64
+#define PUBLISH_BUFFER_SIZE 512
 
 static VOID connection_status_callback(NX_AZURE_IOT_HUB_CLIENT* hub_client_ptr, UINT status)
 {
@@ -610,6 +610,54 @@ UINT azure_iot_nx_client_disconnect(AZURE_IOT_NX_CONTEXT* context)
     return NX_SUCCESS;
 }
 
+UINT azure_iot_nx_client_publish_telemetry(
+    AZURE_IOT_NX_CONTEXT* context, UINT (*append_properties)(NX_AZURE_IOT_JSON_WRITER* json_builder_ptr, VOID* context))
+{
+    UINT status;
+    NX_PACKET* packet_ptr;
+    NX_AZURE_IOT_JSON_WRITER json_builder;
+    UINT telemetry_length;
+    UCHAR buffer[PUBLISH_BUFFER_SIZE];
+
+    if ((status = nx_azure_iot_pnp_helper_telemetry_message_create(
+             &context->iothub_client, NX_NULL, 0, &packet_ptr, NX_WAIT_FOREVER)))
+    {
+        printf("Telemetry message create failed!: error code = 0x%08x\r\n", status);
+        return (status);
+    }
+
+    if ((status = nx_azure_iot_json_writer_with_buffer_init(&json_builder, buffer, PUBLISH_BUFFER_SIZE)))
+    {
+        printf("Failed to initialize json writer\r\n");
+        nx_azure_iot_hub_client_telemetry_message_delete(packet_ptr);
+        return NX_NOT_SUCCESSFUL;
+    }
+
+    if ((status = nx_azure_iot_pnp_helper_build_reported_property(NULL, 0, append_properties, NX_NULL, &json_builder)))
+    {
+        printf("Failed to build telemetry!: error code = 0x%08x\r\n", status);
+        nx_azure_iot_json_writer_deinit(&json_builder);
+        nx_azure_iot_hub_client_telemetry_message_delete(packet_ptr);
+        return status;
+    }
+
+    telemetry_length = nx_azure_iot_json_writer_get_bytes_used(&json_builder);
+    if ((status = nx_azure_iot_hub_client_telemetry_send(
+             &context->iothub_client, packet_ptr, buffer, telemetry_length, NX_WAIT_FOREVER)))
+    {
+        printf("Telemetry message send failed (0x%08x)\r\n", status);
+        nx_azure_iot_json_writer_deinit(&json_builder);
+        nx_azure_iot_hub_client_telemetry_message_delete(packet_ptr);
+        return status;
+    }
+
+    printf("Telemetry message sent: %.*s.\r\n", telemetry_length, buffer);
+
+    nx_azure_iot_json_writer_deinit(&json_builder);
+
+    return status;
+}
+
 UINT azure_iot_nx_client_publish_float_telemetry(AZURE_IOT_NX_CONTEXT* context, CHAR* key, float value)
 {
     UINT status;
@@ -644,6 +692,59 @@ UINT azure_iot_nx_client_publish_float_telemetry(AZURE_IOT_NX_CONTEXT* context, 
     printf("Telemetry message sent: %s.\r\n", buffer);
 
     return NX_SUCCESS;
+}
+
+UINT azure_iot_nx_client_publish_properties(AZURE_IOT_NX_CONTEXT* context,
+    CHAR* component,
+    UINT (*append_properties)(NX_AZURE_IOT_JSON_WRITER* json_builder_ptr, VOID* context))
+{
+    UINT reported_properties_length;
+    UINT status;
+    UINT response_status;
+    UINT request_id;
+    NX_AZURE_IOT_JSON_WRITER json_builder;
+    ULONG reported_property_version;
+    UCHAR buffer[PUBLISH_BUFFER_SIZE];
+
+    if ((status = nx_azure_iot_json_writer_with_buffer_init(&json_builder, buffer, PUBLISH_BUFFER_SIZE)))
+    {
+        printf("Failed to initialize json writer\r\n");
+        return NX_NOT_SUCCESSFUL;
+    }
+
+    if ((status = nx_azure_iot_pnp_helper_build_reported_property(
+             (UCHAR*)component, strlen(component), append_properties, NX_NULL, &json_builder)))
+    {
+        printf("Failed to build reported property!: error code = 0x%08x\r\n", status);
+        nx_azure_iot_json_writer_deinit(&json_builder);
+        return status;
+    }
+
+    reported_properties_length = nx_azure_iot_json_writer_get_bytes_used(&json_builder);
+    if ((status = nx_azure_iot_hub_client_device_twin_reported_properties_send(&context->iothub_client,
+             buffer,
+             reported_properties_length,
+             &request_id,
+             &response_status,
+             &reported_property_version,
+             (5 * NX_IP_PERIODIC_RATE))))
+    {
+        printf("Device twin reported properties failed!: error code = 0x%08x\r\n", status);
+        nx_azure_iot_json_writer_deinit(&json_builder);
+        return status;
+    }
+
+    nx_azure_iot_json_writer_deinit(&json_builder);
+
+    if ((response_status < 200) || (response_status >= 300))
+    {
+        printf("device twin report properties failed with code : %d\r\n", response_status);
+        return NX_NOT_SUCCESSFUL;
+    }
+
+    printf("Reported properties sent: %.*s.\r\n", reported_properties_length, buffer);
+
+    return status;
 }
 
 UINT azure_iot_nx_client_publish_float_property(AZURE_IOT_NX_CONTEXT* context, CHAR* key, float value)
@@ -697,6 +798,44 @@ UINT azure_iot_nx_client_publish_bool_property(AZURE_IOT_NX_CONTEXT* context, CH
     if (snprintf(buffer, PUBLISH_BUFFER_SIZE, "{\"%s\":%s}", key, (value ? "true" : "false")) > PUBLISH_BUFFER_SIZE - 1)
     {
         printf("ERROR: Unsufficient buffer size to publish bool property\r\n");
+        return NX_SIZE_ERROR;
+    }
+
+    if ((status = nx_azure_iot_hub_client_device_twin_reported_properties_send(&context->iothub_client,
+             (UCHAR*)buffer,
+             strlen(buffer),
+             &request_id,
+             &response_status,
+             &version,
+             NX_WAIT_FOREVER)))
+    {
+        printf("Error: device twin reported properties failed (0x%08x)\r\n", status);
+        return status;
+    }
+
+    if ((response_status < 200) || (response_status >= 300))
+    {
+        printf("Error: device twin report properties failed (%d)\r\n", response_status);
+        return status;
+    }
+
+    printf("Device twin property sent: %s\r\n", buffer);
+
+    return NX_SUCCESS;
+}
+
+UINT azure_iot_nx_client_publish_int_writeable_property(AZURE_IOT_NX_CONTEXT* context, CHAR* key, UINT value)
+{
+    UINT status;
+    UINT response_status;
+    UINT request_id;
+    ULONG version;
+    CHAR buffer[PUBLISH_BUFFER_SIZE];
+
+    if (snprintf(buffer, PUBLISH_BUFFER_SIZE, "{\"%s\":{\"value\":%d,\"ac\":200,\"av\":1}}", key, value) >
+        PUBLISH_BUFFER_SIZE - 1)
+    {
+        printf("ERROR: Unsufficient buffer size to publish int property\r\n");
         return NX_SIZE_ERROR;
     }
 
