@@ -4,6 +4,8 @@
 #ifndef _AZURE_PNP_INFO_H
 #define _AZURE_PNP_INFO_H
 
+#define DEVICE_INFO_COMPONENT_NAME "deviceInformation"
+
 // Device Info property names
 #define DEVICE_INFO_MANUFACTURER_PROPERTY_NAME           "manufacturer"
 #define DEVICE_INFO_MODEL_PROPERTY_NAME                  "model"
@@ -23,19 +25,5 @@
 #define DEVICE_INFO_PROCESSOR_MANUFACTURER_PROPERTY_VALUE "STMicroelectronics"
 #define DEVICE_INFO_TOTAL_STORAGE_PROPERTY_VALUE          1048
 #define DEVICE_INFO_TOTAL_MEMORY_PROPERTY_VALUE           128
-
-// Device telemetry names
-#define TELEMETRY_HUMIDITY       "humidity"
-#define TELEMETRY_TEMPERATURE    "temperature"
-#define TELEMETRY_PRESSURE       "pressure"
-#define TELEMETRY_MAGNETOMETERX  "magnetometerX"
-#define TELEMETRY_MAGNETOMETERY  "magnetometerY"
-#define TELEMETRY_MAGNETOMETERZ  "magnetometerZ"
-#define TELEMETRY_ACCELEROMETERX "accelerometerX"
-#define TELEMETRY_ACCELEROMETERY "accelerometerY"
-#define TELEMETRY_ACCELEROMETERZ "accelerometerZ"
-#define TELEMETRY_GYROSCOPEX     "gyroscopeX"
-#define TELEMETRY_GYROSCOPEY     "gyroscopeY"
-#define TELEMETRY_GYROSCOPEZ     "gyroscopeZ"
 
 #endif

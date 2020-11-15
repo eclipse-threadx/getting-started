@@ -20,12 +20,25 @@
 #include "azure_config.h"
 #include "azure_pnp_info.h"
 
-#define IOT_MODEL_ID                "dtmi:com:mxchip:mxchip_iot_devkit:example:RTOSGetStarted;1"
+#define IOT_MODEL_ID "dtmi:com:mxchip:mxchip_iot_devkit:example:RTOSGetStarted;1"
+
+// Device telemetry names
+#define TELEMETRY_HUMIDITY          "humidity"
+#define TELEMETRY_TEMPERATURE       "temperature"
+#define TELEMETRY_PRESSURE          "pressure"
+#define TELEMETRY_MAGNETOMETERX     "magnetometerX"
+#define TELEMETRY_MAGNETOMETERY     "magnetometerY"
+#define TELEMETRY_MAGNETOMETERZ     "magnetometerZ"
+#define TELEMETRY_ACCELEROMETERX    "accelerometerX"
+#define TELEMETRY_ACCELEROMETERY    "accelerometerY"
+#define TELEMETRY_ACCELEROMETERZ    "accelerometerZ"
+#define TELEMETRY_GYROSCOPEX        "gyroscopeX"
+#define TELEMETRY_GYROSCOPEY        "gyroscopeY"
+#define TELEMETRY_GYROSCOPEZ        "gyroscopeZ"
 #define TELEMETRY_INTERVAL_PROPERTY "telemetryInterval"
 #define LED_STATE_PROPERTY          "ledState"
 #define SET_LED_STATE_COMMAND       "setLedState"
-#define SET_DISPLAY_TEXT            "setDisplayText"
-#define IOT_MODEL_COMPONENT_NAME    "deviceInformation"
+#define SET_DISPLAY_TEXT_COMMAND    "setDisplayText"
 
 #define TELEMETRY_INTERVAL_EVENT 1
 
@@ -72,7 +85,7 @@ static void direct_method_cb(AZURE_IOT_NX_CONTEXT* nx_context,
         http_status = 200;
     }
 
-    if (strncmp((CHAR*)method, SET_DISPLAY_TEXT, method_length) == 0)
+    if (strncmp((CHAR*)method, SET_DISPLAY_TEXT_COMMAND, method_length) == 0)
     {
         printf("Method = displayText invoked with string %s\r\n", payload);
         screen_printn((CHAR*)payload + 1, payload_length - 2, L0);
@@ -364,7 +377,7 @@ UINT azure_iot_nx_client_entry(
     // Send properties
     azure_iot_nx_client_publish_bool_property(&azure_iot_nx_client, LED_STATE_PROPERTY, false);
     azure_iot_nx_client_publish_properties(
-        &azure_iot_nx_client, IOT_MODEL_COMPONENT_NAME, append_device_info_properties);
+        &azure_iot_nx_client, DEVICE_INFO_COMPONENT_NAME, append_device_info_properties);
 
     printf("\r\nStarting Main loop\r\n");
     screen_print("Azure IoT", L0);
