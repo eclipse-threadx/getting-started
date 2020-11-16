@@ -64,20 +64,21 @@ if ( -not (Test-Path "$env:TEMP\$iot_explorer_file") -Or ((Get-FileHash "$env:TE
 echo "`nInstalling packages..."
 
 echo "(1/5) $cmake_name"
-Start-Process -wait -FilePath "$env:TEMP\$cmake_file" -ArgumentList "ADD_CMAKE_TO_PATH=System /passive"
+Start-Process -FilePath "$env:TEMP\$cmake_file" -ArgumentList "ADD_CMAKE_TO_PATH=System /passive" -Wait
 
 echo "(2/5) $gccarm_name"
-Start-Process -wait -FilePath "$env:TEMP\$gccarm_file" -ArgumentList "/S /P /R"
+Start-Process -FilePath "$env:TEMP\$gccarm_file" -ArgumentList "/S /P /R" -Wait
 
 echo "(3/5) $termite_name"
-Start-Process -wait -FilePath "$env:TEMP\$termite_file" -ArgumentList "/S"
+Start-Process -FilePath "$env:TEMP\$termite_file" -ArgumentList "/S" -Wait
 
 echo "(4/5) $azure_cli_name"
-Start-Process -wait -FilePath "$env:TEMP\$azure_cli_file" -ArgumentList "/passive"
-az extension add --name azure-iot
+Start-Process -FilePath "$env:TEMP\$azure_cli_file" -ArgumentList "/passive" -Wait
+$env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine")
+Start-Process -FilePath "az" -ArgumentList "extension add --name azure-iot" -Wait
 
 echo "(5/5) $iot_explorer_name"
-Start-Process -wait -FilePath "$env:TEMP\$iot_explorer_file" -ArgumentList "runAfterFinish=false /passive"
+Start-Process -FilePath "$env:TEMP\$iot_explorer_file" -ArgumentList "runAfterFinish=false /passive" -Wait
 
 echo "`nInstallation complete!"
 
