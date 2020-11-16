@@ -37,7 +37,7 @@ jobs:
         run: sudo apt install gcc-arm-none-eabi cmake
 
       - name: Install Ninja
-        uses: seanmiddleditch/gha-setup-ninja@v2
+        uses: seanmiddleditch/gha-setup-ninja@v3
 
       - name: Build project
         run: |
