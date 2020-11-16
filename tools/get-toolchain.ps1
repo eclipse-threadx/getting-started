@@ -18,6 +18,11 @@ $termite_file = 'termite-3.4.exe'
 $termite_name = 'Termite v3.4'
 $termite_hash = 'CA440B6C7F6EAA812BA5F8BF42AED86E02022CA50A1C72585168C9B671D0FE19'
 
+$azure_cli_path = 'https://azurecliprod.blob.core.windows.net/msi'
+$azure_cli_file = 'azure-cli-2.14.2.msi'
+$azure_cli_name = 'Azure CLI v2.14.2'
+$azure_cli_hash = 'C73E14B54C6371D85D7FB22121079D981A2A6A88F7F55460D487992114AFD149'
+
 $iot_explorer_path = 'https://github.com/Azure/azure-iot-explorer/releases/download/v0.13.0'
 $iot_explorer_file = 'Azure.IoT.Explorer.preview.0.13.0.msi'
 $iot_explorer_name = 'Azure IoT Explorer v0.13.0'
@@ -25,43 +30,54 @@ $iot_explorer_hash = 'BF8DF6BC98A3E6F8262DC435779B44E6840C568ADAB8949004546449F2
 
 echo "`nDownloading packages..."
 
-echo "(1/4) $cmake_name"
+echo "(1/5) $cmake_name"
 if ( -not (Test-Path "$env:TEMP\$cmake_file") -Or ((Get-FileHash "$env:TEMP\$cmake_file").Hash -ne $cmake_hash))
 {
     (New-Object System.Net.WebClient).DownloadFile("$cmake_path\$cmake_file", "$env:TEMP\$cmake_file")
 }
 
-echo "(2/4) $gccarm_name"
+echo "(2/5) $gccarm_name"
 if ( -not (Test-Path "$env:TEMP\$gccarm_file") -Or ((Get-FileHash "$env:TEMP\$gccarm_file").Hash -ne $gccarm_hash))
 {
     (New-Object System.Net.WebClient).DownloadFile("$gccarm_path\$gccarm_file", "$env:TEMP\$gccarm_file")
 }
 
-echo "(3/4) $termite_name"
+echo "(3/5) $termite_name"
 if ( -not (Test-Path "$env:TEMP\$termite_file") -Or ((Get-FileHash "$env:TEMP\$termite_file").Hash -ne $termite_hash))
 {
     (New-Object System.Net.WebClient).DownloadFile("$termite_path\$termite_file", "$env:TEMP\$termite_file")
 }
 
-echo "(4/4) $iot_explorer_name"
+echo "(4/5) $azure_cli_name"
+if ( -not (Test-Path "$env:TEMP\$azure_cli_file") -Or ((Get-FileHash "$env:TEMP\$azure_cli_file").Hash -ne $azure_cli_hash))
+{
+    (New-Object System.Net.WebClient).DownloadFile("$azure_cli_path\$azure_cli_file", "$env:TEMP\$azure_cli_file")
+}
+
+echo "(5/5) $iot_explorer_name"
 if ( -not (Test-Path "$env:TEMP\$iot_explorer_file") -Or ((Get-FileHash "$env:TEMP\$iot_explorer_file").Hash -ne $iot_explorer_hash))
 {
     (New-Object System.Net.WebClient).DownloadFile("$iot_explorer_path\$iot_explorer_file", "$env:TEMP\$iot_explorer_file")
 }
 
+
 echo "`nInstalling packages..."
 
-echo "(1/4) $cmake_name"
+echo "(1/5) $cmake_name"
 Start-Process -wait -FilePath "$env:TEMP\$cmake_file" -ArgumentList "ADD_CMAKE_TO_PATH=System /passive"
 
-echo "(2/4) $gccarm_name"
+echo "(2/5) $gccarm_name"
 Start-Process -wait -FilePath "$env:TEMP\$gccarm_file" -ArgumentList "/S /P /R"
 
-echo "(3/4) $termite_name"
+echo "(3/5) $termite_name"
 Start-Process -wait -FilePath "$env:TEMP\$termite_file" -ArgumentList "/S"
 
-echo "(4/4) $iot_explorer_name"
-Start-Process -wait -FilePath "$env:TEMP\$iot_explorer_file" -ArgumentList "/passive"
+echo "(4/5) $azure_cli_name"
+Start-Process -wait -FilePath "$env:TEMP\$azure_cli_file" -ArgumentList "/passive"
+az extension add --name azure-iot
+
+echo "(5/5) $iot_explorer_name"
+Start-Process -wait -FilePath "$env:TEMP\$iot_explorer_file" -ArgumentList "runAfterFinish=false /passive"
 
 echo "`nInstallation complete!"
 
