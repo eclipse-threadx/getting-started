@@ -42,7 +42,13 @@
 
 #define TELEMETRY_INTERVAL_EVENT 1
 
-#define MAX_MESSAGE_SIZE 96
+typedef enum TELEMETRY_STATE_ENUM
+{
+    TELEMETRY_STATE_DEFAULT,
+    TELEMETRY_STATE_MAGNETOMETER,
+    TELEMETRY_STATE_ACCELEROMETER,
+    TELEMETRY_STATE_GYROSCOPE
+} TELEMETRY_STATE;
 
 static AZURE_IOT_NX_CONTEXT azure_iot_nx_client;
 static TX_EVENT_FLAGS_GROUP azure_iot_flags;
@@ -318,8 +324,8 @@ UINT azure_iot_nx_client_entry(
     NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, UINT (*unix_time_callback)(ULONG* unix_time))
 {
     UINT status;
-    ULONG events        = 0;
-    int telemetry_state = 0;
+    ULONG events                    = 0;
+    TELEMETRY_STATE telemetry_state = TELEMETRY_STATE_DEFAULT;
 
     if ((status = tx_event_flags_create(&azure_iot_flags, "Azure IoT flags")))
     {
@@ -388,19 +394,19 @@ UINT azure_iot_nx_client_entry(
 
         switch (telemetry_state)
         {
-            case 0:
+            case TELEMETRY_STATE_DEFAULT:
                 azure_iot_nx_client_publish_telemetry(&azure_iot_nx_client, append_device_telemetry);
                 break;
 
-            case 1:
+            case TELEMETRY_STATE_MAGNETOMETER:
                 azure_iot_nx_client_publish_telemetry(&azure_iot_nx_client, append_device_telemetry_magnetometer);
                 break;
 
-            case 2:
+            case TELEMETRY_STATE_ACCELEROMETER:
                 azure_iot_nx_client_publish_telemetry(&azure_iot_nx_client, append_device_telemetry_accelerometer);
                 break;
 
-            case 3:
+            case TELEMETRY_STATE_GYROSCOPE:
                 azure_iot_nx_client_publish_telemetry(&azure_iot_nx_client, append_device_telemetry_gyroscope);
                 break;
         }
