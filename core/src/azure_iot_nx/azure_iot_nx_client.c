@@ -400,6 +400,8 @@ UINT azure_iot_nx_client_create(AZURE_IOT_NX_CONTEXT* context,
         printf("ERROR: context is NULL\r\n");
         return NX_PTR_ERROR;
     }
+    
+    // Return error if empty endpoint information or empty credentials
     if (iot_hub_hostname[0] == 0 || iot_device_id[0] == 0 || 
         (iot_sas_key[0] == 0 && device_x509_cert == NULL && device_x509_key == NULL))
     {
@@ -490,6 +492,7 @@ UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CONTEXT* context,
         return NX_PTR_ERROR;
     }
 
+    // Return error if empty endpoint information or empty credentials
     if (dps_endpoint[0] == 0 || dps_id_scope[0] == 0 || dps_registration_id[0] == 0 || 
         (device_sas_key[0] == 0 && device_x509_cert == NULL && device_x509_key == NULL))
     {
