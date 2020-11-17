@@ -376,29 +376,25 @@ You can debug the firmware application in VS Code using [OpenOCD](http://openocd
 
 1. Install [Visual Studio Code](https://code.visualstudio.com/).
 
-1. In Extensions tab (`Ctrl+Shift+X`), search and install the following extensions.
+1. In Extensions tab (`Ctrl + Shift + X`), install the following extensions:
 
-    * C/C++
-    * CMake
-    * Cortex-Debug
+    * [C/C++](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools)
+    * [CMake Tools](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cmake-tools)
+    * [Cortex-Debug](https://marketplace.visualstudio.com/items?itemName=marus25.cortex-debug)
 
 ### Debugging using OpenOCD and GDB
 
-1. Download and unzip [OpenOCD for Windows](https://gnutoolchains.com/arm-eabi/openocd/) to `C:\Program Files(x86)\OpenOCD`. Add `openocd.exe` path in Windows Path Environment Variables.
+1. Download and unzip [OpenOCD for Windows](https://gnutoolchains.com/arm-eabi/openocd/) to `C:\OpenOCD`. Add the `C:\OpenOCD\bin` path in Windows Path Environment Variables.
 
 1. Install ST-Link driver within unzipped OpenOCD folder by running `OpenOCD/drivers/ST-Link/stlink_winusb_install.bat`.
 
-1. Launch VS Code, open *getting-started/MXChip/AZ3166/* folder.
+1. Launch VS Code, open the *getting-started/MXChip/AZ3166/* folder.
 
-1. In VSCode, press `F5` or launch debug Run tab. Then select `mxchip_azure_iot`.
+1. In VS Code, press `F7` to build the project.
 
-    ![VSCode debug](./media/launch.png)
+1. In VS Code, press `F5` or launch the debugger.
 
-1. It will first flash the firmware onto the DevKit and start running it and stopped at `main()`. Press `F5` again or select continue to run the app.
-
-View [Debug C++ in Visual Studio Code](https://code.visualstudio.com/docs/cpp/cpp-debug) to learn debugging in VS Code.
-
-![Debugging](./media/debugging.png)
+1. It will flash the firmware to the DevKit, start execution, and break at `main()`. Press `F5` again or select continue to resume execution.
 
 ## Clean up resources
 
