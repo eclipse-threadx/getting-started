@@ -78,7 +78,7 @@ $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine")
 Start-Process -FilePath "az" -ArgumentList "extension add --name azure-iot" -Wait
 
 echo "(5/5) $iot_explorer_name"
-Start-Process -FilePath "$env:TEMP\$iot_explorer_file" -ArgumentList "runAfterFinish=false /passive" -Wait
+Start-Process -FilePath "$env:TEMP\$iot_explorer_file" -ArgumentList "/passive" -Wait
 
 echo "`nInstallation complete!"
 
