@@ -13,13 +13,14 @@ OpenOCD or the J-Link GDB Server can be used to interface your computer with you
     |---------|---------|
     |STM BL475E-IOT01 |[STLink](https://www.st.com/en/development-tools/stsw-link004.html) |
     |STM BL4S5I-IOT01 |[STLink](https://www.st.com/en/development-tools/stsw-link004.html) |
+    |MXCHIP AZ3166 |[STLink](https://www.st.com/en/development-tools/stsw-link004.html) |
 1. Download and unzip [OpenOCD](https://gnutoolchains.com/arm-eabi/openocd) to your computer and add its `bin/` folder to your environment path.
 
 ### J-Link
 
 1. Install the [JLink Software and Documentation Pack](https://www.segger.com/downloads/jlink#J-LinkSoftwareAndDocumentationPack). This includes the GDB Server as well as the neccessary J-Link drivers.
 
-## Setup your Project
+## Setup your Environment
 
 You can choose to develop locally or develop in [Codespaces](https://github.com/features/codespaces).
 
