@@ -1,8 +1,9 @@
 {
-    "@id": "dtmi:com:mxchip:mxchip_iot_devkit:example:RTOSGetStarted;1",
+    "@context": "dtmi:dtdl:context;2",
+    "@id": "dtmi:azurertos:devkit:gsgmxchip;1",    
     "@type": "Interface",
-    "displayName": "PnPGetStarted",
-    "description": "Reports current temperature , humidity and pressure from MXCHIP IoT Devkit.",
+    "displayName": "MXCHIP Getting Started Guide",
+    "description": "Example model for the Azure RTOS MXCHIP Getting Started Guide",
     "contents": [
         {
             "@type": [
@@ -151,6 +152,5 @@
             "displayName": "Device Information",
             "description": "Interface with basic device hardware information."
         }
-    ],
-    "@context": "dtmi:dtdl:context;2"
+    ]
 }

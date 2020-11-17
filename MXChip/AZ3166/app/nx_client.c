@@ -20,7 +20,7 @@
 #include "azure_config.h"
 #include "azure_pnp_info.h"
 
-#define IOT_MODEL_ID "dtmi:com:mxchip:mxchip_iot_devkit:example:RTOSGetStarted;1"
+#define IOT_MODEL_ID "dtmi:azurertos:devkit:gsgmxchip;1"
 
 // Device telemetry names
 #define TELEMETRY_HUMIDITY          "humidity"
