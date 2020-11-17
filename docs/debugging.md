@@ -1,4 +1,4 @@
-# Debugging with Visual Studio Code + OpenOCD
+# Debugging with Visual Studio Code
 
 This article on debugging is under construction. It refers to products in private beta, and also uses techniques that could expose your internet network to external attack. Care should be taken when following the steps below.
 

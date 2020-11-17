@@ -370,31 +370,7 @@ To use Azure CLI to call a method:
 
 ## Debugging
 
-You can debug the firmware application in VS Code using [OpenOCD](http://openocd.org/) and [GDB](https://www.gnu.org/software/gdb/).
-
-### Install VS Code and extensions
-
-1. Install [Visual Studio Code](https://code.visualstudio.com/).
-
-1. In Extensions tab (`Ctrl + Shift + X`), install the following extensions:
-
-    * [C/C++](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools)
-    * [CMake Tools](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cmake-tools)
-    * [Cortex-Debug](https://marketplace.visualstudio.com/items?itemName=marus25.cortex-debug)
-
-### Debugging using OpenOCD and GDB
-
-1. Download and unzip [OpenOCD for Windows](https://gnutoolchains.com/arm-eabi/openocd/) to `C:\OpenOCD`. Add the `C:\OpenOCD\bin` path in Windows Path Environment Variables.
-
-1. Install ST-Link driver within unzipped OpenOCD folder by running `OpenOCD/drivers/ST-Link/stlink_winusb_install.bat`.
-
-1. Launch VS Code, open the *getting-started/MXChip/AZ3166/* folder.
-
-1. In VS Code, press `F7` to build the project.
-
-1. In VS Code, press `F5` or launch the debugger.
-
-1. It will flash the firmware to the DevKit, start execution, and break at `main()`. Press `F5` again or select continue to resume execution.
+For debugging the MXCHIP application, see [Debugging with Visual Studio Code](../../docs/debugging.md).
 
 ## Clean up resources
 
