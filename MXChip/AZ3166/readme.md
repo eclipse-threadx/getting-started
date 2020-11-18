@@ -22,13 +22,11 @@ You will complete the following tasks:
 * Use Azure CLI to create and manage an Azure IoT hub that the MXCHIP DevKit will securely connect to
 * Use Azure IoT Explorer to view properties, view device telemetry, and call direct commands
 
-* Use VS Code, OpenOCD and GDB to debug the firmware
-
 ## Prerequisites
 
-* A PC running Microsoft Windows (Windows 10 recommended)
+* A PC running Microsoft Windows 10
 * If you don't have an Azure subscription, [create one for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F) before you begin.
-* [Git](https://git-scm.com/downloads)
+* [Git](https://git-scm.com/downloads) for cloning the repository
 * Hardware
 
     > * The [MXCHIP AZ3166 IoT DevKit](https://aka.ms/iot-devkit) (MXCHIP DevKit)
@@ -97,7 +95,7 @@ To create an IoT hub:
     az iot hub create --resource-group MyResourceGroup --name {YourIoTHubName}
     ```
 
-1. After the IoT hub is created, view the JSON output in the console, and copy the `hostName` value to a safe place. You use this value in a later step. The `hostName` value looks like the following example:
+1. After the IoT hub is created, view the JSON output in the console, and copy the `hostName` value to use in a later step. The `hostName` value looks like the following example:
 
     `{Your IoT hub name}.azure-devices.net`
 
@@ -119,13 +117,13 @@ To register a device:
 
 1. After the device is created, view the JSON output in the console, and copy the `deviceId` and `primaryKey` values to use in a later step.
 
-Confirm that you have the copied the following values from the JSON output to use in the next section:
+## Prepare the device
+
+Confirm that you have the copied the following values from the JSON output from the previous sections:
 
 > * `hostName`
 > * `deviceId`
 > * `primaryKey`
-
-## Prepare the device
 
 To connect the MXCHIP DevKit to Azure, you'll modify a configuration file for Wi-Fi and Azure IoT settings, rebuild the image, and flash the image to the device.
 
@@ -199,7 +197,7 @@ You can use the **Termite** utility to monitor communication and confirm that yo
     ![Termite](media/termite-settings.png)
 
 1. Select OK.
-1. Press the **Reset** button on the device.
+1. Press the **Reset** button on the device. The button is labeled on the device and located near the micro USB connector.
 1. In the **Termite** console, check the following checkpoint values to confirm that the device is initialized and connected to Azure IoT.
 
     ```output
@@ -370,7 +368,7 @@ To use Azure CLI to call a method:
 
 ## Debugging
 
-For debugging the MXCHIP application, see [Debugging with Visual Studio Code](../../docs/debugging.md).
+For debugging the application, see [Debugging with Visual Studio Code](../../docs/debugging.md).
 
 ## Clean up resources
 

@@ -24,9 +24,9 @@ You will complete the following tasks:
 
 ## Prerequisites
 
-* A PC running Microsoft Windows (Windows 10 recommended)
+* A PC running Microsoft Windows 10
 * If you don't have an Azure subscription, [create one for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F) before you begin.
-* [Git](https://git-scm.com/downloads)
+* [Git](https://git-scm.com/downloads) for cloning the repository
 * Hardware
 
     > The * STM DevKit. The tutorial works with either of the following STM Discovery kits.
@@ -97,7 +97,7 @@ To create an IoT hub:
     az iot hub create --resource-group MyResourceGroup --name {YourIoTHubName}
     ```
 
-1. After the IoT hub is created, view the JSON output in the console, and copy the `hostName` value to a safe place. You use this value in a later step. The `hostName` value looks like the following example:
+1. After the IoT hub is created, view the JSON output in the console, and copy the `hostName` value to use in a later step. The `hostName` value looks like the following example:
 
     `{Your IoT hub name}.azure-devices.net`
 
@@ -119,13 +119,14 @@ To register a device:
 
 1. After the device is created, view the JSON output in the console, and copy the `deviceId` and `primaryKey` values to use in a later step.
 
-Confirm that you have the copied the following values from the JSON output to use in the next section:
+## Prepare the device
+
+Confirm that you have the copied the following values from the JSON output from the previous sections:
 
 > * `hostName`
 > * `deviceId`
 > * `primaryKey`
 
-## Prepare the device
 
 To connect the STM DevKit to Azure, you'll modify a configuration file for Wi-Fi and Azure IoT settings, rebuild the image, and flash the image to the device.
 
@@ -366,6 +367,10 @@ To use Azure CLI to call a method:
     Sending message {"ledState":true}
     Direct method=setLedState invoked
     ```
+
+## Debugging
+
+For debugging the application, see [Debugging with Visual Studio Code](../../docs/debugging.md).
 
 ## Clean up resources
 
