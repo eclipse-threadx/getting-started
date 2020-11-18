@@ -54,7 +54,7 @@
 //    containing your SAS key or X509 certificate
 // ----------------------------------------------------------------------------
 #define IOT_DPS_ENDPOINT        "global.azure-devices-provisioning.net"
-#define IOT_DPS_ID_SCOPE        "0ne0019BD5E"
-#define IOT_DPS_REGISTRATION_ID "test-x509-reg-id"
+#define IOT_DPS_ID_SCOPE        ""
+#define IOT_DPS_REGISTRATION_ID ""
 
 #endif // _AZURE_CONFIG_H

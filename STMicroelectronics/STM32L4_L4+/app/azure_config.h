@@ -29,14 +29,14 @@ typedef enum
 // Azure IoT Dynamic Provisioning Service
 //    Define this to use the DPS service, otherwise direct IoT Hub
 // ----------------------------------------------------------------------------
-#define ENABLE_DPS
+// #define ENABLE_DPS
 
 // ----------------------------------------------------------------------------
 // Azure IoT DPS Self-Signed X509Certificate
 //    Define this to connect to DPS or Iot Hub using a self-signed X509 
 ///   certificate
 // ----------------------------------------------------------------------------
-#define ENABLE_X509
+// #define ENABLE_X509
 
 // ----------------------------------------------------------------------------
 // Azure IoT Device ID

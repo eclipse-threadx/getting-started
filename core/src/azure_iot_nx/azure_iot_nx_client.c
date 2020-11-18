@@ -560,8 +560,8 @@ UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CONTEXT* context,
     }
 
     // Set credentials
-    if(device_x509_cert == NULL || device_x509_key == NULL ||
-        device_x509_cert_len <= 0 || device_x509_key_len <= 0)
+    if(device_x509_cert == NULL && device_x509_cert_len == 0 &&
+        device_x509_key == NULL && device_x509_key_len == 0)
     {
         // Symmetric (SAS) Key
         if ((status = nx_azure_iot_provisioning_client_symmetric_key_set(
@@ -583,18 +583,17 @@ UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CONTEXT* context,
                 "0x%08x\r\n",
                 status);
         }
-    }
-    
-
-    if ((status = nx_azure_iot_provisioning_client_device_cert_set(&context->prov_client,
-                                                                   &context->device_certificate))) {
-      printf("Failed on nx_azure_iot_hub_client_device_cert_set!: error code = "
-             "0x%08x\r\n",
-             status);
+        else if ((status = nx_azure_iot_provisioning_client_device_cert_set(&context->prov_client,
+                                                                   &context->device_certificate))) 
+        {
+            printf("Failed on nx_azure_iot_hub_client_device_cert_set!: error code = "
+                    "0x%08x\r\n",
+                    status);
+        }
     }
     
     // Set the payload containing the model Id
-    else if ((status = nx_azure_iot_provisioning_client_registration_payload_set(
+    if ((status = nx_azure_iot_provisioning_client_registration_payload_set(
                   &context->prov_client, (UCHAR*)payload, strlen(payload))))
     {
         printf("Error: nx_azure_iot_provisioning_client_registration_payload_set (0x%08x\r\n", status);
