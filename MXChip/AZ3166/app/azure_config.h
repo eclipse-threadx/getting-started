@@ -41,7 +41,7 @@ typedef enum
 // ----------------------------------------------------------------------------
 // Azure IoT Device ID
 //    Make sure this is the same as the Device ID on the corresponding IoT Hub
-//    device or DPS individual enrollment
+//    NOTE: To be used only when ENABLE_DPS is NOT defined
 // ----------------------------------------------------------------------------
 #define IOT_DEVICE_ID    ""
 
