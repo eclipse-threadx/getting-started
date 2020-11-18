@@ -176,7 +176,7 @@ After the build completes, confirm that the binary files were created in the fol
 
 1. Paste the binary file into the root folder of the MXCHIP Devkit. Flashing starts automatically and completes in a few seconds.
 
-    > Note: During the flashing process, the red LED toggles on MXCHIP DevKit. The process completes in a few seconds without further notification.
+    > Note: During the flashing process, a green LED toggles on MXCHIP DevKit. The process completes in a few seconds without further notification.
 
 ### Confirm device connection details
 
@@ -330,10 +330,10 @@ To call a method in Azure IoT Explorer:
 1. In the **Direct method** panel add the following values for the method name and payload. The payload value *true* indicates to turn the LED on.
     * **Method name**: `setLedState`
     * **Payload**: `true`
-1. Select **Invoke method**. The LED light should turn on.
+1. Select **Invoke method**. The yellow User LED light should turn on.
 
     ![Azure IoT Explorer invoke method](media/azure-iot-explorer-invoke-method.png)
-1. Change **Payload** to *false*, and again select **Invoke method**. The LED light should turn off.
+1. Change **Payload** to *false*, and again select **Invoke method**. The yellow User LED should turn off.
 1. Optionally, you can view the output in Termite to monitor the status of the methods.
 
 To use Azure CLI to call a method:
