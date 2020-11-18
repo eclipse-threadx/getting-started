@@ -91,9 +91,9 @@ static void direct_method_cb(AZURE_IOT_NX_CONTEXT* nx_context,
         http_status = 200;
     }
 
-    if (strncmp((CHAR*)method, SET_DISPLAY_TEXT_COMMAND, method_length) == 0)
+    else if (strncmp((CHAR*)method, SET_DISPLAY_TEXT_COMMAND, method_length) == 0)
     {
-        printf("Method = displayText invoked with string %s\r\n", payload);
+        // drop the first and last character to remove the quotes
         screen_printn((CHAR*)payload + 1, payload_length - 2, L0);
 
         http_status = 200;
