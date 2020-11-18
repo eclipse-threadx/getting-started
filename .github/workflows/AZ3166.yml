@@ -37,10 +37,9 @@ jobs:
 #        run: sudo apt install gcc-arm-none-eabi cmake
 
       - name: arm-none-eabi-gcc
-      - uses: fiam/arm-none-eabi-gcc@v1
+        uses: fiam/arm-none-eabi-gcc@v1
         with:
           release: '9-2020-q2'
-      - run: ...
 
       - name: Install Ninja
         uses: seanmiddleditch/gha-setup-ninja@v3
