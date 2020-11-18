@@ -19,9 +19,9 @@ $termite_name = 'Termite v3.4'
 $termite_hash = 'CA440B6C7F6EAA812BA5F8BF42AED86E02022CA50A1C72585168C9B671D0FE19'
 
 $azure_cli_path = 'https://azurecliprod.blob.core.windows.net/msi'
-$azure_cli_file = 'azure-cli-2.14.2.msi'
-$azure_cli_name = 'Azure CLI v2.14.2'
-$azure_cli_hash = 'C73E14B54C6371D85D7FB22121079D981A2A6A88F7F55460D487992114AFD149'
+$azure_cli_file = 'azure-cli-2.15.0.msi'
+$azure_cli_name = 'Azure CLI v2.15.0'
+$azure_cli_hash = 'F3ACD85F36560D3F48BA7CCE0BA3194F74B7195EBA3117F960CE094128812A20'
 
 $iot_explorer_path = 'https://github.com/Azure/azure-iot-explorer/releases/download/v0.13.0'
 $iot_explorer_file = 'Azure.IoT.Explorer.preview.0.13.0.msi'
