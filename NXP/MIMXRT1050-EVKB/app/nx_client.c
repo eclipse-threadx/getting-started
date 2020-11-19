@@ -7,16 +7,17 @@
 
 #include "nx_api.h"
 #include "nx_azure_iot_hub_client.h"
+#include "nx_azure_iot_json_reader.h"
 #include "nx_azure_iot_provisioning_client.h"
 
-// These are sample files, user can build their own certificate and ciphersuites
-#include "azure_iot_cert.h"
-#include "azure_iot_ciphersuites.h"
 #include "azure_iot_nx_client.h"
+#include "nx_azure_iot_pnp_helpers.h"
 
 #include "azure_config.h"
+#include "azure_pnp_info.h"
 
-#define IOT_MODEL_ID                "dtmi:com:example:azurertos:gsg;1"
+#define IOT_MODEL_ID "dtmi:azurertos:devkit:gsg;1"
+
 #define TELEMETRY_INTERVAL_PROPERTY "telemetryInterval"
 #define LED_STATE_PROPERTY          "ledState"
 #define SET_LED_STATE_COMMAND       "setLedState"
@@ -105,6 +106,55 @@ static void device_twin_desired_property_cb(UCHAR* component_name,
     }
 }
 
+static UINT append_device_info_properties(NX_AZURE_IOT_JSON_WRITER* json_writer, VOID* context)
+{
+    if (nx_azure_iot_json_writer_append_property_with_string_value(json_writer,
+            (UCHAR*)DEVICE_INFO_MANUFACTURER_PROPERTY_NAME,
+            sizeof(DEVICE_INFO_MANUFACTURER_PROPERTY_NAME) - 1,
+            (UCHAR*)DEVICE_INFO_MANUFACTURER_PROPERTY_VALUE,
+            sizeof(DEVICE_INFO_MANUFACTURER_PROPERTY_VALUE) - 1) ||
+        nx_azure_iot_json_writer_append_property_with_string_value(json_writer,
+            (UCHAR*)DEVICE_INFO_MODEL_PROPERTY_NAME,
+            sizeof(DEVICE_INFO_MODEL_PROPERTY_NAME) - 1,
+            (UCHAR*)DEVICE_INFO_MODEL_PROPERTY_VALUE,
+            sizeof(DEVICE_INFO_MODEL_PROPERTY_VALUE) - 1) ||
+        nx_azure_iot_json_writer_append_property_with_string_value(json_writer,
+            (UCHAR*)DEVICE_INFO_SW_VERSION_PROPERTY_NAME,
+            sizeof(DEVICE_INFO_SW_VERSION_PROPERTY_NAME) - 1,
+            (UCHAR*)DEVICE_INFO_SW_VERSION_PROPERTY_VALUE,
+            sizeof(DEVICE_INFO_SW_VERSION_PROPERTY_VALUE) - 1) ||
+        nx_azure_iot_json_writer_append_property_with_string_value(json_writer,
+            (UCHAR*)DEVICE_INFO_OS_NAME_PROPERTY_NAME,
+            sizeof(DEVICE_INFO_OS_NAME_PROPERTY_NAME) - 1,
+            (UCHAR*)DEVICE_INFO_OS_NAME_PROPERTY_VALUE,
+            sizeof(DEVICE_INFO_OS_NAME_PROPERTY_VALUE) - 1) ||
+        nx_azure_iot_json_writer_append_property_with_string_value(json_writer,
+            (UCHAR*)DEVICE_INFO_PROCESSOR_ARCHITECTURE_PROPERTY_NAME,
+            sizeof(DEVICE_INFO_PROCESSOR_ARCHITECTURE_PROPERTY_NAME) - 1,
+            (UCHAR*)DEVICE_INFO_PROCESSOR_ARCHITECTURE_PROPERTY_VALUE,
+            sizeof(DEVICE_INFO_PROCESSOR_ARCHITECTURE_PROPERTY_VALUE) - 1) ||
+        nx_azure_iot_json_writer_append_property_with_string_value(json_writer,
+            (UCHAR*)DEVICE_INFO_PROCESSOR_MANUFACTURER_PROPERTY_NAME,
+            sizeof(DEVICE_INFO_PROCESSOR_MANUFACTURER_PROPERTY_NAME) - 1,
+            (UCHAR*)DEVICE_INFO_PROCESSOR_MANUFACTURER_PROPERTY_VALUE,
+            sizeof(DEVICE_INFO_PROCESSOR_MANUFACTURER_PROPERTY_VALUE) - 1) ||
+        nx_azure_iot_json_writer_append_property_with_double_value(json_writer,
+            (UCHAR*)DEVICE_INFO_TOTAL_STORAGE_PROPERTY_NAME,
+            sizeof(DEVICE_INFO_TOTAL_STORAGE_PROPERTY_NAME) - 1,
+            DEVICE_INFO_TOTAL_STORAGE_PROPERTY_VALUE,
+            2) ||
+        nx_azure_iot_json_writer_append_property_with_double_value(json_writer,
+            (UCHAR*)DEVICE_INFO_TOTAL_MEMORY_PROPERTY_NAME,
+            sizeof(DEVICE_INFO_TOTAL_MEMORY_PROPERTY_NAME) - 1,
+            DEVICE_INFO_TOTAL_MEMORY_PROPERTY_VALUE,
+            2))
+    {
+        return NX_NOT_SUCCESSFUL;
+    }
+
+    return NX_AZURE_IOT_SUCCESS;
+}
+
 static void device_twin_property_cb(UCHAR* component_name,
     UINT component_name_len,
     UCHAR* property_name,
@@ -135,6 +185,7 @@ UINT azure_iot_nx_client_entry(
     NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, UINT (*unix_time_callback)(ULONG* unix_time))
 {
     UINT status;
+    ULONG events = 0;
 
     if ((status = tx_event_flags_create(&azure_iot_flags, "Azure IoT flags")))
     {
@@ -189,14 +240,14 @@ UINT azure_iot_nx_client_entry(
         return status;
     }
 
-    // Send reported properties
+    // Send properties
     azure_iot_nx_client_publish_bool_property(&azure_iot_nx_client, LED_STATE_PROPERTY, false);
+    azure_iot_nx_client_publish_properties(
+        &azure_iot_nx_client, DEVICE_INFO_COMPONENT_NAME, append_device_info_properties);
 
-    ULONG events      = 0;
     float temperature = 28.5;
 
     printf("\r\nStarting Main loop\r\n");
-
     while (true)
     {
         tx_event_flags_get(

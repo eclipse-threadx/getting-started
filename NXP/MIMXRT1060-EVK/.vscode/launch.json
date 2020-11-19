@@ -27,7 +27,7 @@
         {
             "id": "device.host",
             "type": "promptString",
-            "default": "localhost:2331",
+            "default": "host.docker.internal:3333",
             "description": "The local hostname with port for GDB to connect to"
         }
     ]

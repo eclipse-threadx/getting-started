@@ -5,7 +5,6 @@ languages:
 - c
 products:
 - azure-iot
-- azure-iot-hub
 - azure-iot-pnp
 - azure-rtos
 ---
@@ -21,13 +20,13 @@ You will complete the following tasks:
 * Install a set of embedded development tools for programming the NXP EVK in C
 * Build an image and flash it onto the NXP EVK
 * Use Azure CLI to create and manage an Azure IoT hub that the NXP EVK will securely connect to
-* Use Azure IoT Explorer to view properties, view device telemetry, and call cloud-to-device (c2d) methods
+* Use Azure IoT Explorer to view properties, view device telemetry, and call direct commands
 
 ## Prerequisites
 
-* A PC running Microsoft Windows (Windows 10 recommended)
+* A PC running Microsoft Windows 10
 * If you don't have an Azure subscription, [create one for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F) before you begin.
-* [Git](https://git-scm.com/downloads)
+* [Git](https://git-scm.com/downloads) for cloning the repository
 * Hardware
 
     > * The [NXP MIMXRT1060-EVK](https://www.nxp.com/design/development-boards/i-mx-evaluation-and-development-boards/mimxrt1060-evk-i-mx-rt1060-evaluation-kit:MIMXRT1060-EVK) (NXP EVK)
@@ -46,18 +45,19 @@ Clone the following repo to download all sample device code, setup scripts, and 
 To clone the repo, run the following command:
 
 ```shell
-git clone --recursive https://github.com/azure-rtos/getting-started
+git clone --recursive https://github.com/azure-rtos/getting-started.git
 ```
 
 ### Install the tools
 
-The cloned repo contains a setup script that installs and configures the first set of required tools. If you installed these tools in another tutorial in the getting started guide, you don't need to do it again.
+The cloned repo contains a setup script that installs and configures the required tools. If you installed these tools in another tutorial in the getting started guide, you don't need to do it again.
 
 > Note: The setup script installs the following tools:
 
 > * [GCC](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm): Compile
 > * [CMake](https://cmake.org): Build
-> * [Termite](https://www.compuphase.com/software_termite.htm): Monitor
+> * [Termite](https://www.compuphase.com/software_termite.htm): Monitor serial port output for connected devices
+> * [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/): Manage Azure resources
 > * [Azure IoT Explorer](https://github.com/Azure/azure-iot-explorer/releases): Cross-platform utility to  monitor and manage Azure IoT resources
 
 To install the tools:
@@ -75,38 +75,13 @@ To install the tools:
     cmake --version
     ```
 
-## Prepare Azure resources
-
-To prepare Azure cloud resources and connect a device to Azure, you can use Azure CLI. There are two ways to access the Azure CLI: by using the Azure Cloud Shell, or by installing Azure CLI locally.  Azure Cloud Shell lets you run the CLI in a browser so you don't have to install anything.
-
-Use one of the following options to run Azure CLI.  
-
-If you prefer to run Azure CLI locally:
-
-1. If you already have Azure CLI installed locally, run `az --version` to check the version. This tutorial requires Azure CLI 2.10.1 or later.
-1. To install or upgrade, see [Install Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest). If you install Azure CLI locally, you can run CLI commands in the **GCC Command Prompt**, Git Bash for Windows, or PowerShell.
-
-If you prefer to run Azure CLI in the browser-based Azure Cloud Shell:
-
-1. Use your Azure account credentials to sign into the Azure Cloud shell at https://shell.azure.com/.
-    > Note: If this is the first time you've used the Cloud Shell, it prompts you to create storage, which is required to use the Cloud Shell.  Select a subscription to create a storage account and Microsoft Azure Files share.
-1. Select Bash or PowerShell as your preferred CLI environment in the **Select environment** dropdown. If you plan to use Azure Cloud Shell, keep your browser open to run the Azure CLI commands in this tutorial.
-
-    ![Select CLI environment](media/cloud-shell-environment.png)
-
 ### Create an IoT hub
 
 You can use Azure CLI to create an IoT hub that handles events and messaging for your device.
 
 To create an IoT hub:
 
-1. In your CLI console, run the [az extension add](https://docs.microsoft.com/cli/azure/extension?view=azure-cli-latest#az-extension-add) command to add the Microsoft Azure IoT Extension for Azure CLI to your CLI shell. The IOT Extension adds IoT Hub, IoT Edge, and IoT Device Provisioning Service (DPS) specific commands to Azure CLI.
-
-   ```shell
-   az extension add --name azure-iot
-   ```
-
-1. Run the [az group create](https://docs.microsoft.com/cli/azure/group?view=azure-cli-latest#az-group-create) command to create a resource group. The following command creates a resource group named *MyResourceGroup* in the *centralus* region.
+1. From your console window, run the [az group create](https://docs.microsoft.com/cli/azure/group?view=azure-cli-latest#az-group-create) command to create a resource group. The following command creates a resource group named *MyResourceGroup* in the *centralus* region.
 
     > Note: You can optionally set an alternate `location`. To see available locations, run [az account list-locations](https://docs.microsoft.com/cli/azure/account?view=azure-cli-latest#az-account-list-locations). For this tutorial we recommend using `centralus` as in the example CLI command. The IoT Plug and Play feature that you use later in the tutorial, is currently only available in three regions, including `centralus`.
 
@@ -122,7 +97,7 @@ To create an IoT hub:
     az iot hub create --resource-group MyResourceGroup --name {YourIoTHubName}
     ```
 
-1. After the IoT hub is created, view the JSON output in the console, and copy the `hostName` value to a safe place. You use this value in a later step. The `hostName` value looks like the following example:
+1. After the IoT hub is created, view the JSON output in the console, and copy the `hostName` value to use in a later step. The `hostName` value looks like the following example:
 
     `{Your IoT hub name}.azure-devices.net`
 
@@ -144,15 +119,15 @@ To register a device:
 
 1. After the device is created, view the JSON output in the console, and copy the `deviceId` and `primaryKey` values to use in a later step.
 
-Confirm that you have the copied the following values from the JSON output to use in the next section:
+## Prepare the device
+
+Confirm that you have the copied the following values from the JSON output from the previous sections:
 
 > * `hostName`
 > * `deviceId`
 > * `primaryKey`
 
-## Prepare the device
-
-To connect the NXP EVK to Azure, you'll modify a configuration file for the Azure IoT settings, rebuild the image, and flash the image to the device.
+To connect the MXCHIP DevKit to Azure, you'll modify a configuration file for Wi-Fi and Azure IoT settings, rebuild the image, and flash the image to the device.
 
 ### Add configuration
 
@@ -182,11 +157,11 @@ After the build completes, confirm that a binary file was created in the followi
 
 ### Flash the image
 
-1. On the NXP EVK, locate the **Reset** button, the Micro USB port, and the Ethernet port. You use these components in the following steps.
+1. On the NXP EVK, locate the **Reset** button, the micro USB port, and the ethernet port. You use these components in the following steps.
 
     ![NXP EVK board](media/nxp-evk-board.png)
 
-1. Connect the Micro USB cable to the Micro USB port on the NXP EVK, and then connect it to your computer. After the device powers up, a solid green LED shows the power status.
+1. Connect the Micro USB cable to the micro USB port on the NXP EVK, and then connect it to your computer. After the device powers up, a solid green LED shows the power status.
 1. In File Explorer, find the NXP EVK device connected to your computer.
 1. Copy the image file *mimxrt1060_azure_iot.bin* that you created in the previous section, and paste it into the root folder of the NXP EVK. The flashing process starts automatically.
 
@@ -204,46 +179,50 @@ You can use the **Termite** utility to monitor communication and confirm that yo
     * **Baud rate**: 115,200
     * **Port**: The port that your NXP EVK is connected to. If there are multiple port options in the dropdown, you can find the correct port to use. Open Windows **Device Manager**, and view **Ports** to identify which port to use.
 
-    ![Termite settings](media/termite-settings.png)
+    ![Termite](media/termite-settings.png)
 
 1. Select OK.
 1. Press the **Reset** button on the device.
 1. In the **Termite** console, check the following checkpoint values to confirm that the device is initialized and connected to Azure IoT.
 
-    |Checkpoint name|Output value|
-    |---------------|-----|
-    |DHCP |SUCCESS: DHCP initialized|
-    |DNS |SUCCESS: DNS client initialized|
-    |SNTP |SUCCESS: SNTP initialized|
-    |MQTT |SUCCESS: MQTT client initialized|
-
-    The Termite console shows the details about the device, your connection, and the checkpoint values.
-
     ```output
+    Starting Azure thread
+
+    Initializing WiFi
+    	Connecting to SSID 'iot'
+    SUCCESS: WiFi connected to iot
+
     Initializing DHCP
-        IP address: 192.168.1.132
-        Mask: 255.255.255.0
-        Gateway: 192.168.1.1
+    	IP address: 10.0.0.123
+    	Mask: 255.255.255.0
+    	Gateway: 10.0.0.1
     SUCCESS: DHCP initialized
 
     Initializing DNS client
-        DNS address: 192.168.1.1
+    	DNS address: 10.0.0.1
     SUCCESS: DNS client initialized
 
     Initializing SNTP client
-    SNTP time update: May 15, 2020 15:6:45.337 UTC
+    	SNTP server 0.pool.ntp.org
+    	SNTP IP address: 185.242.56.3
+    	SNTP time update: Nov 16, 2020 23:47:35.385 UTC 
     SUCCESS: SNTP initialized
 
-    Initializing MQTT client
-    SUCCESS: MQTT client initialized
+    Initializing Azure IoT DPS client
+    	DPS endpoint: global.azure-devices-provisioning.net
+    	DPS ID scope: ***
+    	Registration ID: ***
+    SUCCESS: Azure IoT DPS client initialized
 
-    Sending telemetry
-    Sending message {"temperature": 28.50}
-    Sending device twin update with float value
-    Sending message {"temperature": 28.50}
-    [Received] topic = $iothub/twin/res/204/?$rid=1&$version=40, message =
-    Processed device twin update response with status=204, id=1
-    Time 1589555217
+    Initializing Azure IoT Hub client
+    	Hub hostname: ***
+    	Device id: ***
+    	Model id: dtmi:azurertos:devkit:gsg;1
+    Connected to IoTHub
+    SUCCESS: Azure IoT Hub client initialized
+
+    Starting Main loop
+
     ```
 
 Keep Termite open to monitor device output in the following steps.
@@ -256,7 +235,7 @@ You can use the Azure IoT Explorer to view and manage the properties of your dev
 
 To add a connection to your IoT hub:
 
-1. In your CLI console, run the [az iot hub show-connection-string](https://docs.microsoft.com/en-us/cli/azure/iot/hub?view=azure-cli-latest#az-iot-hub-show-connection-string) command to get the connection string for your IoT hub.
+1. In your console window, run the [az iot hub show-connection-string](https://docs.microsoft.com/en-us/cli/azure/iot/hub?view=azure-cli-latest#az-iot-hub-show-connection-string) command to get the connection string for your IoT hub.
 
     ```shell
     az iot hub show-connection-string --name {YourIoTHubName}
@@ -298,10 +277,9 @@ To view telemetry in Azure IoT Explorer:
 
 1. In IoT Explorer select **Telemetry**. Confirm that **Use built-in event hub** is set to *Yes*.
 1. Select **Start**.
+1. View the telemetry as the device sends messages to the cloud.
 
     ![Azure IoT Explorer device telemetry](media/azure-iot-explorer-device-telemetry.png)
-
-1. View the telemetry as the device sends messages to the cloud.
 
     Note: You can also monitor telemetry from the device by using the Termite terminal.
 
@@ -373,6 +351,10 @@ To use Azure CLI to call a method:
     Sending message {"ledState":true}
     Direct method=setLedState invoked
     ```
+
+## Debugging
+
+For debugging the application, see [Debugging with Visual Studio Code](../../docs/debugging.md).
 
 ## Clean up resources
 

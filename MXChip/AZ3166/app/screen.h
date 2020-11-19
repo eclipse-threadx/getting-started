@@ -4,10 +4,6 @@
 #ifndef _SCREEN_H
 #define _SCREEN_H
 
-#include <_ansi.h>
-
-_BEGIN_STD_C
-
 /* Enumration for line on the screen */
 typedef enum
 {
@@ -18,7 +14,6 @@ typedef enum
 } LINE_NUM;
 
 void screen_print(char* str, LINE_NUM line);
-
-_END_STD_C
+void screen_printn(const char* str, unsigned int str_length, LINE_NUM line);
 
 #endif // _SCREEN_H

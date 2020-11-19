@@ -5,15 +5,16 @@
 #define _AZURE_IOT_NX_CLIENT_H
 
 #include "nx_api.h"
-#include "nx_azure_iot_hub_client.h"
-#include "nx_azure_iot_provisioning_client.h"
 
+#include "nx_azure_iot_hub_client.h"
 #include "nx_azure_iot_json_reader.h"
+#include "nx_azure_iot_json_writer.h"
+#include "nx_azure_iot_provisioning_client.h"
 
 #include "azure_iot_ciphersuites.h"
 
-#define NX_AZURE_IOT_STACK_SIZE  (2*1024)
-#define AZURE_IOT_STACK_SIZE     (3*1024)
+#define NX_AZURE_IOT_STACK_SIZE  (2 * 1024)
+#define AZURE_IOT_STACK_SIZE     (3 * 1024)
 #define AZURE_IOT_HOST_NAME_SIZE 128
 #define AZURE_IOT_DEVICE_ID_SIZE 64
 
@@ -82,10 +83,17 @@ UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CONTEXT* context,
 UINT azure_iot_nx_client_delete(AZURE_IOT_NX_CONTEXT* context);
 UINT azure_iot_nx_client_connect(AZURE_IOT_NX_CONTEXT* context);
 
+UINT azure_iot_nx_client_publish_telemetry(AZURE_IOT_NX_CONTEXT* context,
+    UINT (*append_properties)(NX_AZURE_IOT_JSON_WRITER* json_builder_ptr, VOID* context));
 UINT azure_iot_nx_client_publish_float_telemetry(AZURE_IOT_NX_CONTEXT* context, CHAR* key, float value);
+
+UINT azure_iot_nx_client_publish_properties(AZURE_IOT_NX_CONTEXT* context,
+    CHAR* component,
+    UINT (*append_properties)(NX_AZURE_IOT_JSON_WRITER* json_builder_ptr, VOID* context));
 UINT azure_iot_nx_client_publish_float_property(AZURE_IOT_NX_CONTEXT* context, CHAR* key, float value);
 UINT azure_iot_nx_client_publish_bool_property(AZURE_IOT_NX_CONTEXT* context, CHAR* key, bool value);
 
+UINT azure_iot_nx_client_publish_int_writeable_property(AZURE_IOT_NX_CONTEXT* context, CHAR* key, UINT value);
 UINT azure_nx_client_respond_int_writeable_property(
     AZURE_IOT_NX_CONTEXT* context, CHAR* property, int value, int http_status, int version);
 

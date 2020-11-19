@@ -11,22 +11,44 @@
 
 #include "nx_api.h"
 #include "nx_azure_iot_hub_client.h"
-#include "nx_azure_iot_provisioning_client.h"
 #include "nx_azure_iot_json_reader.h"
+#include "nx_azure_iot_provisioning_client.h"
 
-// These are sample files, user can build their own certificate and ciphersuites
-#include "azure_iot_cert.h"
-#include "azure_iot_ciphersuites.h"
 #include "azure_iot_nx_client.h"
+#include "nx_azure_iot_pnp_helpers.h"
 
 #include "azure_config.h"
+#include "azure_pnp_info.h"
 
-#define IOT_MODEL_ID                "dtmi:com:example:azurertos:gsg;1"
+#define IOT_MODEL_ID "dtmi:azurertos:devkit:gsgmxchip;1"
+
+// Device telemetry names
+#define TELEMETRY_HUMIDITY          "humidity"
+#define TELEMETRY_TEMPERATURE       "temperature"
+#define TELEMETRY_PRESSURE          "pressure"
+#define TELEMETRY_MAGNETOMETERX     "magnetometerX"
+#define TELEMETRY_MAGNETOMETERY     "magnetometerY"
+#define TELEMETRY_MAGNETOMETERZ     "magnetometerZ"
+#define TELEMETRY_ACCELEROMETERX    "accelerometerX"
+#define TELEMETRY_ACCELEROMETERY    "accelerometerY"
+#define TELEMETRY_ACCELEROMETERZ    "accelerometerZ"
+#define TELEMETRY_GYROSCOPEX        "gyroscopeX"
+#define TELEMETRY_GYROSCOPEY        "gyroscopeY"
+#define TELEMETRY_GYROSCOPEZ        "gyroscopeZ"
 #define TELEMETRY_INTERVAL_PROPERTY "telemetryInterval"
 #define LED_STATE_PROPERTY          "ledState"
 #define SET_LED_STATE_COMMAND       "setLedState"
+#define SET_DISPLAY_TEXT_COMMAND    "setDisplayText"
 
 #define TELEMETRY_INTERVAL_EVENT 1
+
+typedef enum TELEMETRY_STATE_ENUM
+{
+    TELEMETRY_STATE_DEFAULT,
+    TELEMETRY_STATE_MAGNETOMETER,
+    TELEMETRY_STATE_ACCELEROMETER,
+    TELEMETRY_STATE_GYROSCOPE
+} TELEMETRY_STATE;
 
 static AZURE_IOT_NX_CONTEXT azure_iot_nx_client;
 static TX_EVENT_FLAGS_GROUP azure_iot_flags;
@@ -65,6 +87,14 @@ static void direct_method_cb(AZURE_IOT_NX_CONTEXT* nx_context,
         set_led_state(arg);
 
         azure_iot_nx_client_publish_bool_property(&azure_iot_nx_client, LED_STATE_PROPERTY, arg);
+
+        http_status = 200;
+    }
+
+    else if (strncmp((CHAR*)method, SET_DISPLAY_TEXT_COMMAND, method_length) == 0)
+    {
+        // drop the first and last character to remove the quotes
+        screen_printn((CHAR*)payload + 1, payload_length - 2, L0);
 
         http_status = 200;
     }
@@ -134,16 +164,168 @@ static void device_twin_property_cb(UCHAR* component_name,
         nx_context, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval, 200, version);
 }
 
+static UINT append_device_info_properties(NX_AZURE_IOT_JSON_WRITER* json_writer, VOID* context)
+{
+    if (nx_azure_iot_json_writer_append_property_with_string_value(json_writer,
+            (UCHAR*)DEVICE_INFO_MANUFACTURER_PROPERTY_NAME,
+            sizeof(DEVICE_INFO_MANUFACTURER_PROPERTY_NAME) - 1,
+            (UCHAR*)DEVICE_INFO_MANUFACTURER_PROPERTY_VALUE,
+            sizeof(DEVICE_INFO_MANUFACTURER_PROPERTY_VALUE) - 1) ||
+        nx_azure_iot_json_writer_append_property_with_string_value(json_writer,
+            (UCHAR*)DEVICE_INFO_MODEL_PROPERTY_NAME,
+            sizeof(DEVICE_INFO_MODEL_PROPERTY_NAME) - 1,
+            (UCHAR*)DEVICE_INFO_MODEL_PROPERTY_VALUE,
+            sizeof(DEVICE_INFO_MODEL_PROPERTY_VALUE) - 1) ||
+        nx_azure_iot_json_writer_append_property_with_string_value(json_writer,
+            (UCHAR*)DEVICE_INFO_SW_VERSION_PROPERTY_NAME,
+            sizeof(DEVICE_INFO_SW_VERSION_PROPERTY_NAME) - 1,
+            (UCHAR*)DEVICE_INFO_SW_VERSION_PROPERTY_VALUE,
+            sizeof(DEVICE_INFO_SW_VERSION_PROPERTY_VALUE) - 1) ||
+        nx_azure_iot_json_writer_append_property_with_string_value(json_writer,
+            (UCHAR*)DEVICE_INFO_OS_NAME_PROPERTY_NAME,
+            sizeof(DEVICE_INFO_OS_NAME_PROPERTY_NAME) - 1,
+            (UCHAR*)DEVICE_INFO_OS_NAME_PROPERTY_VALUE,
+            sizeof(DEVICE_INFO_OS_NAME_PROPERTY_VALUE) - 1) ||
+        nx_azure_iot_json_writer_append_property_with_string_value(json_writer,
+            (UCHAR*)DEVICE_INFO_PROCESSOR_ARCHITECTURE_PROPERTY_NAME,
+            sizeof(DEVICE_INFO_PROCESSOR_ARCHITECTURE_PROPERTY_NAME) - 1,
+            (UCHAR*)DEVICE_INFO_PROCESSOR_ARCHITECTURE_PROPERTY_VALUE,
+            sizeof(DEVICE_INFO_PROCESSOR_ARCHITECTURE_PROPERTY_VALUE) - 1) ||
+        nx_azure_iot_json_writer_append_property_with_string_value(json_writer,
+            (UCHAR*)DEVICE_INFO_PROCESSOR_MANUFACTURER_PROPERTY_NAME,
+            sizeof(DEVICE_INFO_PROCESSOR_MANUFACTURER_PROPERTY_NAME) - 1,
+            (UCHAR*)DEVICE_INFO_PROCESSOR_MANUFACTURER_PROPERTY_VALUE,
+            sizeof(DEVICE_INFO_PROCESSOR_MANUFACTURER_PROPERTY_VALUE) - 1) ||
+        nx_azure_iot_json_writer_append_property_with_double_value(json_writer,
+            (UCHAR*)DEVICE_INFO_TOTAL_STORAGE_PROPERTY_NAME,
+            sizeof(DEVICE_INFO_TOTAL_STORAGE_PROPERTY_NAME) - 1,
+            DEVICE_INFO_TOTAL_STORAGE_PROPERTY_VALUE,
+            2) ||
+        nx_azure_iot_json_writer_append_property_with_double_value(json_writer,
+            (UCHAR*)DEVICE_INFO_TOTAL_MEMORY_PROPERTY_NAME,
+            sizeof(DEVICE_INFO_TOTAL_MEMORY_PROPERTY_NAME) - 1,
+            DEVICE_INFO_TOTAL_MEMORY_PROPERTY_VALUE,
+            2))
+    {
+        return NX_NOT_SUCCESSFUL;
+    }
+
+    return NX_AZURE_IOT_SUCCESS;
+}
+
+static UINT append_device_telemetry(NX_AZURE_IOT_JSON_WRITER* json_writer, VOID* context)
+{
+    lps22hb_t lps22hb_data    = lps22hb_data_read();
+    hts221_data_t hts221_data = hts221_data_read();
+
+    if (nx_azure_iot_json_writer_append_property_with_double_value(
+            json_writer, (UCHAR*)TELEMETRY_HUMIDITY, sizeof(TELEMETRY_HUMIDITY) - 1, hts221_data.humidity_perc, 2) ||
+        nx_azure_iot_json_writer_append_property_with_double_value(json_writer,
+            (UCHAR*)TELEMETRY_TEMPERATURE,
+            sizeof(TELEMETRY_TEMPERATURE) - 1,
+            lps22hb_data.temperature_degC,
+            2) ||
+        nx_azure_iot_json_writer_append_property_with_double_value(
+            json_writer, (UCHAR*)TELEMETRY_PRESSURE, sizeof(TELEMETRY_PRESSURE) - 1, lps22hb_data.pressure_hPa / 10, 2))
+    {
+        return NX_NOT_SUCCESSFUL;
+    }
+
+    return NX_AZURE_IOT_SUCCESS;
+}
+
+static UINT append_device_telemetry_magnetometer(NX_AZURE_IOT_JSON_WRITER* json_writer, VOID* context)
+{
+    lis2mdl_data_t lis2mdl_data = lis2mdl_data_read();
+
+    if (nx_azure_iot_json_writer_append_property_with_double_value(json_writer,
+            (UCHAR*)TELEMETRY_MAGNETOMETERX,
+            sizeof(TELEMETRY_MAGNETOMETERX) - 1,
+            lis2mdl_data.magnetic_mG[0],
+            2) ||
+        nx_azure_iot_json_writer_append_property_with_double_value(json_writer,
+            (UCHAR*)TELEMETRY_MAGNETOMETERY,
+            sizeof(TELEMETRY_MAGNETOMETERY) - 1,
+            lis2mdl_data.magnetic_mG[1],
+            2) ||
+        nx_azure_iot_json_writer_append_property_with_double_value(json_writer,
+            (UCHAR*)TELEMETRY_MAGNETOMETERZ,
+            sizeof(TELEMETRY_MAGNETOMETERZ) - 1,
+            lis2mdl_data.magnetic_mG[2],
+            2))
+    {
+        return NX_NOT_SUCCESSFUL;
+    }
+
+    return NX_AZURE_IOT_SUCCESS;
+}
+
+static UINT append_device_telemetry_accelerometer(NX_AZURE_IOT_JSON_WRITER* json_writer, VOID* context)
+{
+    lsm6dsl_data_t lsm6dsl_data = lsm6dsl_data_read();
+
+    if (nx_azure_iot_json_writer_append_property_with_double_value(json_writer,
+            (UCHAR*)TELEMETRY_ACCELEROMETERX,
+            sizeof(TELEMETRY_ACCELEROMETERX) - 1,
+            lsm6dsl_data.acceleration_mg[0],
+            2) ||
+        nx_azure_iot_json_writer_append_property_with_double_value(json_writer,
+            (UCHAR*)TELEMETRY_ACCELEROMETERY,
+            sizeof(TELEMETRY_ACCELEROMETERY) - 1,
+            lsm6dsl_data.acceleration_mg[1],
+            2) ||
+        nx_azure_iot_json_writer_append_property_with_double_value(json_writer,
+            (UCHAR*)TELEMETRY_ACCELEROMETERY,
+            sizeof(TELEMETRY_ACCELEROMETERY) - 1,
+            lsm6dsl_data.acceleration_mg[2],
+            2))
+    {
+        return NX_NOT_SUCCESSFUL;
+    }
+
+    return NX_AZURE_IOT_SUCCESS;
+}
+
+static UINT append_device_telemetry_gyroscope(NX_AZURE_IOT_JSON_WRITER* json_writer, VOID* context)
+{
+    lsm6dsl_data_t lsm6dsl_data = lsm6dsl_data_read();
+
+    if (nx_azure_iot_json_writer_append_property_with_double_value(json_writer,
+            (UCHAR*)TELEMETRY_GYROSCOPEX,
+            sizeof(TELEMETRY_GYROSCOPEX) - 1,
+            lsm6dsl_data.angular_rate_mdps[0],
+            2))
+    {
+        return NX_NOT_SUCCESSFUL;
+    }
+
+    if (nx_azure_iot_json_writer_append_property_with_double_value(json_writer,
+            (UCHAR*)TELEMETRY_GYROSCOPEY,
+            sizeof(TELEMETRY_GYROSCOPEY) - 1,
+            lsm6dsl_data.angular_rate_mdps[1],
+            2))
+    {
+        return NX_NOT_SUCCESSFUL;
+    }
+
+    if (nx_azure_iot_json_writer_append_property_with_double_value(json_writer,
+            (UCHAR*)TELEMETRY_GYROSCOPEZ,
+            sizeof(TELEMETRY_GYROSCOPEZ) - 1,
+            lsm6dsl_data.angular_rate_mdps[2],
+            2))
+    {
+        return NX_NOT_SUCCESSFUL;
+    }
+
+    return NX_AZURE_IOT_SUCCESS;
+}
+
 UINT azure_iot_nx_client_entry(
     NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, UINT (*unix_time_callback)(ULONG* unix_time))
 {
     UINT status;
-    ULONG events        = 0;
-    int telemetry_state = 0;
-    lps22hb_t lps22hb_data;
-    hts221_data_t hts221_data;
-    lsm6dsl_data_t lsm6dsl_data;
-    lis2mdl_data_t lis2mdl_data;
+    ULONG events                    = 0;
+    TELEMETRY_STATE telemetry_state = TELEMETRY_STATE_DEFAULT;
 
     if ((status = tx_event_flags_create(&azure_iot_flags, "Azure IoT flags")))
     {
@@ -198,12 +380,13 @@ UINT azure_iot_nx_client_entry(
         return status;
     }
 
-    // Send reported properties
+    // Send properties
     azure_iot_nx_client_publish_bool_property(&azure_iot_nx_client, LED_STATE_PROPERTY, false);
+    azure_iot_nx_client_publish_properties(
+        &azure_iot_nx_client, DEVICE_INFO_COMPONENT_NAME, append_device_info_properties);
 
     printf("\r\nStarting Main loop\r\n");
     screen_print("Azure IoT", L0);
-
     while (true)
     {
         tx_event_flags_get(
@@ -211,43 +394,24 @@ UINT azure_iot_nx_client_entry(
 
         switch (telemetry_state)
         {
-            case 0:
-                // Send the compensated temperature
-                lps22hb_data = lps22hb_data_read();
-                azure_iot_nx_client_publish_float_telemetry(
-                    &azure_iot_nx_client, "temperature", lps22hb_data.temperature_degC);
+            case TELEMETRY_STATE_DEFAULT:
+                azure_iot_nx_client_publish_telemetry(&azure_iot_nx_client, append_device_telemetry);
                 break;
 
-            case 1:
-                // Send the compensated pressure
-                lps22hb_data = lps22hb_data_read();
-                azure_iot_nx_client_publish_float_telemetry(
-                    &azure_iot_nx_client, "pressure", lps22hb_data.pressure_hPa);
+            case TELEMETRY_STATE_MAGNETOMETER:
+                azure_iot_nx_client_publish_telemetry(&azure_iot_nx_client, append_device_telemetry_magnetometer);
                 break;
 
-            case 2:
-                // Send the compensated humidity
-                hts221_data = hts221_data_read();
-                azure_iot_nx_client_publish_float_telemetry(
-                    &azure_iot_nx_client, "humidity", hts221_data.humidity_perc);
+            case TELEMETRY_STATE_ACCELEROMETER:
+                azure_iot_nx_client_publish_telemetry(&azure_iot_nx_client, append_device_telemetry_accelerometer);
                 break;
 
-            case 3:
-                // Send the compensated acceleration
-                lsm6dsl_data = lsm6dsl_data_read();
-                azure_iot_nx_client_publish_float_telemetry(
-                    &azure_iot_nx_client, "acceleration", lsm6dsl_data.acceleration_mg[0]);
-                break;
-
-            case 4:
-                // Send the compensated magnetic
-                lis2mdl_data = lis2mdl_data_read();
-                azure_iot_nx_client_publish_float_telemetry(
-                    &azure_iot_nx_client, "magnetic", lis2mdl_data.magnetic_mG[0]);
+            case TELEMETRY_STATE_GYROSCOPE:
+                azure_iot_nx_client_publish_telemetry(&azure_iot_nx_client, append_device_telemetry_gyroscope);
                 break;
         }
 
-        telemetry_state = (telemetry_state + 1) % 5;
+        telemetry_state = (telemetry_state + 1) % 4;
     }
 
     return NX_SUCCESS;
