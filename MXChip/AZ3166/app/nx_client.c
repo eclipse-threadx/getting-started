@@ -19,8 +19,6 @@
 
 #include "azure_config.h"
 #include "azure_device_x509_cert_config.h"
-
-#define IOT_MODEL_ID                "dtmi:com:example:azurertos:gsg;1"
 #include "azure_pnp_info.h"
 
 #define IOT_MODEL_ID "dtmi:azurertos:devkit:gsgmxchip;1"
