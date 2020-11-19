@@ -1,6 +1,6 @@
 ---
 page_type: sample
-description: Connecting an NXP MIMXRT1060-EVK device to Azure IoT using Azure RTOS
+description: Connecting an MXChip AZ3166 device to Azure IoT using Azure RTOS
 languages:
 - c
 products:
@@ -9,17 +9,17 @@ products:
 - azure-rtos
 ---
 
-# Getting started with the NXP MIMXRT1060-EVK Evaluation kit
+# Getting started with the MXCHIP AZ3166 IoT DevKit
 
 **Total completion time**:  30 minutes
 
-In this tutorial you use Azure RTOS to connect the NXP MIMXRT1060-EVK Evaluation kit (hereafter, the NXP EVK) to Azure IoT. The article is part of the series [Getting Started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824). The series introduces device developers to Azure RTOS, and shows how to connect several device evaluation kits to Azure IoT.
+In this tutorial you use Azure RTOS to connect the MXCHIP AZ3166 IoT DevKit (hereafter, the MXChip DevKit) to Azure IoT. The article is part of the series [Getting started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824). The series introduces device developers to Azure RTOS, and shows how to connect several device evaluation kits to Azure IoT.
 
 You will complete the following tasks:
 
-* Install a set of embedded development tools for programming the NXP EVK in C
-* Build an image and flash it onto the NXP EVK
-* Use Azure CLI to create and manage an Azure IoT hub that the NXP EVK will securely connect to
+* Install a set of embedded development tools for programming the MXChip DevKit in C
+* Build an image and flash it onto the MXCHIP DevKit
+* Use Azure CLI to create and manage an Azure IoT hub that the MXCHIP DevKit will securely connect to
 * Use Azure IoT Explorer to view properties, view device telemetry, and call direct commands
 
 ## Prerequisites
@@ -29,10 +29,9 @@ You will complete the following tasks:
 * [Git](https://git-scm.com/downloads) for cloning the repository
 * Hardware
 
-    > * The [NXP MIMXRT1060-EVK](https://www.nxp.com/design/development-boards/i-mx-evaluation-and-development-boards/mimxrt1060-evk-i-mx-rt1060-evaluation-kit:MIMXRT1060-EVK) (NXP EVK)
+    > * The [MXCHIP AZ3166 IoT DevKit](https://aka.ms/iot-devkit) (MXCHIP DevKit)
+    > * Wi-Fi 2.4 GHz
     > * USB 2.0 A male to Micro USB male cable
-    > * Wired Ethernet access
-    > * Ethernet cable
 
 ## Prepare the development environment
 
@@ -53,7 +52,6 @@ git clone --recursive https://github.com/azure-rtos/getting-started.git
 The cloned repo contains a setup script that installs and configures the required tools. If you installed these tools in another tutorial in the getting started guide, you don't need to do it again.
 
 > Note: The setup script installs the following tools:
-
 > * [GCC](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm): Compile
 > * [CMake](https://cmake.org): Build
 > * [Termite](https://www.compuphase.com/software_termite.htm): Monitor serial port output for connected devices
@@ -111,10 +109,10 @@ To register a device:
 
     *YourIotHubName*. Replace this placeholder below with the name you chose for your IoT hub.
 
-    *MyNXPDevice*. You can use this name directly for the device in CLI commands in this tutorial. Optionally, use a different name.
+    *MyMXCHIPDevice*. You can use this name directly for the device in CLI commands in this tutorial. Optionally, use a different name.
 
     ```shell
-    az iot hub device-identity create --device-id MyNXPDevice --hub-name {YourIoTHubName}
+    az iot hub device-identity create --device-id MyMXCHIPDevice --hub-name {YourIoTHubName}
     ```
 
 1. After the device is created, view the JSON output in the console, and copy the `deviceId` and `primaryKey` values to use in a later step.
@@ -133,7 +131,15 @@ To connect the MXCHIP DevKit to Azure, you'll modify a configuration file for Wi
 
 1. Open the following file in a text editor:
 
-    > *getting-started\NXP\MIMXRT1060-EVK\app\azure_config.h*
+    > *getting-started\MXChip\AZ3166\app\azure_config.h*
+
+1. Set the Wi-Fi constants to the following values from your local environment.
+
+    |Constant name|Value|
+    |-------------|-----|
+    |`WIFI_SSID` |{*Your Wi-Fi ssid*}|
+    |`WIFI_PASSWORD` |{*Your Wi-Fi password*}|
+    |`WIFI_MODE` |{*One of the enumerated Wi-Fi mode values in the file.*}|
 
 1. Set the Azure IoT device information constants to the values that you saved after you created Azure resources.
 
@@ -149,40 +155,49 @@ To connect the MXCHIP DevKit to Azure, you'll modify a configuration file for Wi
 
 In your console or in File Explorer, run the script *rebuild.bat* at the following path to build the image:
 
-> *getting-started\NXP\MIMXRT1060-EVK\tools\rebuild.bat*
+> *getting-started\MXChip\AZ3166\tools\rebuild.bat*
 
-After the build completes, confirm that a binary file was created in the following path:
+After the build completes, confirm that the binary files were created in the following path:
 
-> *getting-started\NXP\MIMXRT1060-EVK\build\app\mimxrt1060_azure_iot.bin*
+> *getting-started\MXChip/AZ3166\build\app\mxchip_azure_iot.bin*
 
 ### Flash the image
 
-1. On the NXP EVK, locate the **Reset** button, the micro USB port, and the ethernet port. You use these components in the following steps.
+1. On the MXCHIP DevKit, locate the **Reset** button, and the micro USB port. You use these components in the following steps. Both are highlighted in the following picture:
 
-    ![NXP EVK board](media/nxp-evk-board.png)
+    ![MXCHIP DevKit reset button and micro USB port](media/mxchip-iot-devkit.png)
 
-1. Connect the Micro USB cable to the micro USB port on the NXP EVK, and then connect it to your computer. After the device powers up, a solid green LED shows the power status.
-1. In File Explorer, find the NXP EVK device connected to your computer.
-1. Copy the image file *mimxrt1060_azure_iot.bin* that you created in the previous section, and paste it into the root folder of the NXP EVK. The flashing process starts automatically.
+1. Connect the micro USB cable to the micro USB port on the MXCHIP DevKit, and then connect it to your computer.
+1. In File Explorer, find the binary files that you created in the previous section.
 
-    > Note: During the flashing process, a red LED blinks rapidly on the NXP EVK. The process completes in a few seconds without further notification.
-1. Use the Ethernet cable to connect the NXP EVK to an Ethernet port.
+1. Copy the binary file *mxchip_azure_iot.bin*.
+
+1. In File Explorer, find the MXCHIP DevKit device connected to your computer. The device appears as a drive on your system with the drive label **AZ3166**.
+
+1. Paste the binary file into the root folder of the MXCHIP Devkit. Flashing starts automatically and completes in a few seconds.
+
+    > Note: During the flashing process, a green LED toggles on MXCHIP DevKit. The process completes in a few seconds without further notification.
 
 ### Confirm device connection details
 
 You can use the **Termite** utility to monitor communication and confirm that your device is set up correctly.
 > Note: If you have issues getting your device to initialize or connect after flashing, see [Troubleshooting](../../docs/troubleshooting.md).
 
+1. Open Device Manager and find the COM port for the MXCHIP IoT DevKit.
+
+    ![COM Port](./media/com_port.png)
+
 1. Start **Termite**.
 1. Select **Settings**.
 1. In the **Serial port settings** dialog, check the following settings and update if needed:
+
     * **Baud rate**: 115,200
-    * **Port**: The port that your NXP EVK is connected to. If there are multiple port options in the dropdown, you can find the correct port to use. Open Windows **Device Manager**, and view **Ports** to identify which port to use.
+    * **Port**: The port that your MXCHIP Devkit is connected to.
 
     ![Termite](media/termite-settings.png)
 
 1. Select OK.
-1. Press the **Reset** button on the device.
+1. Press the **Reset** button on the device. The button is labeled on the device and located near the micro USB connector.
 1. In the **Termite** console, check the following checkpoint values to confirm that the device is initialized and connected to Azure IoT.
 
     ```output
@@ -217,12 +232,11 @@ You can use the **Termite** utility to monitor communication and confirm that yo
     Initializing Azure IoT Hub client
     	Hub hostname: ***
     	Device id: ***
-    	Model id: dtmi:azurertos:devkit:gsg;1
+    	Model id: dtmi:azurertos:devkit:gsgmxchip;1
     Connected to IoTHub
     SUCCESS: Azure IoT Hub client initialized
 
     Starting Main loop
-
     ```
 
 Keep Termite open to monitor device output in the following steps.
@@ -256,7 +270,7 @@ To view device properties using Azure IoT Explorer:
 
     ![Azure IoT Explorer device identity](media/azure-iot-explorer-device-identity.png)
 
-1. Inspect the properties for your device in the **Device identity** panel.
+1. Inspect the properties for your device in the **Device identity** panel. 
 1. Optionally, select the **Device twin** panel and inspect additional device properties.
 
 To use Azure CLI to view device properties:
@@ -264,7 +278,7 @@ To use Azure CLI to view device properties:
 1. Run the [az iot hub device-identity show](https://docs.microsoft.com/en-us/cli/azure/ext/azure-iot/iot/hub/device-identity?view=azure-cli-latest#ext-azure-iot-az-iot-hub-device-identity-show) command.
 
     ```shell
-    az iot hub device-identity show --device-id MyNXPDevice --hub-name {YourIoTHubName}
+    az iot hub device-identity show --device-id MyMXCHIPDevice --hub-name {YourIoTHubName}
     ```
 
 1. Inspect the properties for your device in the console output.
@@ -290,7 +304,7 @@ To use Azure CLI to view device telemetry:
 1. In your CLI console, run the [az iot hub monitor-events](https://docs.microsoft.com/en-us/cli/azure/ext/azure-iot/iot/hub?view=azure-cli-latest#ext-azure-iot-az-iot-hub-monitor-events) command. Use the names that you created previously in Azure IoT for your device and IoT hub.
 
     ```shell
-    az iot hub monitor-events --device-id MyNXPDevice --hub-name {YourIoTHubName}
+    az iot hub monitor-events --device-id MyMXCHIPDevice --hub-name {YourIoTHubName}
     ```
 
 1. View the JSON output in the console.
@@ -298,7 +312,7 @@ To use Azure CLI to view device telemetry:
     ```json
     {
         "event": {
-            "origin": "MyNXPDevice",
+            "origin": "MyMXCHIPDevice",
             "payload": "{\"temperature\": 25}"
         }
     }
@@ -316,10 +330,10 @@ To call a method in Azure IoT Explorer:
 1. In the **Direct method** panel add the following values for the method name and payload. The payload value *true* indicates to turn the LED on.
     * **Method name**: `setLedState`
     * **Payload**: `true`
-1. Select **Invoke method**. The LED light should turn on.
+1. Select **Invoke method**. The yellow User LED light should turn on.
 
     ![Azure IoT Explorer invoke method](media/azure-iot-explorer-invoke-method.png)
-1. Change **Payload** to *false*, and again select **Invoke method**. The LED light should turn off.
+1. Change **Payload** to *false*, and again select **Invoke method**. The yellow User LED should turn off.
 1. Optionally, you can view the output in Termite to monitor the status of the methods.
 
 To use Azure CLI to call a method:
@@ -328,7 +342,7 @@ To use Azure CLI to call a method:
 
     <!-- Inline code tag and CSS to wrap long code lines. -->
     <code style="white-space : pre-wrap !important;">
-    az iot hub invoke-device-method --device-id MyNXPDevice --method-name setLedState --method-payload true --hub-name {YourIoTHubName}
+    az iot hub invoke-device-method --device-id MyMXCHIPDevice --method-name setLedState --method-payload true --hub-name {YourIoTHubName}
     </code>
 
     The CLI console shows the status of your method call on the device, where `204` indicates success.
@@ -379,7 +393,7 @@ To delete a resource group by name:
 
 ## Next Steps
 
-In this tutorial you built a custom image that contains Azure RTOS sample code, and then flashed the image to the NXP EVK device. You also used the Azure CLI to create Azure resources, connect the NXP EVK securely to Azure, view telemetry, and send messages.
+In this tutorial you built a custom image that contains Azure RTOS sample code, and then flashed the image to the MXCHIP DevKit device. You also used the Azure CLI to create Azure resources, connect the MXCHIP DevKit securely to Azure, view telemetry, and send messages.
 
 * For device developers, the suggested next step is to see the other tutorials in the series [Getting started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824).
 * If you have issues getting your device to initialize or connect after following the steps in this guide, see [Troubleshooting](../../docs/troubleshooting.md).

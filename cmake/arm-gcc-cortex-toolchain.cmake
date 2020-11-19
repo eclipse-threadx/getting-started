@@ -8,24 +8,13 @@ set(TARGET_TRIPLET "arm-none-eabi-")
 # do some windows specific logic
 if(WIN32)
     set(TOOLCHAIN_EXT ".exe")
-    
-    # use the repo version of ninja on Windows as there is no Ninja installer
-    set(CMAKE_MAKE_PROGRAM ${CMAKE_CURRENT_LIST_DIR}/ninja CACHE STRING "Ninja location")
-    
-    # locate if the arm gcc compiler is installed via visual studio
-    execute_process(
-        COMMAND ${CMAKE_CURRENT_LIST_DIR}/vswhere.exe -latest -requires Component.MDD.Linux.GCC.arm -find **/gcc_arm/bin
-        OUTPUT_VARIABLE VSWHERE_PATH
-    )
 else()
     set(TOOLCHAIN_EXT "")
 endif(WIN32)
 
 # default to Release build
 if(NOT CMAKE_BUILD_TYPE)
-        set(CMAKE_BUILD_TYPE "Debug" CACHE STRING
-            "Choose the type of build, options are: Debug Release."
-            FORCE)
+    set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Choose the type of build, options are: Debug Release." FORCE)
 endif()
 
 find_program(COMPILER_ON_PATH "${TARGET_TRIPLET}gcc${TOOLCHAIN_EXT}")
@@ -38,17 +27,6 @@ elseif(COMPILER_ON_PATH)
     # then check on the current path
     get_filename_component(ARM_TOOLCHAIN_PATH ${COMPILER_ON_PATH} DIRECTORY)
     message(STATUS "Using ARM GCC from path = ${ARM_TOOLCHAIN_PATH}")
-elseif(VSWHERE_PATH) 
-    # try and find if its installed with visual studio
-    file(TO_CMAKE_PATH ${VSWHERE_PATH} ARM_TOOLCHAIN_PATH)
-    if(ARM_TOOLCHAIN_PATH)
-        string(STRIP ${ARM_TOOLCHAIN_PATH} ARM_TOOLCHAIN_PATH)
-        message(STATUS "Using Visual Studio install ${ARM_TOOLCHAIN_PATH}")
-    endif()
-else() 
-    # otherwise just default to the standard installation
-    set(ARM_TOOLCHAIN_PATH "C:/Program Files (x86)/GNU Tools Arm Embedded/9 2019-q4-major/bin")
-    message(STATUS "Using ARM GCC from default Windows toolchain directory ${ARM_TOOLCHAIN_PATH}")
 endif()
 
 # perform compiler test with the static library
