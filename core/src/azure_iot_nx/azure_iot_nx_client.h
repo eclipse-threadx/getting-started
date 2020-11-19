@@ -52,6 +52,9 @@ struct AZURE_IOT_NX_CONTEXT_STRUCT
     func_ptr_direct_method direct_method_cb;
     func_ptr_device_twin_desired_prop device_twin_desired_prop_cb;
     func_ptr_device_twin_prop device_twin_get_cb;
+
+    NX_SECURE_X509_CERT device_certificate;
+
 };
 
 UINT azure_iot_nx_client_register_direct_method(AZURE_IOT_NX_CONTEXT* context, func_ptr_direct_method callback);
@@ -67,6 +70,10 @@ UINT azure_iot_nx_client_create(AZURE_IOT_NX_CONTEXT* context,
     CHAR* iot_hub_hostname,
     CHAR* iot_device_id,
     CHAR* iot_sas_key,
+    UCHAR* device_x509_cert,
+    UINT device_x509_cert_len,
+    UCHAR* device_x509_key,
+    UINT device_x509_key_len,
     CHAR* iot_model_id);
 
 UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CONTEXT* context,
@@ -78,6 +85,10 @@ UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CONTEXT* context,
     CHAR* dps_id_scope,
     CHAR* dps_registration_id,
     CHAR* device_sas_key,
+    UCHAR* device_x509_cert,
+    UINT device_x509_cert_len,
+    UCHAR* device_x509_key,
+    UINT device_x509_key_len,
     CHAR* device_model_id);
 
 UINT azure_iot_nx_client_delete(AZURE_IOT_NX_CONTEXT* context);
