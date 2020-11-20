@@ -53,12 +53,12 @@ struct AZURE_IOT_NX_CONTEXT_STRUCT
 
     // Union dps and hub as they are used consecutively and will save RAM
     union CLIENT_UNION {
-        NX_AZURE_IOT_HUB_CLIENT hub;
+        NX_AZURE_IOT_HUB_CLIENT iothub;
         NX_AZURE_IOT_PROVISIONING_CLIENT dps;
     } client;
 
-#define hub_client client.hub
-#define dps_client client.dps
+#define iothub_client client.iothub
+#define dps_client    client.dps
 
     func_ptr_direct_method direct_method_cb;
     func_ptr_device_twin_desired_prop device_twin_desired_prop_cb;
@@ -82,12 +82,11 @@ UINT azure_iot_nx_client_create(AZURE_IOT_NX_CONTEXT* context,
     NX_PACKET_POOL* nx_pool,
     NX_DNS* nx_dns,
     UINT (*unix_time_callback)(ULONG* unix_time),
-    CHAR* iot_device_id,
     CHAR* iot_model_id);
 
-UINT azure_iot_nx_client_hub_create(AZURE_IOT_NX_CONTEXT* context, CHAR* iot_hub_hostname);
-
-UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CONTEXT* context, CHAR* dps_endpoint, CHAR* dps_id_scope);
+UINT azure_iot_nx_client_hub_create(AZURE_IOT_NX_CONTEXT* context, CHAR* iot_hub_hostname, CHAR* iot_device_id);
+UINT azure_iot_nx_client_dps_create(
+    AZURE_IOT_NX_CONTEXT* context, CHAR* dps_endpoint, CHAR* dps_id_scope, CHAR* dps_registration_id);
 
 UINT azure_iot_nx_client_delete(AZURE_IOT_NX_CONTEXT* context);
 UINT azure_iot_nx_client_connect(AZURE_IOT_NX_CONTEXT* context);
