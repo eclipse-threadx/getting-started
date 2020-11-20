@@ -18,38 +18,39 @@ In this quickstart, you will learn how to connect an MXChip to Azure IoT Hub usi
 **NOTE:** This quickstart is based on the ["Quick Create Simulated Device x509"](https://github.com/MicrosoftDocs/azure-docs/blob/master/articles/iot-dps/quick-create-simulated-device-x509.md) tutorial.
 
 ## Prerequisites
-**NOTE:** This quickstart is currently only tailored toward a Windows 10 development environment.
 
-Download and install the following:
-* [Git for Windows](https://git-scm.com/download/win) 
-    * **IMPORTANT**: Make sure you select the option to use Git from the command line. This will allow you to run the OpenSSL commands directly from the command line.
-* [Visual Studio Code](https://code.visualstudio.com/download)
-**NOTE:** You can install the following with the installation batch script provided in gsg
-* [GCC](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm)
-* [CMake](https://cmake.org/)
-* [Termite](https://www.compuphase.com/software/termite-3.4.exe)
-* [Azure IoT Explorer](https://docs.microsoft.com/en-us/azure/iot-pnp/howto-use-iot-explorer)
+* A PC running Windows 10environment.
+* [Git](https://git-scm.com/download/win) 
+    
+  > **IMPORTANT**: Make sure you select the option to use Git from the command line. This will allow you to run the OpenSSL commands directly from the command line.
 
-## Installation and Setup
-Confirm installation of Git, OpenSSL VSCode
-```bash
-git --version
-openssl version
-code --version
-```
 
-Clone the Getting Started Guide repository
+## Prepare the development environment
+
+### Clone the repository
 ```bash
 git clone --recursive https://github.com/azure-rtos/getting-started
 ```
 
-Install required tools using the provided batch script
+### Install the tools
+
+Run the setup script to install the required tools.
+
+> NOTE: You can install the following with the installation batch script provided in gsg
+>  * [GCC](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm)
+>  * [CMake](https://cmake.org/)
+>  * [Termite](https://www.compuphase.com/software/termite-3.4.exe)
+>  * [Azure IoT Explorer](https://docs.microsoft.com/en-us/azure/iot-pnp/howto-use-iot-explorer)
+
+Install required tools using the provided batch script:
 ```bash
 getting-started\tools\get-toolchain.bat
 ```
 
-Confirm installation of CMake
+Run a `Git Bash` shell and confirm installation of Git, OpenSSL and CMake
 ```bash
+git --version
+openssl version
 cmake --version
 ```
 
@@ -72,14 +73,14 @@ xxd -i private_key_formatted.der >> cert.c
 If you haven't already, please set up your [DPS and IoT Hub instances](https://docs.microsoft.com/en-us/azure/iot-dps/quick-setup-auto-provision).
 1. Sign in to the Azure portal, select the **All resources** button on the left-hand menu and open your Device Provisioning service.
 
-2. Select the **Manage enrollments** tab
+1. Select the **Manage enrollments** tab
 ![Manage Enrollments Tab](media/dps-manage-enrollments.png)
-3. Select the **Add individual enrollment** button at the top.
+1. Select the **Add individual enrollment** button at the top.
 ![Add Invididual Enrollment](media/dps-add-individual-enrollment.png)
-4. In the **Add Enrollment** panel, enter the following information, then press the **Save** button.
+1. In the **Add Enrollment** panel, enter the following information, then press the **Save** button.
 
     * **Mechanism:** Select **X.509** as the identity attestation *Mechanism*.
-    * **Primary certificate .pem or .cer file:** Choose **Select a file** to select the certificate file, X509testcert.pem, you created earlier.
+    * **Primary certificate .pem or .cer file:** Choose **Select a file** to select the certificate file, X509_test_cert.pem, you created earlier.
     * **IoT Hub Device ID:** Enter **test-x509-device** to give the device an ID.
 
       <!-- [![Add individual enrollment for X.509 attestation in the portal](./media/quick-create-simulated-device-x509/device-enrollment.png)](./media/quick-create-simulated-device-x509/device-enrollment.png#lightbox) -->
@@ -89,7 +90,7 @@ If you haven't already, please set up your [DPS and IoT Hub instances](https://d
 ## Prepare and Flash Your Device
 1. The file cert.c you created with xxd will have two `unsigned char` arrays `device_cert_formated_der[]` and `private_key_formatted_der[]`. Copy the values of these arrays to `iot_x509_device_cert[]` and `iot_x509_private_key[]` respectively on the file *MXChip/AZ3166/app/azure_dps_x509_cert_config.h*, replacing the values `{0x00}`.
 
-2. Navigate to the file *MXChip/AZ3166/app/azure_dps_x509_cert_config.h*, setting the following pre-processor variables:
+1. Navigate to the file *MXChip/AZ3166/app/azure_dps_x509_cert_config.h*, setting the following pre-processor variables:
 ```c
 #define WIFI_SSID     "<your-wifi-ssid>"
 #define WIFI_PASSWORD "<your-wifi-password>"
@@ -102,7 +103,7 @@ If you haven't already, please set up your [DPS and IoT Hub instances](https://d
 #define IOT_DPS_REGISTRATION_ID "<your-registration-id>" # the title of your individual enrollment
 ```
 
-3. Run `MXChip\AZ3166\tools\rebuild.bat`
+1. Run `MXChip\AZ3166\tools\rebuild.bat`
 
 
 ## Use Azure IoT Explorer to See Your Device in Action

@@ -18,7 +18,7 @@
 
 // ----------------------------------------------------------------------------
 // Azure IoT DPS Self-Signed X509Certificate
-//    Define this to connect to DPS or Iot Hub using a self-signed X509 
+//    Define this to connect to DPS or Iot Hub using a self-signed X509
 ///   certificate
 // ----------------------------------------------------------------------------
 // #define ENABLE_X509
@@ -28,7 +28,7 @@
 //    Make sure this is the same as the Device ID on the corresponding IoT Hub
 //    NOTE: To be used only when ENABLE_DPS is NOT defined
 // ----------------------------------------------------------------------------
-#define IOT_DEVICE_ID    ""
+#define IOT_DEVICE_ID ""
 
 // ----------------------------------------------------------------------------
 // Azure IoT SAS Key
@@ -36,7 +36,7 @@
 //    enrollment
 //    NOTE: To be used only when ENABLE_X509 is not defined
 // ----------------------------------------------------------------------------
-#define IOT_PRIMARY_KEY  ""
+#define IOT_PRIMARY_KEY ""
 
 // ----------------------------------------------------------------------------
 // Azure IoT Hub Hostname

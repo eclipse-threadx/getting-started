@@ -194,76 +194,41 @@ UINT azure_iot_nx_client_entry(
 
     if ((status = tx_event_flags_create(&azure_iot_flags, "Azure IoT flags")))
     {
-        printf("FAIL: Unable to create nx_client event flags (0x%04x)\r\n", status);
+        printf("FAIL: Unable to create nx_client event flags (0x%08x)\r\n", status);
+        return status;
+    }
+
+    status = azure_iot_nx_client_create(
+        &azure_iot_nx_client, ip_ptr, pool_ptr, dns_ptr, unix_time_callback, IOT_MODEL_ID);
+    if (status != NX_SUCCESS)
+    {
+        printf("ERROR: azure_iot_nx_client_create failed (0x%08x)\r\n", status);
+        return status;
+    }        
+
+#ifdef ENABLE_X509
+    status = azure_iot_nx_client_cert_set(&azure_iot_nx_client,
+        (UCHAR*)iot_x509_device_cert,
+        iot_x509_device_cert_len,
+        (UCHAR*)iot_x509_private_key,
+        iot_x509_private_key_len);
+#else
+    status = azure_iot_nx_client_sas_set(&azure_iot_nx_client, IOT_PRIMARY_KEY);
+#endif
+    if (status != NX_SUCCESS)
+    {
+        printf("ERROR: azure_iot_nx_client_[sas|cert]_set failed (0x%08x)\r\n", status);
         return status;
     }
 
 #ifdef ENABLE_DPS
-#   ifdef ENABLE_X509
-    status = azure_iot_nx_client_dps_create(&azure_iot_nx_client,
-        ip_ptr,
-        pool_ptr,
-        dns_ptr,
-        unix_time_callback,
-        IOT_DPS_ENDPOINT,
-        IOT_DPS_ID_SCOPE,
-        IOT_DPS_REGISTRATION_ID,
-        "",
-        (UCHAR*)iot_x509_device_cert,
-        iot_x509_device_cert_len,
-        (UCHAR*)iot_x509_private_key,
-        iot_x509_private_key_len,
-        IOT_MODEL_ID);
-#   else
-    status = azure_iot_nx_client_dps_create(&azure_iot_nx_client,
-        ip_ptr,
-        pool_ptr,
-        dns_ptr,
-        unix_time_callback,
-        IOT_DPS_ENDPOINT,
-        IOT_DPS_ID_SCOPE,
-        IOT_DPS_REGISTRATION_ID,
-        IOT_PRIMARY_KEY,
-        NULL,
-        0,
-        NULL,
-        0,
-        IOT_MODEL_ID);
-#   endif
+    azure_iot_nx_client_dps_create(&azure_iot_nx_client, IOT_DPS_ENDPOINT, IOT_DPS_ID_SCOPE, IOT_DPS_REGISTRATION_ID);
 #else
-#   ifdef ENABLE_X509
-    status = azure_iot_nx_client_create(&azure_iot_nx_client,
-        ip_ptr,
-        pool_ptr,
-        dns_ptr,
-        unix_time_callback,
-        IOT_HUB_HOSTNAME,
-        IOT_DEVICE_ID,
-        "",
-        (UCHAR*)iot_x509_device_cert,
-        iot_x509_device_cert_len,
-        (UCHAR*)iot_x509_private_key,
-        iot_x509_private_key_len,
-        IOT_MODEL_ID);
-#   else
-    status = azure_iot_nx_client_create(&azure_iot_nx_client,
-        ip_ptr,
-        pool_ptr,
-        dns_ptr,
-        unix_time_callback,
-        IOT_HUB_HOSTNAME,
-        IOT_DEVICE_ID,
-        IOT_PRIMARY_KEY,
-        NULL,
-        0,
-        NULL,
-        0,
-        IOT_MODEL_ID);
-#   endif
+    azure_iot_nx_client_hub_create(&azure_iot_nx_client, IOT_HUB_HOSTNAME, IOT_DEVICE_ID);
 #endif
     if (status != NX_SUCCESS)
     {
-        printf("ERROR: failed to create iot client 0x%04x\r\n", status);
+        printf("ERROR: azure_iot_nx_client_[hub|dps]_create failed (0x%08x)\r\n", status);
         return status;
     }
 

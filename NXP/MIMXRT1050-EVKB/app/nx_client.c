@@ -107,6 +107,32 @@ static void device_twin_desired_property_cb(UCHAR* component_name,
     }
 }
 
+static void device_twin_property_cb(UCHAR* component_name,
+    UINT component_name_len,
+    UCHAR* property_name,
+    UINT property_name_len,
+    NX_AZURE_IOT_JSON_READER property_value_reader,
+    UINT version,
+    VOID* userContextCallback)
+{
+    UINT status;
+    AZURE_IOT_NX_CONTEXT* nx_context = (AZURE_IOT_NX_CONTEXT*)userContextCallback;
+
+    if (strncmp((CHAR*)property_name, TELEMETRY_INTERVAL_PROPERTY, property_name_len) == 0)
+    {
+        status = nx_azure_iot_json_reader_token_int32_get(&property_value_reader, &telemetry_interval);
+        if (status == NX_AZURE_IOT_SUCCESS)
+        {
+            // Set a telemetry event so we pick up the change immediately
+            tx_event_flags_set(&azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR);
+        }
+    }
+
+    // Confirm reception back to hub
+    azure_nx_client_respond_int_writeable_property(
+        nx_context, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval, 200, version);
+}
+
 static UINT append_device_info_properties(NX_AZURE_IOT_JSON_WRITER* json_writer, VOID* context)
 {
     if (nx_azure_iot_json_writer_append_property_with_string_value(json_writer,
@@ -156,32 +182,6 @@ static UINT append_device_info_properties(NX_AZURE_IOT_JSON_WRITER* json_writer,
     return NX_AZURE_IOT_SUCCESS;
 }
 
-static void device_twin_property_cb(UCHAR* component_name,
-    UINT component_name_len,
-    UCHAR* property_name,
-    UINT property_name_len,
-    NX_AZURE_IOT_JSON_READER property_value_reader,
-    UINT version,
-    VOID* userContextCallback)
-{
-    UINT status;
-    AZURE_IOT_NX_CONTEXT* nx_context = (AZURE_IOT_NX_CONTEXT*)userContextCallback;
-
-    if (strncmp((CHAR*)property_name, TELEMETRY_INTERVAL_PROPERTY, property_name_len) == 0)
-    {
-        status = nx_azure_iot_json_reader_token_int32_get(&property_value_reader, &telemetry_interval);
-        if (status == NX_AZURE_IOT_SUCCESS)
-        {
-            // Set a telemetry event so we pick up the change immediately
-            tx_event_flags_set(&azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR);
-        }
-    }
-
-    // Confirm reception back to hub
-    azure_nx_client_respond_int_writeable_property(
-        nx_context, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval, 200, version);
-}
-
 UINT azure_iot_nx_client_entry(
     NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, UINT (*unix_time_callback)(ULONG* unix_time))
 {
@@ -194,72 +194,37 @@ UINT azure_iot_nx_client_entry(
         return status;
     }
 
-#ifdef ENABLE_DPS
-#   ifdef ENABLE_X509
-    status = azure_iot_nx_client_dps_create(&azure_iot_nx_client,
-        ip_ptr,
-        pool_ptr,
-        dns_ptr,
-        unix_time_callback,
-        IOT_DPS_ENDPOINT,
-        IOT_DPS_ID_SCOPE,
-        IOT_DPS_REGISTRATION_ID,
-        "",
+    status = azure_iot_nx_client_create(
+        &azure_iot_nx_client, ip_ptr, pool_ptr, dns_ptr, unix_time_callback, IOT_MODEL_ID);
+    if (status != NX_SUCCESS)
+    {
+        printf("ERROR: azure_iot_nx_client_create failed (0x%08x)\r\n", status);
+        return status;
+    }     
+
+#ifdef ENABLE_X509
+    status = azure_iot_nx_client_cert_set(&azure_iot_nx_client,
         (UCHAR*)iot_x509_device_cert,
         iot_x509_device_cert_len,
         (UCHAR*)iot_x509_private_key,
-        iot_x509_private_key_len,
-        IOT_MODEL_ID);
-#   else
-    status = azure_iot_nx_client_dps_create(&azure_iot_nx_client,
-        ip_ptr,
-        pool_ptr,
-        dns_ptr,
-        unix_time_callback,
-        IOT_DPS_ENDPOINT,
-        IOT_DPS_ID_SCOPE,
-        IOT_DPS_REGISTRATION_ID,
-        IOT_PRIMARY_KEY,
-        NULL,
-        0,
-        NULL,
-        0,
-        IOT_MODEL_ID);
-#   endif
+        iot_x509_private_key_len);
 #else
-#   ifdef ENABLE_X509
-    status = azure_iot_nx_client_create(&azure_iot_nx_client,
-        ip_ptr,
-        pool_ptr,
-        dns_ptr,
-        unix_time_callback,
-        IOT_HUB_HOSTNAME,
-        IOT_DEVICE_ID,
-        "",
-        (UCHAR*)iot_x509_device_cert,
-        iot_x509_device_cert_len,
-        (UCHAR*)iot_x509_private_key,
-        iot_x509_private_key_len,
-        IOT_MODEL_ID);
-#   else
-    status = azure_iot_nx_client_create(&azure_iot_nx_client,
-        ip_ptr,
-        pool_ptr,
-        dns_ptr,
-        unix_time_callback,
-        IOT_HUB_HOSTNAME,
-        IOT_DEVICE_ID,
-        IOT_PRIMARY_KEY,
-        NULL,
-        0,
-        NULL,
-        0,
-        IOT_MODEL_ID);
-#   endif
+    status = azure_iot_nx_client_sas_set(&azure_iot_nx_client, IOT_PRIMARY_KEY);
 #endif
     if (status != NX_SUCCESS)
     {
-        printf("ERROR: failed to create iot client 0x%04x\r\n", status);
+        printf("ERROR: azure_iot_nx_client_[sas|cert]_set failed (0x%08x)\r\n", status);
+        return status;
+    }
+
+#ifdef ENABLE_DPS
+    azure_iot_nx_client_dps_create(&azure_iot_nx_client, IOT_DPS_ENDPOINT, IOT_DPS_ID_SCOPE, IOT_DPS_REGISTRATION_ID);
+#else
+    azure_iot_nx_client_hub_create(&azure_iot_nx_client, IOT_HUB_HOSTNAME, IOT_DEVICE_ID);
+#endif
+    if (status != NX_SUCCESS)
+    {
+        printf("ERROR: azure_iot_nx_client_[hub|dps]_create failed (0x%08x)\r\n", status);
         return status;
     }
 
