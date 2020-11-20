@@ -68,7 +68,7 @@ static void direct_method_cb(AZURE_IOT_NX_CONTEXT* nx_context,
         http_status = 200;
     }
 
-    if ((status = nx_azure_iot_hub_client_direct_method_message_response(&nx_context->iot_client,
+    if ((status = nx_azure_iot_hub_client_direct_method_message_response(&nx_context->hub_client,
              http_status,
              context,
              context_length,
