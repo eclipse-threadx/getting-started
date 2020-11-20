@@ -84,8 +84,7 @@ static void mqtt_device_twin_desired_prop(AZURE_IOT_MQTT* iot_mqtt, CHAR* messag
         tx_event_flags_set(&azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR);
 
         // Confirm reception back to hub
-        azure_iot_mqtt_respond_int_writeable_property(
-            iot_mqtt, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval, 200);
+        azure_iot_mqtt_respond_int_writeable_property(iot_mqtt, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval, 200);
     }
 }
 
