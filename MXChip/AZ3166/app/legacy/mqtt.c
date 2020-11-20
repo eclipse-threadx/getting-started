@@ -136,7 +136,7 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
         time_get,
         IOT_DPS_ENDPOINT,
         IOT_DPS_ID_SCOPE,
-        IOT_DPS_REGISTRATION_ID,
+        IOT_DEVICE_ID,
         IOT_PRIMARY_KEY,
         IOT_MODEL_ID);
 #else
