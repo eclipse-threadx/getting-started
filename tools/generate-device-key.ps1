@@ -12,4 +12,4 @@ $hmacsha.key = [Convert]::FromBase64String($key)
 $deviceKey = $hmacsha.ComputeHash([Text.Encoding]::ASCII.GetBytes($id))
 $deviceKey = [Convert]::ToBase64String($deviceKey)
 
-Write-Output "Device key = $deviceKey"
+Write-Output "Device key: $deviceKey"

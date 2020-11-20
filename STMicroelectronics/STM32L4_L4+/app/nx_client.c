@@ -69,7 +69,7 @@ static void direct_method_cb(AZURE_IOT_NX_CONTEXT* nx_context,
         http_status = 200;
     }
 
-    if ((status = nx_azure_iot_hub_client_direct_method_message_response(&nx_context->iothub_client,
+    if ((status = nx_azure_iot_hub_client_direct_method_message_response(&nx_context->hub_client,
              http_status,
              context,
              context_length,
@@ -196,68 +196,28 @@ UINT azure_iot_nx_client_entry(
         return status;
     }
 
-#ifdef ENABLE_DPS
-#   ifdef ENABLE_X509
-    status = azure_iot_nx_client_dps_create(&azure_iot_nx_client,
-        ip_ptr,
-        pool_ptr,
-        dns_ptr,
-        unix_time_callback,
-        IOT_DPS_ENDPOINT,
-        IOT_DPS_ID_SCOPE,
-        IOT_DPS_REGISTRATION_ID,
-        "",
-        (UCHAR*)iot_x509_device_cert,
-        iot_x509_device_cert_len,
-        (UCHAR*)iot_x509_private_key,
-        iot_x509_private_key_len,
-        IOT_MODEL_ID);
-#   else
-    status = azure_iot_nx_client_dps_create(&azure_iot_nx_client,
-        ip_ptr,
-        pool_ptr,
-        dns_ptr,
-        unix_time_callback,
-        IOT_DPS_ENDPOINT,
-        IOT_DPS_ID_SCOPE,
-        IOT_DPS_REGISTRATION_ID,
-        IOT_PRIMARY_KEY,
-        NULL,
-        0,
-        NULL,
-        0,
-        IOT_MODEL_ID);
-#   endif
+    status = azure_iot_nx_client_create(
+        &azure_iot_nx_client, ip_ptr, pool_ptr, dns_ptr, unix_time_callback, IOT_DEVICE_ID, IOT_MODEL_ID);
+
+#ifdef ENABLE_X509
+    status = azure_iot_nx_client_cert_set(&azure_iot_nx_client,
+        UCHAR * device_x509_cert,
+        UINT device_x509_cert_len,
+        UCHAR * device_x509_key,
+        UINT device_x509_key_len);
 #else
-#   ifdef ENABLE_X509
-    status = azure_iot_nx_client_create(&azure_iot_nx_client,
-        ip_ptr,
-        pool_ptr,
-        dns_ptr,
-        unix_time_callback,
-        IOT_HUB_HOSTNAME,
-        IOT_DEVICE_ID,
-        "",
-        (UCHAR*)iot_x509_device_cert,
-        iot_x509_device_cert_len,
-        (UCHAR*)iot_x509_private_key,
-        iot_x509_private_key_len,
-        IOT_MODEL_ID);
-#   else
-    status = azure_iot_nx_client_create(&azure_iot_nx_client,
-        ip_ptr,
-        pool_ptr,
-        dns_ptr,
-        unix_time_callback,
-        IOT_HUB_HOSTNAME,
-        IOT_DEVICE_ID,
-        IOT_PRIMARY_KEY,
-        NULL,
-        0,
-        NULL,
-        0,
-        IOT_MODEL_ID);
-#   endif
+    status = azure_iot_nx_client_sas_set(&azure_iot_nx_client, IOT_PRIMARY_KEY);
+#endif
+    if (status != NX_SUCCESS)
+    {
+        printf("ERROR: failed to set authentication (0x%08x)\r\n", status);
+        return status;
+    }
+
+#ifdef ENABLE_DPS
+    azure_iot_nx_client_dps_create(&azure_iot_nx_client, IOT_DPS_ENDPOINT, IOT_DPS_ID_SCOPE);
+#else
+    azure_iot_nx_client_hub_create(&azure_iot_nx_client, IOT_HUB_HOSTNAME);
 #endif
     if (status != NX_SUCCESS)
     {
@@ -278,7 +238,7 @@ UINT azure_iot_nx_client_entry(
 
     // Request the device twin for writeable property update
     if ((status = nx_azure_iot_hub_client_device_twin_properties_request(
-             &azure_iot_nx_client.iothub_client, NX_WAIT_FOREVER)))
+             &azure_iot_nx_client.hub_client, NX_WAIT_FOREVER)))
     {
         printf("ERROR: failed to request device twin (0x%08x)\r\n", status);
         return status;

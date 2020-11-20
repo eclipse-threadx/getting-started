@@ -18,6 +18,10 @@
 #define AZURE_IOT_HOST_NAME_SIZE 128
 #define AZURE_IOT_DEVICE_ID_SIZE 64
 
+#define AZURE_IOT_AUTH_MODE_UNKNOWN 0
+#define AZURE_IOT_AUTH_MODE_SAS     1
+#define AZURE_IOT_AUTH_MODE_CERT    2
+
 typedef struct AZURE_IOT_NX_CONTEXT_STRUCT AZURE_IOT_NX_CONTEXT;
 
 typedef void (*func_ptr_direct_method)(AZURE_IOT_NX_CONTEXT*, const UCHAR*, USHORT, UCHAR*, USHORT, VOID*, USHORT);
@@ -34,27 +38,31 @@ struct AZURE_IOT_NX_CONTEXT_STRUCT
 
     TX_EVENT_FLAGS_GROUP events;
 
+    UINT azure_iot_auth_mode;
+    CHAR* azure_iot_device_sas_key;
+    UINT azure_iot_device_sas_key_len;
+    NX_SECURE_X509_CERT device_certificate;
+
     CHAR azure_iot_hub_hostname[AZURE_IOT_HOST_NAME_SIZE];
     CHAR azure_iot_device_id[AZURE_IOT_DEVICE_ID_SIZE];
+    CHAR* azure_iot_model_id;
 
     TX_THREAD azure_iot_thread;
 
     NX_AZURE_IOT nx_azure_iot;
 
+    // Union dps and hub as they are used consecutively and will save RAM
     union CLIENT_UNION {
-        NX_AZURE_IOT_HUB_CLIENT iothub;
+        NX_AZURE_IOT_HUB_CLIENT hub;
         NX_AZURE_IOT_PROVISIONING_CLIENT dps;
     } client;
 
-#define iothub_client client.iothub
-#define prov_client   client.dps
+#define hub_client client.hub
+#define dps_client client.dps
 
     func_ptr_direct_method direct_method_cb;
     func_ptr_device_twin_desired_prop device_twin_desired_prop_cb;
     func_ptr_device_twin_prop device_twin_get_cb;
-
-    NX_SECURE_X509_CERT device_certificate;
-
 };
 
 UINT azure_iot_nx_client_register_direct_method(AZURE_IOT_NX_CONTEXT* context, func_ptr_direct_method callback);
@@ -62,34 +70,24 @@ UINT azure_iot_nx_client_register_device_twin_desired_prop(
     AZURE_IOT_NX_CONTEXT* context, func_ptr_device_twin_desired_prop callback);
 UINT azure_iot_nx_client_register_device_twin_prop(AZURE_IOT_NX_CONTEXT* context, func_ptr_device_twin_prop callback);
 
+UINT azure_iot_nx_client_sas_set(AZURE_IOT_NX_CONTEXT* context, CHAR* device_sas_key);
+UINT azure_iot_nx_client_cert_set(AZURE_IOT_NX_CONTEXT* context,
+    UCHAR* device_x509_cert,
+    UINT device_x509_cert_len,
+    UCHAR* device_x509_key,
+    UINT device_x509_key_len);
+
 UINT azure_iot_nx_client_create(AZURE_IOT_NX_CONTEXT* context,
     NX_IP* nx_ip,
     NX_PACKET_POOL* nx_pool,
     NX_DNS* nx_dns,
     UINT (*unix_time_callback)(ULONG* unix_time),
-    CHAR* iot_hub_hostname,
     CHAR* iot_device_id,
-    CHAR* iot_sas_key,
-    UCHAR* device_x509_cert,
-    UINT device_x509_cert_len,
-    UCHAR* device_x509_key,
-    UINT device_x509_key_len,
     CHAR* iot_model_id);
 
-UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CONTEXT* context,
-    NX_IP* nx_ip,
-    NX_PACKET_POOL* nx_pool,
-    NX_DNS* nx_dns,
-    UINT (*unix_time_callback)(ULONG* unix_time),
-    CHAR* dps_endpoint,
-    CHAR* dps_id_scope,
-    CHAR* dps_registration_id,
-    CHAR* device_sas_key,
-    UCHAR* device_x509_cert,
-    UINT device_x509_cert_len,
-    UCHAR* device_x509_key,
-    UINT device_x509_key_len,
-    CHAR* device_model_id);
+UINT azure_iot_nx_client_hub_create(AZURE_IOT_NX_CONTEXT* context, CHAR* iot_hub_hostname);
+
+UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CONTEXT* context, CHAR* dps_endpoint, CHAR* dps_id_scope);
 
 UINT azure_iot_nx_client_delete(AZURE_IOT_NX_CONTEXT* context);
 UINT azure_iot_nx_client_connect(AZURE_IOT_NX_CONTEXT* context);
