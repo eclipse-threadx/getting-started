@@ -203,10 +203,10 @@ UINT azure_iot_nx_client_entry(
 
 #ifdef ENABLE_X509
     status = azure_iot_nx_client_cert_set(&azure_iot_nx_client,
-        UCHAR * device_x509_cert,
-        UINT device_x509_cert_len,
-        UCHAR * device_x509_key,
-        UINT device_x509_key_len);
+        (UCHAR*)iot_x509_device_cert,
+        iot_x509_device_cert_len,
+        (UCHAR*)iot_x509_private_key,
+        iot_x509_private_key_len);
 #else
     status = azure_iot_nx_client_sas_set(&azure_iot_nx_client, IOT_PRIMARY_KEY);
 #endif
