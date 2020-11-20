@@ -68,7 +68,7 @@ static void direct_method_cb(AZURE_IOT_NX_CONTEXT* nx_context,
         http_status = 200;
     }
 
-    if ((status = nx_azure_iot_hub_client_direct_method_message_response(&nx_context->iothub_client,
+    if ((status = nx_azure_iot_hub_client_direct_method_message_response(&nx_context->hub_client,
              http_status,
              context,
              context_length,
@@ -236,7 +236,7 @@ UINT azure_iot_nx_client_entry(
 
     // Request the device twin for writeable property update
     if ((status = nx_azure_iot_hub_client_device_twin_properties_request(
-             &azure_iot_nx_client.iothub_client, NX_WAIT_FOREVER)))
+             &azure_iot_nx_client.hub_client, NX_WAIT_FOREVER)))
     {
         printf("ERROR: failed to request device twin (0x%08x)\r\n", status);
         return status;
