@@ -196,6 +196,11 @@ UINT azure_iot_nx_client_entry(
 
     status = azure_iot_nx_client_create(
         &azure_iot_nx_client, ip_ptr, pool_ptr, dns_ptr, unix_time_callback, IOT_MODEL_ID);
+    if (status != NX_SUCCESS)
+    {
+        printf("ERROR: azure_iot_nx_client_create failed (0x%08x)\r\n", status);
+        return status;
+    }     
 
 #ifdef ENABLE_X509
     status = azure_iot_nx_client_cert_set(&azure_iot_nx_client,
@@ -208,7 +213,7 @@ UINT azure_iot_nx_client_entry(
 #endif
     if (status != NX_SUCCESS)
     {
-        printf("ERROR: failed to set authentication (0x%08x)\r\n", status);
+        printf("ERROR: azure_iot_nx_client_[sas|cert]_set failed (0x%08x)\r\n", status);
         return status;
     }
 
@@ -219,7 +224,7 @@ UINT azure_iot_nx_client_entry(
 #endif
     if (status != NX_SUCCESS)
     {
-        printf("ERROR: failed to create iot client 0x%04x\r\n", status);
+        printf("ERROR: azure_iot_nx_client_[hub|dps]_create failed (0x%08x)\r\n", status);
         return status;
     }
 
@@ -250,7 +255,6 @@ UINT azure_iot_nx_client_entry(
     float temperature = 28.5;
 
     printf("\r\nStarting Main loop\r\n");
-
     while (true)
     {
         tx_event_flags_get(
