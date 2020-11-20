@@ -36,8 +36,6 @@ struct AZURE_IOT_NX_CONTEXT_STRUCT
     ULONG nx_azure_iot_thread_stack[NX_AZURE_IOT_STACK_SIZE / sizeof(ULONG)];
     ULONG azure_iot_thread_stack[AZURE_IOT_STACK_SIZE / sizeof(ULONG)];
 
-    TX_EVENT_FLAGS_GROUP events;
-
     UINT azure_iot_auth_mode;
     CHAR* azure_iot_device_sas_key;
     UINT azure_iot_device_sas_key_len;
@@ -48,6 +46,7 @@ struct AZURE_IOT_NX_CONTEXT_STRUCT
     CHAR* azure_iot_model_id;
 
     TX_THREAD azure_iot_thread;
+    TX_EVENT_FLAGS_GROUP events;
 
     NX_AZURE_IOT nx_azure_iot;
 
