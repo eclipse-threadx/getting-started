@@ -30,6 +30,55 @@ static TX_EVENT_FLAGS_GROUP azure_iot_flags;
 
 static int32_t telemetry_interval = 10;
 
+static UINT append_device_info_properties(NX_AZURE_IOT_JSON_WRITER* json_writer, VOID* context)
+{
+    if (nx_azure_iot_json_writer_append_property_with_string_value(json_writer,
+            (UCHAR*)DEVICE_INFO_MANUFACTURER_PROPERTY_NAME,
+            sizeof(DEVICE_INFO_MANUFACTURER_PROPERTY_NAME) - 1,
+            (UCHAR*)DEVICE_INFO_MANUFACTURER_PROPERTY_VALUE,
+            sizeof(DEVICE_INFO_MANUFACTURER_PROPERTY_VALUE) - 1) ||
+        nx_azure_iot_json_writer_append_property_with_string_value(json_writer,
+            (UCHAR*)DEVICE_INFO_MODEL_PROPERTY_NAME,
+            sizeof(DEVICE_INFO_MODEL_PROPERTY_NAME) - 1,
+            (UCHAR*)DEVICE_INFO_MODEL_PROPERTY_VALUE,
+            sizeof(DEVICE_INFO_MODEL_PROPERTY_VALUE) - 1) ||
+        nx_azure_iot_json_writer_append_property_with_string_value(json_writer,
+            (UCHAR*)DEVICE_INFO_SW_VERSION_PROPERTY_NAME,
+            sizeof(DEVICE_INFO_SW_VERSION_PROPERTY_NAME) - 1,
+            (UCHAR*)DEVICE_INFO_SW_VERSION_PROPERTY_VALUE,
+            sizeof(DEVICE_INFO_SW_VERSION_PROPERTY_VALUE) - 1) ||
+        nx_azure_iot_json_writer_append_property_with_string_value(json_writer,
+            (UCHAR*)DEVICE_INFO_OS_NAME_PROPERTY_NAME,
+            sizeof(DEVICE_INFO_OS_NAME_PROPERTY_NAME) - 1,
+            (UCHAR*)DEVICE_INFO_OS_NAME_PROPERTY_VALUE,
+            sizeof(DEVICE_INFO_OS_NAME_PROPERTY_VALUE) - 1) ||
+        nx_azure_iot_json_writer_append_property_with_string_value(json_writer,
+            (UCHAR*)DEVICE_INFO_PROCESSOR_ARCHITECTURE_PROPERTY_NAME,
+            sizeof(DEVICE_INFO_PROCESSOR_ARCHITECTURE_PROPERTY_NAME) - 1,
+            (UCHAR*)DEVICE_INFO_PROCESSOR_ARCHITECTURE_PROPERTY_VALUE,
+            sizeof(DEVICE_INFO_PROCESSOR_ARCHITECTURE_PROPERTY_VALUE) - 1) ||
+        nx_azure_iot_json_writer_append_property_with_string_value(json_writer,
+            (UCHAR*)DEVICE_INFO_PROCESSOR_MANUFACTURER_PROPERTY_NAME,
+            sizeof(DEVICE_INFO_PROCESSOR_MANUFACTURER_PROPERTY_NAME) - 1,
+            (UCHAR*)DEVICE_INFO_PROCESSOR_MANUFACTURER_PROPERTY_VALUE,
+            sizeof(DEVICE_INFO_PROCESSOR_MANUFACTURER_PROPERTY_VALUE) - 1) ||
+        nx_azure_iot_json_writer_append_property_with_double_value(json_writer,
+            (UCHAR*)DEVICE_INFO_TOTAL_STORAGE_PROPERTY_NAME,
+            sizeof(DEVICE_INFO_TOTAL_STORAGE_PROPERTY_NAME) - 1,
+            DEVICE_INFO_TOTAL_STORAGE_PROPERTY_VALUE,
+            2) ||
+        nx_azure_iot_json_writer_append_property_with_double_value(json_writer,
+            (UCHAR*)DEVICE_INFO_TOTAL_MEMORY_PROPERTY_NAME,
+            sizeof(DEVICE_INFO_TOTAL_MEMORY_PROPERTY_NAME) - 1,
+            DEVICE_INFO_TOTAL_MEMORY_PROPERTY_VALUE,
+            2))
+    {
+        return NX_NOT_SUCCESSFUL;
+    }
+
+    return NX_AZURE_IOT_SUCCESS;
+}
+
 static void set_led_state(bool level)
 {
     if (level)
@@ -97,12 +146,12 @@ static void device_twin_desired_property_cb(UCHAR* component_name,
         status = nx_azure_iot_json_reader_token_int32_get(&property_value_reader, &telemetry_interval);
         if (status == NX_AZURE_IOT_SUCCESS)
         {
-            // Set a telemetry event so we pick up the change immediately
-            tx_event_flags_set(&azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR);
-
             // Confirm reception back to hub
             azure_nx_client_respond_int_writeable_property(
                 nx_context, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval, 200, version);
+
+            // Set a telemetry event so we pick up the change immediately
+            tx_event_flags_set(&azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR);
         }
     }
 }
@@ -115,71 +164,18 @@ static void device_twin_property_cb(UCHAR* component_name,
     UINT version,
     VOID* userContextCallback)
 {
-    UINT status;
-    AZURE_IOT_NX_CONTEXT* nx_context = (AZURE_IOT_NX_CONTEXT*)userContextCallback;
-
     if (strncmp((CHAR*)property_name, TELEMETRY_INTERVAL_PROPERTY, property_name_len) == 0)
     {
-        status = nx_azure_iot_json_reader_token_int32_get(&property_value_reader, &telemetry_interval);
-        if (status == NX_AZURE_IOT_SUCCESS)
-        {
-            // Set a telemetry event so we pick up the change immediately
-            tx_event_flags_set(&azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR);
-        }
+        nx_azure_iot_json_reader_token_int32_get(&property_value_reader, &telemetry_interval);
     }
-
-    // Confirm reception back to hub
-    azure_nx_client_respond_int_writeable_property(
-        nx_context, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval, 200, version);
 }
 
-static UINT append_device_info_properties(NX_AZURE_IOT_JSON_WRITER* json_writer, VOID* context)
+static void device_twin_received_cb(AZURE_IOT_NX_CONTEXT* nx_context)
 {
-    if (nx_azure_iot_json_writer_append_property_with_string_value(json_writer,
-            (UCHAR*)DEVICE_INFO_MANUFACTURER_PROPERTY_NAME,
-            sizeof(DEVICE_INFO_MANUFACTURER_PROPERTY_NAME) - 1,
-            (UCHAR*)DEVICE_INFO_MANUFACTURER_PROPERTY_VALUE,
-            sizeof(DEVICE_INFO_MANUFACTURER_PROPERTY_VALUE) - 1) ||
-        nx_azure_iot_json_writer_append_property_with_string_value(json_writer,
-            (UCHAR*)DEVICE_INFO_MODEL_PROPERTY_NAME,
-            sizeof(DEVICE_INFO_MODEL_PROPERTY_NAME) - 1,
-            (UCHAR*)DEVICE_INFO_MODEL_PROPERTY_VALUE,
-            sizeof(DEVICE_INFO_MODEL_PROPERTY_VALUE) - 1) ||
-        nx_azure_iot_json_writer_append_property_with_string_value(json_writer,
-            (UCHAR*)DEVICE_INFO_SW_VERSION_PROPERTY_NAME,
-            sizeof(DEVICE_INFO_SW_VERSION_PROPERTY_NAME) - 1,
-            (UCHAR*)DEVICE_INFO_SW_VERSION_PROPERTY_VALUE,
-            sizeof(DEVICE_INFO_SW_VERSION_PROPERTY_VALUE) - 1) ||
-        nx_azure_iot_json_writer_append_property_with_string_value(json_writer,
-            (UCHAR*)DEVICE_INFO_OS_NAME_PROPERTY_NAME,
-            sizeof(DEVICE_INFO_OS_NAME_PROPERTY_NAME) - 1,
-            (UCHAR*)DEVICE_INFO_OS_NAME_PROPERTY_VALUE,
-            sizeof(DEVICE_INFO_OS_NAME_PROPERTY_VALUE) - 1) ||
-        nx_azure_iot_json_writer_append_property_with_string_value(json_writer,
-            (UCHAR*)DEVICE_INFO_PROCESSOR_ARCHITECTURE_PROPERTY_NAME,
-            sizeof(DEVICE_INFO_PROCESSOR_ARCHITECTURE_PROPERTY_NAME) - 1,
-            (UCHAR*)DEVICE_INFO_PROCESSOR_ARCHITECTURE_PROPERTY_VALUE,
-            sizeof(DEVICE_INFO_PROCESSOR_ARCHITECTURE_PROPERTY_VALUE) - 1) ||
-        nx_azure_iot_json_writer_append_property_with_string_value(json_writer,
-            (UCHAR*)DEVICE_INFO_PROCESSOR_MANUFACTURER_PROPERTY_NAME,
-            sizeof(DEVICE_INFO_PROCESSOR_MANUFACTURER_PROPERTY_NAME) - 1,
-            (UCHAR*)DEVICE_INFO_PROCESSOR_MANUFACTURER_PROPERTY_VALUE,
-            sizeof(DEVICE_INFO_PROCESSOR_MANUFACTURER_PROPERTY_VALUE) - 1) ||
-        nx_azure_iot_json_writer_append_property_with_double_value(json_writer,
-            (UCHAR*)DEVICE_INFO_TOTAL_STORAGE_PROPERTY_NAME,
-            sizeof(DEVICE_INFO_TOTAL_STORAGE_PROPERTY_NAME) - 1,
-            DEVICE_INFO_TOTAL_STORAGE_PROPERTY_VALUE,
-            2) ||
-        nx_azure_iot_json_writer_append_property_with_double_value(json_writer,
-            (UCHAR*)DEVICE_INFO_TOTAL_MEMORY_PROPERTY_NAME,
-            sizeof(DEVICE_INFO_TOTAL_MEMORY_PROPERTY_NAME) - 1,
-            DEVICE_INFO_TOTAL_MEMORY_PROPERTY_VALUE,
-            2))
-    {
-        return NX_NOT_SUCCESSFUL;
-    }
-
-    return NX_AZURE_IOT_SUCCESS;
+    azure_iot_nx_client_publish_int_writeable_property(nx_context, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
+    azure_iot_nx_client_publish_bool_property(&azure_iot_nx_client, LED_STATE_PROPERTY, false);
+    azure_iot_nx_client_publish_properties(
+        &azure_iot_nx_client, DEVICE_INFO_COMPONENT_NAME, append_device_info_properties);
 }
 
 UINT azure_iot_nx_client_entry(
@@ -190,17 +186,17 @@ UINT azure_iot_nx_client_entry(
 
     if ((status = tx_event_flags_create(&azure_iot_flags, "Azure IoT flags")))
     {
-        printf("FAIL: Unable to create nx_client event flags (0x%04x)\r\n", status);
+        printf("FAIL: Unable to create nx_client event flags (0x%08x)\r\n", status);
         return status;
     }
 
-    status = azure_iot_nx_client_create(
-        &azure_iot_nx_client, ip_ptr, pool_ptr, dns_ptr, unix_time_callback, IOT_MODEL_ID);
+    status =
+        azure_iot_nx_client_create(&azure_iot_nx_client, ip_ptr, pool_ptr, dns_ptr, unix_time_callback, IOT_MODEL_ID);
     if (status != NX_SUCCESS)
     {
         printf("ERROR: azure_iot_nx_client_create failed (0x%08x)\r\n", status);
         return status;
-    }     
+    }
 
 #ifdef ENABLE_X509
     status = azure_iot_nx_client_cert_set(&azure_iot_nx_client,
@@ -232,6 +228,7 @@ UINT azure_iot_nx_client_entry(
     azure_iot_nx_client_register_direct_method(&azure_iot_nx_client, direct_method_cb);
     azure_iot_nx_client_register_device_twin_desired_prop(&azure_iot_nx_client, device_twin_desired_property_cb);
     azure_iot_nx_client_register_device_twin_prop(&azure_iot_nx_client, device_twin_property_cb);
+    azure_iot_nx_client_register_device_twin_received(&azure_iot_nx_client, device_twin_received_cb);
 
     if ((status = azure_iot_nx_client_connect(&azure_iot_nx_client)))
     {
@@ -247,14 +244,10 @@ UINT azure_iot_nx_client_entry(
         return status;
     }
 
-    // Send properties
-    azure_iot_nx_client_publish_bool_property(&azure_iot_nx_client, LED_STATE_PROPERTY, false);
-    azure_iot_nx_client_publish_properties(
-        &azure_iot_nx_client, DEVICE_INFO_COMPONENT_NAME, append_device_info_properties);
-
     float temperature = 28.5;
 
     printf("\r\nStarting Main loop\r\n");
+
     while (true)
     {
         tx_event_flags_get(

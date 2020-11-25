@@ -248,12 +248,8 @@ UINT azure_iot_nx_client_entry(
         return status;
     }
 
-    // Send properties
-    //    azure_iot_nx_client_publish_bool_property(&azure_iot_nx_client, LED_STATE_PROPERTY, false);
-    //    azure_iot_nx_client_publish_properties(
-    //        &azure_iot_nx_client, DEVICE_INFO_COMPONENT_NAME, append_device_info_properties);
-
     printf("\r\nStarting Main loop\r\n");
+
     while (true)
     {
         tx_event_flags_get(
