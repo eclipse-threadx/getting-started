@@ -27,6 +27,7 @@ typedef struct AZURE_IOT_NX_CONTEXT_STRUCT AZURE_IOT_NX_CONTEXT;
 typedef void (*func_ptr_direct_method)(AZURE_IOT_NX_CONTEXT*, const UCHAR*, USHORT, UCHAR*, USHORT, VOID*, USHORT);
 typedef void (*func_ptr_device_twin_desired_prop)(UCHAR*, UINT, UCHAR*, UINT, NX_AZURE_IOT_JSON_READER, UINT, VOID*);
 typedef void (*func_ptr_device_twin_prop)(UCHAR*, UINT, UCHAR*, UINT, NX_AZURE_IOT_JSON_READER, UINT, VOID*);
+typedef void (*func_ptr_device_twin_received)(AZURE_IOT_NX_CONTEXT*);
 typedef ULONG (*func_ptr_unix_time_get)(VOID);
 
 struct AZURE_IOT_NX_CONTEXT_STRUCT
@@ -62,12 +63,15 @@ struct AZURE_IOT_NX_CONTEXT_STRUCT
     func_ptr_direct_method direct_method_cb;
     func_ptr_device_twin_desired_prop device_twin_desired_prop_cb;
     func_ptr_device_twin_prop device_twin_get_cb;
+    func_ptr_device_twin_received device_twin_received_cb;
 };
 
 UINT azure_iot_nx_client_register_direct_method(AZURE_IOT_NX_CONTEXT* context, func_ptr_direct_method callback);
 UINT azure_iot_nx_client_register_device_twin_desired_prop(
     AZURE_IOT_NX_CONTEXT* context, func_ptr_device_twin_desired_prop callback);
 UINT azure_iot_nx_client_register_device_twin_prop(AZURE_IOT_NX_CONTEXT* context, func_ptr_device_twin_prop callback);
+UINT azure_iot_nx_client_register_device_twin_received(
+    AZURE_IOT_NX_CONTEXT* context, func_ptr_device_twin_received callback);
 
 UINT azure_iot_nx_client_sas_set(AZURE_IOT_NX_CONTEXT* context, CHAR* device_sas_key);
 UINT azure_iot_nx_client_cert_set(AZURE_IOT_NX_CONTEXT* context,

@@ -7,6 +7,8 @@ products:
 - azure-iot
 - azure-iot-pnp
 - azure-rtos
+- azure-iot-dps
+- azure-iot-hub
 ---
 
 # Getting started with the MXCHIP AZ3166 IoT DevKit

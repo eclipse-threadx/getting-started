@@ -138,6 +138,8 @@ static VOID process_device_twin_get(AZURE_IOT_NX_CONTEXT* nx_context)
         }
     }
 
+    nx_context->device_twin_received_cb(nx_context);
+
     // Deinit the reader, the reader owns the NX_PACKET at this point, so will release it
     nx_azure_iot_json_reader_deinit(&json_reader);
 }
@@ -152,11 +154,11 @@ static VOID process_device_twin_desired_property(AZURE_IOT_NX_CONTEXT* nx_contex
     if ((status = nx_azure_iot_hub_client_device_twin_desired_properties_receive(
              &nx_context->iothub_client, &packet_ptr, NX_WAIT_FOREVER)))
     {
-        printf("ERROR: receive device twin desired property receive failed (0x%08x)\r\n", status);
+        printf("ERROR: receive device twin writeable property receive failed (0x%08x)\r\n", status);
         return;
     }
 
-    printf_packet(packet_ptr, "Receive twin desired property: ");
+    printf_packet(packet_ptr, "Receive twin writeable property: ");
 
     if (packet_ptr->nx_packet_length > (ULONG)(packet_ptr->nx_packet_append_ptr - packet_ptr->nx_packet_prepend_ptr))
     {
@@ -338,6 +340,18 @@ UINT azure_iot_nx_client_register_direct_method(AZURE_IOT_NX_CONTEXT* context, f
     }
 
     context->direct_method_cb = callback;
+    return NX_SUCCESS;
+}
+
+UINT azure_iot_nx_client_register_device_twin_received(
+    AZURE_IOT_NX_CONTEXT* context, func_ptr_device_twin_received callback)
+{
+    if (context == NULL || context->device_twin_received_cb != NULL)
+    {
+        return NX_PTR_ERROR;
+    }
+
+    context->device_twin_received_cb = callback;
     return NX_SUCCESS;
 }
 
@@ -789,7 +803,7 @@ UINT azure_iot_nx_client_publish_properties(AZURE_IOT_NX_CONTEXT* context,
         return NX_NOT_SUCCESSFUL;
     }
 
-    printf("Reported properties sent: %.*s.\r\n", reported_properties_length, buffer);
+    printf("Device twin property sent: %.*s.\r\n", reported_properties_length, buffer);
 
     return status;
 }
@@ -904,7 +918,7 @@ UINT azure_iot_nx_client_publish_int_writeable_property(AZURE_IOT_NX_CONTEXT* co
         return status;
     }
 
-    printf("Device twin property sent: %s\r\n", buffer);
+    printf("Device twin writeable property sent: %s\r\n", buffer);
 
     return NX_SUCCESS;
 }
@@ -916,11 +930,9 @@ UINT azure_nx_client_respond_int_writeable_property(
     UINT response_status;
     UINT request_id;
     ULONG version_dt;
-    CHAR message[PUBLISH_BUFFER_SIZE];
+    CHAR buffer[PUBLISH_BUFFER_SIZE];
 
-    printf("Responding to writeable property %s = %d\r\n", property, value);
-
-    if (snprintf(message,
+    if (snprintf(buffer,
             PUBLISH_BUFFER_SIZE,
             "{\"%s\":{\"value\":%d,\"ac\":%d,\"av\":%d}}",
             property,
@@ -933,8 +945,8 @@ UINT azure_nx_client_respond_int_writeable_property(
     }
 
     if ((status = nx_azure_iot_hub_client_device_twin_reported_properties_send(&context->iothub_client,
-             (UCHAR*)message,
-             strlen(message),
+             (UCHAR*)buffer,
+             strlen(buffer),
              &request_id,
              &response_status,
              &version_dt,
@@ -948,6 +960,8 @@ UINT azure_nx_client_respond_int_writeable_property(
         printf("ERROR: device twin report properties failed (%d)\r\n", response_status);
         return status;
     }
+
+    printf("Device twin writeable property response: %s\r\n", buffer);
 
     return status;
 }
