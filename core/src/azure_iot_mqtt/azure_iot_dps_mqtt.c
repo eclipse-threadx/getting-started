@@ -12,6 +12,8 @@
 
 #include "json_utils.h"
 
+#define AZURE_IOT_DPS_ENDPOINT "global.azure-devices-provisioning.net"
+
 #define USERNAME               "%s/registrations/%s/api-version=2019-03-31"
 #define DPS_REGISTER_BASE      "$dps/registrations/res"
 #define DPS_REGISTER_SUBSCRIBE "$dps/registrations/res/#"
@@ -234,7 +236,7 @@ UINT azure_iot_dps_register(AZURE_IOT_MQTT* azure_iot_mqtt, UINT wait)
     NXD_ADDRESS server_ip;
     CHAR mqtt_publish_payload[100];
 
-    printf("\tEndpoint: %s\r\n", azure_iot_mqtt->mqtt_dps_endpoint);
+    printf("\tEndpoint: %s\r\n", AZURE_IOT_DPS_ENDPOINT);
     printf("\tId scope: %s\r\n", azure_iot_mqtt->mqtt_dps_id_scope);
     printf("\tRegistration id: %s\r\n", azure_iot_mqtt->mqtt_dps_registration_id);
 
@@ -271,21 +273,21 @@ UINT azure_iot_dps_register(AZURE_IOT_MQTT* azure_iot_mqtt, UINT wait)
 
     // Resolve the MQTT server IP address
     status = nxd_dns_host_by_name_get(azure_iot_mqtt->nx_dns,
-        (UCHAR*)azure_iot_mqtt->mqtt_dps_endpoint,
+        (UCHAR*)AZURE_IOT_DPS_ENDPOINT,
         &server_ip,
         NX_IP_PERIODIC_RATE,
         NX_IP_VERSION_V4);
     if (status != NX_SUCCESS)
     {
         printf("Error: Unable to resolve DNS for DPS MQTT Server %s (0x%04x)\r\n",
-            azure_iot_mqtt->mqtt_dps_endpoint,
+            AZURE_IOT_DPS_ENDPOINT,
             status);
         nx_secure_tls_session_delete(&azure_iot_mqtt->nxd_mqtt_client.nxd_mqtt_tls_session);
         return status;
     }
 
     // Stash the hostname so we can verify the cert at connect
-    azure_iot_x509_hostname = azure_iot_mqtt->mqtt_dps_endpoint;
+    azure_iot_x509_hostname = AZURE_IOT_DPS_ENDPOINT;
 
     status = nxd_mqtt_client_secure_connect(&azure_iot_mqtt->nxd_mqtt_client,
         &server_ip,

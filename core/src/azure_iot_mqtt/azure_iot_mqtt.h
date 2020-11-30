@@ -51,7 +51,6 @@ struct AZURE_IOT_MQTT_STRUCT
     CHAR mqtt_hub_hostname[AZURE_IOT_MQTT_HOSTNAME_SIZE];
 
     // DPS config
-    CHAR* mqtt_dps_endpoint;
     CHAR* mqtt_dps_id_scope;
     CHAR* mqtt_dps_registration_id;
 
@@ -124,7 +123,6 @@ UINT azure_iot_mqtt_create_with_dps(AZURE_IOT_MQTT* azure_iot_mqtt,
     NX_PACKET_POOL* nx_pool,
     NX_DNS* nx_dns,
     func_ptr_unix_time_get unix_time_get,
-    CHAR* iot_dps_endpoint,
     CHAR* iot_dps_id_scope,
     CHAR* iot_device_id,
     CHAR* iot_sas_key,

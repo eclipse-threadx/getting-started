@@ -191,9 +191,9 @@ static UINT mqtt_publish_float(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR
 {
     CHAR mqtt_message[100];
 
-    int decvalue = value;
+    int decvalue  = value;
     int fracvalue = abs(100 * (value - (long)value));
-    
+
     snprintf(mqtt_message, sizeof(mqtt_message), "{\"%s\":%d.%2d}", label, decvalue, fracvalue);
     printf("Sending message %s\r\n", mqtt_message);
 
@@ -601,7 +601,6 @@ UINT azure_iot_mqtt_create_with_dps(AZURE_IOT_MQTT* azure_iot_mqtt,
     NX_PACKET_POOL* nx_pool,
     NX_DNS* nx_dns,
     func_ptr_unix_time_get unix_time_get,
-    CHAR* iot_dps_endpoint,
     CHAR* iot_dps_id_scope,
     CHAR* iot_registration_id,
     CHAR* iot_sas_key,
@@ -617,7 +616,7 @@ UINT azure_iot_mqtt_create_with_dps(AZURE_IOT_MQTT* azure_iot_mqtt,
         return NX_PTR_ERROR;
     }
 
-    if (iot_dps_endpoint[0] == 0 || iot_dps_id_scope[0] == 0 || iot_registration_id[0] == 0 || iot_sas_key[0] == 0)
+    if (iot_dps_id_scope[0] == 0 || iot_registration_id[0] == 0 || iot_sas_key[0] == 0)
     {
         printf("ERROR: IoT DPS connection configuration is empty\r\n");
         return NX_PTR_ERROR;
@@ -628,7 +627,6 @@ UINT azure_iot_mqtt_create_with_dps(AZURE_IOT_MQTT* azure_iot_mqtt,
     // Stash the connection information
     azure_iot_mqtt->nx_dns                   = nx_dns;
     azure_iot_mqtt->unix_time_get            = unix_time_get;
-    azure_iot_mqtt->mqtt_dps_endpoint        = iot_dps_endpoint;
     azure_iot_mqtt->mqtt_dps_id_scope        = iot_dps_id_scope;
     azure_iot_mqtt->mqtt_dps_registration_id = iot_registration_id;
     azure_iot_mqtt->mqtt_sas_key             = iot_sas_key;

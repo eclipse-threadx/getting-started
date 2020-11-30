@@ -18,6 +18,8 @@
 #define DEVICE_TWIN_GET_EVENT              0x02
 #define DEVICE_TWIN_DESIRED_PROPERTY_EVENT 0x04
 
+#define AZURE_IOT_DPS_ENDPOINT "global.azure-devices-provisioning.net"
+
 #define MODULE_ID   ""
 #define DPS_PAYLOAD "{\"modelId\":\"%s\"}"
 
@@ -493,7 +495,7 @@ UINT azure_iot_nx_client_hub_create(AZURE_IOT_NX_CONTEXT* context, CHAR* iot_hub
         return NX_PTR_ERROR;
     }
 
-    // Return error if empty endpoint information or empty credentials
+    // Return error if empty hostname or device id
     if (iot_hub_hostname[0] == 0 || iot_device_id[0] == 0)
     {
         printf("ERROR: azure_iot_nx_client_hub_create iot_hub_hostname is null\r\n");
@@ -508,7 +510,7 @@ UINT azure_iot_nx_client_hub_create(AZURE_IOT_NX_CONTEXT* context, CHAR* iot_hub
 }
 
 UINT azure_iot_nx_client_dps_create(
-    AZURE_IOT_NX_CONTEXT* context, CHAR* dps_endpoint, CHAR* dps_id_scope, CHAR* dps_registration_id)
+    AZURE_IOT_NX_CONTEXT* context, CHAR* dps_id_scope, CHAR* dps_registration_id)
 {
     UINT status;
     CHAR payload[DPS_PAYLOAD_SIZE];
@@ -516,7 +518,7 @@ UINT azure_iot_nx_client_dps_create(
     UINT iot_device_id_len    = AZURE_IOT_DEVICE_ID_SIZE;
 
     printf("Initializing Azure IoT DPS client\r\n");
-    printf("\tDPS endpoint: %s\r\n", dps_endpoint);
+    printf("\tDPS endpoint: %s\r\n", AZURE_IOT_DPS_ENDPOINT);
     printf("\tDPS ID scope: %s\r\n", dps_id_scope);
     printf("\tRegistration ID: %s\r\n", dps_registration_id);
 
@@ -526,8 +528,8 @@ UINT azure_iot_nx_client_dps_create(
         return NX_PTR_ERROR;
     }
 
-    // Return error if empty endpoint information or empty credentials
-    if (dps_endpoint[0] == 0 || dps_id_scope[0] == 0 || dps_registration_id[0] == 0)
+    // Return error if empty credentials
+    if (dps_id_scope[0] == 0 || dps_registration_id[0] == 0)
     {
         printf("ERROR: azure_iot_nx_client_dps_create incorrect parameters\r\n");
         return NX_PTR_ERROR;
@@ -542,8 +544,8 @@ UINT azure_iot_nx_client_dps_create(
     // Initialize IoT provisioning client
     if ((status = nx_azure_iot_provisioning_client_initialize(&context->dps_client,
              &context->nx_azure_iot,
-             (UCHAR*)dps_endpoint,
-             strlen(dps_endpoint),
+             (UCHAR*)AZURE_IOT_DPS_ENDPOINT,
+             strlen(AZURE_IOT_DPS_ENDPOINT),
              (UCHAR*)dps_id_scope,
              strlen(dps_id_scope),
              (UCHAR*)dps_registration_id,

@@ -9,8 +9,6 @@
 
 #include "azure_iot_mqtt.h"
 
-#define AZURE_IOT_DPS_ENDPOINT "global.azure-devices-provisioning.net"
-
 UINT azure_iot_dps_create(AZURE_IOT_MQTT* azure_iot_mqtt, NX_IP* nx_ip, NX_PACKET_POOL* nx_pool);
 UINT azure_iot_dps_delete(AZURE_IOT_MQTT* azure_iot_mqtt);
 UINT azure_iot_dps_register(AZURE_IOT_MQTT* azure_iot_mqtt, UINT wait);
