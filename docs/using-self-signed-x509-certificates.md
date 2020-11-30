@@ -95,10 +95,9 @@ If you haven't already, please set up your [DPS and IoT Hub instances](https://d
 #define WIFI_SSID     "<your-wifi-ssid>"
 #define WIFI_PASSWORD "<your-wifi-password>"
 
-#define IOT_HUB_HOSTNAME "<your-iothub-name>.azure-devices.net"
-#define IOT_DEVICE_ID    "test-x509-device"
+#define IOT_HUB_HOSTNAME  "<your-iothub-name>.azure-devices.net"
+#define IOT_HUB_DEVICE_ID "test-x509-device"
 
-#define IOT_DPS_ENDPOINT        "global.azure-devices-provisioning.net"
 #define IOT_DPS_ID_SCOPE        "<your-dps-id-scope>"
 #define IOT_DPS_REGISTRATION_ID "<your-registration-id>" # the title of your individual enrollment
 ```
