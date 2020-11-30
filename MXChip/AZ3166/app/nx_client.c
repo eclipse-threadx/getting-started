@@ -167,8 +167,8 @@ static UINT append_device_telemetry_accelerometer(NX_AZURE_IOT_JSON_WRITER* json
             lsm6dsl_data.acceleration_mg[1],
             2) ||
         nx_azure_iot_json_writer_append_property_with_double_value(json_writer,
-            (UCHAR*)TELEMETRY_ACCELEROMETERY,
-            sizeof(TELEMETRY_ACCELEROMETERY) - 1,
+            (UCHAR*)TELEMETRY_ACCELEROMETERZ,
+            sizeof(TELEMETRY_ACCELEROMETERZ) - 1,
             lsm6dsl_data.acceleration_mg[2],
             2))
     {
@@ -186,21 +186,13 @@ static UINT append_device_telemetry_gyroscope(NX_AZURE_IOT_JSON_WRITER* json_wri
             (UCHAR*)TELEMETRY_GYROSCOPEX,
             sizeof(TELEMETRY_GYROSCOPEX) - 1,
             lsm6dsl_data.angular_rate_mdps[0],
-            2))
-    {
-        return NX_NOT_SUCCESSFUL;
-    }
-
-    if (nx_azure_iot_json_writer_append_property_with_double_value(json_writer,
+            2) ||
+        nx_azure_iot_json_writer_append_property_with_double_value(json_writer,
             (UCHAR*)TELEMETRY_GYROSCOPEY,
             sizeof(TELEMETRY_GYROSCOPEY) - 1,
             lsm6dsl_data.angular_rate_mdps[1],
-            2))
-    {
-        return NX_NOT_SUCCESSFUL;
-    }
-
-    if (nx_azure_iot_json_writer_append_property_with_double_value(json_writer,
+            2) ||
+        nx_azure_iot_json_writer_append_property_with_double_value(json_writer,
             (UCHAR*)TELEMETRY_GYROSCOPEZ,
             sizeof(TELEMETRY_GYROSCOPEZ) - 1,
             lsm6dsl_data.angular_rate_mdps[2],
