@@ -14,8 +14,6 @@
 
 #include "azure_iot_ciphersuites.h"
 
-#define AZURE_IOT_DPS_ENDPOINT "global.azure-devices-provisioning.net"
-
 #define AZURE_IOT_MQTT_HOSTNAME_SIZE           100
 #define AZURE_IOT_MQTT_DEVICE_ID_SIZE          64
 #define AZURE_IOT_MQTT_USERNAME_SIZE           256
