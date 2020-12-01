@@ -149,7 +149,7 @@ To connect the Microchip E54 to Azure, you'll modify a configuration file for Az
     |-------------|-----|
     |`IOT_HUB_HOSTNAME` |{*Your Iot hub hostName value*}|
     |`IOT_HUB_DEVICE_ID` |{*Your deviceID value*}|
-    |`IOT_AUTH_SAS_KEY` |{*Your primaryKey value*}|
+    |`IOT_DEVICE_SAS_KEY` |{*Your primaryKey value*}|
 
 1. Save and close the file.
 

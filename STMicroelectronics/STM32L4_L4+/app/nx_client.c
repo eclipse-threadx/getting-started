@@ -207,7 +207,7 @@ UINT azure_iot_nx_client_entry(
         (UCHAR*)iot_x509_private_key,
         iot_x509_private_key_len);
 #else
-    status = azure_iot_nx_client_sas_set(&azure_iot_nx_client, IOT_AUTH_SAS_KEY);
+    status = azure_iot_nx_client_sas_set(&azure_iot_nx_client, IOT_DEVICE_SAS_KEY);
 #endif
     if (status != NX_SUCCESS)
     {
