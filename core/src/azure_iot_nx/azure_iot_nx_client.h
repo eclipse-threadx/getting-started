@@ -88,8 +88,7 @@ UINT azure_iot_nx_client_create(AZURE_IOT_NX_CONTEXT* context,
     CHAR* iot_model_id);
 
 UINT azure_iot_nx_client_hub_create(AZURE_IOT_NX_CONTEXT* context, CHAR* iot_hub_hostname, CHAR* iot_device_id);
-UINT azure_iot_nx_client_dps_create(
-    AZURE_IOT_NX_CONTEXT* context, CHAR* dps_endpoint, CHAR* dps_id_scope, CHAR* dps_registration_id);
+UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CONTEXT* context, CHAR* dps_id_scope, CHAR* dps_registration_id);
 
 UINT azure_iot_nx_client_delete(AZURE_IOT_NX_CONTEXT* context);
 UINT azure_iot_nx_client_connect(AZURE_IOT_NX_CONTEXT* context);
