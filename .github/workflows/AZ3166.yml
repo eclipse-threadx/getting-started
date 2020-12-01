@@ -31,13 +31,13 @@ jobs:
         with:
           submodules: recursive
 
-      # Get the ARM GCC compiler
-      - name: Install tools for linux
-        if: matrix.os == 'ubuntu-latest'
-        run: sudo apt install gcc-arm-none-eabi cmake
+      - name: arm-none-eabi-gcc
+        uses: fiam/arm-none-eabi-gcc@v1
+        with:
+          release: '9-2020-q2'
 
       - name: Install Ninja
-        uses: seanmiddleditch/gha-setup-ninja@v1
+        uses: seanmiddleditch/gha-setup-ninja@v3
 
       - name: Build project
         run: |

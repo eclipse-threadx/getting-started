@@ -9,7 +9,7 @@
 #include "networking.h"
 #include "sntp_client.h"
 
-#include "mqtt.h"
+#include "legacy/mqtt.h"
 #include "nx_client.h"
 
 #include "azure_config.h"
@@ -54,7 +54,7 @@ void azure_thread_entry(ULONG parameter)
         return;
     }
 
-#ifdef ENABLE_MQTT
+#ifdef ENABLE_LEGACY_MQTT
     if ((status = azure_iot_mqtt_entry(&nx_ip, &nx_pool, &nx_dns_client, sntp_time_get)))
 #else
     if ((status = azure_iot_nx_client_entry(&nx_ip, &nx_pool, &nx_dns_client, sntp_time)))

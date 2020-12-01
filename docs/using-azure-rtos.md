@@ -106,7 +106,7 @@ The *startup* folder contains three components:
 
 ### Azure_config.h
 
-The *azure_config.h* file contains configuration required to connect the device to IoT Hub. Primarily it  contains the IoT Hub connection information, which you can store in the constants `IOT_HUB_HOSTNAME`, `IOT_DEVICE_ID`, `IOT_PRIMARY_KEY`. The file also contains Wi-Fi configuration details if the device requires a Wi-Fi connection.
+The *azure_config.h* file contains configuration required to connect the device to IoT Hub. Primarily it  contains the IoT Hub connection information, which you can store in the constants `IOT_HUB_HOSTNAME`, `IOT_HUB_DEVICE_ID`, `IOT_DEVICE_SAS_KEY`. The file also contains Wi-Fi configuration details if the device requires a Wi-Fi connection.
 > Note: In a production environment, we recommend that you not store connection details in code files.
 
 ### mqtt.c

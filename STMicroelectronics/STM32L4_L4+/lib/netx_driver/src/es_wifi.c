@@ -692,7 +692,7 @@ static void AT_ParseIsConnected(char *pdata, uint8_t *isConnected)
 static void AT_ParsePing(int32_t res[], uint32_t count,char* pdata)
 {
   char *ptr;
-  int i=0;
+  uint32_t i=0;
 
   ptr= strtok(pdata,",\n\r");
   while(ptr)

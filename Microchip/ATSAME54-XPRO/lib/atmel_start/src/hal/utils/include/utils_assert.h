@@ -85,7 +85,7 @@ extern "C" {
  * \param[in] file File name
  * \param[in] line Line number
  */
-void assert(const bool condition, const char *const file, const int line);
+//void assert(const bool condition, const char *const file, const int line);
 
 #ifdef __cplusplus
 }

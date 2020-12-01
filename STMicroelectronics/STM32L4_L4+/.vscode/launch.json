@@ -2,15 +2,6 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "STM L475E: Remote",
-            "type": "cortex-debug",
-            "executable": "${workspaceFolder}/build/app/stm32l475_azure_iot.elf",
-            "request": "launch",
-            "servertype": "external",
-            "gdbTarget": "${input:device.host}",
-            "runToMain": true,
-            "svdFile": "${workspaceFolder}/.vscode/STM32L4x5.svd",
-        },        {
             "name": "STM L475E: Local OpenOCD",
             "type": "cortex-debug",
             "request": "launch",
@@ -23,17 +14,7 @@
             "configFiles": [
                 "board/stm32l4discovery.cfg"
             ]
-        },
-        {
-            "name": "STM L4S5I: Remote",
-            "type": "cortex-debug",
-            "executable": "${workspaceFolder}/build/app/stm32l4S5_azure_iot.elf",
-            "request": "launch",
-            "servertype": "external",
-            "gdbTarget": "${input:device.host}",
-            "runToMain": true,
-            "svdFile": "${workspaceFolder}/.vscode/STM32L4S5.svd",
-        },
+        },        
         {
             "name": "STM L4S5I: Local OpenOCD",
             "type": "cortex-debug",
@@ -48,12 +29,33 @@
                 "board/stm32l4discovery.cfg"
             ]
         }
+        {
+            "name": "STM L475E: Remote",
+            "type": "cortex-debug",
+            "executable": "${workspaceFolder}/build/app/stm32l475_azure_iot.elf",
+            "request": "launch",
+            "servertype": "external",
+            "gdbTarget": "${input:device.host}",
+            "runToMain": true,
+            "svdFile": "${workspaceFolder}/.vscode/STM32L4x5.svd",
+        },
+
+        {
+            "name": "STM L4S5I: Remote",
+            "type": "cortex-debug",
+            "executable": "${workspaceFolder}/build/app/stm32l4S5_azure_iot.elf",
+            "request": "launch",
+            "servertype": "external",
+            "gdbTarget": "${input:device.host}",
+            "runToMain": true,
+            "svdFile": "${workspaceFolder}/.vscode/STM32L4S5.svd",
+        },
     ],
     "inputs": [
         {
             "id": "device.host",
             "type": "promptString",
-            "default": "localhost:3333",
+            "default": "host.docker.internal:3333",
             "description": "The local hostname with port for GDB to connect to"
         }
     ]

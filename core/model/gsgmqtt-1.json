@@ -1,0 +1,50 @@
+{
+    "@context": "dtmi:dtdl:context;2",
+    "@id": "dtmi:azurertos:devkit:gsgmqtt;1",
+    "@type": "Interface",
+    "displayName": "Getting Started Guide for MQTT",
+    "description": "Example model for the Azure RTOS Getting Started Guides",
+    "contents": [
+        {
+            "@type": [
+                "Telemetry",
+                "Temperature"
+            ],
+            "name": "temperature",
+            "displayName": "Temperature",
+            "unit": "degreeCelsius",
+            "schema": "double"
+        },
+        {
+            "@type": [
+                "Property",
+                "TimeSpan"
+            ],
+            "name": "telemetryInterval",
+            "displayName": "Telemetry Interval",
+            "description": "Specify the interval in seconds for the telemetry.",
+            "schema": "integer",
+            "writable": true,
+            "unit": "second"
+        },
+        {
+            "@type": "Property",
+            "name": "ledState",
+            "displayName": "LED state",
+            "description": "Returns the current state of the onboard LED.",
+            "schema": "boolean"
+        },
+        {
+            "@type": "Command",
+            "name": "setLedState",
+            "displayName": "Set LED state",
+            "description": "Sets the state of the onboard LED.",
+            "request": {
+                "name": "state",
+                "displayName": "State",
+                "description": "True is LED on, false is LED off.",
+                "schema": "boolean"
+            }
+        }
+    ]
+}
