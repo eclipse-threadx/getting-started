@@ -11,7 +11,7 @@ set(SOURCES
     azure_config.h
     nx_client.c
     board_init.c
-#    console.c
+    console.c
     main.c    
 )
 
@@ -30,7 +30,10 @@ target_link_libraries(${PROJECT_NAME}
 
 target_link_options(${PROJECT_NAME}
     PRIVATE 
-        -T${LINKER_SCRIPT} -Wl,-Map=${PROJECT_NAME}.map)
+        -T${LINKER_SCRIPT} 
+        -Wl,-Map=${PROJECT_NAME}.map
+        -Wl,-e_PowerON_Reset
+)
 
 set_target_properties(${PROJECT_NAME}
     PROPERTIES 

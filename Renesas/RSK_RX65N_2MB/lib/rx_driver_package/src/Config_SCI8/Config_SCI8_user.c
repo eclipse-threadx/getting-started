@@ -160,8 +160,6 @@ void r_Config_SCI8_receiveerror_interrupt(void)
 static void r_Config_SCI8_callback_transmitend(void)
 {
     /* Start user code for r_Config_SCI8_callback_transmitend. Do not edit comment generated here */
-    void demo_printf_transmit_end(void);
-    demo_printf_transmit_end();
     /* End user code. Do not edit comment generated here */
 }
 
