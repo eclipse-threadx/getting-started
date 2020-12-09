@@ -17,7 +17,11 @@ target_compile_definitions(${TARGET}
 
 target_include_directories(${TARGET}
     PUBLIC
+        src/Config_SCI8
+        src/general
         src/r_bsp
+        src/r_cmt_rx
         src/r_config
         src/r_ether_rx
+        src/r_pincfg
 )
