@@ -61,6 +61,8 @@ extern volatile uint16_t  g_sci8_rx_length;                  /* SCI8 receive dat
 void R_Config_SCI8_Create_UserInit(void)
 {
     /* Start user code for user init. Do not edit comment generated here */
+    void printf_init(void);
+    printf_init();
     /* End user code. Do not edit comment generated here */
 }
 
@@ -160,6 +162,8 @@ void r_Config_SCI8_receiveerror_interrupt(void)
 static void r_Config_SCI8_callback_transmitend(void)
 {
     /* Start user code for r_Config_SCI8_callback_transmitend. Do not edit comment generated here */
+    void printf_transmit_end(void);
+    printf_transmit_end();
     /* End user code. Do not edit comment generated here */
 }
 

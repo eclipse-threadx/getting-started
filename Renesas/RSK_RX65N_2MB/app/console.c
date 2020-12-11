@@ -2,36 +2,50 @@
    Licensed under the MIT License. */
 
 #include "r_cg_macrodriver.h"
+
 #include "Config_SCI8.h"
 
-/*#include "fsl_debug_console.h"
+#include "tx_api.h"
 
-int _read(int file, char *ptr, int len);
-int _write(int file, char *ptr, int len);
+TX_MUTEX printf_mutex;
+TX_SEMAPHORE printf_semaphore;
 
-int _read(int file, char *ptr, int len)
+void printf_init(void)
 {
-    int DataIdx;
-    for (DataIdx = 0; DataIdx < len; DataIdx++)
+    UINT res;
+
+    res = tx_mutex_create(&printf_mutex, "printf mutex", TX_INHERIT);
+    if (res != TX_SUCCESS)
     {
-        *ptr++ = GETCHAR();
+        for (;;)
+        {
+        }
     }
-    return len;
+
+    res = tx_semaphore_create(&printf_semaphore, "printf semaphore", 0u);
+    if (res != TX_SUCCESS)
+    {
+        for (;;)
+        {
+        }
+    }
 }
 
-int _write(int file, char *ptr, int len)
+void printf_transmit_end(void)
 {
-    int DataIdx;
-    for (DataIdx = 0; DataIdx < len; DataIdx++)
-    {
-        PUTCHAR(*ptr++);
-    }
-    return len;
-}*/
+    tx_semaphore_put(&printf_semaphore);
+}
 
 void my_sw_charput_function(char c)
 {
-    R_Config_SCI8_Serial_Send((uint8_t*)&c, 1u);
+    tx_mutex_get(&printf_mutex, TX_WAIT_FOREVER);
+
+    R_Config_SCI8_Serial_Send(&c, 1u);
+
+    tx_semaphore_get(&printf_semaphore, TX_WAIT_FOREVER);
+
+    tx_mutex_put(&printf_mutex);
 
     return;
 }
+

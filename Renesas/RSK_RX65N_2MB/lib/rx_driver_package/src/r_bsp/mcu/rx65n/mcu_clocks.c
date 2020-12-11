@@ -834,7 +834,7 @@ static void clock_source_select (void)
     #endif
 
     /* Set PLL Multiplier. */
-    SYSTEM.PLLCR.BIT.STC = ((uint8_t)((float)BSP_CFG_PLL_MUL * 2.0)) - 1;
+    SYSTEM.PLLCR.BIT.STC = ((uint8_t)((float)BSP_CFG_PLL_MUL * 2.0f)) - 1;
 
     /* Set the PLL to operating. */
     SYSTEM.PLLCR2.BYTE = 0x00;

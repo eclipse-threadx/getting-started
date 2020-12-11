@@ -12,7 +12,9 @@
 
 #include "Config_SCI8.h"
 
-/* CMT Timer callback used as the system tick. */
+void _tx_timer_interrupt();
+
+// CMT Timer callback used as the system tick.
 void timer_callback(void* pdata)
 {
     _tx_timer_interrupt();
@@ -23,13 +25,13 @@ void board_init()
     uint32_t chan;
     ether_param_t eth_param = {0};
 
-    /* Setup SCI8 for printf output. */
+    // Setup SCI8 for printf output
     R_Config_SCI8_Start();
 
-    /* Create periodic timer for the system tick. */
+    // Create periodic timer for the system tick
     R_CMT_CreatePeriodic(1000u, timer_callback, &chan);
 
-    /* Setup Ethernet hardware. */
+    // Setup Ethernet hardware
     R_ETHER_Initial();
 
     R_ETHER_PinSet_ETHERC0_MII();

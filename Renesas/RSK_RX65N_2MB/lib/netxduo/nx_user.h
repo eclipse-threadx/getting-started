@@ -57,6 +57,8 @@
 #define NX_SECURE_ENABLE
 #define NX_ENABLE_IP_PACKET_FILTER
 
+#define NX_SNTP_CLIENT_MIN_SERVER_STRATUM 3
+
 /* Define various build options for the NetX Duo port.  The application should either make changes
    here by commenting or un-commenting the conditional compilation defined OR supply the defines
    though the compiler's equivalent of the -D option.  */

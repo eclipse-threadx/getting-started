@@ -313,7 +313,7 @@ static VOID _netx_driver_deferred_processing(NX_IP_DRIVER *driver_req_ptr)
 
             /* Get the received frame from the Ethernet driver. */
             read_res = R_ETHER_Read_ZC2(chan, &p_buf);
-            if(read_res <= 0u) {
+            if(read_res <= 0) {
                 /* Unexpected error, return. */
                 driver_req_ptr->nx_ip_driver_status = NX_DRIVER_ERROR;
 
