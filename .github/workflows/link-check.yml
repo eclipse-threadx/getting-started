@@ -5,6 +5,8 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+  schedule:
+  - cron: "0 6 * * 1" # Run every Monday morning at 6am
 
 jobs:
   markdown-link-check:
@@ -12,3 +14,6 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - uses: gaurav-nelson/github-action-markdown-link-check@v1
+      with:
+        use-quiet-mode: 'yes'
+        max-depth: 3
