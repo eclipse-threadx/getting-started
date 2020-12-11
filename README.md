@@ -3,6 +3,7 @@
 ![](https://github.com/azure-rtos/getting-started/workflows/MIMXRT1050-EVKB/badge.svg)
 ![](https://github.com/azure-rtos/getting-started/workflows/MIMXRT1060-EVK/badge.svg)
 ![](https://github.com/azure-rtos/getting-started/workflows/STM32L4_L4+/badge.svg)
+![](https://github.com/azure-rtos/getting-started/workflows/link-check/badge.svg)
 
 # Getting Started with Azure RTOS and Azure IoT
 
