@@ -72,7 +72,10 @@ To install the tools:
 
     After the installation completes, the Azure IoT Explorer opens automatically. Keep the IoT Explorer open, you'll use it in later steps.
 
+1. **Todo** Add RX compiler to path
+
 1. After the installation, open a new console window to recognize the configuration changes made by the setup script. Use this console to complete the remaining programming tasks in the tutorial. You can use Windows CMD, PowerShell, or Git Bash for Windows.
+
 1. Run the following code to confirm that CMake version 3.14 or later is installed.
 
     ```shell
