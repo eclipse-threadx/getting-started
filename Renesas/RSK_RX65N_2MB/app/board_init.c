@@ -29,7 +29,7 @@ void board_init()
     R_Config_SCI8_Start();
 
     // Create periodic timer for the system tick
-    R_CMT_CreatePeriodic(1000u, timer_callback, &chan);
+    R_CMT_CreatePeriodic(100u, timer_callback, &chan);
 
     // Setup Ethernet hardware
     R_ETHER_Initial();
