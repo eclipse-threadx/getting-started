@@ -8,10 +8,10 @@ $cmake_file = 'cmake-3.19.1-win32-x86.msi'
 $cmake_name = 'CMake v3.19.1'
 $cmake_hash = '4AA9B1E5CD03F0E495425D40BAC6BFE1FBC14EC91E447FDD6D6F21533142ADAD'
 
-$gccarm_path = 'https://developer.arm.com/-/media/Files/downloads/gnu-rm/9-2020q2'
-$gccarm_file = 'gcc-arm-none-eabi-9-2020-q2-update-win32.exe'
-$gccarm_name = 'GCC-ARM 9-2020-q2-update'
-$gccarm_hash = '2BFF61698B1EBDE0B191D169B16934B7BB6AE624FC493FFDE193E35019726940'
+$gccrx_path = 'http://gcc-renesas.com/downloads/get.php?f=rx/8.3.0.202004-gnurx'
+$gccrx_file = 'gcc-8.3.0.202004-GNURX-ELF.exe'
+$gccrx_name = 'GCC-RX 8.3.0.20204'
+$gccrx_hash = 'C3340B4915208361A33885505CFB89B69E1607A07F89FBF2A79096182D293978'
 
 $termite_path = 'https://www.compuphase.com/software'
 $termite_file = 'termite-3.4.exe'
@@ -36,31 +36,32 @@ $wc.Headers['User-Agent'] = "Mozilla/4.0"
 echo "(1/5) $cmake_name"
 if ( -not (Test-Path "$env:TEMP\$cmake_file") -Or ((Get-FileHash "$env:TEMP\$cmake_file").Hash -ne $cmake_hash))
 {
-    $wc.DownloadFile("$cmake_path\$cmake_file", "$env:TEMP\$cmake_file")
+    $wc.DownloadFile("$cmake_path/$cmake_file", "$env:TEMP\$cmake_file")
 }
 
-echo "(2/5) $gccarm_name"
-if ( -not (Test-Path "$env:TEMP\$gccarm_file") -Or ((Get-FileHash "$env:TEMP\$gccarm_file").Hash -ne $gccarm_hash))
+echo "(2/5) $gccrx_name"
+if ( -not (Test-Path "$env:TEMP\$gccrx_file") -Or ((Get-FileHash "$env:TEMP\$gccrx_file").Hash -ne $gccrx_hash))
 {
-    $wc.DownloadFile("$gccarm_path\$gccarm_file", "$env:TEMP\$gccarm_file")
+    $wc.DownloadFile("$gccrx_path/$gccrx_file", "$env:TEMP\$gccrx_file")
+#    (New-Object System.Net.WebClient).DownloadFile("$gccrx_path/$gccrx_file", "$env:TEMP\$gccrx_file")
 }
 
 echo "(3/5) $termite_name"
 if ( -not (Test-Path "$env:TEMP\$termite_file") -Or ((Get-FileHash "$env:TEMP\$termite_file").Hash -ne $termite_hash))
 {
-    $wc.DownloadFile("$termite_path\$termite_file", "$env:TEMP\$termite_file")
+    $wc.DownloadFile("$termite_path/$termite_file", "$env:TEMP\$termite_file")
 }
 
 echo "(4/5) $azure_cli_name"
 if ( -not (Test-Path "$env:TEMP\$azure_cli_file") -Or ((Get-FileHash "$env:TEMP\$azure_cli_file").Hash -ne $azure_cli_hash))
 {
-    $wc.DownloadFile("$azure_cli_path\$azure_cli_file", "$env:TEMP\$azure_cli_file")
+    $wc.DownloadFile("$azure_cli_path/$azure_cli_file", "$env:TEMP\$azure_cli_file")
 }
 
 echo "(5/5) $iot_explorer_name"
 if ( -not (Test-Path "$env:TEMP\$iot_explorer_file") -Or ((Get-FileHash "$env:TEMP\$iot_explorer_file").Hash -ne $iot_explorer_hash))
 {
-    $wc.DownloadFile("$iot_explorer_path\$iot_explorer_file", "$env:TEMP\$iot_explorer_file")
+    $wc.DownloadFile("$iot_explorer_path/$iot_explorer_file", "$env:TEMP\$iot_explorer_file")
 }
 
 
@@ -69,8 +70,8 @@ echo "`nInstalling packages..."
 echo "(1/5) $cmake_name"
 Start-Process -FilePath "$env:TEMP\$cmake_file" -ArgumentList "ADD_CMAKE_TO_PATH=System /passive" -Wait
 
-echo "(2/5) $gccarm_name"
-Start-Process -FilePath "$env:TEMP\$gccarm_file" -ArgumentList "/S /P /R" -Wait
+echo "(2/5) $gccrx_name"
+Start-Process -FilePath "$env:TEMP\$gccrx_file" -ArgumentList "/SILENT" -Wait
 
 echo "(3/5) $termite_name"
 Start-Process -FilePath "$env:TEMP\$termite_file" -ArgumentList "/S" -Wait
