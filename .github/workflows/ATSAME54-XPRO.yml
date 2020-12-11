@@ -3,16 +3,8 @@ name: ATSAME54-XPRO
 on:
   push:
     branches: [ master ]
-    paths:
-      - 'core/**'
-      - 'cmake/**'
-      - 'Microchip/ATSAME54-XPRO/**'
   pull_request:
     branches: [ master ]
-    paths:
-      - 'core/**'
-      - 'cmake/**'
-      - 'Microchip/ATSAME54-XPRO/**'
 
 defaults:
   run:
