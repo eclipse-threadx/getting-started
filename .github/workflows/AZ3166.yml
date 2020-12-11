@@ -3,16 +3,8 @@ name: AZ3166
 on:
   push:
     branches: [ master ]
-    paths:
-      - 'core/**'
-      - 'cmake/**'
-      - 'MXChip/AZ3166/**'
   pull_request:
     branches: [ master ]
-    paths:
-      - 'core/**'
-      - 'cmake/**'
-      - 'MXChip/AZ3166/**'
 
 defaults:
   run:

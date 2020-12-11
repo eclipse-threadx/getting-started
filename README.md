@@ -3,6 +3,7 @@
 ![](https://github.com/azure-rtos/getting-started/workflows/MIMXRT1050-EVKB/badge.svg)
 ![](https://github.com/azure-rtos/getting-started/workflows/MIMXRT1060-EVK/badge.svg)
 ![](https://github.com/azure-rtos/getting-started/workflows/STM32L4_L4+/badge.svg)
+![](https://github.com/azure-rtos/getting-started/workflows/link-check/badge.svg)
 
 # Getting Started with Azure RTOS and Azure IoT
 
@@ -29,7 +30,7 @@ The following board specific guides will get you started with Azure RTOS and Azu
   * [B-L475E-IOT01A](STMicroelectronics/STM32L4_L4+)
   * [B-L4S5I-IOT01A](STMicroelectronics/STM32L4_L4+)
 
-Once you have successfully completed a guide, please read [Using Azure RTOS in the Getting Started Guides](/docs/using-azure-rtos.md) for information on how the guides use Azure RTOS to connect with Azure IoT.
+Once you have successfully completed a guide, please read [Using Azure RTOS in the Getting Started Guides](docs/using-azure-rtos.md) for information on how the guides use Azure RTOS to connect with Azure IoT.
 
 ## Contributing
 
