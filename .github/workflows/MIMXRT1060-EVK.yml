@@ -3,16 +3,9 @@ name: MIMXRT1060-EVK
 on:
   push:
     branches: [ master ]
-    paths:
-      - 'core/**'
-      - 'cmake/**'
-      - 'NXP/MIMXRT1060-EVK/**'
   pull_request:
     branches: [ master ]
-    paths:
-      - 'core/**'
-      - 'cmake/**'
-      - 'NXP/MIMXRT1060-EVK/**'
+
 
 defaults:
   run:
