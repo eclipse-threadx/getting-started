@@ -33,10 +33,10 @@ You will complete the following tasks:
 
     > * The [Renensas Starter Kit+ for RX65N-2MB](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rx-32-bit-performance-efficiency-mcus/rx65n-2mb-starter-kit-plus-renesas-starter-kit-rx65n-2mb) (Renesas RX65N)
     > * The [Renesas E2 emulator Lite](https://www.renesas.com/eu/en/software-tool/e2-emulator-lite-rte0t0002lkce00000r)
-    > * USB 2.0 A male to Mini USB male cable
+    > * 2 * USB 2.0 A male to Mini USB male cable
     > * The included 5V power supply
-    > * Wired Ethernet access
     > * Ethernet cable
+    > * Wired Ethernet access
 
 ## Prepare the development environment
 
@@ -72,19 +72,22 @@ To install the tools:
 
     After the installation completes, the Azure IoT Explorer opens automatically. Keep the IoT Explorer open, you'll use it in later steps.
 
-1. **Todo** Add RX compiler to path
+1. Add RX compiler to the Windows Path:
+
+    > *%USERPROFILE%\AppData\Roaming\GCC for Renesas RX 8.3.0.202004-GNURX-ELF\rx-elf\rx-elf\bin*
 
 1. After the installation, open a new console window to recognize the configuration changes made by the setup script. Use this console to complete the remaining programming tasks in the tutorial. You can use Windows CMD, PowerShell, or Git Bash for Windows.
 
-1. Run the following code to confirm that CMake version 3.14 or later is installed.
+1. Run the following commands to confirm that CMake version 3.14 or later is installed and the RX compiler path is setup correctly:
 
     ```shell
     cmake --version
+    rx-elf-gcc
     ```
 
 To install the remaining tools:
 
-1. Install [Renesas Flash Programmer](https://www.renesas.com/software-tool/renesas-flash-programmer-programming-gui). The Renesas Flash Programmer contains the tools needed to flash the Renesas RX65N.
+1. Install [Renesas Flash Programmer](https://www.renesas.com/software-tool/renesas-flash-programmer-programming-gui). The Renesas Flash Programmer contains the drivers and tools needed to flash the Renesas RX65N via the Renesas E2 Lite.
 
 ### Create an IoT hub
 
@@ -158,16 +161,21 @@ To connect the Renesas RX65N to Azure, you'll modify a configuration file for Az
 
 ### Connect the device
 
-1. On the Renesas RX65N, locate the **Reset** button, the **Power input** connector, the **Ethernet** port, and the Micro USB port which is labeled **G1CUSB0**. Each component is highlighted in the following picture:
+> Note: For more details about setting up and getting started with the Renesas RX65N, see [Renesas Starter Kit+ for RX65N-2MB Quick Start](https://www.renesas.com/document/man/e2studio-renesas-starter-kit-rx65n-2mb-quick-start-guide).
 
-    ![Renesas RX65N reset, power, ethernet and mini usb port](media/renesas-rx65n.png)
+1. Complete the following steps using the following image as a reference.
+    
+    ![Renesas RX65N reset, power, ethernet, USB and E1/E2Lite](media/renesas-rx65n.jpg)
 
-1. Connect the Mini USB cable to the **G1CUSB0** port on the Renesas RX65N, and then connect it to your computer.
-    > Note: Optionally, for more details about setting up and getting started with the Renesas RX65N, see [Renesas Starter Kit+ for RX65N-2MB User's Manual](https://www.renesas.com/document/man/renesas-starter-kit-rx65n-2mb-users-manual).
+1. Using the 5V power supply, connect the **Power Input** on the Rensas RX65N to an electrical outlet.
 
-1. Use the Ethernet cable to connect the Renesas RX65N to an Ethernet port.
+1. Using the Ethernet cable, connect the  **Ethernet** on the Renesas RX65N to your router.
 
-1. **TODO** connecting the e2-lite
+1. Using the first Mini USB cable, connect the **USB Serial** on the Renesas RX65N to your computer.
+
+1. Using the second Mini USB cable, connect the **E2 Lite USB Serial** on the Renesas E2 Lite to your computer.
+
+1. Using the supplied ribbon cable, connect the **E1/E2Lite** on the Renesas RX65N to the Renesas E2 Lite.
 
 ### Build the image
 
