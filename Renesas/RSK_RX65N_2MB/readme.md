@@ -1,6 +1,6 @@
 ---
 page_type: sample
-description: Connecting an Renensas Starter Kit+ for RX65N-2MB
+description: Connecting a Renensas Starter Kit+ for RX65N-2MB
 languages:
 - c
 products:
