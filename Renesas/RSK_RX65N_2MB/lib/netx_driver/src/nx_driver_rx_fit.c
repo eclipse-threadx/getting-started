@@ -185,6 +185,10 @@ static VOID _netx_driver_initialize(NX_IP_DRIVER *driver_req_ptr)
     /* Save the MTU size. */
     interface_ptr->nx_interface_ip_mtu_size = NX_DRIVER_ETHERNET_MTU;
 
+    /* Indicate to the IP software that IP to physical mapping
+       is required.  */
+    interface_ptr -> nx_interface_address_mapping_needed =  NX_TRUE;
+
     /* Set initial state to not initialized. */
     netx_driver_rx_fit_data[chan].driver_state = NX_DRIVER_STATE_INITIALIZED;
 }
