@@ -8,8 +8,7 @@ function(create_bin_output TARGET)
     add_custom_target(${TARGET}.bin ALL 
         DEPENDS ${TARGET}
         COMMAND ${CMAKE_OBJCOPY} -Obinary ${TARGET}.elf ${TARGET}.bin
-        COMMAND ${CMAKE_OBJCOPY} -Oihex ${TARGET}.elf ${TARGET}.hex
-        COMMAND ${CMAKE_OBJCOPY} -Osrec ${TARGET}.elf ${TARGET}.mot)
+        COMMAND ${CMAKE_OBJCOPY} -Oihex ${TARGET}.elf ${TARGET}.hex)
 endfunction()
 
 # Add custom command to print firmware size in Berkley format
