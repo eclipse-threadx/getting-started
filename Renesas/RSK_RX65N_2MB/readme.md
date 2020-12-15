@@ -185,11 +185,32 @@ In your console or in File Explorer, run the script *rebuild.bat* at the followi
 
 After the build completes, confirm that a binary file was created in the following path:
 
-> *getting-started\Renesas\RSK_RX65N_2MB\build\app\rx65n_azure_iot.bin*
+> *getting-started\Renesas\RSK_RX65N_2MB\build\app\rx65n_azure_iot.hex*
 
 ### Flash the image
 
-**TODO** Renesas Flash Programmer instructions
+1. Launch the *Renesas Flash Programmer* application from the Start menu.
+
+2. Select *New Project...* from the *File* menu, and enter the following settings:
+    * **Microcontroller**: RX65x
+    * **Project Name**: RX65N
+    * **Tool**: E2 emulator Lite
+
+    ![Renesas Flash Programmer, New Project](media/rfp_new.png)
+
+3. Select the *Tool Details* button, and navigate to the *Reset Settings* tab.
+
+4. Select *Reset Pin as Hi-Z* and press the *OK* button.
+
+    ![Renesas Flash Programmer, Reset Settings](media/rfp_reset.png)
+
+5. Press the *Connect* button and when prompted, check the *Auto Authentication* checkbox and then press *OK*.
+
+    ![Renesas Flash Programmer, Authentication](media/rfp_auth.png)
+
+6. Select the *Browse...* button and locate the *rx65n_azure_iot.hex* file created in the previous section.
+
+7. Press *Start* to begin flashing. This process will take approximately 10 seconds.
 
 ### Confirm device connection details
 
@@ -373,9 +394,6 @@ To use Azure CLI to call a method:
     Sending message {"ledState":true}
     Direct method=setLedState invoked
     ```
-## Debugging
-
-For debugging the application, see [Debugging with Visual Studio Code](../../docs/debugging.md).
 
 ## Clean up resources
 
