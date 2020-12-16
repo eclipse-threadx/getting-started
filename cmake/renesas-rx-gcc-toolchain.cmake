@@ -50,7 +50,7 @@ set(CMAKE_COMMON_FLAGS "-ffunction-sections -fdata-sections -fdiagnostics-parsea
 set(CMAKE_C_FLAGS 	"${MCPU_FLAGS} ${VFP_FLAGS} ${CMAKE_COMMON_FLAGS} ${LIBC_INCLUDE}")
 set(CMAKE_CXX_FLAGS "${MCPU_FLAGS} ${VFP_FLAGS} ${CMAKE_COMMON_FLAGS}")
 set(CMAKE_ASM_FLAGS "${MCPU_FLAGS} ${VFP_FLAGS}")
-set(CMAKE_EXE_LINKER_FLAGS "${LD_FLAGS} -fno-common -nostartfiles --specs=nano.specs")
+set(CMAKE_EXE_LINKER_FLAGS "${LD_FLAGS} -fno-common -nostartfiles -Wl,--gc-sections --specs=nano.specs")
 
 set(CMAKE_C_FLAGS_DEBUG "-O0 -g3")
 set(CMAKE_CXX_ASM_FLAGS_DEBUG "-O0 -g3")
