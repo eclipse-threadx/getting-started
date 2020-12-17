@@ -11,12 +11,22 @@
 
 #include "azure_config.h"
 
+#include "platform.h"
+
 #define IOT_MODEL_ID "dtmi:com:example:azurertos:gsg;1"
 
 #define TELEMETRY_INTERVAL_PROPERTY "telemetryInterval"
 #define LED_STATE_PROPERTY          "ledState"
 
 #define TELEMETRY_INTERVAL_EVENT 1
+
+#define LED_ON  0
+#define LED_OFF 1
+#define LED0 PORT7.PODR.BIT.B3
+#define LED1 PORTG.PODR.BIT.B7
+#define LED2 PORTG.PODR.BIT.B6
+#define LED3 PORTG.PODR.BIT.B5
+
 
 static AZURE_IOT_MQTT azure_iot_mqtt;
 static TX_EVENT_FLAGS_GROUP azure_iot_flags;
@@ -28,14 +38,12 @@ static void set_led_state(bool level)
     if (level)
     {
         printf("LED is turned ON\r\n");
-        // The User LED on the board shares the same pin as ENET RST so is unusable
-        // USER_LED_ON();
+        LED0 = LED_ON;
     }
     else
     {
         printf("LED is turned OFF\r\n");
-        // The User LED on the board shares the same pin as ENET RST so is unusable
-        // USER_LED_OFF();
+        LED0 = LED_OFF;
     }
 }
 
