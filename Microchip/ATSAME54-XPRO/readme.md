@@ -232,10 +232,6 @@ You can use the **Termite** utility to monitor communication and confirm that yo
     ```output
     Starting Azure thread
 
-    Initializing WiFi
-    	Connecting to SSID 'iot'
-    SUCCESS: WiFi connected to iot
-
     Initializing DHCP
     	IP address: 10.0.0.123
     	Mask: 255.255.255.0
@@ -388,12 +384,12 @@ To use Azure CLI to call a method:
 1. View the Termite terminal to confirm the output messages:
 
     ```output
-    Received direct method=setLedState, id=1, message=true
+    Received direct method call: setLedState
+        Payload: true
     LED is turned ON
-    Sending device twin update with bool value
-    Sending message {"ledState":true}
-    Direct method=setLedState invoked
+    Device twin property sent: {"ledState":true}
     ```
+
 ## Debugging
 
 For debugging the application, see [Debugging with Visual Studio Code](../../docs/debugging.md).

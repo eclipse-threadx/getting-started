@@ -31,8 +31,8 @@ You will complete the following tasks:
 * [Git](https://git-scm.com/downloads) for cloning the repository
 * Hardware
 
-    > * The [Renensas Starter Kit+ for RX65N-2MB](https://www.renesas.com/us/en/products/microcontrollers-microprocessors/rx-32-bit-performance-efficiency-mcus/rx65n-2mb-starter-kit-plus-renesas-starter-kit-rx65n-2mb) (Renesas RX65N)
-    > * The [Renesas E2 emulator Lite](https://www.renesas.com/eu/en/software-tool/e2-emulator-lite-rte0t0002lkce00000r)
+    > * The [Renensas Starter Kit+ for RX65N-2MB](https://www.renesas.com/products/microcontrollers-microprocessors/rx-32-bit-performance-efficiency-mcus/rx65n-2mb-starter-kit-plus-renesas-starter-kit-rx65n-2mb) (Renesas RX65N)
+    > * The [Renesas E2 emulator Lite](https://www.renesas.com/software-tool/e2-emulator-lite-rte0t0002lkce00000r)
     > * 2 * USB 2.0 A male to Mini USB male cable
     > * The included 5V power supply
     > * Ethernet cable
@@ -66,7 +66,7 @@ The cloned repo contains a setup script that installs and configures the require
 
 To install the tools:
 
-1. From File Explorer, navigate to the following path in the repo and run the setup script named *get-toolchain.bat*:
+1. From File Explorer, navigate to the following path in the repo and run the setup script named *get-toolchain-rx.bat*:
 
     > *getting-started\tools\get-toolchain-rx.bat*
 
@@ -232,10 +232,6 @@ You can use the **Termite** utility to monitor communication and confirm that yo
     ```output
     Starting Azure thread
 
-    Initializing WiFi
-    	Connecting to SSID 'iot'
-    SUCCESS: WiFi connected to iot
-
     Initializing DHCP
     	IP address: 10.0.0.123
     	Mask: 255.255.255.0
@@ -388,11 +384,10 @@ To use Azure CLI to call a method:
 1. View the Termite terminal to confirm the output messages:
 
     ```output
-    Received direct method=setLedState, id=1, message=true
+    Received direct method call: setLedState
+        Payload: true
     LED is turned ON
-    Sending device twin update with bool value
-    Sending message {"ledState":true}
-    Direct method=setLedState invoked
+    Device twin property sent: {"ledState":true}
     ```
 
 ## Clean up resources

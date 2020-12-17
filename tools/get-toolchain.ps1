@@ -1,12 +1,14 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12;
+
 echo "`nInstalling prerequisites. Please leave the window open until the installation completes."
 
-$cmake_path = 'https://github.com/Kitware/CMake/releases/download/v3.19.1'
-$cmake_file = 'cmake-3.19.1-win32-x86.msi'
-$cmake_name = 'CMake v3.19.1'
-$cmake_hash = '4AA9B1E5CD03F0E495425D40BAC6BFE1FBC14EC91E447FDD6D6F21533142ADAD'
+$cmake_path = 'https://github.com/Kitware/CMake/releases/download/v3.19.2'
+$cmake_file = 'cmake-3.19.2-win32-x86.msi'
+$cmake_name = 'CMake v3.19.2'
+$cmake_hash = '7ABFEA6278B7BF3F6EB1D3B13F9DF79FD675D274AC88A680831B81DF26C92611'
 
 $gccarm_path = 'https://developer.arm.com/-/media/Files/downloads/gnu-rm/9-2020q2'
 $gccarm_file = 'gcc-arm-none-eabi-9-2020-q2-update-win32.exe'
@@ -19,30 +21,30 @@ $termite_name = 'Termite v3.4'
 $termite_hash = 'CA440B6C7F6EAA812BA5F8BF42AED86E02022CA50A1C72585168C9B671D0FE19'
 
 $azure_cli_path = 'https://azurecliprod.blob.core.windows.net/msi'
-$azure_cli_file = 'azure-cli-2.15.0.msi'
-$azure_cli_name = 'Azure CLI v2.15.0'
-$azure_cli_hash = 'F3ACD85F36560D3F48BA7CCE0BA3194F74B7195EBA3117F960CE094128812A20'
+$azure_cli_file = 'azure-cli-2.16.0.msi'
+$azure_cli_name = 'Azure CLI v2.16.0'
+$azure_cli_hash = 'FFF72228489329616C165FD10FB3B47E582B50880784CD69A88110BFC31FDD19'
 
-$iot_explorer_path = 'https://github.com/Azure/azure-iot-explorer/releases/download/v0.13.1'
-$iot_explorer_file = 'Azure.IoT.Explorer.preview.0.13.1.msi'
-$iot_explorer_name = 'Azure IoT Explorer v0.13.1'
-$iot_explorer_hash = 'CF73747BB9A827A21D99260B773900F7D1A35376AE82136B30A07F588CD42318'
+$iot_explorer_path = 'https://github.com/Azure/azure-iot-explorer/releases/download/v0.13.2'
+$iot_explorer_file = 'Azure.IoT.Explorer.preview.0.13.2.msi'
+$iot_explorer_name = 'Azure IoT Explorer v0.13.2'
+$iot_explorer_hash = '6B3931F96EFA7622DB8E123E91FFA395584C75E6AC28D08A37492AE30E212F6F'
 
 echo "`nDownloading packages..."
 
 $wc = New-Object System.Net.WebClient
 $wc.Headers['User-Agent'] = "Mozilla/4.0"
 
-echo "(1/5) $cmake_name"
-if ( -not (Test-Path "$env:TEMP\$cmake_file") -Or ((Get-FileHash "$env:TEMP\$cmake_file").Hash -ne $cmake_hash))
-{
-    $wc.DownloadFile("$cmake_path\$cmake_file", "$env:TEMP\$cmake_file")
-}
-
-echo "(2/5) $gccarm_name"
+echo "(1/5) $gccarm_name"
 if ( -not (Test-Path "$env:TEMP\$gccarm_file") -Or ((Get-FileHash "$env:TEMP\$gccarm_file").Hash -ne $gccarm_hash))
 {
     $wc.DownloadFile("$gccarm_path\$gccarm_file", "$env:TEMP\$gccarm_file")
+}
+
+echo "(2/5) $cmake_name"
+if ( -not (Test-Path "$env:TEMP\$cmake_file") -Or ((Get-FileHash "$env:TEMP\$cmake_file").Hash -ne $cmake_hash))
+{
+    $wc.DownloadFile("$cmake_path\$cmake_file", "$env:TEMP\$cmake_file")
 }
 
 echo "(3/5) $termite_name"
@@ -66,11 +68,11 @@ if ( -not (Test-Path "$env:TEMP\$iot_explorer_file") -Or ((Get-FileHash "$env:TE
 
 echo "`nInstalling packages..."
 
-echo "(1/5) $cmake_name"
-Start-Process -FilePath "$env:TEMP\$cmake_file" -ArgumentList "ADD_CMAKE_TO_PATH=System /passive" -Wait
-
-echo "(2/5) $gccarm_name"
+echo "(1/5) $gccarm_name"
 Start-Process -FilePath "$env:TEMP\$gccarm_file" -ArgumentList "/S /P /R" -Wait
+
+echo "(2/5) $cmake_name"
+Start-Process -FilePath "$env:TEMP\$cmake_file" -ArgumentList "ADD_CMAKE_TO_PATH=System /passive" -Wait
 
 echo "(3/5) $termite_name"
 Start-Process -FilePath "$env:TEMP\$termite_file" -ArgumentList "/S" -Wait
