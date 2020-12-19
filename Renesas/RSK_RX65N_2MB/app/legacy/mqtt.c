@@ -34,7 +34,7 @@ static INT telemetry_interval = 10;
 
 static void set_led_state(bool level)
 {
-     if (level)
+    if (level)
     {
         printf("LED is turned ON\r\n");
         LED0 = LED_ON;
