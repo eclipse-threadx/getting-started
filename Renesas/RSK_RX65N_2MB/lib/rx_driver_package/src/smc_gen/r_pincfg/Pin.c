@@ -14,15 +14,15 @@
 * following link:
 * http://www.renesas.com/disclaimer
 *
-* Copyright (C) 2019 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2018 Renesas Electronics Corporation. All rights reserved.
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
-* File Name    : r_smc_cgc.c
-* Version      : 1.6.102
+* File Name    : Pin.c
+* Version      : 1.0.2
 * Device(s)    : R5F565NEDxFC
-* Description  : This file implements CGC setting.
-* Creation Date: 2020-12-08
+* Description  : This file implements SMC pin code generation.
+* Creation Date: 2020-12-18
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -35,7 +35,6 @@ Pragma directive
 Includes
 ***********************************************************************************************************************/
 #include "r_cg_macrodriver.h"
-#include "r_smc_cgc.h"
 /* Start user code for include. Do not edit comment generated here */
 /* End user code. Do not edit comment generated here */
 #include "r_cg_userdefine.h"
@@ -47,17 +46,98 @@ Global variables and functions
 /* End user code. Do not edit comment generated here */
 
 /***********************************************************************************************************************
-* Function Name: R_CGC_Create
-* Description  : This function initializes the clock generator
+* Function Name: R_Pins_Create
+* Description  : This function initializes Smart Configurator pins
 * Arguments    : None
 * Return Value : None
 ***********************************************************************************************************************/
 
-void R_CGC_Create(void)
+void R_Pins_Create(void)
 {
-    R_CGC_Create_UserInit();
-}
+    R_BSP_RegisterProtectDisable(BSP_REG_PROTECT_MPC);
 
-/* Start user code for adding. Do not edit comment generated here */
-/* End user code. Do not edit comment generated here */
+    /* Set ET0_COL pin */
+    MPC.PC7PFS.BYTE = 0x11U;
+    PORTC.PMR.BYTE |= 0x80U;
+
+    /* Set ET0_CRS pin */
+    MPC.P83PFS.BYTE = 0x11U;
+    PORT8.PMR.BYTE |= 0x08U;
+
+    /* Set ET0_ERXD0 pin */
+    MPC.P75PFS.BYTE = 0x11U;
+    PORT7.PMR.BYTE |= 0x20U;
+
+    /* Set ET0_ERXD1 pin */
+    MPC.P74PFS.BYTE = 0x11U;
+    PORT7.PMR.BYTE |= 0x10U;
+
+    /* Set ET0_ERXD2 pin */
+    MPC.PC1PFS.BYTE = 0x11U;
+    PORTC.PMR.BYTE |= 0x02U;
+
+    /* Set ET0_ERXD3 pin */
+    MPC.PC0PFS.BYTE = 0x11U;
+    PORTC.PMR.BYTE |= 0x01U;
+
+    /* Set ET0_ETXD0 pin */
+    MPC.P81PFS.BYTE = 0x11U;
+    PORT8.PMR.BYTE |= 0x02U;
+
+    /* Set ET0_ETXD1 pin */
+    MPC.P82PFS.BYTE = 0x11U;
+    PORT8.PMR.BYTE |= 0x04U;
+
+    /* Set ET0_ETXD2 pin */
+    MPC.PC5PFS.BYTE = 0x11U;
+    PORTC.PMR.BYTE |= 0x20U;
+
+    /* Set ET0_ETXD3 pin */
+    MPC.PC6PFS.BYTE = 0x11U;
+    PORTC.PMR.BYTE |= 0x40U;
+
+    /* Set ET0_LINKSTA pin */
+    MPC.P34PFS.BYTE = 0x11U;
+    PORT3.PMR.BYTE |= 0x10U;
+
+    /* Set ET0_MDC pin */
+    MPC.P72PFS.BYTE = 0x11U;
+    PORT7.PMR.BYTE |= 0x04U;
+
+    /* Set ET0_MDIO pin */
+    MPC.P71PFS.BYTE = 0x11U;
+    PORT7.PMR.BYTE |= 0x02U;
+
+    /* Set ET0_RX_CLK pin */
+    MPC.P76PFS.BYTE = 0x11U;
+    PORT7.PMR.BYTE |= 0x40U;
+
+    /* Set ET0_RX_DV pin */
+    MPC.PC2PFS.BYTE = 0x11U;
+    PORTC.PMR.BYTE |= 0x04U;
+
+    /* Set ET0_RX_ER pin */
+    MPC.P77PFS.BYTE = 0x11U;
+    PORT7.PMR.BYTE |= 0x80U;
+
+    /* Set ET0_TX_CLK pin */
+    MPC.PC4PFS.BYTE = 0x11U;
+    PORTC.PMR.BYTE |= 0x10U;
+
+    /* Set ET0_TX_EN pin */
+    MPC.P80PFS.BYTE = 0x11U;
+    PORT8.PMR.BYTE |= 0x01U;
+
+    /* Set RXD8 pin */
+    MPC.PJ1PFS.BYTE = 0x0AU;
+    PORTJ.PMR.BYTE |= 0x02U;
+
+    /* Set TXD8 pin */
+    PORTJ.PODR.BYTE |= 0x04U;
+    MPC.PJ2PFS.BYTE = 0x0AU;
+    PORTJ.PDR.BYTE |= 0x04U;
+    // PORTJ.PMR.BIT.B2 = 1U; // Please set the PMR bit after TE bit is set to 1.
+
+    R_BSP_RegisterProtectEnable(BSP_REG_PROTECT_MPC);
+}
 

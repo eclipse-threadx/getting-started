@@ -22,7 +22,7 @@
 * Version      : 1.2.101
 * Device(s)    : R5F565NEDxFC
 * Description  : General header file for SCI peripheral.
-* Creation Date: 2020-12-08
+* Creation Date: 2020-12-18
 ***********************************************************************************************************************/
 
 #ifndef SCI_H

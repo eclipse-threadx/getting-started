@@ -2,7 +2,7 @@
 # Licensed under the MIT License.
 
 # Define the CPU architecture for Threadx
-set(THREADX_ARCH "rx")
+set(THREADX_ARCH "rxv2")
 set(THREADX_TOOLCHAIN "gnu")
 
 # Define ThreadX user configuration

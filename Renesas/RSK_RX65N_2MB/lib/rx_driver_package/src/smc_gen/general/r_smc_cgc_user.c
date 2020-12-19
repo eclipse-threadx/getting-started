@@ -18,44 +18,46 @@
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
-* File Name    : r_cg_userdefine.h
-* Version      : 1.2.101
+* File Name    : r_smc_cgc_user.c
+* Version      : 1.6.102
 * Device(s)    : R5F565NEDxFC
-* Description  : User header file for code generation.
-* Creation Date: 2020-12-08
+* Description  : This file implements CGC setting.
+* Creation Date: 2020-12-18
 ***********************************************************************************************************************/
 
-#ifndef CG_USER_DEF_H
-#define CG_USER_DEF_H
+/***********************************************************************************************************************
+Pragma directive
+***********************************************************************************************************************/
+/* Start user code for pragma. Do not edit comment generated here */
+/* End user code. Do not edit comment generated here */
 
 /***********************************************************************************************************************
 Includes
 ***********************************************************************************************************************/
+#include "r_cg_macrodriver.h"
 /* Start user code for include. Do not edit comment generated here */
 /* End user code. Do not edit comment generated here */
+#include "r_cg_userdefine.h"
 
 /***********************************************************************************************************************
-Macro definitions (Register bit)
+Global variables and functions
 ***********************************************************************************************************************/
-/* Start user code for register. Do not edit comment generated here */
+/* Start user code for global. Do not edit comment generated here */
 /* End user code. Do not edit comment generated here */
 
 /***********************************************************************************************************************
-Macro definitions
+* Function Name: R_CGC_Create_UserInit
+* Description  : This function adds user code after initializing CGC
+* Arguments    : None
+* Return Value : None
 ***********************************************************************************************************************/
-/* Start user code for macro define. Do not edit comment generated here */
-/* End user code. Do not edit comment generated here */
 
-/***********************************************************************************************************************
-Typedef definitions
-***********************************************************************************************************************/
-/* Start user code for type define. Do not edit comment generated here */
-/* End user code. Do not edit comment generated here */
+void R_CGC_Create_UserInit(void)
+{
+    /* Start user code for user init. Do not edit comment generated here */
+    /* End user code. Do not edit comment generated here */
+}
 
-/***********************************************************************************************************************
-Global functions
-***********************************************************************************************************************/
-/* Start user code for function. Do not edit comment generated here */
+/* Start user code for adding. Do not edit comment generated here */
 /* End user code. Do not edit comment generated here */
-#endif
 

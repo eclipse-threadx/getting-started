@@ -14,19 +14,26 @@
 * following link:
 * http://www.renesas.com/disclaimer
 *
-* Copyright (C) 2018 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2019 Renesas Electronics Corporation. All rights reserved.
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
-* File Name    : Pin.h
-* Version      : 1.0.2
+* File Name    : r_smc_entry.h
+* Version      : 1.2.101
 * Device(s)    : R5F565NEDxFC
-* Description  : This file implements SMC pin code generation.
-* Creation Date: 2020-12-08
+* Description  : SMC platform header file.
+* Creation Date: 2020-12-18
 ***********************************************************************************************************************/
 
-#ifndef PIN_H
-#define PIN_H
+#ifndef SMC_ENTRY_H
+#define SMC_ENTRY_H
+
+/***********************************************************************************************************************
+Includes
+***********************************************************************************************************************/
+#include "r_cg_macrodriver.h"
+#include "Config_SCI8.h"
+#include "Config_PORT.h"
 
 /***********************************************************************************************************************
 Macro definitions (Register bit)
@@ -43,7 +50,6 @@ Typedef definitions
 /***********************************************************************************************************************
 Global functions
 ***********************************************************************************************************************/
-void R_Pins_Create(void);
 /* Start user code for function. Do not edit comment generated here */
 /* End user code. Do not edit comment generated here */
 #endif

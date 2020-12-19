@@ -14,50 +14,109 @@
 * following link:
 * http://www.renesas.com/disclaimer
 *
-* Copyright (C) 2019 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2020 Renesas Electronics Corporation. All rights reserved.
 ***********************************************************************************************************************/
-
 /***********************************************************************************************************************
-* File Name    : r_smc_cgc_user.c
-* Version      : 1.6.102
+* File Name    : r_ether_rx_pinset.c
+* Version      : 1.0.2
 * Device(s)    : R5F565NEDxFC
-* Description  : This file implements CGC setting.
-* Creation Date: 2020-12-08
+* Tool-Chain   : RXC toolchain
+* Description  : Setting of port and mpc registers
+* Creation Date: 2020-12-18
 ***********************************************************************************************************************/
-
-/***********************************************************************************************************************
-Pragma directive
-***********************************************************************************************************************/
-/* Start user code for pragma. Do not edit comment generated here */
-/* End user code. Do not edit comment generated here */
 
 /***********************************************************************************************************************
 Includes
 ***********************************************************************************************************************/
-#include "r_cg_macrodriver.h"
-/* Start user code for include. Do not edit comment generated here */
-/* End user code. Do not edit comment generated here */
-#include "r_cg_userdefine.h"
+#include "r_ether_rx_pinset.h"
+#include "platform.h"
 
 /***********************************************************************************************************************
 Global variables and functions
 ***********************************************************************************************************************/
-/* Start user code for global. Do not edit comment generated here */
-/* End user code. Do not edit comment generated here */
 
 /***********************************************************************************************************************
-* Function Name: R_CGC_Create_UserInit
-* Description  : This function adds user code after initializing CGC
-* Arguments    : None
-* Return Value : None
+* Function Name: R_ETHER_PinSet_ETHERC0_MII
+* Description  : This function initializes pins for r_ether_rx module
+* Arguments    : none
+* Return Value : none
 ***********************************************************************************************************************/
-
-void R_CGC_Create_UserInit(void)
+void R_ETHER_PinSet_ETHERC0_MII()
 {
-    /* Start user code for user init. Do not edit comment generated here */
-    /* End user code. Do not edit comment generated here */
-}
+    R_BSP_RegisterProtectDisable(BSP_REG_PROTECT_MPC);
 
-/* Start user code for adding. Do not edit comment generated here */
-/* End user code. Do not edit comment generated here */
+    /* Set ET0_TX_CLK pin */
+    MPC.PC4PFS.BYTE = 0x11U;
+    PORTC.PMR.BIT.B4 = 1U;
+
+    /* Set ET0_RX_CLK pin */
+    MPC.P76PFS.BYTE = 0x11U;
+    PORT7.PMR.BIT.B6 = 1U;
+
+    /* Set ET0_TX_EN pin */
+    MPC.P80PFS.BYTE = 0x11U;
+    PORT8.PMR.BIT.B0 = 1U;
+
+    /* Set ET0_ETXD3 pin */
+    MPC.PC6PFS.BYTE = 0x11U;
+    PORTC.PMR.BIT.B6 = 1U;
+
+    /* Set ET0_ETXD2 pin */
+    MPC.PC5PFS.BYTE = 0x11U;
+    PORTC.PMR.BIT.B5 = 1U;
+
+    /* Set ET0_ETXD1 pin */
+    MPC.P82PFS.BYTE = 0x11U;
+    PORT8.PMR.BIT.B2 = 1U;
+
+    /* Set ET0_ETXD0 pin */
+    MPC.P81PFS.BYTE = 0x11U;
+    PORT8.PMR.BIT.B1 = 1U;
+
+    /* Set ET0_RX_DV pin */
+    MPC.PC2PFS.BYTE = 0x11U;
+    PORTC.PMR.BIT.B2 = 1U;
+
+    /* Set ET0_ERXD3 pin */
+    MPC.PC0PFS.BYTE = 0x11U;
+    PORTC.PMR.BIT.B0 = 1U;
+
+    /* Set ET0_ERXD2 pin */
+    MPC.PC1PFS.BYTE = 0x11U;
+    PORTC.PMR.BIT.B1 = 1U;
+
+    /* Set ET0_ERXD1 pin */
+    MPC.P74PFS.BYTE = 0x11U;
+    PORT7.PMR.BIT.B4 = 1U;
+
+    /* Set ET0_ERXD0 pin */
+    MPC.P75PFS.BYTE = 0x11U;
+    PORT7.PMR.BIT.B5 = 1U;
+
+    /* Set ET0_RX_ER pin */
+    MPC.P77PFS.BYTE = 0x11U;
+    PORT7.PMR.BIT.B7 = 1U;
+
+    /* Set ET0_CRS pin */
+    MPC.P83PFS.BYTE = 0x11U;
+    PORT8.PMR.BIT.B3 = 1U;
+
+    /* Set ET0_COL pin */
+    MPC.PC7PFS.BYTE = 0x11U;
+    PORTC.PMR.BIT.B7 = 1U;
+
+    /* Set ET0_MDC pin */
+    MPC.P72PFS.BYTE = 0x11U;
+    PORT7.PMR.BIT.B2 = 1U;
+
+    /* Set ET0_MDIO pin */
+    MPC.P71PFS.BYTE = 0x11U;
+    PORT7.PMR.BIT.B1 = 1U;
+
+    /* Set ET0_LINKSTA pin */
+    MPC.P34PFS.BYTE = 0x11U;
+    PORT3.PMR.BIT.B4 = 1U;
+
+    R_BSP_RegisterProtectEnable(BSP_REG_PROTECT_MPC);
+}
 

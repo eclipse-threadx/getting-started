@@ -18,38 +18,96 @@
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
-* File Name    : r_smc_entry.h
+* File Name    : r_cg_hardware_setup.c
 * Version      : 1.2.101
 * Device(s)    : R5F565NEDxFC
-* Description  : SMC platform header file.
-* Creation Date: 2020-12-08
+* Description  : Initialization file for code generation configurations.
+* Creation Date: 2020-12-18
 ***********************************************************************************************************************/
 
-#ifndef SMC_ENTRY_H
-#define SMC_ENTRY_H
+/***********************************************************************************************************************
+Pragma directive
+***********************************************************************************************************************/
+/* Start user code for pragma. Do not edit comment generated here */
+/* End user code. Do not edit comment generated here */
 
 /***********************************************************************************************************************
 Includes
 ***********************************************************************************************************************/
 #include "r_cg_macrodriver.h"
 #include "Config_SCI8.h"
-
-/***********************************************************************************************************************
-Macro definitions (Register bit)
-***********************************************************************************************************************/
-
-/***********************************************************************************************************************
-Macro definitions
-***********************************************************************************************************************/
-
-/***********************************************************************************************************************
-Typedef definitions
-***********************************************************************************************************************/
-
-/***********************************************************************************************************************
-Global functions
-***********************************************************************************************************************/
-/* Start user code for function. Do not edit comment generated here */
+#include "Config_PORT.h"
+#include "r_smc_cgc.h"
+#include "r_smc_interrupt.h"
+/* Start user code for include. Do not edit comment generated here */
 /* End user code. Do not edit comment generated here */
-#endif
+#include "r_cg_userdefine.h"
+
+/***********************************************************************************************************************
+Global variables and functions
+***********************************************************************************************************************/
+/* Start user code for global. Do not edit comment generated here */
+/* End user code. Do not edit comment generated here */
+
+/***********************************************************************************************************************
+* Function Name: r_undefined_exception
+* Description  : This function is undefined interrupt service routine
+* Arguments    : None
+* Return Value : None
+***********************************************************************************************************************/
+
+void r_undefined_exception(void)
+{
+    /* Start user code for r_undefined_exception. Do not edit comment generated here */
+    /* End user code. Do not edit comment generated here */
+}
+
+/***********************************************************************************************************************
+* Function Name: R_Systeminit
+* Description  : This function initializes every configuration
+* Arguments    : None
+* Return Value : None
+***********************************************************************************************************************/
+
+void R_Systeminit(void)
+{
+    /* Enable writing to registers related to operating modes, LPC, CGC and software reset */
+    SYSTEM.PRCR.WORD = 0xA50BU;
+
+    /* Enable writing to MPC pin function control registers */
+    MPC.PWPR.BIT.B0WI = 0U;
+    MPC.PWPR.BIT.PFSWE = 1U;
+
+    /* Write 0 to the target bits in the POECR2 registers */
+    POE3.POECR2.WORD = 0x0000U;
+
+    /* Initialize clocks settings */
+    R_CGC_Create();
+
+    /* Set peripheral settings */
+    R_Config_PORT_Create();
+    R_Config_SCI8_Create();
+
+    /* Set interrupt settings */
+    R_Interrupt_Create();
+
+    /* Register undefined interrupt */
+    R_BSP_InterruptWrite(BSP_INT_SRC_UNDEFINED_INTERRUPT,(bsp_int_cb_t)r_undefined_exception);
+
+    /* Register group BL1 interrupt TEI8 (SCI8) */
+    R_BSP_InterruptWrite(BSP_INT_SRC_BL1_SCI8_TEI8,(bsp_int_cb_t)r_Config_SCI8_transmitend_interrupt);
+
+    /* Register group BL1 interrupt ERI8 (SCI8) */
+    R_BSP_InterruptWrite(BSP_INT_SRC_BL1_SCI8_ERI8,(bsp_int_cb_t)r_Config_SCI8_receiveerror_interrupt);
+
+    /* Disable writing to MPC pin function control registers */
+    MPC.PWPR.BIT.PFSWE = 0U;
+    MPC.PWPR.BIT.B0WI = 1U;
+
+    /* Enable protection */
+    SYSTEM.PRCR.WORD = 0xA500U;
+}
+
+/* Start user code for adding. Do not edit comment generated here */
+/* End user code. Do not edit comment generated here */
 

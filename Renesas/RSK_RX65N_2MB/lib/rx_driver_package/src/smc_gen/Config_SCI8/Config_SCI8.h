@@ -22,7 +22,7 @@
 * Version      : 1.9.1
 * Device(s)    : R5F565NEDxFC
 * Description  : This file implements device driver for Config_SCI8.
-* Creation Date: 2020-12-08
+* Creation Date: 2020-12-18
 ***********************************************************************************************************************/
 
 #ifndef CFG_Config_SCI8_H
