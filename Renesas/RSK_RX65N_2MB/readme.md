@@ -347,23 +347,23 @@ To use Azure CLI to view device telemetry:
 
 ## Call a direct method on the device
 
-You can also use Azure IoT Explorer to call a direct method that you have implemented on your device. Direct methods have a name, and can optionally have a JSON payload, configurable connection, and method timeout. In this section, you call a method that enables you to turn an LED on or off. Optionally, you can perform the same task using Azure CLI.
+You can also use Azure IoT Explorer to call a direct method that you have implemented on your device. Direct methods have a name, and can optionally have a JSON payload, configurable connection, and method timeout. In this section, you call a method that enables you to turn the LEDs on or off. Optionally, you can perform the same task using Azure CLI.
 
 To call a method in Azure IoT Explorer:
 
 1. Select **Direct method**.
-1. In the **Direct method** panel add the following values for the method name and payload. The payload value *true* indicates to turn the LED on.
+1. In the **Direct method** panel add the following values for the method name and payload. The payload value *true* indicates to turn the LEDs on.
     * **Method name**: `setLedState`
     * **Payload**: `true`
-1. Select **Invoke method**. The LED light should turn on.
+1. Select **Invoke method**. The four LEDs next to the reset button should turn on.
 
     ![Azure IoT Explorer invoke method](media/azure-iot-explorer-invoke-method.png)
-1. Change **Payload** to *false*, and again select **Invoke method**. The LED light should turn off.
+1. Change **Payload** to *false*, and again select **Invoke method**. The four LEDs next to the reset button should turn off.
 1. Optionally, you can view the output in Termite to monitor the status of the methods.
 
 To use Azure CLI to call a method:
 
-1. Run the [az iot hub invoke-device-method](https://docs.microsoft.com/en-us/cli/azure/ext/azure-iot/iot/hub?view=azure-cli-latest#ext-azure-iot-az-iot-hub-invoke-device-method) command, and specify the method name and payload. For this method, setting `method-payload` to `true` turns the LED on, and setting it to `false` turns it off.
+1. Run the [az iot hub invoke-device-method](https://docs.microsoft.com/en-us/cli/azure/ext/azure-iot/iot/hub?view=azure-cli-latest#ext-azure-iot-az-iot-hub-invoke-device-method) command, and specify the method name and payload. For this method, setting `method-payload` to `true` turns the LEDs on, and setting it to `false` turns them off.
 
     <!-- Inline code tag and CSS to wrap long code lines. -->
     <code style="white-space : pre-wrap !important;">
