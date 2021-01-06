@@ -25,6 +25,7 @@ target_link_libraries(${PROJECT_NAME}
     azrtos::netxduo
 
     stm32cubef4
+    mxchip_bsp
     wiced_sdk
     app_common
     jsmn
