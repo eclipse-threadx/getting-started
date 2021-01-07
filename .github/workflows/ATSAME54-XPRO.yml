@@ -24,7 +24,7 @@ jobs:
           submodules: recursive
 
       - name: arm-none-eabi-gcc
-        uses: ryanwinter/arm-none-eabi-gcc@v1
+        uses: ryanwinter/arm-none-eabi-gcc@master
         with:
           release: '10-2020-q4'
 
