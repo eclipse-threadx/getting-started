@@ -5,15 +5,15 @@
 
 echo "`nInstalling prerequisites. Please leave the window open until the installation completes."
 
-$cmake_path = 'https://github.com/Kitware/CMake/releases/download/v3.19.2'
-$cmake_file = 'cmake-3.19.2-win32-x86.msi'
-$cmake_name = 'CMake v3.19.2'
-$cmake_hash = '7ABFEA6278B7BF3F6EB1D3B13F9DF79FD675D274AC88A680831B81DF26C92611'
-
 $gccrx_path = 'http://gcc-renesas.com/downloads/get.php?f=rx/8.3.0.202004-gnurx'
 $gccrx_file = 'gcc-8.3.0.202004-GNURX-ELF.exe'
 $gccrx_name = 'GCC-RX 8.3.0.20204'
 $gccrx_hash = 'C3340B4915208361A33885505CFB89B69E1607A07F89FBF2A79096182D293978'
+
+$cmake_path = 'https://github.com/Kitware/CMake/releases/download/v3.19.2'
+$cmake_file = 'cmake-3.19.2-win32-x86.msi'
+$cmake_name = 'CMake v3.19.2'
+$cmake_hash = '7ABFEA6278B7BF3F6EB1D3B13F9DF79FD675D274AC88A680831B81DF26C92611'
 
 $termite_path = 'https://www.compuphase.com/software'
 $termite_file = 'termite-3.4.exe'
@@ -21,9 +21,9 @@ $termite_name = 'Termite v3.4'
 $termite_hash = 'CA440B6C7F6EAA812BA5F8BF42AED86E02022CA50A1C72585168C9B671D0FE19'
 
 $azure_cli_path = 'https://azurecliprod.blob.core.windows.net/msi'
-$azure_cli_file = 'azure-cli-2.16.0.msi'
-$azure_cli_name = 'Azure CLI v2.16.0'
-$azure_cli_hash = 'FFF72228489329616C165FD10FB3B47E582B50880784CD69A88110BFC31FDD19'
+$azure_cli_file = 'azure-cli-2.17.1.msi'
+$azure_cli_name = 'Azure CLI v2.17.1'
+$azure_cli_hash = '414B5DC8030A6E1755650CA4966417735E42D1FCC89FE9D2E41C5720BC88AEA3'
 
 $iot_explorer_path = 'https://github.com/Azure/azure-iot-explorer/releases/download/v0.13.2'
 $iot_explorer_file = 'Azure.IoT.Explorer.preview.0.13.2.msi'

@@ -22,4 +22,5 @@ add_subdirectory(${CORE_LIB_DIR}/netxduo netxduo)
 add_subdirectory(${CORE_LIB_DIR}/jsmn jsmn)
 
 add_subdirectory(stm32cubef4)
+add_subdirectory(mxchip_bsp)
 add_subdirectory(wiced_sdk)
