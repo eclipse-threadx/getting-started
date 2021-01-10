@@ -46,7 +46,7 @@ set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
 
-set(CMAKE_COMMON_FLAGS "-ffunction-sections -fdata-sections -fdiagnostics-parseable-fixits -fno-strict-aliasing -fno-builtin -fshort-enums -Wuninitialized -Wshadow -Wdouble-promotion -Werror -Wno-unused-function -Wno-unused-parameter -Wno-incompatible-pointer-types")
+set(CMAKE_COMMON_FLAGS "-ffunction-sections -fdata-sections -fdiagnostics-parseable-fixits -fno-strict-aliasing -fno-builtin -fshort-enums -Wuninitialized -Wdouble-promotion -Werror -Wno-unused-function -Wno-unused-parameter -Wno-incompatible-pointer-types")
 set(CMAKE_C_FLAGS 	"${MCPU_FLAGS} ${VFP_FLAGS} ${CMAKE_COMMON_FLAGS} ${LIBC_INCLUDE}")
 set(CMAKE_CXX_FLAGS "${MCPU_FLAGS} ${VFP_FLAGS} ${CMAKE_COMMON_FLAGS}")
 set(CMAKE_ASM_FLAGS "${MCPU_FLAGS} ${VFP_FLAGS}")
