@@ -26,6 +26,7 @@ The following board specific guides will get you started with Azure RTOS and Azu
   * [MIMXRT1060-EVK](NXP/MIMXRT1060-EVK)
 * Renesas: 
   * [AE-Cloud2](Renesas/Synergy)
+  * [RSK+RX65N-2MB](Renesas/RSK_RX65N_2MB)
 * STMicroelectronics: 
   * [B-L475E-IOT01A](STMicroelectronics/STM32L4_L4+)
   * [B-L4S5I-IOT01A](STMicroelectronics/STM32L4_L4+)

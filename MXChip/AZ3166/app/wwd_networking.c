@@ -194,7 +194,7 @@ int platform_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
         &nx_pool[0], "NetX Main TX Packet Pool", SAMPLE_PACKET_SIZE, sample_tx_pool_stack, SAMPLE_TX_POOL_SIZE);
     if (status != NX_SUCCESS)
     {
-        printf("Sample platform initialize fail: PACKET POOL CREATE FAIL.");
+        printf("Platform initialize fail: PACKET POOL CREATE FAIL.");
         return status;
     }
 
@@ -204,7 +204,7 @@ int platform_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
     if (status != NX_SUCCESS)
     {
         nx_packet_pool_delete(&nx_pool[0]);
-        printf("Sample platform initialize fail: PACKET POOL CREATE FAIL.\r\n");
+        printf("Platform initialize fail: PACKET POOL CREATE FAIL.\r\n");
         return status;
     }
 
@@ -214,7 +214,7 @@ int platform_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
     {
         nx_packet_pool_delete(&nx_pool[0]);
         nx_packet_pool_delete(&nx_pool[1]);
-        printf("Sample platform initialize fail: WiFi JOIN FAIL.\r\n");
+        printf("Platform initialize fail: WiFi JOIN FAIL.\r\n");
         return status;
     }
 
@@ -233,7 +233,7 @@ int platform_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
     {
         nx_packet_pool_delete(&nx_pool[0]);
         nx_packet_pool_delete(&nx_pool[1]);
-        printf("Sample platform initialize fail: IP CREATE FAIL.\r\n");
+        printf("Platform initialize fail: IP CREATE FAIL.\r\n");
         return status;
     }
 
@@ -244,7 +244,7 @@ int platform_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
         nx_ip_delete(&nx_ip);
         nx_packet_pool_delete(&nx_pool[0]);
         nx_packet_pool_delete(&nx_pool[1]);
-        printf("Sample platform initialize fail: ARP ENABLE FAIL.\r\n");
+        printf("Platform initialize fail: ARP ENABLE FAIL.\r\n");
         return status;
     }
 
@@ -255,7 +255,7 @@ int platform_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
         nx_ip_delete(&nx_ip);
         nx_packet_pool_delete(&nx_pool[0]);
         nx_packet_pool_delete(&nx_pool[1]);
-        printf("Sample platform initialize fail: ICMP ENABLE FAIL.\r\n");
+        printf("Platform initialize fail: ICMP ENABLE FAIL.\r\n");
         return status;
     }
 
@@ -267,7 +267,7 @@ int platform_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
         nx_packet_pool_delete(&nx_pool[0]);
         nx_packet_pool_delete(&nx_pool[1]);
         /* LogError */
-        printf("Sample platform initialize fail: TCP ENABLE FAIL.\r\n");
+        printf("Platform initialize fail: TCP ENABLE FAIL.\r\n");
         return status;
     }
 
@@ -278,7 +278,7 @@ int platform_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
         nx_ip_delete(&nx_ip);
         nx_packet_pool_delete(&nx_pool[0]);
         nx_packet_pool_delete(&nx_pool[1]);
-        printf("Sample platform initialize fail: UDP ENABLE FAIL.\r\n");
+        printf("Platform initialize fail: UDP ENABLE FAIL.\r\n");
         return status;
     }
 
@@ -292,7 +292,7 @@ int platform_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
         nx_ip_delete(&nx_ip);
         nx_packet_pool_delete(&nx_pool[0]);
         nx_packet_pool_delete(&nx_pool[1]);
-        printf("Sample platform initialize fail: %u\r\n", status);
+        printf("Platform initialize fail: %u\r\n", status);
         return status;
     }
 
