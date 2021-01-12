@@ -1,9 +1,10 @@
+![](https://github.com/azure-rtos/getting-started/workflows/Markdown%20links/badge.svg)
 ![](https://github.com/azure-rtos/getting-started/workflows/ATSAME54-XPRO/badge.svg)
 ![](https://github.com/azure-rtos/getting-started/workflows/AZ3166/badge.svg)
 ![](https://github.com/azure-rtos/getting-started/workflows/MIMXRT1050-EVKB/badge.svg)
 ![](https://github.com/azure-rtos/getting-started/workflows/MIMXRT1060-EVK/badge.svg)
+![](https://github.com/azure-rtos/getting-started/workflows/RSK-RX65N-2MB/badge.svg)
 ![](https://github.com/azure-rtos/getting-started/workflows/STM32L4_L4+/badge.svg)
-![](https://github.com/azure-rtos/getting-started/workflows/Markdown%20links/badge.svg)
 
 # Getting Started with Azure RTOS and Azure IoT
 
