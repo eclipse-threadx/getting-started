@@ -16,7 +16,6 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        platform: [x32]
 
     steps:
       - name: Checkout code
