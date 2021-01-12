@@ -71,6 +71,7 @@ static void set_sntp_time()
 {
     ULONG seconds;
     ULONG milliseconds;
+    ULONG previous_time;
     UINT status;
     CHAR time_buffer[64];
 
@@ -80,6 +81,9 @@ static void set_sntp_time()
         printf("FAIL: Internal error with getting local time (0x%02x)\n", status);
         return;
     }
+
+    // calculate the time correction for printout
+    previous_time = sntp_time_get();
 
     tx_mutex_get(&time_mutex, TX_WAIT_FOREVER);
 
@@ -100,6 +104,7 @@ static void set_sntp_time()
     else
     {
         printf("SNTP time update: %s\r\n", time_buffer);
+        printf("\tdrift correction: %lu seconds\r\n", sntp_time_get() - previous_time);
     }
 
     // Flag the sync was successful
