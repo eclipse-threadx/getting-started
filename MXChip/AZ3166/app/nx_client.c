@@ -118,7 +118,7 @@ static UINT append_device_telemetry(NX_AZURE_IOT_JSON_WRITER* json_writer, VOID*
             lps22hb_data.temperature_degC,
             2) ||
         nx_azure_iot_json_writer_append_property_with_double_value(
-            json_writer, (UCHAR*)TELEMETRY_PRESSURE, sizeof(TELEMETRY_PRESSURE) - 1, lps22hb_data.pressure_hPa / 10, 2))
+            json_writer, (UCHAR*)TELEMETRY_PRESSURE, sizeof(TELEMETRY_PRESSURE) - 1, lps22hb_data.pressure_hPa, 2))
     {
         return NX_NOT_SUCCESSFUL;
     }
