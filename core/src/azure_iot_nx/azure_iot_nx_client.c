@@ -41,7 +41,6 @@ static VOID connection_status_callback(NX_AZURE_IOT_HUB_CLIENT* hub_client_ptr, 
         {
             printf("Reconnecting to IoT Hub...\r\n");
             
-            // Reconnect to IoTHub client
             if ((connect_status = nx_azure_iot_hub_client_connect(hub_client_ptr, NX_TRUE, NX_WAIT_FOREVER)))
             {
                 printf("Failed reconnect on nx_azure_iot_hub_client_connect, retry in 10 seconds (0x%08x)\r\n", connect_status);
