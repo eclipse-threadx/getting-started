@@ -28,19 +28,26 @@
 
 static VOID connection_status_callback(NX_AZURE_IOT_HUB_CLIENT* hub_client_ptr, UINT status)
 {
-    if (status)
+    if (status == NX_SUCCESS)
     {
-        printf("Disconnected from IoTHub, reconnecting... (0x%08x)\r\n", status);
-        
-        // Reconnect to IoTHub client
-        if ((status = nx_azure_iot_hub_client_connect(&hub_client_ptr, NX_TRUE, NX_WAIT_FOREVER)))
-        {
-            printf("Failed reconnect on nx_azure_iot_hub_client_connect (0x%08x)\r\n", status);
-        }
+        printf("Connected to IoT Hub\r\n");
     }
     else
     {
-        printf("Connected to IoTHub\r\n");
+        printf("Disconnected from IoT Hub (0x%08x)\r\n", status);
+
+        UINT connect_status = NX_AZURE_IOT_FAILURE;
+        while (connect_status)
+        {
+            printf("Reconnecting to IoT Hub...\r\n");
+            
+            // Reconnect to IoTHub client
+            if ((connect_status = nx_azure_iot_hub_client_connect(hub_client_ptr, NX_TRUE, NX_WAIT_FOREVER)))
+            {
+                printf("Failed reconnect on nx_azure_iot_hub_client_connect, retry in 10 seconds (0x%08x)\r\n", connect_status);
+                tx_thread_sleep(10 * TX_TIMER_TICKS_PER_SECOND);
+            }
+        }
     }
 }
 
