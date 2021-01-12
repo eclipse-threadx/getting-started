@@ -81,7 +81,7 @@ To install the tools:
 
 To install the remaining tools:
 
-1. Install [Atmel Studio 7](https://www.microchip.com/mplab/avr-support/atmel-studio-7). Atmel Studio is a device development environment that includes the tools to program and flash program the Microchip E54. For this tutorial, you use Atmel Studio only to flash the Microchip E54. The installation takes several minutes, and prompts you several times to approve the installation of components.
+1. Install [Atmel Studio 7](https://www.microchip.com/mplab/avr-support/atmel-studio-7). Atmel Studio is a device development environment that includes the tools to program and flash the Microchip E54. For this tutorial, you use Atmel Studio only to flash the Microchip E54. The installation takes several minutes, and prompts you several times to approve the installation of components.
 
 ### Create an IoT hub
 
@@ -231,10 +231,6 @@ You can use the **Termite** utility to monitor communication and confirm that yo
 
     ```output
     Starting Azure thread
-
-    Initializing WiFi
-    	Connecting to SSID 'iot'
-    SUCCESS: WiFi connected to iot
 
     Initializing DHCP
     	IP address: 10.0.0.123
@@ -388,12 +384,12 @@ To use Azure CLI to call a method:
 1. View the Termite terminal to confirm the output messages:
 
     ```output
-    Received direct method=setLedState, id=1, message=true
+    Received direct method call: setLedState
+        Payload: true
     LED is turned ON
-    Sending device twin update with bool value
-    Sending message {"ledState":true}
-    Direct method=setLedState invoked
+    Device twin property sent: {"ledState":true}
     ```
+
 ## Debugging
 
 For debugging the application, see [Debugging with Visual Studio Code](../../docs/debugging.md).

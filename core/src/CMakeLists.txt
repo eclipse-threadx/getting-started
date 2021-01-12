@@ -16,7 +16,6 @@ set(SOURCES
     azure_iot_cert.c
     azure_iot_ciphersuites.c
     json_utils.c
-    newlib_nano.c
     sntp_client.c
 )
 
@@ -24,6 +23,13 @@ set(SOURCES
 if(NOT DEFINED DISABLE_COMMON_NETWORK) 
     list(APPEND SOURCES
         networking.c
+    )
+endif()
+
+# Allow to disable the common networking component
+if(NOT DEFINED DISABLE_NEWLIB_STUB) 
+    list(APPEND SOURCES
+        newlib_nano.c
     )
 endif()
 

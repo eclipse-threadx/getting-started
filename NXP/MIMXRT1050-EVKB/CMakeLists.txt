@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 set(CMAKE_C_STANDARD 99)
 
 set(GSG_BASE_DIR ${CMAKE_SOURCE_DIR}/../..)
@@ -26,4 +26,3 @@ project(mimxrt1050_azure_iot C ASM)
 add_subdirectory(${CORE_SRC_DIR} core_src)
 add_subdirectory(lib)
 add_subdirectory(app)
-
