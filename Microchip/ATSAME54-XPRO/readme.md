@@ -370,12 +370,12 @@ To use Azure CLI to call a method:
     az iot hub invoke-device-method --device-id MyMicrochipDevice --method-name setLedState --method-payload true --hub-name {YourIoTHubName}
     </code>
 
-    The CLI console shows the status of your method call on the device, where `204` indicates success.
+    The CLI console shows the status of your method call on the device, where `200` indicates success.
 
     ```json
     {
       "payload": {},
-      "status": 204
+      "status": 200
     }
     ```
 
