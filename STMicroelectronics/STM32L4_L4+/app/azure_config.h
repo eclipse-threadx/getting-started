@@ -20,30 +20,10 @@ typedef enum
 #define WIFI_MODE     WPA2_PSK_AES
 
 // ----------------------------------------------------------------------------
-// Azure IoT Hub Connection Transport
-//    Define to use the legacy MQTT connection, else Azure RTOS SDK for Azure IoT
-// ----------------------------------------------------------------------------
-//#define ENABLE_LEGACY_MQTT
-
-// ----------------------------------------------------------------------------
 // Azure IoT Dynamic Provisioning Service
 //    Define this to use the DPS service, otherwise direct IoT Hub
 // ----------------------------------------------------------------------------
-//#define ENABLE_DPS
-
-// ----------------------------------------------------------------------------
-// Azure IoT DPS Self-Signed X509Certificate
-//    Define this to connect to DPS or Iot Hub using a X509 certificate
-// ----------------------------------------------------------------------------
-// #define ENABLE_X509
-
-// ----------------------------------------------------------------------------
-// Azure IoT Hub connection config
-//    IOT_HUB_HOSTNAME:  The Azure IoT Hub hostname
-//    IOT_HUB_DEVICE_ID: The Azure IoT Hub device id
-// ----------------------------------------------------------------------------
-#define IOT_HUB_HOSTNAME  ""
-#define IOT_HUB_DEVICE_ID ""
+#define ENABLE_DPS
 
 // ----------------------------------------------------------------------------
 // Azure IoT DPS connection config
@@ -52,6 +32,26 @@ typedef enum
 // ----------------------------------------------------------------------------
 #define IOT_DPS_ID_SCOPE        ""
 #define IOT_DPS_REGISTRATION_ID ""
+
+// ----------------------------------------------------------------------------
+// Azure IoT Hub Connection Transport
+//    Define to use the legacy MQTT connection, else Azure RTOS SDK for Azure IoT
+// ----------------------------------------------------------------------------
+//#define ENABLE_LEGACY_MQTT
+
+// ----------------------------------------------------------------------------
+// Azure IoT DPS Self-Signed X509Certificate
+//    Define this to connect to DPS or Iot Hub using a X509 certificate
+// ----------------------------------------------------------------------------
+//#define ENABLE_X509
+
+// ----------------------------------------------------------------------------
+// Azure IoT Hub connection config
+//    IOT_HUB_HOSTNAME:  The Azure IoT Hub hostname
+//    IOT_HUB_DEVICE_ID: The Azure IoT Hub device id
+// ----------------------------------------------------------------------------
+//#define IOT_HUB_HOSTNAME  ""
+//#define IOT_HUB_DEVICE_ID ""
 
 // ----------------------------------------------------------------------------
 // Azure IoT device SAS key
