@@ -314,11 +314,11 @@ To call a method in Azure IoT Explorer:
 1. In the **Direct method** panel add the following values for the method name and payload. The payload value *true* indicates to turn the LED on.
     * **Method name**: `setLedState`
     * **Payload**: `true`
-1. Select **Invoke method**. The LED light should turn on.
+1. Select **Invoke method**. Azure IoT Explorer should confirm a successful response. There will be *no change* to the devkit as there isn't an available LED to toggle.
 
     ![Azure IoT Explorer invoke method](media/azure-iot-explorer-invoke-method.png)
-1. Change **Payload** to *false*, and again select **Invoke method**. The LED light should turn off.
-1. Optionally, you can view the output in Termite to monitor the status of the methods.
+1. Change **Payload** to *false*, and again select **Invoke method**.
+1. You can view the output in Termite to monitor the status of the methods.
 
 To use Azure CLI to call a method:
 
@@ -329,12 +329,12 @@ To use Azure CLI to call a method:
     az iot hub invoke-device-method --device-id MyNXPDevice --method-name setLedState --method-payload true --hub-name {YourIoTHubName}
     </code>
 
-    The CLI console shows the status of your method call on the device, where `204` indicates success.
+    The CLI console shows the status of your method call on the device, where `200` indicates success.
 
     ```json
     {
       "payload": {},
-      "status": 204
+      "status": 200
     }
     ```
 
