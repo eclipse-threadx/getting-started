@@ -1,6 +1,10 @@
 [
     {
-        "name": "ARM GCC Cortex",
+        "name": "GCC ARM Cortex m4",
         "toolchainFile": "${workspaceFolder}/../../cmake/arm-gcc-cortex-m4.cmake"
-    }
+    },
+    {
+        "name": "IAR ARM Cortex m4",
+        "toolchainFile": "${workspaceFolder}/../../cmake/arm-iar-cortex-m4.cmake"
+    } 
 ]

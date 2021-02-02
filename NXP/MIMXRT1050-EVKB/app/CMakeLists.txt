@@ -30,6 +30,11 @@ set_target_properties(${PROJECT_NAME}
         SUFFIX ".elf"
 )
 
+target_include_directories(${PROJECT_NAME} 
+    PUBLIC 
+        .
+)
+
 if(THREADX_TOOLCHAIN STREQUAL "iar")
     target_link_options(${PROJECT_NAME}
         PRIVATE 
@@ -39,10 +44,5 @@ else()
         PRIVATE 
             -T${CMAKE_CURRENT_LIST_DIR}/startup/gnu/MIMXRT1052xxxxx_flexspi_nor.ld -Wl,-Map=${PROJECT_NAME}.map)
 endif()
-
-target_include_directories(${PROJECT_NAME} 
-    PUBLIC 
-        .
-)
 
 post_build(${PROJECT_NAME})
