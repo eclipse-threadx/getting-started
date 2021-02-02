@@ -19,7 +19,7 @@
 #define AZURE_IOT_MQTT_USERNAME_SIZE           256
 #define AZURE_IOT_MQTT_PASSWORD_SIZE           256
 #define AZURE_IOT_MQTT_TOPIC_NAME_LENGTH       256
-#define AZURE_IOT_MQTT_MESSAGE_LENGTH          512
+#define AZURE_IOT_MQTT_MESSAGE_LENGTH          1024
 #define AZURE_IOT_MQTT_DIRECT_COMMAND_RID_SIZE 6
 
 #define AZURE_IOT_MQTT_CLIENT_STACK_SIZE 4096
@@ -52,7 +52,6 @@ struct AZURE_IOT_MQTT_STRUCT
     CHAR mqtt_hub_hostname[AZURE_IOT_MQTT_HOSTNAME_SIZE];
 
     // DPS config
-    CHAR* mqtt_dps_endpoint;
     CHAR* mqtt_dps_id_scope;
     CHAR* mqtt_dps_registration_id;
 
@@ -128,7 +127,6 @@ UINT azure_iot_mqtt_create_with_dps(AZURE_IOT_MQTT* azure_iot_mqtt,
     NX_PACKET_POOL* nx_pool,
     NX_DNS* nx_dns,
     func_ptr_unix_time_get unix_time_get,
-    CHAR* iot_dps_endpoint,
     CHAR* iot_dps_id_scope,
     CHAR* iot_device_id,
     CHAR* iot_sas_key,

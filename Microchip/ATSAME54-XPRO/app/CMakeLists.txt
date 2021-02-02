@@ -4,9 +4,9 @@
 set(SOURCES
     startup/${THREADX_TOOLCHAIN}/tx_initialize_low_level.S
     startup/${THREADX_TOOLCHAIN}/startup_same54.c
+    legacy/mqtt.c
     azure_config.h
     nx_client.c
-    mqtt.c
     board_init.c
     console.c
     main.c
@@ -30,7 +30,10 @@ set_target_properties(${PROJECT_NAME}
         SUFFIX ".elf"
 )
 
-post_build(${PROJECT_NAME})
+target_include_directories(${PROJECT_NAME} 
+    PUBLIC 
+        .
+)
 
 if(THREADX_TOOLCHAIN STREQUAL "iar")
     target_link_options(${PROJECT_NAME}
@@ -41,3 +44,5 @@ else()
         PRIVATE 
             -T${CMAKE_CURRENT_LIST_DIR}/startup/gnu/same54p20a_flash.ld -Wl,-Map=${PROJECT_NAME}.map)
 endif()
+
+post_build(${PROJECT_NAME})

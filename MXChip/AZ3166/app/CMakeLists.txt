@@ -7,12 +7,10 @@ set(SOURCES
     startup/system_stm32f4xx.c
     startup/startup_stm32f412rx.s
     startup/tx_initialize_low_level.S
-
     stm32cubef4/stm32f4xx_hal_msp.c
-   
+    legacy/mqtt.c
     azure_config.h
     nx_client.c
-    mqtt.c
     board_init.c
     console.c
     screen.c
@@ -27,6 +25,7 @@ target_link_libraries(${PROJECT_NAME}
     azrtos::netxduo
 
     stm32cubef4
+    mxchip_bsp
     wiced_sdk
     app_common
     jsmn

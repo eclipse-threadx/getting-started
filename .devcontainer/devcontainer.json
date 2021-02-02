@@ -7,7 +7,6 @@
 		"ms-vscode.cpptools",
 		"ms-vscode.cmake-tools",
 		"marus25.cortex-debug",
-		"vsciot-vscode.vscode-iot-workbench",
 		"vsciot-vscode.vscode-dtdl",
 		"xaver.clang-format",
 		"ms-azuretools.vscode-docker"

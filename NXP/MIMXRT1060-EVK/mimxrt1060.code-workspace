@@ -9,6 +9,7 @@
         "git.autofetch": true,
         "git.confirmSync": false,
         "cmake.configureOnOpen": true,
-        "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
+        "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+        "cmake.generator": "Ninja"
     }
 }

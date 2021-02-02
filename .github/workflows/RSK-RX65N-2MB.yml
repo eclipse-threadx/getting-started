@@ -1,0 +1,37 @@
+name: RSK-RX65N-2MB
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+defaults:
+  run:
+    working-directory: Renesas/RSK_RX65N_2MB
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: rx-elf-gcc
+        uses: ryanwinter/rx-elf-gcc@main
+        with:
+          release: '8.3.0.202004'
+
+      - name: Install Ninja
+        uses: seanmiddleditch/gha-setup-ninja@v3
+
+      - name: Build project
+        run: |
+          cmake -Bbuild -GNinja -DCMAKE_TOOLCHAIN_FILE="../../cmake/renesas-rx-gcc-rx65n.cmake" 
+          cmake --build build

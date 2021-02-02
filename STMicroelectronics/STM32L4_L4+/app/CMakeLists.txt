@@ -6,12 +6,11 @@ set(SOURCES
     
     stm32cubel4/stm32l4xx_hal_msp.c
     stm32cubel4/stm32l4xx_it.c
-
+    legacy/mqtt.c
     azure_config.h
     board_init.c
     console.c
     main.c
-    mqtt.c
     nx_client.c
     stm_networking.c
 )
@@ -37,7 +36,10 @@ function(create_target TARGET STARTUP LINKER)
             SUFFIX ".elf"
     )
 
-    post_build(${TARGET})
+    target_include_directories(${TARGET} 
+        PUBLIC 
+            .
+    )
 
     if(THREADX_TOOLCHAIN STREQUAL "iar")
         target_link_options(${TARGET}
@@ -48,6 +50,9 @@ function(create_target TARGET STARTUP LINKER)
             PRIVATE 
                 -T${CMAKE_CURRENT_LIST_DIR}/startup/gnu/${LINKER}.ld -Wl,-Map=${TARGET}.map)
     endif()
+
+    post_build(${TARGET})
+
 endfunction()
 
 create_target("stm32l475_azure_iot" "startup_stm32l475xx.s" "STM32L475xx_FLASH")

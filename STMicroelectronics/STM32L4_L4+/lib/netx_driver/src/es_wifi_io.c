@@ -70,7 +70,7 @@ static  void SPI_WIFI_DelayUs(uint32_t);
   * @param  hspi: SPI handle
   * @retval None
   */
-void SPI_WIFI_MspInit(SPI_HandleTypeDef* hspi)
+void SPI_WIFI_MspInit(SPI_HandleTypeDef* _hspi)
 {
   
   GPIO_InitTypeDef GPIO_Init;
@@ -267,7 +267,7 @@ int wait_cmddata_rdy_high(int timeout)
   int tickstart = HAL_GetTick();
   while (WIFI_IS_CMDDATA_READY()==0)
   {
-    if((HAL_GetTick() - tickstart ) > timeout)
+    if(((int)HAL_GetTick() - tickstart ) > timeout)
     {
       return -1;
     }
@@ -285,7 +285,7 @@ int wait_cmddata_rdy_rising_event(int timeout)
   int tickstart = HAL_GetTick();
   while (cmddata_rdy_rising_event==1)
   {
-    if((HAL_GetTick() - tickstart ) > timeout)
+    if(((int)HAL_GetTick() - tickstart ) > timeout)
     {
       return -1;
     }
@@ -302,7 +302,7 @@ int wait_spi_rx_event(int timeout)
   int tickstart = HAL_GetTick();
   while (spi_rx_event==1)
   {
-    if((HAL_GetTick() - tickstart ) > timeout)
+    if(((int)HAL_GetTick() - tickstart ) > timeout)
     {
       return -1;
     }
@@ -319,7 +319,7 @@ int wait_spi_tx_event(int timeout)
   int tickstart = HAL_GetTick();
   while (spi_tx_event==1)
   {
-    if((HAL_GetTick() - tickstart ) > timeout)
+    if(((int)HAL_GetTick() - tickstart ) > timeout)
     {
       return -1;
     }
@@ -480,7 +480,7 @@ void SPI_WIFI_DelayUs(uint32_t n)
   * @retval None
   */
 
-void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
+void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *_hspi)
 {
   if (spi_rx_event)
   {
@@ -495,7 +495,7 @@ void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
   *               the configuration information for SPI module.
   * @retval None
   */
-void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
+void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *_hspi)
 {
   if (spi_tx_event)
   {
