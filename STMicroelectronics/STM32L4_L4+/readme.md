@@ -19,9 +19,9 @@ In this tutorial you use Azure RTOS to connect either the STMicroelectronics [B-
 
 You will complete the following tasks:
 
-* Install a set of embedded development tools for programming the STM DevKit in C.
-* Build an image and flash it onto the STM DevKit.
-* Use Azure IoT Central to create cloud components, view properties, view device telemetry, and call direct commands.
+* Install a set of embedded development tools for programming the STM DevKit in C
+* Build an image and flash it onto the STM DevKit
+* Use Azure IoT Central to create cloud components, view properties, view device telemetry, and call direct commands
 
 ## Prerequisites
 

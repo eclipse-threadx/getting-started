@@ -40,7 +40,7 @@ Run the setup script to install the required tools.
 >  * [GCC](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm)
 >  * [CMake](https://cmake.org/)
 >  * [Termite](https://www.compuphase.com/software/termite-3.4.exe)
->  * [Azure IoT Explorer](https://docs.microsoft.com/en-us/azure/iot-pnp/howto-use-iot-explorer)
+>  * [Azure IoT Explorer](https://docs.microsoft.com/azure/iot-pnp/howto-use-iot-explorer)
 
 Install required tools using the provided batch script:
 ```bash
@@ -55,7 +55,7 @@ cmake --version
 ```
 
 ## Create Azure Resources
-Follow [this](https://docs.microsoft.com/en-us/azure/iot-dps/quick-setup-auto-provision) guide to set up your DPS and IoT Hub enpoints.
+Follow [this](https://docs.microsoft.com/azure/iot-dps/quick-setup-auto-provision) guide to set up your DPS and IoT Hub enpoints.
 
 ## Create a Self-Signed X.509 Certificate
 ```bash
@@ -70,7 +70,7 @@ xxd -i private_key_formatted.der >> cert.c
 ```
 
 ## Create a device enrollment entry in DPS
-If you haven't already, please set up your [DPS and IoT Hub instances](https://docs.microsoft.com/en-us/azure/iot-dps/quick-setup-auto-provision).
+If you haven't already, please set up your [DPS and IoT Hub instances](https://docs.microsoft.com/azure/iot-dps/quick-setup-auto-provision).
 1. Sign in to the Azure portal, select the **All resources** button on the left-hand menu and open your Device Provisioning service.
 
 1. Select the **Manage enrollments** tab
@@ -106,9 +106,9 @@ If you haven't already, please set up your [DPS and IoT Hub instances](https://d
 
 
 ## Use Azure IoT Explorer to See Your Device in Action
-1. Follow [this](https://docs.microsoft.com/en-us/azure/iot-pnp/howto-use-iot-explorer) guide to install and set up your Azure IoT Explorer.
+1. Follow [this](https://docs.microsoft.com/azure/iot-pnp/howto-use-iot-explorer) guide to install and set up your Azure IoT Explorer.
 
-2. [Link the explorer to the IoT Hub](https://docs.microsoft.com/en-us/azure/iot-pnp/howto-use-iot-explorer#connect-to-your-hub) you created in this tutorial.
+2. [Link the explorer to the IoT Hub](https://docs.microsoft.com/azure/iot-pnp/howto-use-iot-explorer#connect-to-your-hub) you created in this tutorial.
 
 3. You can now click on the IoT Hub link in the explorer and see your device listed. 
     * Click into your device dashboard

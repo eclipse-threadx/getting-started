@@ -59,7 +59,7 @@ The cloned repo contains a setup script that installs and configures the require
 > * [GCC](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm): Compile
 > * [CMake](https://cmake.org): Build
 > * [Termite](https://www.compuphase.com/software_termite.htm): Monitor serial port output for connected devices
-> * [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/): Manage Azure resources
+> * [Azure CLI](https://docs.microsoft.com/cli/azure/): Manage Azure resources
 > * [Azure IoT Explorer](https://github.com/Azure/azure-iot-explorer/releases): Cross-platform utility to  monitor and manage Azure IoT resources
 
 To install the tools:
@@ -109,7 +109,7 @@ In this section, you create a new device instance and register it with the IoT h
 
 To register a device:
 
-1. In your console, run the [az iot hub device-identity create](https://docs.microsoft.com/cli/azure/ext/azure-cli-iot-ext/iot/hub/device-identity?view=azure-cli-latest#ext-azure-cli-iot-ext-az-iot-hub-device-identity-create) command. This creates the simulated device identity.
+1. In your console, run the [az iot hub device-identity create](https://docs.microsoft.com/cli/azure/ext/azure-iot/iot/hub/device-identity?view=azure-cli-latest#ext_azure_iot_az_iot_hub_device_identity_create) command. This creates the simulated device identity.
 
     *YourIotHubName*. Replace this placeholder below with the name you chose for your IoT hub.
 
@@ -233,7 +233,7 @@ You can use the Azure IoT Explorer to view and manage the properties of your dev
 
 To add a connection to your IoT hub:
 
-1. In your console window, run the [az iot hub show-connection-string](https://docs.microsoft.com/en-us/cli/azure/iot/hub?view=azure-cli-latest#az-iot-hub-show-connection-string) command to get the connection string for your IoT hub.
+1. In your console window, run the [az iot hub show-connection-string](https://docs.microsoft.com/cli/azure/iot/hub?view=azure-cli-latest#az_iot_hub_show_connection_string) command to get the connection string for your IoT hub.
 
     ```shell
     az iot hub show-connection-string --name {YourIoTHubName}
@@ -259,7 +259,7 @@ To view device properties using Azure IoT Explorer:
 
 To use Azure CLI to view device properties:
 
-1. Run the [az iot hub device-identity show](https://docs.microsoft.com/en-us/cli/azure/ext/azure-iot/iot/hub/device-identity?view=azure-cli-latest#ext-azure-iot-az-iot-hub-device-identity-show) command.
+1. Run the [az iot hub device-identity show](https://docs.microsoft.com/cli/azure/ext/azure-iot/iot/hub/device-identity?view=azure-cli-latest#ext_azure_iot_az_iot_hub_device_identity_show) command.
 
     ```shell
     az iot hub device-identity show --device-id MyNXPDevice --hub-name {YourIoTHubName}
@@ -285,7 +285,7 @@ To view telemetry in Azure IoT Explorer:
 
 To use Azure CLI to view device telemetry:
 
-1. In your CLI console, run the [az iot hub monitor-events](https://docs.microsoft.com/en-us/cli/azure/ext/azure-iot/iot/hub?view=azure-cli-latest#ext-azure-iot-az-iot-hub-monitor-events) command. Use the names that you created previously in Azure IoT for your device and IoT hub.
+1. In your CLI console, run the [az iot hub monitor-events](https://docs.microsoft.com/cli/azure/ext/azure-iot/iot/hub?view=azure-cli-latest#ext_azure_iot_az_iot_hub_monitor_events) command. Use the names that you created previously in Azure IoT for your device and IoT hub.
 
     ```shell
     az iot hub monitor-events --device-id MyNXPDevice --hub-name {YourIoTHubName}
@@ -322,7 +322,7 @@ To call a method in Azure IoT Explorer:
 
 To use Azure CLI to call a method:
 
-1. Run the [az iot hub invoke-device-method](https://docs.microsoft.com/en-us/cli/azure/ext/azure-iot/iot/hub?view=azure-cli-latest#ext-azure-iot-az-iot-hub-invoke-device-method) command, and specify the method name and payload. For this method, setting `method-payload` to `true` turns the LED on, and setting it to `false` turns it off.
+1. Run the [az iot hub invoke-device-method](https://docs.microsoft.com/cli/azure/ext/azure-iot/iot/hub?view=azure-cli-latest#ext_azure_iot_az_iot_hub_invoke_device_method) command, and specify the method name and payload. For this method, setting `method-payload` to `true` turns the LED on, and setting it to `false` turns it off.
 
     <!-- Inline code tag and CSS to wrap long code lines. -->
     <code style="white-space : pre-wrap !important;">

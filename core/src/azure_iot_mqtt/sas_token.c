@@ -1,7 +1,7 @@
 /* Copyright (c) Microsoft Corporation.
    Licensed under the MIT License. */
 
-// https://docs.microsoft.com/en-us/azure/iot-hub/iot-hub-mqtt-support
+// https://docs.microsoft.com/azure/iot-hub/iot-hub-mqtt-support
 
 #include "sas_token.h"
 
