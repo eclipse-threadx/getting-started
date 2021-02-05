@@ -140,7 +140,7 @@ In your console or in File Explorer, run the script *rebuild.bat* at the followi
 
 > *getting-started\NXP\MIMXRT1060-EVK\tools\rebuild.bat*
 
-After the build completes, confirm that a binary file was created in the following path:
+After the build completes, confirm that the binary file was created in the following path:
 
 > *getting-started\NXP\MIMXRT1060-EVK\build\app\mimxrt1060_azure_iot.bin*
 
@@ -151,11 +151,13 @@ After the build completes, confirm that a binary file was created in the followi
     ![NXP EVK board](media/nxp-evk-board.png)
 
 1. Connect the Micro USB cable to the Micro USB port on the NXP EVK, and then connect it to your computer. After the device powers up, a solid green LED shows the power status.
-1. In File Explorer, find the NXP EVK device connected to your computer.
-1. Copy the image file *mimxrt1060_azure_iot.bin* that you created in the previous section, and paste it into the root folder of the NXP EVK. The flashing process starts automatically.
-
-    > Note: During the flashing process, a red LED blinks rapidly on the NXP EVK. The process completes in a few seconds without further notification.
 1. Use the Ethernet cable to connect the NXP EVK to an Ethernet port.
+1. In File Explorer, find the binary file that you created in the previous section.
+1. Copy the binary file *mimxrt1060_azure_iot.bin*
+1. In File Explorer, find the NXP EVK device connected to your computer. The device appears as a drive on your system with the drive label **RT1050-EVK**.
+1. Paste the binary file into the root folder of the NXP EVK. Flashing starts automatically and completes in a few seconds.
+
+    > Note: During the flashing process, a red LED blinks rapidly on the NXP EVK.
 
 ### Confirm device connection details
 
@@ -169,9 +171,8 @@ You can use the **Termite** utility to monitor communication and confirm that yo
     * **Port**: The port that your NXP EVK is connected to. If there are multiple port options in the dropdown, you can find the correct port to use. Open Windows **Device Manager**, and view **Ports** to identify which port to use.
 
     ![Termite](media/termite-settings.png)
-
 1. Select OK.
-1. Press the **Reset** button on the device.
+1. Press the **Reset** button on the device. The button is located near the Micro USB connector.
 1. In the **Termite** console, check the following checkpoint values to confirm that the device is initialized and connected to Azure IoT.
 
     ```output
@@ -207,7 +208,6 @@ You can use the **Termite** utility to monitor communication and confirm that yo
     SUCCESS: Azure IoT Hub client initialized
 
     Starting Main loop
-
     ```
 
 Keep Termite open to monitor device output in the following steps.
