@@ -1,6 +1,6 @@
 ---
 page_type: sample
-description: Connecting a Renensas Starter Kit+ for RX65N-2MB
+description: Connecting a Renesas Starter Kit+ for RX65N-2MB
 languages:
 - c
 products:
@@ -15,7 +15,7 @@ products:
 
 **Total completion time**: 30 minutes
 
-In this tutorial you use Azure RTOS to connect the Renensas Starter Kit+ for RX65N-2MB (hereafter, the Renesas RX65N) to Azure IoT.  The article is part of the series [Getting Started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824). The series introduces device developers to Azure RTOS, and shows how to connect several device evaluation kits to Azure IoT.
+In this tutorial you use Azure RTOS to connect the Renesas Starter Kit+ for RX65N-2MB (hereafter, the Renesas RX65N) to Azure IoT.  The article is part of the series [Getting Started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824). The series introduces device developers to Azure RTOS, and shows how to connect several device evaluation kits to Azure IoT.
 
 You will complete the following tasks:
 
@@ -58,11 +58,9 @@ The cloned repo contains a setup script that installs and configures the require
 
 > Note: The setup script installs the following tools:
 
-> * [GCC](http://gcc-renesas.com/downloads/get.php?f=rx/8.3.0.202004-gnurx/gcc-8.3.0.202004-GNURX-ELF.exe): Compile
 > * [CMake](https://cmake.org): Build
+> * [RX GCC](http://gcc-renesas.com/downloads/get.php?f=rx/8.3.0.202004-gnurx/gcc-8.3.0.202004-GNURX-ELF.exe): Compile
 > * [Termite](https://www.compuphase.com/software_termite.htm): Monitor serial port output for connected devices
-> * [Azure CLI](https://docs.microsoft.com/cli/azure/): Manage Azure resources
-> * [Azure IoT Explorer](https://github.com/Azure/azure-iot-explorer/releases): Cross-platform utility to  monitor and manage Azure IoT resources
 
 To install the tools:
 
