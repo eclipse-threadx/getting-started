@@ -146,18 +146,18 @@ In your console or in File Explorer, run the script *rebuild.bat* at the followi
 
 > *getting-started\MXChip\AZ3166\tools\rebuild.bat*
 
-After the build completes, confirm that the binary files were created in the following path:
+After the build completes, confirm that the binary file was created in the following path:
 
 > *getting-started\MXChip\AZ3166\build\app\mxchip_azure_iot.bin*
 
 ### Flash the image
 
-1. On the MXCHIP DevKit, locate the **Reset** button, and the micro USB port. You use these components in the following steps. Both are highlighted in the following picture:
+1. On the MXCHIP DevKit, locate the **Reset** button, and the Micro USB port. You use these components in the following steps. Both are highlighted in the following picture:
 
     ![MXCHIP DevKit reset button and micro USB port](media/mxchip-iot-devkit.png)
 
-1. Connect the micro USB cable to the micro USB port on the MXCHIP DevKit, and then connect it to your computer.
-1. In File Explorer, find the binary files that you created in the previous section.
+1. Connect the Micro USB cable to the Micro USB port on the MXCHIP DevKit, and then connect it to your computer.
+1. In File Explorer, find the binary file that you created in the previous section.
 
 1. Copy the binary file *mxchip_azure_iot.bin*.
 
@@ -180,7 +180,7 @@ You can use the **Termite** utility to monitor communication and confirm that yo
 
     ![Termite](media/termite-settings.png)
 1. Select OK.
-1. Press the **Reset** button on the device. The button is labeled on the device and located near the micro USB connector.
+1. Press the **Reset** button on the device. The button is labeled on the device and located near the Micro USB connector.
 1. In the **Termite** console, check the following checkpoint values to confirm that the device is initialized and connected to Azure IoT.
 
     ```output
