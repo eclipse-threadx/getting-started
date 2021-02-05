@@ -156,11 +156,11 @@ After the build completes, confirm that two binary files were created. There's a
 
 ### Flash the image
 
-1. On the STM DevKit MCU, locate the **Reset** button, the micro USB port which is labeled **USB STLink**, and the board part number. You will refer to these items in the next steps. All of them are highlighted in the following picture:
+1. On the STM DevKit MCU, locate the **Reset** button, the Micro USB port which is labeled **USB STLink**, and the board part number. You will refer to these items in the next steps. All of them are highlighted in the following picture:
 
     ![STM DevKit reset button and micro USB port](media/stm-devkit-board.png)
 
-1. Connect the micro USB cable to the **USB STLINK** port on the STM DevKit, and then connect it to your computer.
+1. Connect the Micro USB cable to the **USB STLINK** port on the STM DevKit, and then connect it to your computer.
     > Note: For detailed setup information about the STM DevKit, see the instructions on the packaging, or see [B-L475E-IOT01A Resources](https://www.st.com/en/evaluation-tools/b-l475e-iot01a.html#resource) / [B-L4S5I-IOT01A Resources](https://www.st.com/en/evaluation-tools/b-l4s5i-iot01a.html#resource).
 
 1. In File Explorer, find the binary files that you created in the previous section.
