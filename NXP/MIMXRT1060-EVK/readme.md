@@ -154,7 +154,7 @@ After the build completes, confirm that the binary file was created in the follo
 1. Use the Ethernet cable to connect the NXP EVK to an Ethernet port.
 1. In File Explorer, find the binary file that you created in the previous section.
 1. Copy the binary file *mimxrt1060_azure_iot.bin*
-1. In File Explorer, find the NXP EVK device connected to your computer. The device appears as a drive on your system with the drive label **RT1050-EVK**.
+1. In File Explorer, find the NXP EVK device connected to your computer. The device appears as a drive on your system with the drive label **RT1060-EVK**.
 1. Paste the binary file into the root folder of the NXP EVK. Flashing starts automatically and completes in a few seconds.
 
     > Note: During the flashing process, a red LED blinks rapidly on the NXP EVK.
