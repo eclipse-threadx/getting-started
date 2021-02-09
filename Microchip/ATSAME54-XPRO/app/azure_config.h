@@ -11,16 +11,24 @@
 #define __SENSOR_BME280__ 1
 
 // ----------------------------------------------------------------------------
+// Azure IoT Dynamic Provisioning Service
+//    Define this to use the DPS service, otherwise direct IoT Hub
+// ----------------------------------------------------------------------------
+#define ENABLE_DPS
+
+// ----------------------------------------------------------------------------
+// Azure IoT DPS connection config
+//    IOT_DPS_ID_SCOPE:        The DPS ID Scope
+//    IOT_DPS_REGISTRATION_ID: The DPS device Registration Id
+// ----------------------------------------------------------------------------
+#define IOT_DPS_ID_SCOPE        ""
+#define IOT_DPS_REGISTRATION_ID ""
+
+// ----------------------------------------------------------------------------
 // Azure IoT Hub Connection Transport
 //    Define to use the legacy MQTT connection, else Azure RTOS SDK for Azure IoT
 // ----------------------------------------------------------------------------
 //#define ENABLE_LEGACY_MQTT
-
-// ----------------------------------------------------------------------------
-// Azure IoT Dynamic Provisioning Service
-//    Define this to use the DPS service, otherwise direct IoT Hub
-// ----------------------------------------------------------------------------
-//#define ENABLE_DPS
 
 // ----------------------------------------------------------------------------
 // Azure IoT DPS Self-Signed X509Certificate
@@ -33,16 +41,8 @@
 //    IOT_HUB_HOSTNAME:  The Azure IoT Hub hostname
 //    IOT_HUB_DEVICE_ID: The Azure IoT Hub device id
 // ----------------------------------------------------------------------------
-#define IOT_HUB_HOSTNAME  ""
-#define IOT_HUB_DEVICE_ID ""
-
-// ----------------------------------------------------------------------------
-// Azure IoT DPS connection config
-//    IOT_DPS_ID_SCOPE:        The DPS ID Scope
-//    IOT_DPS_REGISTRATION_ID: The DPS device Registration Id
-// ----------------------------------------------------------------------------
-#define IOT_DPS_ID_SCOPE        ""
-#define IOT_DPS_REGISTRATION_ID ""
+//#define IOT_HUB_HOSTNAME  ""
+//#define IOT_HUB_DEVICE_ID ""
 
 // ----------------------------------------------------------------------------
 // Azure IoT device SAS key

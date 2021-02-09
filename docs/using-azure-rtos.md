@@ -1,6 +1,6 @@
 # Using Azure RTOS in the Getting started guide
 
-The getting started guide in this repository uses Microsoft Azure RTOS for general operations and for connecting to [Azure IoT Hub](https://azure.microsoft.com/en-us/services/iot-hub). This article explains how the sample code implements Azure RTOS components for devices.
+The getting started guide in this repository uses Microsoft Azure RTOS for general operations and for connecting to [Azure IoT Hub](https://azure.microsoft.com/services/iot-hub). This article explains how the sample code implements Azure RTOS components for devices.
 
 The sample code in the getting started guide uses the following Azure RTOS components:
 
