@@ -104,7 +104,7 @@ static void set_sntp_time()
     else
     {
         printf("SNTP time update: %s\r\n", time_buffer);
-        printf("\tdrift correction: %lu seconds\r\n", sntp_time_get() - previous_time);
+        printf("\tdrift correction: %ld seconds\r\n", sntp_time_get() - previous_time);
     }
 
     // Flag the sync was successful
