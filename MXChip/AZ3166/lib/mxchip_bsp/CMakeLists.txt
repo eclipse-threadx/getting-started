@@ -7,8 +7,8 @@ set(SOURCES
     stm_sensor/Src/lps22hb_read_data_polling.c
     stm_sensor/Src/hts221_read_data_polling.c
     stm_sensor/Src/lis2mdl_read_data_polling.c
-    ssd1306/Src/ssd1306.c
-    ssd1306/Src/ssd1306_fonts.c
+    ssd1306/ssd1306.c
+    ssd1306/ssd1306_fonts.c
 )
 
 set(TARGET mxchip_bsp)
@@ -19,15 +19,9 @@ add_library(${TARGET} OBJECT
 target_link_libraries(${TARGET}
     stm32cubef4
 )
-
-target_compile_definitions(${TARGET}
-    PUBLIC
-        STM32F4
-        SSD1306_USE_I2C
-)
         
 target_include_directories(${TARGET}
     PUBLIC
         stm_sensor/Inc
-        ssd1306/Inc
+        ssd1306
 )
