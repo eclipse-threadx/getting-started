@@ -11,7 +11,8 @@ set(SOURCES
     nx_client.c
     board_init.c
     console.c
-    main.c    
+    main.c
+    rx_networking.c
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})
