@@ -181,6 +181,7 @@ After the build completes, confirm that the binary file was created in the follo
     * **Microcontroller**: RX65x
     * **Project Name**: RX65N
     * **Tool**: E2 emulator Lite
+    * **Interface**: FINE
 
     ![Renesas Flash Programmer, New Project](media/rfp_new.png)
 
