@@ -1,6 +1,6 @@
 ---
 page_type: sample
-description: Connecting a Renesas RX65N-Cloud-Kit to Azure IoT using Azure RTOS
+description: Connecting a Renesas RX65N Cloud Kit to Azure IoT using Azure RTOS
 languages:
 - c
 products:
@@ -11,11 +11,11 @@ products:
 - azure-iot-hub
 ---
 
-# Getting started with the Renesas RX65N-Cloud-Kit
+# Getting started with the Renesas RX65N Cloud Kit
 
 **Total completion time**: 30 minutes
 
-In this tutorial you use Azure RTOS to connect the Renesas RX65N-Cloud-Kit (hereafter, the Renesas RX65N) to Azure IoT. The article is part of the series [Getting Started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824). The series introduces device developers to Azure RTOS, and shows how to connect several device evaluation kits to Azure IoT.
+In this tutorial you use Azure RTOS to connect the Renesas RX65N Cloud Kit (hereafter, the Renesas RX65N) to Azure IoT. The article is part of the series [Getting Started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824). The series introduces device developers to Azure RTOS, and shows how to connect several device evaluation kits to Azure IoT.
 
 You will complete the following tasks:
 
@@ -29,12 +29,9 @@ You will complete the following tasks:
 * [Git](https://git-scm.com/downloads) for cloning the repository
 * Hardware
 
-    > * The [Renesas RX65N-Cloud-Kit](https://www.renesas.com/products/microcontrollers-microprocessors/rx-32-bit-performance-efficiency-mcus/rx65n-cloud-kit-renesas-rx65n-cloud-kit) (Renesas RX65N-Cloud-Kit)
-    > * The [Renesas E2 emulator Lite](https://www.renesas.com/software-tool/e2-emulator-lite-rte0t0002lkce00000r)
+    > * The [Renesas RX65N Cloud Kit](https://www.renesas.com/products/microcontrollers-microprocessors/rx-32-bit-performance-efficiency-mcus/rx65n-cloud-kit-renesas-rx65n-cloud-kit) (Renesas RX65N)
     > * 2 * USB 2.0 A male to Mini USB male cable
-    > * The included 5V power supply
-    > * Ethernet cable
-    > * Wired Ethernet access
+    > * WiFi 2.4 GHz
 
 ## Prepare the development environment
 
@@ -133,7 +130,14 @@ To connect the STM DevKit to Azure, you'll modify a configuration file for Wi-Fi
 
 1. Open the following file in a text editor:
 
-    > *getting-started\Renesas\RSK_RX65N_2MB\app\azure_config.h*
+    > *getting-started\Renesas\RX65N_Cloud_Kit\app\azure_config.h*
+
+1. Set the Wi-Fi constants to the following values from your local environment.
+    |Constant name|Value|
+    |-------------|-----|
+    |`WIFI_SSID` |{*Your Wi-Fi ssid*}|
+    |`WIFI_PASSWORD` |{*Your Wi-Fi password*}|
+    |`WIFI_MODE` |{*One of the enumerated Wi-Fi mode values in the file*}|
 
 1. Set the Azure IoT device information constants to the values that you saved after you created Azure resources.
 
@@ -149,29 +153,25 @@ To connect the STM DevKit to Azure, you'll modify a configuration file for Wi-Fi
 
 In your console or in File Explorer, run the script *rebuild.bat* at the following path to build the image:
 
-> *getting-started\Renesas\RSK_RX65N_2MB\tools\rebuild.bat*
+> *getting-started\Renesas\RX65N_Cloud_Kit\tools\rebuild.bat*
 
 After the build completes, confirm that the binary file was created in the following path:
 
-> *getting-started\Renesas\RSK_RX65N_2MB\build\app\rx65n_azure_iot.hex*
+> *getting-started\Renesas\RX65N_Cloud_Kit\build\app\rx65n_azure_iot.hex*
 
 ### Connect the device
 
-> Note: For more details about setting up and getting started with the Renesas RX65N, see [Renesas Starter Kit+ for RX65N-2MB Quick Start](https://www.renesas.com/document/man/e2studio-renesas-starter-kit-rx65n-2mb-quick-start-guide).
+> Note: For more details about setting up and getting started with the Renesas RX65N, see [Renesas RX65N Cloud Kit Quick Start](https://www.renesas.com/document/man/quick-start-guide-renesas-rx65n-cloud-kit).
 
 1. Complete the following steps using the following image as a reference.
     
-    ![Renesas RX65N reset, power, ethernet, USB and E1/E2Lite](media/renesas-rx65n.jpg)
+    ![Renesas RX65N reset, USB and E1/E2Lite](media/renesas-rx65n.jpg)
 
-1. Using the 5V power supply, connect the **Power Input** on the Renesas RX65N to an electrical outlet.
-
-1. Using the Ethernet cable, connect the  **Ethernet** on the Renesas RX65N to your router.
+1. Connect the **WiFi module** to the **Cloud Option Board**
 
 1. Using the first Mini USB cable, connect the **USB Serial** on the Renesas RX65N to your computer.
 
-1. Using the second Mini USB cable, connect the **E2 Lite USB Serial** on the Renesas E2 Lite to your computer.
-
-1. Using the supplied ribbon cable, connect the **E1/E2Lite** on the Renesas RX65N to the Renesas E2 Lite.
+1. Using the second Mini USB cable, connect the **USB E2 Lite** on the Renesas RX65N to your computer.
 
 ### Flash the image
 

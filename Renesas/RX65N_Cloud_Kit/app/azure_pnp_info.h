@@ -18,7 +18,7 @@
 
 // Device Info property values
 #define DEVICE_INFO_MANUFACTURER_PROPERTY_VALUE           "Renesas"
-#define DEVICE_INFO_MODEL_PROPERTY_VALUE                  "RX65N-Cloud-Kit"
+#define DEVICE_INFO_MODEL_PROPERTY_VALUE                  "RX65N Cloud Kit"
 #define DEVICE_INFO_SW_VERSION_PROPERTY_VALUE             "1.0.0"
 #define DEVICE_INFO_OS_NAME_PROPERTY_VALUE                "Azure RTOS"
 #define DEVICE_INFO_PROCESSOR_ARCHITECTURE_PROPERTY_VALUE "RX65N"
