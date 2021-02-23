@@ -27,12 +27,12 @@
 
 #define TELEMETRY_INTERVAL_EVENT 1
 
-#define LED_ON  0
-#define LED_OFF 1
-#define LED0    PORT7.PODR.BIT.B3
-#define LED1    PORTG.PODR.BIT.B7
-#define LED2    PORTG.PODR.BIT.B6
-#define LED3    PORTG.PODR.BIT.B5
+//#define LED_ON  0
+//#define LED_OFF 1
+//#define LED0    PORT7.PODR.BIT.B3
+//#define LED1    PORTG.PODR.BIT.B7
+//#define LED2    PORTG.PODR.BIT.B6
+//#define LED3    PORTG.PODR.BIT.B5
 
 static AZURE_IOT_NX_CONTEXT azure_iot_nx_client;
 static TX_EVENT_FLAGS_GROUP azure_iot_flags;
@@ -93,18 +93,18 @@ static void set_led_state(bool level)
     if (level)
     {
         printf("LED is turned ON\r\n");
-        LED0 = LED_ON;
-        LED1 = LED_ON;
-        LED2 = LED_ON;
-        LED3 = LED_ON;
+//        LED0 = LED_ON;
+//        LED1 = LED_ON;
+//        LED2 = LED_ON;
+//        LED3 = LED_ON;
     }
     else
     {
         printf("LED is turned OFF\r\n");
-        LED0 = LED_OFF;
-        LED1 = LED_OFF;
-        LED2 = LED_OFF;
-        LED3 = LED_OFF;
+//        LED0 = LED_OFF;
+//        LED1 = LED_OFF;
+//        LED2 = LED_OFF;
+//        LED3 = LED_OFF;
     }
 }
 
