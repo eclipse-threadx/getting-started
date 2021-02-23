@@ -194,7 +194,7 @@ static void sntp_thread_entry(ULONG info)
     while (true)
     {
         // Wait for an incoming SNTP message
-        tx_event_flags_get(&sntp_flags, SNTP_UPDATE_EVENT, TX_OR_CLEAR, &events, 5 * NX_IP_PERIODIC_RATE);
+        tx_event_flags_get(&sntp_flags, SNTP_UPDATE_EVENT, TX_OR_CLEAR, &events, 10 * NX_IP_PERIODIC_RATE);
 
         status = nx_sntp_client_receiving_updates(&sntp_client, &server_status);
         if (status != NX_SUCCESS)
