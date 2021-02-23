@@ -125,7 +125,7 @@ static UINT sntp_client_run()
         NX_IP_VERSION_V4);
     if (status != NX_SUCCESS)
     {
-        printf("\tFAIL: Unable to resolve DNS for SNTP Server %s (0x%02x)\r\n", SNTP_SERVER[sntp_server_count], status);
+        printf("\tFAIL: Unable to resolve DNS for SNTP Server %s (0x%04x)\r\n", SNTP_SERVER[sntp_server_count], status);
         return status;
     }
 
@@ -136,7 +136,7 @@ static UINT sntp_client_run()
     status = nxd_sntp_client_initialize_unicast(&sntp_client, &sntp_address);
     if (status != NX_SUCCESS)
     {
-        printf("\tFAIL: Unable to initialize unicast SNTP client (0x%02x)\r\n", status);
+        printf("\tFAIL: Unable to initialize unicast SNTP client (0x%04x)\r\n", status);
         nx_sntp_client_delete(&sntp_client);
         return status;
     }
@@ -145,7 +145,7 @@ static UINT sntp_client_run()
     status = nx_sntp_client_run_unicast(&sntp_client);
     if (status != NX_SUCCESS)
     {
-        printf("\tFAIL: Unable to start unicast SNTP client (0x%02x)\r\n", status);
+        printf("\tFAIL: Unable to start unicast SNTP client (0x%04x)\r\n", status);
         nx_sntp_client_stop(&sntp_client);
         nx_sntp_client_delete(&sntp_client);
         return status;
@@ -162,7 +162,6 @@ static void sntp_thread_entry(ULONG info)
 
     printf("Initializing SNTP client\r\n");
 
-    // status = nx_sntp_client_create(&sntp_client, &nx_ip, 0, &nx_pool, NX_NULL, NX_NULL, NULL);
     status = nx_sntp_client_create(&sntp_client, &nx_ip, 0, nx_ip.nx_ip_default_packet_pool, NX_NULL, NX_NULL, NULL);
     if (status != NX_SUCCESS)
     {
@@ -211,6 +210,7 @@ static void sntp_thread_entry(ULONG info)
             // Failed to read from server, restart the client
             printf("SNTP server timeout, restarting client\r\n");
             nx_sntp_client_stop(&sntp_client);
+            nx_sntp_client_delete(&sntp_client);
             sntp_client_run();
             continue;
         }

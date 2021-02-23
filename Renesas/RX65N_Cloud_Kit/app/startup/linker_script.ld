@@ -5,6 +5,9 @@ MEMORY
 	ROM : ORIGIN = 0xFFE00000, LENGTH = 2097152
 	OFS : ORIGIN = 0xFE7F5D00, LENGTH = 128
 }
+
+INCLUDE ../app/startup/linker_script_rvectors_extern.inc
+
 SECTIONS
 {
 	.exvectors 0xFFFFFF80: AT(0xFFFFFF80)
