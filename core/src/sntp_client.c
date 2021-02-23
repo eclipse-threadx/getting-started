@@ -137,7 +137,6 @@ static UINT sntp_client_run()
     if (status != NX_SUCCESS)
     {
         printf("\tFAIL: Unable to initialize unicast SNTP client (0x%04x)\r\n", status);
-        nx_sntp_client_delete(&sntp_client);
         return status;
     }
 
@@ -147,7 +146,6 @@ static UINT sntp_client_run()
     {
         printf("\tFAIL: Unable to start unicast SNTP client (0x%04x)\r\n", status);
         nx_sntp_client_stop(&sntp_client);
-        nx_sntp_client_delete(&sntp_client);
         return status;
     }
 
@@ -210,7 +208,6 @@ static void sntp_thread_entry(ULONG info)
             // Failed to read from server, restart the client
             printf("SNTP server timeout, restarting client\r\n");
             nx_sntp_client_stop(&sntp_client);
-            nx_sntp_client_delete(&sntp_client);
             sntp_client_run();
             continue;
         }
