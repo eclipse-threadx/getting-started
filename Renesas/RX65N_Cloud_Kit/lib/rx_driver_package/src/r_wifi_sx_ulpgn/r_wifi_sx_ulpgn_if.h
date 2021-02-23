@@ -19,7 +19,9 @@
 #define WIFI_SX_ULPGN_VERSION_MAJOR           (1)
 #define WIFI_SX_ULPGN_VERSION_MINOR           (00)
 
+#define WIFI_SOCKET_IP_PROTOCOL_UDP (5)
 #define WIFI_SOCKET_IP_PROTOCOL_TCP (6)
+
 #define WIFI_SOCKET_IP_VERSION_4    (4)
 
 #define WIFI_IPV4BYTE_TO_ULONG(in_addr1, in_addr2, in_addr3, in_addr4) \
@@ -96,7 +98,6 @@ typedef struct
 	uint32_t socket_number;
 }wifi_err_event_t;
 
-
 typedef enum
 {
     ULPGN_SOCKET_STATUS_CLOSED            = 0,
@@ -160,6 +161,7 @@ wifi_err_t R_WIFI_SX_ULPGN_Disconnect (void);
 int32_t    R_WIFI_SX_ULPGN_IsConnected (void);
 wifi_err_t R_WIFI_SX_ULPGN_GetMacAddress (uint8_t *mac_address);
 wifi_err_t R_WIFI_SX_ULPGN_GetIpAddress (wifi_ip_configuration_t *ip_config);
+wifi_err_t R_WIFI_SX_ULPGN_GetDnsServerAddress(uint32_t *dns_address);
 int32_t    R_WIFI_SX_ULPGN_CreateSocket(uint32_t type, uint32_t ip_version);
 wifi_err_t R_WIFI_SX_ULPGN_ConnectSocket(int32_t socket_number, uint32_t ip_address, uint16_t port,char *destination);
 wifi_err_t R_WIFI_SX_ULPGN_CloseSocket(int32_t socket_number);

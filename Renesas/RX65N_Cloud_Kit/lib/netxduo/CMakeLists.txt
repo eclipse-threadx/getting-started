@@ -434,6 +434,7 @@ set(SOURCES
     ${CORE_LIB_DIR}/netxduo/nx_secure/src/nx_secure_x509_subject_alt_names_find.c
     ${CORE_LIB_DIR}/netxduo/nx_secure/src/nx_secure_x509_wildcard_compare.c
 
+    ${CORE_LIB_DIR}/netxduo/addons/dns/nxd_dns.c
     ${CORE_LIB_DIR}/netxduo/addons/sntp/nxd_sntp_client.c
     ${CORE_LIB_DIR}/netxduo/addons/mqtt/nxd_mqtt_client.c
     ${CORE_LIB_DIR}/netxduo/addons/cloud/nx_cloud.c

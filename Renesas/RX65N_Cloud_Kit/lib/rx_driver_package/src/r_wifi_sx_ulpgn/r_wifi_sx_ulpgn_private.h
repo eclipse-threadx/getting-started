@@ -144,6 +144,7 @@ typedef enum
 	WIFI_COMMAND_GET_APLIST,
 	WIFI_COMMAND_GET_MACADDRESS,
 	WIFI_COMMAND_GET_IPADDRESS,
+	WIFI_COMMAND_GET_DNSADDRESS,
 	WIFI_COMMAND_GET_SENT_RECV_SIZE,
 	WIFI_COMMAND_GET_CURRENT_SSID,
     WIFI_COMMAND_SET_SYSFALSH_WRITE_DATA,
@@ -221,6 +222,7 @@ extern wifi_socket_t g_wifi_socket[WIFI_CFG_CREATABLE_SOCKETS];
 extern uint8_t g_wifi_macaddress[6];
 extern wifi_ip_configuration_t g_wifi_ipconfig;
 extern uint32_t g_wifi_dnsaddress;
+extern uint32_t g_wifi_dnsserver_address;
 extern uint32_t g_wifi_dnsquery_subcount;
 
 

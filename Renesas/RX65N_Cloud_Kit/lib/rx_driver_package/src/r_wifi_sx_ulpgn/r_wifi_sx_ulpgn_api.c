@@ -851,9 +851,7 @@ wifi_err_t R_WIFI_SX_ULPGN_SetDnsServerAddress(uint32_t dns_address1, uint32_t d
 		wifi_give_mutex(mutex_flag);
 	}
 	return api_ret;
-
 }
-
 
 /** 
 * @fn
@@ -1167,6 +1165,45 @@ wifi_err_t R_WIFI_SX_ULPGN_GetIpAddress (wifi_ip_configuration_t *ip_config)
 	return api_ret;
 }
 
+wifi_err_t R_WIFI_SX_ULPGN_GetDnsServerAddress(uint32_t *dns_address)
+{
+	int32_t ret;
+	uint8_t mutex_flag;
+	wifi_err_t api_ret = WIFI_SUCCESS;
+
+	if(NULL == dns_address)
+	{
+		return WIFI_ERR_PARAMETER;
+	}
+	if( WIFI_SYSTEM_CLOSE == g_wifi_system_state)
+	{
+		return WIFI_ERR_NOT_OPEN;
+	}
+    mutex_flag = (MUTEX_TX | MUTEX_RX);
+    if(0 != wifi_take_mutex(mutex_flag))
+	{
+		api_ret = WIFI_ERR_TAKE_MUTEX;
+	}
+
+    if(WIFI_SUCCESS == api_ret)
+	{
+		ret = wifi_execute_at_command(wifi_command_port, "ATNDNSSVR=\?\r", g_command_execute_timeout1, WIFI_RETURN_ENUM_OK, WIFI_COMMAND_GET_DNSADDRESS, 0xff);
+		if(ret != 0)
+		{
+			api_ret = WIFI_ERR_MODULE_COM;
+		}
+	}
+	if(WIFI_SUCCESS == api_ret)
+	{
+		memcpy(dns_address, &g_wifi_dnsserver_address, sizeof(&g_wifi_dnsserver_address));
+	}
+	if(WIFI_ERR_TAKE_MUTEX != api_ret)
+	{
+		wifi_give_mutex(mutex_flag);
+	}
+	return api_ret;
+}
+
 /**
 * @fn
 * @brief Scan Access points
@@ -1247,14 +1284,18 @@ int32_t R_WIFI_SX_ULPGN_GetTcpSocketStatus(uint8_t socket_number)
 * @fn
 * @brief Create Socket
 */
-int32_t    R_WIFI_SX_ULPGN_CreateSocket(uint32_t type, uint32_t ip_version)
+int32_t R_WIFI_SX_ULPGN_CreateSocket(uint32_t type, uint32_t ip_version)
 {
 	int32_t i;
 	int32_t ret = WIFI_ERR_SOCKET_CREATE;
-//	uint8_t mutex_flag;
+	uint8_t mutex_flag;
 	wifi_err_t api_ret = WIFI_SUCCESS;
 
-	if(type != WIFI_SOCKET_IP_PROTOCOL_TCP || ip_version != WIFI_SOCKET_IP_VERSION_4)
+	if(type != WIFI_SOCKET_IP_PROTOCOL_TCP && type != WIFI_SOCKET_IP_PROTOCOL_UDP)
+	{
+		return WIFI_ERR_PARAMETER;
+	}
+	if(ip_version != WIFI_SOCKET_IP_VERSION_4)
 	{
 		return WIFI_ERR_PARAMETER;
 	}
@@ -1262,7 +1303,11 @@ int32_t    R_WIFI_SX_ULPGN_CreateSocket(uint32_t type, uint32_t ip_version)
 	{
 		return WIFI_ERR_NOT_CONNECT;
 	}
-
+	mutex_flag = (MUTEX_TX | MUTEX_RX);
+	if(0 != wifi_take_mutex(mutex_flag))
+	{
+		api_ret = WIFI_ERR_TAKE_MUTEX;
+	}
 	for(i=0;i<g_wifi_createble_sockets;i++)
 	{
 		if(g_wifi_socket[i].socket_create_flag == 0)
@@ -1290,8 +1335,11 @@ int32_t    R_WIFI_SX_ULPGN_CreateSocket(uint32_t type, uint32_t ip_version)
 	{
 		ret = WIFI_ERR_SOCKET_CREATE;
 	}
-	/* Give back the socketInUse mutex. */
-//	wifi_give_mutex(mutex_flag);
+	if(api_ret != WIFI_ERR_TAKE_MUTEX)
+	{
+		/* Give back the socketInUse mutex. */
+		wifi_give_mutex(mutex_flag);
+	}
 
     return ret;
 }
@@ -1458,6 +1506,15 @@ wifi_err_t R_WIFI_SX_ULPGN_ConnectSocket(int32_t socket_number, uint32_t ip_addr
 				printf("ATNSSLCFG ERROR\r\n");
 			}
 		}
+		else if (WIFI_SOCKET_IP_PROTOCOL_UDP == g_wifi_socket[socket_number].protocol)
+		{
+			sprintf((char *)g_wifi_uart[wifi_command_port].command_buff, "ATNSOCK=%d,%d\r", 1, 4);
+			ret = wifi_execute_at_command(wifi_command_port, g_wifi_uart[wifi_command_port].command_buff, g_command_execute_timeout1, WIFI_RETURN_ENUM_OK, WIFI_COMMAND_SET_SOCKET_CREATE, 0xff);
+			if(ret != 0)
+			{
+				api_ret = WIFI_ERR_SOCKET_CREATE;
+			}
+		}
 		else
 		{
 			sprintf((char *)g_wifi_uart[wifi_command_port].command_buff, "ATNSOCK=%d,%d\r", 0, 4);
@@ -1467,15 +1524,24 @@ wifi_err_t R_WIFI_SX_ULPGN_ConnectSocket(int32_t socket_number, uint32_t ip_addr
 				api_ret = WIFI_ERR_SOCKET_CREATE;
 			}
 		}
-
 	}
 
 	if(WIFI_SUCCESS == api_ret)
 	{
-		sprintf((char *)g_wifi_uart[wifi_command_port].command_buff,"ATNCTCP=%d.%d.%d.%d,%d\r",
+		if (WIFI_SOCKET_IP_PROTOCOL_UDP == g_wifi_socket[socket_number].protocol)
+		{
+			sprintf((char *)g_wifi_uart[wifi_command_port].command_buff,"ATNCUDP=%d.%d.%d.%d,%d\r",
 				WIFI_ULONG_TO_IPV4BYTE_1(ip_address), WIFI_ULONG_TO_IPV4BYTE_2(ip_address),
 				WIFI_ULONG_TO_IPV4BYTE_3(ip_address), WIFI_ULONG_TO_IPV4BYTE_4(ip_address),
 				port);
+		}
+		else
+		{
+			sprintf((char *)g_wifi_uart[wifi_command_port].command_buff,"ATNCTCP=%d.%d.%d.%d,%d\r",
+				WIFI_ULONG_TO_IPV4BYTE_1(ip_address), WIFI_ULONG_TO_IPV4BYTE_2(ip_address),
+				WIFI_ULONG_TO_IPV4BYTE_3(ip_address), WIFI_ULONG_TO_IPV4BYTE_4(ip_address),
+				port);
+		}
 		if(ULPGN_USE_UART_NUM == 2)
 		{
 			ret = wifi_execute_at_command(wifi_command_port, g_wifi_uart[wifi_command_port].command_buff, g_command_execute_timeout5, WIFI_RETURN_ENUM_OK, WIFI_COMMAND_SET_SOCKET_CONNECT, socket_number);

@@ -41,6 +41,7 @@ uint8_t g_wifi_response_last_string_recv_count;
 uint8_t g_wifi_macaddress[6];
 wifi_ip_configuration_t g_wifi_ipconfig;
 uint32_t g_wifi_dnsaddress;
+uint32_t g_wifi_dnsserver_address;
 uint32_t g_wifi_dnsquery_subcount;
 
 uint32_t g_wifi_atustat_recv;
@@ -75,6 +76,7 @@ static void wifi_analyze_ipaddress_string(uint8_t *pstring);
 static void wifi_analyze_get_macaddress_string(uint8_t *pstring);
 static void wifi_analyze_get_aplist_string(uint8_t *pstring);
 static void wifi_analyze_get_dnsquery_string(uint8_t *pstring);
+static void wifi_analyze_get_dnsaddress_string(uint8_t *pstring);
 static void wifi_analyze_get_sent_recv_size_string(uint8_t *pstring);
 static void wifi_analyze_get_current_ssid_string(uint8_t *pstring);
 void wifi_analyze_get_socket_status_string(uint8_t *pstring);
@@ -309,6 +311,10 @@ static void wifi_recv_task( ULONG input )
 						wifi_analyze_get_macaddress_string(presponse_buff);
 					}
 				}
+				if(pqueue->at_command_id == WIFI_COMMAND_GET_DNSADDRESS)
+				{
+					wifi_analyze_get_dnsaddress_string(presponse_buff);
+				}
 				if(pqueue->at_command_id == WIFI_COMMAND_SET_DNSQUERY)
 				{
 					wifi_analyze_get_dnsquery_string(presponse_buff);
@@ -435,6 +441,18 @@ static void wifi_analyze_get_macaddress_string(uint8_t *pstring)
 		g_wifi_macaddress[4] = macaddr[4];
 		g_wifi_macaddress[5] = macaddr[5];
 	}
+}
+
+static void wifi_analyze_get_dnsaddress_string(uint8_t *pstring)
+{
+	int scanf_ret;
+	uint32_t dnsaddr[4];
+    scanf_ret = sscanf((const char *)pstring, "%d.%d.%d.%d\r\n", \
+                       &dnsaddr[0], &dnsaddr[1], &dnsaddr[2], &dnsaddr[3]);
+    if(scanf_ret == 4)
+    {
+        g_wifi_dnsserver_address = WIFI_IPV4BYTE_TO_ULONG(dnsaddr[0], dnsaddr[1], dnsaddr[2], dnsaddr[3]);
+    }
 }
 
 static void wifi_analyze_get_aplist_string(uint8_t *pstring)

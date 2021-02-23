@@ -930,8 +930,6 @@ int32_t status;
     nx_wifi_socket[entry_index].nx_wifi_socket_connected = 0;
     nx_wifi_socket_counter++;
 
-
-
     /* Swap the address.  */
     //NX_CHANGE_ULONG_ENDIAN(server_ip -> nxd_ip_address.v4);
 
@@ -950,7 +948,7 @@ int32_t status;
     status = R_WIFI_SX_ULPGN_ConnectSocket(nx_wifi_socket[entry_index].socket_id, server_ip -> nxd_ip_address.v4, server_port, NULL);
 
     /* Swap the address.  */
-    NX_CHANGE_ULONG_ENDIAN(server_ip -> nxd_ip_address.v4);
+//    NX_CHANGE_ULONG_ENDIAN(server_ip -> nxd_ip_address.v4);
 
     if(status == WIFI_SUCCESS)
     {
@@ -1436,17 +1434,12 @@ UCHAR   entry_index;
 UINT  nx_wifi_udp_socket_send(NX_UDP_SOCKET *socket_ptr, NX_PACKET *packet_ptr,
                               NXD_ADDRESS *ip_address, UINT port)
 {
-#if 0
-UINT        status ;
+UINT        status;
 UCHAR       entry_index;
 USHORT      send_data_length;
 ULONG       packet_size;
 NX_PACKET   *current_packet;
-#endif
 
-    return NX_NOT_IMPLEMENTED;
-
-#if 0
     /* Obtain the IP internal mutex before processing the IP event.  */
     tx_mutex_get(&(nx_wifi_ip -> nx_ip_protection), TX_WAIT_FOREVER);
 
@@ -1464,17 +1457,28 @@ NX_PACKET   *current_packet;
     {
 
         /* Swap the address.  */
-        NX_CHANGE_ULONG_ENDIAN(ip_address -> nxd_ip_address.v4);
+//        NX_CHANGE_ULONG_ENDIAN(ip_address -> nxd_ip_address.v4);
 
-        /* Open connection.  */
-        //status= WIFI_OpenClientConnection(entry_index , WIFI_UDP_PROTOCOL, "", (unsigned char* )(&(ip_address -> nxd_ip_address.v4)), port, socket_ptr -> nx_udp_socket_port) ;
+        /* Create the socket. */
+        status = R_WIFI_SX_ULPGN_CreateSocket(WIFI_SOCKET_IP_PROTOCOL_UDP, WIFI_SOCKET_IP_VERSION_4);
+        if(status != WIFI_SUCCESS) {
+            /* Reset the entry.  */
+            nx_wifi_socket_reset(entry_index);
+
+            /* Release the IP internal mutex before processing the IP event.  */
+            tx_mutex_put(&(nx_wifi_ip -> nx_ip_protection));
+            return(NX_NOT_SUCCESSFUL);
+        }
+
+        /* Wifi connect.  */
+        status = R_WIFI_SX_ULPGN_ConnectSocket(nx_wifi_socket[entry_index].socket_id, ip_address -> nxd_ip_address.v4, port, NULL);
+
         /* Swap the address.  */
-        NX_CHANGE_ULONG_ENDIAN(ip_address -> nxd_ip_address.v4);
+//        NX_CHANGE_ULONG_ENDIAN(ip_address -> nxd_ip_address.v4);
 
         /* Check status.  */
-        if(status)
+        if(status != WIFI_SUCCESS)
         {
-
             /* Reset the entry.  */
             nx_wifi_socket_reset(entry_index);
 
@@ -1505,9 +1509,11 @@ NX_PACKET   *current_packet;
         packet_size = (ULONG)(current_packet -> nx_packet_append_ptr - current_packet -> nx_packet_prepend_ptr);
 
         /* Loop to send data.  */
-        status = WIFI_SendData(entry_index, (uint8_t *)current_packet-> nx_packet_prepend_ptr, packet_size, &send_data_length, WIFI_WRITE_TIMEOUT);
+//        status = WIFI_SendData(entry_index, (uint8_t *)current_packet-> nx_packet_prepend_ptr, packet_size, &send_data_length, WIFI_WRITE_TIMEOUT);
+        send_data_length = R_WIFI_SX_ULPGN_SendSocket(nx_wifi_socket[entry_index].socket_id, current_packet->nx_packet_prepend_ptr, packet_size, WIFI_WRITE_TIMEOUT);
+
         /* Check status.  */
-        if ((status != WIFI_STATUS_OK) || (send_data_length != packet_size))
+        if (send_data_length != packet_size)
         {
 
             /* Release the IP internal mutex before processing the IP event.  */
@@ -1542,7 +1548,6 @@ NX_PACKET   *current_packet;
     /* Release the IP internal mutex before processing the IP event.  */
     tx_mutex_put(&(nx_wifi_ip -> nx_ip_protection));
     return(NX_SUCCESS);
-#endif
 }
 
 

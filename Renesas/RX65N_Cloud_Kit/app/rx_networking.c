@@ -96,22 +96,53 @@ static bool wifi_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
     return true;
 }
 
-// the RX driver doesn't surface a way to retreive the DNS servers from the DHCP connection
-UINT _nxde_dns_host_by_name_get(
-    NX_DNS* dns_ptr, UCHAR* host_name, NXD_ADDRESS* host_address_ptr, ULONG wait_option, UINT lookup_type)
+static UINT dns_create()
 {
-    wifi_err_t wifi_err;
-    uint32_t ip_addr;
-    int status;
+    UINT status;
+    uint32_t dns_address_1;
 
-    status = R_WIFI_SX_ULPGN_DnsQuery(host_name, &ip_addr);
-    if (status != WIFI_SUCCESS)
+    printf("Initializing DNS client\r\n");
+
+    status = nx_dns_create(&nx_dns_client, &nx_ip, (UCHAR*)"DNS Client");
+    if (status != NX_SUCCESS)
     {
-        return NX_DNS_QUERY_FAILED;
+        printf("ERROR: Failed to create DNS (0x%04x)\r\n", status);
+        return status;
     }
 
-    host_address_ptr->nxd_ip_version    = NX_IP_VERSION_V4;
-    host_address_ptr->nxd_ip_address.v4 = ip_addr;
+    // Use the packet pool here
+#ifdef NX_DNS_CLIENT_USER_CREATE_PACKET_POOL
+    status = nx_dns_packet_pool_set(&nx_dns_client, nx_ip.nx_ip_default_packet_pool);
+    if (status != NX_SUCCESS)
+    {
+        printf("ERROR: Failed to create DNS packet pool (%0x02)\r\n", status);
+        nx_dns_delete(&nx_dns_client);
+        return status;
+    }
+#endif
+
+    if (R_WIFI_SX_ULPGN_GetDnsServerAddress(&dns_address_1) != WIFI_SUCCESS)
+    {
+        printf("ERROR: Failed to fetch Wifi DNS\r\n");
+        nx_dns_delete(&nx_dns_client);
+        return NX_NOT_SUCCESSFUL;
+    }
+
+    // Output DNS Server address
+    print_address("DNS address", dns_address_1);
+
+    // Add an IPv4 server address to the Client list.
+    status = nx_dns_server_add(&nx_dns_client,
+        IP_ADDRESS(
+            dns_address_1 >> 24 & 0xFF, dns_address_1 >> 16 & 0xFF, dns_address_1 >> 8 & 0xFF, dns_address_1 & 0xFF));
+    if (status != NX_SUCCESS)
+    {
+        printf("ERROR: Failed to add DNS server (0x%04x)\r\n", status);
+        nx_dns_delete(&nx_dns_client);
+        return status;
+    }
+
+    printf("SUCCESS: DNS client initialized\r\n\r\n");
 
     return NX_SUCCESS;
 }
@@ -159,6 +190,16 @@ int rx_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
 
     // Initialize TLS
     nx_secure_tls_initialize();
+
+    // Create DNS
+    status = dns_create();
+    if (status != NX_SUCCESS)
+    {
+        nx_ip_delete(&nx_ip);
+        nx_packet_pool_delete(&nx_pool);
+        printf("ERROR: DNS create fail.\r\n");
+        return status;
+    }
 
     return NX_SUCCESS;
 }
