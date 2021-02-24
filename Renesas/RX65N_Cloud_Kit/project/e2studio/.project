@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>rx65n_cloud_kit</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.cdt.core.cnature</nature>
+	</natures>
+	<linkedResources>
+		<link>
+			<name>rx65n_cloud_kit.scfg</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/lib/rx_driver_package/rx65n_cloud_kit.scfg</locationURI>
+		</link>
+	</linkedResources>
+</projectDescription>
