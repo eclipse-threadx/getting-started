@@ -47,6 +47,9 @@ set(SOURCES
     src/smc_gen/r_pincfg/Pin.c
     src/smc_gen/r_pincfg/r_sci_rx_pinset.c    
 
+    src/smc_gen/r_sci_iic_rx/src/r_sci_iic_rx.c
+    src/smc_gen/r_sci_iic_rx/src/targets/rx65n/r_sci_iic_rx65n.c
+
     src/smc_gen/r_sci_rx/src/r_sci_rx_dmaca.c
     src/smc_gen/r_sci_rx/src/r_sci_rx_dtc.c
     src/smc_gen/r_sci_rx/src/r_sci_rx.c
@@ -73,7 +76,10 @@ target_include_directories(${TARGET}
         src/smc_gen/r_config
         src/smc_gen/r_ether_rx
         src/smc_gen/r_pincfg
+        src/smc_gen/r_sci_iic_rx
         src/smc_gen/r_sci_rx
+    PRIVATE
+        src/smc_gen/r_sci_iic_rx/src
 )
 
 target_link_libraries(${TARGET} 

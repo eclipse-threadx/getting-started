@@ -483,6 +483,7 @@
         <Item currentVect="255" id="PERIA_INTA255" priority="15" usedState="Not Use"/>
     </tool>
     <tool id="Pins" version="1.0.1.0">
+        <pinItem allocation="33" comments="" direction="None" id="SSDA2" isUsedBySoftware="true" locked="false" status="0"/>
         <pinItem allocation="25" comments="" direction="None" id="CTS0#" isUsedBySoftware="true" locked="false" status="0"/>
         <pinItem allocation="67" comments="" direction="None" id="RXD5" isUsedBySoftware="true" locked="false" status="0"/>
         <pinItem allocation="27" comments="" direction="None" id="RXD0" isUsedBySoftware="true" locked="false" status="0"/>
@@ -490,6 +491,7 @@
         <pinItem allocation="66" comments="" direction="None" id="TXD5" isUsedBySoftware="true" locked="false" status="0"/>
         <pinItem allocation="22" comments="" direction="None" id="TXD1" isUsedBySoftware="true" locked="false" status="0"/>
         <pinItem allocation="28" comments="" direction="None" id="TXD0" isUsedBySoftware="true" locked="false" status="0"/>
+        <pinItem allocation="34" comments="" direction="None" id="SSCL2" isUsedBySoftware="true" locked="false" status="0"/>
     </tool>
     <tool id="SWComponent" version="1.0.0.0">
         <configuration inuse="true" name="r_bsp">
@@ -917,6 +919,132 @@
                 <gridItem id="SCI_CFG_CH5_IRDA_INCLUDED" selectedIndex="0"/>
                 <gridItem id="SCI_CFG_CH5_IRDA_IRTXD_INACTIVE_LEVEL" selectedIndex="1"/>
                 <gridItem id="SCI_CFG_CH5_IRDA_IRRXD_INACTIVE_LEVEL" selectedIndex="1"/>
+            </component>
+            <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+            <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
+        </configuration>
+        <configuration inuse="true" name="r_sci_iic_rx">
+            <component description="Dependency : r_bsp version(s) 5.50&#10; The SCI simple I2C mode fit module provides a method to transmit and receive data between the master and slave devices using the serial communications interface (SCI). The SCI simple I2C mode is in compliance with single master mode of the NXP I2C-bus (Inter-IC-Bus) interface.  " detailDescription="Simple IIC Driver." display="r_sci_iic_rx" id="r_sci_iic_rx2.46" version="2.46">
+                <gridItem id="SSCL0" selectedIndex="0"/>
+                <gridItem id="SSDA0" selectedIndex="0"/>
+                <gridItem id="SCI0" selectedIndex="0"/>
+                <gridItem id="SSCL1" selectedIndex="0"/>
+                <gridItem id="SSDA1" selectedIndex="0"/>
+                <gridItem id="SCI1" selectedIndex="0"/>
+                <gridItem id="SSCL2" selectedIndex="1"/>
+                <gridItem id="SSDA2" selectedIndex="1"/>
+                <gridItem id="SCI2" selectedIndex="1"/>
+                <gridItem id="SSCL3" selectedIndex="0"/>
+                <gridItem id="SSDA3" selectedIndex="0"/>
+                <gridItem id="SCI3" selectedIndex="0"/>
+                <gridItem id="SSCL4" selectedIndex="0"/>
+                <gridItem id="SSDA4" selectedIndex="0"/>
+                <gridItem id="SCI4" selectedIndex="0"/>
+                <gridItem id="SSCL5" selectedIndex="0"/>
+                <gridItem id="SSDA5" selectedIndex="0"/>
+                <gridItem id="SCI5" selectedIndex="0"/>
+                <gridItem id="SSCL6" selectedIndex="0"/>
+                <gridItem id="SSDA6" selectedIndex="0"/>
+                <gridItem id="SCI6" selectedIndex="0"/>
+                <gridItem id="SSCL7" selectedIndex="0"/>
+                <gridItem id="SSDA7" selectedIndex="0"/>
+                <gridItem id="SCI7" selectedIndex="0"/>
+                <gridItem id="SSCL8" selectedIndex="0"/>
+                <gridItem id="SSDA8" selectedIndex="0"/>
+                <gridItem id="SCI8" selectedIndex="0"/>
+                <gridItem id="SSCL9" selectedIndex="0"/>
+                <gridItem id="SSDA9" selectedIndex="0"/>
+                <gridItem id="SCI9" selectedIndex="0"/>
+                <gridItem id="SSCL10" selectedIndex="0"/>
+                <gridItem id="SSDA10" selectedIndex="0"/>
+                <gridItem id="SCI10" selectedIndex="0"/>
+                <gridItem id="SSCL11" selectedIndex="0"/>
+                <gridItem id="SSDA11" selectedIndex="0"/>
+                <gridItem id="SCI11" selectedIndex="0"/>
+                <gridItem id="SSCL12" selectedIndex="0"/>
+                <gridItem id="SSDA12" selectedIndex="0"/>
+                <gridItem id="SCI12" selectedIndex="0"/>
+                <gridItem id="SCI_IIC_CFG_PARAM_CHECKING_ENABLE" selectedIndex="2"/>
+                <gridItem id="SCI_IIC_CFG_CH0_INCLUDED" selectedIndex="0"/>
+                <gridItem id="SCI_IIC_CFG_CH1_INCLUDED" selectedIndex="0"/>
+                <gridItem id="SCI_IIC_CFG_CH2_INCLUDED" selectedIndex="1"/>
+                <gridItem id="SCI_IIC_CFG_CH3_INCLUDED" selectedIndex="0"/>
+                <gridItem id="SCI_IIC_CFG_CH4_INCLUDED" selectedIndex="0"/>
+                <gridItem id="SCI_IIC_CFG_CH5_INCLUDED" selectedIndex="0"/>
+                <gridItem id="SCI_IIC_CFG_CH6_INCLUDED" selectedIndex="0"/>
+                <gridItem id="SCI_IIC_CFG_CH7_INCLUDED" selectedIndex="0"/>
+                <gridItem id="SCI_IIC_CFG_CH8_INCLUDED" selectedIndex="0"/>
+                <gridItem id="SCI_IIC_CFG_CH9_INCLUDED" selectedIndex="0"/>
+                <gridItem id="SCI_IIC_CFG_CH10_INCLUDED" selectedIndex="0"/>
+                <gridItem id="SCI_IIC_CFG_CH11_INCLUDED" selectedIndex="0"/>
+                <gridItem id="SCI_IIC_CFG_CH12_INCLUDED" selectedIndex="0"/>
+                <gridItem id="SCI_IIC_CFG_CH0_BITRATE_BPS" selectedIndex="384000"/>
+                <gridItem id="SCI_IIC_CFG_CH1_BITRATE_BPS" selectedIndex="384000"/>
+                <gridItem id="SCI_IIC_CFG_CH2_BITRATE_BPS" selectedIndex="384000"/>
+                <gridItem id="SCI_IIC_CFG_CH3_BITRATE_BPS" selectedIndex="384000"/>
+                <gridItem id="SCI_IIC_CFG_CH4_BITRATE_BPS" selectedIndex="384000"/>
+                <gridItem id="SCI_IIC_CFG_CH5_BITRATE_BPS" selectedIndex="384000"/>
+                <gridItem id="SCI_IIC_CFG_CH6_BITRATE_BPS" selectedIndex="384000"/>
+                <gridItem id="SCI_IIC_CFG_CH7_BITRATE_BPS" selectedIndex="384000"/>
+                <gridItem id="SCI_IIC_CFG_CH8_BITRATE_BPS" selectedIndex="384000"/>
+                <gridItem id="SCI_IIC_CFG_CH9_BITRATE_BPS" selectedIndex="384000"/>
+                <gridItem id="SCI_IIC_CFG_CH10_BITRATE_BPS" selectedIndex="384000"/>
+                <gridItem id="SCI_IIC_CFG_CH11_BITRATE_BPS" selectedIndex="384000"/>
+                <gridItem id="SCI_IIC_CFG_CH12_BITRATE_BPS" selectedIndex="384000"/>
+                <gridItem id="SCI_IIC_CFG_CH0_INT_PRIORITY" selectedIndex="1"/>
+                <gridItem id="SCI_IIC_CFG_CH1_INT_PRIORITY" selectedIndex="1"/>
+                <gridItem id="SCI_IIC_CFG_CH2_INT_PRIORITY" selectedIndex="0"/>
+                <gridItem id="SCI_IIC_CFG_CH3_INT_PRIORITY" selectedIndex="1"/>
+                <gridItem id="SCI_IIC_CFG_CH4_INT_PRIORITY" selectedIndex="1"/>
+                <gridItem id="SCI_IIC_CFG_CH5_INT_PRIORITY" selectedIndex="1"/>
+                <gridItem id="SCI_IIC_CFG_CH6_INT_PRIORITY" selectedIndex="1"/>
+                <gridItem id="SCI_IIC_CFG_CH7_INT_PRIORITY" selectedIndex="1"/>
+                <gridItem id="SCI_IIC_CFG_CH8_INT_PRIORITY" selectedIndex="1"/>
+                <gridItem id="SCI_IIC_CFG_CH9_INT_PRIORITY" selectedIndex="1"/>
+                <gridItem id="SCI_IIC_CFG_CH10_INT_PRIORITY" selectedIndex="1"/>
+                <gridItem id="SCI_IIC_CFG_CH11_INT_PRIORITY" selectedIndex="1"/>
+                <gridItem id="SCI_IIC_CFG_CH12_INT_PRIORITY" selectedIndex="1"/>
+                <gridItem id="SCI_IIC_CFG_CH0_DIGITAL_FILTER" selectedIndex="1"/>
+                <gridItem id="SCI_IIC_CFG_CH1_DIGITAL_FILTER" selectedIndex="1"/>
+                <gridItem id="SCI_IIC_CFG_CH2_DIGITAL_FILTER" selectedIndex="1"/>
+                <gridItem id="SCI_IIC_CFG_CH3_DIGITAL_FILTER" selectedIndex="1"/>
+                <gridItem id="SCI_IIC_CFG_CH4_DIGITAL_FILTER" selectedIndex="1"/>
+                <gridItem id="SCI_IIC_CFG_CH5_DIGITAL_FILTER" selectedIndex="1"/>
+                <gridItem id="SCI_IIC_CFG_CH6_DIGITAL_FILTER" selectedIndex="1"/>
+                <gridItem id="SCI_IIC_CFG_CH7_DIGITAL_FILTER" selectedIndex="1"/>
+                <gridItem id="SCI_IIC_CFG_CH8_DIGITAL_FILTER" selectedIndex="1"/>
+                <gridItem id="SCI_IIC_CFG_CH9_DIGITAL_FILTER" selectedIndex="1"/>
+                <gridItem id="SCI_IIC_CFG_CH10_DIGITAL_FILTER" selectedIndex="1"/>
+                <gridItem id="SCI_IIC_CFG_CH11_DIGITAL_FILTER" selectedIndex="1"/>
+                <gridItem id="SCI_IIC_CFG_CH12_DIGITAL_FILTER" selectedIndex="1"/>
+                <gridItem id="SCI_IIC_CFG_CH0_FILTER_CLOCK" selectedIndex="0"/>
+                <gridItem id="SCI_IIC_CFG_CH1_FILTER_CLOCK" selectedIndex="0"/>
+                <gridItem id="SCI_IIC_CFG_CH2_FILTER_CLOCK" selectedIndex="0"/>
+                <gridItem id="SCI_IIC_CFG_CH3_FILTER_CLOCK" selectedIndex="0"/>
+                <gridItem id="SCI_IIC_CFG_CH4_FILTER_CLOCK" selectedIndex="0"/>
+                <gridItem id="SCI_IIC_CFG_CH5_FILTER_CLOCK" selectedIndex="0"/>
+                <gridItem id="SCI_IIC_CFG_CH6_FILTER_CLOCK" selectedIndex="0"/>
+                <gridItem id="SCI_IIC_CFG_CH7_FILTER_CLOCK" selectedIndex="0"/>
+                <gridItem id="SCI_IIC_CFG_CH8_FILTER_CLOCK" selectedIndex="0"/>
+                <gridItem id="SCI_IIC_CFG_CH9_FILTER_CLOCK" selectedIndex="0"/>
+                <gridItem id="SCI_IIC_CFG_CH10_FILTER_CLOCK" selectedIndex="0"/>
+                <gridItem id="SCI_IIC_CFG_CH11_FILTER_CLOCK" selectedIndex="0"/>
+                <gridItem id="SCI_IIC_CFG_CH12_FILTER_CLOCK" selectedIndex="0"/>
+                <gridItem id="SCI_IIC_CFG_CH0_SSDA_DELAY_SELECT" selectedIndex="18"/>
+                <gridItem id="SCI_IIC_CFG_CH1_SSDA_DELAY_SELECT" selectedIndex="18"/>
+                <gridItem id="SCI_IIC_CFG_CH2_SSDA_DELAY_SELECT" selectedIndex="18"/>
+                <gridItem id="SCI_IIC_CFG_CH3_SSDA_DELAY_SELECT" selectedIndex="18"/>
+                <gridItem id="SCI_IIC_CFG_CH4_SSDA_DELAY_SELECT" selectedIndex="18"/>
+                <gridItem id="SCI_IIC_CFG_CH5_SSDA_DELAY_SELECT" selectedIndex="18"/>
+                <gridItem id="SCI_IIC_CFG_CH6_SSDA_DELAY_SELECT" selectedIndex="18"/>
+                <gridItem id="SCI_IIC_CFG_CH7_SSDA_DELAY_SELECT" selectedIndex="18"/>
+                <gridItem id="SCI_IIC_CFG_CH8_SSDA_DELAY_SELECT" selectedIndex="18"/>
+                <gridItem id="SCI_IIC_CFG_CH9_SSDA_DELAY_SELECT" selectedIndex="18"/>
+                <gridItem id="SCI_IIC_CFG_CH10_SSDA_DELAY_SELECT" selectedIndex="18"/>
+                <gridItem id="SCI_IIC_CFG_CH11_SSDA_DELAY_SELECT" selectedIndex="18"/>
+                <gridItem id="SCI_IIC_CFG_CH12_SSDA_DELAY_SELECT" selectedIndex="18"/>
+                <gridItem id="SCI_IIC_CFG_BUS_CHECK_COUNTER" selectedIndex="1000"/>
+                <gridItem id="SCI_IIC_CFG_PORT_SETTING_PROCESSING" selectedIndex="1"/>
             </component>
             <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
             <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>

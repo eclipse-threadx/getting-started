@@ -22,7 +22,6 @@
 * Version      : 1.2.101
 * Device(s)    : R5F565NEDxFP
 * Description  : Macro header file for code generation.
-* Creation Date: 2021-02-10
 ***********************************************************************************************************************/
 
 #ifndef MACRODRIVER_H
