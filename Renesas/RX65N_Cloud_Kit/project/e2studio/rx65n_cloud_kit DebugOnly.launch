@@ -4,6 +4,7 @@
     <stringAttribute key="com.renesas.cdt.core.additionalServerArgs" value=""/>
     <stringAttribute key="com.renesas.cdt.core.initCommands" value=""/>
     <stringAttribute key="com.renesas.cdt.core.ipAddress" value="localhost"/>
+    <stringAttribute key="com.renesas.cdt.core.jtagDevice" value="E2 Lite (RX)"/>
     <stringAttribute key="com.renesas.cdt.core.jtagDeviceId" value="com.renesas.hardwaredebug.rx.e2"/>
     <listAttribute key="com.renesas.cdt.core.listGDBExe">
         <listEntry value="rx-elf-gdb -rx-force-v2"/>
