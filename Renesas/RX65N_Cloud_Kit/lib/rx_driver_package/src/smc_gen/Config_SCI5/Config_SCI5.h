@@ -52,12 +52,8 @@ void R_Config_SCI5_Start(void);
 void R_Config_SCI5_Stop(void);
 void R_Config_SCI5_Create_UserInit(void);
 MD_STATUS R_Config_SCI5_Serial_Send(uint8_t * const tx_buf, uint16_t tx_num);
-MD_STATUS R_Config_SCI5_Serial_Receive(uint8_t * const rx_buf, uint16_t rx_num);
 void r_Config_SCI5_transmitend_interrupt(void);
 static void r_Config_SCI5_callback_transmitend(void);
-static void r_Config_SCI5_callback_receiveend(void);
-void r_Config_SCI5_receiveerror_interrupt(void);
-static void r_Config_SCI5_callback_receiveerror(void);
 /* Start user code for function. Do not edit comment generated here */
 /* End user code. Do not edit comment generated here */
 #endif

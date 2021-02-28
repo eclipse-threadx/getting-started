@@ -14,70 +14,49 @@
 * following link:
 * http://www.renesas.com/disclaimer
 *
-* Copyright (C) 2021 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2019 Renesas Electronics Corporation. All rights reserved.
 ***********************************************************************************************************************/
+
 /***********************************************************************************************************************
-* File Name    : r_sci_rx_pinset.c
-* Version      : 1.0.2
+* File Name    : Config_PORT_user.c
+* Version      : 2.1.1
 * Device(s)    : R5F565NEDxFP
-* Tool-Chain   : RXC toolchain
-* Description  : Setting of port and mpc registers
-* Creation Date: 2021-02-27
+* Description  : This file implements device driver for Config_PORT.
 ***********************************************************************************************************************/
+
+/***********************************************************************************************************************
+Pragma directive
+***********************************************************************************************************************/
+/* Start user code for pragma. Do not edit comment generated here */
+/* End user code. Do not edit comment generated here */
 
 /***********************************************************************************************************************
 Includes
 ***********************************************************************************************************************/
-#include "r_sci_rx_pinset.h"
-#include "platform.h"
+#include "r_cg_macrodriver.h"
+#include "Config_PORT.h"
+/* Start user code for include. Do not edit comment generated here */
+/* End user code. Do not edit comment generated here */
+#include "r_cg_userdefine.h"
 
 /***********************************************************************************************************************
 Global variables and functions
 ***********************************************************************************************************************/
+/* Start user code for global. Do not edit comment generated here */
+/* End user code. Do not edit comment generated here */
 
 /***********************************************************************************************************************
-* Function Name: R_SCI_PinSet_SCI0
-* Description  : This function initializes pins for r_sci_rx module
-* Arguments    : none
-* Return Value : none
+* Function Name: R_Config_PORT_Create_UserInit
+* Description  : This function adds user code after initializing PORT
+* Arguments    : None
+* Return Value : None
 ***********************************************************************************************************************/
-void R_SCI_PinSet_SCI0()
+
+void R_Config_PORT_Create_UserInit(void)
 {
-    R_BSP_RegisterProtectDisable(BSP_REG_PROTECT_MPC);
-
-    /* Set RXD0/SMISO0/SSCL0 pin */
-    MPC.P21PFS.BYTE = 0x0AU;
-    PORT2.PMR.BIT.B1 = 1U;
-
-    /* Set TXD0/SMOSI0/SSDA0 pin */
-    MPC.P20PFS.BYTE = 0x0AU;
-    PORT2.PMR.BIT.B0 = 1U;
-
-    /* Set CTS0#/RTS0#/SS0# pin */
-    MPC.P23PFS.BYTE = 0x0BU;
-    PORT2.PMR.BIT.B3 = 1U;
-
-    R_BSP_RegisterProtectEnable(BSP_REG_PROTECT_MPC);
+    /* Start user code for user init. Do not edit comment generated here */
+    /* End user code. Do not edit comment generated here */
 }
 
-/***********************************************************************************************************************
-* Function Name: R_SCI_PinSet_SCI1
-* Description  : This function initializes pins for r_sci_rx module
-* Arguments    : none
-* Return Value : none
-***********************************************************************************************************************/
-void R_SCI_PinSet_SCI1()
-{
-    R_BSP_RegisterProtectDisable(BSP_REG_PROTECT_MPC);
-
-    /* Set RXD1/SMISO1/SSCL1 pin */
-    MPC.P30PFS.BYTE = 0x0AU;
-    PORT3.PMR.BIT.B0 = 1U;
-
-    /* Set TXD1/SMOSI1/SSDA1 pin */
-    MPC.P26PFS.BYTE = 0x0AU;
-    PORT2.PMR.BIT.B6 = 1U;
-
-    R_BSP_RegisterProtectEnable(BSP_REG_PROTECT_MPC);
-}
-
+/* Start user code for adding. Do not edit comment generated here */
+/* End user code. Do not edit comment generated here */

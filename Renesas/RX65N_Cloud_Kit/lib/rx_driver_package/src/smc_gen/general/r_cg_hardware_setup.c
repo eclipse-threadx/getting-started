@@ -34,6 +34,7 @@ Pragma directive
 Includes
 ***********************************************************************************************************************/
 #include "r_cg_macrodriver.h"
+#include "Config_PORT.h"
 #include "Config_SCI5.h"
 #include "r_smc_cgc.h"
 #include "r_smc_interrupt.h"
@@ -83,6 +84,7 @@ void R_Systeminit(void)
     R_CGC_Create();
 
     /* Set peripheral settings */
+    R_Config_PORT_Create();
     R_Config_SCI5_Create();
 
     /* Set interrupt settings */
@@ -93,9 +95,6 @@ void R_Systeminit(void)
 
     /* Register group BL0 interrupt TEI5 (SCI5) */
     R_BSP_InterruptWrite(BSP_INT_SRC_BL0_SCI5_TEI5,(bsp_int_cb_t)r_Config_SCI5_transmitend_interrupt);
-
-    /* Register group BL0 interrupt ERI5 (SCI5) */
-    R_BSP_InterruptWrite(BSP_INT_SRC_BL0_SCI5_ERI5,(bsp_int_cb_t)r_Config_SCI5_receiveerror_interrupt);
 
     /* Disable writing to MPC pin function control registers */
     MPC.PWPR.BIT.PFSWE = 0U;

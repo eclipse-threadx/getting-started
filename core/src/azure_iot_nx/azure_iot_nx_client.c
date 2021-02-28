@@ -17,6 +17,7 @@
 #define DIRECT_METHOD_EVENT                0x01
 #define DEVICE_TWIN_GET_EVENT              0x02
 #define DEVICE_TWIN_DESIRED_PROPERTY_EVENT 0x04
+#define DEVICE_TWIN_COMPLETE_EVENT         0x08
 
 #define AZURE_IOT_DPS_ENDPOINT "global.azure-devices-provisioning.net"
 
@@ -176,10 +177,17 @@ static VOID process_device_twin_get(AZURE_IOT_NX_CONTEXT* nx_context)
         }
     }
 
-    nx_context->device_twin_received_cb(nx_context);
-
     // Deinit the reader, the reader owns the NX_PACKET at this point, so will release it
     nx_azure_iot_json_reader_deinit(&json_reader);
+
+    // Call the callback if its registered
+    if (nx_context->device_twin_received_cb != NULL)
+    {
+        nx_context->device_twin_received_cb(nx_context);
+    }
+
+    // Send event to notify device twin received
+    tx_event_flags_set(&nx_context->events, DEVICE_TWIN_COMPLETE_EVENT, TX_OR);
 }
 
 static VOID process_device_twin_desired_property(AZURE_IOT_NX_CONTEXT* nx_context)
@@ -704,6 +712,29 @@ UINT azure_iot_nx_client_connect(AZURE_IOT_NX_CONTEXT* context)
 UINT azure_iot_nx_client_disconnect(AZURE_IOT_NX_CONTEXT* context)
 {
     nx_azure_iot_hub_client_disconnect(&context->iothub_client);
+
+    return NX_SUCCESS;
+}
+
+UINT azure_iot_nx_client_device_twin_request_and_wait(AZURE_IOT_NX_CONTEXT* context)
+{
+    UINT status;
+    ULONG app_events;
+
+    // Request the device twin for writeable property update
+    if ((status = nx_azure_iot_hub_client_device_twin_properties_request(&context->iothub_client, NX_WAIT_FOREVER)))
+    {
+        printf("ERROR: failed to request device twin (0x%08x)\r\n", status);
+        return status;
+    }
+
+    // Wait for the device twin to be processed
+    if ((status = tx_event_flags_get(
+             &context->events, DEVICE_TWIN_COMPLETE_EVENT, TX_OR_CLEAR, &app_events, 10 * NX_IP_PERIODIC_RATE)))
+    {
+        printf("ERROR: failed to execute tx_event_flags_get (0x%08x)\r\n", status);
+        return status;
+    }
 
     return NX_SUCCESS;
 }

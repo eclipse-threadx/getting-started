@@ -67,10 +67,6 @@ void R_Pins_Create(void)
     MPC.P30PFS.BYTE = 0x0AU;
     PORT3.PMR.BYTE |= 0x01U;
 
-    /* Set RXD5 pin */
-    MPC.PA3PFS.BYTE = 0x0AU;
-    PORTA.PMR.BYTE |= 0x08U;
-
     /* Set SSCL2 pin */
     MPC.P12PFS.BYTE = 0x0AU;
     PORT1.PMR.BYTE |= 0x04U;

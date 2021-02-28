@@ -44,9 +44,6 @@ Global variables and functions
 ***********************************************************************************************************************/
 volatile uint8_t * gp_sci5_tx_address;                /* SCI5 transmit buffer address */
 volatile uint16_t  g_sci5_tx_count;                   /* SCI5 transmit data number */
-volatile uint8_t * gp_sci5_rx_address;                /* SCI5 receive buffer address */
-volatile uint16_t  g_sci5_rx_count;                   /* SCI5 receive data number */
-volatile uint16_t  g_sci5_rx_length;                  /* SCI5 receive data length */
 /* Start user code for global. Do not edit comment generated here */
 /* End user code. Do not edit comment generated here */
 
@@ -63,7 +60,6 @@ void R_Config_SCI5_Create(void)
     MSTP(SCI5) = 0U;
 
     /* Set interrupt priority */
-    IPR(SCI5, RXI5) = _0F_SCI_PRIORITY_LEVEL15;
     IPR(SCI5, TXI5) = _0F_SCI_PRIORITY_LEVEL15;
 
     /* Clear the control register */
@@ -81,15 +77,11 @@ void R_Config_SCI5_Create(void)
                     _00_SCI_DATA_LENGTH_8 | _00_SCI_ASYNCHRONOUS_OR_I2C_MODE;
     SCI5.SCMR.BYTE = _00_SCI_SERIAL_MODE | _00_SCI_DATA_INVERT_NONE | _00_SCI_DATA_LSB_FIRST | 
                      _10_SCI_DATA_LENGTH_8_OR_7 | _62_SCI_SCMR_DEFAULT;
-    SCI5.SEMR.BYTE = _00_SCI_BIT_MODULATION_DISABLE | _10_SCI_8_BASE_CLOCK | _00_SCI_NOISE_FILTER_DISABLE | 
-                     _40_SCI_BAUDRATE_DOUBLE | _00_SCI_LOW_LEVEL_START_BIT;
+    SCI5.SEMR.BYTE = _04_SCI_BIT_MODULATION_ENABLE | _10_SCI_8_BASE_CLOCK | _40_SCI_BAUDRATE_DOUBLE;
 
     /* Set bit rate */
-    SCI5.BRR = 0x40U;
-
-    /* Set RXD5 pin */
-    MPC.PA3PFS.BYTE = 0x0AU;
-    PORTA.PMR.BYTE |= 0x08U;
+    SCI5.BRR = 0x3AU;
+    SCI5.MDDR = 0xE8U;
 
     /* Set TXD5 pin */
     MPC.PA4PFS.BYTE = 0x0AU;
@@ -110,13 +102,10 @@ void R_Config_SCI5_Start(void)
 {
     /* Clear interrupt flag */
     IR(SCI5, TXI5) = 0U;
-    IR(SCI5, RXI5) = 0U;
 
     /* Enable SCI interrupt */
     IEN(SCI5, TXI5) = 1U;
     ICU.GENBL0.BIT.EN10 = 1U;
-    IEN(SCI5, RXI5) = 1U;
-    ICU.GENBL0.BIT.EN11 = 1U;
 }
 
 /***********************************************************************************************************************
@@ -134,49 +123,11 @@ void R_Config_SCI5_Stop(void)
     /* Disable serial transmit */
     SCI5.SCR.BIT.TE = 0U;
 
-    /* Disable serial receive */
-    SCI5.SCR.BIT.RE = 0U;
-
     /* Disable SCI interrupt */
     SCI5.SCR.BIT.TIE = 0U;
-    SCI5.SCR.BIT.RIE = 0U;
     IEN(SCI5, TXI5) = 0U;
     ICU.GENBL0.BIT.EN10 = 0U;
     IR(SCI5, TXI5) = 0U;
-    IEN(SCI5, RXI5) = 0U;
-    ICU.GENBL0.BIT.EN11 = 0U;
-    IR(SCI5, RXI5) = 0U;
-}
-
-/***********************************************************************************************************************
-* Function Name: R_Config_SCI5_Serial_Receive
-* Description  : This function receive SCI5data
-* Arguments    : rx_buf -
-*                    receive buffer pointer (Not used when receive data handled by DMAC/DTC)
-*                rx_num -
-*                    buffer size (Not used when receive data handled by DMAC/DTC)
-* Return Value : status -
-*                    MD_OK or MD_ARGERROR
-***********************************************************************************************************************/
-
-MD_STATUS R_Config_SCI5_Serial_Receive(uint8_t * const rx_buf, uint16_t rx_num)
-{
-    MD_STATUS status = MD_OK;
-
-    if (1U > rx_num)
-    {
-        status = MD_ARGERROR;
-    }
-    else
-    {
-        g_sci5_rx_count = 0U;
-        g_sci5_rx_length = rx_num;
-        gp_sci5_rx_address = rx_buf;
-        SCI5.SCR.BIT.RIE = 1U;
-        SCI5.SCR.BIT.RE = 1U;
-    }
-
-    return (status);
 }
 
 /***********************************************************************************************************************

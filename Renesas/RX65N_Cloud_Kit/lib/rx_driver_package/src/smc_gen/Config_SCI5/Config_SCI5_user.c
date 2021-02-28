@@ -44,9 +44,6 @@ Global variables and functions
 ***********************************************************************************************************************/
 extern volatile uint8_t * gp_sci5_tx_address;                /* SCI5 transmit buffer address */
 extern volatile uint16_t  g_sci5_tx_count;                   /* SCI5 transmit data number */
-extern volatile uint8_t * gp_sci5_rx_address;                /* SCI5 receive buffer address */
-extern volatile uint16_t  g_sci5_rx_count;                   /* SCI5 receive data number */
-extern volatile uint16_t  g_sci5_rx_length;                  /* SCI5 receive data length */
 /* Start user code for global. Do not edit comment generated here */
 /* End user code. Do not edit comment generated here */
 
@@ -107,51 +104,6 @@ void r_Config_SCI5_transmitend_interrupt(void)
 }
 
 /***********************************************************************************************************************
-* Function Name: r_Config_SCI5_receive_interrupt
-* Description  : This function is RXI5 interrupt service routine
-* Arguments    : None
-* Return Value : None
-***********************************************************************************************************************/
-
-void r_Config_SCI5_receive_interrupt(void)
-{
-    if (g_sci5_rx_length > g_sci5_rx_count)
-    {
-        *gp_sci5_rx_address = SCI5.RDR;
-        gp_sci5_rx_address++;
-        g_sci5_rx_count++;
-    }
-    
-    if (g_sci5_rx_length <= g_sci5_rx_count)
-    {
-        /* All data received */
-        SCI5.SCR.BIT.RIE = 0U;
-        SCI5.SCR.BIT.RE = 0U;
-        r_Config_SCI5_callback_receiveend();
-    }
-}
-
-/***********************************************************************************************************************
-* Function Name: r_Config_SCI5_receiveerror_interrupt
-* Description  : This function is ERI5 interrupt service routine
-* Arguments    : None
-* Return Value : None
-***********************************************************************************************************************/
-
-void r_Config_SCI5_receiveerror_interrupt(void)
-{
-    uint8_t err_type;
-    
-    r_Config_SCI5_callback_receiveerror();
-    
-    /* Clear overrun, framing and parity error flags */
-    err_type = SCI5.SSR.BYTE;
-    err_type &= 0xC7U;
-    err_type |= 0xC0U;
-    SCI5.SSR.BYTE = err_type;
-}
-
-/***********************************************************************************************************************
 * Function Name: r_Config_SCI5_callback_transmitend
 * Description  : This function is a callback function when SCI5 finishes transmission
 * Arguments    : None
@@ -163,32 +115,6 @@ static void r_Config_SCI5_callback_transmitend(void)
     /* Start user code for r_Config_SCI5_callback_transmitend. Do not edit comment generated here */
     void printf_transmit_end(void);
     printf_transmit_end();
-    /* End user code. Do not edit comment generated here */
-}
-
-/***********************************************************************************************************************
-* Function Name: r_Config_SCI5_callback_receiveend
-* Description  : This function is a callback function when SCI5 finishes reception
-* Arguments    : None
-* Return Value : None
-***********************************************************************************************************************/
-
-static void r_Config_SCI5_callback_receiveend(void)
-{
-    /* Start user code for r_Config_SCI5_callback_receiveend. Do not edit comment generated here */
-    /* End user code. Do not edit comment generated here */
-}
-
-/***********************************************************************************************************************
-* Function Name: r_Config_SCI5_callback_receiveerror
-* Description  : This function is a callback function when SCI5 reception encounters error
-* Arguments    : None
-* Return Value : None
-***********************************************************************************************************************/
-
-static void r_Config_SCI5_callback_receiveerror(void)
-{
-    /* Start user code for r_Config_SCI5_callback_receiveerror. Do not edit comment generated here */
     /* End user code. Do not edit comment generated here */
 }
 

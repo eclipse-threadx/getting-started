@@ -23,8 +23,6 @@ include(${GSG_BASE_DIR}/cmake/utilities.cmake)
 # Define the Project
 project(rx65n_azure_iot C ASM)
 
-set(DISABLE_NEWLIB_STUB true)
-
 # Disable common networking component, Cloud kit has it's own
 set(DISABLE_COMMON_NETWORK true)
 

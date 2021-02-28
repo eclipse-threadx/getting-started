@@ -2,12 +2,12 @@
 # Licensed under the MIT License.
 
 set(SOURCES
-#    src/smc_gen/Config_PORT/Config_PORT.c
-#    src/smc_gen/Config_PORT/Config_PORT_user.c
-
     src/r_wifi_sx_ulpgn/r_wifi_sx_ulpgn_api.c
     src/r_wifi_sx_ulpgn/r_wifi_sx_ulpgn_queue.c
     src/r_wifi_sx_ulpgn/r_wifi_sx_ulpgn_recv_task.c
+
+    src/smc_gen/Config_PORT/Config_PORT.c
+    src/smc_gen/Config_PORT/Config_PORT_user.c
 
     src/smc_gen/Config_SCI5/Config_SCI5.c
     src/smc_gen/Config_SCI5/Config_SCI5_user.c
@@ -21,7 +21,6 @@ set(SOURCES
 
     src/smc_gen/r_bsp/mcu/all/dbsct.c
     src/smc_gen/r_bsp/mcu/all/lowlvl.c
-    src/smc_gen/r_bsp/mcu/all/lowsrc.c
     src/smc_gen/r_bsp/mcu/all/mcu_locks.c
     src/smc_gen/r_bsp/mcu/all/r_bsp_common.c
     src/smc_gen/r_bsp/mcu/all/r_bsp_cpu.c
@@ -69,8 +68,10 @@ target_include_directories(${TARGET}
         src/r_wifi_sx_ulpgn
         src/smc_gen/general
         src/smc_gen/Config_SCI5
-#        src/smc_gen/Config_PORT
+        src/smc_gen/Config_SCI51
+        src/smc_gen/Config_PORT
         src/smc_gen/r_bsp
+        src/smc_gen/r_bsp/mcu/all
         src/smc_gen/r_byteq
         src/smc_gen/r_cmt_rx
         src/smc_gen/r_config
@@ -78,6 +79,7 @@ target_include_directories(${TARGET}
         src/smc_gen/r_pincfg
         src/smc_gen/r_sci_iic_rx
         src/smc_gen/r_sci_rx
+        src/smc_gen_
     PRIVATE
         src/smc_gen/r_sci_iic_rx/src
 )

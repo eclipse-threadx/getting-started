@@ -19,20 +19,42 @@
 
 #include "platform.h"
 
+#include "rx65n_cloud_kit_sensors.h"
+
 #define IOT_MODEL_ID "dtmi:azurertos:devkit:gsg;1"
 
+// Device telemetry names
+#define TELEMETRY_HUMIDITY          "humidity"
+#define TELEMETRY_TEMPERATURE       "temperature"
+#define TELEMETRY_PRESSURE          "pressure"
+#define TELEMETRY_GAS_RESISTANCE    "gasResistance"
+#define TELEMETRY_ACCELEROMETERX    "accelerometerX"
+#define TELEMETRY_ACCELEROMETERY    "accelerometerY"
+#define TELEMETRY_ACCELEROMETERZ    "accelerometerZ"
+#define TELEMETRY_GYROSCOPEX        "gyroscopeX"
+#define TELEMETRY_GYROSCOPEY        "gyroscopeY"
+#define TELEMETRY_GYROSCOPEZ        "gyroscopeZ"
+#define TELEMETRY_LIGHT             "light"
 #define TELEMETRY_INTERVAL_PROPERTY "telemetryInterval"
 #define LED_STATE_PROPERTY          "ledState"
 #define SET_LED_STATE_COMMAND       "setLedState"
 
 #define TELEMETRY_INTERVAL_EVENT 1
+#define DEVICE_TWIN_RECEIVED     2
 
-//#define LED_ON  0
-//#define LED_OFF 1
-//#define LED0    PORT7.PODR.BIT.B3
-//#define LED1    PORTG.PODR.BIT.B7
-//#define LED2    PORTG.PODR.BIT.B6
-//#define LED3    PORTG.PODR.BIT.B5
+typedef enum TELEMETRY_STATE_ENUM
+{
+    TELEMETRY_STATE_DEFAULT,
+    TELEMETRY_STATE_ACCELEROMETER,
+    TELEMETRY_STATE_GYROSCOPE,
+    TELEMETRY_STATE_LIGHT,
+    TELEMETRY_STATE_END
+} TELEMETRY_STATE;
+
+#define LED_ON  0
+#define LED_OFF 1
+#define LED0    PORTB.PODR.BIT.B0
+#define LED1    PORTB.PODR.BIT.B2
 
 static AZURE_IOT_NX_CONTEXT azure_iot_nx_client;
 static TX_EVENT_FLAGS_GROUP azure_iot_flags;
@@ -88,23 +110,85 @@ static UINT append_device_info_properties(NX_AZURE_IOT_JSON_WRITER* json_writer,
     return NX_AZURE_IOT_SUCCESS;
 }
 
+static UINT append_device_telemetry(NX_AZURE_IOT_JSON_WRITER* json_writer, VOID* context)
+{
+    struct bme68x_data data;
+    read_bme680(&data);
+
+    if (nx_azure_iot_json_writer_append_property_with_double_value(
+            json_writer, (UCHAR*)TELEMETRY_HUMIDITY, sizeof(TELEMETRY_HUMIDITY) - 1, data.humidity, 2) ||
+
+        nx_azure_iot_json_writer_append_property_with_double_value(
+            json_writer, (UCHAR*)TELEMETRY_TEMPERATURE, sizeof(TELEMETRY_TEMPERATURE) - 1, data.temperature, 2) ||
+
+        nx_azure_iot_json_writer_append_property_with_double_value(
+            json_writer, (UCHAR*)TELEMETRY_PRESSURE, sizeof(TELEMETRY_PRESSURE) - 1, data.pressure, 2) ||
+
+        nx_azure_iot_json_writer_append_property_with_double_value(json_writer,
+            (UCHAR*)TELEMETRY_GAS_RESISTANCE,
+            sizeof(TELEMETRY_GAS_RESISTANCE) - 1,
+            data.gas_resistance,
+            2))
+    {
+        return NX_NOT_SUCCESSFUL;
+    }
+
+    return NX_AZURE_IOT_SUCCESS;
+}
+
+static UINT append_device_accelerometer(NX_AZURE_IOT_JSON_WRITER* json_writer, VOID* context)
+{
+    struct bmi160_sensor_data data;
+    read_bmi160_accel(&data);
+
+    if (nx_azure_iot_json_writer_append_property_with_int32_value(
+            json_writer, (UCHAR*)TELEMETRY_ACCELEROMETERX, sizeof(TELEMETRY_ACCELEROMETERX) - 1, data.x) ||
+
+        nx_azure_iot_json_writer_append_property_with_int32_value(
+            json_writer, (UCHAR*)TELEMETRY_ACCELEROMETERY, sizeof(TELEMETRY_ACCELEROMETERY) - 1, data.y) ||
+
+        nx_azure_iot_json_writer_append_property_with_int32_value(
+            json_writer, (UCHAR*)TELEMETRY_ACCELEROMETERZ, sizeof(TELEMETRY_ACCELEROMETERZ) - 1, data.z))
+    {
+        return NX_NOT_SUCCESSFUL;
+    }
+
+    return NX_AZURE_IOT_SUCCESS;
+}
+
+static UINT append_device_gyroscope(NX_AZURE_IOT_JSON_WRITER* json_writer, VOID* context)
+{
+    struct bmi160_sensor_data data;
+    read_bmi160_gyro(&data);
+
+    if (nx_azure_iot_json_writer_append_property_with_int32_value(
+            json_writer, (UCHAR*)TELEMETRY_GYROSCOPEX, sizeof(TELEMETRY_GYROSCOPEX) - 1, data.x) ||
+
+        nx_azure_iot_json_writer_append_property_with_int32_value(
+            json_writer, (UCHAR*)TELEMETRY_GYROSCOPEY, sizeof(TELEMETRY_GYROSCOPEY) - 1, data.y) ||
+
+        nx_azure_iot_json_writer_append_property_with_int32_value(
+            json_writer, (UCHAR*)TELEMETRY_GYROSCOPEZ, sizeof(TELEMETRY_GYROSCOPEZ) - 1, data.z))
+    {
+        return NX_NOT_SUCCESSFUL;
+    }
+
+    return NX_AZURE_IOT_SUCCESS;
+}
+
 static void set_led_state(bool level)
 {
     if (level)
     {
         printf("LED is turned ON\r\n");
-//        LED0 = LED_ON;
-//        LED1 = LED_ON;
-//        LED2 = LED_ON;
-//        LED3 = LED_ON;
+        LED0 = LED_ON;
+        LED1 = LED_ON;
     }
     else
     {
         printf("LED is turned OFF\r\n");
-//        LED0 = LED_OFF;
-//        LED1 = LED_OFF;
-//        LED2 = LED_OFF;
-//        LED3 = LED_OFF;
+        LED0 = LED_OFF;
+        LED1 = LED_OFF;
     }
 }
 
@@ -183,19 +267,12 @@ static void device_twin_property_cb(UCHAR* component_name,
     }
 }
 
-static void device_twin_received_cb(AZURE_IOT_NX_CONTEXT* nx_context)
-{
-    azure_iot_nx_client_publish_int_writeable_property(nx_context, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
-    azure_iot_nx_client_publish_bool_property(&azure_iot_nx_client, LED_STATE_PROPERTY, false);
-    azure_iot_nx_client_publish_properties(
-        &azure_iot_nx_client, DEVICE_INFO_COMPONENT_NAME, append_device_info_properties);
-}
-
 UINT azure_iot_nx_client_entry(
     NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, UINT (*unix_time_callback)(ULONG* unix_time))
 {
     UINT status;
-    ULONG events = 0;
+    ULONG events                    = 0;
+    TELEMETRY_STATE telemetry_state = TELEMETRY_STATE_DEFAULT;
 
     if ((status = tx_event_flags_create(&azure_iot_flags, "Azure IoT flags")))
     {
@@ -241,7 +318,6 @@ UINT azure_iot_nx_client_entry(
     azure_iot_nx_client_register_direct_method(&azure_iot_nx_client, direct_method_cb);
     azure_iot_nx_client_register_device_twin_desired_prop(&azure_iot_nx_client, device_twin_desired_property_cb);
     azure_iot_nx_client_register_device_twin_prop(&azure_iot_nx_client, device_twin_property_cb);
-    azure_iot_nx_client_register_device_twin_received(&azure_iot_nx_client, device_twin_received_cb);
 
     if ((status = azure_iot_nx_client_connect(&azure_iot_nx_client)))
     {
@@ -250,14 +326,20 @@ UINT azure_iot_nx_client_entry(
     }
 
     // Request the device twin for writeable property update
-    if ((status = nx_azure_iot_hub_client_device_twin_properties_request(
-             &azure_iot_nx_client.iothub_client, NX_WAIT_FOREVER)))
+    if ((status = azure_iot_nx_client_device_twin_request_and_wait(&azure_iot_nx_client)))
     {
-        printf("ERROR: failed to request device twin (0x%08x)\r\n", status);
+        printf("ERROR: azure_iot_nx_client_device_twin_request_and_wait failed (0x%08x)\r\n", status);
         return status;
     }
 
-    float temperature = 28.5;
+    // Send out property updates
+    azure_iot_nx_client_publish_int_writeable_property(
+        &azure_iot_nx_client, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
+    azure_iot_nx_client_publish_bool_property(&azure_iot_nx_client, LED_STATE_PROPERTY, false);
+    azure_iot_nx_client_publish_properties(
+        &azure_iot_nx_client, DEVICE_INFO_COMPONENT_NAME, append_device_info_properties);
+
+    double als;
 
     printf("\r\nStarting Main loop\r\n");
     while (true)
@@ -265,7 +347,27 @@ UINT azure_iot_nx_client_entry(
         tx_event_flags_get(
             &azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR_CLEAR, &events, telemetry_interval * NX_IP_PERIODIC_RATE);
 
-        azure_iot_nx_client_publish_float_telemetry(&azure_iot_nx_client, "temperature", temperature);
+        switch (telemetry_state)
+        {
+            case TELEMETRY_STATE_DEFAULT:
+                azure_iot_nx_client_publish_telemetry(&azure_iot_nx_client, append_device_telemetry);
+                break;
+
+            case TELEMETRY_STATE_ACCELEROMETER:
+                azure_iot_nx_client_publish_telemetry(&azure_iot_nx_client, append_device_accelerometer);
+                break;
+
+            case TELEMETRY_STATE_GYROSCOPE:
+                azure_iot_nx_client_publish_telemetry(&azure_iot_nx_client, append_device_gyroscope);
+                break;
+
+            case TELEMETRY_STATE_LIGHT:
+                read_isl29035(&als);
+                azure_iot_nx_client_publish_float_telemetry(&azure_iot_nx_client, TELEMETRY_LIGHT, als);
+                break;
+        }
+
+        telemetry_state = (telemetry_state + 1) % TELEMETRY_STATE_END;
     }
 
     return NX_SUCCESS;

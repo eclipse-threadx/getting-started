@@ -8,7 +8,7 @@
 
 #include "platform.h"
 
-#include "Config_SCI5.h"
+#include "rx65n_cloud_kit_sensors.h"
 
 void _tx_timer_interrupt();
 
@@ -21,7 +21,6 @@ void timer_callback(void* pdata)
 void board_init()
 {
     uint32_t chan;
-//    ether_param_t eth_param = {0};
 
     // Setup SCI5 for printf output
     R_Config_SCI5_Start();
@@ -29,11 +28,6 @@ void board_init()
     // Create periodic timer for the system tick
     R_CMT_CreatePeriodic(100u, timer_callback, &chan);
 
-    // Setup Ethernet hardware
-//    R_ETHER_Initial();
-
-//    R_ETHER_PinSet_ETHERC0_MII();
-
-//    eth_param.channel = 0u;
-//    R_ETHER_Control(CONTROL_POWER_ON, eth_param);
+    // Initialize the Option Board sensors
+    init_sensors();
 }

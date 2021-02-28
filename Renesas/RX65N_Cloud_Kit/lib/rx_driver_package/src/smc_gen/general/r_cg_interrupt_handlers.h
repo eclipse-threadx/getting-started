@@ -46,9 +46,6 @@ Typedef definitions
 /***********************************************************************************************************************
 Global functions
 ***********************************************************************************************************************/
-/* SCI5 RXI5 */
-void r_Config_SCI5_receive_interrupt(void) __attribute__ ((interrupt(".rvectors",VECT(SCI5,RXI5))));
-
 /* SCI5 TXI5 */
 void r_Config_SCI5_transmit_interrupt(void) __attribute__ ((interrupt(".rvectors",VECT(SCI5,TXI5))));
 

@@ -25,3 +25,4 @@ add_subdirectory(netxduo)
 
 add_subdirectory(netx_driver)
 add_subdirectory(rx_driver_package)
+add_subdirectory(sensorlib)

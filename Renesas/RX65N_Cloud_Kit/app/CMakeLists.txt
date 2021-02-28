@@ -25,6 +25,7 @@ target_link_libraries(${PROJECT_NAME}
         app_common
         jsmn
         rx_driver_package
+        sensorlib
         netx_driver
 )
 
