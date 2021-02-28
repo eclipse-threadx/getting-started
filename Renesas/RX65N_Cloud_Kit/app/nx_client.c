@@ -365,6 +365,9 @@ UINT azure_iot_nx_client_entry(
                 read_isl29035(&als);
                 azure_iot_nx_client_publish_float_telemetry(&azure_iot_nx_client, TELEMETRY_LIGHT, als);
                 break;
+
+            default:
+                break;                
         }
 
         telemetry_state = (telemetry_state + 1) % TELEMETRY_STATE_END;
