@@ -16,7 +16,9 @@ void printf_init(void)
     res = tx_semaphore_create(&printf_semaphore, "printf semaphore", 1);
     if (res != TX_SUCCESS)
     {
-        while (true);
+        while (true)
+        {
+        }
     }
 }
 

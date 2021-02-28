@@ -17,7 +17,7 @@
 #include "rx65n_cloud_kit_sensors.h"
 
 #define AZURE_THREAD_STACK_SIZE 4096
-#define AZURE_THREAD_PRIORITY   4
+#define AZURE_THREAD_PRIORITY   5
 
 TX_THREAD azure_thread;
 ULONG azure_thread_stack[AZURE_THREAD_STACK_SIZE / sizeof(ULONG)];
