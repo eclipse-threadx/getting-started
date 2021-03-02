@@ -11,15 +11,7 @@ TX_SEMAPHORE printf_semaphore;
 
 void printf_init(void)
 {
-    UINT res;
-
-    res = tx_semaphore_create(&printf_semaphore, "printf semaphore", 1);
-    if (res != TX_SUCCESS)
-    {
-        while (true)
-        {
-        }
-    }
+    tx_semaphore_create(&printf_semaphore, "printf semaphore", 1);
 }
 
 void printf_transmit_end(void)
