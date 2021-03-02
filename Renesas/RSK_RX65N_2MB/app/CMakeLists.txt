@@ -27,13 +27,6 @@ target_link_libraries(${PROJECT_NAME}
         netx_driver
 )
 
-#target_link_options(${PROJECT_NAME}
-#    PRIVATE 
-#        -T${LINKER_SCRIPT} 
-#        -Wl,-Map=${PROJECT_NAME}.map
-#        -Wl,-e_PowerON_Reset
-#)
-
 set_target_properties(${PROJECT_NAME}
     PROPERTIES 
         SUFFIX ".elf"
