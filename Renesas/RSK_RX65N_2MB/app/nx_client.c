@@ -183,14 +183,6 @@ static void device_twin_property_cb(UCHAR* component_name,
     }
 }
 
-static void device_twin_received_cb(AZURE_IOT_NX_CONTEXT* nx_context)
-{
-    azure_iot_nx_client_publish_int_writeable_property(nx_context, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
-    azure_iot_nx_client_publish_bool_property(&azure_iot_nx_client, LED_STATE_PROPERTY, false);
-    azure_iot_nx_client_publish_properties(
-        &azure_iot_nx_client, DEVICE_INFO_COMPONENT_NAME, append_device_info_properties);
-}
-
 UINT azure_iot_nx_client_entry(
     NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, UINT (*unix_time_callback)(ULONG* unix_time))
 {
@@ -241,7 +233,6 @@ UINT azure_iot_nx_client_entry(
     azure_iot_nx_client_register_direct_method(&azure_iot_nx_client, direct_method_cb);
     azure_iot_nx_client_register_device_twin_desired_prop(&azure_iot_nx_client, device_twin_desired_property_cb);
     azure_iot_nx_client_register_device_twin_prop(&azure_iot_nx_client, device_twin_property_cb);
-    azure_iot_nx_client_register_device_twin_received(&azure_iot_nx_client, device_twin_received_cb);
 
     if ((status = azure_iot_nx_client_connect(&azure_iot_nx_client)))
     {
@@ -250,12 +241,18 @@ UINT azure_iot_nx_client_entry(
     }
 
     // Request the device twin for writeable property update
-    if ((status = nx_azure_iot_hub_client_device_twin_properties_request(
-             &azure_iot_nx_client.iothub_client, NX_WAIT_FOREVER)))
+    if ((status = azure_iot_nx_client_device_twin_request_and_wait(&azure_iot_nx_client)))
     {
-        printf("ERROR: failed to request device twin (0x%08x)\r\n", status);
+        printf("ERROR: azure_iot_nx_client_device_twin_request_and_wait failed (0x%08x)\r\n", status);
         return status;
     }
+
+    // Send out property updates
+    azure_iot_nx_client_publish_int_writeable_property(
+        &azure_iot_nx_client, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
+    azure_iot_nx_client_publish_bool_property(&azure_iot_nx_client, LED_STATE_PROPERTY, false);
+    azure_iot_nx_client_publish_properties(
+        &azure_iot_nx_client, DEVICE_INFO_COMPONENT_NAME, append_device_info_properties);
 
     float temperature = 28.5;
 
