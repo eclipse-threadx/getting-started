@@ -13,12 +13,17 @@ The **STM32CubeL4 MCU Package** projects are directly running on the STM32L4 ser
 
 In this FW Package, the modules **Middlewares/ST/TouchGFX** **Middlewares/ST/STemWin** are not directly accessible. They must be downloaded from a ST server, the respective URL are available in a readme.txt file inside each module.
 
+## Release note
+
+Details about the content of this release are available in the release note [here](https://htmlpreview.github.io/?https://github.com/STMicroelectronics/STM32CubeL4/blob/master/Release_Notes.html).
+
 ## Boards available
   * STM32L4 
     * [32L4R9IDISCOVERY](https://www.st.com/en/evaluation-tools/32l4r9idiscovery.html)
     * [32L476GDISCOVERY](https://www.st.com/en/evaluation-tools/32l476gdiscovery.html)
     * [32L496GDISCOVERY](https://www.st.com/en/evaluation-tools/32l496gdiscovery.html)
     * [B-L475E-IOT01A](https://www.st.com/en/evaluation-tools/b-l475e-iot01a.html)
+    * [B-L4S5I-IOT01A](https://www.st.com/en/evaluation-tools/b-l4s5i-iot01a.html)
     * [NUCLEO-L4R5ZI](https://www.st.com/en/evaluation-tools/nucleo-l4r5zi.html)
     * [NUCLEO-L4R5ZI-P](https://www.st.com/en/evaluation-tools/nucleo-l4r5zi-p.html)
     * [NUCLEO-L412KB](https://www.st.com/en/evaluation-tools/nucleo-l412kb.html)
@@ -32,7 +37,7 @@ In this FW Package, the modules **Middlewares/ST/TouchGFX** **Middlewares/ST/STe
     * [NUCLEO-L496ZG-P](https://www.st.com/en/evaluation-tools/nucleo-l496zg-p.html)
     * [STM32L4R9I-EVAL](https://www.st.com/en/evaluation-tools/stm32l4r9i-eval.html)
     * [STM32L476G-EVAL](https://www.st.com/en/evaluation-tools/stm32l476g-eval.html)
-	
+
 ## Troubleshooting
 
 **Caution** : The **Issues** requests are strictly limited to submit problems or suggestions related to the software delivered in this repo 
