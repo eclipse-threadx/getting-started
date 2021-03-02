@@ -1,7 +1,7 @@
 /* Copyright (c) Microsoft Corporation.
    Licensed under the MIT License. */
 
-// https://docs.microsoft.com/en-us/azure/iot-dps/iot-dps-mqtt-support
+// https://docs.microsoft.com/azure/iot-dps/iot-dps-mqtt-support
 
 #include <string.h>
 
