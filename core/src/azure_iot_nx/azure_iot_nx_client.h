@@ -63,15 +63,12 @@ struct AZURE_IOT_NX_CONTEXT_STRUCT
     func_ptr_direct_method direct_method_cb;
     func_ptr_device_twin_desired_prop device_twin_desired_prop_cb;
     func_ptr_device_twin_prop device_twin_get_cb;
-    func_ptr_device_twin_received device_twin_received_cb;
 };
 
 UINT azure_iot_nx_client_register_direct_method(AZURE_IOT_NX_CONTEXT* context, func_ptr_direct_method callback);
 UINT azure_iot_nx_client_register_device_twin_desired_prop(
     AZURE_IOT_NX_CONTEXT* context, func_ptr_device_twin_desired_prop callback);
 UINT azure_iot_nx_client_register_device_twin_prop(AZURE_IOT_NX_CONTEXT* context, func_ptr_device_twin_prop callback);
-UINT azure_iot_nx_client_register_device_twin_received(
-    AZURE_IOT_NX_CONTEXT* context, func_ptr_device_twin_received callback);
 
 UINT azure_iot_nx_client_sas_set(AZURE_IOT_NX_CONTEXT* context, CHAR* device_sas_key);
 UINT azure_iot_nx_client_cert_set(AZURE_IOT_NX_CONTEXT* context,
@@ -92,6 +89,8 @@ UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CONTEXT* context, CHAR* dps_id_
 
 UINT azure_iot_nx_client_delete(AZURE_IOT_NX_CONTEXT* context);
 UINT azure_iot_nx_client_connect(AZURE_IOT_NX_CONTEXT* context);
+
+UINT azure_iot_nx_client_device_twin_request_and_wait(AZURE_IOT_NX_CONTEXT* context);
 
 UINT azure_iot_nx_client_publish_telemetry(AZURE_IOT_NX_CONTEXT* context,
     UINT (*append_properties)(NX_AZURE_IOT_JSON_WRITER* json_builder_ptr, VOID* context));
