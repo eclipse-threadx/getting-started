@@ -15,7 +15,7 @@
 /**                                                                       */
 /** NetX Component                                                        */
 /**                                                                       */
-/**   NetX Porting layer for STM32L475E-IOT01A1                           */
+/**   NetX Porting layer for STM32L4XX                                    */
 /**                                                                       */
 /**************************************************************************/
 /**************************************************************************/
@@ -85,6 +85,14 @@ typedef struct NX_WIFI_SOCKET_STRUCT
     /* Define the deferred packet processing queue.  */
     NX_PACKET   *nx_wifi_received_packet_head,
                 *nx_wifi_received_packet_tail;
+
+#ifdef NX_ENABLE_IP_PACKET_FILTER
+
+    /* Define the UDP connected IP and port.  */
+    ULONG       nx_wifi_udp_socket_connect_ip;
+    UINT        nx_wifi_udp_socket_connect_port;
+#endif /* NX_ENABLE_IP_PACKET_FILTER */
+    
 }NX_WIFI_SOCKET;
 
 #ifndef NX_WIFI_SOCKET_COUNTER
@@ -100,6 +108,21 @@ static CHAR                         nx_wifi_socket_counter;
 /* Define the buffer to receive data from wifi.  */
 static CHAR                         nx_wifi_buffer[ES_WIFI_PAYLOAD_SIZE];
 
+#ifdef NX_ENABLE_IP_PACKET_FILTER
+
+/* Define the wifi IP address.  */
+static ULONG                        nx_wifi_ip_address = 0;
+
+/* Define the buffer to build fake IP header and TCP/UDP header.
+   IP Header: 20 bytes, TCP header: 20 bytes.  */
+static CHAR                         nx_wifi_ip_buffer[40];
+
+/* Define the ip packet filter.  */
+static UINT  nx_wifi_ip_packet_filter(ULONG source_ip, ULONG destination_ip, 
+                                      ULONG source_port, ULONG destination_port,
+                                      ULONG protocol, ULONG packet_length, UINT direction);
+#endif /* NX_ENABLE_IP_PACKET_FILTER */
+
 /* Define the wifi thread.  */
 static void    nx_wifi_thread_entry(ULONG thread_input);
 
@@ -108,7 +131,7 @@ static void    nx_wifi_thread_entry(ULONG thread_input);
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    nx_wifi_initialize                                  PORTABLE C      */
-/*                                                           6.0          */
+/*                                                           6.1          */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -139,13 +162,15 @@ static void    nx_wifi_thread_entry(ULONG thread_input);
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */
 /**************************************************************************/
 UINT nx_wifi_initialize(NX_IP *ip_ptr, NX_PACKET_POOL *packet_pool)
 {
-  
+
 UINT    status;
-        
+
     
     /* Set the IP.  */
     nx_wifi_ip = ip_ptr;
@@ -158,7 +183,7 @@ UINT    status;
     
     /* Initialize the socket id.  */
     nx_wifi_socket_counter = 0;
-    
+
     /* Create the wifi thread.  */
     status = tx_thread_create(&nx_wifi_thread, "Wifi Thread", nx_wifi_thread_entry, 0,  
                               nx_wifi_thread_stack, NX_WIFI_STACK_SIZE, 
@@ -176,7 +201,7 @@ UINT    status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    nx_wifi_thread_entry                                PORTABLE C      */
-/*                                                           6.0          */
+/*                                                           6.1          */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -207,12 +232,13 @@ UINT    status;
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*  09-30-2020     Yuxin Zhou               Modified comment(s), and      */
+/*                                            optimized internal code,    */
+/*                                            resulting in version 6.1    */
 /*                                                                        */
 /**************************************************************************/
 void nx_wifi_thread_entry(ULONG thread_input)
 {
-  
-TX_INTERRUPT_SAVE_AREA
 
 UINT            i;
 UINT            socket_counter;
@@ -221,7 +247,18 @@ UINT            status;
 NX_PACKET       *packet_ptr;
 NX_TCP_SOCKET   *tcp_socket;
 NX_UDP_SOCKET   *udp_socket;
+#ifdef NX_ENABLE_IP_PACKET_FILTER
+uint8_t         ip_address[4];
+#endif /* NX_ENABLE_IP_PACKET_FILTER */
 
+
+#ifdef NX_ENABLE_IP_PACKET_FILTER
+    if (WIFI_GetIP_Address(ip_address) == WIFI_STATUS_OK)
+    {
+        nx_wifi_ip_address = IP_ADDRESS(ip_address[0], ip_address[1], ip_address[2], ip_address[3]);
+    }
+#endif /* NX_ENABLE_IP_PACKET_FILTER  */
+    
     while(1)
     {
       
@@ -272,9 +309,6 @@ NX_UDP_SOCKET   *udp_socket;
                         nx_packet_release(packet_ptr);
                         break;
                     }
-                    
-                    /* Disable interrupts.  */
-                    TX_DISABLE
           
                     /* Check to see if the deferred processing queue is empty.  */
                     if (nx_wifi_socket[i].nx_wifi_received_packet_head)
@@ -285,8 +319,6 @@ NX_UDP_SOCKET   *udp_socket;
                         packet_ptr -> nx_packet_queue_next =  NX_NULL;
                         nx_wifi_socket[i].nx_wifi_received_packet_tail =  packet_ptr;
 
-                        /* Restore interrupts.  */
-                        TX_RESTORE
                     }
                     else
                     {
@@ -297,9 +329,6 @@ NX_UDP_SOCKET   *udp_socket;
                         nx_wifi_socket[i].nx_wifi_received_packet_head =  packet_ptr;
                         nx_wifi_socket[i].nx_wifi_received_packet_tail =  packet_ptr;
                         packet_ptr -> nx_packet_queue_next =             NX_NULL;
-
-                        /* Restore interrupts.  */
-                        TX_RESTORE
                           
                         /* Check the socket type.  */
                         if (nx_wifi_socket[i].nx_wifi_socket_type == NX_WIFI_TCP_SOCKET)
@@ -307,7 +336,15 @@ NX_UDP_SOCKET   *udp_socket;
                             
                             /* Get the tcp socket.  */
                             tcp_socket = (NX_TCP_SOCKET *)nx_wifi_socket[i].nx_wifi_socket_ptr;
-                            
+
+#ifdef NX_ENABLE_IP_PACKET_FILTER
+                            nx_wifi_ip_packet_filter(tcp_socket -> nx_tcp_socket_connect_ip.nxd_ip_address.v4,
+                                                     nx_wifi_ip_address,
+                                                     tcp_socket -> nx_tcp_socket_connect_port,
+                                                     tcp_socket -> nx_tcp_socket_port,
+                                                     NX_IP_TCP, size, NX_IP_PACKET_IN);
+#endif /* NX_ENABLE_IP_PACKET_FILTER */
+
                             /* Determine if there is a socket receive notification function specified.  */
                             if (tcp_socket -> nx_tcp_receive_callback)
                             {
@@ -319,10 +356,20 @@ NX_UDP_SOCKET   *udp_socket;
                         }
                         else
                         {
-                          
+
                             /* Get the udp socket.  */
                             udp_socket = (NX_UDP_SOCKET *)nx_wifi_socket[i].nx_wifi_socket_ptr;
-                            
+
+#ifdef NX_ENABLE_IP_PACKET_FILTER
+
+                            /* Process packet filter.  */
+                            nx_wifi_ip_packet_filter(nx_wifi_socket[i].nx_wifi_udp_socket_connect_ip,
+                                                     nx_wifi_ip_address,
+                                                     nx_wifi_socket[i].nx_wifi_udp_socket_connect_port,
+                                                     udp_socket -> nx_udp_socket_port,
+                                                     NX_IP_UDP, size, NX_IP_PACKET_IN);
+#endif /* NX_ENABLE_IP_PACKET_FILTER */
+
                             /* Determine if there is a socket receive notification function specified.  */
                             if (udp_socket -> nx_udp_receive_callback)
                             {
@@ -353,7 +400,7 @@ NX_UDP_SOCKET   *udp_socket;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    nx_wifi_tick_convert_ms                             PORTABLE C      */
-/*                                                           6.0          */
+/*                                                           6.1          */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -384,6 +431,8 @@ NX_UDP_SOCKET   *udp_socket;
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */
 /**************************************************************************/
 static VOID  nx_wifi_tick_convert_ms(ULONG tick, ULONG *millisecond)
@@ -414,7 +463,7 @@ UINT    factor = 1000/NX_IP_PERIODIC_RATE;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    nx_wifi_socket_entry_find                           PORTABLE C      */
-/*                                                           6.0          */
+/*                                                           6.1          */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -446,6 +495,8 @@ UINT    factor = 1000/NX_IP_PERIODIC_RATE;
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */
 /**************************************************************************/
 static UINT  nx_wifi_socket_entry_find(void *socket_ptr, UCHAR *entry_index, UCHAR entry_find)
@@ -502,7 +553,7 @@ UCHAR   empty_index = NX_WIFI_SOCKET_COUNTER;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    nx_wifi_socket_reset                                PORTABLE C      */
-/*                                                           6.0          */
+/*                                                           6.1          */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -534,6 +585,8 @@ UCHAR   empty_index = NX_WIFI_SOCKET_COUNTER;
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */
 /**************************************************************************/
 static void  nx_wifi_socket_reset(UCHAR entry_index)
@@ -574,7 +627,7 @@ NX_PACKET *current_packet;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    nx_wifi_socket_receive                              PORTABLE C      */
-/*                                                           6.0          */
+/*                                                           6.1          */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -607,12 +660,14 @@ NX_PACKET *current_packet;
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*  09-30-2020     Yuxin Zhou               Modified comment(s), and      */
+/*                                            optimized internal code,    */
+/*                                            resulting in version 6.1    */
 /*                                                                        */
 /**************************************************************************/
 static UINT  nx_wifi_socket_receive(VOID *socket_ptr, NX_PACKET **packet_ptr, ULONG wait_option, UINT socket_type)
 {
 
-TX_INTERRUPT_SAVE_AREA
 UINT    status;
 UCHAR   entry_index;
 ULONG   total_millisecond;
@@ -621,6 +676,10 @@ UINT    start_time;
 ULONG   millisecond;
 USHORT  size;
 UINT    received_packet = NX_FALSE;
+#ifdef NX_ENABLE_IP_PACKET_FILTER
+NX_TCP_SOCKET *tcp_socket;
+NX_UDP_SOCKET *udp_socket;
+#endif /* NX_ENABLE_IP_PACKET_FILTER */
 
     /* Obtain the IP internal mutex before processing the IP event.  */
     tx_mutex_get(&(nx_wifi_ip -> nx_ip_protection), TX_WAIT_FOREVER);     
@@ -645,9 +704,6 @@ UINT    received_packet = NX_FALSE;
     
     /* Convert the tick to millisecond.  */
     nx_wifi_tick_convert_ms(wait_option, &total_millisecond); 
-        
-    /* Disable interrupts.  */
-    TX_DISABLE
           
     /* Receive the packet from queue.  */
     if (nx_wifi_socket[entry_index].nx_wifi_received_packet_head)
@@ -668,9 +724,6 @@ UINT    received_packet = NX_FALSE;
             /* Yes, the queue is empty.  Set the tail pointer to NULL.  */
             nx_wifi_socket[entry_index].nx_wifi_received_packet_tail =  NX_NULL;
         }
-
-        /* Restore interrupts.  */
-        TX_RESTORE      
         
         /* Release the IP internal mutex before processing the IP event.  */
         tx_mutex_put(&(nx_wifi_ip -> nx_ip_protection));
@@ -678,9 +731,6 @@ UINT    received_packet = NX_FALSE;
     }
     else
     {
-        
-        /* Restore interrupts.  */
-        TX_RESTORE            
         
         /* Get the start time.  */
         start_time = tx_time_get();
@@ -732,6 +782,37 @@ UINT    received_packet = NX_FALSE;
             tx_mutex_put(&(nx_wifi_ip -> nx_ip_protection));
             return(NX_NO_PACKET);
         }
+
+#ifdef NX_ENABLE_IP_PACKET_FILTER
+
+        /* Check the socket type.  */
+        if (nx_wifi_socket[entry_index].nx_wifi_socket_type == NX_WIFI_TCP_SOCKET)
+        {
+
+            /* Get the tcp socket.  */
+            tcp_socket = (NX_TCP_SOCKET *)nx_wifi_socket[entry_index].nx_wifi_socket_ptr;
+
+            /* Process packet filter.  */
+            nx_wifi_ip_packet_filter(tcp_socket -> nx_tcp_socket_connect_ip.nxd_ip_address.v4,
+                                     nx_wifi_ip_address,
+                                     tcp_socket -> nx_tcp_socket_connect_port,
+                                     tcp_socket -> nx_tcp_socket_port,
+                                     NX_IP_TCP, size, NX_IP_PACKET_IN);
+        }
+        else
+        {
+
+            /* Get the udp socket.  */
+            udp_socket = (NX_UDP_SOCKET *)nx_wifi_socket[entry_index].nx_wifi_socket_ptr;
+
+            /* Process packet filter.  */
+            nx_wifi_ip_packet_filter(nx_wifi_socket[entry_index].nx_wifi_udp_socket_connect_ip,
+                                     nx_wifi_ip_address,
+                                     nx_wifi_socket[entry_index].nx_wifi_udp_socket_connect_port,
+                                     udp_socket -> nx_udp_socket_port,
+                                     NX_IP_UDP, size, NX_IP_PACKET_IN);
+        }
+#endif /* NX_ENABLE_IP_PACKET_FILTER  */
         
         /* Allocate one packet to store the data.  */
         if (nx_packet_allocate(nx_wifi_pool, packet_ptr,  NX_RECEIVE_PACKET, NX_NO_WAIT))
@@ -766,7 +847,7 @@ UINT    received_packet = NX_FALSE;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    nx_wifi_tcp_client_socket_connect                   PORTABLE C      */
-/*                                                           6.0          */
+/*                                                           6.1          */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -799,6 +880,8 @@ UINT    received_packet = NX_FALSE;
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */
 /**************************************************************************/
 UINT  nx_wifi_tcp_client_socket_connect(NX_TCP_SOCKET *socket_ptr,
@@ -845,9 +928,10 @@ UCHAR   entry_index;
         /* Update the connect flag.  */
         nx_wifi_socket[entry_index].nx_wifi_socket_connected = 1;   
         
-        /* Update the address.  */
+        /* Update the address and port.  */
         socket_ptr -> nx_tcp_socket_connect_ip.nxd_ip_version = NX_IP_VERSION_V4;
         socket_ptr -> nx_tcp_socket_connect_ip.nxd_ip_address.v4 = server_ip -> nxd_ip_address.v4;
+        socket_ptr -> nx_tcp_socket_connect_port = server_port;
         socket_ptr -> nx_tcp_socket_state =  NX_TCP_ESTABLISHED;  
         
         /* Release the IP internal mutex before processing the IP event.  */
@@ -872,7 +956,7 @@ UCHAR   entry_index;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    nx_wifi_tcp_socket_disconnect                       PORTABLE C      */
-/*                                                           6.0          */
+/*                                                           6.1          */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -903,6 +987,8 @@ UCHAR   entry_index;
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */
 /**************************************************************************/
 UINT  nx_wifi_tcp_socket_disconnect(NX_TCP_SOCKET *socket_ptr, ULONG wait_option)
@@ -954,7 +1040,7 @@ UCHAR   entry_index;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    nx_wifi_tcp_socket_send                             PORTABLE C      */
-/*                                                           6.0          */
+/*                                                           6.1          */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -986,6 +1072,8 @@ UCHAR   entry_index;
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */
 /**************************************************************************/
 UINT  nx_wifi_tcp_socket_send(NX_TCP_SOCKET *socket_ptr, NX_PACKET *packet_ptr, ULONG wait_option)
@@ -1040,7 +1128,17 @@ NX_PACKET   *current_packet;
             tx_mutex_put(&(nx_wifi_ip -> nx_ip_protection));
             return (NX_NOT_SUCCESSFUL);
         }
-         
+
+#ifdef NX_ENABLE_IP_PACKET_FILTER
+
+        /* Process packet filter.  */
+        nx_wifi_ip_packet_filter(nx_wifi_ip_address,
+                                 socket_ptr -> nx_tcp_socket_connect_ip.nxd_ip_address.v4,
+                                 socket_ptr -> nx_tcp_socket_port,
+                                 socket_ptr -> nx_tcp_socket_connect_port,
+                                 NX_IP_TCP, packet_size, NX_IP_PACKET_OUT);
+#endif /* NX_ENABLE_IP_PACKET_FILTER */
+
 #ifndef NX_DISABLE_PACKET_CHAIN
         /* We have crossed the packet boundary.  Move to the next packet
            structure.  */
@@ -1066,7 +1164,7 @@ NX_PACKET   *current_packet;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    nx_wifi_tcp_socket_receive                          PORTABLE C      */
-/*                                                           6.0          */
+/*                                                           6.1          */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -1098,6 +1196,8 @@ NX_PACKET   *current_packet;
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */
 /**************************************************************************/
 UINT  nx_wifi_tcp_socket_receive(NX_TCP_SOCKET *socket_ptr, NX_PACKET **packet_ptr, ULONG wait_option)
@@ -1111,7 +1211,7 @@ UINT  nx_wifi_tcp_socket_receive(NX_TCP_SOCKET *socket_ptr, NX_PACKET **packet_p
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    nx_wifi_udp_socket_bind                             PORTABLE C      */
-/*                                                           6.0          */
+/*                                                           6.1          */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -1143,6 +1243,8 @@ UINT  nx_wifi_tcp_socket_receive(NX_TCP_SOCKET *socket_ptr, NX_PACKET **packet_p
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */
 /**************************************************************************/
 UINT  nx_wifi_udp_socket_bind(NX_UDP_SOCKET *socket_ptr, UINT  port, ULONG wait_option)
@@ -1181,7 +1283,7 @@ UCHAR       entry_index;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    nx_wifi_udp_socket_unbind                           PORTABLE C      */
-/*                                                           6.0          */
+/*                                                           6.1          */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -1211,6 +1313,8 @@ UCHAR       entry_index;
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */
 /**************************************************************************/
 UINT  nx_wifi_udp_socket_unbind(NX_UDP_SOCKET *socket_ptr)
@@ -1258,7 +1362,7 @@ UCHAR   entry_index;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    nx_wifi_udp_socket_send                             PORTABLE C      */
-/*                                                           6.0          */
+/*                                                           6.1          */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -1288,6 +1392,8 @@ UCHAR   entry_index;
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */
 /**************************************************************************/
 UINT  nx_wifi_udp_socket_send(NX_UDP_SOCKET *socket_ptr, NX_PACKET *packet_ptr, 
@@ -1338,7 +1444,14 @@ NX_PACKET   *current_packet;
         }
 
         /* Update the connect flag.  */
-        nx_wifi_socket[entry_index].nx_wifi_socket_connected = 1;   
+        nx_wifi_socket[entry_index].nx_wifi_socket_connected = 1;
+
+#ifdef NX_ENABLE_IP_PACKET_FILTER
+
+        /* Set IP and port.  */
+        nx_wifi_socket[entry_index].nx_wifi_udp_socket_connect_ip = ip_address -> nxd_ip_address.v4;
+        nx_wifi_socket[entry_index].nx_wifi_udp_socket_connect_port = port;
+#endif /* NX_ENABLE_IP_PACKET_FILTER */
     }
         
     /* Initialize the current packet to the input packet pointer.  */
@@ -1362,6 +1475,16 @@ NX_PACKET   *current_packet;
             tx_mutex_put(&(nx_wifi_ip -> nx_ip_protection));
             return(NX_NOT_SUCCESSFUL);
         }
+
+#ifdef NX_ENABLE_IP_PACKET_FILTER
+
+        /* Process packet filter.  */
+        nx_wifi_ip_packet_filter(nx_wifi_ip_address,
+                                 nx_wifi_socket[entry_index].nx_wifi_udp_socket_connect_ip,
+                                 socket_ptr -> nx_udp_socket_port,
+                                 nx_wifi_socket[entry_index].nx_wifi_udp_socket_connect_port,
+                                 NX_IP_UDP, packet_size, NX_IP_PACKET_OUT);
+#endif /* NX_ENABLE_IP_PACKET_FILTER */
 
 #ifndef NX_DISABLE_PACKET_CHAIN
         /* We have crossed the packet boundary.  Move to the next packet
@@ -1388,7 +1511,7 @@ NX_PACKET   *current_packet;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    nx_wifi_udp_socket_receive                          PORTABLE C      */
-/*                                                           6.0          */
+/*                                                           6.1          */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Yuxin Zhou, Microsoft Corporation                                   */
@@ -1418,9 +1541,123 @@ NX_PACKET   *current_packet;
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */
 /**************************************************************************/
 UINT  nx_wifi_udp_socket_receive(NX_UDP_SOCKET *socket_ptr, NX_PACKET **packet_ptr, ULONG wait_option)
 {
     return(nx_wifi_socket_receive((VOID*)socket_ptr, packet_ptr, wait_option, NX_WIFI_UDP_SOCKET));
 } 
+
+
+#ifdef NX_ENABLE_IP_PACKET_FILTER
+/**************************************************************************/ 
+/*                                                                        */ 
+/*  FUNCTION                                               RELEASE        */ 
+/*                                                                        */ 
+/*    nx_wifi_ip_packet_filter                            PORTABLE C      */
+/*                                                           6.1          */
+/*  AUTHOR                                                                */
+/*                                                                        */
+/*    Yuxin Zhou, Microsoft Corporation                                   */
+/*                                                                        */
+/*  DESCRIPTION                                                           */ 
+/*                                                                        */
+/*    This function builds fake IP header and TCP/UDP header to filter.   */
+/*                                                                        */ 
+/*    Note: Only fill source IP, destination IP and Protocol in IP header */ 
+/*    and fill source port and destination port in TCP/UDP header.        */ 
+/*                                                                        */ 
+/*  INPUT                                                                 */ 
+/*                                                                        */
+/*    source_ip                             Source IP address             */
+/*    destination_ip                        Destination IP address        */
+/*    source_port                           Source port                   */
+/*    destination_port                      Destination port              */
+/*    protocol                              Protocol: TCP/UDP             */
+/*    packet_length                         Lenght of packet              */
+/*    direction                             Direction: IN/OUT             */
+/*                                                                        */ 
+/*  OUTPUT                                                                */ 
+/*                                                                        */ 
+/*    status                                Completion status             */
+/*                                                                        */ 
+/*  CALLS                                                                 */ 
+/*                                                                        */ 
+/*    None                                                                */ 
+/*                                                                        */ 
+/*  CALLED BY                                                             */ 
+/*                                                                        */ 
+/*    Application Code                                                    */ 
+/*                                                                        */ 
+/*  RELEASE HISTORY                                                       */ 
+/*                                                                        */ 
+/*    DATE              NAME                      DESCRIPTION             */
+/*                                                                        */
+/*  09-30-2020     Yuxin Zhou               Initial Version 6.1           */
+/*                                                                        */
+/**************************************************************************/
+static UINT  nx_wifi_ip_packet_filter(ULONG source_ip, ULONG destination_ip,
+                                      ULONG source_port, ULONG destination_port,
+                                      ULONG protocol, ULONG packet_length, UINT direction)
+{
+
+NX_IPV4_HEADER *ip_header_ptr;
+ULONG port;
+UINT status;
+
+    /* Check if the IP packet filter is set. */
+    if (nx_wifi_ip -> nx_ip_packet_filter)
+    {
+
+        /* Initialize the buffer.  */
+        memset(nx_wifi_ip_buffer, 0, 40);
+
+        /* Update packet length.  */
+        if (protocol == NX_IP_TCP)
+        {
+            packet_length += 40;
+        }
+        else
+        {
+            packet_length += 28;
+        }
+
+        /* Fill IP header.  */
+        ip_header_ptr = (NX_IPV4_HEADER *) nx_wifi_ip_buffer;
+
+        /* Build the first 32-bit word of the IP header.  */
+        ip_header_ptr -> nx_ip_header_word_0 = (NX_IP_VERSION | (0xFFFF & packet_length));
+                                                        
+        /* Build the third 32-bit word of the IP header.  */
+        ip_header_ptr -> nx_ip_header_word_2 = protocol;
+
+        /* Place the source IP address in the IP header.  */
+        ip_header_ptr -> nx_ip_header_source_ip = source_ip;
+
+        /* Place the destination IP address in the IP header.  */
+        ip_header_ptr -> nx_ip_header_destination_ip = destination_ip;
+
+        NX_CHANGE_ULONG_ENDIAN(ip_header_ptr -> nx_ip_header_word_0);
+        NX_CHANGE_ULONG_ENDIAN(ip_header_ptr -> nx_ip_header_word_2);
+        NX_CHANGE_ULONG_ENDIAN(ip_header_ptr -> nx_ip_header_source_ip);
+        NX_CHANGE_ULONG_ENDIAN(ip_header_ptr -> nx_ip_header_destination_ip);
+
+        /* Fill the TCP/UDP ports.  */
+        port = (source_port << NX_SHIFT_BY_16) | (destination_port);
+        NX_CHANGE_ULONG_ENDIAN(port);
+        memcpy(&nx_wifi_ip_buffer[20], &port, 4); /* Use case of memcpy is verified.  */
+
+        /* Yes, call the IP packet filter routine. */
+        status = nx_wifi_ip -> nx_ip_packet_filter(nx_wifi_ip_buffer, direction);
+
+        if (status)
+        {
+            return (status);
+        }
+    }
+
+    return(NX_SUCCESS);
+}
+#endif /* NX_ENABLE_IP_PACKET_FILTER */
