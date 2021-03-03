@@ -6,7 +6,7 @@ MEMORY
 	OFS : ORIGIN = 0xFE7F5D00, LENGTH = 128
 }
 
-INCLUDE ../app/startup/linker_script_rvectors_extern.inc
+INCLUDE ../app/startup/gnu/linker_script_rvectors_extern.inc
 
 SECTIONS
 {
@@ -30,7 +30,7 @@ SECTIONS
 	.rvectors ALIGN(4):
 	{
 		_rvectors_start = .;
-		INCLUDE ../app/startup/linker_script_rvectors.inc
+		INCLUDE ../app/startup/gnu/linker_script_rvectors.inc
 		_rvectors_end = .;
 	} > ROM
 	.init :

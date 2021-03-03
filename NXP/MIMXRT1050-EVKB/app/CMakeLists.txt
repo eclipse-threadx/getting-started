@@ -1,11 +1,9 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-set(LINKER_SCRIPT "${CMAKE_CURRENT_LIST_DIR}/startup/MIMXRT1052xxxxx_flexspi_nor.ld")
-
 set(SOURCES
-    startup/startup_MIMXRT1052.S
-    startup/tx_initialize_low_level.S
+    startup/${THREADX_TOOLCHAIN}/startup_MIMXRT1052.S
+    startup/${THREADX_TOOLCHAIN}/tx_initialize_low_level.S
     legacy/mqtt.c
     azure_config.h
     nx_client.c
@@ -27,13 +25,8 @@ target_link_libraries(${PROJECT_NAME}
         netx_driver
 )
 
-target_link_options(${PROJECT_NAME}
-    PRIVATE 
-        -T${LINKER_SCRIPT} -Wl,-Map=${PROJECT_NAME}.map)
-
 set_target_properties(${PROJECT_NAME}
     PROPERTIES 
-        LINK_DEPENDS ${LINKER_SCRIPT}
         SUFFIX ".elf"
 )
 
@@ -42,5 +35,14 @@ target_include_directories(${PROJECT_NAME}
         .
 )
 
-create_bin_output(${PROJECT_NAME})
-firmware_size(${PROJECT_NAME})
+if(THREADX_TOOLCHAIN STREQUAL "iar")
+    target_link_options(${PROJECT_NAME}
+        PRIVATE 
+            --config ${CMAKE_CURRENT_LIST_DIR}/startup/iar/MIMXRT1052xxxxx_flexspi_nor.icf --map=${PROJECT_NAME}.map)
+else()
+    target_link_options(${PROJECT_NAME}
+        PRIVATE 
+            -T${CMAKE_CURRENT_LIST_DIR}/startup/gnu/MIMXRT1052xxxxx_flexspi_nor.ld -Wl,-Map=${PROJECT_NAME}.map)
+endif()
+
+post_build(${PROJECT_NAME})

@@ -3,7 +3,7 @@
 
 #include "sntp_client.h"
 
-#include <time.h>
+#include <stdint.h>
 
 #include "nx_api.h"
 #include "nxd_dns.h"
@@ -40,8 +40,6 @@ static ULONG sntp_last_time = 0;
 static ULONG tx_last_ticks  = 0;
 static bool first_sync      = false;
 
-int _gettimeofday(struct timeval* tp, void* tzvp);
-
 static void print_address(CHAR* preable, NXD_ADDRESS address)
 {
     if (address.nxd_ip_version == NX_IP_VERSION_V4)
@@ -50,10 +48,10 @@ static void print_address(CHAR* preable, NXD_ADDRESS address)
 
         printf("\t%s: %d.%d.%d.%d\r\n",
             preable,
-            (u_int8_t)(ipv4 >> 24),
-            (u_int8_t)(ipv4 >> 16 & 0xFF),
-            (u_int8_t)(ipv4 >> 8 & 0xFF),
-            (u_int8_t)(ipv4 & 0xFF));
+            (uint8_t)(ipv4 >> 24),
+            (uint8_t)(ipv4 >> 16 & 0xFF),
+            (uint8_t)(ipv4 >> 8 & 0xFF),
+            (uint8_t)(ipv4 & 0xFF));
     }
     else
     {
@@ -291,13 +289,4 @@ UINT sntp_start()
     }
 
     return NX_SUCCESS;
-}
-
-// newlibc-nano stub
-int _gettimeofday(struct timeval* tp, void* tzvp)
-{
-    tp->tv_sec  = sntp_time_get();
-    tp->tv_usec = 0;
-
-    return 0;
 }

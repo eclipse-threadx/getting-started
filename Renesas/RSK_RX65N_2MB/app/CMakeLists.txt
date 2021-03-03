@@ -1,11 +1,10 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-set(LINKER_SCRIPT "${CMAKE_CURRENT_LIST_DIR}/startup/linker_script.ld")
+#set(LINKER_SCRIPT "${CMAKE_CURRENT_LIST_DIR}/startup/linker_script.ld")
 
 set(SOURCES
-#    startup/startup_MIMXRT1062.S
-    startup/tx_initialize_low_level.S
+    startup/${THREADX_TOOLCHAIN}/tx_initialize_low_level.S
 
     legacy/mqtt.c
     azure_config.h
@@ -28,16 +27,8 @@ target_link_libraries(${PROJECT_NAME}
         netx_driver
 )
 
-target_link_options(${PROJECT_NAME}
-    PRIVATE 
-        -T${LINKER_SCRIPT} 
-        -Wl,-Map=${PROJECT_NAME}.map
-        -Wl,-e_PowerON_Reset
-)
-
 set_target_properties(${PROJECT_NAME}
     PROPERTIES 
-        LINK_DEPENDS ${LINKER_SCRIPT}
         SUFFIX ".elf"
 )
 
@@ -46,5 +37,15 @@ target_include_directories(${PROJECT_NAME}
         .
 )
 
-create_bin_output(${PROJECT_NAME})
-firmware_size(${PROJECT_NAME})
+if(THREADX_TOOLCHAIN STREQUAL "iar")
+    message(FATAL_ERROR, "IAR is not currently implemented for this device")
+else()
+    target_link_options(${PROJECT_NAME}
+        PRIVATE 
+            -T${CMAKE_CURRENT_LIST_DIR}/startup/gnu/linker_script.ld 
+            -Wl,-Map=${PROJECT_NAME}.map
+            -Wl,-e_PowerON_Reset
+    )
+endif()
+
+post_build(${PROJECT_NAME})

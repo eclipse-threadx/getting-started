@@ -1,6 +1,9 @@
 /* Copyright (c) Microsoft Corporation.
    Licensed under the MIT License. */
 
+#ifdef __GNUC__
+
+#include <stdio.h>
 #include <errno.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -63,3 +66,5 @@ int _getpid(void)
 {
     return -1;
 }
+
+#endif

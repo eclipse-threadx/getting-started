@@ -2,9 +2,9 @@
 # Licensed under the MIT License.
 
 set(SOURCES
+    src/${THREADX_TOOLCHAIN}/nx_driver_same54_low_level.S
     src/nx_driver_same54.c
     src/nx_driver_same54.h
-    src/nx_driver_same54_low_level.S
 )
 
 set(TARGET netxdriver)

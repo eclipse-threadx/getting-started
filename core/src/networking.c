@@ -3,6 +3,8 @@
    
 #include "networking.h"
 
+#include <stdint.h>
+
 #include "nx_api.h"
 #include "nx_secure_tls_api.h"
 #include "nxd_dhcp_client.h"
@@ -32,10 +34,10 @@ static void print_address(CHAR* preable, ULONG address)
 {
     printf("\t%s: %d.%d.%d.%d\r\n",
         preable,
-        (u_int8_t)(address >> 24),
-        (u_int8_t)(address >> 16 & 0xFF),
-        (u_int8_t)(address >> 8 & 0xFF),
-        (u_int8_t)(address & 0xFF));
+        (uint8_t)(address >> 24),
+        (uint8_t)(address >> 16 & 0xFF),
+        (uint8_t)(address >> 8 & 0xFF),
+        (uint8_t)(address & 0xFF));
 }
 
 static UINT dhcp_wait()
