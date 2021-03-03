@@ -2,10 +2,11 @@
 # Licensed under the MIT License.
 
 set(SOURCES
-    src/es_wifi.c
-    src/es_wifi_io.c
-    src/nx_wifi.c
-    src/wifi.c
+    inventek/es_wifi.c
+    inventek/es_wifi_io.c
+    inventek/wifi.c
+
+    nx_wifi.c
 )
 
 set(PROJECT netx_driver)
@@ -23,5 +24,5 @@ target_link_libraries(${PROJECT}
 
 target_include_directories(${PROJECT}
     PUBLIC
-        src
+        inventek
 )

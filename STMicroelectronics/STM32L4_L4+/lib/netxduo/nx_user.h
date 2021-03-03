@@ -28,25 +28,18 @@
 
 /* Enable MQTT Cloud */
 #define NXD_MQTT_CLOUD_ENABLE
+#define NX_ENABLE_EXTENDED_NOTIFY_SUPPORT
 
-/* Override wait option as the L475/L4S5 doesnt support 0 wait time */
+/* Override wait option as the L475/L4S5 doesn't support 0 wait time */
 #define NX_AZURE_IOT_PROVISIONING_CLIENT_CONNECT_WAIT_OPTION (40 * NX_IP_PERIODIC_RATE)
 
 /* NetX */
 #define NX_DNS_CLIENT_USER_CREATE_PACKET_POOL
 #define NX_DNS_CLIENT_CLEAR_QUEUE
-#define NX_ENABLE_EXTENDED_NOTIFY_SUPPORT
-#define NX_DISABLE_IPV6
-#define NX_PACKET_ALIGNMENT 32
 
-#define NX_DISABLE_ICMPV4_RX_CHECKSUM
-#define NX_DISABLE_ICMPV4_TX_CHECKSUM
-#define NX_DISABLE_IP_RX_CHECKSUM
-#define NX_DISABLE_IP_TX_CHECKSUM
-#define NX_DISABLE_TCP_RX_CHECKSUM
-#define NX_DISABLE_TCP_TX_CHECKSUM
-#define NX_DISABLE_UDP_RX_CHECKSUM
-#define NX_DISABLE_UDP_TX_CHECKSUM
+/* Use hardware rand */
+extern int hardware_rand(void);
+#define NX_RAND hardware_rand
 
 /* Define various build options for the NetX Duo port.  The application should either make changes
    here by commenting or un-commenting the conditional compilation defined OR supply the defines
