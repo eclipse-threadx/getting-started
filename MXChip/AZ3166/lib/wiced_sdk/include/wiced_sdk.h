@@ -124,6 +124,11 @@ typedef struct
     uint8_t value[32];
 } wiced_ssid_t;
 
+typedef struct
+{
+    uint8_t octet[6]; /**< Unique 6-byte MAC address */
+} wiced_mac_t;
+
 // wwd_management.h
 extern wwd_result_t wwd_management_wifi_on(wiced_country_code_t country);
 
@@ -140,5 +145,7 @@ extern wwd_result_t wwd_wifi_join(const wiced_ssid_t* ssid,
     uint8_t key_length,
     TX_SEMAPHORE* semaphore,
     wwd_interface_t interface);
+
+extern wwd_result_t wwd_wifi_get_mac_address(wiced_mac_t* mac, wwd_interface_t interface);
 
 #endif
