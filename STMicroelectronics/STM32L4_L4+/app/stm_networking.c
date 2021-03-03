@@ -34,9 +34,13 @@ static void checkWifiVersion()
     UINT status = 0;
     UINT version[4];
     CHAR moduleinfo[32];
+    uint8_t mac[4];
 
     WIFI_GetModuleID(moduleinfo);
     printf("\tModule: %s\r\n", moduleinfo);
+
+    WIFI_GetMAC_Address(mac);
+    printf("\tMAC address: %02X:%02X:%02X:%02X:%02X:%02X\r\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
     WIFI_GetModuleFwRevision(moduleinfo);
     printf("\tFirmware revision: %s\r\n", moduleinfo);
