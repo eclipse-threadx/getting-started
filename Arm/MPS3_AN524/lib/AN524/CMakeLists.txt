@@ -1,12 +1,10 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-# Exceptions required by CMSIS UART driver
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-ignored-qualifiers -Wno-return-type")
-
 set(SOURCES
     src/CMSIS/Driver_USART.c
     src/device/source/system_core_init.c
+    src/device/source/device_definition.c
     src/native_drivers/uart_cmsdk_drv.c
 )
 

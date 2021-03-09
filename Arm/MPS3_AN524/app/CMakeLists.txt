@@ -6,6 +6,8 @@ set(LINKER_SCRIPT "${CMAKE_CURRENT_LIST_DIR}/startup/mps3_an524.ld")
 set(SOURCES
     startup/startup_cmsdk_mps3_an524_bl2.S
     main.c
+    board_init.c
+    console.c
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})
