@@ -1,0 +1,16 @@
+// For format details, see https://aka.ms/vscode-remote/devcontainer.json
+{
+    // Docker image location: https://github.com/ryanwinter/docker-arm-none-eabi-gcc
+    "image": "ryanwinter/arm-none-eabi-gcc:latest",
+
+    "extensions": [
+		"ms-vscode.cpptools",
+		"ms-vscode.cmake-tools",
+		"marus25.cortex-debug",
+		"vsciot-vscode.vscode-dtdl",
+		"xaver.clang-format",
+		"ms-azuretools.vscode-docker"
+	],
+	"remoteUser": "vscode",
+	"postCreateCommand": "git submodule update --recursive --init"
+}

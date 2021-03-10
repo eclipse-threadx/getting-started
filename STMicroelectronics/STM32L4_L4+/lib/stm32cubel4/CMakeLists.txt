@@ -103,6 +103,8 @@ set(SOURCES
     Drivers/BSP/Components/lis3mdl/lis3mdl.c
     Drivers/BSP/Components/hts221/hts221.c
     Drivers/BSP/Components/lps22hb/lps22hb.c
+
+    Drivers/CMSIS/Device/ST/STM32L4xx/Source/Templates/system_stm32l4xx.c
 )
 
 set(TARGET stm32cubel4)

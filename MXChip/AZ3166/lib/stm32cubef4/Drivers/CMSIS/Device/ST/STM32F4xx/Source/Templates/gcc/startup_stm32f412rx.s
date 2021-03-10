@@ -32,7 +32,6 @@
 
 .global  g_pfnVectors
 .global  Default_Handler
-.global _vectors
 
 /* start address for the initialization values of the .data section. 
 defined in linker script */
@@ -62,7 +61,6 @@ defined in linker script */
 Reset_Handler:  
   ldr   sp, =_estack       /* set stack pointer */
 
-  CPSID   i
 /* Copy the data segment initializers from flash to SRAM */
   movs  r1, #0
   b  LoopCopyDataInit
@@ -123,23 +121,11 @@ Infinite_Loop:
   .type  g_pfnVectors, %object
   .size  g_pfnVectors, .-g_pfnVectors
     
-/* ThreadX vectors definitions
- *
- */
-  .global __tx_NMIHandler
-  .global __tx_SVCallHandler
-  .global __tx_DBGHandler
-  .global __tx_PendSVHandler
-  .global __tx_SysTickHandler
-  .global __tx_BadHandler
-	.type	_vectors, %object
-
-_vectors:
 g_pfnVectors:
   .word  _estack
   .word  Reset_Handler
-  .word  __tx_NMIHandler /* NMI_Handler */
-  .word  __tx_HardfaultHandler /* HardFault_Handler */
+  .word  NMI_Handler
+  .word  HardFault_Handler
   .word  MemManage_Handler
   .word  BusFault_Handler
   .word  UsageFault_Handler
@@ -147,11 +133,11 @@ g_pfnVectors:
   .word  0
   .word  0
   .word  0
-  .word  __tx_SVCallHandler /* SVC_Handler */
-  .word  __tx_DBGHandler /* DebugMon_Handler */
+  .word  SVC_Handler
+  .word  DebugMon_Handler
   .word  0
-  .word  __tx_PendSVHandler /* PendSV_Handler */
-  .word  __tx_SysTickHandler /* SysTick_Handler */
+  .word  PendSV_Handler
+  .word  SysTick_Handler
 
   /* External Interrupts */
   .word     WWDG_IRQHandler                   /* Window WatchDog                             */

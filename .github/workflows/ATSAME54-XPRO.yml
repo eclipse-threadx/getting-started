@@ -3,16 +3,8 @@ name: ATSAME54-XPRO
 on:
   push:
     branches: [ master ]
-    paths:
-      - 'core/**'
-      - 'cmake/**'
-      - 'Microchip/ATSAME54-XPRO/**'
   pull_request:
     branches: [ master ]
-    paths:
-      - 'core/**'
-      - 'cmake/**'
-      - 'Microchip/ATSAME54-XPRO/**'
 
 defaults:
   run:
@@ -31,13 +23,13 @@ jobs:
         with:
           submodules: recursive
 
-      # Get the ARM GCC compiler
-      - name: Install tools for linux
-        if: matrix.os == 'ubuntu-latest'
-        run: sudo apt install gcc-arm-none-eabi cmake
+      - name: arm-none-eabi-gcc
+        uses: ryanwinter/arm-none-eabi-gcc@master
+        with:
+          release: '10-2020-q4'
 
       - name: Install Ninja
-        uses: seanmiddleditch/gha-setup-ninja@v1
+        uses: seanmiddleditch/gha-setup-ninja@v3
 
       - name: Build project
         run: |

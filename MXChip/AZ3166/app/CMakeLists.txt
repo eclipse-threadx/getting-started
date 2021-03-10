@@ -7,11 +7,10 @@ set(SOURCES
     startup/system_stm32f4xx.c
     startup/startup_stm32f412rx.s
     startup/tx_initialize_low_level.S
-
     stm32cubef4/stm32f4xx_hal_msp.c
-   
+    legacy/mqtt.c
+    azure_config.h
     nx_client.c
-    mqtt.c
     board_init.c
     console.c
     screen.c
@@ -24,10 +23,9 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 target_link_libraries(${PROJECT_NAME}
     azrtos::threadx
     azrtos::netxduo
-    azrtos::nx_cloud
-    azrtos::azure_iot
 
     stm32cubef4
+    mxchip_bsp
     wiced_sdk
     app_common
     jsmn
@@ -48,5 +46,4 @@ target_include_directories(${PROJECT_NAME}
         .
 )
 
-create_bin_output(${PROJECT_NAME})
-firmware_size(${PROJECT_NAME})
+post_build(${PROJECT_NAME})

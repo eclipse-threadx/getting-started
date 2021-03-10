@@ -1,17 +1,17 @@
 /* Copyright (c) Microsoft Corporation.
    Licensed under the MIT License. */
-   
+
 #include <stdio.h>
 #include <time.h>
 
-#include "tx_api.h"
 #include "nx_driver_imxrt1062.h"
+#include "tx_api.h"
 
 #include "board_init.h"
 #include "networking.h"
 #include "sntp_client.h"
 
-#include "mqtt.h"
+#include "legacy/mqtt.h"
 #include "nx_client.h"
 
 #include "azure_config.h"
@@ -37,7 +37,7 @@ void azure_thread_entry(ULONG parameter)
         printf("Failed to initialize the network\r\n");
         return;
     }
-    
+
     // Start the SNTP client
     status = sntp_start();
     if (status != NX_SUCCESS)
@@ -54,10 +54,10 @@ void azure_thread_entry(ULONG parameter)
         return;
     }
 
-#ifdef USE_NX_CLIENT_PREVIEW
-    if ((status = azure_iot_nx_client_entry(&nx_ip, &nx_pool, &nx_dns_client, sntp_time)))
-#else
+#ifdef ENABLE_LEGACY_MQTT
     if ((status = azure_iot_mqtt_entry(&nx_ip, &nx_pool, &nx_dns_client, sntp_time_get)))
+#else
+    if ((status = azure_iot_nx_client_entry(&nx_ip, &nx_pool, &nx_dns_client, sntp_time)))
 #endif
     {
         printf("Failed to run Azure IoT (0x%04x)\r\n", status);
@@ -71,12 +71,16 @@ void tx_application_define(void* first_unused_memory)
     board_init();
 
     // Create Azure SDK thread.
-    UINT status = tx_thread_create(
-        &azure_thread, "Azure Thread",
-        azure_thread_entry, 0,
-        azure_thread_stack, AZURE_THREAD_STACK_SIZE,
-        AZURE_THREAD_PRIORITY, AZURE_THREAD_PRIORITY,
-        TX_NO_TIME_SLICE, TX_AUTO_START);
+    UINT status = tx_thread_create(&azure_thread,
+        "Azure Thread",
+        azure_thread_entry,
+        0,
+        azure_thread_stack,
+        AZURE_THREAD_STACK_SIZE,
+        AZURE_THREAD_PRIORITY,
+        AZURE_THREAD_PRIORITY,
+        TX_NO_TIME_SLICE,
+        TX_AUTO_START);
 
     if (status != TX_SUCCESS)
     {
@@ -87,5 +91,6 @@ void tx_application_define(void* first_unused_memory)
 int main(void)
 {
     tx_kernel_enter();
+
     return 0;
 }

@@ -1,30 +1,24 @@
 /* Copyright (c) Microsoft Corporation.
    Licensed under the MIT License. */
-   
+
+#ifdef __GNUC__
+
 #include <stdio.h>
 #include <errno.h>
+#include <stdint.h>
+#include <stdio.h>
 
-#include <sys/types.h>
 #include <sys/stat.h>
 
 extern int errno;
 extern int _end;
 
-caddr_t _sbrk(int incr);
-int _close(int file);
-int _fstat(int file, struct stat *st);
-int _isatty(int file);
-int _lseek(int file, int ptr, int dir);
-void _exit(int status);
-void _kill(int pid, int sig);
-int _getpid(void);
-
-caddr_t _sbrk(int incr)
+void* _sbrk(int incr)
 {
     static unsigned char* heap = NULL;
-    unsigned char*        prev_heap;
+    unsigned char* prev_heap;
 
-    if (heap == NULL) 
+    if (heap == NULL)
     {
         heap = (unsigned char*)&_end;
     }
@@ -32,7 +26,7 @@ caddr_t _sbrk(int incr)
 
     heap += incr;
 
-    return (caddr_t)prev_heap;
+    return prev_heap;
 }
 
 int _close(int file)
@@ -40,7 +34,7 @@ int _close(int file)
     return -1;
 }
 
-int _fstat(int file, struct stat *st)
+int _fstat(int file, struct stat* st)
 {
     st->st_mode = S_IFCHR;
     return 0;
@@ -59,13 +53,12 @@ int _lseek(int file, int ptr, int dir)
 void _exit(int status)
 {
     printf("Exiting with status %d.\n", status);
-    while (1);
+    while (1)
+        ;
 }
 
 void _kill(int pid, int sig)
 {
-    (void)pid;
-    (void)sig;
     return;
 }
 
@@ -73,3 +66,5 @@ int _getpid(void)
 {
     return -1;
 }
+
+#endif

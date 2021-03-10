@@ -16,12 +16,12 @@
 
 static UCHAR threadx_ip_pool[THREADX_POOL_SIZE];
 
-NX_IP           nx_ip;
-NX_PACKET_POOL  nx_pool;
-NX_DNS          nx_dns_client;
+NX_IP nx_ip;
+NX_PACKET_POOL nx_pool;
+NX_DNS nx_dns_client;
 
 // WiFi firmware version required
-static const UINT wifi_required_version[] = { 3, 5, 2, 5 };
+static const UINT wifi_required_version[] = {3, 5, 2, 5};
 
 // Print IPv4 address
 static void print_address(CHAR* preable, uint8_t address[4])
@@ -34,9 +34,13 @@ static void checkWifiVersion()
     UINT status = 0;
     UINT version[4];
     CHAR moduleinfo[32];
+    uint8_t mac[4];
 
     WIFI_GetModuleID(moduleinfo);
     printf("\tModule: %s\r\n", moduleinfo);
+
+    WIFI_GetMAC_Address(mac);
+    printf("\tMAC address: %02X:%02X:%02X:%02X:%02X:%02X\r\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
     WIFI_GetModuleFwRevision(moduleinfo);
     printf("\tFirmware revision: %s\r\n", moduleinfo);
@@ -163,7 +167,7 @@ bool wifi_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
     }
 
     checkWifiVersion();
-    
+
     // Connect to the specified SSID
     int32_t wifiConnectCounter = 1;
     printf("\tConnecting to SSID '%s'\r\n", ssid);
@@ -203,10 +207,10 @@ static UINT dns_create()
     UINT status;
     UCHAR dns_address_1[4];
     UCHAR dns_address_2[4];
- 
+
     printf("Initializing DNS client\r\n");
 
-    status = nx_dns_create(&nx_dns_client, &nx_ip, (UCHAR *)"DNS Client");
+    status = nx_dns_create(&nx_dns_client, &nx_ip, (UCHAR*)"DNS Client");
     if (status != NX_SUCCESS)
     {
         printf("ERROR: Failed to create DNS (%0x02)\r\n", status);
@@ -214,7 +218,7 @@ static UINT dns_create()
     }
 
     // Use the packet pool here
-#ifdef NX_DNS_CLIENT_USER_CREATE_PACKET_POOL 
+#ifdef NX_DNS_CLIENT_USER_CREATE_PACKET_POOL
     status = nx_dns_packet_pool_set(&nx_dns_client, nx_ip.nx_ip_default_packet_pool);
     if (status != NX_SUCCESS)
     {
@@ -232,14 +236,15 @@ static UINT dns_create()
     }
 
     // Add an IPv4 server address to the Client list.
-    status = nx_dns_server_add(&nx_dns_client, IP_ADDRESS(dns_address_1[0], dns_address_1[1], dns_address_1[2], dns_address_1[3]));
+    status = nx_dns_server_add(
+        &nx_dns_client, IP_ADDRESS(dns_address_1[0], dns_address_1[1], dns_address_1[2], dns_address_1[3]));
     if (status != NX_SUCCESS)
     {
         printf("ERROR: Failed to add dns server (%0x02)\r\n", status);
         nx_dns_delete(&nx_dns_client);
         return status;
     }
-    
+
     // Output DNS Server address
     print_address("DNS address", dns_address_1);
 
@@ -256,9 +261,8 @@ int stm32_network_init()
     nx_system_initialize();
 
     // Create a packet pool
-    status = nx_packet_pool_create(&nx_pool, "NetX Packet Pool",
-        THREADX_PACKET_SIZE,
-        threadx_ip_pool, THREADX_POOL_SIZE);
+    status =
+        nx_packet_pool_create(&nx_pool, "NetX Packet Pool", THREADX_PACKET_SIZE, threadx_ip_pool, THREADX_POOL_SIZE);
     if (status != NX_SUCCESS)
     {
         printf("ERROR: Packet pool create fail.\r\n");
@@ -266,18 +270,14 @@ int stm32_network_init()
     }
 
     // Create an IP instance
-    status = nx_ip_create(&nx_ip, "NetX IP Instance 0",
-        0, 0,
-        &nx_pool, NULL, 
-        NULL, 0, 
-        0);
+    status = nx_ip_create(&nx_ip, "NetX IP Instance 0", 0, 0, &nx_pool, NULL, NULL, 0, 0);
     if (status != NX_SUCCESS)
     {
         nx_packet_pool_delete(&nx_pool);
         printf("ERROR: IP create fail.\r\n");
         return status;
     }
-    
+
     // Initialize NetX WiFi
     status = nx_wifi_initialize(&nx_ip, &nx_pool);
     if (status != NX_SUCCESS)
