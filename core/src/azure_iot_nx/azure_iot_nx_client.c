@@ -95,6 +95,7 @@ static VOID message_receive_callback_desire_property(NX_AZURE_IOT_HUB_CLIENT* hu
 
 static VOID process_direct_method(AZURE_IOT_NX_CONTEXT* nx_context)
 {
+    UINT status;
     NX_PACKET* packet;
     const UCHAR* method_name;
     USHORT method_name_length;
@@ -103,15 +104,15 @@ static VOID process_direct_method(AZURE_IOT_NX_CONTEXT* nx_context)
     UCHAR* payload;
     USHORT payload_length;
 
-    while (nx_azure_iot_hub_client_direct_method_message_receive(&nx_context->iothub_client,
-               &method_name,
-               &method_name_length,
-               &context,
-               &context_length,
-               &packet,
-               NX_NO_WAIT) == NX_AZURE_IOT_SUCCESS)
+    while ((status = nx_azure_iot_hub_client_direct_method_message_receive(&nx_context->iothub_client,
+                &method_name,
+                &method_name_length,
+                &context,
+                &context_length,
+                &packet,
+                NX_NO_WAIT)) == NX_AZURE_IOT_SUCCESS)
     {
-        printf("Receive direct method call: %.*s\r\n", (INT)method_name_length, (CHAR*)method_name);
+        printf("Receive direct method: %.*s\r\n", (INT)method_name_length, (CHAR*)method_name);
         printf_packet(packet, "\tPayload: ");
 
         payload        = packet->nx_packet_prepend_ptr;
@@ -123,8 +124,15 @@ static VOID process_direct_method(AZURE_IOT_NX_CONTEXT* nx_context)
                 nx_context, method_name, method_name_length, payload, payload_length, context, context_length);
         }
 
-        // Release the received packet, as ownership was passed to the application
+        // Release the received packet, as ownership was passed to the application from the middleware
         nx_packet_release(packet);
+    }
+
+    // If we failed for anything other than no packet, then report error
+    if (status != NX_AZURE_IOT_NO_PACKET)
+    {
+        printf("Direct method receive failed! (0x%08x)\r\n", status);
+        return;
     }
 }
 
@@ -187,8 +195,8 @@ static VOID process_device_twin_desired_property(AZURE_IOT_NX_CONTEXT* nx_contex
     NX_AZURE_IOT_JSON_READER json_reader;
     UCHAR buffer[128];
 
-    while (nx_azure_iot_hub_client_device_twin_desired_properties_receive(
-               &nx_context->iothub_client, &packet_ptr, NX_NO_WAIT) == NX_AZURE_IOT_SUCCESS)
+    while ((status = nx_azure_iot_hub_client_device_twin_desired_properties_receive(
+                &nx_context->iothub_client, &packet_ptr, NX_NO_WAIT)) == NX_AZURE_IOT_SUCCESS)
     {
         printf_packet(packet_ptr, "Receive twin writeable property: ");
 
@@ -224,6 +232,13 @@ static VOID process_device_twin_desired_property(AZURE_IOT_NX_CONTEXT* nx_contex
 
         // Deinit the reader, the reader owns the NX_PACKET at this point, so will release it
         nx_azure_iot_json_reader_deinit(&json_reader);
+    }
+
+    // If we failed for anything other than no packet, then report error
+    if (status != NX_AZURE_IOT_NO_PACKET)
+    {
+        printf("Direct method receive failed! (0x%08x)\r\n", status);
+        return;
     }
 }
 
