@@ -21,6 +21,10 @@ image that can be run on the MPS3 FPGA prototyping board or in QEMU.
 
     > * The [Arm MPS3 FPGA Prototyping Board](https://developer.arm.com/tools-and-software/development-boards/fpga-prototyping-boards/mps3) (MPS3)
     > * The [AN524 SSE-200 FPGA image for MPS3](https://developer.arm.com/tools-and-software/development-boards/fpga-prototyping-boards/download-fpga-images)
+* We've automated the process of [updating application image onto the Arm MPS3
+  FPGA Prototyping Board](#updating-application-image). If you wish to use this
+  , then `pyserial` python module should be installed:
+    > * pip3 install pyserial
 
 ## System Setup
 
@@ -77,6 +81,21 @@ and the `srec_cat` utility, which is commonly part of the `srecord` packace on l
 distributions. Build the sample with the provided `rebuild.sh` tool.
   
 ```bash
-$ cd ARM/MPS3_AN524
+$ cd Arm/MPS3_AN524
 $ tools/rebuild.sh
+```
+
+## Updating application image
+> This has only been tested on OS X, some modifications might be needed to make
+  `Arm/MPS3_AN524/tools/flash.py` to work in Windows/Linux environments.
+
+The python script `Arm/MPS3_AN524/tools/flash.py` automates steps needed to
+update an application image onto the Arm MPS3 FPGA Prototyping Board. if you
+wish to use this, then add `-f` command line option while invoking `rebuild.sh`.
+If `-f` option is used then FPGA MCC serial port must be provided using `-p`
+option.
+
+```bash
+$ cd Arm/MPS3_AN524
+$ tools/rebuild.sh -f -p /dev/tty.usbserial-14543100
 ```
