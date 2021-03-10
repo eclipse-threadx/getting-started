@@ -131,7 +131,7 @@ static VOID process_direct_method(AZURE_IOT_NX_CONTEXT* nx_context)
     // If we failed for anything other than no packet, then report error
     if (status != NX_AZURE_IOT_NO_PACKET)
     {
-        printf("Direct method receive failed! (0x%08x)\r\n", status);
+        printf("ERROR: direct method receive failed! (0x%08x)\r\n", status);
         return;
     }
 }
@@ -237,7 +237,7 @@ static VOID process_device_twin_desired_property(AZURE_IOT_NX_CONTEXT* nx_contex
     // If we failed for anything other than no packet, then report error
     if (status != NX_AZURE_IOT_NO_PACKET)
     {
-        printf("Direct method receive failed! (0x%08x)\r\n", status);
+        printf("ERROR: device twin writeable property receive failed (0x%08x)\r\n", status);
         return;
     }
 }
