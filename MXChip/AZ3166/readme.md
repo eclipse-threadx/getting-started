@@ -171,7 +171,8 @@ After the build completes, confirm that the binary file was created in the follo
 
 You can use the **Termite** utility to monitor communication and confirm that your device is set up correctly.
 
-> **Note:** If you are unable to connect Termite to your devkit, install the [ST-LINK driver](https://my.st.com/content/ccc/resource/technical/software/driver/files/stsw-link009.zip) and try again.
+> **Note:** If you are unable to connect Termite to your devkit, install the [ST-LINK driver](https://my.st.com/content/ccc/resource/technical/software/driver/files/stsw-link009.zip) and try again. See  [Troubleshooting](../../docs/troubleshooting.md) for additional steps.
+
 
 1. Start **Termite**.
 1. Select **Settings**.
