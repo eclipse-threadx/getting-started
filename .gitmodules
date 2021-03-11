@@ -1,6 +1,8 @@
 [submodule "core/lib/threadx"]
 	path = core/lib/threadx
-	url = https://github.com/azure-rtos/threadx.git
+	# url = https://github.com/azure-rtos/threadx.git
+	url = https://github.com/Linaro/threadx.git
+	branch = mps3_an524
 [submodule "core/lib/netxduo"]
 	path = core/lib/netxduo
 	url = https://github.com/azure-rtos/netxduo.git
