@@ -14,8 +14,7 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 
 target_link_libraries(${PROJECT_NAME} 
     PUBLIC
-        # azrtos::threadx
-        # azrtos::netxduo
+        azrtos::threadx
 
         # app_common
         # jsmn

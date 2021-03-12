@@ -9,6 +9,8 @@ set(THREADX_TOOLCHAIN "gnu")
 set(TX_USER_FILE "${CMAKE_CURRENT_LIST_DIR}/threadx/tx_user.h" CACHE STRING "Enable TX user configuration")
 
 # Core libraries
-# add_subdirectory(${CORE_LIB_DIR}/threadx threadx)
+add_subdirectory(${CORE_LIB_DIR}/threadx threadx)
+#add_subdirectory(${CORE_LIB_DIR}/netxduo netxduo)
+#add_subdirectory(${CORE_LIB_DIR}/jsmn jsmn)
 
 add_subdirectory(AN524)
