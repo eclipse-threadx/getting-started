@@ -778,42 +778,6 @@ UINT azure_iot_nx_client_publish_telemetry(
     return status;
 }
 
-UINT azure_iot_nx_client_publish_float_telemetry(AZURE_IOT_NX_CONTEXT* context, CHAR* key, float value)
-{
-    UINT status;
-    CHAR buffer[PUBLISH_BUFFER_SIZE];
-    NX_PACKET* packet_ptr;
-
-    int intvalue  = value;
-    int fracvalue = abs(100 * (value - (long)value));
-
-    if (snprintf(buffer, PUBLISH_BUFFER_SIZE, "{\"%s\":%d.%2d}", key, intvalue, fracvalue) > PUBLISH_BUFFER_SIZE - 1)
-    {
-        printf("ERROR: insufficient buffer size to publish float telemetry\r\n");
-        return NX_SIZE_ERROR;
-    }
-
-    // Create a telemetry message packet
-    if ((status = nx_azure_iot_hub_client_telemetry_message_create(
-             &context->iothub_client, &packet_ptr, NX_WAIT_FOREVER)))
-    {
-        printf("Telemetry message create failed (0x%08x)\r\n", status);
-        return status;
-    }
-
-    if ((status = nx_azure_iot_hub_client_telemetry_send(
-             &context->iothub_client, packet_ptr, (UCHAR*)buffer, strlen(buffer), NX_WAIT_FOREVER)))
-    {
-        printf("Telemetry message send failed (0x%08x)\r\n", status);
-        nx_azure_iot_hub_client_telemetry_message_delete(packet_ptr);
-        return status;
-    }
-
-    printf("Telemetry message sent: %s.\r\n", buffer);
-
-    return NX_SUCCESS;
-}
-
 UINT azure_iot_nx_client_publish_properties(AZURE_IOT_NX_CONTEXT* context,
     CHAR* component,
     UINT (*append_properties)(NX_AZURE_IOT_JSON_WRITER* json_builder_ptr, VOID* context))
