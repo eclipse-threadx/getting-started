@@ -787,7 +787,7 @@ UINT azure_iot_nx_client_publish_float_telemetry(AZURE_IOT_NX_CONTEXT* context, 
     int intvalue  = value;
     int fracvalue = abs(100 * (value - (long)value));
 
-    if (snprintf(buffer, PUBLISH_BUFFER_SIZE, "{\"%s\":%d.%2d}", key, intvalue, fracvalue) > PUBLISH_BUFFER_SIZE - 1)
+    if (snprintf(buffer, PUBLISH_BUFFER_SIZE, "{\"%s\":%d.%02d}", key, intvalue, fracvalue) > PUBLISH_BUFFER_SIZE - 1)
     {
         printf("ERROR: insufficient buffer size to publish float telemetry\r\n");
         return NX_SIZE_ERROR;
