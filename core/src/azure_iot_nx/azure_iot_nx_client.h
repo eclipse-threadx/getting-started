@@ -94,7 +94,6 @@ UINT azure_iot_nx_client_device_twin_request_and_wait(AZURE_IOT_NX_CONTEXT* cont
 
 UINT azure_iot_nx_client_publish_telemetry(AZURE_IOT_NX_CONTEXT* context,
     UINT (*append_properties)(NX_AZURE_IOT_JSON_WRITER* json_builder_ptr, VOID* context));
-UINT azure_iot_nx_client_publish_float_telemetry(AZURE_IOT_NX_CONTEXT* context, CHAR* key, float value);
 
 UINT azure_iot_nx_client_publish_properties(AZURE_IOT_NX_CONTEXT* context,
     CHAR* component,
