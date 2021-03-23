@@ -10,7 +10,8 @@
 
 This Getting Started guides shows device developers how to start working with Azure RTOS. Each guide will step through from installation of the required toolchain, to connecting the device to Azure IoT using IoT Plug and Play.
 
-* [Azure IoT Device Development](https://docs.microsoft.com/azure/iot-develop) - Get started with device development
+For more information on Azure IoT Device Development:
+* [Azure IoT Device Development](https://docs.microsoft.com/azure/iot-develop) - Get started with Azure IoT device development
 * [Azure RTOS Q&A](https://aka.ms/QnA/azure-rtos) - Ask a question
 
 ## Getting Started Guides
