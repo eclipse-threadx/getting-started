@@ -13,10 +13,10 @@ products:
 
 # Getting started with the MXCHIP AZ3166 IoT DevKit
 
-This tutorial covers the minimal steps required to use Azure RTOS to connect the MXCHIP AZ3166 IoT DevKit (hereafter, the MXChip DevKit) to Azure IoT. The series introduces device developers to Azure RTOS, and shows how to connect several device evaluation kits to Azure IoT.
+This tutorial covers the basic steps required to use Azure RTOS to connect the MXCHIP AZ3166 IoT DevKit to Azure IoT. The series introduces device developers to Azure RTOS, and shows how to connect several device evaluation kits to Azure IoT.
 
-For detailed instructions [Getting started with Azure IoT embedded device development
-](https://docs.microsoft.com/en-us/azure/iot-develop/quickstart-device-development).
+For detailed instructions [Connect an MXCHIP AZ3166 to Azure IoT Central
+](https://docs.microsoft.com/azure/iot-develop/quickstart-devkit-mxchip-az3166).
 
 See other tutorials in the series [Getting started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824).
 
