@@ -17,10 +17,13 @@ image that can be run on the MPS3 FPGA prototyping board or in QEMU.
 ## Prerequisites
 
 * [Git](https://git-scm.com/downloads) for cloning the repository
-* Hardware
+* Hardware or [QEMU](#using-qemu)
 
     > * The [Arm MPS3 FPGA Prototyping Board](https://developer.arm.com/tools-and-software/development-boards/fpga-prototyping-boards/mps3) (MPS3)
     > * The [AN524 SSE-200 FPGA image for MPS3](https://developer.arm.com/tools-and-software/development-boards/fpga-prototyping-boards/download-fpga-images)
+* To use QEMU, `srec_cat` must be installed to merge TF-M and Azure RTOS
+  example application. You can install it via `$ sudo apt-get install srecord`
+  on Ubuntu or `$ brew install srecord` on OS X.
 * We've automated the process of [updating application image onto the Arm MPS3
   FPGA Prototyping Board](#updating-application-image). If you wish to use this
   , then `pyserial` python module should be installed:
@@ -107,3 +110,59 @@ option.
 $ cd Arm/MPS3_AN524
 $ tools/rebuild.sh -f -p /dev/tty.usbserial-14543100
 ```
+
+## Using QEMU
+QEMU can be used to emulate MPS3 FPGA board with AN524 and run Azure RTOS
+example application. However, AN524 memory remap feature is required
+successfully run the application. This feature was added to QEMU after current
+6.0.0 release. Therefore we need to [build QEMU from source](#building-qemu).
+
+After build is successful and path to QEMU executable `qemu-system-arm` is
+added to `PATH` environment variable, QEMU can be started from build script by
+using `-q` option.
+
+```bash
+$ cd Arm/MPS3_AN524
+$ tools/rebuild.sh -q
+```
+
+### Building QEMU
+Follow the steps below to build QEMU from source:
+
+```bash
+cd /path/for/qemu/source
+git clone https://github.com/qemu/qemu.git
+
+mkdir build && cd build
+
+../configure --disable-docs --disable-sdl --disable-debug-info --disable-cap-ng \
+    --disable-libnfs --disable-libusb --disable-libiscsi --disable-usb-redir \
+    --disable-linux-aio --disable-guest-agent --disable-libssh --disable-vnc-png \
+    --disable-seccomp  --disable-tpm --disable-numa --disable-glusterfs \
+    --disable-virtfs --disable-xen --disable-curl --disable-attr --disable-curses \
+    --disable-iconv --target-list="aarch64-softmmu arm-softmmu"
+
+make
+```
+
+Once build completes successfully, run the following command to check supported machines.
+
+```bash
+./qemu-system-arm -M help
+```
+It should contain the following machines:
+```bash
+mps2-an385           ARM MPS2 with AN385 FPGA image for Cortex-M3
+mps2-an386           ARM MPS2 with AN386 FPGA image for Cortex-M4
+mps2-an500           ARM MPS2 with AN500 FPGA image for Cortex-M7
+mps2-an505           ARM MPS2 with AN505 FPGA image for Cortex-M33
+mps2-an511           ARM MPS2 with AN511 DesignStart FPGA image for Cortex-M3
+mps2-an521           ARM MPS2 with AN521 FPGA image for dual Cortex-M33
+mps3-an524           ARM MPS3 with AN524 FPGA image for dual Cortex-M33
+mps3-an547           ARM MPS3 with AN547 FPGA image for Cortex-M55
+musca-a              ARM Musca-A board (dual Cortex-M33)
+musca-b1             ARM Musca-B1 board (dual Cortex-M33)
+```
+
+Make sure that path to QEMU executable `qemu-system-arm` is added to `PATH`
+environment variable.
