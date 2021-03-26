@@ -6,8 +6,9 @@ resources:
     type: git
     endpoint: msazure
     name: One/azure-iot-dde
-    trigger: 
-      - master
+  - repository: Device Lab
+    type: git
+    name: azure-iot-dde/Device Lab
 
 trigger: 
   batch: true
@@ -17,14 +18,6 @@ trigger:
   paths:
     exclude:
       - doc/*
-
-schedules:
-- cron: "0 13 * * *"
-  displayName: Daily morning build
-  branches:
-    include:
-    - master
-  always: true
 
 jobs:
 - job: MXCHIP_Build
@@ -36,6 +29,8 @@ jobs:
   - checkout: self
     clean: true
     submodules: recursive
+  - checkout: Device Lab
+    clean: true
   - checkout: azure-iot-dde
     clean: true
 
