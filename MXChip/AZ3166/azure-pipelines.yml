@@ -6,12 +6,6 @@ resources:
     type: git
     endpoint: msazure
     name: One/azure-iot-dde
-  - repository: Device Lab
-    type: git
-    name: Device Lab
-    ref: master
-    trigger:
-    - master
 
 trigger: 
   batch: true
