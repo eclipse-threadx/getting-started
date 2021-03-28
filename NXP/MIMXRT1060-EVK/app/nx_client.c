@@ -17,6 +17,8 @@
 #include "azure_device_x509_cert_config.h"
 #include "azure_pnp_info.h"
 
+#include "fsl_tempmon.h"
+
 #define IOT_MODEL_ID "dtmi:azurertos:devkit:gsg;1"
 
 #define TELEMETRY_TEMPERATURE       "temperature"
@@ -82,7 +84,7 @@ static UINT append_device_info_properties(NX_AZURE_IOT_JSON_WRITER* json_writer,
 
 static UINT append_device_telemetry(NX_AZURE_IOT_JSON_WRITER* json_writer, VOID* context)
 {
-    const float temperature = 28.5;
+    float temperature = TEMPMON_GetCurrentTemperature(TEMPMON);
 
     if (nx_azure_iot_json_writer_append_property_with_double_value(
             json_writer, (UCHAR*)TELEMETRY_TEMPERATURE, sizeof(TELEMETRY_TEMPERATURE) - 1, temperature, 2))
@@ -98,7 +100,7 @@ static void set_led_state(bool level)
     if (level)
     {
         printf("LED is turned ON\r\n");
-        // The User LED on the board shares the same pin as ENET RST so is unusable
+        // The User LED on the board shares the same pin as ENET RST (ethernet IC reset) so is unusable
         // USER_LED_ON();
     }
     else

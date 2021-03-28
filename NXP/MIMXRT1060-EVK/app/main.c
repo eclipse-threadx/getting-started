@@ -13,6 +13,7 @@
 
 #include "legacy/mqtt.h"
 #include "nx_client.h"
+#include "fsl_tempmon.h"
 
 #include "azure_config.h"
 
@@ -69,6 +70,12 @@ void tx_application_define(void* first_unused_memory)
 {
     // Initialise the board
     board_init();
+
+    //initialize µcontroller waffer tempature monitoring
+    tempmon_config_t config;
+    TEMPMON_GetDefaultConfig(&config);
+    config.frequency = 0xFFFF;
+    TEMPMON_Init(TEMPMON, &config);
 
     // Create Azure SDK thread.
     UINT status = tx_thread_create(&azure_thread,
