@@ -17,11 +17,11 @@ trigger:
       - doc/*
 
 jobs:
-- job: MXCHIP_Build
+- job: NXP_Build
   pool:
     name: 'IoT-DDE-Device-Lab'
     demands:
-    - MXCHIPAZ3166 -equals true
+    - NXPMIMXRT1060EVK -equals true
   steps:
   - checkout: self
     clean: true
@@ -46,13 +46,13 @@ jobs:
       targetType: 'filePath'
       filePath: '$(Build.SourcesDirectory)\azure-iot-dde\update_config.ps1'
       arguments: > # Use this to avoid newline characters in multiline string
-        -ConfigFilePath '$(Build.SourcesDirectory)\getting-started\MXChip\AZ3166\app\azure_config.h'
+        -ConfigFilePath '$(Build.SourcesDirectory)\getting-started\NXP\MIMXRT1060-EVK\app\azure_config.h'
     displayName: 'Modify config file'
 
   # Build binary
   - script: |
       echo %PATH%
-      cd $(Build.SourcesDirectory)\getting-started\MXChip\AZ3166\tools
+      cd $(Build.SourcesDirectory)\getting-started\NXP\MIMXRT1060-EVK\tools
       .\rebuild.bat
     displayName: "Build Binary"
 
@@ -62,7 +62,7 @@ jobs:
       targetType: 'filePath'
       filePath: '$(Build.SourcesDirectory)\azure-iot-dde\flashing_tools\flash-board.ps1'
       arguments: > # Use this to avoid newline characters in multiline string
-        -BinPath '$(Build.SourcesDirectory)\getting-started\MXChip\AZ3166\build\app\mxchip_azure_iot.hex'
+        -BinPath '$(Build.SourcesDirectory)\getting-started\NXP\MIMXRT1060-EVK\build\app\mimxrt1060_azure_iot.hex'
     displayName: 'Flash binary'
 
   # Monitor device for successful connection to Iot Hub
