@@ -5,6 +5,7 @@
 ![](https://github.com/azure-rtos/getting-started/workflows/MIMXRT1060-EVK/badge.svg)
 ![](https://github.com/azure-rtos/getting-started/workflows/RSK-RX65N-2MB/badge.svg)
 ![](https://github.com/azure-rtos/getting-started/workflows/STM32L4_L4+/badge.svg)
+![](https://dev.azure.com/azure-iot-dde/Azure%20RTOS%20GSG/_apis/build/status/gsg.stm.L475EIOT01A?repoName=azure-rtos%2Fgetting-started&branchName=master)
 
 # Getting Started with Azure RTOS and Azure IoT
 
