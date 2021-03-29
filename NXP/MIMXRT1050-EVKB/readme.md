@@ -230,6 +230,7 @@ To view telemetry in IoT Central portal:
 1. From the application dashboard, select **Devices** on the side navigation menu.
 1. Select the device from the device list.
 1. View the telemetry as the device sends messages to the cloud in the **Overview** tab.
+1. The temperature is measured from the MCU wafer.
 
     ![IoT Central device telemetry](media/azure-iot-central-device-telemetry.png)
 
