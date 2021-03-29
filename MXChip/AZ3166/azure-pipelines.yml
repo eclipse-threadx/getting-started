@@ -26,8 +26,6 @@ jobs:
   - checkout: self
     clean: true
     submodules: recursive
-  - checkout: Device Lab
-    clean: true
   - checkout: azure-iot-dde
     clean: true
 
