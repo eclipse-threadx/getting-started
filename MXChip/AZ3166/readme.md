@@ -13,7 +13,9 @@ products:
 
 # Connect an MXCHIP AZ3166 to Azure IoT
 
-> **NOTE:** For detailed instructions on how to create an Azure IoT Central application and connect an MXCHIP DevKit, see [Quickstart: Connect an MXCHIP AZ3166 devkit to IoT Central](https://docs.microsoft.com/azure/iot-develop/quickstart-devkit-mxchip-az3166).
+![Quickstart: Connect AZ3166 DevKit to IoT Central](media/documentation.svg)
+
+> **NOTE:** For detailed instructions on how to create an Azure IoT Central application and connect an MXCHIP DevKit, see [Quickstart: Connect an MXCHIP AZ3166 DevKit to IoT Central](https://docs.microsoft.com/azure/iot-develop/quickstart-devkit-mxchip-az3166).
 
 This Readme covers the steps for connecting an MXCHIP DevKit to Azure IoT.
 
