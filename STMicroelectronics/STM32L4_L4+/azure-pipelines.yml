@@ -52,7 +52,7 @@ jobs:
   # Build binary
   - script: |
       echo %PATH%
-      cd $(Build.SourcesDirectory)\stm\STMicroelectronics\STM32L4_L4+\tools
+      cd $(Build.SourcesDirectory)\getting-started\STMicroelectronics\STM32L4_L4+\tools
       .\rebuild.bat
     displayName: "Build Binary"
 
