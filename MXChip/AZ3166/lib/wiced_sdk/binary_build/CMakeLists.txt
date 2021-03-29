@@ -97,7 +97,6 @@ target_include_directories(${TARGET}
         43xxx_Wi-Fi/WICED/WWD/internal/chips/43362
         43xxx_Wi-Fi/WICED/network/NetX_Duo/WWD
         43xxx_Wi-Fi/WICED/network/NetX_Duo/WICED
-#        43xxx_Wi-Fi/WICED/network/NetX_Duo/ver5.12
         43xxx_Wi-Fi/WICED/security/BESL/include
         43xxx_Wi-Fi/WICED/security/BESL/host/WICED
         43xxx_Wi-Fi/WICED/security/BESL/crypto_internal
