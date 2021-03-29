@@ -24,6 +24,10 @@ jobs:
     - STMBL475EIOT01A -equals true
   steps:
   - checkout: self
+    clean: true
+    submodules: recursive
+  - checkout: azure-iot-dde
+    clean: true
 
   # Azure CLI to start certification
   - task: AzureCLI@2
