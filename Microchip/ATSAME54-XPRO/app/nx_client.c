@@ -22,6 +22,7 @@
 
 #define IOT_MODEL_ID "dtmi:azurertos:devkit:gsg;1"
 
+#define TELEMETRY_TEMPERATURE       "temperature"
 #define TELEMETRY_INTERVAL_PROPERTY "telemetryInterval"
 #define LED_STATE_PROPERTY          "ledState"
 #define SET_LED_STATE_COMMAND       "setLedState"
@@ -75,6 +76,26 @@ static UINT append_device_info_properties(NX_AZURE_IOT_JSON_WRITER* json_writer,
             sizeof(DEVICE_INFO_TOTAL_MEMORY_PROPERTY_NAME) - 1,
             DEVICE_INFO_TOTAL_MEMORY_PROPERTY_VALUE,
             2))
+    {
+        return NX_NOT_SUCCESSFUL;
+    }
+
+    return NX_AZURE_IOT_SUCCESS;
+}
+
+static UINT append_device_telemetry(NX_AZURE_IOT_JSON_WRITER* json_writer, VOID* context)
+{
+    float temperature;
+
+#if __SENSOR_BME280__ == 1
+    WeatherClick_waitforRead();
+    temperature = Weather_getTemperatureDegC();
+#else
+    temperature = 23.5;
+#endif
+
+    if (nx_azure_iot_json_writer_append_property_with_double_value(
+            json_writer, (UCHAR*)TELEMETRY_TEMPERATURE, sizeof(TELEMETRY_TEMPERATURE) - 1, temperature, 2))
     {
         return NX_NOT_SUCCESSFUL;
     }
@@ -178,7 +199,6 @@ UINT azure_iot_nx_client_entry(
 {
     UINT status;
     ULONG events = 0;
-    float temperature;
 
     if ((status = tx_event_flags_create(&azure_iot_flags, "Azure IoT flags")))
     {
@@ -252,14 +272,7 @@ UINT azure_iot_nx_client_entry(
         tx_event_flags_get(
             &azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR_CLEAR, &events, telemetry_interval * NX_IP_PERIODIC_RATE);
 
-#if __SENSOR_BME280__ == 1
-        WeatherClick_waitforRead();
-        temperature = Weather_getTemperatureDegC();
-#else
-        temperature = 23.5;
-#endif
-
-        azure_iot_nx_client_publish_float_telemetry(&azure_iot_nx_client, "temperature", temperature);
+        azure_iot_nx_client_publish_telemetry(&azure_iot_nx_client, append_device_telemetry);
     }
 
     return NX_SUCCESS;

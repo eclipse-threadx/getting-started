@@ -104,32 +104,36 @@ static VOID process_direct_method(AZURE_IOT_NX_CONTEXT* nx_context)
     UCHAR* payload;
     USHORT payload_length;
 
-    if ((status = nx_azure_iot_hub_client_direct_method_message_receive(&nx_context->iothub_client,
-             &method_name,
-             &method_name_length,
-             &context,
-             &context_length,
-             &packet,
-             NX_WAIT_FOREVER)))
+    while ((status = nx_azure_iot_hub_client_direct_method_message_receive(&nx_context->iothub_client,
+                &method_name,
+                &method_name_length,
+                &context,
+                &context_length,
+                &packet,
+                NX_NO_WAIT)) == NX_AZURE_IOT_SUCCESS)
     {
-        printf("Direct method receive failed!: error code = 0x%08x\r\n", status);
+        printf("Receive direct method: %.*s\r\n", (INT)method_name_length, (CHAR*)method_name);
+        printf_packet(packet, "\tPayload: ");
+
+        payload        = packet->nx_packet_prepend_ptr;
+        payload_length = packet->nx_packet_append_ptr - packet->nx_packet_prepend_ptr;
+
+        if (nx_context->direct_method_cb)
+        {
+            nx_context->direct_method_cb(
+                nx_context, method_name, method_name_length, payload, payload_length, context, context_length);
+        }
+
+        // Release the received packet, as ownership was passed to the application from the middleware
+        nx_packet_release(packet);
+    }
+
+    // If we failed for anything other than no packet, then report error
+    if (status != NX_AZURE_IOT_NO_PACKET)
+    {
+        printf("ERROR: direct method receive failed (0x%08x)\r\n", status);
         return;
     }
-
-    printf("Receive direct method call: %.*s\r\n", (INT)method_name_length, (CHAR*)method_name);
-    printf_packet(packet, "\tPayload: ");
-
-    payload        = packet->nx_packet_prepend_ptr;
-    payload_length = packet->nx_packet_append_ptr - packet->nx_packet_prepend_ptr;
-
-    if (nx_context->direct_method_cb)
-    {
-        nx_context->direct_method_cb(
-            nx_context, method_name, method_name_length, payload, payload_length, context, context_length);
-    }
-
-    // Release the received packet, as ownership was passed to the application
-    nx_packet_release(packet);
 }
 
 static VOID process_device_twin_get(AZURE_IOT_NX_CONTEXT* nx_context)
@@ -191,46 +195,51 @@ static VOID process_device_twin_desired_property(AZURE_IOT_NX_CONTEXT* nx_contex
     NX_AZURE_IOT_JSON_READER json_reader;
     UCHAR buffer[128];
 
-    if ((status = nx_azure_iot_hub_client_device_twin_desired_properties_receive(
-             &nx_context->iothub_client, &packet_ptr, NX_WAIT_FOREVER)))
+    while ((status = nx_azure_iot_hub_client_device_twin_desired_properties_receive(
+                &nx_context->iothub_client, &packet_ptr, NX_NO_WAIT)) == NX_AZURE_IOT_SUCCESS)
     {
-        printf("ERROR: receive device twin writeable property receive failed (0x%08x)\r\n", status);
-        return;
-    }
+        printf_packet(packet_ptr, "Receive twin writeable property: ");
 
-    printf_packet(packet_ptr, "Receive twin writeable property: ");
-
-    if (packet_ptr->nx_packet_length > (ULONG)(packet_ptr->nx_packet_append_ptr - packet_ptr->nx_packet_prepend_ptr))
-    {
-        printf("ERROR: json is large than nx_packet\r\n");
-        nx_packet_release(packet_ptr);
-        return;
-    }
-
-    if ((status = nx_azure_iot_json_reader_init(&json_reader, packet_ptr)))
-    {
-        printf("ERROR: failed to initialize json reader (0x%08x)\r\n", status);
-        nx_packet_release(packet_ptr);
-        return;
-    }
-
-    if (nx_context->device_twin_desired_prop_cb)
-    {
-        if ((status = nx_azure_iot_pnp_helper_twin_data_parse(&json_reader,
-                 NX_TRUE,
-                 NX_NULL,
-                 0,
-                 buffer,
-                 sizeof(buffer),
-                 nx_context->device_twin_desired_prop_cb,
-                 nx_context)))
+        if (packet_ptr->nx_packet_length >
+            (ULONG)(packet_ptr->nx_packet_append_ptr - packet_ptr->nx_packet_prepend_ptr))
         {
-            printf("ERROR: failed to parse twin data (0x%08x)\r\n", status);
+            printf("ERROR: json is large than nx_packet\r\n");
+            nx_packet_release(packet_ptr);
+            continue;
         }
+
+        if ((status = nx_azure_iot_json_reader_init(&json_reader, packet_ptr)))
+        {
+            printf("ERROR: failed to initialize json reader (0x%08x)\r\n", status);
+            nx_packet_release(packet_ptr);
+            continue;
+        }
+
+        if (nx_context->device_twin_desired_prop_cb)
+        {
+            if ((status = nx_azure_iot_pnp_helper_twin_data_parse(&json_reader,
+                     NX_TRUE,
+                     NX_NULL,
+                     0,
+                     buffer,
+                     sizeof(buffer),
+                     nx_context->device_twin_desired_prop_cb,
+                     nx_context)))
+            {
+                printf("ERROR: failed to parse twin data (0x%08x)\r\n", status);
+            }
+        }
+
+        // Deinit the reader, the reader owns the NX_PACKET at this point, so will release it
+        nx_azure_iot_json_reader_deinit(&json_reader);
     }
 
-    // Deinit the reader, the reader owns the NX_PACKET at this point, so will release it
-    nx_azure_iot_json_reader_deinit(&json_reader);
+    // If we failed for anything other than no packet, then report error
+    if (status != NX_AZURE_IOT_NO_PACKET)
+    {
+        printf("ERROR: device twin writeable property receive failed (0x%08x)\r\n", status);
+        return;
+    }
 }
 
 static VOID event_thread(ULONG parameter)
@@ -767,42 +776,6 @@ UINT azure_iot_nx_client_publish_telemetry(
     nx_azure_iot_json_writer_deinit(&json_builder);
 
     return status;
-}
-
-UINT azure_iot_nx_client_publish_float_telemetry(AZURE_IOT_NX_CONTEXT* context, CHAR* key, float value)
-{
-    UINT status;
-    CHAR buffer[PUBLISH_BUFFER_SIZE];
-    NX_PACKET* packet_ptr;
-
-    int intvalue  = value;
-    int fracvalue = abs(100 * (value - (long)value));
-
-    if (snprintf(buffer, PUBLISH_BUFFER_SIZE, "{\"%s\":%d.%2d}", key, intvalue, fracvalue) > PUBLISH_BUFFER_SIZE - 1)
-    {
-        printf("ERROR: insufficient buffer size to publish float telemetry\r\n");
-        return NX_SIZE_ERROR;
-    }
-
-    // Create a telemetry message packet
-    if ((status = nx_azure_iot_hub_client_telemetry_message_create(
-             &context->iothub_client, &packet_ptr, NX_WAIT_FOREVER)))
-    {
-        printf("Telemetry message create failed (0x%08x)\r\n", status);
-        return status;
-    }
-
-    if ((status = nx_azure_iot_hub_client_telemetry_send(
-             &context->iothub_client, packet_ptr, (UCHAR*)buffer, strlen(buffer), NX_WAIT_FOREVER)))
-    {
-        printf("Telemetry message send failed (0x%08x)\r\n", status);
-        nx_azure_iot_hub_client_telemetry_message_delete(packet_ptr);
-        return status;
-    }
-
-    printf("Telemetry message sent: %s.\r\n", buffer);
-
-    return NX_SUCCESS;
 }
 
 UINT azure_iot_nx_client_publish_properties(AZURE_IOT_NX_CONTEXT* context,
