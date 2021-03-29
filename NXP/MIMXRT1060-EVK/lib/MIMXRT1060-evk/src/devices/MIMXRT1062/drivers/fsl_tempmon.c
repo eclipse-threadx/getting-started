@@ -131,9 +131,6 @@ float TEMPMON_GetCurrentTemperature(TEMPMON_Type *base)
     uint32_t nmeas;
     float tmeas;
 
-    //start a measurement
-    base->TEMPSENSE0 |= TEMPMON_TEMPSENSE0_MEASURE_TEMP(1);
-
     while (0U == (base->TEMPSENSE0 & TEMPMON_TEMPSENSE0_FINISHED_MASK))
     {
     }
