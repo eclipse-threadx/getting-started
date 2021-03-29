@@ -13,7 +13,6 @@
 
 #include "legacy/mqtt.h"
 #include "nx_client.h"
-#include "fsl_tempmon.h"
 
 #include "azure_config.h"
 
