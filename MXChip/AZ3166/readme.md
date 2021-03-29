@@ -13,7 +13,7 @@ products:
 
 # Connect an MXCHIP AZ3166 to Azure IoT
 
-[<img src="media/companion_guide.svg">](https://docs.microsoft.com/azure/iot-develop/quickstart-devkit-mxchip-az3166)
+[![Companion quickstart](media/companion_guide.svg)](https://docs.microsoft.com/azure/iot-develop/quickstart-devkit-mxchip-az3166)
 
 This Readme covers the steps for connecting an MXCHIP DevKit to Azure IoT. For detailed instructions see the [Companion quickstart](https://docs.microsoft.com/azure/iot-develop/quickstart-devkit-mxchip-az3166).
 
