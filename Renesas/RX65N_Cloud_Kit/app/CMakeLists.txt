@@ -47,5 +47,4 @@ target_include_directories(${PROJECT_NAME}
         .
 )
 
-create_bin_output(${PROJECT_NAME})
-firmware_size(${PROJECT_NAME})
+post_build(${PROJECT_NAME})

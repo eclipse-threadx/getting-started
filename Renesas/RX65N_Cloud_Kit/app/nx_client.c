@@ -176,6 +176,21 @@ static UINT append_device_gyroscope(NX_AZURE_IOT_JSON_WRITER* json_writer, VOID*
     return NX_AZURE_IOT_SUCCESS;
 }
 
+static UINT append_device_light(NX_AZURE_IOT_JSON_WRITER* json_writer, VOID* context)
+{
+    double als;
+
+    read_isl29035(&als);
+
+    if (nx_azure_iot_json_writer_append_property_with_double_value(
+            json_writer, (UCHAR*)TELEMETRY_LIGHT, sizeof(TELEMETRY_LIGHT) - 1, als, 2))
+    {
+        return NX_NOT_SUCCESSFUL;
+    }
+
+    return NX_AZURE_IOT_SUCCESS;
+}
+
 static void set_led_state(bool level)
 {
     if (level)
@@ -339,8 +354,6 @@ UINT azure_iot_nx_client_entry(
     azure_iot_nx_client_publish_properties(
         &azure_iot_nx_client, DEVICE_INFO_COMPONENT_NAME, append_device_info_properties);
 
-    double als;
-
     printf("\r\nStarting Main loop\r\n");
     while (true)
     {
@@ -362,8 +375,7 @@ UINT azure_iot_nx_client_entry(
                 break;
 
             case TELEMETRY_STATE_LIGHT:
-                read_isl29035(&als);
-                azure_iot_nx_client_publish_float_telemetry(&azure_iot_nx_client, TELEMETRY_LIGHT, als);
+                azure_iot_nx_client_publish_telemetry(&azure_iot_nx_client, append_device_light);
                 break;
 
             default:

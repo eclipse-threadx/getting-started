@@ -5,18 +5,11 @@
 
 #include "Config_SCI5.h"
 
-#include "tx_api.h"
-
-TX_SEMAPHORE printf_semaphore;
-
-void printf_init(void)
-{
-    tx_semaphore_create(&printf_semaphore, "printf semaphore", 1);
-}
+volatile uint8_t tx_done;
 
 void printf_transmit_end(void)
 {
-    tx_semaphore_put(&printf_semaphore);
+    tx_done = 1;
 }
 
 int read(int file, char* ptr, int len)
@@ -33,11 +26,14 @@ int read(int file, char* ptr, int len)
 
 int write(int file, char* ptr, int len)
 {
-    int DataIdx;
-
-    tx_semaphore_get(&printf_semaphore, TX_WAIT_FOREVER);
+    tx_done = 0;
 
     R_Config_SCI5_Serial_Send(ptr, len);
+
+    while (0 == tx_done)
+    {
+    	// wait for transmit complete
+    }
 
     return len;
 }
