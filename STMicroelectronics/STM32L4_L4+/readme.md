@@ -176,7 +176,8 @@ After the build completes, confirm that two binary files were created. There's a
 ### Confirm device connection details
 
 You can use the **Termite** utility to monitor communication and confirm that your device is set up correctly.
-> Note: If you have issues getting your device to initialize or connect after flashing, see [Troubleshooting](../../docs/troubleshooting.md).
+
+> **Note:** If you are unable to connect Termite to your devkit, install the [ST-LINK driver](https://my.st.com/content/ccc/resource/technical/software/driver/files/stsw-link009.zip) and try again. See  [Troubleshooting](../../docs/troubleshooting.md) for additional steps.
 
 1. Start **Termite**.
 1. Select **Settings**.
@@ -240,10 +241,6 @@ To view the device status in IoT Central portal:
 1. Check the **Device template** of the device has updated to **Getting Stared Guide**.
 
     ![IoT Central device status](media/azure-iot-central-device-view-status.png)
-
-> Note: If the **Device template** of the device remains as **Unassigned**, select the device and select **Migrate** to the "Getting Started Guide" template in order to see the graphic visual data representation.
-
-![IoT Central device template migrate](media/azure-iot-central-device-template-migrate.png)
 
 ## View telemetry
 

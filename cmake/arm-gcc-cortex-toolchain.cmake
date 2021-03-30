@@ -2,8 +2,13 @@
 # Licensed under the MIT License.
 
 set(CMAKE_SYSTEM_NAME Generic)
-set(CMAKE_SYSTEM_PROCESSOR arm)
+
 set(TARGET_TRIPLET "arm-none-eabi-")
+
+# default to Debug build
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Choose the type of build, options are: Debug Release." FORCE)
+endif()
 
 # do some windows specific logic
 if(WIN32)
@@ -29,7 +34,7 @@ elseif(COMPILER_ON_PATH)
     message(STATUS "Using ARM GCC from path = ${ARM_TOOLCHAIN_PATH}")
 endif()
 
-# perform compiler test with the static library
+# Perform compiler test with the static library
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
 set(CMAKE_C_COMPILER    ${ARM_TOOLCHAIN_PATH}/${TARGET_TRIPLET}gcc${TOOLCHAIN_EXT} CACHE STRING "")

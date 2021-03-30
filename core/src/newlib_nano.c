@@ -1,6 +1,9 @@
 /* Copyright (c) Microsoft Corporation.
    Licensed under the MIT License. */
 
+#ifdef __GNUC__
+
+#include <stdio.h>
 #include <errno.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -69,3 +72,5 @@ int lseek(int file, int ptr, int dir) __attribute__((weak, alias("_lseek")));
 int fstat(int file, struct stat* st) __attribute__((weak, alias("_fstat")));
 int close(int file) __attribute__((weak, alias("_close")));
 int isatty(int file) __attribute__((weak, alias("_isatty")));
+
+#endif

@@ -477,6 +477,7 @@ target_compile_definitions(${TARGET}
 target_include_directories(${TARGET} 
     PUBLIC 
         .
+        ports/cortex_m4/${THREADX_TOOLCHAIN}/inc
         common
         ${CORE_LIB_DIR}/netxduo/crypto_libraries/inc
         ${CORE_LIB_DIR}/netxduo/nx_secure/inc

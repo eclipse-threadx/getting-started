@@ -17,6 +17,7 @@ set(SOURCES
     src/devices/MIMXRT1052/drivers/fsl_enet.c
     src/devices/MIMXRT1052/drivers/fsl_gpio.c
     src/devices/MIMXRT1052/drivers/fsl_lpuart.c
+    src/devices/MIMXRT1052/drivers/fsl_tempmon.c
     src/devices/MIMXRT1052/system_MIMXRT1052.c
     src/devices/MIMXRT1052/utilities/debug_console/fsl_debug_console.c
     src/devices/MIMXRT1052/utilities/str/fsl_str.c

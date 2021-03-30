@@ -4,7 +4,7 @@
 set(SOURCES
     src/nx_driver_imxrt10xx.c
     src/nx_driver_imxrt10xx.h
-    src/nx_driver_imxrt10xx_low_level.S
+    src/${THREADX_TOOLCHAIN}/nx_driver_imxrt10xx_low_level.S
 )
 
 set(TARGET netx_driver)

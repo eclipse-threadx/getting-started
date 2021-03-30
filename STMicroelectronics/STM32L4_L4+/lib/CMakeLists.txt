@@ -1,10 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-# Define the CPU architecture for Threadx
-set(THREADX_ARCH "cortex_m4")
-set(THREADX_TOOLCHAIN "gnu")
-
 # Define ThreadX user configuration
 set(TX_USER_FILE "${CMAKE_CURRENT_LIST_DIR}/threadx/tx_user.h" CACHE STRING "Enable TX user configuration")
 
@@ -14,7 +10,7 @@ set(NXD_ENABLE_AZURE_IOT ON CACHE BOOL "Enable Azure IoT")
 set(NXD_ENABLE_FILE_SERVERS OFF CACHE BOOL "Disable fileX dependency by netxduo")
 
 # Azure Security Center
-set(NX_AZURE_DISABLE_IOT_SECURITY_MODULE ON CACHE BOOL "Security Center")
+set(NX_AZURE_DISABLE_IOT_SECURITY_MODULE OFF CACHE BOOL "Security Center")
 
 # Core libraries
 add_subdirectory(${CORE_LIB_DIR}/threadx threadx)

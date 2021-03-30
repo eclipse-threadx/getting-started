@@ -124,6 +124,16 @@ UINT tls_setup(NXD_MQTT_CLIENT* client,
         return status;
     }
 
+    status = nx_secure_tls_remote_certificate_allocate(tls_session,	
+        &azure_iot_mqtt->mqtt_remote_certificate,	
+        azure_iot_mqtt->mqtt_remote_cert_buffer,	
+        sizeof(azure_iot_mqtt->mqtt_remote_cert_buffer));	
+    if (status != NX_SUCCESS)	
+    {	
+        printf("Failed to create remote certificate buffer (0x%04x)\r\n", status);	
+        return status;	
+    }
+
     // Add a CA Certificate to our trusted store for verifying incoming server certificates
     status = nx_secure_x509_certificate_initialize(trusted_cert,
         (UCHAR*)azure_iot_root_ca,
@@ -194,7 +204,7 @@ static UINT mqtt_publish_float(AZURE_IOT_MQTT* azure_iot_mqtt, CHAR* topic, CHAR
     int decvalue  = value;
     int fracvalue = abs(100 * (value - (long)value));
 
-    snprintf(mqtt_message, sizeof(mqtt_message), "{\"%s\":%d.%2d}", label, decvalue, fracvalue);
+    snprintf(mqtt_message, sizeof(mqtt_message), "{\"%s\":%d.%02d}", label, decvalue, fracvalue);
     printf("Sending message %s\r\n", mqtt_message);
 
     return mqtt_publish(azure_iot_mqtt, topic, mqtt_message);

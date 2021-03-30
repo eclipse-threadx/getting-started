@@ -221,10 +221,6 @@ To view the device status in IoT Central portal:
 
     ![IoT Central device status](media/azure-iot-central-device-view-status.png)
 
-> Note: If the **Device template** of the device remains as **Unassigned**, select the device and select **Migrate** to the "Getting Started Guide" template in order to see the graphic visual data representation.
-
-![IoT Central device template migrate](media/azure-iot-central-device-template-migrate.png)
-
 ## View telemetry
 
 With IoT Central, you can view the flow of telemetry from your device to the cloud.
@@ -234,6 +230,7 @@ To view telemetry in IoT Central portal:
 1. From the application dashboard, select **Devices** on the side navigation menu.
 1. Select the device from the device list.
 1. View the telemetry as the device sends messages to the cloud in the **Overview** tab.
+1. The temperature is measured from the MCU wafer.
 
     ![IoT Central device telemetry](media/azure-iot-central-device-telemetry.png)
 

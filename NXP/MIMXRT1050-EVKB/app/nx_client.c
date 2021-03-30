@@ -17,8 +17,11 @@
 #include "azure_device_x509_cert_config.h"
 #include "azure_pnp_info.h"
 
+#include "fsl_tempmon.h"
+
 #define IOT_MODEL_ID "dtmi:azurertos:devkit:gsg;1"
 
+#define TELEMETRY_TEMPERATURE       "temperature"
 #define TELEMETRY_INTERVAL_PROPERTY "telemetryInterval"
 #define LED_STATE_PROPERTY          "ledState"
 #define SET_LED_STATE_COMMAND       "setLedState"
@@ -72,6 +75,21 @@ static UINT append_device_info_properties(NX_AZURE_IOT_JSON_WRITER* json_writer,
             sizeof(DEVICE_INFO_TOTAL_MEMORY_PROPERTY_NAME) - 1,
             DEVICE_INFO_TOTAL_MEMORY_PROPERTY_VALUE,
             2))
+    {
+        return NX_NOT_SUCCESSFUL;
+    }
+
+    return NX_AZURE_IOT_SUCCESS;
+}
+
+static UINT append_device_telemetry(NX_AZURE_IOT_JSON_WRITER* json_writer, VOID* context)
+{
+    TEMPMON_StartMeasure(TEMPMON);
+    float temperature = TEMPMON_GetCurrentTemperature(TEMPMON);
+    TEMPMON_StopMeasure(TEMPMON);
+
+    if (nx_azure_iot_json_writer_append_property_with_double_value(
+            json_writer, (UCHAR*)TELEMETRY_TEMPERATURE, sizeof(TELEMETRY_TEMPERATURE) - 1, temperature, 2))
     {
         return NX_NOT_SUCCESSFUL;
     }
@@ -170,14 +188,6 @@ static void device_twin_property_cb(UCHAR* component_name,
     }
 }
 
-static void device_twin_received_cb(AZURE_IOT_NX_CONTEXT* nx_context)
-{
-    azure_iot_nx_client_publish_int_writeable_property(nx_context, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
-    azure_iot_nx_client_publish_bool_property(&azure_iot_nx_client, LED_STATE_PROPERTY, false);
-    azure_iot_nx_client_publish_properties(
-        &azure_iot_nx_client, DEVICE_INFO_COMPONENT_NAME, append_device_info_properties);
-}
-
 UINT azure_iot_nx_client_entry(
     NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, UINT (*unix_time_callback)(ULONG* unix_time))
 {
@@ -228,7 +238,6 @@ UINT azure_iot_nx_client_entry(
     azure_iot_nx_client_register_direct_method(&azure_iot_nx_client, direct_method_cb);
     azure_iot_nx_client_register_device_twin_desired_prop(&azure_iot_nx_client, device_twin_desired_property_cb);
     azure_iot_nx_client_register_device_twin_prop(&azure_iot_nx_client, device_twin_property_cb);
-    azure_iot_nx_client_register_device_twin_received(&azure_iot_nx_client, device_twin_received_cb);
 
     if ((status = azure_iot_nx_client_connect(&azure_iot_nx_client)))
     {
@@ -237,22 +246,27 @@ UINT azure_iot_nx_client_entry(
     }
 
     // Request the device twin for writeable property update
-    if ((status = nx_azure_iot_hub_client_device_twin_properties_request(
-             &azure_iot_nx_client.iothub_client, NX_WAIT_FOREVER)))
+    if ((status = azure_iot_nx_client_device_twin_request_and_wait(&azure_iot_nx_client)))
     {
-        printf("ERROR: failed to request device twin (0x%08x)\r\n", status);
+        printf("ERROR: azure_iot_nx_client_device_twin_request_and_wait failed (0x%08x)\r\n", status);
         return status;
     }
 
-    float temperature = 28.5;
+    // Send out property updates
+    azure_iot_nx_client_publish_int_writeable_property(
+        &azure_iot_nx_client, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
+    azure_iot_nx_client_publish_bool_property(&azure_iot_nx_client, LED_STATE_PROPERTY, false);
+    azure_iot_nx_client_publish_properties(
+        &azure_iot_nx_client, DEVICE_INFO_COMPONENT_NAME, append_device_info_properties);
 
     printf("\r\nStarting Main loop\r\n");
+
     while (true)
     {
         tx_event_flags_get(
             &azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR_CLEAR, &events, telemetry_interval * NX_IP_PERIODIC_RATE);
 
-        azure_iot_nx_client_publish_float_telemetry(&azure_iot_nx_client, "temperature", temperature);
+        azure_iot_nx_client_publish_telemetry(&azure_iot_nx_client, append_device_telemetry);
     }
 
     return NX_SUCCESS;

@@ -129,6 +129,7 @@ static UINT dns_create()
 static UINT wifi_network_join(void* pools, CHAR* ssid, CHAR* password, WiFi_Mode mode)
 {
     wiced_security_t wiced_security;
+    wiced_mac_t mac_address;
 
     printf("Initializing WiFi\r\n");
 
@@ -163,6 +164,15 @@ static UINT wifi_network_join(void* pools, CHAR* ssid, CHAR* password, WiFi_Mode
         printf("Failed to set WiFi Country!\r\n");
         return NX_NOT_SUCCESSFUL;
     }
+
+    wwd_wifi_get_mac_address(&mac_address, WWD_STA_INTERFACE);
+    printf("\tMAC address: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
+        mac_address.octet[0],
+        mac_address.octet[1],
+        mac_address.octet[2],
+        mac_address.octet[3],
+        mac_address.octet[4],
+        mac_address.octet[5]);
 
     wiced_ssid_t wiced_ssid = {0};
     wiced_ssid.length       = strlen(ssid);
