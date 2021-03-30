@@ -4,7 +4,7 @@ resources:
   repositories:
   - repository: Device-Lab
     type: git
-    name: Device-Lab
+    name: azure-iot-dde/Device-Lab
 
 trigger: 
   batch: true
@@ -25,7 +25,7 @@ jobs:
   - checkout: self
     clean: true
     submodules: recursive
-  - checkout: azure-iot-dde
+  - checkout: Device-Lab
     clean: true
 
   # Azure CLI to start certification
