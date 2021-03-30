@@ -4,6 +4,7 @@ resources:
   repositories:
   - repository: Device-Lab
     type: git
+    endpoint: self
     name: Device-Lab
 
 trigger: 
