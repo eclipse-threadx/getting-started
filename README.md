@@ -8,10 +8,12 @@
 ![](https://github.com/azure-rtos/getting-started/workflows/RSK-RX65N-2MB/badge.svg)
 ![](https://github.com/azure-rtos/getting-started/workflows/STM32L4_L4+/badge.svg)
 
+<!-- markdown-link-check-disable -->
 [![Azure ATSAME54-XPRO](https://dev.azure.com/azure-iot-dde/Azure%20RTOS%20GSG/_apis/build/status/gsg.microchip.atsame54xpro?repoName=azure-rtos%2Fgetting-started&branchName=refs%2Fpull%2F224%2Fmerge&jobName=Microchip_Build)](https://dev.azure.com/azure-iot-dde/Azure%20RTOS%20GSG/_build/latest?definitionId=6&repoName=azure-rtos%2Fgetting-started&branchName=master)
 [![Azure STM32L475](https://dev.azure.com/azure-iot-dde/Azure%20RTOS%20GSG/_apis/build/status/gsg.stm.L475EIOT01A?repoName=azure-rtos%2Fgetting-started&branchName=master&jobName=STM_Build)](https://dev.azure.com/azure-iot-dde/Azure%20RTOS%20GSG/_build/latest?definitionId=5&repoName=azure-rtos%2Fgetting-started&branchName=master)
 [![Azure MIMXRT1060-EVK](https://dev.azure.com/azure-iot-dde/Azure%20RTOS%20GSG/_apis/build/status/gsg.nxp.mimxrt1060evk?repoName=azure-rtos%2Fgetting-started&branchName=master&jobName=NXP_Build)](https://dev.azure.com/azure-iot-dde/Azure%20RTOS%20GSG/_build/latest?definitionId=4&repoName=azure-rtos%2Fgetting-started&branchName=master)
 [![Azure AZ3166](https://dev.azure.com/azure-iot-dde/Azure%20RTOS%20GSG/_apis/build/status/gsg.mxchip.az3166?repoName=azure-rtos%2Fgetting-started&branchName=master&jobName=MXCHIP_Build)](https://dev.azure.com/azure-iot-dde/Azure%20RTOS%20GSG/_build/latest?definitionId=2&repoName=azure-rtos%2Fgetting-started&branchName=master)
+<!-- markdown-link-check-enable-->
 
 This Getting Started guides shows device developers how to start working with Azure RTOS. Each guide will step through from installation of the required toolchain, to connecting the device to Azure IoT using IoT Plug and Play.
 
