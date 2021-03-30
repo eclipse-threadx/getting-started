@@ -1,5 +1,7 @@
 # Getting Started with Azure RTOS and Azure IoT
 
+PR trigger test
+
 ![](https://github.com/azure-rtos/getting-started/workflows/Markdown%20links/badge.svg)
 ![](https://github.com/azure-rtos/getting-started/workflows/ATSAME54-XPRO/badge.svg)
 ![](https://github.com/azure-rtos/getting-started/workflows/AZ3166/badge.svg)
