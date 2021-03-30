@@ -15,3 +15,4 @@ add_subdirectory(${CORE_LIB_DIR}/threadx threadx)
 
 add_subdirectory(AN524)
 add_subdirectory(tf-m)
+add_subdirectory(threadx threadx-cmsis)

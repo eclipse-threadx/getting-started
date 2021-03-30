@@ -21,6 +21,7 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 target_link_libraries(${PROJECT_NAME} 
     PUBLIC
         azrtos::threadx
+        threadx-cmsis
 
         # app_common
         # jsmn

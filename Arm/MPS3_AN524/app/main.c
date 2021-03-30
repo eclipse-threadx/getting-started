@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "tx_api.h"
+#include "tx_cmsis_os2.h"
 
 #include "board_init.h"
 #include "cmsis.h"
@@ -30,12 +31,17 @@ static __inline void systick_interval_set(uint32_t ticks)
     SysTick->CTRL |= SysTick_CTRL_ENABLE_Msk;
 }
 
-/* TODO: Locking for accessing the TFM interface */
+TX_MUTEX tfm_ns_dispatch_mutex;
+
 int32_t tfm_ns_interface_dispatch(veneer_fn fn,
                                   uint32_t arg0, uint32_t arg1,
                                   uint32_t arg2, uint32_t arg3)
 {
-    return fn(arg0, arg1, arg2, arg3);
+    int32_t ret = 0;
+    tx_mutex_get(&tfm_ns_dispatch_mutex, TX_WAIT_FOREVER);
+    ret = fn(arg0, arg1, arg2, arg3);
+    tx_mutex_put(&tfm_ns_dispatch_mutex);
+    return ret;
 }
 
 TX_THREAD azure_thread;
@@ -98,7 +104,8 @@ int main(void)
 
     printf("Azure RTOS running on MPS3 board\n");
 
-    
+    tx_mutex_create(&tfm_ns_dispatch_mutex, "TF-M Dispatch Mutex", TX_INHERIT);
+    init_cmsis_os2();
     tx_kernel_enter();
 
     return 0;

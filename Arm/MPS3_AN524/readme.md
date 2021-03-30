@@ -96,6 +96,11 @@ secure partitions used by TF-M. These options are defined and documented in
 cmake by defining the `APP_CONFIG` variable to a path to a file that sets these
 options.
 
+The ThreadX CMSIS RTOS2 interface statically allocates threads, thread stacks
+and semaphores. The size of these allocations may also be configured.
+Configuration options for these are defined and documented in
+`Arm/MPS3_AN524/lib/threadx/CMmakeLists.txt`.
+
 ## Updating application image
 > This has only been tested on OS X, some modifications might be needed to make
   `Arm/MPS3_AN524/tools/flash.py` to work in Windows/Linux environments.
