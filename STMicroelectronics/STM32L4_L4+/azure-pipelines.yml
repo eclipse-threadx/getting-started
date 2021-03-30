@@ -4,7 +4,7 @@ resources:
   repositories:
   - repository: Device-Lab
     type: git
-    name: azure-iot-dde/Device-Lab
+    name: Device-Lab
 
 trigger: 
   batch: true
