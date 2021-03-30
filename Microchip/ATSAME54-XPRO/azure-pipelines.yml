@@ -2,10 +2,10 @@ name: $(BuildID)_$(BuildDefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd)$(Re
 
 resources:
   repositories:
-  - repository: azure-iot-dde
+  - repository: Device-Lab
     type: git
-    endpoint: msazure
-    name: One/azure-iot-dde
+    endpoint: self
+    name: Device-Lab/Device-Lab
 
 trigger: 
   batch: true
@@ -26,7 +26,7 @@ jobs:
   - checkout: self
     clean: true
     submodules: recursive
-  - checkout: azure-iot-dde
+  - checkout: Device-Lab
     clean: true
 
   # Azure CLI to start certification
@@ -35,7 +35,7 @@ jobs:
       azureSubscription: 'IoT-DDE-team-subscription'
       scriptType: 'ps'
       scriptLocation: 'scriptPath'
-      scriptPath: '$(Build.SourcesDirectory)\azure-iot-dde\generate_creds.ps1'
+      scriptPath: '$(Build.SourcesDirectory)\Device-Lab\generate_creds.ps1'
       arguments: '$(Build.SourcesDirectory)\getting-started\core\model'
       useGlobalConfig: true
     displayName: "Start Certification"
@@ -44,7 +44,7 @@ jobs:
   - task: PowerShell@2
     inputs:
       targetType: 'filePath'
-      filePath: '$(Build.SourcesDirectory)\azure-iot-dde\update_config.ps1'
+      filePath: '$(Build.SourcesDirectory)\Device-Lab\update_config.ps1'
       arguments: > # Use this to avoid newline characters in multiline string
         -ConfigFilePath '$(Build.SourcesDirectory)\getting-started\Microchip\ATSAME54-XPRO\app\azure_config.h'
     displayName: 'Modify config file'
@@ -60,7 +60,7 @@ jobs:
   - task: PowerShell@2
     inputs:
       targetType: 'filePath'
-      filePath: '$(Build.SourcesDirectory)\azure-iot-dde\flashing_tools\flash-board.ps1'
+      filePath: '$(Build.SourcesDirectory)\Device-Lab\flashing_tools\flash-board.ps1'
       arguments: > # Use this to avoid newline characters in multiline string
         -BinPath '$(Build.SourcesDirectory)\getting-started\Microchip\ATSAME54-XPRO\build\app\atsame54_azure_iot.bin'
     displayName: 'Flash binary'
@@ -69,7 +69,7 @@ jobs:
   - task: PowerShell@2
     inputs:
       targetType: 'filePath'
-      filePath: '$(Build.SourcesDirectory)\azure-iot-dde\scan_serial.ps1'
+      filePath: '$(Build.SourcesDirectory)\Device-Lab\scan_serial.ps1'
       arguments: > # Use this to avoid newline characters in multiline string
         -TestString 'SUCCESS: Azure IoT Hub client initialized'
     displayName: 'Scan serial port'
@@ -80,7 +80,7 @@ jobs:
       azureSubscription: 'IoT-DDE-team-subscription'
       scriptType: 'ps'
       scriptLocation: 'scriptPath'
-      scriptPath: '$(Build.SourcesDirectory)\azure-iot-dde\run_certification.ps1'
+      scriptPath: '$(Build.SourcesDirectory)\Device-Lab\run_certification.ps1'
       arguments: $(TESTID)
       useGlobalConfig: true
     displayName: "Run Certification"
