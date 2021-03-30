@@ -12,7 +12,7 @@
 #include "json_utils.h"
 #include "sntp_client.h"
 
-#include "azure_config.h"
+// #include "azure_config.h"
 
 #define IOT_MODEL_ID "dtmi:com:example:azurertos:gsg;1"
 
@@ -113,6 +113,15 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
     UINT status;
     ULONG events;
     float temperature;
+    DevConfig_IoT_Info_t device_info;
+
+    // Read IoTHub credentials from flash
+    status = read_flash(&device_info);
+    if (status != STATUS_OK) 
+    {
+      printf("Unable to read credentials from flash.\n");
+      return status;
+    }
 
     if ((status = tx_event_flags_create(&azure_iot_flags, "Azure IoT flags")))
     {
@@ -127,9 +136,9 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
         pool_ptr,
         dns_ptr,
         time_get,
-        IOT_DPS_ID_SCOPE,
-        IOT_DPS_REGISTRATION_ID,
-        IOT_DEVICE_SAS_KEY,
+        device_info.idscope,
+        device_info.registrationid,
+        device_info.sas,
         IOT_MODEL_ID);
 #else
     // Create Azure MQTT for Hub
@@ -138,9 +147,9 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
         pool_ptr,
         dns_ptr,
         time_get,
-        IOT_HUB_HOSTNAME,
-        IOT_HUB_DEVICE_ID,
-        IOT_DEVICE_SAS_KEY,
+        device_info.hostname,
+        device_info.deviceid,
+        device_info.sas,
         IOT_MODEL_ID);
 #endif
 

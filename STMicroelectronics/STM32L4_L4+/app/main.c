@@ -13,7 +13,7 @@
 #include "legacy/mqtt.h"
 #include "nx_client.h"
 
-//#include "azure_config.h"
+#include "azure_config.h"
 #include "prompt.h"
 
 #define AZURE_THREAD_STACK_SIZE 4096
@@ -30,39 +30,18 @@ void azure_thread_entry(ULONG parameter)
     UINT status;
 
     printf("\r\nStarting Azure thread\r\n\r\n");
-    
-    bool first_init = serial_setup();
+
+    serial_setup();
 
     DevConfig_IoT_Info_t device_info;
-
-    if(read_flash(&device_info) == STATUS_OK && !first_init)
+    status = read_flash(&device_info);
+    if (status != STATUS_OK) 
     {
-         //Initialize the network
-         if (!wifi_init(device_info.ssid, device_info.pswd, WPA2_PSK_AES))
-         {
-             printf("Error initializing wifi from stored info");
-         }
-    }
-    else
-    {
-        SoftAP_WiFi_Info_t softAP_wifi;
-
-        if (wifi_softAP_init(&softAP_wifi))
-        {
-            printf("Initialized wifi connection with SoftAP. SSID: %s\n\n", softAP_wifi.SSID);
-        }
-
-        strcpy(device_info.ssid, softAP_wifi.SSID);
-        strcpy(device_info.pswd, softAP_wifi.PSWD);
-        device_info.security = WPA2_PSK_AES;
-
-        if (save_to_flash(&device_info) == STATUS_OK) {
-            printf("Successfully saved WiFi credentials to flash. \n\n");
-        }
+      printf("Unable to read credentials from flash.\n");
+      return;
     }
 
-    // Network initialization
-    if (stm32_network_init() != NX_SUCCESS)
+    if (stm32_network_init(device_info.ssid, device_info.pswd, WIFI_MODE) != NX_SUCCESS)
     {
         printf("Failed to initialize the network\r\n");
         return;

@@ -4,13 +4,13 @@
 #ifndef _AZURE_CONFIG_H
 #define _AZURE_CONFIG_H
 
-typedef enum
-{
-    None         = 0,
-    WEP          = 1,
-    WPA_PSK_TKIP = 2,
-    WPA2_PSK_AES = 3
-} WiFi_Mode;
+// typedef enum
+// {
+//     None         = 0,
+//     WEP          = 1,
+//     WPA_PSK_TKIP = 2,
+//     WPA2_PSK_AES = 3
+// } WiFi_Mode;
 
 // ----------------------------------------------------------------------------
 // WiFi connection config

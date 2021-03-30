@@ -10,6 +10,9 @@
 // Page size calculation, justification from datasheet needed here ()
 #define page_size 0x800
 
+// format string for parsing data
+const char *format = "hostname=%s deviceid=%s sas=%s idscope=%s registrationid=%s ssid=%s pw=%s sec=%d";
+
 // Specific helper function for writing to flash for STM32L4
 FLASH_Status_t save_to_flash_ST(uint8_t *data);
 
@@ -134,13 +137,11 @@ HAL_StatusTypeDef erase_flash_ST()
 FLASH_Status_t save_to_flash(DevConfig_IoT_Info_t* info)
 {
     FLASH_Status_t status = SAVE_STATUS_ERROR;
-
-    const char *format = "hostname=%s device_id=%s primary_key=%s ssid=%s pw=%s sec=%d";
     
     char writeData[MAX_READ_BUFF] = { 0 };
     
     // Create credential string using format string
-    if (sprintf(writeData, format, info->hostname, info->device_id, info->primary_key, info->ssid, info->pswd, info->security) < 0) 
+    if (sprintf(writeData, format, info->hostname, info->deviceid, info->sas, info->idscope, info->registrationid, info->ssid, info->pswd, info->security) < 0) 
     {
         printf("Error parsing credentials to store. \n");
         return SAVE_STATUS_ERROR;
@@ -159,13 +160,11 @@ FLASH_Status_t read_flash(DevConfig_IoT_Info_t* info)
 
     char readData[MAX_READ_BUFF] = { 0 };
 
-    const char *format = "hostname=%s device_id=%s primary_key=%s ssid=%s pw=%s sec=%d";
-
     // Call MCU specific flash reading function
     status = read_flash_ST((uint8_t*)(readData));
     
     // Write to readData buffer
-    if(sscanf(readData, format, info->hostname, info->device_id, info->primary_key, info->ssid, info->pswd, info->security) < 0)
+    if(sscanf(readData, format, info->hostname, info->deviceid, info->sas, info->idscope, info->registrationid, info->ssid, info->pswd, info->security) < 0)
     {
         status = READ_STATUS_FLASH_ERROR;
     }
