@@ -101,6 +101,12 @@ and semaphores. The size of these allocations may also be configured.
 Configuration options for these are defined and documented in
 `Arm/MPS3_AN524/lib/threadx/CMmakeLists.txt`.
 
+### Running TF-M NS regression tests
+TF-M NS regression tests config option `TFM_REGRESSION` is documented in
+`Arm/MPS3_AN524/app/config.cmake` and is disabled by default. To run TF-M NS
+regression tests set the config option to `ON` and rebuild the application.
+Then run it either on [QEMU](#using-qemu) or [hardware](#updating-application-image)
+
 ## Updating application image
 > This has only been tested on OS X, some modifications might be needed to make
   `Arm/MPS3_AN524/tools/flash.py` to work in Windows/Linux environments.

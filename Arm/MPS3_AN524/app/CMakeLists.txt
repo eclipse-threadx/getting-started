@@ -18,6 +18,11 @@ set(SOURCES
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
+target_compile_definitions(${PROJECT_NAME}
+   PRIVATE
+      $<$<BOOL:${TFM_REGRESSION}>:TFM_REGRESSION>
+)
+
 target_link_libraries(${PROJECT_NAME} 
     PUBLIC
         azrtos::threadx

@@ -13,8 +13,17 @@
 #include "psa_manifest/sid.h"
 #endif
 
+#ifdef TFM_REGRESSION
+#include "test_framework_integ_test.h"
+#endif
+
 #define AZURE_THREAD_STACK_SIZE 4096
 #define AZURE_THREAD_PRIORITY   4
+
+int tfm_log_printf(const char *fmt, ...)
+{
+    printf(fmt);
+}
 
 static __inline void systick_interval_set(uint32_t ticks)
 {
@@ -62,6 +71,8 @@ void azure_thread_entry(ULONG parameter)
         printf("The version of the PSA Framework API is not valid!\n");
         return;
     }
+
+#ifdef TFM_REGRESSION
     psa_handle_t handle;
 
     handle = psa_connect(IPC_SERVICE_TEST_BASIC_SID,
@@ -73,6 +84,10 @@ void azure_thread_entry(ULONG parameter)
         return;
     }
     psa_close(handle);
+
+    /* Start TF-M NS regression tests */
+    tfm_non_secure_client_run_tests();
+#endif
 }
 
 void tx_application_define(void* first_unused_memory)

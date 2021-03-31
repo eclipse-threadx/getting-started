@@ -138,7 +138,7 @@ cmake_dependent_option(TFM_IPC
 cmake_dependent_option(TFM_REGRESSION
     "When enabled, this option signifies that the TF-M build includes
      the Secure and the Non-Secure regression tests."
-    ON
+    OFF
     BUILD_WITH_TFM OFF
 )
 

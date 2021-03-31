@@ -86,8 +86,6 @@ function(trusted_firmware_build)
     set(MCUBOOT_IMAGE_NUM_ARG -DMCUBOOT_IMAGE_NUMBER=${TFM_MCUBOOT_IMAGE_NUMBER})
   endif()
 
-  set(VENEERS_FILE ${TFM_BINARY_DIR}/install/interface/lib/s_veneers.o)
-  set(PSA_API_NS_PATH ${TFM_BINARY_DIR}/app/libtfm_api_ns.a)
   set(TFM_GENERATED_INCLUDES ${TFM_BINARY_DIR}/generated/interface/include)
 
   if(TFM_BL2)
@@ -102,9 +100,45 @@ function(trusted_firmware_build)
   set(TFM_NS_SIGNED_BIN_FILE ${TFM_BINARY_DIR}/bin/tfm_ns_signed.bin)
   set(TFM_S_NS_SIGNED_BIN_FILE ${TFM_BINARY_DIR}/bin/tfm_s_ns_signed.bin)
 
+  set(VENEERS_FILE ${TFM_BINARY_DIR}/install/interface/lib/s_veneers.o)
+
+  set(PSA_API_NS_PATH ${TFM_BINARY_DIR}/app/libtfm_api_ns.a)
+  if (TFM_REGRESSION)
+    set(PSA_QCBOR_NS_REGRESSION_TEST_PATH ${TFM_BINARY_DIR}/test/suites/qcbor/libtfm_test_suite_qcbor_ns.a)
+    set(PSA_NS_CORE_TEST_PATH ${TFM_BINARY_DIR}/test/suites/core/libtfm_test_suite_core_ns.a)
+    set(PSA_NS_IPC_TEST_PATH ${TFM_BINARY_DIR}/test/suites/ipc/libtfm_test_suite_ipc_ns.a)
+    set(PSA_ATTESTATION_NS_REGRESSION_TEST_PATH ${TFM_BINARY_DIR}/test/suites/attestation/libtfm_test_suite_attestation_ns.a)
+    set(PSA_CRYPTO_NS_REGRESSION_TEST_PATH ${TFM_BINARY_DIR}/test/suites/crypto/libtfm_test_suite_crypto_ns.a)
+    set(PSA_PLATFORM_NS_REGRESSION_TEST_PATH ${TFM_BINARY_DIR}/test/suites/platform/libtfm_test_suite_platform_ns.a)
+    set(PSA_PS_NS_REGRESSION_TEST_PATH ${TFM_BINARY_DIR}/test/suites/ps/libtfm_test_suite_ps_ns.a)
+    set(PSA_ITS_NS_REGRESSION_TEST_PATH ${TFM_BINARY_DIR}/test/suites/its/libtfm_test_suite_its_ns.a)
+    set(PSA_T_COSE_NS_REGRESSION_TEST_PATH ${TFM_BINARY_DIR}/test/suites/t_cose/libtfm_test_suite_t_cose_ns.a)
+    set(PSA_NS_REGRESSION_TEST_PATH ${TFM_BINARY_DIR}/app/libtfm_ns_integration_test.a)
+    set(PSA_QCBOR_TEST_PATH ${TFM_BINARY_DIR}/lib/ext/qcbor/libtfm_qcbor_test.a)
+    set(PSA_T_COSE_TEST_PATH ${TFM_BINARY_DIR}/lib/ext/t_cose/libtfm_t_cose_test.a)
+    set(PSA_PLATFORM_NS_PATH ${TFM_BINARY_DIR}/platform/libplatform_ns.a)
+    set(PSA_QCBOR_PATH ${TFM_BINARY_DIR}/lib/ext/qcbor/libtfm_qcbor.a)
+    set(PSA_T_COSE_PATH ${TFM_BINARY_DIR}/lib/ext/t_cose/libtfm_t_cose.a)
+  endif()
+
   set(BUILD_BYPRODUCTS
     ${VENEERS_FILE}
     ${PSA_API_NS_PATH}
+    ${PSA_QCBOR_NS_REGRESSION_TEST_PATH}
+    ${PSA_NS_CORE_TEST_PATH}
+    ${PSA_NS_IPC_TEST_PATH}
+    ${PSA_ATTESTATION_NS_REGRESSION_TEST_PATH}
+    ${PSA_CRYPTO_NS_REGRESSION_TEST_PATH}
+    ${PSA_PLATFORM_NS_REGRESSION_TEST_PATH}
+    ${PSA_PS_NS_REGRESSION_TEST_PATH}
+    ${PSA_ITS_NS_REGRESSION_TEST_PATH}
+    ${PSA_T_COSE_NS_REGRESSION_TEST_PATH}
+    ${PSA_NS_REGRESSION_TEST_PATH}
+    ${PSA_QCBOR_TEST_PATH}
+    ${PSA_T_COSE_TEST_PATH}
+    ${PSA_PLATFORM_NS_PATH}
+    ${PSA_QCBOR_PATH}
+    ${PSA_T_COSE_PATH}
     ${TFM_GENERATED_INCLUDES}/psa_manifest/sid.h
     ${BL2_BIN_FILE}
     ${BL2_HEX_FILE}
@@ -170,24 +204,40 @@ function(trusted_firmware_build)
     TFM_S_NS_SIGNED_BIN_FILE ${TFM_S_NS_SIGNED_BIN_FILE} # Merged TFM Secure/Nonsecure FW (signed)
     )
 
-  add_library(tfm_api
-    ${TX_TFM_TESTS_DIR}/app/os_wrapper_cmsis_rtos_v2.c
+  add_library(tfm_api INTERFACE
+    # ${TX_TFM_TESTS_DIR}/app/os_wrapper_cmsis_rtos_v2.c
   )
 
   target_include_directories(tfm_api
-    PRIVATE
-    ${TX_TFM_TESTS_DIR}/CMSIS/RTOS2/Include
-    PUBLIC
-    ${TX_TFM_BASE_DIR}/interface/include
+    # PRIVATE
+    # ${TX_TFM_TESTS_DIR}/CMSIS/RTOS2/Include
     INTERFACE
+    ${TX_TFM_BASE_DIR}/interface/include
+    ${TX_TFM_BASE_DIR}/../tf-m-tests/test/framework
+    # INTERFACE
     ${TFM_GENERATED_INCLUDES}
   )
 
   target_link_libraries(tfm_api
     INTERFACE
+    ${PSA_NS_CORE_TEST_PATH}
+    ${PSA_ATTESTATION_NS_REGRESSION_TEST_PATH}
+    ${PSA_CRYPTO_NS_REGRESSION_TEST_PATH}
+    ${PSA_NS_IPC_TEST_PATH}
+    ${PSA_ITS_NS_REGRESSION_TEST_PATH}
+    ${PSA_PLATFORM_NS_REGRESSION_TEST_PATH}
+    ${PSA_PS_NS_REGRESSION_TEST_PATH}
+    ${PSA_QCBOR_NS_REGRESSION_TEST_PATH}
+    ${PSA_T_COSE_NS_REGRESSION_TEST_PATH}
+    ${PSA_QCBOR_TEST_PATH}
+    ${PSA_T_COSE_TEST_PATH}
+    ${PSA_PLATFORM_NS_PATH}
     ${PSA_API_NS_PATH}
+    ${PSA_NS_REGRESSION_TEST_PATH}
+    ${PSA_QCBOR_PATH}
+    ${PSA_T_COSE_PATH}
     ${VENEERS_FILE}
-    $<TARGET_FILE:tfm_api>
+    # $<TARGET_FILE:tfm_api>
   )
 
   add_dependencies(tfm_api tfm)
