@@ -108,20 +108,11 @@ static void mqtt_device_twin_prop(AZURE_IOT_MQTT* iot_mqtt, CHAR* message)
     azure_iot_mqtt_publish_int_writeable_property(iot_mqtt, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
 }
 
-UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, ULONG (*time_get)(VOID))
+UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, ULONG (*time_get)(VOID), DevConfig_IoT_Info_t* device_info)
 {
     UINT status;
     ULONG events;
     float temperature;
-    DevConfig_IoT_Info_t device_info;
-
-    // Read IoTHub credentials from flash
-    status = read_flash(&device_info);
-    if (status != STATUS_OK) 
-    {
-      printf("Unable to read credentials from flash.\n");
-      return status;
-    }
 
     if ((status = tx_event_flags_create(&azure_iot_flags, "Azure IoT flags")))
     {
@@ -136,9 +127,9 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
         pool_ptr,
         dns_ptr,
         time_get,
-        device_info.idscope,
-        device_info.registrationid,
-        device_info.sas,
+        device_info->idscope,
+        device_info->registrationid,
+        device_info->sas,
         IOT_MODEL_ID);
 #else
     // Create Azure MQTT for Hub
@@ -147,9 +138,9 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
         pool_ptr,
         dns_ptr,
         time_get,
-        device_info.hostname,
-        device_info.deviceid,
-        device_info.sas,
+        device_info->hostname,
+        device_info->deviceid,
+        device_info->sas,
         IOT_MODEL_ID);
 #endif
 

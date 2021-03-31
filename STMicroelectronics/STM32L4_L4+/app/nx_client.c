@@ -186,19 +186,10 @@ static void device_twin_property_cb(UCHAR* component_name,
 }
 
 UINT azure_iot_nx_client_entry(
-    NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, UINT (*unix_time_callback)(ULONG* unix_time))
+    NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, UINT (*unix_time_callback)(ULONG* unix_time), DevConfig_IoT_Info_t* device_info)
 {
     UINT status;
     ULONG events = 0;
-    DevConfig_IoT_Info_t device_info;
-
-    // Read IoTHub credentials from flash
-    status = read_flash(&device_info);
-    if (status != STATUS_OK) 
-    {
-      printf("Unable to read credentials from flash.\n");
-      return status;
-    }
 
     if ((status = tx_event_flags_create(&azure_iot_flags, "Azure IoT flags")))
     {
@@ -221,7 +212,7 @@ UINT azure_iot_nx_client_entry(
         (UCHAR*)iot_x509_private_key,
         iot_x509_private_key_len);
 #else
-    status = azure_iot_nx_client_sas_set(&azure_iot_nx_client, device_info.sas);
+    status = azure_iot_nx_client_sas_set(&azure_iot_nx_client, device_info->sas);
 #endif
     if (status != NX_SUCCESS)
     {
@@ -230,9 +221,9 @@ UINT azure_iot_nx_client_entry(
     }
 
 #ifdef ENABLE_DPS
-    azure_iot_nx_client_dps_create(&azure_iot_nx_client, device_info.idscope, device_info.registrationid);
+    azure_iot_nx_client_dps_create(&azure_iot_nx_client, device_info->idscope, device_info->registrationid);
 #else
-    azure_iot_nx_client_hub_create(&azure_iot_nx_client, device_info.hostname, device_info.deviceid);
+    azure_iot_nx_client_hub_create(&azure_iot_nx_client, device_info->hostname, device_info->deviceid);
 #endif
     if (status != NX_SUCCESS)
     {
