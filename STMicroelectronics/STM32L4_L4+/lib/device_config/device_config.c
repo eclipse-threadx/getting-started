@@ -5,7 +5,7 @@
 #include "stm32l4xx_hal.h"
 
 // Address of FLASH storage, storing at bank 2 page 0 is 0x80800000
-#define FLASH_STORAGE 0x08080000
+#define FLASH_STORAGE 0x080FF800
 
 // Page size calculation, justification from datasheet needed here ()
 #define page_size 0x800
@@ -109,7 +109,7 @@ HAL_StatusTypeDef erase_flash_ST()
 	FLASH_EraseInitTypeDef EraseInitStruct;
 	EraseInitStruct.TypeErase = FLASH_TYPEERASE_PAGES;
 	EraseInitStruct.Banks = FLASH_BANK_2;
-	EraseInitStruct.Page = 0; // bank 2 page 0 is 0x80800000
+	EraseInitStruct.Page = 255; // bank 2 page 0 is 0x80800000
 	EraseInitStruct.NbPages = 0x1;
         
 	uint32_t PageError;
