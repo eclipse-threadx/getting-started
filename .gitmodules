@@ -7,3 +7,6 @@
 [submodule "core/lib/jsmn/src"]
 	path = core/lib/jsmn/src
 	url = https://github.com/zserge/jsmn
+[submodule "core/lib/azure-ulib-c"]
+	path = core/lib/azure-ulib-c
+	url = https://github.com/mamokarz/azure-ulib-c.git

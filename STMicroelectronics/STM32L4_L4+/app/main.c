@@ -1,6 +1,7 @@
 /* Copyright (c) Microsoft Corporation.
    Licensed under the MIT License. */
 
+#include <inttypes.h>
 #include <stdio.h>
 
 #include "tx_api.h"
@@ -15,11 +16,16 @@
 
 #include "azure_config.h"
 
+#include "az_ulib_ipc_api.h"
+#include "cipher_v1i1.h"
+
 #define AZURE_THREAD_STACK_SIZE 4096
 #define AZURE_THREAD_PRIORITY   4
 
 TX_THREAD azure_thread;
 ULONG azure_thread_stack[AZURE_THREAD_STACK_SIZE / sizeof(ULONG)];
+static az_ulib_ipc _az_ipc_handle;
+
 
 void azure_thread_entry(ULONG parameter);
 void tx_application_define(void* first_unused_memory);
@@ -27,8 +33,18 @@ void tx_application_define(void* first_unused_memory);
 void azure_thread_entry(ULONG parameter)
 {
     UINT status;
+    az_result result;
 
     printf("\r\nStarting Azure thread\r\n\r\n");
+
+    //Start DCF.
+    if((result = az_ulib_ipc_init(&_az_ipc_handle)) != AZ_OK)
+    {
+        (void)printf("Initialize IPC failed with code %" PRIi32 ".\r\n", result);
+        return;
+    }
+
+    cipher_v1i1_create();
 
     // Initialize the network
     if (stm32_network_init(WIFI_SSID, WIFI_PASSWORD, WIFI_MODE) != NX_SUCCESS)
