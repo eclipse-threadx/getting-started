@@ -15,6 +15,9 @@ set(SOURCES
     stm_networking.c
 )
 
+add_subdirectory(cipher)
+add_subdirectory(az_ulib_dm)
+
 function(create_target TARGET STARTUP LINKER)
     add_executable(${TARGET}
         startup/${THREADX_TOOLCHAIN}/${STARTUP}
@@ -24,6 +27,10 @@ function(create_target TARGET STARTUP LINKER)
     target_link_libraries(${TARGET}
         azrtos::threadx
         azrtos::netxduo
+
+        az::ulib
+        az::adu
+        cipher
 
         stm32cubel4
         netx_driver

@@ -19,6 +19,7 @@
 #include "azure_config.h"
 #include "azure_device_x509_cert_config.h"
 #include "azure_pnp_info.h"
+#include "az_ulib_dm.h"
 
 #define IOT_MODEL_ID "dtmi:azurertos:devkit:gsg;1"
 
@@ -26,6 +27,8 @@
 #define TELEMETRY_INTERVAL_PROPERTY "telemetryInterval"
 #define LED_STATE_PROPERTY          "ledState"
 #define SET_LED_STATE_COMMAND       "setLedState"
+#define INSTALL_COMMAND             "install"
+#define UNINSTALL_COMMAND           "uninstall"
 
 #define TELEMETRY_INTERVAL_EVENT 1
 
@@ -130,6 +133,58 @@ static void direct_method_cb(AZURE_IOT_NX_CONTEXT* nx_context,
         azure_iot_nx_client_publish_bool_property(&azure_iot_nx_client, LED_STATE_PROPERTY, arg);
 
         http_status = 200;
+    }
+    else if (strncmp((CHAR*)method, INSTALL_COMMAND, method_length) == 0)
+    {
+        az_result result;
+        if((result = az_ulib_dm_install((CHAR*)payload, payload_length)) == AZ_OK)
+        {
+            http_status = 200;
+        }
+        else
+        {
+            switch(result)
+            {
+                case AZ_ERROR_ULIB_ELEMENT_DUPLICATE:
+                    http_status = 409;
+                    http_response = "{ \"description\":\"Package expose an already published interface.\" }";
+                break;
+                case AZ_ERROR_NOT_ENOUGH_SPACE:
+                    http_status = 507;
+                    http_response = "{ \"description\":\"There is no more space to store the new package.\" }";
+                break;
+                default:
+                    http_status = 400;
+                    http_response = "{ \"description\":\"Unknow error.\" }";
+                break;
+            }
+        }
+    }
+    else if (strncmp((CHAR*)method, UNINSTALL_COMMAND, method_length) == 0)
+    {
+        az_result result;
+        if((result = az_ulib_dm_uninstall((CHAR*)payload, payload_length)) == AZ_OK)
+        {
+            http_status = 200;
+        }
+        else
+        {
+            switch(result)
+            {
+                case AZ_ERROR_ITEM_NOT_FOUND:
+                    http_status = 404;
+                    http_response = "{ \"description\":\"Package not found.\" }";
+                break;
+                case AZ_ERROR_ULIB_BUSY:
+                    http_status = 500;
+                    http_response = "{ \"description\":\"Interface call in progress.\" }";
+                break;
+                default:
+                    http_status = 400;
+                    http_response = "{ \"description\":\"Unknow error.\" }";
+                break;
+            }
+        }
     }
 
     if ((status = nx_azure_iot_hub_client_direct_method_message_response(&nx_context->iothub_client,
