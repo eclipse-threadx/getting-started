@@ -101,7 +101,6 @@ int main(void)
     // Initialize the board
     board_init();
 
-
     // Enter the ThreadX kernel
     tx_kernel_enter();
     return 0;

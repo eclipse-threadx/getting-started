@@ -24,12 +24,6 @@
 // Value of empty EEPROM byte
 #define EMPTY_EEPROM_VAL 0xFF
 
-// // Using an STM32L4 board with wifi capabilities
-// #define STM32L4
-
-// // Enable DPS
-// #define ENABLE_DPS
-
 typedef enum 
 {
 	STATUS_OK = 0,

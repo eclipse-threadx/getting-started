@@ -10,6 +10,13 @@ bool serial_setup()
 {
     DevConfig_IoT_Info_t device_info;
     bool first_init = false;
+   
+    TX_TIMER my_timer;
+    UINT status;
+    CHAR *name;
+    UINT active;
+    ULONG remaining_ticks;
+    ULONG reschedule_ticks;
 
     if (has_credentials())
     {
@@ -17,6 +24,7 @@ bool serial_setup()
         {
             printf("Currently device %s is connected to %s. \n",
             device_info.deviceid, device_info.hostname);
+            printf("Press blue button in the next 5 seconds to change configuration\n");
         }
         else
         {
@@ -25,24 +33,48 @@ bool serial_setup()
 
         // Start menu option
         int menu_option, rc;
-        printf("Enter 0 - Continue\nEnter 1 - Erase/Reset flash\n");
-        while (1)
+
+        // test timer and timeout
+        status = tx_timer_create(&my_timer,"my_timer_name",
+                                NULL, 0, 500, 0,
+                                TX_AUTO_ACTIVATE);
+        if(status != TX_SUCCESS)
         {
-            while ((rc = scanf("%d", &menu_option)) == 0)
-            {
-                scanf("%*[^\n]");
-                printf("Invalid input.\nEnter 0 - Continue\nEnter 1 - Erase/Reset flash\n"); fflush(stdin);
-            }
-            if (menu_option == 1) {
-                if (erase_flash() == STATUS_OK) {
-                printf("Successfully erased flash.\n");
-                break;
-                }
-            } else if (menu_option == 0) {
-                break;
-            }
-            printf("Invalid input.\nEnter 0 - Continue\nEnter 1 - Erase/Reset flash\n");
+            printf("Error creating application timer.\n");
+            return first_init;
         }
+        
+        while((tx_timer_info_get(&my_timer, &name, &active,&remaining_ticks, &reschedule_ticks, NULL) == TX_SUCCESS) 
+                && remaining_ticks > 0)
+        {
+            if(get_user_button() == 1)
+            {
+                printf("Enter 0 - Continue\nEnter 1 - Erase/Reset flash\n");
+
+                // call device config
+                while (1)
+                {
+                    if (((rc = scanf("%d", &menu_option)) == 0))
+                    {
+                        scanf("%*[^\n]");
+                        printf("Invalid input.\nEnter 0 - Continue\nEnter 1 - Erase/Reset flash\n"); 
+                        fflush(stdin);
+                    }
+                    if (menu_option == 1) {
+                        if (erase_flash() == STATUS_OK) {
+                        printf("Successfully erased flash.\n");
+                        break;
+                        }
+                    } else if (menu_option == 0) {
+                        break;
+                    }
+                    printf("Invalid input.\nEnter 0 - Continue\nEnter 1 - Erase/Reset flash\n");
+                }
+            }            
+            // check if anything came into the register
+        }
+        printf("Continuing\n");
+
     }
 
     char hostname[MAX_HUB_HOSTNAME_SIZE] = "";
