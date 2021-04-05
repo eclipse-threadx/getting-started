@@ -2027,7 +2027,7 @@ NX_PACKET     *received_packet_ptr = nx_driver_information.nx_driver_information
             }
             else
             {
-                i--;
+                nx_driver_information.ErrorDS++;
             }
 
             /* Allocate new NX_PACKETs for BDs.  */

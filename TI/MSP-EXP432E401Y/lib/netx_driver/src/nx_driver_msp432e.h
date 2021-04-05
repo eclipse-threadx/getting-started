@@ -178,9 +178,10 @@ typedef struct NX_DRIVER_INFORMATION_STRUCT
 
     /****** DRIVER SPECIFIC ****** Start of part/vendor specific driver information area.  Include any such constants here!  */
 
-  struct eth_addr *ethaddr;
-uint32_t NormalInts;
-uint32_t AbnormalInts;
+    struct eth_addr *ethaddr;
+    uint32_t NormalInts;
+    uint32_t AbnormalInts;
+    uint32_t ErrorDS;
 
 
     /* Indices to current receive/transmit descriptors.  */
