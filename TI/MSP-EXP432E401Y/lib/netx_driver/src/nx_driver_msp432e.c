@@ -2011,16 +2011,12 @@ NX_PACKET     *received_packet_ptr = nx_driver_information.nx_driver_information
                 
                 /* Store the length of the packet in the first NX_PACKET.  */
                 nx_driver_information.nx_driver_information_receive_packets[first_idx] -> nx_packet_length = ((nx_driver_information.nx_driver_information_dma_rx_descriptors[idx].ui32CtrlStatus & DES0_RX_STAT_FRAME_LENGTH_M) >> DES0_RX_STAT_FRAME_LENGTH_S) - 4;
-//                nx_driver_information.nx_driver_information_receive_packets[first_idx] -> nx_packet_length = (nx_driver_information.nx_driver_information_dma_rx_descriptors[idx].ui32CtrlStatus & DES0_RX_STAT_FRAME_LENGTH_M) >> DES0_RX_STAT_FRAME_LENGTH_S;
 
                 /* Adjust nx_packet_append_ptr with the size of the data in this buffer.  */
                 nx_driver_information.nx_driver_information_receive_packets[idx] -> nx_packet_append_ptr = nx_driver_information.nx_driver_information_receive_packets[idx] -> nx_packet_prepend_ptr
                                                                                                         + nx_driver_information.nx_driver_information_receive_packets[first_idx] -> nx_packet_length
                                                                                                         - bd_count * nx_driver_information.nx_driver_information_rx_buffer_size;
   
-                if (nx_driver_information.nx_driver_information_receive_packets[first_idx] -> nx_packet_length > 340)
-                    i++;
-
                 /* Is there only one BD for the current frame?  */
                 if (idx != first_idx)
                 {
@@ -2047,8 +2043,6 @@ NX_PACKET     *received_packet_ptr = nx_driver_information.nx_driver_information
 
                     nx_driver_information.nx_driver_information_dma_rx_descriptors[temp_idx].pvBuffer1 = packet_ptr->nx_packet_prepend_ptr;
                     nx_driver_information.nx_driver_information_dma_rx_descriptors[temp_idx].ui32CtrlStatus = DES0_RX_CTRL_OWN;
-                    /* Adjust the new packet and assign it to the BD.  */
-//                    packet_ptr -> nx_packet_prepend_ptr += 2;
                     nx_driver_information.nx_driver_information_receive_packets[temp_idx] = packet_ptr;
                 }
                 else
