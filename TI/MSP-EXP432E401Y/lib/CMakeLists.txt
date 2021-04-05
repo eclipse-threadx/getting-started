@@ -1,9 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-# Define the CPU architecture for Threadx
-set(THREADX_ARCH "cortex_m4")
-set(THREADX_TOOLCHAIN "gnu")
 set(CMAKE_C_FLAGS "${MCPU_FLAGS} ${VFP_FLAGS} ${CMAKE_COMMON_FLAGS} -Wno-old-style-declaration")
 
 # Define ThreadX user configuration

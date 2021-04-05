@@ -27,6 +27,4 @@ void board_init()
     ti_start_init();
     printf("Board initialized.\r\n");
 
-//    WeatherClick_initialize();
-    printf("Temperature sensor initialized.\r\n");
 }

@@ -51,10 +51,7 @@
 #ifndef TX_USER_H
 #define TX_USER_H
 
-//#define TX_DISABLE_INLINE
 #define TX_ENABLE_FPU_SUPPORT
-//#define TX_TRACE_TIME_SOURCE                    *((ULONG *) 0xE000E018)  
-//#define TX_TRACE_TIME_MASK                      0x00FFFFFFUL
 
 /* Define various build options for the ThreadX port.  The application should either make changes
    here by commenting or un-commenting the conditional compilation defined OR supply the defines 

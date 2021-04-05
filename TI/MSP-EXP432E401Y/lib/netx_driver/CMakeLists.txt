@@ -2,9 +2,9 @@
 # Licensed under the MIT License.
 
 set(SOURCES
+    src/${THREADX_TOOLCHAIN}/nx_driver_msp432e_low_level.S
     src/nx_driver_msp432e.c
     src/nx_driver_msp432e.h
-    src/nx_driver_msp432e_low_level.S
 )
 
 set(TARGET netxdriver)
