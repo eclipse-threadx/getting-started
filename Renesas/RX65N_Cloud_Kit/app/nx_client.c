@@ -34,7 +34,7 @@
 #define TELEMETRY_GYROSCOPEX        "gyroscopeX"
 #define TELEMETRY_GYROSCOPEY        "gyroscopeY"
 #define TELEMETRY_GYROSCOPEZ        "gyroscopeZ"
-#define TELEMETRY_LIGHT             "light"
+#define TELEMETRY_LIGHT             "illuminance"
 #define TELEMETRY_INTERVAL_PROPERTY "telemetryInterval"
 #define LED_STATE_PROPERTY          "ledState"
 #define SET_LED_STATE_COMMAND       "setLedState"
@@ -379,7 +379,7 @@ UINT azure_iot_nx_client_entry(
                 break;
 
             default:
-                break;                
+                break;
         }
 
         telemetry_state = (telemetry_state + 1) % TELEMETRY_STATE_END;
