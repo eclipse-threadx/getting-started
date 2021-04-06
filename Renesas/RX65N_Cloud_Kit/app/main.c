@@ -54,6 +54,9 @@ void azure_thread_entry(ULONG parameter)
         return;
     }
 
+    // Stop the SNTP thread, the RX65N cloud wifi driver only works with a single socket at once
+    sntp_stop();
+
 #ifdef ENABLE_LEGACY_MQTT
     if ((status = azure_iot_mqtt_entry(&nx_ip, &nx_pool, &nx_dns_client, sntp_time_get)))
 #else
