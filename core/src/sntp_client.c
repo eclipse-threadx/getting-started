@@ -305,4 +305,6 @@ UINT sntp_stop()
 
     // Wait for thread to stop
     tx_event_flags_get(&sntp_flags, SNTP_STOPPED_EVENT, TX_OR_CLEAR, &events, TX_WAIT_FOREVER);
+
+    return NX_SUCCESS;
 }
