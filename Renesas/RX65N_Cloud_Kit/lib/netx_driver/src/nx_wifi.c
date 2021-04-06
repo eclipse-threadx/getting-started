@@ -112,7 +112,7 @@ typedef struct NX_WIFI_SOCKET_STRUCT
 } NX_WIFI_SOCKET;
 
 #ifndef NX_WIFI_SOCKET_COUNTER
-#define NX_WIFI_SOCKET_COUNTER          8
+#define NX_WIFI_SOCKET_COUNTER          4
 #endif /* NX_WIFI_SOCKET_COUNTER  */
 
 /* Define the TCP socket and UDP socket.  */
