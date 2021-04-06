@@ -225,7 +225,6 @@ static void sntp_thread_entry(ULONG info)
         if (events & SNTP_STOP_EVENT)
         {
             // Time to finish
-            printf("SNTP STOPPED EVENT\r\n");
             break;
         }
     }
@@ -300,8 +299,6 @@ UINT sntp_stop()
 {
     ULONG events = 0;
     tx_event_flags_set(&sntp_flags, SNTP_STOP_EVENT, TX_OR);
-
-    printf("WAITING FOR STOP\r\n");
 
     // Wait for thread to stop
     tx_event_flags_get(&sntp_flags, SNTP_STOPPED_EVENT, TX_OR_CLEAR, &events, TX_WAIT_FOREVER);

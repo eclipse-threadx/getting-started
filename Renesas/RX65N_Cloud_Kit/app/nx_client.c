@@ -21,7 +21,7 @@
 
 #include "rx65n_cloud_kit_sensors.h"
 
-#define IOT_MODEL_ID "dtmi:azurertos:devkit:gsg;1"
+#define IOT_MODEL_ID "dtmi:azurertos:devkit:gsgrx65ncloud;1"
 
 // Device telemetry names
 #define TELEMETRY_HUMIDITY          "humidity"
