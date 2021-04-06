@@ -1389,17 +1389,17 @@ uint16_t ui16Val;
         if (nx_packet_allocate(nx_driver_information.nx_driver_information_packet_pool_ptr, &packet_ptr, 
                                NX_RECEIVE_PACKET, NX_NO_WAIT) == NX_SUCCESS)
         {
-
+            /* Adjust the new packet for alignment and assign it to the BD.  */
+            packet_ptr -> nx_packet_prepend_ptr += 2;
             nx_driver_information.nx_driver_information_dma_rx_descriptors[i].ui32Count = DES1_RX_CTRL_CHAINED;
             nx_driver_information.nx_driver_information_dma_rx_descriptors[i].ui32Count |= ((packet_ptr -> nx_packet_data_end - packet_ptr -> nx_packet_data_start) <<
                                                                                             DES1_RX_CTRL_BUFF1_SIZE_S); 
-//            nx_driver_information.nx_driver_information_dma_rx_descriptors[i].ui32Count |= (DSBUF_SIZE << DES1_RX_CTRL_BUFF1_SIZE_S); 
             nx_driver_information.nx_driver_information_dma_rx_descriptors[i].pvBuffer1 = packet_ptr->nx_packet_prepend_ptr;
-//            nx_driver_information.nx_driver_information_dma_rx_descriptors[i].ui32CtrlStatus = 0;
             nx_driver_information.nx_driver_information_dma_rx_descriptors[i].ui32CtrlStatus = DES0_RX_CTRL_OWN;
             nx_driver_information.nx_driver_information_dma_rx_descriptors[i].DES3.pLink =
                 ((i == (NX_DRIVER_RX_DESCRIPTORS - 1)) ?
                 &nx_driver_information.nx_driver_information_dma_rx_descriptors[0] : &nx_driver_information.nx_driver_information_dma_rx_descriptors[i + 1]);
+
             nx_driver_information.nx_driver_information_receive_packets[i] =  packet_ptr;
         }
         else
@@ -2040,7 +2040,9 @@ NX_PACKET     *received_packet_ptr = nx_driver_information.nx_driver_information
                 if (nx_packet_allocate(nx_driver_information.nx_driver_information_packet_pool_ptr, &packet_ptr, 
                                             NX_RECEIVE_PACKET, NX_NO_WAIT) == NX_SUCCESS)
                 {
-
+                    /* Adjust the new packet for alignment and assign it to the BD.  */
+                    packet_ptr -> nx_packet_prepend_ptr += 2;
+/*                    packet_ptr -> nx_packet_prepend_ptr = packet_ptr -> nx_packet_prepend_ptr + 2; */
                     nx_driver_information.nx_driver_information_dma_rx_descriptors[temp_idx].pvBuffer1 = packet_ptr->nx_packet_prepend_ptr;
                     nx_driver_information.nx_driver_information_dma_rx_descriptors[temp_idx].ui32CtrlStatus = DES0_RX_CTRL_OWN;
                     nx_driver_information.nx_driver_information_receive_packets[temp_idx] = packet_ptr;
@@ -2065,7 +2067,7 @@ NX_PACKET     *received_packet_ptr = nx_driver_information.nx_driver_information
                     /* Free up the BD to ready state. */
                     temp_idx = (first_idx + i) & (NX_DRIVER_RX_DESCRIPTORS - 1);
                     nx_driver_information.nx_driver_information_dma_rx_descriptors[temp_idx].ui32CtrlStatus = DES0_RX_CTRL_OWN;
-                    nx_driver_information.nx_driver_information_receive_packets[temp_idx] -> nx_packet_prepend_ptr = nx_driver_information.nx_driver_information_receive_packets[temp_idx] -> nx_packet_data_start;
+                    nx_driver_information.nx_driver_information_receive_packets[temp_idx] -> nx_packet_prepend_ptr = nx_driver_information.nx_driver_information_receive_packets[temp_idx] -> nx_packet_data_start + 2;
                 }
             }
             else
