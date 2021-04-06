@@ -1,10 +1,8 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-set(LINKER_SCRIPT "${CMAKE_CURRENT_LIST_DIR}/startup/linker_script.ld")
-
 set(SOURCES
-    startup/tx_initialize_low_level.S
+    startup/${THREADX_TOOLCHAIN}/tx_initialize_low_level.S
 
     legacy/mqtt.c
     azure_config.h
@@ -29,16 +27,8 @@ target_link_libraries(${PROJECT_NAME}
         netx_driver
 )
 
-target_link_options(${PROJECT_NAME}
-    PRIVATE 
-        -T${LINKER_SCRIPT} 
-        -Wl,-Map=${PROJECT_NAME}.map
-        -Wl,-e_PowerON_Reset
-)
-
 set_target_properties(${PROJECT_NAME}
     PROPERTIES 
-        LINK_DEPENDS ${LINKER_SCRIPT}
         SUFFIX ".elf"
 )
 
@@ -46,5 +36,20 @@ target_include_directories(${PROJECT_NAME}
     PUBLIC 
         .
 )
+
+if(THREADX_TOOLCHAIN STREQUAL "iar")
+    target_link_options(${PROJECT_NAME}
+        PRIVATE 
+            --config ${CMAKE_CURRENT_LIST_DIR}/startup/iar/linker_script.icf 
+            --map=${PROJECT_NAME}.map
+    )
+else()
+    target_link_options(${PROJECT_NAME}
+        PRIVATE 
+            -T${CMAKE_CURRENT_LIST_DIR}/startup/gnu/linker_script.ld
+            -Wl,-Map=${PROJECT_NAME}.map
+            -Wl,-e_PowerON_Reset
+    )
+endif()
 
 post_build(${PROJECT_NAME})
