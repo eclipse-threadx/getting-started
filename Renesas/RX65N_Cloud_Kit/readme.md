@@ -218,9 +218,12 @@ You can use the **Termite** utility to monitor communication and confirm that yo
     ```output
     Starting Azure thread
 
+    Initializing WiFi
+    	Connecting to SSID 'iot'
+    SUCCESS: WiFi connected to iot
+
     Initializing DHCP
     	IP address: 10.0.0.123
-    	Mask: 255.255.255.0
     	Gateway: 10.0.0.1
     SUCCESS: DHCP initialized
 
@@ -231,7 +234,7 @@ You can use the **Termite** utility to monitor communication and confirm that yo
     Initializing SNTP client
     	SNTP server 0.pool.ntp.org
     	SNTP IP address: 185.242.56.3
-    	SNTP time update: Nov 16, 2020 23:47:35.385 UTC 
+    	SNTP time update: Apr 7, 2021 4:11:51.394 UTC 
     SUCCESS: SNTP initialized
 
     Initializing Azure IoT DPS client
@@ -243,7 +246,7 @@ You can use the **Termite** utility to monitor communication and confirm that yo
     Initializing Azure IoT Hub client
     	Hub hostname: ***
     	Device id: ***
-    	Model id: dtmi:azurertos:devkit:gsg;1
+	    Model id: dtmi:azurertos:devkit:gsgrx65ncloud;1
     Connected to IoTHub
     SUCCESS: Azure IoT Hub client initialized
 
