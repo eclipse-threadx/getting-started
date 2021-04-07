@@ -124,7 +124,7 @@ To create a device:
 
 ## Prepare the device
 
-To connect the STM DevKit to Azure, you'll modify a configuration file for Wi-Fi and Azure IoT settings, rebuild the image, and flash the image to the device.
+To connect the Renesas RX65N to Azure, you'll modify a configuration file for Wi-Fi and Azure IoT settings, rebuild the image, and flash the image to the device.
 
 ### Add configuration
 
@@ -276,7 +276,7 @@ To view telemetry in IoT Central portal:
 
     ![IoT Central device telemetry](media/azure-iot-central-device-telemetry.png)
 
-> Note: You can also monitor telemetry from the device by using the Termite terminal.
+> Note: You can also monitor telemetry from the device by using the Termite app.
 
 ## Call a direct method on the device
 
