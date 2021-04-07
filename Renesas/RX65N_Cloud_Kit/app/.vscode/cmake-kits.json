@@ -1,0 +1,6 @@
+[
+    {
+        "name": "Renesas RX65N GCC",
+        "toolchainFile": "${workspaceFolder}/../../cmake/renesas-rx-gcc-rx65n.cmake"
+    }
+]

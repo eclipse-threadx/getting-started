@@ -5,6 +5,7 @@
 ![](https://github.com/azure-rtos/getting-started/workflows/AZ3166/badge.svg)
 ![](https://github.com/azure-rtos/getting-started/workflows/MIMXRT1050-EVKB/badge.svg)
 ![](https://github.com/azure-rtos/getting-started/workflows/MIMXRT1060-EVK/badge.svg)
+![](https://github.com/azure-rtos/getting-started/workflows/RX65N-Cloud-Kit/badge.svg)
 ![](https://github.com/azure-rtos/getting-started/workflows/RSK-RX65N-2MB/badge.svg)
 ![](https://github.com/azure-rtos/getting-started/workflows/STM32L4_L4+/badge.svg)
 
@@ -34,7 +35,8 @@ The following board specific guides will get you started with Azure RTOS and Azu
   * [MIMXRT1060-EVK](NXP/MIMXRT1060-EVK)
 * Renesas: 
   * [AE-Cloud2](Renesas/Synergy)
-  * [RSK+RX65N-2MB](Renesas/RSK_RX65N_2MB)
+  * [RX65N Cloud Kit](Renesas/RX65N_Cloud_Kit)
+* * [RSK+RX65N-2MB](Renesas/RSK_RX65N_2MB)
 * STMicroelectronics: 
   * [B-L475E-IOT01A](STMicroelectronics/STM32L4_L4+)
   * [B-L4S5I-IOT01A](STMicroelectronics/STM32L4_L4+)

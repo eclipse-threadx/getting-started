@@ -278,6 +278,7 @@ static UINT azure_iot_nx_client_hub_create_internal(AZURE_IOT_NX_CONTEXT* contex
     printf("Initializing Azure IoT Hub client\r\n");
     printf("\tHub hostname: %s\r\n", context->azure_iot_hub_hostname);
     printf("\tDevice id: %s\r\n", context->azure_iot_device_id);
+    printf("\tModel id: %s\r\n", context->azure_iot_model_id);
 
     // Initialize IoT Hub client.
     if ((status = nx_azure_iot_hub_client_initialize(&context->iothub_client,
