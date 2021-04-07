@@ -115,7 +115,7 @@ static void set_led_state(bool level)
         printf("LED is turned OFF\r\n");
     }
 
-//    gpio_set_pin_level(PC18, !level);
+    GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_0, level);
 }
 
 static void direct_method_cb(AZURE_IOT_NX_CONTEXT* nx_context,

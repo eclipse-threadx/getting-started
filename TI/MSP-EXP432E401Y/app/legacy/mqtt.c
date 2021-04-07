@@ -5,6 +5,8 @@
 
 #include <stdio.h>
 
+#include "ti_start.h"
+
 #include "azure_iot_mqtt.h"
 #include "json_utils.h"
 #include "sntp_client.h"
@@ -36,7 +38,7 @@ static void set_led_state(bool level)
         printf("LED is turned OFF\r\n");
     }
 
-//    gpio_set_pin_level(PC18, !level);
+    GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_0, level);
 }
 
 static void mqtt_direct_method(AZURE_IOT_MQTT* iot_mqtt, CHAR* direct_method_name, CHAR* message)
