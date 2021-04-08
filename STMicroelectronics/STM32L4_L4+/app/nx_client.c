@@ -21,6 +21,8 @@
 #include "azure_pnp_info.h"
 #include "az_ulib_dm.h"
 
+#include "nx_wifi.h" // DCF
+
 #define IOT_MODEL_ID "dtmi:azurertos:devkit:gsg;1"
 
 #define TELEMETRY_TEMPERATURE       "temperature"
@@ -36,6 +38,40 @@ static AZURE_IOT_NX_CONTEXT azure_iot_nx_client;
 static TX_EVENT_FLAGS_GROUP azure_iot_flags;
 
 static int32_t telemetry_interval = 10;
+
+az_result dcf_ip_gateway_client_entry(
+    NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, UINT (*unix_time_callback)(ULONG* unix_time))
+{
+    az_result result = AZ_OK; // this is a dcf function, so we will return az_result
+    UINT status; // for wifi functions
+
+    // initialize TCP connection objects
+    NX_TCP_SOCKET socket_ptr;
+    NXD_ADDRESS server_ip;
+    server_ip.nxd_ip_version = NX_IP_VERSION_V4;
+    server_ip.nxd_ip_address.v4 = IP_ADDRESS(192, 168, 1, 29);
+    UINT server_port = 9999;
+
+    // Connect to server
+    printf("Connecting to TCP client\r\n\r\n");
+    if ((status = nx_wifi_tcp_client_socket_connect(&socket_ptr,
+                                        &server_ip,
+                                        server_port,
+                                        0)))
+    {
+        printf("Error connecting to TCP server (0x%04x)\r\n", status);
+        result = AZ_ERROR_CANCELED;
+    }
+
+    // disconnect from server
+    if ((status = nx_wifi_tcp_socket_disconnect(&socket_ptr, 0)))
+    {
+        printf("Error disconnecting from TCP server (0x%04x)\r\n", status);
+        result = AZ_ERROR_CANCELED;
+    }
+
+    return result;
+}
 
 static UINT append_device_info_properties(NX_AZURE_IOT_JSON_WRITER* json_writer, VOID* context)
 {

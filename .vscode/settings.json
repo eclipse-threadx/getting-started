@@ -1,4 +1,10 @@
 {
     "cmake.configureOnOpen": false,
-    "git.ignoreLimitWarning": true
+    "git.ignoreLimitWarning": true,
+    "files.associations": {
+        "nx_azure_iot_pnp_helpers.h": "c",
+        "nx_api.h": "c",
+        "az_ulib_dm.h": "c"
+    },
+    "cmake.sourceDirectory": "${workspaceFolder}/STMicroelectronics/STM32L4_L4+"
 }
