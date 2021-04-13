@@ -145,10 +145,11 @@ To connect the TI MSP432E to Azure, you'll modify a configuration file for Azure
 
 1. On the MSP432E launchpad, locate the **Reset** button, the **Ethernet** port, and the Micro USB port which is labeled **Debug USB**. Each component is highlighted in the following picture:
 
-    ![Microchip E54 reset button and micro usb port](media/microchip-xpro-board.png)
+    ![MSP432E launchpad reset button and micro usb port](media/msp-exp432e401y.png)
 
 1. Connect the Micro USB cable to the **Debug USB** port on the Microchip E54, and then connect it to your computer.
-    > Note: Optionally, for more details about setting up and getting started with the Microchip E54, see [SAM E54 Xplained Pro User's Guide](http://ww1.microchip.com/downloads/en/DeviceDoc/70005321A.pdf).
+    > Note: Optionally, for more details about setting up and getting started with the MSP432E launchpad, see [SimpleLink™ Ethernet MSP432E401Y Microcontroller
+LaunchPad™ Development Kit (MSP-EXP432E401Y) User's Guide](https://www.ti.com/lit/ug/slau748b/slau748b.pdf?ts=1618293762810&ref_url=https%253A%252F%252Fduckduckgo.com%252F).
 
 1. Use the Ethernet cable to connect the MSP432E launchpad to an Ethernet port.
 
