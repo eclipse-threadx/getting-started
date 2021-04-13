@@ -1,6 +1,8 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+set(CMAKE_C_FLAGS "${MCPU_FLAGS} ${VFP_FLAGS} ${CMAKE_COMMON_FLAGS} -Wno-old-style-declaration")
+
 set(SOURCES
     src/${THREADX_TOOLCHAIN}/nx_driver_msp432e_low_level.S
     src/nx_driver_msp432e.c
@@ -8,8 +10,6 @@ set(SOURCES
 )
 
 set(TARGET netxdriver)
-
-set(CMAKE_C_FLAGS "${MCPU_FLAGS} ${VFP_FLAGS} ${CMAKE_COMMON_FLAGS} -Wno-old-style-declaration")
 
 add_library(${TARGET} OBJECT
     ${SOURCES}

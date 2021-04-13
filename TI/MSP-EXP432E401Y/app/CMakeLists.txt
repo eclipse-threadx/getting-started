@@ -1,14 +1,12 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-set(LINKER_SCRIPT "${CMAKE_CURRENT_LIST_DIR}/startup/${THREADX_TOOLCHAIN}/msp432e401y.lds")
-
 set(CMAKE_C_FLAGS "${MCPU_FLAGS} ${VFP_FLAGS} ${CMAKE_COMMON_FLAGS} -Wno-old-style-declaration")
 
 set(SOURCES
+    startup/${THREADX_TOOLCHAIN}/tx_initialize_low_level.S
     startup/${THREADX_TOOLCHAIN}/startup_msp432e401y.c
     startup/${THREADX_TOOLCHAIN}/system_msp432e401y.c
-    startup/${THREADX_TOOLCHAIN}/tx_initialize_low_level.S
 #    legacy/mqtt.c
     azure_config.h
     nx_client.c
@@ -36,13 +34,8 @@ target_link_libraries(${PROJECT_NAME}
         ${TI_DRV_LIB_DIR}/msp432e4_driverlib.a
 )
 
-target_link_options(${PROJECT_NAME}
-    PRIVATE 
-        -T${LINKER_SCRIPT} -Wl,-Map=${PROJECT_NAME}.map)
-
 set_target_properties(${PROJECT_NAME}
     PROPERTIES 
-        LINK_DEPENDS ${LINKER_SCRIPT}
         SUFFIX ".elf"
 )
 
