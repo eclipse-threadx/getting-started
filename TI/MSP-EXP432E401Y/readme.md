@@ -29,7 +29,7 @@ You will complete the following tasks:
 * [Git](https://git-scm.com/downloads) for cloning the repository
 * Hardware
 
-    > * The [Microchip ATSAME54-XPro](https://www.microchip.com/developmenttools/productdetails/atsame54-xpro) (Microchip E54)
+    > * The [MSP432E401Y MCU Launchpad](https://www.ti.com/tool/MSP-EXP432E401Y) (MSP-EXP432E401Y)
     > * USB 2.0 A male to Micro USB male cable
     > * Wired Ethernet access
     > * Ethernet cable
@@ -73,7 +73,9 @@ To install the tools:
 
 To install the remaining tools:
 
-1. Install [Atmel Studio 7](https://www.microchip.com/mplab/avr-support/atmel-studio-7). Atmel Studio is a device development environment that includes the tools to program and flash the Microchip E54. For this tutorial, you use Atmel Studio only to flash the Microchip E54. The installation takes several minutes, and prompts you several times to approve the installation of components.
+1. Install [TI SIMPLELINK-MSP432-SDK](https://www.ti.com/tool/SIMPLELINK-MSP432-SDK). You may optionally install the entire Texas Instrument Code Composer Studio development environment that includes the tools to program and flash the MSP432E, for this tutorial you only need to install TI MSP432 SDK. At the time, version 4.20.00.12 was the current release. 
+2. Make sure the path to the installed SDK is properly set in the top level CMakeList.txt file.
+for example: set(COM_TI_SIMPLELINK_MSP432E4_SDK_INSTALL_DIR c:/ti/simplelink_msp432e4_sdk_4_20_00_12) 
 
 ## Create the cloud components
 
@@ -121,13 +123,13 @@ To create a device:
 
 ## Prepare the device
 
-To connect the Microchip E54 to Azure, you'll modify a configuration file for Azure IoT settings, rebuild the image, and flash the image to the device.
+To connect the TI MSP432E to Azure, you'll modify a configuration file for Azure IoT settings, rebuild the image, and flash the image to the device.
 
 ### Add configuration
 
 1. Open the following file in a text editor:
 
-    > *getting-started\Microchip\ATSAME54-XPRO\app\azure_config.h*
+    > *getting-started\TI\MSP-EXP432E401Y\app\azure_config.h*
 
 1. Set the Azure IoT device information constants to the values that you saved after you created Azure resources.
 
@@ -141,42 +143,24 @@ To connect the Microchip E54 to Azure, you'll modify a configuration file for Az
 
 ### Connect the device
 
-1. On the Microchip E54, locate the **Reset** button, the **Ethernet** port, and the Micro USB port which is labeled **Debug USB**. Each component is highlighted in the following picture:
+1. On the MSP432E launchpad, locate the **Reset** button, the **Ethernet** port, and the Micro USB port which is labeled **Debug USB**. Each component is highlighted in the following picture:
 
     ![Microchip E54 reset button and micro usb port](media/microchip-xpro-board.png)
 
 1. Connect the Micro USB cable to the **Debug USB** port on the Microchip E54, and then connect it to your computer.
     > Note: Optionally, for more details about setting up and getting started with the Microchip E54, see [SAM E54 Xplained Pro User's Guide](http://ww1.microchip.com/downloads/en/DeviceDoc/70005321A.pdf).
 
-1. Use the Ethernet cable to connect the Microchip E54 to an Ethernet port.
-
-### Optional: Install a weather sensor
-
-If you have the Weather Click sensor and the mikroBUS Xplained Pro adapter, follow the steps in this section.  If you don't have them, skip to [Build the image](#build-the-image). You can complete this tutorial even if you don't have a sensor. The sample code for the device returns simulated data if a real sensor is not present.
-
-1. If you have the Weather Click sensor and the mikroBUS Xplained Pro adapter, install them on the Microchip E54 as shown in the following photo:
-
-    ![Microchip E54 with Weather click sensor](media/sam-e54-sensor.png)
-
-1. Reopen the configuration file you edited previously:
-
-    > *getting-started\Microchip\ATSAME54-XPRO\app\azure_config.h*
-
-1. Set the value of the constant `__SENSOR_BME280__` to *1* as shown in the following code from the header file. Setting this value enables the device to use real sensor data from the Weather Click sensor.
-
-    > `#define __SENSOR_BME280__ 1`
-
-1. Save and close the file.
+1. Use the Ethernet cable to connect the MSP432E launchpad to an Ethernet port.
 
 ### Build the image
 
 In your console or in File Explorer, run the script *rebuild.bat* at the following path to build the image:
 
-> *getting-started\Microchip\ATSAME54-XPRO\tools\rebuild.bat*
+> *getting-started\TI\MSP-EXP432E401Y\tools\rebuild.bat*
 
 After the build completes, confirm that a binary file was created in the following path:
 
-> *getting-started\Microchip\ATSAME54-XPRO\build\app\atsame54_azure_iot.bin*
+> *getting-started\TI\MSP-EXP432E401Y\build\app\atsame54_azure_iot.bin*
 
 ### Flash the image
 
