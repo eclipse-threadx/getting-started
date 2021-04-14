@@ -285,7 +285,7 @@ To remove the entire Azure IoT Central sample application and all its devices an
 
 ## Next Steps
 
-In this tutorial you built a custom image that contains Azure RTOS sample code, and then flashed the image to the Microchip E54 device. You also used the IoT Central portal to create Azure resources, connect the Microchip E54 securely to Azure, view telemetry, and send messages.
+In this tutorial you built a custom image that contains Azure RTOS sample code, and then flashed the image to the Texas Instruments MSP432E device. You also used the IoT Central portal to create Azure resources, connect the Microchip E54 securely to Azure, view telemetry, and send messages.
 
 * For device developers, the suggested next step is to see the other tutorials in the series [Getting started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824).
 * If you have issues getting your device to initialize or connect after following the steps in this guide, see [Troubleshooting](../../docs/troubleshooting.md).
