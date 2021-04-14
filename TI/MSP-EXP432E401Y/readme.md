@@ -254,7 +254,7 @@ You can also use IoT Central to call a direct method that you have implemented o
 To call a method in IoT Central portal:
 
 1. Select **Command** tab from the device page.
-1. Select **State** and select **Run**.  The LED light should turn on.
+1. Select **State**, **True** and select **Run**.  The LED light should turn on.
 
     ![IoT Central invoke method](media/azure-iot-central-invoke-method.png)
 1. Unselect **State** and select **Run**. The LED light should turn off.
