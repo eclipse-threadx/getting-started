@@ -269,6 +269,9 @@ Select **About** tab from the device page.
 ## Debugging
 
 For debugging the application, see [Debugging with Visual Studio Code](../../docs/debugging.md).
+It is possible to use Visual Studio Code as your complete development IDE.
+VS Code supports plugins for cmake to allow compiling within the IDE as well as a GDB debugger plugin.
+The XDS110 onboard emulator available on the launchpad board fully supports GDB debugging.
 
 ## Clean up resources
 
