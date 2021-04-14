@@ -15,7 +15,7 @@ products:
 
 **Total completion time**: 45 minutes
 
-** NOTE: The MSP432E is not, at this time, one of the pre-licensed devices for production. Please read and understand licensing details. **
+**NOTE: The MSP432E is not, at this time, one of the pre-licensed devices for production. Please read and understand licensing details.**
 
 In this tutorial you use Azure RTOS to connect the SimpleLink™ Ethernet MSP432E401Y Microcontroller LaunchPad™ Development Kit (hereafter, the TI MSP432E) to Azure IoT.  The article is part of the series [Getting Started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824). The series introduces device developers to Azure RTOS, and shows how to connect several device evaluation kits to Azure IoT.
 
