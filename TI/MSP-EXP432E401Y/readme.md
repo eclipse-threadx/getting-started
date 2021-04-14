@@ -161,27 +161,14 @@ In your console or in File Explorer, run the script *rebuild.bat* at the followi
 
 After the build completes, confirm that a binary file was created in the following path:
 
-> *getting-started\TI\MSP-EXP432E401Y\build\app\atsame54_azure_iot.bin*
+> *getting-started\TI\MSP-EXP432E401Y\build\app\msp432e_azure_iot.bin*
 
 ### Flash the image
 
-1. Open the **Windows Start > Atmel Studio 7.0 Command Prompt** console, and go to the folder of the Microchip E54 binary file that you built.
+1. Download and use the TI Uniflash utility, see [TI UNIFLASH programming utility](https://www.ti.com/tool/UNIFLASH#downloads).
+2. Program the msp432e_azure_iot.bin (or .hex) file located in:
 
     > *getting-started\Microchip\ATSAME54-XPRO\build\app*
-
-1. Use the *atprogram* utility to flash the Microchip E54 with the binary image:
-    > Note: For more details about using the Atmel-ICE and *atprogram* tools with the Microchip E54, see [Using Atmel-ICE for AVR Programming In Mass Production](http://ww1.microchip.com/downloads/en/AppNotes/00002466A.pdf).
-
-    ```shell
-    atprogram --tool edbg --interface SWD --device ATSAME54P20A program --chiperase --file atsame54_azure_iot.bin --verify
-    ```
-
-    After the flashing process completes, the console confirms that programming was successful:
-
-    ```output
-    Firmware check OK
-    Programming and verification completed successfully.
-    ```
 
 ### Confirm device connection details
 
