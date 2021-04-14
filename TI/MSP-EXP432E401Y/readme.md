@@ -73,7 +73,7 @@ To install the tools:
 
 To install the remaining tools:
 
-1. Install [TI SIMPLELINK-MSP432-SDK](https://www.ti.com/tool/SIMPLELINK-MSP432-SDK). You may optionally install the entire Texas Instrument Code Composer Studio development environment that includes the tools to program and flash the MSP432E, for this tutorial you only need to install TI MSP432 SDK. At the time, version 4.20.00.12 was the current release. 
+1. Install [TI SIMPLELINK-MSP432-SDK](https://www.ti.com/tool/SIMPLELINK-MSP432-SDK). You may optionally install the entire Texas Instrument Code Composer Studio development environment that includes all the tools to develop, program and flash the MSP432E. For this tutorial you only need to install TI MSP432 SDK, at the time, version 4.20.00.12 was the current release and the flash programming utility (see below). 
 2. Make sure the path to the installed SDK is properly set in the top level CMakeList.txt file.
 for example: set(COM_TI_SIMPLELINK_MSP432E4_SDK_INSTALL_DIR c:/ti/simplelink_msp432e4_sdk_4_20_00_12) 
 
