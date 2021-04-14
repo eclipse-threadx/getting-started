@@ -44,6 +44,9 @@ bool serial_setup()
             return first_init;
         }
         
+        // clean stdin
+        fflush(stdin);
+        
         while((tx_timer_info_get(&my_timer, &name, &active,&remaining_ticks, &reschedule_ticks, NULL) == TX_SUCCESS) 
                 && remaining_ticks > 0)
         {
@@ -51,7 +54,6 @@ bool serial_setup()
             {
                 printf("Enter 0 - Continue\nEnter 1 - Erase/Reset flash\n");
 
-                // call device config
                 while (1)
                 {
                     if (((rc = scanf("%d", &menu_option)) == 0))
@@ -137,11 +139,7 @@ bool serial_setup()
         }
 
         printf("Please enter your WiFi password: \n");
-        if (scanf("%s", pswd) == 0) {
-            /* Not valid input, flush stdin */
-            fflush(stdin);
-            continue;
-        }
+        scanf(" %[^\n]s", pswd);
 #endif
 
         printf("Please verify you have entered the correct configuration: \n\n"); 
@@ -151,6 +149,9 @@ bool serial_setup()
 #ifdef ENABLE_DPS
         printf("dps_id_scope: %s\n", idscope); 
         printf("registration id: %s\n\n", registrationid);
+#endif
+#ifdef STM32L4
+        printf("WiFi Network: %s\n", ssid);
 #endif
 
         // Logic about going back and changing if things are wrong
