@@ -75,7 +75,7 @@ To install the tools:
 
 To install the remaining tools:
 
-1. Install [TI SIMPLELINK-MSP432-SDK](https://www.ti.com/tool/SIMPLELINK-MSP432-SDK). You may optionally install the entire Texas Instrument Code Composer Studio development environment that includes all the tools to develop, program and flash the MSP432E. For this tutorial you only need to install TI MSP432 SDK, at the time, version 4.20.00.12 was the current release and the flash programming utility (see below). 
+1. Install [TI SIMPLELINK-MSP432-SDK](https://www.ti.com/tool/SIMPLELINK-MSP432-SDK). You may optionally install the entire Texas Instrument Code Composer Studio development environment that includes all the tools to develop, program and flash the MSP432E. For this tutorial you only need to install TI MSP432 SDK (at the time, version 4.20.00.12 was the current release) and the flash programming utility (see below). 
 2. Make sure the path to the installed SDK is properly set in the top level CMakeList.txt file.
 for example: set(COM_TI_SIMPLELINK_MSP432E4_SDK_INSTALL_DIR c:/ti/simplelink_msp432e4_sdk_4_20_00_12) 
 
@@ -170,7 +170,7 @@ After the build completes, confirm that a binary file was created in the followi
 1. Download and use the TI Uniflash utility, see [TI UNIFLASH programming utility](https://www.ti.com/tool/UNIFLASH#downloads).
 2. Program the msp432e_azure_iot.bin (or .hex) file located in:
 
-    > *getting-started\Microchip\ATSAME54-XPRO\build\app*
+    > *getting-started\TI\MSP-EXP432E401Y\build\app*
 
 ### Confirm device connection details
 
