@@ -274,6 +274,13 @@ For debugging the application, see [Debugging with Visual Studio Code](../../doc
 It is possible to use Visual Studio Code as your complete development IDE.
 VS Code supports plugins for cmake to allow compiling within the IDE as well as a GDB debugger plugin.
 The XDS110 onboard emulator available on the launchpad board fully supports GDB debugging.
+To set up debugging:
+1. Install Visual Studio Code 
+2. Install the Cmake Tools VS plugin
+3. Install the Cortex-Debug VS plugin
+4. Install the C/C++ VS plugin
+5. Download the OpenOCD server (prebuilt version for Windows available on GitHub see [OpenOCD](https://github.com/ntfreak/openocd/releases))
+6. Add path to OpenOCD/bin folder to your environment PATH 
 
 ## Clean up resources
 
