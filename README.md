@@ -24,7 +24,7 @@ For more information on Azure IoT Device Development:
 
 ## Getting Started Guides
 
-The following board specific guides will get you started with Azure RTOS and Azure IoT:
+The following guides will get you started with Azure RTOS and Azure IoT:
 
 * Microchip:
   * [ATSAME54-XPRO](Microchip/ATSAME54-XPRO)
