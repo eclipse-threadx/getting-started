@@ -16,7 +16,7 @@
 [![Azure AZ3166](https://dev.azure.com/azure-iot-dde/Azure%20RTOS%20GSG/_apis/build/status/gsg.mxchip.az3166?repoName=azure-rtos%2Fgetting-started&branchName=master&jobName=MXCHIP_Build)](https://dev.azure.com/azure-iot-dde/Azure%20RTOS%20GSG/_build/latest?definitionId=2&repoName=azure-rtos%2Fgetting-started&branchName=master)
 <!-- markdown-link-check-enable-->
 
-The Getting Started guides will help you get started with Azure RTOS. Each guide will step through from installation of the required toolchain, to connecting the device to Azure IoT using IoT Plug and Play.
+The Getting Started guides will help you get started with Azure RTOS. Each guide will step through from toolchain installation to connecting the device to Azure IoT using IoT Plug and Play.
 
 For more information on Azure IoT Device Development:
 * [Azure IoT Device Development](https://docs.microsoft.com/azure/iot-develop) - Get started with Azure IoT device development
