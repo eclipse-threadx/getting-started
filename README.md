@@ -33,10 +33,10 @@ The following guides will get you started:
 * NXP: 
   * [MIMXRT1050-EVKB](NXP/MIMXRT1050-EVKB)
   * [MIMXRT1060-EVK](NXP/MIMXRT1060-EVK)
-* Renesas: 
+* Renesas:
   * [AE-Cloud2](Renesas/Synergy)
   * [RX65N Cloud Kit](Renesas/RX65N_Cloud_Kit)
-* * [RSK+RX65N-2MB](Renesas/RSK_RX65N_2MB)
+  * [RSK+RX65N-2MB](Renesas/RSK_RX65N_2MB)
 * STMicroelectronics: 
   * [B-L475E-IOT01A](STMicroelectronics/STM32L4_L4+)
   * [B-L4S5I-IOT01A](STMicroelectronics/STM32L4_L4+)
