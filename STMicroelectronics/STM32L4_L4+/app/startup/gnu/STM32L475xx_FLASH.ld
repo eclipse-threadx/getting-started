@@ -51,6 +51,9 @@ FLASH (rx)      : ORIGIN = 0x8000000, LENGTH = 1022K
 DEVICEINFO (rx)      : ORIGIN = 0x80FF800, LENGTH = 2K
 }
 
+/* Custom address to be accessed from user C code */
+__DEVICEINFO = ORIGIN(DEVICEINFO);
+
 /* Define output sections */
 SECTIONS
 {

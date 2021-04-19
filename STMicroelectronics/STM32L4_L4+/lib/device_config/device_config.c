@@ -22,6 +22,7 @@ FLASH_Status_t read_flash_ST(uint8_t* data);
 // Specific helper function for erasing flash for STM32L4
 HAL_StatusTypeDef erase_flash_ST();
 
+extern uint32_t __DEVICEINFO;
 
 // Helper functions
 
@@ -48,7 +49,7 @@ FLASH_Status_t save_to_flash_ST(uint8_t *data)
     {
         if (status == HAL_OK)
         {
-            status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, FLASH_STORAGE + write_cnt, data_to_FLASH[index]); // FAST
+            status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, ((uint32_t)(&__DEVICEINFO) + write_cnt), data_to_FLASH[index]); // FAST
             if (status ==  HAL_OK)
             {
                 status = HAL_FLASH_GetError();
@@ -84,7 +85,7 @@ FLASH_Status_t read_flash_ST(uint8_t* data)
     
     do
     {
-        read_data = *(uint32_t*)(FLASH_STORAGE + read_cnt);
+        read_data = *(uint32_t*)(((uint32_t)&__DEVICEINFO) + read_cnt);
         if (read_data != 0xFFFFFFFF)
         {
             data[read_cnt] = (uint8_t)read_data;
@@ -183,7 +184,7 @@ bool has_credentials(void)
     bool ret_val = true;
     volatile uint32_t read_data;
     
-    read_data = *(uint32_t*)(FLASH_STORAGE);
+    read_data = *((uint32_t*)(&__DEVICEINFO));
     
     if (read_data == 0xFFFFFFFF)
     {
