@@ -25,11 +25,19 @@ extern VOID nx_driver_same54(NX_IP_DRIVER*);
 void azure_thread_entry(ULONG parameter);
 void tx_application_define(void* first_unused_memory);
 
+#include "nx_azure_iot.h"
+static void write_log_message(az_log_classification classification, UCHAR *msg, UINT msg_len)
+{
+    printf("LOG %.*s\n", msg_len, msg);
+}
+
 void azure_thread_entry(ULONG parameter)
 {
     UINT status;
 
     printf("Starting Azure thread\r\n\r\n");
+
+nx_azure_iot_log_init(write_log_message);
 
     // Initialise the network
     if (!network_init(nx_driver_same54))
