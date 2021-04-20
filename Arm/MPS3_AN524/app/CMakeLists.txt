@@ -21,6 +21,7 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 target_compile_definitions(${PROJECT_NAME}
    PRIVATE
       $<$<BOOL:${TFM_REGRESSION}>:TFM_REGRESSION>
+      $<$<BOOL:${TFM_PSA_TEST}>:TFM_PSA_TEST>
 )
 
 target_link_libraries(${PROJECT_NAME} 
@@ -72,6 +73,9 @@ if(BUILD_WITH_TFM)
     if (TFM_IPC)
        set(TFM_IPC_OPTION "IPC")
     endif()
+    if (TFM_PSA_TEST)
+       set(TFM_PSA_TEST_OPTION PSA_TEST_SUITE ${TFM_PSA_TEST})
+    endif()
     if (TFM_REGRESSION)
        set(TFM_REGRESSION_OPTION "REGRESSION")
     endif()
@@ -103,6 +107,7 @@ if(BUILD_WITH_TFM)
         BINARY_DIR ${CMAKE_BINARY_DIR}/tfm
         BOARD arm/mps3/an524
         ${TFM_PROFILE_OPTION}
+        ${TFM_PSA_TEST_OPTION}
         ${TFM_MCUBOOT_IMAGE_NUMBER_OPTION}
         ${TFM_ISOLATION_LEVEL_OPTION}
         ${TFM_KEY_FILE_S_OPTION}

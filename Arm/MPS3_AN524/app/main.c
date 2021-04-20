@@ -87,7 +87,12 @@ void azure_thread_entry(ULONG parameter)
 
     /* Start TF-M NS regression tests */
     tfm_non_secure_client_run_tests();
-#endif
+#endif /* TFM_REGRESSION */
+
+#ifdef TFM_PSA_TEST
+    extern void val_entry(void);
+    val_entry();
+#endif /* TFM_PSA_TEST */
 }
 
 void tx_application_define(void* first_unused_memory)

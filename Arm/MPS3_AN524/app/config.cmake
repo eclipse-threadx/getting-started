@@ -142,6 +142,14 @@ cmake_dependent_option(TFM_REGRESSION
     BUILD_WITH_TFM OFF
 )
 
+set(TFM_PSA_TEST
+    ""
+    CACHE STRING
+    "Enable a PSA test suite. Available test suites include CRYPTO,
+     PROTECTED_STORAGE, INTERNAL_TRUSTED_STORAGE, STORAGE and
+     INITIAL_ATTESTATION."
+)
+
 set(APP_CONFIG OFF CACHE FILEPATH
     "Configuration file for the MPS3 AN524 example app"
 )

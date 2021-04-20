@@ -104,8 +104,33 @@ Configuration options for these are defined and documented in
 ### Running TF-M NS regression tests
 TF-M NS regression tests config option `TFM_REGRESSION` is documented in
 `Arm/MPS3_AN524/app/config.cmake` and is disabled by default. To run TF-M NS
-regression tests set the config option to `ON` and rebuild the application.
+regression tests, set the config option to `ON` and rebuild the application.
 Then run it either on [QEMU](#using-qemu) or [hardware](#updating-application-image)
+
+### Running PSA Arch tests
+PSA arch tests config option `TFM_PSA_TEST` is documented in
+`Arm/MPS3_AN524/app/config.cmake` and is disabled by default. To run PSA arch
+tests, set the config option to any of `CRYPTO`|`PROTECTED_STORAGE`|
+`INTERNAL_TRUSTED_STORAGE`|`STORAGE`|`INITIAL_ATTESTATION`.
+Then run it either on [QEMU](#using-qemu) or [hardware](#updating-application-image)
+
+*Note*  
+The TF-M version 1.3 and PSA architecture crypto test suite version 1.1 causes
+resets on QEMU. However, the crypto test suite completes without any issues on
+Arm MPS3 FPGA board. Other test suites can be run either on QEMU or Arm MPS3
+FPGA board.
+
+Following summary will be printed at the end of crypto tests:
+
+```bash
+************ Crypto Suite Report **********
+TOTAL TESTS     : 63
+TOTAL PASSED    : 39
+TOTAL SIM ERROR : 0
+TOTAL FAILED    : 17
+TOTAL SKIPPED   : 7
+******************************************
+```
 
 ## Updating application image
 > This has only been tested on OS X, some modifications might be needed to make

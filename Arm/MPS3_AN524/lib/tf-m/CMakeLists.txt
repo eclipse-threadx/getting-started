@@ -44,7 +44,7 @@ set(TFM_VALID_PARTITIONS
 function(trusted_firmware_build)
   set(options IPC REGRESSION BL2)
   set(oneValueArgs BINARY_DIR BOARD ISOLATION_LEVEL CMAKE_BUILD_TYPE BUILD_PROFILE
-    MCUBOOT_IMAGE_NUMBER KEY_FILE_S KEY_FILE_NS)
+    MCUBOOT_IMAGE_NUMBER KEY_FILE_S KEY_FILE_NS PSA_TEST_SUITE)
   set(multiValueArgs ENABLED_PARTITIONS)
   cmake_parse_arguments(TFM "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
@@ -86,6 +86,10 @@ function(trusted_firmware_build)
     set(MCUBOOT_IMAGE_NUM_ARG -DMCUBOOT_IMAGE_NUMBER=${TFM_MCUBOOT_IMAGE_NUMBER})
   endif()
 
+  if(TFM_PSA_TEST_SUITE)
+    set(PSA_TEST_ARG -DTEST_PSA_API=${TFM_PSA_TEST_SUITE})
+  endif()
+
   set(TFM_GENERATED_INCLUDES ${TFM_BINARY_DIR}/generated/interface/include)
 
   if(TFM_BL2)
@@ -100,9 +104,20 @@ function(trusted_firmware_build)
   set(TFM_NS_SIGNED_BIN_FILE ${TFM_BINARY_DIR}/bin/tfm_ns_signed.bin)
   set(TFM_S_NS_SIGNED_BIN_FILE ${TFM_BINARY_DIR}/bin/tfm_s_ns_signed.bin)
 
-  set(VENEERS_FILE ${TFM_BINARY_DIR}/install/interface/lib/s_veneers.o)
+  if (TFM_PSA_TEST_SUITE)
+    set(PSA_TEST_VAL_FILE ${TFM_BINARY_DIR}/app/psa_api_tests/val/val_nspe.a)
+    set(PSA_TEST_PAL_FILE ${TFM_BINARY_DIR}/app/psa_api_tests/platform/pal_nspe.a)
+    set(COMBINE_DIR_STORAGE storage)
+    set(COMBINE_DIR_PROTECTED_STORAGE storage)
+    set(COMBINE_DIR_INTERNAL_TRUSTED_STORAGE storage)
+    set(COMBINE_DIR_CRYPTO crypto)
+    set(COMBINE_DIR_INITIAL_ATTESTATION initial_attestation)
+    set(PSA_TEST_COMBINE_FILE ${TFM_BINARY_DIR}/app/psa_api_tests/dev_apis/${COMBINE_DIR_${TFM_PSA_TEST_SUITE}}/test_combine.a)
+  endif()
 
+  set(VENEERS_FILE ${TFM_BINARY_DIR}/install/interface/lib/s_veneers.o)
   set(PSA_API_NS_PATH ${TFM_BINARY_DIR}/app/libtfm_api_ns.a)
+
   if (TFM_REGRESSION)
     set(PSA_QCBOR_NS_REGRESSION_TEST_PATH ${TFM_BINARY_DIR}/test/suites/qcbor/libtfm_test_suite_qcbor_ns.a)
     set(PSA_NS_CORE_TEST_PATH ${TFM_BINARY_DIR}/test/suites/core/libtfm_test_suite_core_ns.a)
@@ -116,9 +131,12 @@ function(trusted_firmware_build)
     set(PSA_NS_REGRESSION_TEST_PATH ${TFM_BINARY_DIR}/app/libtfm_ns_integration_test.a)
     set(PSA_QCBOR_TEST_PATH ${TFM_BINARY_DIR}/lib/ext/qcbor/libtfm_qcbor_test.a)
     set(PSA_T_COSE_TEST_PATH ${TFM_BINARY_DIR}/lib/ext/t_cose/libtfm_t_cose_test.a)
-    set(PSA_PLATFORM_NS_PATH ${TFM_BINARY_DIR}/platform/libplatform_ns.a)
     set(PSA_QCBOR_PATH ${TFM_BINARY_DIR}/lib/ext/qcbor/libtfm_qcbor.a)
     set(PSA_T_COSE_PATH ${TFM_BINARY_DIR}/lib/ext/t_cose/libtfm_t_cose.a)
+  endif()
+
+  if(TFM_REGRESSION OR TFM_PSA_TEST_SUITE)
+    set(PSA_PLATFORM_NS_PATH ${TFM_BINARY_DIR}/platform/libplatform_ns.a)
   endif()
 
   set(BUILD_BYPRODUCTS
@@ -140,6 +158,9 @@ function(trusted_firmware_build)
     ${PSA_QCBOR_PATH}
     ${PSA_T_COSE_PATH}
     ${TFM_GENERATED_INCLUDES}/psa_manifest/sid.h
+    ${PSA_TEST_VAL_FILE}
+    ${PSA_TEST_PAL_FILE}
+    ${PSA_TEST_COMBINE_FILE}
     ${BL2_BIN_FILE}
     ${BL2_HEX_FILE}
     ${TFM_S_BIN_FILE}
@@ -174,6 +195,7 @@ function(trusted_firmware_build)
                ${TFM_REGRESSION_ARG}
                ${TFM_PROFILE_ARG}
                ${MCUBOOT_IMAGE_NUM_ARG}
+               ${PSA_TEST_ARG}
                -DTFM_TEST_REPO_PATH=${TX_TFM_TESTS_DIR}
                ${TFM_PARTITIONS_ARGS}
     BUILD_ALWAYS True
@@ -231,11 +253,14 @@ function(trusted_firmware_build)
     ${PSA_T_COSE_NS_REGRESSION_TEST_PATH}
     ${PSA_QCBOR_TEST_PATH}
     ${PSA_T_COSE_TEST_PATH}
-    ${PSA_PLATFORM_NS_PATH}
-    ${PSA_API_NS_PATH}
     ${PSA_NS_REGRESSION_TEST_PATH}
     ${PSA_QCBOR_PATH}
     ${PSA_T_COSE_PATH}
+    ${PSA_TEST_VAL_FILE}
+    ${PSA_TEST_PAL_FILE}
+    ${PSA_TEST_COMBINE_FILE}
+    ${PSA_PLATFORM_NS_PATH}
+    ${PSA_API_NS_PATH}
     ${VENEERS_FILE}
     # $<TARGET_FILE:tfm_api>
   )
