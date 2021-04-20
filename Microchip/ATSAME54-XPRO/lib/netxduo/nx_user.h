@@ -20,6 +20,8 @@
 
 #define NX_SNTP_CLIENT_MIN_SERVER_STRATUM 3
 
+#define NX_AZURE_IOT_LOG_LEVEL 3
+
 /* Define various build options for the NetX Duo port.  The application should either make changes
    here by commenting or un-commenting the conditional compilation defined OR supply the defines
    though the compiler's equivalent of the -D option.  */
