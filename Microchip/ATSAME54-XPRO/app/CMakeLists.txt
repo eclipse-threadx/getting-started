@@ -10,14 +10,9 @@ set(SOURCES
     board_init.c
     console.c
     main.c
-    prompt.c
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})
-target_include_directories(${PROJECT_NAME} 
-    PUBLIC 
-        lib/device_config
-)
 
 target_link_libraries(${PROJECT_NAME}
     PUBLIC
@@ -28,7 +23,6 @@ target_link_libraries(${PROJECT_NAME}
         app_common
         jsmn
         netxdriver
-        device_config
 )
 
 set_target_properties(${PROJECT_NAME}

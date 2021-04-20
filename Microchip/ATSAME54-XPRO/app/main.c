@@ -13,7 +13,6 @@
 #include "nx_client.h"
 
 #include "azure_config.h"
-#include "prompt.h"
 
 #define AZURE_THREAD_STACK_SIZE 4096
 #define AZURE_THREAD_PRIORITY   4
@@ -31,8 +30,6 @@ void azure_thread_entry(ULONG parameter)
     UINT status;
 
     printf("Starting Azure thread\r\n\r\n");
-    
-    serial_setup();
 
     // Initialise the network
     if (!network_init(nx_driver_same54))
@@ -65,8 +62,7 @@ void azure_thread_entry(ULONG parameter)
     {
         printf("Failed to run Azure IoT (0x%04x)\r\n", status);
         return;
-    }       
-    
+    }
 }
 
 void tx_application_define(void* first_unused_memory)

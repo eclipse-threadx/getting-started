@@ -19,4 +19,3 @@ add_subdirectory(${CORE_LIB_DIR}/jsmn jsmn)
 
 add_subdirectory(netx_driver)
 add_subdirectory(atmel_start)
-add_subdirectory(device_config)

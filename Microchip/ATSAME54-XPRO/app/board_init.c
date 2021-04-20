@@ -11,7 +11,4 @@ void board_init()
 
     WeatherClick_initialize();
     printf("Temperature sensor initialized.\r\n");
-
-    verify_mem_status();
-    
 }
