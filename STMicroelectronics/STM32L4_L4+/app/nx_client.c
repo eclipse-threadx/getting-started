@@ -186,7 +186,7 @@ static void device_twin_property_cb(UCHAR* component_name,
 }
 
 UINT azure_iot_nx_client_entry(
-    NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, UINT (*unix_time_callback)(ULONG* unix_time), DevConfig_IoT_Info_t* device_info)
+    NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, UINT (*unix_time_callback)(ULONG* unix_time), Device_Config_Info_t* device_info)
 {
     UINT status;
     ULONG events = 0;

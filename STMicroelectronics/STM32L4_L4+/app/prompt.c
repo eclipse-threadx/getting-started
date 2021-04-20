@@ -3,12 +3,9 @@
 
 #include "prompt.h"
 
-#define ENABLE_DPS
-#define STM32L4
-
 bool serial_setup()
 {
-    DevConfig_IoT_Info_t device_info;
+    Device_Config_Info_t device_info;
     bool first_init = false;
    
     TX_TIMER my_timer;
@@ -22,8 +19,13 @@ bool serial_setup()
     {
         if(read_flash(&device_info) == STATUS_OK)
         {
+#ifdef ENABLE_DPS
+            printf("Currently device %s is connected. \n",
+            device_info.registrationid);
+#else
             printf("Currently device %s is connected to %s. \n",
             device_info.deviceid, device_info.hostname);
+#endif
             printf("Press blue button in the next 5 seconds to change configuration\n");
         }
         else
@@ -76,45 +78,20 @@ bool serial_setup()
             // check if anything came into the register
         }
         printf("Continuing\n");
-
     }
 
-    char hostname[MAX_HUB_HOSTNAME_SIZE] = "";
-	char deviceid[MAX_HUB_DEVICE_ID_SIZE] = "";
-	char sas[MAX_DEVICE_SAS_KEY_SIZE] = "";
-#ifdef ENABLE_DPS
-    char idscope[MAX_DPS_ID_SCOPE_SIZE] = "";
-	char registrationid[MAX_DPS_REGISTRATION_ID_SIZE] = "";
-#endif
-#ifdef STM32L4
-    char ssid[MAX_WIFI_SSID_SIZE] = "";
-	char pswd[MAX_WIFI_PSWD_SIZE] = "";
-#endif
+    char hostname[MAX_HUB_HOSTNAME_SIZE] = "-";
+	char deviceid[MAX_HUB_DEVICE_ID_SIZE] = "-";
+	char sas[MAX_DEVICE_SAS_KEY_SIZE] = "-";
+    char idscope[MAX_DPS_ID_SCOPE_SIZE] = "-";
+	char registrationid[MAX_DPS_REGISTRATION_ID_SIZE] = "-";
+    char ssid[MAX_WIFI_SSID_SIZE] = "-";
+	char pswd[MAX_WIFI_PSWD_SIZE] = "-";
 
     while (!has_credentials())
     {
         printf("No Azure IoT credentials stored in device. Please enter credentials into serial terminal. \n\n");
 
-        printf("Please enter your IoTHub hostname: \n");
-        if (scanf("%s", hostname) == 0) {
-            /* Not valid input, flush stdin */
-            fflush(stdin);
-            continue;
-        }
-
-        printf("Please enter your IoTHub device ID: \n");
-        if (scanf("%s", deviceid) == 0) {
-            /* Not valid input, flush stdin */
-            fflush(stdin);
-            continue;
-        }
-
-        printf("Please enter your IoTHub primary key: \n");
-        if (scanf("%s", sas) == 0) {
-            /* Not valid input, flush stdin */
-            fflush(stdin);
-            continue;
-        }
 #ifdef ENABLE_DPS
         printf("Please enter your DPS ID scope: \n");
         if (scanf("%s", idscope) == 0) {
@@ -129,8 +106,28 @@ bool serial_setup()
             fflush(stdin);
             continue;
         }
+#else
+        printf("Please enter your IoTHub hostname: \n");
+        if (scanf("%s", hostname) == 0) {
+            /* Not valid input, flush stdin */
+            fflush(stdin);
+            continue;
+        }
+
+        printf("Please enter your IoTHub device ID: \n");
+        if (scanf("%s", deviceid) == 0) {
+            /* Not valid input, flush stdin */
+            fflush(stdin);
+            continue;
+        }
 #endif
-#ifdef STM32L4
+        printf("Please enter your IoTHub primary key: \n");
+        if (scanf("%s", sas) == 0) {
+            /* Not valid input, flush stdin */
+            fflush(stdin);
+            continue;
+        }
+        
         printf("Please enter your WiFi SSID: \n");
         if (scanf("%s", ssid) == 0) {
             /* Not valid input, flush stdin */
@@ -140,19 +137,18 @@ bool serial_setup()
 
         printf("Please enter your WiFi password: \n");
         scanf(" %[^\n]s", pswd);
-#endif
 
+        // Print confirmation before storing to flash
         printf("Please verify you have entered the correct configuration: \n\n"); 
-        printf("hostname: %s\n", hostname); 
-        printf("deviceid: %s\n", deviceid); 
-        printf("sas: %s\n\n", sas);
 #ifdef ENABLE_DPS
         printf("dps_id_scope: %s\n", idscope); 
         printf("registration id: %s\n\n", registrationid);
+#else
+        printf("hostname: %s\n", hostname); 
+        printf("deviceid: %s\n", deviceid); 
 #endif
-#ifdef STM32L4
+        printf("sas: %s\n\n", sas);
         printf("WiFi Network: %s\n", ssid);
-#endif
 
         // Logic about going back and changing if things are wrong
         printf("Press 0: YES, proceed \nPress 1: NO, re-enter credentials \n");
@@ -173,14 +169,10 @@ bool serial_setup()
         strcpy(device_info.hostname, hostname);
         strcpy(device_info.deviceid, deviceid);
         strcpy(device_info.sas, sas);
-#ifdef ENABLE_DPS
         strcpy(device_info.idscope, idscope);
         strcpy(device_info.registrationid, registrationid);
-#endif
-#ifdef STM32L4
         strcpy(device_info.ssid, ssid);
         strcpy(device_info.pswd, pswd);
-#endif
 
         if (save_to_flash(&device_info) == STATUS_OK)
         {

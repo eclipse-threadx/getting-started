@@ -8,8 +8,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-#define ENABLE_DPS
-#define STM32L4
+//#define ENABLE_DPS
 
 // Max length of the data buffer read from flash
 #define MAX_READ_BUFF 1024
@@ -31,7 +30,7 @@ typedef enum
 	SAVE_STATUS_ERASE_ERROR = 2,
 	READ_STATUS_FLASH_ERROR = 3,
 	ERASE_STATUS_ERROR = 4
-} FLASH_Status_t;
+} Flash_Status_t;
 
 typedef enum
 {
@@ -46,16 +45,12 @@ typedef struct
 	char hostname[MAX_HUB_HOSTNAME_SIZE];
 	char deviceid[MAX_HUB_DEVICE_ID_SIZE];
 	char sas[MAX_DEVICE_SAS_KEY_SIZE];
-#ifdef ENABLE_DPS
 	char idscope[MAX_DPS_ID_SCOPE_SIZE];
 	char registrationid[MAX_DPS_REGISTRATION_ID_SIZE];
-#endif
-#ifdef STM32L4
-	char   ssid[MAX_WIFI_SSID_SIZE];
-	char   pswd[MAX_WIFI_PSWD_SIZE];
+	char ssid[MAX_WIFI_SSID_SIZE];
+	char pswd[MAX_WIFI_PSWD_SIZE];
 	WiFi_Mode security;
-#endif
-} DevConfig_IoT_Info_t;
+} Device_Config_Info_t;
 
 
 
@@ -66,12 +61,12 @@ bool has_credentials(void);
 bool verify_mem_status(void);
 
 /* Save Azure IoT credentials to flash */
-FLASH_Status_t save_to_flash(DevConfig_IoT_Info_t* info);
+Flash_Status_t save_to_flash(Device_Config_Info_t* info);
 
 /* Erase Azure IoT credentials from flash */ 
-FLASH_Status_t erase_flash(void);
+Flash_Status_t erase_flash(void);
 
 /* Read Azure IoT credentials from flash */
-FLASH_Status_t read_flash(DevConfig_IoT_Info_t* info);
+Flash_Status_t read_flash(Device_Config_Info_t* info);
 
 #endif // _DEVICE_CONFIG_H

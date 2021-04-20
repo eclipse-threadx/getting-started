@@ -31,15 +31,27 @@ void azure_thread_entry(ULONG parameter)
 
     printf("\r\nStarting Azure thread\r\n\r\n");
 
-    serial_setup();
+    Device_Config_Info_t device_info;
 
-    DevConfig_IoT_Info_t device_info;
+#ifdef ENABLE_DEVICECONFIG
+    printf("Using serial device configuration \n\n");
+    serial_setup();
     status = read_flash(&device_info);
+
     if (status != STATUS_OK) 
     {
       printf("Unable to read credentials from flash.\n");
       return;
     }
+#else
+    strcpy(device_info.idscope, IOT_DPS_ID_SCOPE);
+    strcpy(device_info.registrationid, IOT_DPS_REGISTRATION_ID);
+    strcpy(device_info.hostname, IOT_HUB_HOSTNAME);
+    strcpy(device_info.deviceid, IOT_HUB_DEVICE_ID);
+    strcpy(device_info.sas, IOT_DEVICE_SAS_KEY);
+    strcpy(device_info.ssid, WIFI_SSID);
+    strcpy(device_info.pswd, WIFI_PASSWORD);
+#endif
 
     if (stm32_network_init(device_info.ssid, device_info.pswd, WIFI_MODE) != NX_SUCCESS)
     {

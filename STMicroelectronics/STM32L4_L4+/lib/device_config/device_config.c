@@ -4,9 +4,6 @@
 #include "device_config.h"
 #include "stm32l4xx_hal.h"
 
-// Address of FLASH storage, storing at bank 2 page 0 is 0x80800000
-#define FLASH_STORAGE 0x080FF800
-
 // Page size calculation, justification from datasheet needed here ()
 #define page_size 0x800
 
@@ -14,26 +11,27 @@
 const char *format = "hostname=%s deviceid=%s sas=%s idscope=%s registrationid=%s ssid=%s pw=%s sec=%d";
 
 // Specific helper function for writing to flash for STM32L4
-FLASH_Status_t save_to_flash_ST(uint8_t *data);
+Flash_Status_t save_to_flash_ST(uint8_t *data);
 
 // Specific helper function for reading from flash for STM32L4
-FLASH_Status_t read_flash_ST(uint8_t* data);
+Flash_Status_t read_flash_ST(uint8_t* data);
 
 // Specific helper function for erasing flash for STM32L4
 HAL_StatusTypeDef erase_flash_ST();
 
+// Symbol for section of flash to store credentials
 extern uint32_t __DEVICEINFO;
 
 // Helper functions
 
 // Specific helper function for saving to flash for STM32L4
-FLASH_Status_t save_to_flash_ST(uint8_t *data)
+Flash_Status_t save_to_flash_ST(uint8_t *data)
 {	
-    volatile uint64_t data_to_FLASH[(strlen((char*)data) / 8) + (int)((strlen((char*)data) % 8) != 0)];
-    memset((uint8_t*)data_to_FLASH, 0, strlen((char*)data_to_FLASH));
-    strcpy((char*)data_to_FLASH, (char*)data);
+    volatile uint64_t data_to_flash[(strlen((char*)data) / 8) + (int)((strlen((char*)data) % 8) != 0)];
+    memset((uint8_t*)data_to_flash, 0, strlen((char*)data_to_flash));
+    strcpy((char*)data_to_flash, (char*)data);
 
-    volatile uint32_t data_length = (strlen((char*)data_to_FLASH) / 8) + (int)((strlen((char*)data_to_FLASH) % 8) != 0);
+    volatile uint32_t data_length = (strlen((char*)data_to_flash) / 8) + (int)((strlen((char*)data_to_flash) % 8) != 0);
     volatile uint32_t write_cnt = 0;
     volatile uint32_t index = 0;
     volatile HAL_StatusTypeDef status;
@@ -49,7 +47,7 @@ FLASH_Status_t save_to_flash_ST(uint8_t *data)
     {
         if (status == HAL_OK)
         {
-            status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, ((uint32_t)(&__DEVICEINFO) + write_cnt), data_to_FLASH[index]); // FAST
+            status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, ((uint32_t)(&__DEVICEINFO) + write_cnt), data_to_flash[index]); // FAST
             if (status ==  HAL_OK)
             {
                 status = HAL_FLASH_GetError();
@@ -78,7 +76,7 @@ FLASH_Status_t save_to_flash_ST(uint8_t *data)
 }
 
 // Specific helper function for reading from flash for STM32L4
-FLASH_Status_t read_flash_ST(uint8_t* data)
+Flash_Status_t read_flash_ST(uint8_t* data)
 {
     volatile uint32_t read_data;
     volatile uint32_t read_cnt = 0;
@@ -135,9 +133,9 @@ HAL_StatusTypeDef erase_flash_ST()
 
 // Device Configuration Interface functions
 
-FLASH_Status_t save_to_flash(DevConfig_IoT_Info_t* info)
+Flash_Status_t save_to_flash(Device_Config_Info_t* info)
 {
-    FLASH_Status_t status = SAVE_STATUS_ERROR;
+    Flash_Status_t status = SAVE_STATUS_ERROR;
     
     char writeData[MAX_READ_BUFF] = { 0 };
     
@@ -155,9 +153,9 @@ FLASH_Status_t save_to_flash(DevConfig_IoT_Info_t* info)
 }
 
 
-FLASH_Status_t read_flash(DevConfig_IoT_Info_t* info)
+Flash_Status_t read_flash(Device_Config_Info_t* info)
 {
-    FLASH_Status_t status = READ_STATUS_FLASH_ERROR;
+    Flash_Status_t status = READ_STATUS_FLASH_ERROR;
 
     char readData[MAX_READ_BUFF] = { 0 };
 
@@ -194,7 +192,7 @@ bool has_credentials(void)
     return ret_val;
 }
 
-FLASH_Status_t erase_flash()
+Flash_Status_t erase_flash()
 {
     if(erase_flash_ST() != HAL_OK)
     {
