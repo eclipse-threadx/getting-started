@@ -12,15 +12,15 @@
 // ----------------------------------------------------------------------------
 // WiFi connection config
 // ----------------------------------------------------------------------------
-#define WIFI_SSID     "CindyPhone"
-#define WIFI_PASSWORD "qazqwe123"
+#define WIFI_SSID     ""
+#define WIFI_PASSWORD ""
 #define WIFI_MODE     WPA2_PSK_AES
 
 // ----------------------------------------------------------------------------
 // Azure IoT Dynamic Provisioning Service
 //    Define this to use the DPS service, otherwise direct IoT Hub
 // ----------------------------------------------------------------------------
-//#define ENABLE_DPS
+#define ENABLE_DPS
 
 // ----------------------------------------------------------------------------
 // Azure IoT DPS connection config

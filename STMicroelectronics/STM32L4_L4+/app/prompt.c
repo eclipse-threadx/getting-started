@@ -81,12 +81,12 @@ bool serial_setup()
     }
 
     char hostname[MAX_HUB_HOSTNAME_SIZE] = "-";
-	char deviceid[MAX_HUB_DEVICE_ID_SIZE] = "-";
-	char sas[MAX_DEVICE_SAS_KEY_SIZE] = "-";
+    char deviceid[MAX_HUB_DEVICE_ID_SIZE] = "-";
+    char sas[MAX_DEVICE_SAS_KEY_SIZE] = "-";
     char idscope[MAX_DPS_ID_SCOPE_SIZE] = "-";
-	char registrationid[MAX_DPS_REGISTRATION_ID_SIZE] = "-";
+    char registrationid[MAX_DPS_REGISTRATION_ID_SIZE] = "-";
     char ssid[MAX_WIFI_SSID_SIZE] = "-";
-	char pswd[MAX_WIFI_PSWD_SIZE] = "-";
+    char pswd[MAX_WIFI_PSWD_SIZE] = "-";
 
     while (!has_credentials())
     {
