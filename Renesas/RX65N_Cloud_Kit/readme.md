@@ -167,11 +167,15 @@ After the build completes, confirm that the binary file was created in the follo
     
     ![Renesas RX65N reset, USB and E1/E2Lite](media/renesas-rx65n.jpg)
 
+1. Remove the **EJ2** link from the board to enable the E2 Lite debugger. The link is located underneath the **USER SW** button.
+    > **Warning:** Failure to remove this link will result in being unable to flash the device.
+
 1. Connect the **WiFi module** to the **Cloud Option Board**
 
 1. Using the first Mini USB cable, connect the **USB Serial** on the Renesas RX65N to your computer.
 
 1. Using the second Mini USB cable, connect the **USB E2 Lite** on the Renesas RX65N to your computer.
+
 
 ### Flash the image
 
