@@ -12,8 +12,6 @@
 #include "json_utils.h"
 #include "sntp_client.h"
 
-// #include "azure_config.h"
-
 #define IOT_MODEL_ID "dtmi:com:example:azurertos:gsg;1"
 
 #define TELEMETRY_INTERVAL_PROPERTY "telemetryInterval"

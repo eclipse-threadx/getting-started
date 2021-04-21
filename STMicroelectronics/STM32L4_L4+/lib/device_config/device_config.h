@@ -8,8 +8,6 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-//#define ENABLE_DPS
-
 // Max length of the data buffer read from flash
 #define MAX_READ_BUFF 1024
 #define MAX_WIFI_SSID_SIZE	32

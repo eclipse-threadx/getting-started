@@ -121,6 +121,9 @@ To connect the STM DevKit to Azure, you'll modify a configuration file for Wi-Fi
 
 ### Add configuration
 
+<details>
+    <summary>Use hardcoded constants in application binary</summary>
+
 1. Open the following file in a text editor:
 
     > *getting-started\STMicroelectronics\STM32L4_L4+\app\azure_config.h*
@@ -141,6 +144,27 @@ To connect the STM DevKit to Azure, you'll modify a configuration file for Wi-Fi
     |`IOT_DEVICE_SAS_KEY` |{*Your Primary key value*}|
 
 1. Save and close the file.
+</details>
+
+<details>
+    <summary>Enter device configuration details during runtime</summary>
+
+1. Open the following file in a text editor:
+
+    > *getting-started\STMicroelectronics\STM32L4_L4+\app\azure_config.h*
+
+1. Make sure #define ENABLE_DEVICECONFIG is uncommented 
+
+```
+// ----------------------------------------------------------------------------
+// Use serial device config
+// ----------------------------------------------------------------------------
+#define ENABLE_DEVICECONFIG
+```
+
+1. Save and close the file.
+
+</details>
 
 ### Build the image
 
@@ -190,15 +214,7 @@ You can use the **Termite** utility to monitor communication and confirm that yo
 1. Press the **Reset** button on the device. The button is black and is labeled on the device.
 1. In the **Termite** console, you should see serial prompt asking for Azure IoT device information. Use the information you saved from earlier and choose to store these credentials safely in flash. 
 
-    ![SoftAP Terminal](media/stml4-serial-prompt.png)
-1. The next step is to connect your laptop to the temporary WiFi hotspot the dev board has created. Connect to the **ST_AP_Test** network and enter in the password **password**
-
-    ![SoftAP Hotspot](media/hotspot.png)
-1. Use your browser of choice, go to address **http://192.168.10.1/**. It might take a couple seconds to load. **Make sure the page fully loads before continuing.**. Return to the serial terminal after connection.
-
-    ![SoftAP Website](media/softap-website.png)
-
-    ![SoftAP Confirm](media/softap-confirm.PNG)
+    ![Serial Config](media/serial-dps-setup.png)
 
 1. In the **Termite** console, check the following checkpoint values to confirm that the device is initialized and connected to Azure IoT.
 
