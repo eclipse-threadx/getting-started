@@ -66,8 +66,8 @@ bool serial_setup()
                     }
                     if (menu_option == 1) {
                         if (erase_flash() == STATUS_OK) {
-                        printf("Successfully erased flash.\n");
-                        break;
+                            printf("Successfully erased flash.\n");
+                            break;
                         }
                     } else if (menu_option == 0) {
                         break;

@@ -16,12 +16,6 @@ int __io_getchar(void)
 	uint8_t ch;
 	HAL_UART_Receive(&UartHandle, &ch, 1, 1);
 
-	/* And cope with Windows */
-	if (ch == '\r') {
-		uint8_t ret = '\n';
-		HAL_UART_Transmit(&UartHandle, &ret, 1, HAL_MAX_DELAY);
-	}
-
 	return ch;
 }
 
