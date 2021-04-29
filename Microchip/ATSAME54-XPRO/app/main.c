@@ -56,7 +56,7 @@ void azure_thread_entry(ULONG parameter)
 
     for (int i = 1; i > 0; --i)
     {
-        printf("waiting for %d 0.5 seconds\r\n", i);
+        printf("waiting for %d seconds\r\n", i);
         tx_thread_sleep(TX_TIMER_TICKS_PER_SECOND / 2);
     }
 
