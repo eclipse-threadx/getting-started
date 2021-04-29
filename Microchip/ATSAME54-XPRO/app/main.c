@@ -54,6 +54,12 @@ void azure_thread_entry(ULONG parameter)
         return;
     }
 
+    for (int i = 10; i > 0; --i)
+    {
+        printf("waiting for %d seconds\r\n", i);
+        tx_thread_sleep(TX_TIMER_TICKS_PER_SECOND);
+    }
+
 #ifdef ENABLE_LEGACY_MQTT
     if ((status = azure_iot_mqtt_entry(&nx_ip, &nx_pool, &nx_dns_client, sntp_time_get)))
 #else
