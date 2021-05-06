@@ -17,11 +17,6 @@ else()
     set(TOOLCHAIN_EXT "")
 endif(WIN32)
 
-# default to Release build
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Choose the type of build, options are: Debug Release." FORCE)
-endif()
-
 find_program(COMPILER_ON_PATH "${TARGET_TRIPLET}gcc${TOOLCHAIN_EXT}")
 
 if(DEFINED ENV{ARM_GCC_PATH}) 
@@ -32,6 +27,8 @@ elseif(COMPILER_ON_PATH)
     # then check on the current path
     get_filename_component(ARM_TOOLCHAIN_PATH ${COMPILER_ON_PATH} DIRECTORY)
     message(STATUS "Using ARM GCC from path = ${ARM_TOOLCHAIN_PATH}")
+else()
+    message(FATAL_ERROR "Unable to find ARM GCC. Either add to your PATH, or define ARM_GCC_PATH to the compiler location")
 endif()
 
 # Perform compiler test with the static library
@@ -51,7 +48,7 @@ set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
 
-set(CMAKE_COMMON_FLAGS "--specs=nano.specs -ffunction-sections -fdata-sections -fno-strict-aliasing -fno-builtin -fshort-enums -Wall -Wextra -Wuninitialized -Wshadow -Wdouble-promotion -Werror -Wno-unused-parameter")
+set(CMAKE_COMMON_FLAGS "--specs=nano.specs -ffunction-sections -fdata-sections -fno-strict-aliasing -fno-builtin -fshort-enums -Wall -Wextra -Wuninitialized -Wdouble-promotion -Werror -Wno-unused-parameter")
 set(CMAKE_C_FLAGS 	"${MCPU_FLAGS} ${VFP_FLAGS} ${CMAKE_COMMON_FLAGS}")
 set(CMAKE_CXX_FLAGS "${MCPU_FLAGS} ${VFP_FLAGS} ${CMAKE_COMMON_FLAGS}")
 set(CMAKE_ASM_FLAGS "${MCPU_FLAGS} ${VFP_FLAGS}")
