@@ -27,25 +27,16 @@ target_link_libraries(${PROJECT_NAME}
         netx_driver
 )
 
-set_target_properties(${PROJECT_NAME}
-    PROPERTIES 
-        SUFFIX ".elf"
-)
-
 target_include_directories(${PROJECT_NAME} 
     PUBLIC 
         .
 )
 
-if(THREADX_TOOLCHAIN STREQUAL "iar")
+if(CMAKE_C_COMPILER_ID STREQUAL "IAR")
     message(FATAL_ERROR, "IAR is not currently implemented for this device")
 else()
-    target_link_options(${PROJECT_NAME}
-        PRIVATE 
-            -T${CMAKE_CURRENT_LIST_DIR}/startup/gnu/linker_script.ld 
-            -Wl,-Map=${PROJECT_NAME}.map
-            -Wl,-e_PowerON_Reset
-    )
+    set_target_linker(${PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/startup/gnu/linker_script.ld)
+    target_link_options(${PROJECT_NAME} PRIVATE -Wl,-e_PowerON_Reset)
 endif()
 
 post_build(${PROJECT_NAME})

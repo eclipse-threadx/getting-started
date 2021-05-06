@@ -8,12 +8,6 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Choose the type of build, options are: Debug Release." FORCE)
 endif()
 
-# Do some windows specific logic
-if(WIN32)
-    # use the repo version of ninja on Windows as there is no Ninja installer
-    set(CMAKE_MAKE_PROGRAM ${CMAKE_CURRENT_LIST_DIR}/ninja CACHE STRING "Ninja location")
-endif(WIN32)
-
 # Set up the CMake variables for compiler and assembler
 set(CMAKE_C_COMPILER "${EWARM_ROOT_DIR}/bin/iccarm.exe" "${CPU_FLAGS} -e")
 set(CMAKE_CXX_COMPILER "${EWARM_ROOT_DIR}/bin/iccarm.exe" "${CPU_FLAGS} --c++")

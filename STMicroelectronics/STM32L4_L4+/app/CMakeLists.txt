@@ -31,24 +31,15 @@ function(create_target TARGET STARTUP LINKER)
         jsmn
     )
 
-    set_target_properties(${TARGET}
-        PROPERTIES 
-            SUFFIX ".elf"
-    )
-
     target_include_directories(${TARGET} 
         PUBLIC 
             .
     )
 
-    if(THREADX_TOOLCHAIN STREQUAL "iar")
-        target_link_options(${TARGET}
-            PRIVATE 
-                --config ${CMAKE_CURRENT_LIST_DIR}/startup/iar/${LINKER}.icf --map=${TARGET}.map)
+    if(CMAKE_C_COMPILER_ID STREQUAL "IAR")
+        set_target_linker(${TARGET} ${CMAKE_CURRENT_LIST_DIR}/startup/iar/${LINKER}.icf)
     else()
-        target_link_options(${TARGET}
-            PRIVATE 
-                -T${CMAKE_CURRENT_LIST_DIR}/startup/gnu/${LINKER}.ld -Wl,-Map=${TARGET}.map)
+        set_target_linker(${TARGET} ${CMAKE_CURRENT_LIST_DIR}/startup/gnu/${LINKER}.ld)
     endif()
 
     post_build(${TARGET})

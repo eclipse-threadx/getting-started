@@ -1,18 +1,32 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
-
 function(post_build TARGET)
-    if(THREADX_TOOLCHAIN STREQUAL "iar")
+    if(CMAKE_C_COMPILER_ID STREQUAL "IAR")
         add_custom_target(${TARGET}.bin ALL 
             DEPENDS ${TARGET}
             COMMAND ${CMAKE_IAR_ELFTOOL} --bin ${TARGET}.elf ${TARGET}.bin)
-    else()
+    elseif(CMAKE_C_COMPILER_ID STREQUAL "GNU")
         add_custom_target(${TARGET}.bin ALL 
             DEPENDS ${TARGET}
             COMMAND ${CMAKE_OBJCOPY} -Obinary ${TARGET}.elf ${TARGET}.bin
             COMMAND ${CMAKE_OBJCOPY} -Oihex ${TARGET}.elf ${TARGET}.hex)            
+    else()
+        message(FATAL_ERROR "Unknown CMAKE_C_COMPILER_ID ${CMAKE_C_COMPILER_ID}")
+    endif()
+endfunction()
+
+function(set_target_linker TARGET LINKER_SCRIPT)
+    if(CMAKE_C_COMPILER_ID STREQUAL "IAR")
+        target_link_options(${TARGET} PRIVATE --config ${LINKER_SCRIPT})
+        target_link_options(${TARGET} PRIVATE --map=${TARGET}.map)
+    elseif(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+        target_link_options(${TARGET} PRIVATE -T${LINKER_SCRIPT})
+        target_link_options(${TARGET} PRIVATE -Wl,-Map=${TARGET}.map)
+        set_target_properties(${TARGET} PROPERTIES SUFFIX ".elf") 
+
+    else()
+        message(FATAL_ERROR "Unknown CMAKE_C_COMPILER_ID ${CMAKE_C_COMPILER_ID}")
     endif()
 endfunction()
 
