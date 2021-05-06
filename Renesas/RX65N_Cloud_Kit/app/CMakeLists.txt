@@ -37,19 +37,11 @@ target_include_directories(${PROJECT_NAME}
         .
 )
 
-if(THREADX_TOOLCHAIN STREQUAL "iar")
-    target_link_options(${PROJECT_NAME}
-        PRIVATE 
-            --config ${CMAKE_CURRENT_LIST_DIR}/startup/iar/linker_script.icf 
-            --map=${PROJECT_NAME}.map
-    )
+if(CMAKE_C_COMPILER_ID STREQUAL "IAR")
+    set_target_linker(${PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/startup/iar/linker_script.icf)
 else()
-    target_link_options(${PROJECT_NAME}
-        PRIVATE 
-            -T${CMAKE_CURRENT_LIST_DIR}/startup/gnu/linker_script.ld
-            -Wl,-Map=${PROJECT_NAME}.map
-            -Wl,-e_PowerON_Reset
-    )
+    set_target_linker(${PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/startup/gnu/linker_script.ld)
+    target_link_options(${PROJECT_NAME} PRIVATE -Wl,-e_PowerON_Reset)
 endif()
 
 post_build(${PROJECT_NAME})

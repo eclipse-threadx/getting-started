@@ -31,19 +31,15 @@ target_link_libraries(${PROJECT_NAME}
     jsmn
 )
 
-target_link_options(${PROJECT_NAME}
-    PUBLIC 
-        -T${LINKER_SCRIPT} -Wl,-Map=${PROJECT_NAME}.map)
-
-set_target_properties(${PROJECT_NAME}
-    PROPERTIES 
-        LINK_DEPENDS ${LINKER_SCRIPT}
-        SUFFIX ".elf"
-)
-
 target_include_directories(${PROJECT_NAME} 
     PUBLIC 
         .
 )
+
+if(CMAKE_C_COMPILER_ID STREQUAL "IAR")
+    message(FATAL_ERROR, "IAR is not currently implemented for this device")
+else()
+    set_target_linker(${PROJECT_NAME} ${LINKER_SCRIPT})
+endif()
 
 post_build(${PROJECT_NAME})
