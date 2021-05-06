@@ -31,11 +31,6 @@ function(create_target TARGET STARTUP LINKER)
         jsmn
     )
 
-    set_target_properties(${TARGET}
-        PROPERTIES 
-            SUFFIX ".elf"
-    )
-
     target_include_directories(${TARGET} 
         PUBLIC 
             .

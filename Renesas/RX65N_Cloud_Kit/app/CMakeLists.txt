@@ -27,11 +27,6 @@ target_link_libraries(${PROJECT_NAME}
         netx_driver
 )
 
-set_target_properties(${PROJECT_NAME}
-    PROPERTIES 
-        SUFFIX ".elf"
-)
-
 target_include_directories(${PROJECT_NAME} 
     PUBLIC 
         .
