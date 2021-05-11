@@ -67,4 +67,10 @@ int _getpid(void)
     return -1;
 }
 
+// function aliases to support different runtimes
+int lseek(int file, int ptr, int dir) __attribute__((weak, alias("_lseek")));
+int fstat(int file, struct stat* st) __attribute__((weak, alias("_fstat")));
+int close(int file) __attribute__((weak, alias("_close")));
+int isatty(int file) __attribute__((weak, alias("_isatty")));
+
 #endif

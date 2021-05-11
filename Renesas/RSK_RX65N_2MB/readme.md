@@ -127,7 +127,7 @@ To create a device:
 
 ## Prepare the device
 
-To connect the STM DevKit to Azure, you'll modify a configuration file for Wi-Fi and Azure IoT settings, rebuild the image, and flash the image to the device.
+To connect the Renesas RX65N to Azure, you'll modify a configuration file for Wi-Fi and Azure IoT settings, rebuild the image, and flash the image to the device.
 
 ### Add configuration
 

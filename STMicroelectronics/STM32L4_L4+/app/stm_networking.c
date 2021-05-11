@@ -34,7 +34,7 @@ static void checkWifiVersion()
     UINT status = 0;
     UINT version[4];
     CHAR moduleinfo[32];
-    uint8_t mac[4];
+    uint8_t mac[6];
 
     WIFI_GetModuleID(moduleinfo);
     printf("\tModule: %s\r\n", moduleinfo);

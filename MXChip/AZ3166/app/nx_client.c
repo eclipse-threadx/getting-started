@@ -48,7 +48,8 @@ typedef enum TELEMETRY_STATE_ENUM
     TELEMETRY_STATE_DEFAULT,
     TELEMETRY_STATE_MAGNETOMETER,
     TELEMETRY_STATE_ACCELEROMETER,
-    TELEMETRY_STATE_GYROSCOPE
+    TELEMETRY_STATE_GYROSCOPE,
+    TELEMETRY_STATE_END
 } TELEMETRY_STATE;
 
 static AZURE_IOT_NX_CONTEXT azure_iot_nx_client;
@@ -338,9 +339,9 @@ UINT azure_iot_nx_client_entry(
     }
 
 #ifdef ENABLE_DPS
-    azure_iot_nx_client_dps_create(&azure_iot_nx_client, IOT_DPS_ID_SCOPE, IOT_DPS_REGISTRATION_ID);
+    status = azure_iot_nx_client_dps_create(&azure_iot_nx_client, IOT_DPS_ID_SCOPE, IOT_DPS_REGISTRATION_ID);
 #else
-    azure_iot_nx_client_hub_create(&azure_iot_nx_client, IOT_HUB_HOSTNAME, IOT_HUB_DEVICE_ID);
+    status = azure_iot_nx_client_hub_create(&azure_iot_nx_client, IOT_HUB_HOSTNAME, IOT_HUB_DEVICE_ID);
 #endif
     if (status != NX_SUCCESS)
     {
@@ -398,9 +399,12 @@ UINT azure_iot_nx_client_entry(
             case TELEMETRY_STATE_GYROSCOPE:
                 azure_iot_nx_client_publish_telemetry(&azure_iot_nx_client, append_device_telemetry_gyroscope);
                 break;
+
+            default:
+                break;
         }
 
-        telemetry_state = (telemetry_state + 1) % 4;
+        telemetry_state = (telemetry_state + 1) % TELEMETRY_STATE_END;
     }
 
     return NX_SUCCESS;

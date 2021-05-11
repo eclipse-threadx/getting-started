@@ -1,14 +1,22 @@
+# Getting Started with Azure RTOS and Azure IoT
+
 ![](https://github.com/azure-rtos/getting-started/workflows/Markdown%20links/badge.svg)
 ![](https://github.com/azure-rtos/getting-started/workflows/ATSAME54-XPRO/badge.svg)
 ![](https://github.com/azure-rtos/getting-started/workflows/AZ3166/badge.svg)
 ![](https://github.com/azure-rtos/getting-started/workflows/MIMXRT1050-EVKB/badge.svg)
 ![](https://github.com/azure-rtos/getting-started/workflows/MIMXRT1060-EVK/badge.svg)
+![](https://github.com/azure-rtos/getting-started/workflows/RX65N-Cloud-Kit/badge.svg)
 ![](https://github.com/azure-rtos/getting-started/workflows/RSK-RX65N-2MB/badge.svg)
 ![](https://github.com/azure-rtos/getting-started/workflows/STM32L4_L4+/badge.svg)
 
-# Getting Started with Azure RTOS and Azure IoT
+<!-- markdown-link-check-disable -->
+[![Azure ATSAME54-XPRO](https://dev.azure.com/azure-iot-dde/Azure%20RTOS%20GSG/_apis/build/status/gsg.microchip.atsame54xpro?repoName=azure-rtos%2Fgetting-started&branchName=master&jobName=Microchip_Build)](https://dev.azure.com/azure-iot-dde/Azure%20RTOS%20GSG/_build/latest?definitionId=6&repoName=azure-rtos%2Fgetting-started&branchName=master)
+[![Azure STM32L475](https://dev.azure.com/azure-iot-dde/Azure%20RTOS%20GSG/_apis/build/status/gsg.stm.L475EIOT01A?repoName=azure-rtos%2Fgetting-started&branchName=master&jobName=STM_Build)](https://dev.azure.com/azure-iot-dde/Azure%20RTOS%20GSG/_build/latest?definitionId=5&repoName=azure-rtos%2Fgetting-started&branchName=master)
+[![Azure MIMXRT1060-EVK](https://dev.azure.com/azure-iot-dde/Azure%20RTOS%20GSG/_apis/build/status/gsg.nxp.mimxrt1060evk?repoName=azure-rtos%2Fgetting-started&branchName=master&jobName=NXP_Build)](https://dev.azure.com/azure-iot-dde/Azure%20RTOS%20GSG/_build/latest?definitionId=4&repoName=azure-rtos%2Fgetting-started&branchName=master)
+[![Azure AZ3166](https://dev.azure.com/azure-iot-dde/Azure%20RTOS%20GSG/_apis/build/status/gsg.mxchip.az3166?repoName=azure-rtos%2Fgetting-started&branchName=master&jobName=MXCHIP_Build)](https://dev.azure.com/azure-iot-dde/Azure%20RTOS%20GSG/_build/latest?definitionId=2&repoName=azure-rtos%2Fgetting-started&branchName=master)
+<!-- markdown-link-check-enable-->
 
-This Getting Started guides shows device developers how to start working with Azure RTOS. Each guide will step through from installation of the required toolchain, to connecting the device to Azure IoT using IoT Plug and Play.
+The Getting Started guides will help you get started with Azure RTOS. Each guide will step through from toolchain installation to connecting the device to Azure IoT using IoT Plug and Play.
 
 For more information on Azure IoT Device Development:
 * [Azure IoT Device Development](https://docs.microsoft.com/azure/iot-develop) - Get started with Azure IoT device development
@@ -16,19 +24,24 @@ For more information on Azure IoT Device Development:
 
 ## Getting Started Guides
 
-The following board specific guides will get you started with Azure RTOS and Azure IoT:
+The following guides will get you started:
 
 * Microchip:
   * [ATSAME54-XPRO](Microchip/ATSAME54-XPRO)
-* MXCHIP: 
+
+* MXCHIP:
   * [AZ3166](MXChip/AZ3166)
-* NXP: 
+
+* NXP:
   * [MIMXRT1050-EVKB](NXP/MIMXRT1050-EVKB)
   * [MIMXRT1060-EVK](NXP/MIMXRT1060-EVK)
-* Renesas: 
+
+* Renesas:
   * [AE-Cloud2](Renesas/Synergy)
+  * [RX65N Cloud Kit](Renesas/RX65N_Cloud_Kit)
   * [RSK+RX65N-2MB](Renesas/RSK_RX65N_2MB)
-* STMicroelectronics: 
+
+* STMicroelectronics:
   * [B-L475E-IOT01A](STMicroelectronics/STM32L4_L4+)
   * [B-L4S5I-IOT01A](STMicroelectronics/STM32L4_L4+)
 

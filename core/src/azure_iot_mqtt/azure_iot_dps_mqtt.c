@@ -275,7 +275,7 @@ UINT azure_iot_dps_register(AZURE_IOT_MQTT* azure_iot_mqtt, UINT wait)
     status = nxd_dns_host_by_name_get(azure_iot_mqtt->nx_dns,
         (UCHAR*)AZURE_IOT_DPS_ENDPOINT,
         &server_ip,
-        NX_IP_PERIODIC_RATE,
+        5 * NX_IP_PERIODIC_RATE,
         NX_IP_VERSION_V4);
     if (status != NX_SUCCESS)
     {

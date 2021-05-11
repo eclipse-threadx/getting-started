@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
+    	
+    <storageModule moduleId="org.eclipse.cdt.core.settings">
+        		
+        <cconfiguration id="com.renesas.cdt.managedbuild.gcc.rx.configuration.debug.1583120861">
+            			
+            <storageModule moduleId="com.renesas.cdt.managedbuild.core.toolchainInfo">
+                				
+                <option id="toolchain.id" value="RENESAS_GCC_RX"/>
+                				
+                <option id="toolchain.version" value="8.3.0.202004"/>
+                			
+            </storageModule>
+            			
+            <storageModule moduleId="com.renesas.cdt.managedbuild.core.boardInfo">
+                				
+                <option id="board.id" value="CloudKitRX65N"/>
+                				
+                <option id="board.name" value="CloudKitRX65N"/>
+                				
+                <option id="board.device" value="R5F565NEDxFP"/>
+                			
+            </storageModule>
+            			
+            <storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+            		
+        </cconfiguration>
+        	
+    </storageModule>
+   
+</cproject>
