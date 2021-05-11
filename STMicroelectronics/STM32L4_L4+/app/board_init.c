@@ -378,6 +378,11 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
     }
 }
 
+int get_user_button(void)
+{
+    return ButtonPressed;
+}
+
 // WiFi interrupt handle
 void SPI3_IRQHandler(void)
 {

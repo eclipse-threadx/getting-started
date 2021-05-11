@@ -7,7 +7,7 @@
 #include "nx_api.h"
 #include "nxd_dns.h"
 
-#include "azure_config.h"
+#include "device_config.h"
 
 extern NX_IP          nx_ip;
 extern NX_PACKET_POOL nx_pool;

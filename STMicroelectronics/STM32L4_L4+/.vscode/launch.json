@@ -28,7 +28,7 @@
             "configFiles": [
                 "board/stm32l4discovery.cfg"
             ]
-        }
+        },
         {
             "name": "STM L475E: Remote",
             "type": "cortex-debug",

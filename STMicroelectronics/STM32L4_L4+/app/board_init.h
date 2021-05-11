@@ -10,5 +10,6 @@ extern UART_HandleTypeDef UartHandle;
 
 void board_init(void);
 int hardware_rand(void);
+int get_user_button(void);
 
 #endif // _BOARD_INIT_H

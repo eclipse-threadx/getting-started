@@ -64,8 +64,12 @@ __RAM_segment_used_end__ = 0;
 MEMORY
 {
 RAM (xrw)      : ORIGIN = 0x20000000, LENGTH = 640K
-FLASH (rx)      : ORIGIN = 0x8000000, LENGTH = 2048K
+FLASH (rx)      : ORIGIN = 0x8000000, LENGTH = 2040K
+DEVICEINFO (rx)      : ORIGIN = 0x81FE000, LENGTH = 8K
 }
+
+/* Custom address to be accessed from user C code */
+__DEVICEINFO = ORIGIN(DEVICEINFO);
 
 /* Define output sections */
 SECTIONS

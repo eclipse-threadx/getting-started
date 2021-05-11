@@ -13,6 +13,7 @@ set(SOURCES
     main.c
     nx_client.c
     stm_networking.c
+    prompt.c
 )
 
 function(create_target TARGET STARTUP LINKER)
@@ -25,6 +26,7 @@ function(create_target TARGET STARTUP LINKER)
         azrtos::threadx
         azrtos::netxduo
 
+        device_config
         stm32cubel4
         netx_driver
         app_common

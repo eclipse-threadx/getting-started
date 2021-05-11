@@ -12,8 +12,6 @@
 #include "json_utils.h"
 #include "sntp_client.h"
 
-#include "azure_config.h"
-
 #define IOT_MODEL_ID "dtmi:com:example:azurertos:gsg;1"
 
 #define TELEMETRY_INTERVAL_PROPERTY "telemetryInterval"
@@ -108,7 +106,7 @@ static void mqtt_device_twin_prop(AZURE_IOT_MQTT* iot_mqtt, CHAR* message)
     azure_iot_mqtt_publish_int_writeable_property(iot_mqtt, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
 }
 
-UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, ULONG (*time_get)(VOID))
+UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, ULONG (*time_get)(VOID), Device_Config_Info_t* device_info)
 {
     UINT status;
     ULONG events;
@@ -127,9 +125,9 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
         pool_ptr,
         dns_ptr,
         time_get,
-        IOT_DPS_ID_SCOPE,
-        IOT_DPS_REGISTRATION_ID,
-        IOT_DEVICE_SAS_KEY,
+        device_info->idscope,
+        device_info->registrationid,
+        device_info->sas,
         IOT_MODEL_ID);
 #else
     // Create Azure MQTT for Hub
@@ -138,9 +136,9 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
         pool_ptr,
         dns_ptr,
         time_get,
-        IOT_HUB_HOSTNAME,
-        IOT_HUB_DEVICE_ID,
-        IOT_DEVICE_SAS_KEY,
+        device_info->hostname,
+        device_info->deviceid,
+        device_info->sas,
         IOT_MODEL_ID);
 #endif
 

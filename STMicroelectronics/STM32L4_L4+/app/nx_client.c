@@ -186,7 +186,7 @@ static void device_twin_property_cb(UCHAR* component_name,
 }
 
 UINT azure_iot_nx_client_entry(
-    NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, UINT (*unix_time_callback)(ULONG* unix_time))
+    NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, UINT (*unix_time_callback)(ULONG* unix_time), Device_Config_Info_t* device_info)
 {
     UINT status;
     ULONG events = 0;
@@ -212,7 +212,7 @@ UINT azure_iot_nx_client_entry(
         (UCHAR*)iot_x509_private_key,
         iot_x509_private_key_len);
 #else
-    status = azure_iot_nx_client_sas_set(&azure_iot_nx_client, IOT_DEVICE_SAS_KEY);
+    status = azure_iot_nx_client_sas_set(&azure_iot_nx_client, device_info->sas);
 #endif
     if (status != NX_SUCCESS)
     {
@@ -221,9 +221,9 @@ UINT azure_iot_nx_client_entry(
     }
 
 #ifdef ENABLE_DPS
-    status = azure_iot_nx_client_dps_create(&azure_iot_nx_client, IOT_DPS_ID_SCOPE, IOT_DPS_REGISTRATION_ID);
+    azure_iot_nx_client_dps_create(&azure_iot_nx_client, device_info->idscope, device_info->registrationid);
 #else
-    status = azure_iot_nx_client_hub_create(&azure_iot_nx_client, IOT_HUB_HOSTNAME, IOT_HUB_DEVICE_ID);
+    azure_iot_nx_client_hub_create(&azure_iot_nx_client, device_info->hostname, device_info->deviceid);
 #endif
     if (status != NX_SUCCESS)
     {

@@ -14,8 +14,9 @@
 #include "nx_client.h"
 
 #include "azure_config.h"
+#include "prompt.h"
 
-#define AZURE_THREAD_STACK_SIZE 4096
+#define AZURE_THREAD_STACK_SIZE 5120
 #define AZURE_THREAD_PRIORITY   4
 
 TX_THREAD azure_thread;
@@ -30,8 +31,29 @@ void azure_thread_entry(ULONG parameter)
 
     printf("\r\nStarting Azure thread\r\n\r\n");
 
-    // Initialize the network
-    if (stm32_network_init(WIFI_SSID, WIFI_PASSWORD, WIFI_MODE) != NX_SUCCESS)
+    Device_Config_Info_t device_info;
+
+#ifdef ENABLE_DEVICECONFIG
+    printf("Using serial device configuration \n\n");
+    serial_setup();
+    status = read_flash(&device_info);
+
+    if (status != STATUS_OK) 
+    {
+      printf("Unable to read credentials from flash.\n");
+      return;
+    }
+#else
+    strcpy(device_info.idscope, IOT_DPS_ID_SCOPE);
+    strcpy(device_info.registrationid, IOT_DPS_REGISTRATION_ID);
+    strcpy(device_info.hostname, IOT_HUB_HOSTNAME);
+    strcpy(device_info.deviceid, IOT_HUB_DEVICE_ID);
+    strcpy(device_info.sas, IOT_DEVICE_SAS_KEY);
+    strcpy(device_info.ssid, WIFI_SSID);
+    strcpy(device_info.pswd, WIFI_PASSWORD);
+#endif
+
+    if (stm32_network_init(device_info.ssid, device_info.pswd, WIFI_MODE) != NX_SUCCESS)
     {
         printf("Failed to initialize the network\r\n");
         return;
@@ -54,9 +76,9 @@ void azure_thread_entry(ULONG parameter)
     }
 
 #ifdef ENABLE_LEGACY_MQTT
-    if ((status = azure_iot_mqtt_entry(&nx_ip, &nx_pool, &nx_dns_client, sntp_time_get)))
+    if ((status = azure_iot_mqtt_entry(&nx_ip, &nx_pool, &nx_dns_client, sntp_time_get, &device_info)))
 #else
-    if ((status = azure_iot_nx_client_entry(&nx_ip, &nx_pool, &nx_dns_client, sntp_time)))
+    if ((status = azure_iot_nx_client_entry(&nx_ip, &nx_pool, &nx_dns_client, sntp_time, &device_info)))
 #endif
     {
         printf("Failed to run Azure IoT (0x%04x)\r\n", status);
