@@ -23,8 +23,6 @@ include(${GSG_BASE_DIR}/cmake/utilities.cmake)
 # Define the Project
 project(rx65n_azure_iot C ASM)
 
-set(DISABLE_NEWLIB_STUB true)
-
 add_subdirectory(${CORE_SRC_DIR} core_src)
 add_subdirectory(lib)
 add_subdirectory(app)
