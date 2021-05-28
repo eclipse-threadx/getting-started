@@ -62,6 +62,8 @@ void R_Config_SCI8_Create_UserInit(void)
 {
     /* Start user code for user init. Do not edit comment generated here */
     /* End user code. Do not edit comment generated here */
+    void printf_init(void);
+    printf_init();    
 }
 
 /***********************************************************************************************************************

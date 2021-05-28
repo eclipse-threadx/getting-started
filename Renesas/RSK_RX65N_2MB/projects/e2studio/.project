@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>rsk_rx65n_2mb</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.cdt.core.cnature</nature>
+	</natures>
+	<linkedResources>
+		<link>
+			<name>RSK_RX65N_2MB.scfg</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/lib/rx_driver_package/RSK_RX65N_2MB.scfg</locationURI>
+		</link>
+	</linkedResources>
+</projectDescription>
