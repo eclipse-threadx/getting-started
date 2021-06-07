@@ -13,7 +13,7 @@ products:
 
 # Connect an STMicroelectronics B-L475E-IOT01A / B-L4S5I-IOTOA1 Discovery kit to Azure IoT
 
-[![Quickstart article](../../docs/media/docs-link-buttons/azure-quickstart.svg)](https://docs.microsoft.com/en-us/azure/iot-develop/quickstart-devkit-stm-b-l475e)
+[![Quickstart article](../../docs/media/docs-link-buttons/azure-quickstart.svg)](https://docs.microsoft.com/azure/iot-develop/quickstart-devkit-stm-b-l475e)
 [![Documentation](../../docs/media/docs-link-buttons/azure-documentation.svg)](https://docs.microsoft.com/azure/iot-develop/)
 
 The **Quickstart** button above provides the complete steps for creating an IoT Central application and then configuring, building and flashing the device.
@@ -44,7 +44,7 @@ For guidance on connecting additional devices, see the series [Getting started w
 1. Build the binary image:
 
     *getting-started\STMicroelectronics\STM32L4_L4+\tools\rebuild.bat*
-1. Flash the image to the device by copying the image file to the **AZ3166** drive:
+1. Flash the image to the device by copying the image file to the **DIS_L4IOT** drive:
 
     *getting-started\STMicroelectronics\STM32L4_L4+\build\app\stm32l475_azure_iot.bin*; or
 
