@@ -28,8 +28,6 @@ For guidance on connecting additional devices, see the series [Getting started w
 
 ## Basic steps
 
-Here are the basic steps to setup your device:
-
 1. Recursively clone the repository:
     ```shell
     git clone --recursive https://github.com/azure-rtos/getting-started.git
