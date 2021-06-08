@@ -180,9 +180,15 @@ Follow description in test specification *getting-started\SiliconLabs\EFR32MG12\
 
 ### Set up your Kit
 
+1. Plug in the Mighty Gecko radio board
+
+1. Plug in the WF200 Wi-Fi EXP Board
+
 1. Ensure that the power selector switch on the EFR32MG12 MCU Starter Kit is in the [AEM] position.
 
-2. Provide power by connecting the [DBG] USB connector on the Starter Kit to the PC using the provided USB cable.
+1. Ensure the WF200 EXP Board is switched to SPI mode
+
+1. Provide power by connecting the [DBG] USB connector on the Starter Kit to the PC using the provided USB cable.
 
 ![Silicon Labs Starter Kit device reset](media/efr32mg12-dev-kit.PNG)
 

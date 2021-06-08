@@ -11,8 +11,11 @@
         "git.ignoreLimitWarning": true,
         "git.autofetch": true,
         "git.confirmSync": false,
-        "cmake.configureOnOpen": true,
         "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
-        "cmake.generator": "Ninja"
+        "cmake.configureOnOpen": true,
+        "cmake.generator": "Ninja",
+        "cmake.buildDirectory": "${workspaceFolder}/build",
+        "vscode-embedded.registerViewer.svd.path": ".vscode/EFR32MG12P332F1024GM48.svd",
+        "vscode-embedded.registerViewer.useMock": false,
     }
 }

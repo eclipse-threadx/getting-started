@@ -1,4 +1,5 @@
-# Azure Iot Hub sample for EFR32MG12
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 
 set(LINKER_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/startup/efr32mg12p.ld")
 

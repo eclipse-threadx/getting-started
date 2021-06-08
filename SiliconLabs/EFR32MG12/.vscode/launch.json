@@ -2,15 +2,6 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "EFR32MG12: Local J-Link",
-            "type": "cortex-debug",
-            "request": "launch",
-            "servertype":"jlink",
-            "runToMain": true,
-            "executable": "${workspaceFolder}/build/app/efr32mg12_azure_iot.elf",
-            "device": "EFR32MG12PXXXF1024"
-        },
-        {
             "name": "EFR32MG12: J-Link",
             "type": "cppdbg",
             "request": "launch",
@@ -31,6 +22,16 @@
             //     "limit": 8
             // },
             "preLaunchTask": "Deploy (J-Link)"
-        }        
+        },
+        {
+            "name": "EFR32MG12: Cortex-Debug J-Link",
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype":"jlink",
+            "runToMain": true,
+            "executable": "${workspaceFolder}/build/app/efr32mg12_azure_iot.elf",
+            "device": "EFR32MG12PXXXF1024",
+            "svdFile": "${workspaceFolder}/.vscode/EFR32MG12P332F1024GM48.svd",
+        }
     ]
 }

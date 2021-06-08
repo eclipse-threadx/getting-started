@@ -1,3 +1,5 @@
+/* Copyright (c) Microsoft Corporation.
+   Licensed under the MIT License. */
 
 #include "nx_client.h"
 
@@ -139,7 +141,7 @@ static void direct_method_cb(AZURE_IOT_NX_CONTEXT* nx_context,
     {
         bool arg = (strncmp((CHAR*)payload, "true", payload_length) == 0);
 
-        // Set led state
+        // Set LED state
         set_led_state(arg);
 
         // Sync device twin state
