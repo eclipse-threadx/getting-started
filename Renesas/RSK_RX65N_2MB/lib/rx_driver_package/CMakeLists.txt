@@ -16,7 +16,6 @@ set(SOURCES
 
     src/smc_gen/r_bsp/mcu/all/dbsct.c
     src/smc_gen/r_bsp/mcu/all/lowlvl.c
-    src/smc_gen/r_bsp/mcu/all/lowsrc.c
     src/smc_gen/r_bsp/mcu/all/mcu_locks.c
     src/smc_gen/r_bsp/mcu/all/r_bsp_common.c
     src/smc_gen/r_bsp/mcu/all/r_bsp_cpu.c
