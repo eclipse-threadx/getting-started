@@ -334,7 +334,7 @@
         <Item currentVect="97" id="PDC_PCDFI" priority="15" usedState="Not Use"/>
         <Item currentVect="98" id="SCI7_RXI7" priority="15" usedState="Not Use"/>
         <Item currentVect="99" id="SCI7_TXI7" priority="15" usedState="Not Use"/>
-        <Item currentVect="100" id="SCI8_RXI8" priority="15" usedState="Used"/>
+        <Item currentVect="100" id="SCI8_RXI8" priority="15" usedState="Not Use"/>
         <Item currentVect="101" id="SCI8_TXI8" priority="15" usedState="Used"/>
         <Item currentVect="102" id="SCI9_RXI9" priority="15" usedState="Not Use"/>
         <Item currentVect="103" id="SCI9_TXI9" priority="15" usedState="Not Use"/>
@@ -491,7 +491,6 @@
     </tool>
     <tool id="Pins" version="1.0.1.0">
         <pinItem allocation="22" comments="" direction="None" id="XTAL" isUsedBySoftware="true" locked="false" status="0"/>
-        <pinItem allocation="59" comments="" direction="None" id="RXD8" isUsedBySoftware="true" locked="false" status="0"/>
         <pinItem allocation="113" comments="" direction="O" id="PG6" isUsedBySoftware="true" locked="false" status="0"/>
         <pinItem allocation="116" comments="" direction="O" id="PG5" isUsedBySoftware="true" locked="false" status="0"/>
         <pinItem allocation="111" comments="" direction="O" id="PG7" isUsedBySoftware="true" locked="false" status="0"/>
@@ -648,7 +647,7 @@
                 <gridItem id="BSP_CFG_IO_LIB_ENABLE" selectedIndex="0"/>
                 <gridItem id="BSP_CFG_USER_CHARGET_ENABLED" selectedIndex="0"/>
                 <gridItem id="BSP_CFG_USER_CHARGET_FUNCTION" selectedIndex="my_sw_charget_function"/>
-                <gridItem id="BSP_CFG_USER_CHARPUT_ENABLED" selectedIndex="1"/>
+                <gridItem id="BSP_CFG_USER_CHARPUT_ENABLED" selectedIndex="0"/>
                 <gridItem id="BSP_CFG_USER_CHARPUT_FUNCTION" selectedIndex="my_sw_charput_function"/>
                 <gridItem id="BSP_CFG_RUN_IN_USER_MODE" selectedIndex="0"/>
                 <gridItem id="BSP_CFG_ID_CODE_LONG_1" selectedIndex="0xFFFFFFFF"/>
@@ -696,10 +695,6 @@
         <configuration id="90b40387-372b-486f-8ce7-3618e7b05c91" inuse="true" name="Config_SCI8">
             <allocatable id="SCI8">
                 <isocket id="CountingClockB" selection="Clock.tool_clock_pclkb" value="6.0E7"/>
-                <option enabled="true" id="BitEdge" selection="LowLevel">
-                    <item id="LowLevel" input="" vlaue="0"/>
-                    <item id="FallEdge" input="" vlaue="0"/>
-                </option>
                 <option enabled="true" id="DataLength" selection="8Bits">
                     <item id="9Bits" input="" vlaue="0"/>
                     <item id="8Bits" input="" vlaue="0"/>
@@ -737,7 +732,7 @@
                     <item id="325000" input="325000" vlaue="0"/>
                     <item id="375000" input="375000" vlaue="0"/>
                 </option>
-                <option enabled="true" id="DutyCorrection" selection="Disable">
+                <option enabled="true" id="DutyCorrection" selection="Enable">
                     <item id="Enable" input="" vlaue="0"/>
                     <item id="Disable" input="" vlaue="0"/>
                 </option>
@@ -745,24 +740,11 @@
                     <item id="SckUnuse" input="" vlaue="0"/>
                     <item id="ClkOut" input="" vlaue="0"/>
                 </option>
-                <option enabled="true" id="NoiseFilt" selection="Disable">
-                    <item id="Enable" input="" vlaue="0"/>
-                    <item id="Disable" input="" vlaue="0"/>
-                </option>
-                <option enabled="false" id="FiltClk" selection="Div1">
-                    <item id="Div1" input="" vlaue="0"/>
-                </option>
                 <option enabled="true" id="FlowControl" selection="None">
                     <item id="None" input="" vlaue="0"/>
                     <item id="CTS" input="" vlaue="0"/>
-                    <item id="RTS" input="" vlaue="0"/>
                 </option>
                 <option enabled="true" id="TransDataHandle" selection="ISR">
-                    <item id="ISR" input="" vlaue="0"/>
-                    <item id="DMAC" input="" vlaue="0"/>
-                    <item id="DTC" input="" vlaue="0"/>
-                </option>
-                <option enabled="true" id="RecvDataHandle" selection="ISR">
                     <item id="ISR" input="" vlaue="0"/>
                     <item id="DMAC" input="" vlaue="0"/>
                     <item id="DTC" input="" vlaue="0"/>
@@ -784,28 +766,6 @@
                     <item id="Level13" input="" vlaue="0"/>
                     <item id="Level14" input="" vlaue="0"/>
                     <item id="Level15" input="" vlaue="0"/>
-                </option>
-                <option enabled="true" id="RXIPriority" selection="Level15">
-                    <item id="Level0" input="" vlaue="0"/>
-                    <item id="Level1" input="" vlaue="0"/>
-                    <item id="Level2" input="" vlaue="0"/>
-                    <item id="Level3" input="" vlaue="0"/>
-                    <item id="Level4" input="" vlaue="0"/>
-                    <item id="Level5" input="" vlaue="0"/>
-                    <item id="Level6" input="" vlaue="0"/>
-                    <item id="Level7" input="" vlaue="0"/>
-                    <item id="Level8" input="" vlaue="0"/>
-                    <item id="Level9" input="" vlaue="0"/>
-                    <item id="Level10" input="" vlaue="0"/>
-                    <item id="Level11" input="" vlaue="0"/>
-                    <item id="Level12" input="" vlaue="0"/>
-                    <item id="Level13" input="" vlaue="0"/>
-                    <item id="Level14" input="" vlaue="0"/>
-                    <item id="Level15" input="" vlaue="0"/>
-                </option>
-                <option enabled="true" id="ERIEnable" selection="Enable">
-                    <item id="Enable" input="" vlaue="0"/>
-                    <item id="Disable" input="" vlaue="0"/>
                 </option>
                 <option enabled="true" id="ERIPriority" selection="Level15">
                     <item id="Level0" input="" vlaue="0"/>
@@ -829,19 +789,11 @@
                     <item id="Enable" input="" vlaue="0"/>
                     <item id="Disable" input="" vlaue="0"/>
                 </option>
-                <option enabled="true" id="RecvEnd" selection="Enable">
-                    <item id="Enable" input="" vlaue="0"/>
-                    <item id="Disable" input="" vlaue="0"/>
-                </option>
-                <option enabled="true" id="RecvError" selection="Enable">
-                    <item id="Enable" input="" vlaue="0"/>
-                    <item id="Disable" input="" vlaue="0"/>
-                </option>
             </allocatable>
             <component description="This software component provides configurations for SCI(SCIF) single(multi-processor) asynchronous mode." detailDescription="" display="SCI/SCIF Asynchronous Mode" id="com.renesas.smc.tools.swcomponent.codegenerator.sciasyncmode" version="1.9.1"/>
             <allocator channelLevel0="8" channelLevel1="" channelLevel2="" channelLevel3="" channelLevel4="" channelLevel5="" description="SCI channel 8" display="SCI8" id="com.renesas.smc.tools.swcomponent.codegenerator.sciasync.rx651.sci8" type="">
                 <context>
-                    <option enabled="true" id="Mode" selection="BothMode">
+                    <option enabled="true" id="Mode" selection="TransMode">
                         <item enabled="true" id="TransMode"/>
                         <item enabled="true" id="RecvMode"/>
                         <item enabled="true" id="BothMode"/>

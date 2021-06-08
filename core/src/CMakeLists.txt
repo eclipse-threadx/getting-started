@@ -26,7 +26,7 @@ if(NOT DEFINED DISABLE_COMMON_NETWORK)
     )
 endif()
 
-# Allow to disable the common networking component
+# Allow to disable the newlib stubbing
 if(NOT DEFINED DISABLE_NEWLIB_STUB) 
     list(APPEND SOURCES
         newlib_nano.c

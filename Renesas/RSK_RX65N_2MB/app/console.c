@@ -36,16 +36,27 @@ void printf_transmit_end(void)
     tx_semaphore_put(&printf_semaphore);
 }
 
-void my_sw_charput_function(char c)
+int read(int file, char* ptr, int len)
+{
+    int DataIdx;
+
+    for (DataIdx = 0; DataIdx < len; DataIdx++)
+    {
+        *ptr++ = charget();
+    }
+
+    return len;
+}
+
+int write(int file, char* ptr, int len)
 {
     tx_mutex_get(&printf_mutex, TX_WAIT_FOREVER);
 
-    R_Config_SCI8_Serial_Send(&c, 1u);
+    R_Config_SCI8_Serial_Send(ptr, len);
 
     tx_semaphore_get(&printf_semaphore, TX_WAIT_FOREVER);
 
     tx_mutex_put(&printf_mutex);
 
-    return;
+    return len;
 }
-
