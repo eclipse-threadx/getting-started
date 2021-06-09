@@ -41,6 +41,9 @@ The following guides will get you started:
   * [RX65N Cloud Kit](Renesas/RX65N_Cloud_Kit)
   * [RSK+RX65N-2MB](Renesas/RSK_RX65N_2MB)
 
+* Silicon Labs
+  * [EFR32MG12](SiliconLabs/EFR32MG12)
+
 * STMicroelectronics:
   * [B-L475E-IOT01A](STMicroelectronics/STM32L4_L4+)
   * [B-L4S5I-IOT01A](STMicroelectronics/STM32L4_L4+)
