@@ -242,7 +242,7 @@ You can use the **Termite** utility to monitor communication and confirm that yo
     Initializing Azure IoT Hub client
     	Hub hostname: ***
     	Device id: ***
-    	Model id: dtmi:azurertos:devkit:gsg;1
+    	Model id: dtmi:azurertos:devkit:gsg;2
     Connected to IoTHub
     SUCCESS: Azure IoT Hub client initialized
 
