@@ -19,7 +19,7 @@
 
 #include "platform.h"
 
-#define IOT_MODEL_ID "dtmi:azurertos:devkit:gsg;1"
+#define IOT_MODEL_ID "dtmi:azurertos:devkit:gsg;2"
 
 #define TELEMETRY_TEMPERATURE       "temperature"
 #define TELEMETRY_INTERVAL_PROPERTY "telemetryInterval"
