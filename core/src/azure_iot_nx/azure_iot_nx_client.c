@@ -301,8 +301,18 @@ static UINT azure_iot_nx_client_hub_create_internal(AZURE_IOT_NX_CONTEXT* contex
         return status;
     }
 
+    /* Add more CA certificates.  */
+    if ((status = nx_azure_iot_hub_client_trusted_cert_add(&context->iothub_client, &context->root_ca_cert_2)))
+    {
+        printf("Failed on nx_azure_iot_hub_client_trusted_cert_add!: error code = 0x%08x\r\n", status);
+    }
+    else if ((status = nx_azure_iot_hub_client_trusted_cert_add(&context->iothub_client, &context->root_ca_cert_3)))
+    {
+        printf("Failed on nx_azure_iot_hub_client_trusted_cert_add!: error code = 0x%08x\r\n", status);
+    }
+
     // Set credentials
-    if (context->azure_iot_auth_mode == AZURE_IOT_AUTH_MODE_SAS)
+    else if (context->azure_iot_auth_mode == AZURE_IOT_AUTH_MODE_SAS)
     {
         // Symmetric (SAS) Key
         if ((status = nx_azure_iot_hub_client_symmetric_key_set(&context->iothub_client,
@@ -520,6 +530,34 @@ UINT azure_iot_nx_client_create(AZURE_IOT_NX_CONTEXT* context,
         return status;
     }
 
+    if ((status = nx_secure_x509_certificate_initialize(&context->root_ca_cert_2,
+             (UCHAR*)azure_iot_root_ca_2,
+             (USHORT)azure_iot_root_ca_len_2,
+             NX_NULL,
+             0,
+             NULL,
+             0,
+             NX_SECURE_X509_KEY_TYPE_NONE)))
+    {
+        printf("Failed to initialize ROOT CA certificate!: error code = 0x%08x\r\n", status);
+        nx_azure_iot_delete(&context->nx_azure_iot);
+        return status;
+    }
+
+    if ((status = nx_secure_x509_certificate_initialize(&context->root_ca_cert_3,
+             (UCHAR*)azure_iot_root_ca_3,
+             (USHORT)azure_iot_root_ca_len_3,
+             NX_NULL,
+             0,
+             NULL,
+             0,
+             NX_SECURE_X509_KEY_TYPE_NONE)))
+    {
+        printf("Failed to initialize ROOT CA certificate!: error code = 0x%08x\r\n", status);
+        nx_azure_iot_delete(&context->nx_azure_iot);
+        return status;
+    }
+
     return NX_AZURE_IOT_SUCCESS;
 }
 
@@ -597,8 +635,18 @@ UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CONTEXT* context, CHAR* dps_id_
         return status;
     }
 
+    /* Add more CA certificates.  */
+    if ((status = nx_azure_iot_provisioning_client_trusted_cert_add(&context->dps_client, &context->root_ca_cert_2)))
+    {
+        printf("Failed on nx_azure_iot_hub_client_trusted_cert_add!: error code = 0x%08x\r\n", status);
+    }
+    else if ((status = nx_azure_iot_provisioning_client_trusted_cert_add(&context->dps_client, &context->root_ca_cert_3)))
+    {
+        printf("Failed on nx_azure_iot_hub_client_trusted_cert_add!: error code = 0x%08x\r\n", status);
+    }
+
     // Set credentials
-    if (context->azure_iot_auth_mode == AZURE_IOT_AUTH_MODE_SAS)
+    else if (context->azure_iot_auth_mode == AZURE_IOT_AUTH_MODE_SAS)
     {
         // Symmetric (SAS) Key
         if ((status = nx_azure_iot_provisioning_client_symmetric_key_set(&context->dps_client,
