@@ -104,12 +104,14 @@ static void set_led_state(bool level)
         printf("LED is turned ON\r\n");
         // The User LED on the board shares the same pin as ENET RST (ethernet IC reset) so is unusable
         // USER_LED_ON();
+        tx_thread_sleep(5);
     }
     else
     {
         printf("LED is turned OFF\r\n");
         // The User LED on the board shares the same pin as ENET RST (ethernet IC reset) so is unusable
         // USER_LED_OFF();
+        tx_thread_sleep(5);
     }
 }
 
