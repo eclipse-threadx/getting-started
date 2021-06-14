@@ -50,4 +50,4 @@ For guidance on connecting additional devices, see the [Embedded device quicksta
 
     *getting-started\NXP\MIMXRT106-EVK\build\app\mimxrt1060_azure_iot.bin*;
 
-1. Configure a serial port app at baud rate **115,200** to monitor the debug output from the device
+1. Configure a serial port app at baud rate **115,200** to monitor the device output.

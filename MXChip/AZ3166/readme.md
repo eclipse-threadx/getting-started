@@ -49,4 +49,4 @@ For guidance on connecting additional devices, see the [Embedded device quicksta
 
     *getting-started\MXChip\AZ3166\build\app\mxchip_azure_iot.bin*
 
-1. Configure a serial port app at baud rate **115,200** to monitor the debug output from the device
+1. Configure a serial port app at baud rate **115,200** to monitor the device output.

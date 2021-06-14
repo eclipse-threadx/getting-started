@@ -34,9 +34,11 @@ For guidance on connecting additional devices, see the [Embedded device quicksta
     ```shell
     git clone --recursive https://github.com/azure-rtos/getting-started.git
     ```
+
 1. Install the development tools:
 
     *getting-started\tools\get-toolchain.bat*
+
 1. Add Wi-Fi and Azure IoT configuration to the config file:
     
     *getting-started\STMicroelectronics\STM32L4_L4+\app\azure_config.h*
@@ -44,9 +46,11 @@ For guidance on connecting additional devices, see the [Embedded device quicksta
 1. Build the binary image:
 
     *getting-started\STMicroelectronics\STM32L4_L4+\tools\rebuild.bat*
+
 1. Flash the image to the device by copying the image file to the **DIS_L4IOT** drive:
 
     *getting-started\STMicroelectronics\STM32L4_L4+\build\app\stm32l475_azure_iot.bin*; or
 
     *getting-started\STMicroelectronics\STM32L4_L4+\build\app\stm32l4S5_azure_iot.bin*
-1. Configure a serial port app at baud rate **115,200** to monitor the debug output from the device
+
+1. Configure a serial port app at baud rate **115,200** to monitor the device output.
