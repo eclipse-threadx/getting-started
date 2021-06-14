@@ -18,7 +18,7 @@ products:
 
 The **Quickstart** button above provides the complete steps for creating an IoT Central application and then configuring, building and flashing the device.
 
-For guidance on connecting additional devices, see the series [Getting started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824).
+For guidance on connecting additional devices, see the [Embedded device quickstarts](https://docs.microsoft.com/en-us/azure/iot-develop/quickstart-devkit-mxchip-az3166).
 
 ## What you need
 
