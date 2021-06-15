@@ -28,7 +28,7 @@ For guidance on connecting additional devices, see the [Embedded device quicksta
 * Ethernet cable
 * Wired Ethernet access
 
-## Basic steps
+## Steps
 
 1. Recursively clone the repository:
     ```shell

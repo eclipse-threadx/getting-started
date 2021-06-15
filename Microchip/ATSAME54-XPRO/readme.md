@@ -30,7 +30,7 @@ For guidance on connecting additional devices, see the [Embedded device quicksta
     * [Weather Click](https://www.mikroe.com/weather-click) sensor. You can add this sensor to the device to monitor weather conditions. If you don't have this sensor, you can still complete this tutorial.
     * [mikroBUS Xplained Pro](https://www.microchip.com/Developmenttools/ProductDetails/ATMBUSADAPTER-XPRO) adapter. Use this adapter to attach the Weather Click sensor to the Microchip E54. If you don't have the sensor and this.
 
-## Basic steps
+## Steps
 
 1. Recursively clone the repository:
     ```shell
