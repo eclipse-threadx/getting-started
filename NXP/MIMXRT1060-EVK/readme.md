@@ -18,7 +18,7 @@ products:
 
 The **Quickstart** button above provides the complete steps for creating an IoT Central application and then configuring, building and flashing the device.
 
-For guidance on connecting additional devices, see the [Embedded device quickstarts](https://docs.microsoft.com/en-us/azure/iot-develop/quickstart-devkit-mxchip-az3166).
+For guidance on connecting additional devices, see the [Embedded device quickstarts](https://docs.microsoft.com/azure/iot-develop/quickstart-devkit-mxchip-az3166).
 
 ## What you need
 
@@ -48,6 +48,6 @@ For guidance on connecting additional devices, see the [Embedded device quicksta
 
 1. Flash the image to the device by copying the image file to the **RT1060-EVK** drive:
 
-    *getting-started\NXP\MIMXRT106-EVK\build\app\mimxrt1060_azure_iot.bin*;
+    *getting-started\NXP\MIMXRT106-EVK\build\app\mimxrt1060_azure_iot.bin*
 
 1. Configure a serial port app at baud rate **115,200** to monitor the device output.
