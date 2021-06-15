@@ -13,7 +13,7 @@ products:
 
 # Connect an Microchip ATSAME54-XPro evaluation kit to Azure IoT
 
-[![Quickstart article](../../docs/media/docs-link-buttons/azure-quickstart.svg)](https://docs.microsoft.com/azure/iot-develop/quickstart-devkit-microchip-atsame54-xproe)
+[![Quickstart article](../../docs/media/docs-link-buttons/azure-quickstart.svg)](https://docs.microsoft.com/azure/iot-develop/quickstart-devkit-microchip-atsame54-xpro)
 [![Documentation](../../docs/media/docs-link-buttons/azure-documentation.svg)](https://docs.microsoft.com/azure/iot-develop/)
 
 The **Quickstart** button above provides the complete steps for creating an IoT Central application and then configuring, building and flashing the device.
