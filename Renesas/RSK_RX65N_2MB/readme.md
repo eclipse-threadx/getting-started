@@ -60,7 +60,6 @@ For guidance on connecting additional devices, see the [Embedded device quicksta
     * **Microcontroller**: RX65x
     * **Project Name**: RX65N
     * **Tool**: E2 emulator Lite
-    * **Interface**: FINE
     * **Reset Settings**: Reset Pin as Hi-Z
 
     *getting-started\Renesas\RSK_RX65N_2MB\build\app\rx65n_azure_iot.hex*
