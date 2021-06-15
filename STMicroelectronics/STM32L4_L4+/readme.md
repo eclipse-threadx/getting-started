@@ -28,7 +28,7 @@ For guidance on connecting additional devices, see the [Embedded device quicksta
 * Wi-Fi 2.4 GHz
 * USB 2.0 A male to Micro USB male cable
 
-## Basic steps
+## Steps
 
 1. Recursively clone the repository:
     ```shell
