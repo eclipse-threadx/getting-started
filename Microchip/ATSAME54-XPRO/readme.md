@@ -45,15 +45,15 @@ For guidance on connecting additional devices, see the [Embedded device quicksta
 
 1. Add Azure IoT configuration to the config file:
     
-    *getting-started\MXChip\AZ3166\app\azure_config.h*
+    *getting-started\Microchip\ATSAME54-XPRO\app\azure_config.h*
     
 1. Build the binary image:
 
-    *getting-started\MXChip\AZ3166\tools\rebuild.bat*
+    *getting-started\Microchip\ATSAME54-XPRO\tools\rebuild.bat*
 
 1. Flash the image to the device:
 
-    *getting-started\MXChip\AZ3166\tools\flash.bat*
+    *getting-started\Microchip\ATSAME54-XPRO\tools\flash.bat*
 
 1. Configure a serial port app the device output:
     * **Baud Rate**: 115,200
