@@ -18,7 +18,7 @@ products:
 
 The **Quickstart** button above provides the complete steps for creating an IoT Central application and then configuring, building and flashing the device.
 
-For guidance on connecting additional devices, see the series [Getting started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824).
+For guidance on connecting additional devices, see the [Embedded device quickstarts](https://docs.microsoft.com/azure/iot-develop/quickstart-devkit-mxchip-az3166).
 
 ## What you need
 
@@ -27,23 +27,27 @@ For guidance on connecting additional devices, see the series [Getting started w
 * Wired Ethernet access
 * Ethernet cable
 
-## Basic steps
+## Steps
 
 1. Recursively clone the repository:
     ```shell
     git clone --recursive https://github.com/azure-rtos/getting-started.git
     ```
+
 1. Install the development tools:
 
     *getting-started\tools\get-toolchain.bat*
-1. Add Wi-Fi and Azure IoT configuration to the config file:
+
+1. Add Azure IoT configuration to the config file:
     
     *getting-started\NXP\MIMXRT1060-EVK\app\azure_config.h*
     
 1. Build the binary image:
 
     *getting-started\NXP\MIMXRT106-EVK\tools\rebuild.bat*
+
 1. Flash the image to the device by copying the image file to the **RT1060-EVK** drive:
 
-    *getting-started\NXP\MIMXRT106-EVK\build\app\mimxrt1060_azure_iot.bin*;
-1. Configure a serial port app at baud rate **115,200** to monitor the debug output from the device
+    *getting-started\NXP\MIMXRT106-EVK\build\app\mimxrt1060_azure_iot.bin*
+
+1. Configure a serial port app at baud rate **115,200** to monitor the device output.
