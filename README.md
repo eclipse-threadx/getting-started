@@ -14,14 +14,14 @@ The following guides will get you started:
 
 |Device|Build Status|Device Lab Status|
 |---|--:|--:|
-|[Microchip ATSAME54-XPRO](Microchip/ATSAME54-XPRO)|![](https://github.com/azure-rtos/getting-started/workflows/ATSAME54-XPRO/badge.svg)|![](https://dev.azure.com/azure-iot-dde/Azure%20RTOS%20GSG/_apis/build/status/gsg.microchip.atsame54xpro?repoName=azure-rtos%2Fgetting-started&branchName=master&jobName=Microchip_Build)|
-|[MXCHIP AZ3166](MXChip/AZ3166)|![](https://github.com/azure-rtos/getting-started/workflows/AZ3166/badge.svg)|![](https://dev.azure.com/azure-iot-dde/Azure%20RTOS%20GSG/_apis/build/status/gsg.mxchip.az3166?repoName=azure-rtos%2Fgetting-started&branchName=master&jobName=MXCHIP_Build)|
+|[Microchip ATSAME54-XPRO](Microchip/ATSAME54-XPRO)|![](https://github.com/azure-rtos/getting-started/workflows/ATSAME54-XPRO/badge.svg)|![](https://expresslogic.visualstudio.com/DeviceLab%20AzureRTOS%20GSG/_apis/build/status/azure-rtos.getting-started.microchip.atsame54xpro?repoName=azure-rtos%2Fgetting-started&branchName=master)|
+|[MXCHIP AZ3166](MXChip/AZ3166)|![](https://github.com/azure-rtos/getting-started/workflows/AZ3166/badge.svg)|![](https://expresslogic.visualstudio.com/DeviceLab%20AzureRTOS%20GSG/_apis/build/status/azure-rtos.getting-started.mxchip.az3166?repoName=azure-rtos%2Fgetting-started&branchName=master)|
 |[NXP MIMXRT1050-EVKB](NXP/MIMXRT1050-EVKB)|![](https://github.com/azure-rtos/getting-started/workflows/MIMXRT1050-EVKB/badge.svg)||
-|[NXP MIMXRT1060-EVK](NXP/MIMXRT1060-EVK)|![](https://github.com/azure-rtos/getting-started/workflows/MIMXRT1060-EVK/badge.svg)|![](https://dev.azure.com/azure-iot-dde/Azure%20RTOS%20GSG/_apis/build/status/gsg.nxp.mimxrt1060evk?repoName=azure-rtos%2Fgetting-started&branchName=master&jobName=NXP_Build)|
+|[NXP MIMXRT1060-EVK](NXP/MIMXRT1060-EVK)|![](https://github.com/azure-rtos/getting-started/workflows/MIMXRT1060-EVK/badge.svg)|![](https://expresslogic.visualstudio.com/DeviceLab%20AzureRTOS%20GSG/_apis/build/status/azure-rtos.getting-started.nxp.1060evk?repoName=azure-rtos%2Fgetting-started&branchName=master)|
 |[Renesas AE-Cloud2](Renesas/Synergy)|||
 |[Renesas RX65N Cloud Kit](Renesas/RX65N_Cloud_Kit)|![](https://github.com/azure-rtos/getting-started/workflows/RX65N-Cloud-Kit/badge.svg)||
 |[Renesas RSK+RX65N-2MB](Renesas/RSK_RX65N_2MB)|![](https://github.com/azure-rtos/getting-started/workflows/RSK-RX65N-2MB/badge.svg)||
-|[STMicroelectronics B-L475E-IOT01A](STMicroelectronics/STM32L4_L4+)|![](https://github.com/azure-rtos/getting-started/workflows/STM32L4_L4+/badge.svg)|![](https://dev.azure.com/azure-iot-dde/Azure%20RTOS%20GSG/_apis/build/status/gsg.stm.L475EIOT01A?repoName=azure-rtos%2Fgetting-started&branchName=master&jobName=STM_Build)|
+|[STMicroelectronics B-L475E-IOT01A](STMicroelectronics/STM32L4_L4+)|![](https://github.com/azure-rtos/getting-started/workflows/STM32L4_L4+/badge.svg)|![](https://expresslogic.visualstudio.com/DeviceLab%20AzureRTOS%20GSG/_apis/build/status/azure-rtos.getting-started.stm.l475?repoName=azure-rtos%2Fgetting-started&branchName=master)|
 |[STMicroelectronics B-L4S5I-IOT01A](STMicroelectronics/STM32L4_L4+)|![](https://github.com/azure-rtos/getting-started/workflows/STM32L4_L4+/badge.svg)||
 
 **Build Status:** A GitHub workflow building on Windows & Linux.
