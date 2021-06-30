@@ -31,6 +31,10 @@
 #define MAX_EXPONENTIAL_BACKOFF_IN_SEC         (10 * 60)
 #define INITIAL_EXPONENTIAL_BACKOFF_IN_SEC     3
 
+// Connection timeouts in seconds
+#define HUB_CONNECT_TIMEOUT 10
+#define DPS_REGISTER_TIMEOUT 20
+
 static UINT exponential_backoff_with_jitter(UINT* exponential_retry_count)
 {
     float jitter_percent = (MAX_EXPONENTIAL_BACKOFF_JITTER_PERCENT / 100.0f) * (rand() / ((float)RAND_MAX));
@@ -66,7 +70,7 @@ static VOID connection_status_callback(NX_AZURE_IOT_HUB_CLIENT* hub_client_ptr, 
         {
             printf("Reconnecting to IoT Hub ...\r\n");
 
-            if ((connect_status = nx_azure_iot_hub_client_connect(hub_client_ptr, NX_TRUE, NX_WAIT_FOREVER)))
+            if ((connect_status = nx_azure_iot_hub_client_connect(hub_client_ptr, NX_TRUE, HUB_CONNECT_TIMEOUT * TX_TIMER_TICKS_PER_SECOND)))
             {
                 printf("Failed reconnect on nx_azure_iot_hub_client_connect (0x%08x)\r\n", connect_status);
                 tx_thread_sleep(exponential_backoff_with_jitter(&retry_count));
@@ -626,7 +630,7 @@ UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CONTEXT* context, CHAR* dps_id_
     }
 
     // Register device
-    else if ((status = nx_azure_iot_provisioning_client_register(&context->dps_client, NX_WAIT_FOREVER)))
+    else if ((status = nx_azure_iot_provisioning_client_register(&context->dps_client, DPS_REGISTER_TIMEOUT * TX_TIMER_TICKS_PER_SECOND)))
     {
         printf("ERROR: nx_azure_iot_provisioning_client_register (0x%08x)\r\n", status);
     }
