@@ -33,7 +33,7 @@
 
 // Connection timeouts in seconds
 #define HUB_CONNECT_TIMEOUT  10
-#define DPS_REGISTER_TIMEOUT 20
+#define DPS_REGISTER_TIMEOUT 3
 
 static UINT exponential_backoff_with_jitter(UINT* exponential_retry_count)
 {
