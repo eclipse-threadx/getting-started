@@ -24,12 +24,13 @@
 
 MEMORY
 {
-    FLASH (rx)  : ORIGIN = 0x10000000, LENGTH = 0x40000   /* 256 KB */
-    RAM   (rwx) : ORIGIN = 0x30000000, LENGTH = 0x20000   /* 128 KB */
+    FLASH (rx)  : ORIGIN = 0x000C0400, LENGTH = (0x40000 - 0x400)   /* 256 KB */
+    /* Total RAM size is 128KB, out of which 96KB is allocated to TF-M */
+    RAM   (rwx) : ORIGIN = 0x20018000, LENGTH = 0x8000   /* 32 KB */
 }
 
 __heap_size__ = 0x0001000;
-__msp_stack_size__ = 0x0001800;
+__msp_stack_size__ = 0x0001000;
 
 /* Library configurations */
 GROUP(libgcc.a libc.a libm.a libnosys.a)

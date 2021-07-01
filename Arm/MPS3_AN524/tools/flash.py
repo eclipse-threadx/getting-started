@@ -9,10 +9,11 @@ import time
 # Serial baudrate
 SERIAL_BAUDRATE = 115200
 
-# Path to image file
-BIN_FILE = pathlib.Path(__file__).parent.absolute().parent / "build" / "app" / "mps3_524.bin"
+# Path to image files
+BL_FILE = pathlib.Path(__file__).parent.absolute().parent / "build" / "tfm" / "bin" / "bl2.bin"
+S_NS_IMAGE = pathlib.Path(__file__).parent.absolute().parent / "build" / "tfm_s_ns_signed.bin"
 # Path where image file should be copied
-BIN_DEST_PATH = "/Volumes/V2M-MPS3/SOFTWARE"
+BIN_DEST_PATH = pathlib.Path("/Volumes/V2M-MPS3/SOFTWARE")
 
 def initiate_reboot(port):
     try:
@@ -42,7 +43,11 @@ def initiate_reboot(port):
 
 def copy_application_image():
     try:
-        shutil.copy2(BIN_FILE, BIN_DEST_PATH, follow_symlinks=False)
+        shutil.copy2(BL_FILE, BIN_DEST_PATH, follow_symlinks=False)
+        time.sleep(0.1)
+
+        shutil.copy2(S_NS_IMAGE, BIN_DEST_PATH / "tfm_fpga.bin", follow_symlinks=False)
+        time.sleep(1)
     except OSError as e:
         print("ERROR: Unable to update application image onto FPGA board")
         print(f"ERROR: {e.strerror} : {e.filename}")

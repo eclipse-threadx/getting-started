@@ -9,3 +9,9 @@
 [submodule "core/lib/jsmn/src"]
 	path = core/lib/jsmn/src
 	url = https://github.com/zserge/jsmn
+[submodule "core/lib/tfm"]
+	path = core/lib/tfm
+	url = https://git.trustedfirmware.org/TF-M/trusted-firmware-m.git
+[submodule "core/lib/tf-m-tests"]
+	path = core/lib/tf-m-tests
+	url = https://git.trustedfirmware.org/TF-M/tf-m-tests.git

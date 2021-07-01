@@ -25,7 +25,9 @@ include(${GSG_BASE_DIR}/cmake/utilities.cmake)
 project(mps3_524 C ASM)
 
 # Exceptions required by CMSIS UART driver (-Wno-ignored-qualifiers -Wno-return-type)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-ignored-qualifiers -Wno-return-type")
+# Make threadx run in non-secure mode (-DTX_SINGLE_MODE_NON_SECURE)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-ignored-qualifiers -Wno-return-type -DTX_SINGLE_MODE_NON_SECURE")
+set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -DTX_SINGLE_MODE_NON_SECURE")
 
 # add_subdirectory(${CORE_SRC_DIR} core_src)
 add_subdirectory(lib)

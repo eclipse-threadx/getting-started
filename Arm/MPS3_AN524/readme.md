@@ -85,6 +85,14 @@ $ cd Arm/MPS3_AN524
 $ tools/rebuild.sh
 ```
 
+### Configuring the sample
+
+There are a few configuration options available to, for example, change the
+secure partitions used by TF-M. These options are defined and documented in 
+`Arm/MPS3_AN524/app/config.cmake`. You may pass your own overriding options to
+cmake by defining the `APP_CONFIG` variable to a path to a file that sets these
+options.
+
 ## Updating application image
 > This has only been tested on OS X, some modifications might be needed to make
   `Arm/MPS3_AN524/tools/flash.py` to work in Windows/Linux environments.

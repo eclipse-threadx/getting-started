@@ -191,7 +191,7 @@ Reset_Handler:
  *  Macro __STARTUP_COPY_MULTIPLE is used to choose between two schemes.  */
 
  /* Only run on core 0 */
-    mov     r0, #0x50000000
+    mov     r0, #0x40000000
     add     r0, #0x0001F000
     ldr     r0, [r0]
     cmp     r0,#0
