@@ -31,9 +31,9 @@
 #define MAX_EXPONENTIAL_BACKOFF_IN_SEC         (10 * 60)
 #define INITIAL_EXPONENTIAL_BACKOFF_IN_SEC     3
 
-// Connection timeouts in seconds
-#define HUB_CONNECT_TIMEOUT  10
-#define DPS_REGISTER_TIMEOUT 3
+// Connection timeouts in threadx ticks
+#define HUB_CONNECT_TIMEOUT_TICKS  (10 * TX_TIMER_TICKS_PER_SECOND)
+#define DPS_REGISTER_TIMEOUT_TICKS (3 * TX_TIMER_TICKS_PER_SECOND)
 
 static UINT exponential_backoff_with_jitter(UINT* exponential_retry_count)
 {
@@ -68,10 +68,9 @@ static VOID connection_status_callback(NX_AZURE_IOT_HUB_CLIENT* hub_client_ptr, 
         UINT retry_count    = 0;
         while (connect_status)
         {
-            printf("Reconnecting to IoT Hub ...\r\n");
+            printf("Reconnecting to IoT Hub...\r\n");
 
-            if ((connect_status = nx_azure_iot_hub_client_connect(
-                     hub_client_ptr, NX_TRUE, HUB_CONNECT_TIMEOUT * TX_TIMER_TICKS_PER_SECOND)))
+            if ((connect_status = nx_azure_iot_hub_client_connect(hub_client_ptr, NX_TRUE, HUB_CONNECT_TIMEOUT_TICKS)))
             {
                 printf("Failed reconnect on nx_azure_iot_hub_client_connect (0x%08x)\r\n", connect_status);
                 tx_thread_sleep(exponential_backoff_with_jitter(&retry_count));
@@ -635,8 +634,8 @@ UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CONTEXT* context, CHAR* dps_id_
     {
         while (true)
         {
-            if ((status = nx_azure_iot_provisioning_client_register(&context->dps_client,
-                              DPS_REGISTER_TIMEOUT * TX_TIMER_TICKS_PER_SECOND) == NX_AZURE_IOT_PENDING))
+            if ((status = nx_azure_iot_provisioning_client_register(&context->dps_client, DPS_REGISTER_TIMEOUT_TICKS) ==
+                          NX_AZURE_IOT_PENDING))
             {
                 printf("\tPending DPS connection, retrying\r\n");
                 continue;
@@ -696,8 +695,7 @@ UINT azure_iot_nx_client_connect(AZURE_IOT_NX_CONTEXT* context)
     UINT status;
 
     // Connect to IoTHub client
-    if ((status = nx_azure_iot_hub_client_connect(
-             &context->iothub_client, NX_TRUE, HUB_CONNECT_TIMEOUT * TX_TIMER_TICKS_PER_SECOND)))
+    if ((status = nx_azure_iot_hub_client_connect(&context->iothub_client, NX_TRUE, HUB_CONNECT_TIMEOUT_TICKS)))
     {
         printf("Failed on nx_azure_iot_hub_client_connect (0x%08x)\r\n", status);
         return status;
