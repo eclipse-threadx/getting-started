@@ -619,7 +619,7 @@ UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CONTEXT* context, CHAR* dps_id_
         if ((status = nx_azure_iot_provisioning_client_device_cert_set(
                  &context->dps_client, &context->device_certificate)))
         {
-            printf("Failed on nx_azure_iot_hub_client_device_cert_set!: error code = 0x%08x\r\n", status);
+            printf("Failed on nx_azure_iot_hub_client_device_cert_set! (0x%08x)\r\n", status);
         }
     }
 
@@ -638,7 +638,7 @@ UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CONTEXT* context, CHAR* dps_id_
             if ((status = nx_azure_iot_provisioning_client_register(&context->dps_client,
                               DPS_REGISTER_TIMEOUT * TX_TIMER_TICKS_PER_SECOND) == NX_AZURE_IOT_PENDING))
             {
-                printf("\tPending DPS connection, retrying\r\n", status);
+                printf("\tPending DPS connection, retrying (0x%08x)\r\n", status);
                 continue;
             }
 
