@@ -642,6 +642,7 @@ UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CONTEXT* context, CHAR* dps_id_
                 continue;
             }
 
+            // Registration complete
             break;
         }
     }
@@ -650,60 +651,16 @@ UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CONTEXT* context, CHAR* dps_id_
     {
         printf("\tERROR: nx_azure_iot_provisioning_client_register (0x%08x)\r\n", status);
     }
-    else
-    {
-        // Get Device info
-        if ((status = nx_azure_iot_provisioning_client_iothub_device_info_get(&context->dps_client,
-                 (UCHAR*)context->azure_iot_hub_hostname,
-                 &iot_hub_hostname_len,
-                 (UCHAR*)context->azure_iot_device_id,
-                 &iot_device_id_len)))
-        {
-            printf("ERROR: nx_azure_iot_provisioning_client_iothub_device_info_get (0x%08x)\r\n", status);
-        }
-    }
-
-    /*            switch (status)
-                {
-                    case NX_AZURE_IOT_PENDING:
-                       printf("\tERROR: nx_azure_iot_provisioning_client_register (0x%08x)\r\n", status);
-                        break;
-
-                    case NX_AZURE_IOT_SUCCESS:
-                        break;
-
-                    default:
-                        error;
-                }*/
-
-    //        do
-    /*        {
-                status = nx_azure_iot_provisioning_client_register(&context->dps_client, DPS_REGISTER_TIMEOUT *
-       TX_TIMER_TICKS_PER_SECOND);
-            }
-            while (status != NX_AZURE_IOT_PENDING);*/
-
-    /*        if (status != NX_AZURE_IOT_SUCCESS)
-            {
-                printf("ERROR: nx_azure_iot_provisioning_client_register (0x%08x)\r\n", status);
-            }*/
-    //    }
-
-    /*    else if ((status = nx_azure_iot_provisioning_client_register(&context->dps_client, DPS_REGISTER_TIMEOUT *
-       TX_TIMER_TICKS_PER_SECOND)))
-        {
-            printf("ERROR: nx_azure_iot_provisioning_client_register (0x%08x)\r\n", status);
-        }*/
 
     // Get Device info
-    /*    else if ((status = nx_azure_iot_provisioning_client_iothub_device_info_get(&context->dps_client,
+    else if ((status = nx_azure_iot_provisioning_client_iothub_device_info_get(&context->dps_client,
                   (UCHAR*)context->azure_iot_hub_hostname,
                   &iot_hub_hostname_len,
                   (UCHAR*)context->azure_iot_device_id,
                   &iot_device_id_len)))
     {
         printf("ERROR: nx_azure_iot_provisioning_client_iothub_device_info_get (0x%08x)\r\n", status);
-    }/*
+    }
 
     // Destroy Provisioning Client
     nx_azure_iot_provisioning_client_deinitialize(&context->dps_client);
@@ -739,7 +696,8 @@ UINT azure_iot_nx_client_connect(AZURE_IOT_NX_CONTEXT* context)
     UINT status;
 
     // Connect to IoTHub client
-    if ((status = nx_azure_iot_hub_client_connect(&context->iothub_client, NX_TRUE, NX_WAIT_FOREVER)))
+    if ((status = nx_azure_iot_hub_client_connect(
+             &context->iothub_client, NX_TRUE, HUB_CONNECT_TIMEOUT * TX_TIMER_TICKS_PER_SECOND)))
     {
         printf("Failed on nx_azure_iot_hub_client_connect (0x%08x)\r\n", status);
         return status;
