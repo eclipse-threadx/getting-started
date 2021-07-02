@@ -35,24 +35,24 @@
 #define HUB_CONNECT_TIMEOUT_TICKS  (10 * TX_TIMER_TICKS_PER_SECOND)
 #define DPS_REGISTER_TIMEOUT_TICKS (3 * TX_TIMER_TICKS_PER_SECOND)
 
-// static UINT exponential_backoff_with_jitter(UINT* exponential_retry_count)
-// {
-//     float jitter_percent = (MAX_EXPONENTIAL_BACKOFF_JITTER_PERCENT / 100.0f) * (rand() / ((float)RAND_MAX));
-//     UINT base_delay      = MAX_EXPONENTIAL_BACKOFF_IN_SEC;
+static UINT exponential_backoff_with_jitter(UINT* exponential_retry_count)
+{
+    float jitter_percent = (MAX_EXPONENTIAL_BACKOFF_JITTER_PERCENT / 100.0f) * (rand() / ((float)RAND_MAX));
+    UINT base_delay      = MAX_EXPONENTIAL_BACKOFF_IN_SEC;
 
-//     base_delay = (1 << *exponential_retry_count) * INITIAL_EXPONENTIAL_BACKOFF_IN_SEC;
+    base_delay = (1 << *exponential_retry_count) * INITIAL_EXPONENTIAL_BACKOFF_IN_SEC;
 
-//     if (base_delay > MAX_EXPONENTIAL_BACKOFF_IN_SEC)
-//     {
-//         base_delay = MAX_EXPONENTIAL_BACKOFF_IN_SEC;
-//     }
-//     else
-//     {
-//         (*exponential_retry_count)++;
-//     }
+    if (base_delay > MAX_EXPONENTIAL_BACKOFF_IN_SEC)
+    {
+        base_delay = MAX_EXPONENTIAL_BACKOFF_IN_SEC;
+    }
+    else
+    {
+        (*exponential_retry_count)++;
+    }
 
-//     return (base_delay * (1 + jitter_percent)) * TX_TIMER_TICKS_PER_SECOND;
-// }
+    return (base_delay * (1 + jitter_percent)) * TX_TIMER_TICKS_PER_SECOND;
+}
 
 static VOID connection_status_callback(NX_AZURE_IOT_HUB_CLIENT* hub_client_ptr, UINT status)
 {
@@ -64,18 +64,18 @@ static VOID connection_status_callback(NX_AZURE_IOT_HUB_CLIENT* hub_client_ptr, 
     {
         printf("Disconnected from IoT Hub (0x%08x)\r\n", status);
 
-        // UINT connect_status = NX_AZURE_IOT_FAILURE;
-        // UINT retry_count    = 0;
-        // while (connect_status)
-        // {
-        //     printf("Reconnecting to IoT Hub...\r\n");
+        UINT connect_status = NX_AZURE_IOT_FAILURE;
+        UINT retry_count    = 0;
+        while (connect_status)
+        {
+            printf("Reconnecting to IoT Hub...\r\n");
 
-        //     if ((connect_status = nx_azure_iot_hub_client_connect(hub_client_ptr, NX_TRUE, HUB_CONNECT_TIMEOUT_TICKS)))
-        //     {
-        //         printf("Failed reconnect on nx_azure_iot_hub_client_connect (0x%08x)\r\n", connect_status);
-        //         tx_thread_sleep(exponential_backoff_with_jitter(&retry_count));
-        //     }
-        // }
+            if ((connect_status = nx_azure_iot_hub_client_connect(hub_client_ptr, NX_TRUE, HUB_CONNECT_TIMEOUT_TICKS)))
+            {
+                printf("Failed reconnect on nx_azure_iot_hub_client_connect (0x%08x)\r\n", connect_status);
+                tx_thread_sleep(exponential_backoff_with_jitter(&retry_count));
+            }
+        }
     }
 }
 
@@ -668,6 +668,9 @@ UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CONTEXT* context, CHAR* dps_id_
     {
         return status;
     }
+
+    // Artificial delay because Hub isn't ready
+    tx_thread_sleep(5 * TX_TIMER_TICKS_PER_SECOND);
 
     // Null terminate returned values
     context->azure_iot_hub_hostname[iot_hub_hostname_len] = 0;
