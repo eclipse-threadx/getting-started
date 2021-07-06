@@ -676,9 +676,6 @@ UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CONTEXT* context, CHAR* dps_id_
 
     printf("SUCCESS: Azure IoT DPS client initialized\r\n\r\n");
 
-    // Artificial delay because Hub isn't ready
-    tx_thread_sleep(10 * TX_TIMER_TICKS_PER_SECOND);
-
     return azure_iot_nx_client_hub_create_internal(context);
 }
 
