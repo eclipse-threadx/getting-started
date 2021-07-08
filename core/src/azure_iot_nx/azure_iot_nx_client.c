@@ -35,25 +35,6 @@
 #define HUB_CONNECT_TIMEOUT_TICKS  (10 * TX_TIMER_TICKS_PER_SECOND)
 #define DPS_REGISTER_TIMEOUT_TICKS (3 * TX_TIMER_TICKS_PER_SECOND)
 
-static UINT exponential_backoff_with_jitter(UINT* exponential_retry_count)
-{
-    float jitter_percent = (MAX_EXPONENTIAL_BACKOFF_JITTER_PERCENT / 100.0f) * (rand() / ((float)RAND_MAX));
-    UINT base_delay      = MAX_EXPONENTIAL_BACKOFF_IN_SEC;
-
-    base_delay = (1 << *exponential_retry_count) * INITIAL_EXPONENTIAL_BACKOFF_IN_SEC;
-
-    if (base_delay > MAX_EXPONENTIAL_BACKOFF_IN_SEC)
-    {
-        base_delay = MAX_EXPONENTIAL_BACKOFF_IN_SEC;
-    }
-    else
-    {
-        (*exponential_retry_count)++;
-    }
-
-    return (base_delay * (1 + jitter_percent)) * TX_TIMER_TICKS_PER_SECOND;
-}
-
 static VOID connection_status_callback(NX_AZURE_IOT_HUB_CLIENT* hub_client_ptr, UINT status)
 {
     if (status == NX_SUCCESS)
