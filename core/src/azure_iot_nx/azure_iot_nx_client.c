@@ -43,7 +43,7 @@ static VOID connection_status_callback(NX_AZURE_IOT_HUB_CLIENT* hub_client_ptr, 
     }
     else
     {
-        printf("Disconnected from IoT Hub (0x%08x)\r\n", status);
+        printf("Connection failure from IoT Hub (0x%08x)\r\n", status);
     }
 }
 
