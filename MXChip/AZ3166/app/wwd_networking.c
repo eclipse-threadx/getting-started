@@ -54,14 +54,25 @@ static void dhcp_wait(void)
     ULONG ip_address;
     ULONG network_mask;
     ULONG gateway_address;
+    UINT status;
 
     printf("Initializing DHCP\r\n");
 
     /* Create the DHCP instance.  */
-    nx_dhcp_create(&dhcp_client, &nx_ip, "MXChip_AZ3166");
+    status = nx_dhcp_create(&dhcp_client, &nx_ip, "MXChip_AZ3166");
+    if (status != NX_SUCCESS)
+    {
+        printf("ERROR: unable to create DHCP (0x%08x)\r\n", status);
+        return;
+    }
 
     /* Start the DHCP Client.  */
-    nx_dhcp_start(&dhcp_client);
+    status = nx_dhcp_start(&dhcp_client);
+    if (status != NX_SUCCESS)
+    {
+        printf("ERROR: unable to start DHCP (0x%08x)\r\n", status);
+        return;
+    }
 
     /* Wait until address is solved. */
     nx_ip_status_check(&nx_ip, NX_IP_ADDRESS_RESOLVED, &actual_status, NX_WAIT_FOREVER);
