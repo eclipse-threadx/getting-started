@@ -8,7 +8,7 @@ This is a companion to the [Quickstart Guide](https://docs.microsoft.com/en-us/a
 
 1.	[Create the cloud components](https://docs.microsoft.com/en-us/azure/iot-develop/quickstart-devkit-nxp-mimxrt1060-evk#create-the-cloud-components).
 
-1.	[Configure Wi-Fi and Azure IoT connection settings](https://docs.microsoft.com/en-us/azure/iot-develop/quickstart-devkit-nxp-mimxrt1060-evk#add-configuration).
+1.	[Configure Azure IoT connection settings](https://docs.microsoft.com/en-us/azure/iot-develop/quickstart-devkit-nxp-mimxrt1060-evk#add-configuration).
 
  _*Note: It is not necessary to install the tools described in the quickstart guide. Tool installation will be covered in the next section below.*_
 
