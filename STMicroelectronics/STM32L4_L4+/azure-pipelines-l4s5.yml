@@ -17,11 +17,11 @@ trigger:
       - doc/*
 
 jobs:
-- job: Microchip_Build
+- job: STM_Build
   pool:
     name: 'DDE'
     demands:
-    - MICROCHIPATSAME54XPRO -equals true
+    - STMBL4S5IIOT01A -equals true
   steps:
   - checkout: self
     clean: true
@@ -46,13 +46,13 @@ jobs:
       targetType: 'filePath'
       filePath: '$(Build.SourcesDirectory)\Device-Lab\update_config.ps1'
       arguments: > # Use this to avoid newline characters in multiline string
-        -ConfigFilePath '$(Build.SourcesDirectory)\getting-started\Microchip\ATSAME54-XPRO\app\azure_config.h'
+        -ConfigFilePath '$(Build.SourcesDirectory)\getting-started\STMicroelectronics\STM32L4_L4+\app\azure_config.h'
     displayName: 'Modify config file'
 
   # Build binary
   - script: |
       echo %PATH%
-      cd $(Build.SourcesDirectory)\getting-started\Microchip\ATSAME54-XPRO\tools
+      cd $(Build.SourcesDirectory)\getting-started\STMicroelectronics\STM32L4_L4+\tools
       .\rebuild.bat
     displayName: "Build Binary"
 
@@ -62,7 +62,7 @@ jobs:
       targetType: 'filePath'
       filePath: '$(Build.SourcesDirectory)\Device-Lab\flashing_tools\flash-board.ps1'
       arguments: > # Use this to avoid newline characters in multiline string
-        -BinPath '$(Build.SourcesDirectory)\getting-started\Microchip\ATSAME54-XPRO\build\app\atsame54_azure_iot.bin'
+        -BinPath '$(Build.SourcesDirectory)\getting-started\STMicroelectronics\STM32L4_L4+\build\app\stm32l4S5_azure_iot.hex'
     displayName: 'Flash binary'
 
   # Monitor device for successful connection to Iot Hub

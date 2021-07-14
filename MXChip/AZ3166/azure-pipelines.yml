@@ -4,7 +4,7 @@ resources:
   repositories:
   - repository: Device-Lab
     type: git
-    endpoint: self
+    endpoint: azure-iot-dde
     name: Device-Lab/Device-Lab
 
 trigger: 
@@ -19,7 +19,7 @@ trigger:
 jobs:
 - job: MXCHIP_Build
   pool:
-    name: 'IoT-DDE-Device-Lab'
+    name: 'DDE'
     demands:
     - MXCHIPAZ3166 -equals true
   steps:
