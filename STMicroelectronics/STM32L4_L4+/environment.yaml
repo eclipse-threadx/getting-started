@@ -1,0 +1,12 @@
+# Environment configuration
+info:
+  name: Connect an STMicroelectronics B-L475E-IOT01A / B-L4S5I-IOTOA1 Discovery kit to Azure IoT
+  version: 1.0.0
+  summary: Use Azure RTOS to connect an STMicroelectronics B-L475E-IOT01A / B-L4S5I-IOTOA1 Discovery kit to Azure IoT
+
+requires:
+  tools/microsoft/openocd: 0.11.0
+  tools/ninja-build/ninja: 1.10.2
+  tools/kitware/cmake: 3.20.1
+  tools/compuphase/termite: 3.4.0
+  compilers/arm/gcc: 2020.10.0
