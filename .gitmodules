@@ -1,9 +1,17 @@
 [submodule "core/lib/threadx"]
 	path = core/lib/threadx
-	url = https://github.com/azure-rtos/threadx.git
+	# url = https://github.com/azure-rtos/threadx.git
+	url = https://github.com/Linaro/threadx.git
+	branch = mps3_an524
 [submodule "core/lib/netxduo"]
 	path = core/lib/netxduo
 	url = https://github.com/azure-rtos/netxduo.git
 [submodule "core/lib/jsmn/src"]
 	path = core/lib/jsmn/src
 	url = https://github.com/zserge/jsmn
+[submodule "core/lib/tfm"]
+	path = core/lib/tfm
+	url = https://git.trustedfirmware.org/TF-M/trusted-firmware-m.git
+[submodule "core/lib/tf-m-tests"]
+	path = core/lib/tf-m-tests
+	url = https://git.trustedfirmware.org/TF-M/tf-m-tests.git
