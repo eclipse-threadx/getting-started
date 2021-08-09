@@ -21,7 +21,7 @@ endif()
 include(${GSG_BASE_DIR}/cmake/utilities.cmake)
 
 # Define the Project
-project(stm32l4_azure_iot C ASM)
+project(stm32l4_azure_iot C CXX ASM)
 
 # Disable common networking component, STM has it's own
 set(DISABLE_COMMON_NETWORK true)

@@ -21,7 +21,7 @@ endif()
 include(${GSG_BASE_DIR}/cmake/utilities.cmake)
 
 # Define the Project
-project(mimxrt1060_azure_iot C ASM)
+project(mimxrt1060_azure_iot C CXX ASM)
 
 add_subdirectory(${CORE_SRC_DIR} core_src)
 add_subdirectory(lib)
