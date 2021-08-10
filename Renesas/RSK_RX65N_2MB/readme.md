@@ -7,8 +7,7 @@ products:
 - azure-iot
 - azure-iot-pnp
 - azure-rtos
-- azure-iot-dps
-- azure-iot-hub
+- azure-iot-central
 ---
 
 # Connect an Renesas Starter Kit+ for RX65N-2MB to Azure IoT

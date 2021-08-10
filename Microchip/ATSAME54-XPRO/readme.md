@@ -7,8 +7,7 @@ products:
 - azure-iot
 - azure-iot-pnp
 - azure-rtos
-- azure-iot-dps
-- azure-iot-hub
+- azure-iot-central
 ---
 
 # Connect an Microchip ATSAME54-XPro evaluation kit to Azure IoT

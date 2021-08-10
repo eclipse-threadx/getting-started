@@ -7,8 +7,7 @@ products:
 - azure-iot
 - azure-iot-pnp
 - azure-rtos
-- azure-iot-dps
-- azure-iot-hub
+- azure-iot-central
 ---
 
 # Connect an STMicroelectronics B-L475E-IOT01A / B-L4S5I-IOTOA1 Discovery kit to Azure IoT
