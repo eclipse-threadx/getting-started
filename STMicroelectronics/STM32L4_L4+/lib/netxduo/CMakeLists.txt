@@ -46,7 +46,6 @@ set(SOURCES
     common/nx_udp_socket_receive_notify.c
     common/nx_udp_socket_send.c
     common/nx_udp_socket_unbind.c
-    common/nx_utility.c
     common/nxde_tcp_client_socket_connect.c
     common/nxde_tcp_socket_peer_info_get.c
     common/nxde_udp_socket_send.c
@@ -86,6 +85,8 @@ set(SOURCES
     common/nxe_udp_socket_receive_notify.c
     common/nxe_udp_socket_send.c
     common/nxe_udp_socket_unbind.c
+
+    ${CORE_LIB_DIR}/netxduo/common/src/nx_utility.c
 
     ${CORE_LIB_DIR}/netxduo/crypto_libraries/src/nx_crypto_3des.c
     ${CORE_LIB_DIR}/netxduo/crypto_libraries/src/nx_crypto_aes.c
