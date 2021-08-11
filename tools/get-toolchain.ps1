@@ -5,10 +5,10 @@
 
 echo "`nInstalling prerequisites. Please leave the window open until the installation completes."
 
-$gccarm_path = 'https://developer.arm.com/-/media/Files/downloads/gnu-rm/10-2020q4/'
-$gccarm_file = 'gcc-arm-none-eabi-10-2020-q4-major-win32.exe'
-$gccarm_name = 'GCC-ARM 10-2020-q4-major'
-$gccarm_hash = '9754D95905288AFC787837C3B211A3E502A9EDE8A5F544CFD369C30FEA509CA5'
+$gccarm_path = 'https://developer.arm.com/-/media/Files/downloads/gnu-rm/10.3-2021.07/gcc-arm-none-eabi-10.3-2021.07win32'
+$gccarm_file = 'gcc-arm-none-eabi-10.3-2021.07-win32.exe'
+$gccarm_name = 'GCC-ARM 10.3-2021.07'
+$gccarm_hash = '8D3B1D62865BF509FFCE8DEC499ECDF09067666D1B0E59F30D3C788902C2A7F4'
 
 $cmake_path = 'https://github.com/Kitware/CMake/releases/download/v3.21.1'
 $cmake_file = 'cmake-3.21.1-windows-i386.msi'
