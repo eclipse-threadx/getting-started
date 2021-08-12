@@ -21,7 +21,7 @@ jobs:
   pool:
     name: 'DDE'
     demands:
-    - NXPMIMXRT1060EVK-jlink -equals true
+    - NXPMIMXRT1060EVK -equals true
   steps:
   - checkout: self
     clean: true
