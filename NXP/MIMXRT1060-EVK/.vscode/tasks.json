@@ -1,0 +1,34 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Flash",
+            "type": "shell",
+            "windows": {
+                "command": "jlink -if swd -speed 4000 -device MIMXRT1062xxx6A -commanderscript .vscode/flash.jlink",
+            },
+            "linux": {
+                "command": "JLinkExe -if swd -speed 4000 -device MIMXRT1062xxx6A -commanderscript .vscode/flash.jlink",
+            },
+            "problemMatcher": [],
+            "dependsOn": [ "Build" ]
+        },
+        {
+            "label": "Build",
+            "type": "cmake",
+            "command": "build",
+            "problemMatcher": "$gcc",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            // This must be commented out to run on Linux.
+            "options": {
+                "shell": {
+                    "executable": "cmd.exe",
+                    "args": [ "/c" ]
+                }
+            }
+        }
+    ]
+}

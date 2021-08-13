@@ -28,7 +28,7 @@
             "configFiles": [
                 "board/stm32l4discovery.cfg"
             ]
-        }
+        },
         {
             "name": "STM L475E: Remote",
             "type": "cortex-debug",
@@ -39,7 +39,6 @@
             "runToMain": true,
             "svdFile": "${workspaceFolder}/.vscode/STM32L4x5.svd",
         },
-
         {
             "name": "STM L4S5I: Remote",
             "type": "cortex-debug",
@@ -50,6 +49,26 @@
             "runToMain": true,
             "svdFile": "${workspaceFolder}/.vscode/STM32L4S5.svd",
         },
+        {
+            "name": "Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/build/app/stm32l4S5_azure_iot.elf",
+            "MIMode": "gdb",
+            "miDebuggerPath": "arm-none-eabi-gdb",
+            "miDebuggerServerAddress": "localhost:3333",
+            "debugServerPath": "openocd",
+            "debugServerArgs": "-f board/stm32l4discovery.cfg",
+            "serverStarted": "Listening on port .* for gdb connections",
+            "filterStderr": true,
+            "stopAtEntry": true,
+            "hardwareBreakpoints": {
+                "require": true,
+                "limit": 6
+            },
+            "preLaunchTask": "Flash"
+        }
     ],
     "inputs": [
         {

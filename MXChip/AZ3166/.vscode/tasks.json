@@ -1,0 +1,37 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Flash",
+            "type": "shell",
+            "command": "openocd -f board/stm32f4discovery.cfg -c \"program build/app/mxchip_azure_iot.elf verify\" -c \"reset halt\" -c shutdown",
+            "windows": {
+                "options": {
+                  "shell": {
+                      "executable": "cmd.exe",
+                      "args": ["/c"]
+                  }
+                }
+              },  
+            "problemMatcher": [],
+            "dependsOn": [ "Build" ]
+        },
+        {
+            "label": "Build",
+            "type": "cmake",
+            "command": "build",
+            "problemMatcher": "$gcc",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            // This must be commented out to run on Linux.
+            "options": {
+                "shell": {
+                    "executable": "cmd.exe",
+                    "args": [ "/c" ]
+                }
+            }
+        }
+    ]
+}

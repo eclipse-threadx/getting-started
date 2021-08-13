@@ -24,6 +24,26 @@
             "gdbTarget": "${input:device.host}",
             "runToMain": true,
             "svdFile": "${workspaceFolder}/.vscode/STM32F412.svd",
+        },
+        {
+            "name": "Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/build/app/mxchip_azure_iot.elf",
+            "MIMode": "gdb",
+            "miDebuggerPath": "arm-none-eabi-gdb",
+            "miDebuggerServerAddress": "localhost:3333",
+            "debugServerPath": "openocd",
+            "debugServerArgs": "-f board/stm32f4discovery.cfg",
+            "serverStarted": "Listening on port .* for gdb connections",
+            "filterStderr": true,
+            "stopAtEntry": true,
+            "hardwareBreakpoints": {
+                "require": true,
+                "limit": 6
+            },
+            "preLaunchTask": "Flash"
         }
     ],
     "inputs": [
