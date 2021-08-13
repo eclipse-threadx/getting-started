@@ -297,6 +297,6 @@ To remove the entire Azure IoT Central sample application and all its devices an
 In this tutorial you built a custom image that contains Azure RTOS sample code, and then flashed the image to the EFR32MG12 MCU Starter Kit. You also used the IoT Central portal to create Azure resources, connect the EFR32MG12 MCU Starter Kit securely to Azure, view telemetry, and send messages.
 
 * For device developers, the suggested next step is to see the other tutorials in the series [Getting started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824).
-* If you have issues getting your device to initialize or connect after following the steps in this guide, see [Troubleshooting](../../docs/troubleshooting.md).
+* If you have issues getting your device to initialize or connect after following the steps in this guide, see [Troubleshooting](https://docs.microsoft.com/azure/iot-develop/troubleshoot-embedded-device-quickstarts).
 * To learn more about how Azure RTOS components are used in the sample code for this tutorial, see [Using Azure RTOS in the Getting Started Guides](../../docs/using-azure-rtos.md).
     >Note: Azure RTOS provides OEMs with components to secure communication and to create code and data isolation using underlying MCU/MPU hardware protection mechanisms. However, each OEM is ultimately responsible for ensuring that their device meets evolving security requirements.
