@@ -180,7 +180,7 @@ After the build completes, confirm that the binary file was created in the follo
 
 You can use the **Termite** utility to monitor communication and confirm that your device is set up correctly.
 
-> **Note:** If you have issues getting your device to initialize or connect after flashing, see [Troubleshooting](../../docs/troubleshooting.md).
+> **Note:** If you have issues getting your device to initialize or connect after flashing, see [Troubleshooting](https://docs.microsoft.com/azure/iot-develop/troubleshoot-embedded-device-quickstarts).
 
 1. Start **Termite**.
 1. Select **Settings**.
