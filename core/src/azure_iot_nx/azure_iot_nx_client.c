@@ -602,8 +602,8 @@ UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CONTEXT* context, CHAR* dps_id_
     {
         while (true)
         {
-            if ((status = nx_azure_iot_provisioning_client_register(&context->dps_client, DPS_REGISTER_TIMEOUT_TICKS) ==
-                          NX_AZURE_IOT_PENDING))
+            status = nx_azure_iot_provisioning_client_register(&context->dps_client, DPS_REGISTER_TIMEOUT_TICKS);
+            if (status == NX_AZURE_IOT_PENDING)
             {
                 printf("\tPending DPS connection, retrying\r\n");
                 continue;
