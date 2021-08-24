@@ -40,6 +40,20 @@ static void print_address(CHAR* preable, ULONG address)
         (uint8_t)(address & 0xFF));
 }
 
+static void print_mac()
+{
+    const ULONG lsw = nx_ip.nx_ip_gateway_interface->nx_interface_physical_address_lsw;
+    const ULONG msw = nx_ip.nx_ip_gateway_interface->nx_interface_physical_address_msw;
+
+    printf("\tMAC: %02x:%02x:%02x:%02x:%02x:%02x\r\n",
+        (uint8_t)(msw >> 8 & 0xFF),
+        (uint8_t)(msw & 0xFF),
+        (uint8_t)(lsw >> 24 & 0xFF),
+        (uint8_t)(lsw >> 16 & 0xFF),
+        (uint8_t)(lsw >> 8 & 0xFF),
+        (uint8_t)(lsw & 0xFF));
+}
+
 static UINT dhcp_wait()
 {
     UINT status;
@@ -69,7 +83,8 @@ static UINT dhcp_wait()
     nx_ip_address_get(&nx_ip, &ip_address, &network_mask);
     nx_ip_gateway_address_get(&nx_ip, &gateway_address);
 
-    // Output IP address and gateway address
+    // Output MAC, IP address and gateway address
+    print_mac();
     print_address("IP address", ip_address);
     print_address("Mask", network_mask);
     print_address("Gateway", gateway_address);
