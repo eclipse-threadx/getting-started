@@ -52,7 +52,7 @@ static NX_DRIVER_INFORMATION   nx_driver_information;
 /* Define driver specific ethernet hardware address.  */
 
 #ifndef NX_DRIVER_ETHERNET_MAC
-UCHAR   _nx_driver_hardware_address[] = {0x00, 0x11, 0x22, 0x33, 0x44, 0x56};  
+UCHAR   _nx_driver_hardware_address[] = {0x02, 0x12, 0x13, 0x10, 0x15, 0x29};
 #else
 UCHAR   _nx_driver_hardware_address[] = NX_DRIVER_ETHERNET_MAC;  
 #endif

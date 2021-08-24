@@ -56,7 +56,7 @@ static NX_DRIVER_INFORMATION   nx_driver_information;
 /* Define driver specific ethernet hardware address.  */
 
 #ifndef NX_DRIVER_ETHERNET_MAC
-UCHAR   _nx_driver_hardware_address[] = {0x00, 0x11, 0x22, 0x33, 0x44, 0x56};  
+UCHAR   _nx_driver_hardware_address[] = {0x02, 0x12, 0x13, 0x10, 0x15, 0x26};  
 #else
 UCHAR   _nx_driver_hardware_address[] = NX_DRIVER_ETHERNET_MAC;  
 #endif
@@ -1832,7 +1832,7 @@ void enet_init()
    // ENET_GetDefaultConfig(&config);
 
     /* Set SMI to get PHY link status. */
-    sysClock = CLOCK_GetFreq(kCLOCK_AhbClk);
+    sysClock = CLOCK_GetFreq(kCLOCK_IpgClk);
     status = PHY_Init(EXAMPLE_ENET, EXAMPLE_PHY, sysClock);
     while (status != kStatus_Success)
     {
