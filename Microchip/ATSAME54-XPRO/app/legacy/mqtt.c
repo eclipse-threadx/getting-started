@@ -5,8 +5,8 @@
 
 #include <stdio.h>
 
-#include "Bosch_BME280.h"
 #include "atmel_start.h"
+#include "weather_click.h"
 
 #include "azure_iot_mqtt.h"
 #include "json_utils.h"
@@ -181,8 +181,12 @@ UINT azure_iot_mqtt_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_p
 
 #if __SENSOR_BME280__ == 1
         // Print the compensated temperature readings
-        WeatherClick_waitforRead();
-        temperature = Weather_getTemperatureDegC();
+        struct bme280_data data;
+        if (read_bme280(&data) != BME280_OK)
+        {
+            printf("FAILED to read weather click sensor\r\n");
+        }
+        temperature = data.temperature;
 #else
         temperature = 23.5;
 #endif

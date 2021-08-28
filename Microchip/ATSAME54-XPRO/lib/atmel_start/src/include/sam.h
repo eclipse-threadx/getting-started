@@ -30,16 +30,17 @@
 #ifndef _SAM_
 #define _SAM_
 
-#if defined(__SAME54N19A__) || defined(__ATSAME54N19A__)
-#include "same54n19a.h"
+#if   defined(__SAME54N19A__) || defined(__ATSAME54N19A__)
+  #include "same54n19a.h"
 #elif defined(__SAME54N20A__) || defined(__ATSAME54N20A__)
-#include "same54n20a.h"
+  #include "same54n20a.h"
 #elif defined(__SAME54P19A__) || defined(__ATSAME54P19A__)
-#include "same54p19a.h"
+  #include "same54p19a.h"
 #elif defined(__SAME54P20A__) || defined(__ATSAME54P20A__)
-#include "same54p20a.h"
+  #include "same54p20a.h"
 #else
-#error Library does not support the specified device
+  #error Library does not support the specified device
 #endif
 
 #endif /* _SAM_ */
+

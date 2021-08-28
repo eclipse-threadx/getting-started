@@ -7,7 +7,6 @@
 #include "nx_api.h"
 
 #include "atmel_start.h"
-#include "Bosch_BME280.h"
 
 void board_init();
 
