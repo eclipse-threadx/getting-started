@@ -5,8 +5,8 @@
 
 #include <stdio.h>
 
-#include "Bosch_BME280.h"
 #include "atmel_start.h"
+#include "weather_click.h"
 
 #include "nx_api.h"
 #include "nx_azure_iot_hub_client.h"
@@ -88,8 +88,12 @@ static UINT append_device_telemetry(NX_AZURE_IOT_JSON_WRITER* json_writer, VOID*
     float temperature;
 
 #if __SENSOR_BME280__ == 1
-    WeatherClick_waitforRead();
-    temperature = Weather_getTemperatureDegC();
+    struct bme280_data data;
+    if (read_bme280(&data) != BME280_OK)
+    {
+        printf("FAILED to read weather click sensor\r\n");
+    }
+    temperature = data.temperature;
 #else
     temperature = 23.5;
 #endif

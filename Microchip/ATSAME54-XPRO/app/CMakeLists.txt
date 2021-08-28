@@ -8,7 +8,6 @@ set(SOURCES
     azure_config.h
     nx_client.c
     board_init.c
-    console.c
     main.c
 )
 
@@ -23,6 +22,7 @@ target_link_libraries(${PROJECT_NAME}
         app_common
         jsmn
         netxdriver
+        bme280
 )
 
 target_include_directories(${PROJECT_NAME} 

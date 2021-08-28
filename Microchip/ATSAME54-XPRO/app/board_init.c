@@ -3,12 +3,16 @@
    
 #include "board_init.h"
 
+#include "weather_click.h"
+
 void board_init()
 {
-    /* Initializes MCU, drivers and middleware */
+    // Initializes MCU, drivers and middleware
     atmel_start_init();
-    printf("Board initialized.\r\n");
 
-    WeatherClick_initialize();
-    printf("Temperature sensor initialized.\r\n");
+    // Initialize Weather Click
+    if (init_weather_click() != BME280_OK)
+    {
+        printf("FAILED to initialize weather click board\r\n");
+    }
 }

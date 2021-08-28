@@ -21,17 +21,25 @@ extern "C" {
 #include <hal_io.h>
 #include <hal_sleep.h>
 
+#include <hal_i2c_m_sync.h>
+
 #include <hal_usart_sync.h>
 
 #include <hal_i2c_m_sync.h>
 
 #include <hal_mac_async.h>
 
+extern struct i2c_m_sync_desc I2C_INSTANCE;
+
 extern struct usart_sync_descriptor TARGET_IO;
 
 extern struct i2c_m_sync_desc I2C_AT24MAC;
 
 extern struct mac_async_descriptor MACIF;
+
+void I2C_INSTANCE_CLOCK_init(void);
+void I2C_INSTANCE_init(void);
+void I2C_INSTANCE_PORT_init(void);
 
 void TARGET_IO_PORT_init(void);
 void TARGET_IO_CLOCK_init(void);
