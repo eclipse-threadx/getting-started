@@ -23,6 +23,8 @@
 #define IOT_MODEL_ID "dtmi:azurertos:devkit:gsg;2"
 
 #define TELEMETRY_TEMPERATURE       "temperature"
+#define TELEMETRY_PRESSURE          "pressure"
+#define TELEMETRY_HUMIDITY          "humidity"
 #define TELEMETRY_INTERVAL_PROPERTY "telemetryInterval"
 #define LED_STATE_PROPERTY          "ledState"
 #define SET_LED_STATE_COMMAND       "setLedState"
@@ -85,21 +87,28 @@ static UINT append_device_info_properties(NX_AZURE_IOT_JSON_WRITER* json_writer,
 
 static UINT append_device_telemetry(NX_AZURE_IOT_JSON_WRITER* json_writer, VOID* context)
 {
-    float temperature;
+    struct bme280_data data;
 
 #if __SENSOR_BME280__ == 1
-    struct bme280_data data;
     if (read_bme280(&data) != BME280_OK)
     {
         printf("FAILED to read weather click sensor\r\n");
     }
-    temperature = data.temperature;
 #else
-    temperature = 23.5;
+    printf("Generating fake sensor data\r\n");
+    data.temperature = 23.5;
+    data.pressure    = 1001245.76;
+    data.humidity    = 78.2;
 #endif
 
     if (nx_azure_iot_json_writer_append_property_with_double_value(
-            json_writer, (UCHAR*)TELEMETRY_TEMPERATURE, sizeof(TELEMETRY_TEMPERATURE) - 1, temperature, 2))
+            json_writer, (UCHAR*)TELEMETRY_HUMIDITY, sizeof(TELEMETRY_HUMIDITY) - 1, data.humidity, 2) ||
+
+        nx_azure_iot_json_writer_append_property_with_double_value(
+            json_writer, (UCHAR*)TELEMETRY_TEMPERATURE, sizeof(TELEMETRY_TEMPERATURE) - 1, data.temperature, 2) ||
+
+        nx_azure_iot_json_writer_append_property_with_double_value(
+            json_writer, (UCHAR*)TELEMETRY_PRESSURE, sizeof(TELEMETRY_PRESSURE) - 1, data.pressure, 2))
     {
         return NX_NOT_SUCCESSFUL;
     }
