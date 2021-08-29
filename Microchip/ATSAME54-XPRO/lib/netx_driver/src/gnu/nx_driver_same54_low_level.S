@@ -67,10 +67,8 @@
 @/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
 @/*                                                                        */
 @/**************************************************************************/
-    .global  GMAC_Handler
     .global  __nx_driver_same54_ethernet_isr
     .thumb_func
-GMAC_Handler: 
     .thumb_func
 __nx_driver_same54_ethernet_isr:
     PUSH    {r0, lr}

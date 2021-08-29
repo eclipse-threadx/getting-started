@@ -388,7 +388,7 @@ const DeviceVectors _vectors = {
         .pvReserved83           = (void*) (0UL),                  /* 83 Reserved */
 #endif
 #ifdef ID_GMAC
-        .pfnGMAC_Handler        = (void*) GMAC_Handler,           /* 84 Ethernet MAC */
+        .pfnGMAC_Handler        = (void*) __nx_driver_same54_ethernet_isr,           /* 84 Ethernet MAC */
 #else
         .pvReserved84           = (void*) (0UL),                  /* 84 Reserved */
 #endif
