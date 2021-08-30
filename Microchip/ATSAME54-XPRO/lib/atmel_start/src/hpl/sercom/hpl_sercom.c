@@ -1733,6 +1733,9 @@ int32_t _i2c_s_async_init(struct _i2c_s_async_device *const device, void *const 
 		NVIC_EnableIRQ((IRQn_Type)irq);
 		irq++;
 	}
+	// Enable Address Match and PREC interrupt by default.
+	hri_sercomi2cs_set_INTEN_AMATCH_bit(hw);
+	hri_sercomi2cs_set_INTEN_PREC_bit(hw);
 
 	return ERR_NONE;
 }

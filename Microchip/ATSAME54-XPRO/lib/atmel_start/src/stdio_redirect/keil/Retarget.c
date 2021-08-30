@@ -1,9 +1,9 @@
 /**
  * \file
  *
- * \brief Temperature Sensor implementation.
+ * \brief STDIO redirection
  *
- * Copyright (c) 2016-2018 Microchip Technology Inc. and its subsidiaries.
+ * Copyright (c) 2015-2018 Microchip Technology Inc. and its subsidiaries.
  *
  * \asf_license_start
  *
@@ -31,24 +31,77 @@
  *
  */
 
-#include <temperature_sensor.h>
+#include <stdio.h>
 
-/**
- * \brief Construct abstract temperature sensor
- */
-struct temperature_sensor *temperature_sensor_construct(struct temperature_sensor *const me, void *const io,
-                                                        const struct temperature_sensor_interface *const interface)
+#ifdef _UNIT_TEST_
+#undef fputc
+#undef fgetc
+#undef ferror
+#define fputc ut_fputc
+#define fgetc ut_fgetc
+#define ferror ut_ferror
+#endif
+
+#include <stdio_io.h>
+
+/* Disable semihosting */
+#if defined(__GNUC__) && (__ARMCOMPILER_VERSION > 6000000) /*  Keil MDK with ARM Compiler 6 */
+__asm(".global __use_no_semihosting\n\t");
+#else
+#pragma import(__use_no_semihosting_swi)
+#endif
+
+#ifndef __GNUC__
+struct __FILE {
+	int handle;
+};
+#endif
+FILE __stdout;
+FILE __stdin;
+FILE __stderr;
+
+int fputc(int ch, FILE *f)
 {
-	me->io        = io;
-	me->interface = interface;
-
-	return me;
+	if ((f == stdout) || (f == stderr)) {
+		uint8_t tmp = (uint8_t)ch;
+		if (stdio_io_write(&tmp, 1) < 0) {
+			return EOF;
+		}
+		return ch;
+	} else {
+		return EOF;
+	}
 }
 
-/**
- * \brief Read temperature from the given sensor
- */
-float temperature_sensor_read(const struct temperature_sensor *const me)
+int fgetc(FILE *f)
 {
-	return me->interface->read(me);
+	if (f == stdin) {
+		uint8_t tmp = 0;
+		if (stdio_io_read(&tmp, 1) < 0) {
+			return EOF;
+		}
+		return tmp;
+	} else {
+		return EOF;
+	}
+}
+
+void _ttywrch(int ch)
+{
+	uint8_t tmp = (uint8_t)ch;
+	stdio_io_write(&tmp, 1);
+}
+
+int ferror(FILE *f)
+{
+	(void)f;
+	/* Your implementation of ferror */
+	return EOF;
+}
+
+void _sys_exit(int return_code)
+{
+	(void)return_code;
+	while (1) {
+	}; /* endless loop */
 }

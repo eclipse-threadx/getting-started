@@ -125,20 +125,20 @@ void MACIF_example(void)
 void system_init(void)
 {
 	init_mcu();
-    
-    // GPIO on PC18
+
+	// GPIO on PC18
 
 	gpio_set_pin_level(PC18,
-        // <y> Initial level
-        // <id> pad_initial_level
-        // <false"> Low
-        // <true"> High
-        false);
+	                   // <y> Initial level
+	                   // <id> pad_initial_level
+	                   // <false"> Low
+	                   // <true"> High
+	                   false);
 
-    // Set pin direction to output
-    gpio_set_pin_direction(PC18, GPIO_DIRECTION_OUT);
+	// Set pin direction to output
+	gpio_set_pin_direction(PC18, GPIO_DIRECTION_OUT);
 
-    gpio_set_pin_function(PC18, GPIO_PIN_FUNCTION_OFF);
+	gpio_set_pin_function(PC18, GPIO_PIN_FUNCTION_OFF);
 
 	TARGET_IO_init();
 

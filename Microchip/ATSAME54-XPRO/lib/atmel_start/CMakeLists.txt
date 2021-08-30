@@ -32,9 +32,19 @@ set(SOURCES
     src/hpl/ramecc/hpl_ramecc.c
     src/hpl/sercom/hpl_sercom.c
     src/stdio_redirect/stdio_io.c
-    src/temperature_sensor/BME280_WeatherClick/Bosch_BME280.c
-    src/temperature_sensor/temperature_sensor.c
 )
+
+if(CMAKE_C_COMPILER_ID STREQUAL "IAR")
+    list(APPEND SOURCES
+        src/stdio_redirect/iar/read.c
+        src/stdio_redirect/iar/write.c
+    )
+else()
+    list(APPEND SOURCES
+        src/stdio_redirect/gcc/read.c
+        src/stdio_redirect/gcc/write.c
+    )
+endif()
 
 add_library(${TARGET} OBJECT
     ${SOURCES}
@@ -43,6 +53,11 @@ add_library(${TARGET} OBJECT
 target_compile_definitions(${TARGET}
     PUBLIC 
         __SAME54P20A__
+)
+
+target_compile_options(${TARGET}
+    PRIVATE
+        -Wno-error
 )
 
 target_include_directories(${TARGET}
@@ -68,8 +83,6 @@ target_include_directories(${TARGET}
         src/hri
         src/include
         src/stdio_redirect
-        src/temperature_sensor
-        src/temperature_sensor/BME280_WeatherClick
 )
 
 target_link_libraries(${TARGET}

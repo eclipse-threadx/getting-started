@@ -16,7 +16,6 @@ extern "C" {
 extern struct ethernet_phy_descriptor MACIF_PHY_desc;
 
 void ethernet_phys_init(void);
-void MACIF_PHY_init(void);
 void MACIF_PHY_example(void);
 
 /**

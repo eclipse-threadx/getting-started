@@ -1,6 +1,6 @@
 /* Copyright (c) Microsoft Corporation.
    Licensed under the MIT License. */
-   
+
 #include "networking.h"
 
 #include <stdint.h>
@@ -10,24 +10,26 @@
 #include "nxd_dhcp_client.h"
 #include "nxd_dns.h"
 
-#define THREADX_IP_STACK_SIZE 2048
-#define THREADX_PACKET_COUNT 60
-#define THREADX_PACKET_SIZE 1536
-#define THREADX_POOL_SIZE ((THREADX_PACKET_SIZE + sizeof(NX_PACKET)) * THREADX_PACKET_COUNT)
+#define THREADX_IP_STACK_SIZE  2048
+#define THREADX_PACKET_COUNT   60
+#define THREADX_PACKET_SIZE    1536
+#define THREADX_POOL_SIZE      ((THREADX_PACKET_SIZE + sizeof(NX_PACKET)) * THREADX_PACKET_COUNT)
 #define THREADX_ARP_CACHE_SIZE 512
 
 #define THREADX_IPV4_ADDRESS IP_ADDRESS(0, 0, 0, 0)
-#define THREADX_IPV4_MASK IP_ADDRESS(255, 255, 255, 0)
+#define THREADX_IPV4_MASK    IP_ADDRESS(255, 255, 255, 0)
+
+#define DHCP_WAIT_TIME_TICKS (30 * TX_TIMER_TICKS_PER_SECOND)
 
 // Define the stack/cache for ThreadX.
 static UCHAR threadx_ip_stack[THREADX_IP_STACK_SIZE];
 static UCHAR threadx_ip_pool[THREADX_POOL_SIZE];
 static UCHAR threadx_arp_cache_area[THREADX_ARP_CACHE_SIZE];
 
-NX_IP           nx_ip;
-NX_PACKET_POOL  nx_pool;
-NX_DNS          nx_dns_client;
-NX_DHCP         nx_dhcp_client;
+NX_IP nx_ip;
+NX_PACKET_POOL nx_pool;
+NX_DNS nx_dns_client;
+NX_DHCP nx_dhcp_client;
 
 // Print IPv4 address
 static void print_address(CHAR* preable, ULONG address)
@@ -38,6 +40,20 @@ static void print_address(CHAR* preable, ULONG address)
         (uint8_t)(address >> 16 & 0xFF),
         (uint8_t)(address >> 8 & 0xFF),
         (uint8_t)(address & 0xFF));
+}
+
+static void print_mac()
+{
+    const ULONG lsw = nx_ip.nx_ip_gateway_interface->nx_interface_physical_address_lsw;
+    const ULONG msw = nx_ip.nx_ip_gateway_interface->nx_interface_physical_address_msw;
+
+    printf("\tMAC: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
+        (uint8_t)(msw >> 8 & 0xFF),
+        (uint8_t)(msw & 0xFF),
+        (uint8_t)(lsw >> 24 & 0xFF),
+        (uint8_t)(lsw >> 16 & 0xFF),
+        (uint8_t)(lsw >> 8 & 0xFF),
+        (uint8_t)(lsw & 0xFF));
 }
 
 static UINT dhcp_wait()
@@ -57,7 +73,7 @@ static UINT dhcp_wait()
     status = nx_dhcp_start(&nx_dhcp_client);
 
     // Wait until address is solved.
-    status = nx_ip_status_check(&nx_ip, NX_IP_ADDRESS_RESOLVED, &actual_status, NX_WAIT_FOREVER);
+    status = nx_ip_status_check(&nx_ip, NX_IP_ADDRESS_RESOLVED, &actual_status, DHCP_WAIT_TIME_TICKS);
     if (status != NX_SUCCESS)
     {
         // DHCP Failed...  no IP address!
@@ -69,7 +85,8 @@ static UINT dhcp_wait()
     nx_ip_address_get(&nx_ip, &ip_address, &network_mask);
     nx_ip_gateway_address_get(&nx_ip, &gateway_address);
 
-    // Output IP address and gateway address
+    // Output MAC, IP address and gateway address
+    print_mac();
     print_address("IP address", ip_address);
     print_address("Mask", network_mask);
     print_address("Gateway", gateway_address);
@@ -82,7 +99,7 @@ static UINT dhcp_wait()
 static UINT dns_create()
 {
     UINT status;
-    ULONG dns_server_address[3] = { 0 };
+    ULONG dns_server_address[3]  = {0};
     UINT dns_server_address_size = 12;
 
     printf("Initializing DNS client\r\n");
@@ -90,7 +107,7 @@ static UINT dns_create()
     // Create a DNS instance for the Client. Note this function will create
     // the DNS Client packet pool for creating DNS message packets intended
     // for querying its DNS server.
-    status = nx_dns_create(&nx_dns_client, &nx_ip, (UCHAR *)"DNS Client");
+    status = nx_dns_create(&nx_dns_client, &nx_ip, (UCHAR*)"DNS Client");
     if (status != NX_SUCCESS)
     {
         return status;
@@ -102,13 +119,14 @@ static UINT dns_create()
     if (status != NX_SUCCESS)
     {
         nx_dns_delete(&nx_dns_client);
-        return(status);
+        return (status);
     }
 #endif
 
     // Retrieve DNS server address
-    nx_dhcp_interface_user_option_retrieve(&nx_dhcp_client, 0, NX_DHCP_OPTION_DNS_SVR, (UCHAR*)dns_server_address, &dns_server_address_size); 
-    
+    nx_dhcp_interface_user_option_retrieve(
+        &nx_dhcp_client, 0, NX_DHCP_OPTION_DNS_SVR, (UCHAR*)dns_server_address, &dns_server_address_size);
+
     // Add an IPv4 server address to the Client list
     status = nx_dns_server_add(&nx_dns_client, dns_server_address[0]);
     if (status != NX_SUCCESS)
@@ -116,7 +134,7 @@ static UINT dns_create()
         nx_dns_delete(&nx_dns_client);
         return status;
     }
-    
+
     // Output DNS Server address
     print_address("DNS address", dns_server_address[0]);
 
@@ -125,7 +143,7 @@ static UINT dns_create()
     return NX_SUCCESS;
 }
 
-bool network_init(VOID (*ip_link_driver)(struct NX_IP_DRIVER_STRUCT *))
+bool network_init(VOID (*ip_link_driver)(struct NX_IP_DRIVER_STRUCT*))
 {
     UINT status;
 
@@ -133,9 +151,8 @@ bool network_init(VOID (*ip_link_driver)(struct NX_IP_DRIVER_STRUCT *))
     nx_system_initialize();
 
     // Create a packet pool.
-    status = nx_packet_pool_create(&nx_pool, "NetX Packet Pool",
-        THREADX_PACKET_SIZE, 
-        threadx_ip_pool, THREADX_POOL_SIZE);
+    status =
+        nx_packet_pool_create(&nx_pool, "NetX Packet Pool", THREADX_PACKET_SIZE, threadx_ip_pool, THREADX_POOL_SIZE);
     if (status != NX_SUCCESS)
     {
         printf("THREADX platform initialize fail: PACKET POOL CREATE FAIL.\r\n");
@@ -143,10 +160,15 @@ bool network_init(VOID (*ip_link_driver)(struct NX_IP_DRIVER_STRUCT *))
     }
 
     // Create an IP instance
-    status = nx_ip_create(&nx_ip, "NetX IP Instance 0", 
-        THREADX_IPV4_ADDRESS, THREADX_IPV4_MASK,
-        &nx_pool, ip_link_driver, 
-        (UCHAR*)threadx_ip_stack, THREADX_IP_STACK_SIZE, 1);
+    status = nx_ip_create(&nx_ip,
+        "NetX IP Instance 0",
+        THREADX_IPV4_ADDRESS,
+        THREADX_IPV4_MASK,
+        &nx_pool,
+        ip_link_driver,
+        (UCHAR*)threadx_ip_stack,
+        THREADX_IP_STACK_SIZE,
+        1);
     if (status != NX_SUCCESS)
     {
         nx_packet_pool_delete(&nx_pool);
@@ -193,7 +215,7 @@ bool network_init(VOID (*ip_link_driver)(struct NX_IP_DRIVER_STRUCT *))
         printf("THREADX platform initialize fail: ICMP ENABLE FAIL.\r\n");
         return false;
     }
-    
+
     status = dhcp_wait();
     if (status != NX_SUCCESS)
     {
@@ -212,9 +234,9 @@ bool network_init(VOID (*ip_link_driver)(struct NX_IP_DRIVER_STRUCT *))
         printf("THREADX platform initialize fail: DNS CREATE FAIL.\r\n");
         return false;
     }
-    
+
     // Initialize TLS
     nx_secure_tls_initialize();
-    
+
     return true;
 }
