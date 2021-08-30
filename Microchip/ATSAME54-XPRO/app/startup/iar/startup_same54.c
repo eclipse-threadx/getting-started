@@ -382,7 +382,7 @@ const intvec_elem __vector_table[] =
     (0UL),                  /* 83 Reserved */
 #endif
 #ifdef ID_GMAC
-    GMAC_Handler,           /* 84 Ethernet MAC */
+    __nx_driver_same54_ethernet_isr,           /* 84 Ethernet MAC */
 #else
     (0UL),                  /* 84 Reserved */
 #endif

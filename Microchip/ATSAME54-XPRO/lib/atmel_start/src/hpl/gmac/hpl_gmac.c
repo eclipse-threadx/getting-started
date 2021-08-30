@@ -145,8 +145,6 @@ static void _mac_init_bufdescr(struct _mac_async_device *const dev)
 	hri_gmac_write_RBQB_reg(dev->hw, (uint32_t)_rxbuf_descrs);
 }
 
-#if 0
-// Already defined at lib/netx_driver/nx_driver_same54_low_level.s
 /*
  * \internal GMAC interrupt handler
  */
@@ -176,7 +174,6 @@ void GMAC_Handler(void)
 	}
 	hri_gmac_write_RSR_reg(_gmac_dev->hw, rsr);
 }
-#endif
 
 int32_t _mac_async_init(struct _mac_async_device *const dev, void *const hw)
 {

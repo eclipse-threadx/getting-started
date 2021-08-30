@@ -70,9 +70,7 @@
 ;/*                                            resulting in version 6.x.   */
 ;/*                                                                        */
 ;/**************************************************************************/
-    PUBLIC  GMAC_Handler
     PUBLIC  __nx_driver_same54_ethernet_isr 
-GMAC_Handler:
 __nx_driver_same54_ethernet_isr:
     PUSH    {r0, lr}
 #ifdef TX_ENABLE_EXECUTION_CHANGE_NOTIFY
