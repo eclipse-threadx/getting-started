@@ -14,7 +14,7 @@
       "miDebuggerPath": "arm-none-eabi-gdb",
       "miDebuggerServerAddress": "localhost:3333",
       "debugServerPath": "JLinkGDBServerCL",
-      "debugServerArgs": "-if swd -speed 4000 -endian little -port 3333 -device MIMXRT1062xxx6A -x ${workspaceRoot}/.vscode/reset.gdb",
+      "debugServerArgs": "-if swd -speed 4000 -endian little -port 3333 -device MIMXRT1062xxx6A",
       "serverStarted": "Connected to target",
       "filterStdout": true,
       "stopAtConnect": true,
