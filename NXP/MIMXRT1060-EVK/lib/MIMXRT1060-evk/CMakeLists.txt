@@ -55,7 +55,7 @@ target_include_directories(${TARGET}
         src/components/uart
         src/CMSIS/Driver/Include
         src/CMSIS/Core/Include
-		src/devices/MIMXRT1062
+        src/devices/MIMXRT1062
         src/devices/MIMXRT1062/drivers
         src/devices/MIMXRT1062/utilities/debug_console
         src/devices/MIMXRT1062/utilities/str
