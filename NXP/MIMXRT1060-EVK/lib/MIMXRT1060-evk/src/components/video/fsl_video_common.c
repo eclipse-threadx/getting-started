@@ -1,5 +1,5 @@
 /*
- * Copyright  2017 NXP
+ * Copyright 2017, 2020 NXP
  * All rights reserved.
  *
  *
@@ -7,7 +7,7 @@
  */
 
 #include "fsl_video_common.h"
-#if defined(FSL_RTOS_FREE_RTOS)
+#if defined(SDK_OS_FREE_RTOS)
 #include "FreeRTOS.h"
 #include "task.h"
 #endif
@@ -32,25 +32,18 @@ bool VIDEO_IsYUV(video_pixel_format_t format)
 
 void VIDEO_DelayMs(uint32_t ms)
 {
-#if defined(FSL_RTOS_FREE_RTOS)
+#if defined(SDK_OS_FREE_RTOS)
     TickType_t tick;
 
-    tick = ms * configTICK_RATE_HZ / 1000;
+    tick = ms * configTICK_RATE_HZ / 1000U;
 
-    tick = (0 == tick) ? 1 : tick;
+    tick = (0U == tick) ? 1U : tick;
 
     vTaskDelay(tick);
 #else
-    uint32_t i;
-    uint32_t loopPerMs = SystemCoreClock / 3000;
-
-    while (ms--)
+    while (0U != (ms--))
     {
-        i = loopPerMs;
-        while (i--)
-        {
-            __NOP();
-        }
+        SDK_DelayAtLeastUs(1000U, SystemCoreClock);
     }
 #endif
 }
@@ -124,10 +117,10 @@ status_t VIDEO_RINGBUF_Get(video_ringbuf_t *ringbuf, void **item)
          * Here don't use ringbuf->front = (ringbuf->front + 1) % ringbuf->size,
          * because mod operation might be slow.
          */
-        front_next = (ringbuf->front + 1);
+        front_next = (ringbuf->front + 1U);
 
         /* Use two steps to make sure ringbuf->front is always a valid value. */
-        ringbuf->front = (front_next == ringbuf->size) ? 0 : front_next;
+        ringbuf->front = (front_next == ringbuf->size) ? 0UL : front_next;
 
         return kStatus_Success;
     }
@@ -143,9 +136,9 @@ status_t VIDEO_RINGBUF_Put(video_ringbuf_t *ringbuf, void *item)
      * Here don't use ringbuf->rear = (ringbuf->rear + 1) % ringbuf->size,
      * because mod operation might be slow.
      */
-    uint32_t rear_next = ringbuf->rear + 1;
+    uint32_t rear_next = ringbuf->rear + 1U;
 
-    rear_next = (rear_next == ringbuf->size) ? 0 : rear_next;
+    rear_next = (rear_next == ringbuf->size) ? 0U : rear_next;
 
     if (rear_next != ringbuf->front)
     {
@@ -211,12 +204,12 @@ bool VIDEO_RINGBUF_IsFull(video_ringbuf_t *ringbuf)
 
 status_t VIDEO_MEMPOOL_Init(video_mempool_t *mempool, void *initMem, uint32_t size, uint32_t count)
 {
-    memset(mempool, 0, sizeof(video_mempool_t));
+    (void)memset(mempool, 0, sizeof(video_mempool_t));
 
-    while (count--)
+    while (0U != (count--))
     {
         VIDEO_MEMPOOL_Put(mempool, initMem);
-        initMem = (void *)(((uint32_t)initMem) + size);
+        initMem = &((uint8_t *)initMem)[size];
     }
 
     return kStatus_Success;

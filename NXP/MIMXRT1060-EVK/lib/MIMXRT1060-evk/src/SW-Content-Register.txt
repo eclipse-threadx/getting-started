@@ -1,46 +1,204 @@
 Release Name: MCUXpresso Software Development Kit (SDK)
-Release Version: 2.7.0
-Package License: LA_OPT_NXP_Software_License.htm - Production Use, Section 2.3 applies
+Release Version: 2.10.0
+Package License: LA_OPT_NXP_Software_License.txt - Additional Distribution License granted, license in Section 2.3 applies
 
-KSDK_Peripheral_Driver     Description: Peripheral drivers are designed for  
+SDK_Peripheral_Driver      Name: SDK Peripheral Driver                       
+                           Version: 2.x.x                                    
+                           Outgoing License: BSD-3-Clause                    
+                           License File: COPYING-BSD-3                       
+                           Format: source code                               
+                           Description: Peripheral drivers are designed for  
                            the most common use cases identified for the      
                            underlying hardware block.                        
-                           Author: Freescale                                 
-                           Version: 2.x.x                                    
-                           License: Open Source - BSD-3-Clause               
-                           Format: source code                               
-                           name: KSDK Peripheral Driver                      
                            Location: devices/<device>/drivers                
+                           Origin: NXP (BSD-3-Clause)                        
 
-cmsiscore                  Author: ARM                                       
-                           parentversion: 5.1.1                              
-                           URL:                                              
-                           https://github.com/ARM-software/CMSIS_5/releases/t
-                           ag/5.3.0                                          
-                           name: CMSIS Core header files                     
+SDK_Examples               Name: SDK examples                                
+                           Version: NA                                       
+                           Outgoing License: BSD-3-Clause                    
+                           License File: COPYING-BSD-3                       
+                           Format: source code, binary, project files, linker
+                           files                                             
+                           Description: SDK out of box examples to show how  
+                           to use peripheral drivers and integrate           
+                           middleware.                                       
+                           Location: boards/<board>/                         
+                           Origin: NXP (BSD-3-Clause)                        
+
+SDK_Device                 Name: SDK SoC files                               
+                           Version: NA                                       
+                           Outgoing License: BSD-3-Clause                    
+                           License File: COPYING-BSD-3                       
+                           Format: source code, linker files                 
+                           Description: Device system files, template files, 
+                           IDE related startup and linker files.             
+                           Location: devices/<device>/                       
+                           Origin: NXP (BSD-3-Clause)                        
+
+cmsis                      Name: CMSIS                                       
+                           Version: 5.6.0                                    
+                           Outgoing License: Apache License 2.0              
+                           License File: CMSIS/LICENSE.txt                   
                            Format: source code                               
-                           License: Apache License 2.0, See CMSIS/LICENSE.txt
-                           Location: CMSIS/Include                           
-                           version: 5.1.1 (CMSIS Download 5.3.0)             
-                           Description: Industry-standard header files       
-                           distributes by ARM for cortex-M cores             
+                           Description: Vendor-independent hardware          
+                           abstraction layer for microcontrollers that are   
+                           based on Arm Cortex processors, distributed by    
+                           ARM. cores                                        
+                           Location: CMSIS/                                  
+                           Origin: ARM (Apache-2.0) -                        
+                           https://github.com/ARM-software/CMSIS_5/releases/t
+                           ag/5.6.0                                          
 
-cmsis_drivers              Author: Freescale                                 
-                           version: 2.x.x                                    
+cmsis_gpio                 Name: CMSIS GPIO Interface                        
+                           Version: 2.0.0                                    
+                           Outgoing License: BSD-3-Clause                    
+                           License File: COPYING-BSD-3                       
+                           Format: source code                               
+                           Description: CMSIS Driver style GPIO interface    
+                           definition created by NXP.                        
+                           Location: CMSIS/Driver/Include/Driver_GPIO.h      
+                           Origin: NXP (BSD-3-Clause)                        
+
+SDK_Components             Name: SDK components and board peripheral drivers 
+                           Version: NA                                       
+                           Outgoing License: BSD-3-Clause                    
+                           License File: COPYING-BSD-3                       
+                           Format: source code                               
+                           Description: SDK components and board peripheral  
+                           drivers, for example, flash and codec drivers.    
+                           Location: components/                             
+                           Origin: NXP (BSD-3-Clause)                        
+
+sdmmc                      Name: SD MMC SDIO Card middleware                 
+                           Version: 2.2.7                                    
+                           Outgoing License: BSD-3-Clause                    
+                           License File: COPYING-BSD-3                       
+                           Format: source code                               
+                           Description: A software component support SD card,
+                           eMMC card, SDIO card.                             
+                           Location: middleware/sdmmc                        
+                           Origin: NXP (BSD-3-Clause)                        
+
+cmsis_drivers              Name: SDK CMSIS Peripheral Drivers                
+                           Version: 2.x.x                                    
+                           Outgoing License: Apache License 2.0              
+                           License File: CMSIS/LICENSE.txt                   
                            Format: source code                               
                            Description: CMSIS Peripheral drivers are designed
                            to provide hardware independent APIs which make   
                            application reusable across a wide range of       
                            supported microcontroller devices.                
-                           name: KSDK CMSIS Peripheral Drivers               
                            Location: devices/<device>/cmsis_drivers          
-                           License: Open Source - Apache 2.0 & BSD-3-Clause  
+                           Origin: NXP (Apache License 2.0)                  
 
-sdmmc                      name: SD MMC SDIO Card middleware                 
-                           Location: middleware/sdmmc                        
-                           License: Open Source - BSC-3-Clause               
-                           Description: A software component support SD card,
-                           eMMC card, SDIO card.                             
-                           Author: Freescale                                 
-                           version: 2.2.7                                    
+freemaster                 Name: FreeMASTER                                  
+                           Version: 3.0.4                                    
+                           Outgoing License: LA_OPT_NXP_Software_License.txt 
+                           - Additional distribution license granted -       
+                           License in Section 2.3 applies                    
+                           License File:                                     
+                           middleware/freemaster/LA_OPT_NXP_Software_License.
+                           txt                                               
+                           Format: source code & header files                
+                           Description: FreeMASTER communication driver      
+                           Location: middleware/freemaster/src               
+                           Origin: NXP                                       
+
+freemaster-examples        Name: FreeMASTER                                  
+                           Version: 3.0.4                                    
+                           Outgoing License: BSD-3-Clause                    
+                           License File: COPYING-BSD-3                       
+                           Format: source code & header files                
+                           Description: FreeMASTER example applications      
+                           Location: boards/<board>/freemaster_examples      
+                           Origin: NXP                                       
+
+gradle                     Name: Gradle                                      
+                           Version: 4.1                                      
+                           Outgoing License: Apache-2.0                      
+                           License File:                                     
+                           https://github.com/gradle/gradle/blob/master/LICEN
+                           SE                                                
+                           Format: binary library                            
+                           Description: Gradle build tool                    
+                           Location:                                         
+                           boards/<board>/aws_examples/remote_control_android
+                           /gradle,                                          
+                           boards/<board>/aws_examples/led_wifi_android/gradl
+                           e,                                                
+                           boards/<board>/aws_examples/device_configuration_a
+                           ndroid/gradle                                     
+                           Origin: Gradle Inc (Apache-2.0)                   
+                           Url: https://github.com/gradle/gradle             
+
+AwsRemoteControl           Name: AWS Remote Control                          
+                           Version: 1.0                                      
+                           Outgoing License: Apache-2.0 & BSD                
+                           License File:                                     
+                           http://www.apache.org/licenses/LICENSE-2.0,       
+                           COPYING-BSD-3                                     
+                           Format: binary                                    
+                           Description: AWS Remote Control example Android   
+                           application                                       
+                           Location:                                         
+                           boards/<board>/aws_examples/remote_control_android
+                           /AwsRemoteControl.apk                             
+                           Origin: Android Open Source Project               
+                           (https://source.android.com/) & NXP (Apache-2.0 & 
+                           BSD)                                              
+
+azure_rtos_threadx         Name: Azure RTOS ThreadX                          
+                           Version: 6.1.2                                    
+                           Outgoing License: LA_OPT_NXP_Software_License.txt 
+                           - Additional distribution license granted -       
+                           License in Section 2.3 applies                    
+                           License File: LA_OPT_NXP_Software_License.txt     
                            Format: source code                               
+                           Description: RTOS kernel for microcontrollers     
+                           Location: rtos/azure-rtos/threadx                 
+                           Origin: Microsoft                                 
+                           Url:                                              
+                           https://azure.microsoft.com/en-us/services/rtos/  
+
+azure_rtos_filex           Name: Azure RTOS FileX                            
+                           Version: 6.1.2                                    
+                           Outgoing License: LA_OPT_NXP_Software_License.txt 
+                           - Additional distribution license granted -       
+                           License in Section 2.3 applies                    
+                           License File: LA_OPT_NXP_Software_License.txt     
+                           Format: source code                               
+                           Description: file system                          
+                           Location: rtos/azure-rtos/filex                   
+                           Origin: Microsoft                                 
+                           Url:                                              
+                           https://azure.microsoft.com/en-us/services/rtos/  
+
+azure_rtos_netxduo         Name: Azure RTOS NetX Duo                         
+                           Version: 6.1.2                                    
+                           Outgoing License: LA_OPT_NXP_Software_License.txt 
+                           - Additional distribution license granted -       
+                           License in Section 2.3 applies                    
+                           License File: LA_OPT_NXP_Software_License.txt     
+                           Format: source code                               
+                           Description: advanced, industrial-grade TCP/IP    
+                           network stack                                     
+                           Location: rtos/azure-rtos/netxduo                 
+                           Origin: Microsoft                                 
+                           Url:                                              
+                           https://azure.microsoft.com/en-us/services/rtos/  
+
+AwsDeviceConfiguration     Name: AWS Device Configuration                    
+                           Version: 1.0                                      
+                           Outgoing License: Apache-2.0 & BSD                
+                           License File:                                     
+                           http://www.apache.org/licenses/LICENSE-2.0,       
+                           COPYING-BSD-3                                     
+                           Format: binary                                    
+                           Description: AWS Device Configuration example     
+                           Android application                               
+                           Location:                                         
+                           boards/<board>/aws_examples/device_configuration_a
+                           ndroid/AwsDeviceConfiguration.apk                 
+                           Origin: Android Open Source Project               
+                           (https://source.android.com/) & NXP (Apache-2.0 & 
+                           BSD)                                              

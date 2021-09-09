@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2013-2016 ARM Limited. All rights reserved.
  * Copyright (c) 2016, Freescale Semiconductor, Inc. Not a Contribution.
- * Copyright 2016-2020 NXP. Not a Contribution.
+ * Copyright 2016-2021 NXP. Not a Contribution.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -25,7 +25,7 @@
 #define FSL_COMPONENT_ID "platform.drivers.enet_cmsis"
 #endif
 
-#define ARM_ETH_MAC_DRV_VERSION ARM_DRIVER_VERSION_MAJOR_MINOR(2, 1)
+#define ARM_ETH_MAC_DRV_VERSION ARM_DRIVER_VERSION_MAJOR_MINOR(2, 2)
 
 /* Define the alignment macro. */
 #if defined(FSL_SDK_ENABLE_DRIVER_CACHE_CONTROL) && FSL_SDK_ENABLE_DRIVER_CACHE_CONTROL
@@ -85,8 +85,6 @@ static const ARM_ETH_MAC_CAPABILITIES s_enetDriverCapabilities = {
     0                                                                 /* precision_timer          */
 };
 
-extern uint32_t ENET_GetInstance(ENET_Type *base);
-
 static ARM_DRIVER_VERSION ENETx_GetVersion(void)
 {
     return s_enetDriverVersion;
@@ -99,18 +97,23 @@ static ARM_ETH_MAC_CAPABILITIES ENETx_GetCapabilities(void)
 
 static int32_t ENET_CommonInitialize(ARM_ETH_MAC_SignalEvent_t cb_event, cmsis_enet_mac_driver_state_t *enet)
 {
-    if (enet->flags & ENET_FLAG_INIT)
+    if ((enet->flags & ENET_FLAG_INIT) == 0U)
     {
-        return ARM_DRIVER_OK;
+        enet->cb_event = cb_event;
+        enet->flags    = ENET_FLAG_INIT;
     }
-    enet->cb_event = cb_event;
-    enet->flags    = ENET_FLAG_INIT;
 
     return ARM_DRIVER_OK;
 }
 
-static void ENET_SetInterruptCallback(
-    ENET_Type *base, enet_handle_t *handle, enet_event_t event, enet_frame_info_t *frameInfo, void *userData)
+static void ENET_SetInterruptCallback(ENET_Type *base,
+                                      enet_handle_t *handle,
+#if FSL_FEATURE_ENET_QUEUE > 1
+                                      uint32_t ringId,
+#endif
+                                      enet_event_t event,
+                                      enet_frame_info_t *frameInfo,
+                                      void *userData)
 {
     uint32_t newEvent;
 
@@ -134,7 +137,7 @@ static void ENET_SetInterruptCallback(
     }
 
     /* User data is actually CMSIS driver callback. */
-    if (userData)
+    if (userData != NULL)
     {
         ((ARM_ETH_MAC_SignalEvent_t)userData)(newEvent);
     }
@@ -148,6 +151,8 @@ static int32_t ENET_CommonUninitialize(cmsis_enet_mac_driver_state_t *enet)
 
 static int32_t ENET_CommonControl(uint32_t control, uint32_t arg, cmsis_enet_mac_driver_state_t *enet)
 {
+    int32_t result = ARM_DRIVER_OK;
+
     if (enet->flags == ENET_FLAG_UNINIT)
     {
         return ARM_DRIVER_ERROR;
@@ -155,42 +160,73 @@ static int32_t ENET_CommonControl(uint32_t control, uint32_t arg, cmsis_enet_mac
 
     switch (control)
     {
-        case ARM_ETH_MAC_CONFIGURE:
+        case (uint32_t)ARM_ETH_MAC_CONFIGURE:
         {
             uint32_t rcr = enet->resource->base->RCR;
             uint32_t tcr = enet->resource->base->TCR;
-
-            switch (arg & ARM_ETH_MAC_SPEED_Msk)
+#if defined(FSL_FEATURE_ENET_HAS_AVB) && FSL_FEATURE_ENET_HAS_AVB
+            uint32_t ecr = enet->resource->base->ECR;
+            if (FSL_FEATURE_ENET_INSTANCE_HAS_AVBn(enet->resource->base) > 0)
             {
-                case ARM_ETH_MAC_SPEED_10M:
+                ecr &= ~ENET_ECR_SPEED_MASK;
+            }
+#endif /* FSL_FEATURE_ENET_HAS_AVB */
+
+            switch (arg & (uint32_t)ARM_ETH_MAC_SPEED_Msk)
+            {
+                case (uint32_t)ARM_ETH_MAC_SPEED_10M:
                     rcr |= ENET_RCR_RMII_10T_MASK;
                     break;
-                case ARM_ETH_MAC_SPEED_100M:
+                case (uint32_t)ARM_ETH_MAC_SPEED_100M:
                     rcr &= ~ENET_RCR_RMII_10T_MASK;
                     break;
+#if defined(FSL_FEATURE_ENET_HAS_AVB) && FSL_FEATURE_ENET_HAS_AVB
+                case (uint32_t)ARM_ETH_MAC_SPEED_1G:
+                    /* If the selected enet doesn't support 1G, return unsupported status */
+                    if (FSL_FEATURE_ENET_INSTANCE_HAS_AVBn(enet->resource->base) > 0)
+                    {
+                        ecr |= ENET_ECR_SPEED_MASK;
+                        rcr &= ~ENET_RCR_RMII_10T_MASK;
+                    }
+                    else
+                    {
+                        result = ARM_DRIVER_ERROR_UNSUPPORTED;
+                    }
+                    break;
+#endif /* FSL_FEATURE_ENET_HAS_AVB */
                 default:
-                    return ARM_DRIVER_ERROR_UNSUPPORTED;
+                    result = ARM_DRIVER_ERROR_UNSUPPORTED;
+                    break;
+            }
+            if (result != ARM_DRIVER_OK)
+            {
+                return result;
             }
             switch (arg & ARM_ETH_MAC_DUPLEX_Msk)
             {
-                case ARM_ETH_MAC_DUPLEX_HALF:
+                case (uint32_t)ARM_ETH_MAC_DUPLEX_HALF:
                     rcr |= ENET_RCR_DRT_MASK;
                     tcr &= ~ENET_TCR_FDEN_MASK;
                     break;
-                case ARM_ETH_MAC_DUPLEX_FULL:
+                case (uint32_t)ARM_ETH_MAC_DUPLEX_FULL:
                     rcr &= ~ENET_RCR_DRT_MASK;
                     tcr |= ENET_TCR_FDEN_MASK;
                     break;
                 default:
-                    return ARM_DRIVER_ERROR_UNSUPPORTED;
+                    result = ARM_DRIVER_ERROR_UNSUPPORTED;
+                    break;
+            }
+            if (result != ARM_DRIVER_OK)
+            {
+                return result;
             }
 
-            if (arg & (ARM_ETH_MAC_CHECKSUM_OFFLOAD_RX | ARM_ETH_MAC_CHECKSUM_OFFLOAD_TX))
+            if ((arg & (ARM_ETH_MAC_CHECKSUM_OFFLOAD_RX | ARM_ETH_MAC_CHECKSUM_OFFLOAD_TX)) != 0U)
             {
                 return ARM_DRIVER_ERROR_UNSUPPORTED;
             }
 
-            if (arg & ARM_ETH_MAC_ADDRESS_BROADCAST)
+            if ((arg & ARM_ETH_MAC_ADDRESS_BROADCAST) != 0U)
             {
                 rcr &= ~ENET_RCR_BC_REJ_MASK;
             }
@@ -199,20 +235,20 @@ static int32_t ENET_CommonControl(uint32_t control, uint32_t arg, cmsis_enet_mac
                 rcr |= ENET_RCR_BC_REJ_MASK;
             }
 
-            if (arg & ARM_ETH_MAC_ADDRESS_MULTICAST)
+            if ((arg & ARM_ETH_MAC_ADDRESS_MULTICAST) != 0U)
             {
                 return ARM_DRIVER_ERROR_UNSUPPORTED;
             }
 
-            if (arg & ARM_ETH_MAC_ADDRESS_ALL)
+            if ((arg & ARM_ETH_MAC_ADDRESS_ALL) != 0U)
             {
                 rcr |= ENET_RCR_PROM_MASK;
             }
 
-            if (arg & ARM_ETH_MAC_LOOPBACK)
+            if ((arg & ARM_ETH_MAC_LOOPBACK) != 0U)
             {
                 /* Loop back only supported on MII mode. */
-                if (!(rcr & ENET_RCR_RMII_MODE_MASK))
+                if ((rcr & ENET_RCR_RMII_MODE_MASK) == 0U)
                 {
                     rcr |= ENET_RCR_LOOP_MASK;
                     rcr &= ~ENET_RCR_DRT_MASK;
@@ -221,10 +257,16 @@ static int32_t ENET_CommonControl(uint32_t control, uint32_t arg, cmsis_enet_mac
 
             enet->resource->base->RCR = rcr;
             enet->resource->base->TCR = tcr;
+#if defined(FSL_FEATURE_ENET_HAS_AVB) && FSL_FEATURE_ENET_HAS_AVB
+            if (FSL_FEATURE_ENET_INSTANCE_HAS_AVBn(enet->resource->base) > 0)
+            {
+                enet->resource->base->ECR = ecr;
+            }
+#endif /* FSL_FEATURE_ENET_HAS_AVB */
         }
         break;
-        case ARM_ETH_MAC_CONTROL_TX:
-            if (arg)
+        case (uint32_t)ARM_ETH_MAC_CONTROL_TX:
+            if (arg != 0U)
             {
                 enet->resource->base->TDAR = ENET_TDAR_TDAR_MASK;
             }
@@ -233,8 +275,8 @@ static int32_t ENET_CommonControl(uint32_t control, uint32_t arg, cmsis_enet_mac
                 enet->resource->base->TDAR &= ~ENET_TDAR_TDAR_MASK;
             }
             break;
-        case ARM_ETH_MAC_CONTROL_RX:
-            if (arg)
+        case (uint32_t)ARM_ETH_MAC_CONTROL_RX:
+            if (arg != 0U)
             {
                 ENET_ActiveRead(enet->resource->base);
             }
@@ -243,25 +285,28 @@ static int32_t ENET_CommonControl(uint32_t control, uint32_t arg, cmsis_enet_mac
                 enet->resource->base->RDAR &= ~ENET_RDAR_RDAR_MASK;
             }
             break;
-        case ARM_ETH_MAC_SLEEP:
+        case (uint32_t)ARM_ETH_MAC_SLEEP:
             ENET_EnableSleepMode(enet->resource->base, (bool)arg);
             break;
         default:
-            return ARM_DRIVER_ERROR_UNSUPPORTED;
+            result = ARM_DRIVER_ERROR_UNSUPPORTED;
+            break;
     }
-    return ARM_DRIVER_OK;
+    return result;
 }
 
 static int32_t ENET_CommonPowerControl(ARM_POWER_STATE state, cmsis_enet_mac_driver_state_t *enet)
 {
     int32_t result = ARM_DRIVER_OK;
+    ARM_ETH_MAC_CAPABILITIES capabilities;
+
     switch (state)
     {
         case ARM_POWER_OFF:
-            if (enet->flags & ENET_FLAG_POWER)
+            if ((enet->flags & ENET_FLAG_POWER) != 0U)
             {
-                ENET_CommonControl(ARM_ETH_MAC_CONTROL_TX, 0, enet);
-                ENET_CommonControl(ARM_ETH_MAC_CONTROL_RX, 0, enet);
+                (void)ENET_CommonControl(ARM_ETH_MAC_CONTROL_TX, 0, enet);
+                (void)ENET_CommonControl(ARM_ETH_MAC_CONTROL_RX, 0, enet);
                 ENET_Reset(enet->resource->base);
                 ENET_Deinit(enet->resource->base);
 
@@ -278,7 +323,7 @@ static int32_t ENET_CommonPowerControl(ARM_POWER_STATE state, cmsis_enet_mac_dri
                 return ARM_DRIVER_ERROR;
             }
 
-            if (enet->flags & ENET_FLAG_POWER)
+            if ((enet->flags & ENET_FLAG_POWER) != 0U)
             {
                 /* Driver already powered */
                 break;
@@ -291,18 +336,42 @@ static int32_t ENET_CommonPowerControl(ARM_POWER_STATE state, cmsis_enet_mac_dri
             /* Get default configuration. */
             ENET_GetDefaultConfig(&config);
             /* Change the MII interface mode according to the MII interface macro. */
-            if (RTE_ENET_MII)
+            capabilities = ENETx_GetCapabilities();
+            if (capabilities.media_interface == (uint32_t)ARM_ETH_INTERFACE_MII)
             {
                 config.miiMode = kENET_MiiMode;
             }
+            else if (capabilities.media_interface == (uint32_t)ARM_ETH_INTERFACE_RMII)
+            {
+#if defined(RTE_ENET_RGMII) && RTE_ENET_RGMII
+#if defined(FSL_FEATURE_ENET_HAS_AVB) && FSL_FEATURE_ENET_HAS_AVB
+                if (FSL_FEATURE_ENET_INSTANCE_HAS_AVBn(enet->resource->base) > 0)
+                {
+                    config.miiMode = kENET_RgmiiMode;
+                }
+                else
+                {
+                    result = ARM_DRIVER_ERROR_UNSUPPORTED;
+                    break;
+                }
+#endif /* FSL_FEATURE_ENET_HAS_AVB */
+#else
+                config.miiMode = kENET_RmiiMode;
+#endif /* RTE_ENET_RGMII */
+            }
+            else
+            {
+                /* Intentional empty */
+            }
+
             /* Enable the tx/rx interrupt mode. */
-            config.interrupt =
-                kENET_TxFrameInterrupt | kENET_TxBufferInterrupt | kENET_RxFrameInterrupt | kENET_TxBufferInterrupt;
+            config.interrupt = (uint32_t)kENET_TxFrameInterrupt | (uint32_t)kENET_TxBufferInterrupt |
+                               (uint32_t)kENET_RxFrameInterrupt | (uint32_t)kENET_TxBufferInterrupt;
             /* Enable tx accelerate function. */
-            config.txAccelerConfig = kENET_TxAccelIpCheckEnabled | kENET_TxAccelProtoCheckEnabled;
+            config.txAccelerConfig = (uint8_t)kENET_TxAccelIpCheckEnabled | (uint8_t)kENET_TxAccelProtoCheckEnabled;
             /* Initialize Ethernet Mac. */
             freq = enet->resource->GetFreq();
-            ENET_Init(enet->resource->base, enet->handle, &config, enet->buffers, &macAddr[0], freq);
+            (void)ENET_Init(enet->resource->base, enet->handle, &config, enet->buffers, &macAddr[0], freq);
 
             /* Callback setup */
             ENET_SetCallback(enet->handle, ENET_SetInterruptCallback, (void *)enet->cb_event);
@@ -328,16 +397,16 @@ static int32_t ENET_Phy_Write(cmsis_enet_mac_resource_t *enet, uint8_t phy_addr,
     ENET_StartSMIWrite(enet->base, phy_addr, reg_addr, kENET_MiiWriteValidFrame, data);
 
     /* Wait for SMI complete. */
-    for (counter = ENET_SMI_TIMEOUT_COUNT; counter > 0; counter--)
+    for (counter = ENET_SMI_TIMEOUT_COUNT; counter > 0U; counter--)
     {
-        if (ENET_GetInterruptStatus(enet->base) & ENET_EIR_MII_MASK)
+        if ((ENET_GetInterruptStatus(enet->base) & ENET_EIR_MII_MASK) != 0U)
         {
             break;
         }
     }
 
     /* Check for timeout. */
-    if (!counter)
+    if (counter == 0U)
     {
         return ARM_DRIVER_ERROR;
     }
@@ -361,22 +430,22 @@ static int32_t ENET_Phy_Read(cmsis_enet_mac_resource_t *enet, uint8_t phy_addr, 
     ENET_StartSMIRead(enet->base, phy_addr, reg_addr, kENET_MiiReadValidFrame);
 
     /* Wait for MII complete. */
-    for (counter = ENET_SMI_TIMEOUT_COUNT; counter > 0; counter--)
+    for (counter = ENET_SMI_TIMEOUT_COUNT; counter > 0U; counter--)
     {
-        if (ENET_GetInterruptStatus(enet->base) & ENET_EIR_MII_MASK)
+        if ((ENET_GetInterruptStatus(enet->base) & ENET_EIR_MII_MASK) != 0U)
         {
             break;
         }
     }
 
     /* Check for timeout. */
-    if (!counter)
+    if (counter == 0U)
     {
         return ARM_DRIVER_ERROR;
     }
 
     /* Get data from MII register. */
-    *data = ENET_ReadSMIData(enet->base);
+    *data = (uint16_t)ENET_ReadSMIData(enet->base);
 
     /* Clear MII interrupt event. */
     ENET_ClearInterruptStatus(enet->base, ENET_EIR_MII_MASK);
@@ -389,13 +458,13 @@ static int32_t ENET_CommonSendFrame(cmsis_enet_mac_driver_state_t *enet,
                                     uint32_t len,
                                     uint32_t flags)
 {
-    int32_t status;
+    status_t status;
 
     /* The SDK send frame driver is send with a whole frame and
      * the timestamp will be enabled automatically when it is a PTP frame
      * by parse the frame.
      */
-    if (flags & (ARM_ETH_MAC_TX_FRAME_FRAGMENT | ARM_ETH_MAC_TX_FRAME_TIMESTAMP))
+    if ((flags & (ARM_ETH_MAC_TX_FRAME_FRAGMENT | ARM_ETH_MAC_TX_FRAME_TIMESTAMP)) != 0U)
     {
         return ARM_DRIVER_ERROR;
     }
@@ -415,27 +484,27 @@ static int32_t ENET_CommonSendFrame(cmsis_enet_mac_driver_state_t *enet,
     }
     else
     {
-        return status;
+        return ARM_DRIVER_OK;
     }
 }
 
 static uint32_t ENET_CommonGetFrameSize(cmsis_enet_mac_driver_state_t *enet)
 {
-    uint32_t status;
+    status_t status;
     uint32_t length = 0;
 
     status = ENET_GetRxFrameSize(enet->handle, &length, 0);
     if (status == kStatus_ENET_RxFrameError)
     {
         /* Should update the buffers. */
-        ENET_ReadFrame(enet->resource->base, enet->handle, NULL, 0, 0, NULL);
+        (void)ENET_ReadFrame(enet->resource->base, enet->handle, NULL, 0, 0, NULL);
     }
     return length;
 }
 
 static int32_t ENET_CommonReadFrame(cmsis_enet_mac_driver_state_t *enet, uint8_t *frame, uint32_t len)
 {
-    int32_t status;
+    status_t status;
 
     status = ENET_ReadFrame(enet->resource->base, enet->handle, frame, len, 0, NULL);
     if (status != kStatus_Success)
@@ -443,106 +512,112 @@ static int32_t ENET_CommonReadFrame(cmsis_enet_mac_driver_state_t *enet, uint8_t
         return ARM_DRIVER_ERROR;
     }
 
-    return len;
+    return (int32_t)len;
 }
 
-#if (RTE_ENET && defined(ENET)) || (RTE_ENET0 && defined(ENET0))
+#if RTE_ENET
 
 /*! @brief Buffer descriptors should be in non-cacheable region and should be align to "ENET_BUFF_ALIGNMENT". */
-AT_NONCACHEABLE_SECTION_ALIGN(enet_rx_bd_struct_t g_rxBuffDescrip[ENET_RXBD_NUM], ENET_BUFF_ALIGNMENT);
-AT_NONCACHEABLE_SECTION_ALIGN(enet_tx_bd_struct_t g_txBuffDescrip[ENET_TXBD_NUM], ENET_BUFF_ALIGNMENT);
+AT_NONCACHEABLE_SECTION_ALIGN(static enet_rx_bd_struct_t g_rxBuffDescrip[ENET_RXBD_NUM], ENET_BUFF_ALIGNMENT);
+AT_NONCACHEABLE_SECTION_ALIGN(static enet_tx_bd_struct_t g_txBuffDescrip[ENET_TXBD_NUM], ENET_BUFF_ALIGNMENT);
 /*! @brief The data buffers can be in cacheable region or in non-cacheable region.
  * If use cacheable region, the alignment size should be the maximum size of "CACHE LINE SIZE" and "ENET_BUFF_ALIGNMENT"
  * If use non-cache region, the alignment size is the "ENET_BUFF_ALIGNMENT".
  */
-SDK_ALIGN(uint8_t g_rxDataBuff[ENET_RXBD_NUM][SDK_SIZEALIGN(ENET_RXBUFF_SIZE, CMSIS_ENET_BUFF_ALIGNMENT)],
+SDK_ALIGN(static uint8_t g_rxDataBuff[ENET_RXBD_NUM][SDK_SIZEALIGN(ENET_RXBUFF_SIZE, CMSIS_ENET_BUFF_ALIGNMENT)],
           CMSIS_ENET_BUFF_ALIGNMENT);
-SDK_ALIGN(uint8_t g_txDataBuff[ENET_TXBD_NUM][SDK_SIZEALIGN(ENET_TXBUFF_SIZE, CMSIS_ENET_BUFF_ALIGNMENT)],
+SDK_ALIGN(static uint8_t g_txDataBuff[ENET_TXBD_NUM][SDK_SIZEALIGN(ENET_TXBUFF_SIZE, CMSIS_ENET_BUFF_ALIGNMENT)],
           CMSIS_ENET_BUFF_ALIGNMENT);
-extern uint32_t ENET0_GetFreq(void);
+
 extern void ENET0_InitPins(void);
 extern void ENET0_DeinitPins(void);
 
-#if defined(ENET)
-cmsis_enet_mac_resource_t ENET0_Resource = {ENET, ENET0_GetFreq};
+#if (defined(ENET) && defined(ENET_1G))
+static cmsis_enet_mac_resource_t ENET0_Resource = {ENET_1G, ENET0_GetFreq};
+#elif defined(ENET)
+static cmsis_enet_mac_resource_t ENET0_Resource = {ENET, ENET0_GetFreq};
+#elif defined(ENET0)
+static cmsis_enet_mac_resource_t ENET0_Resource = {ENET0, ENET0_GetFreq};
+#elif defined(ENET1)
+static cmsis_enet_mac_resource_t ENET0_Resource = {ENET1, ENET0_GetFreq};
 #else
-cmsis_enet_mac_resource_t ENET0_Resource = {ENET0, ENET0_GetFreq};
+static cmsis_enet_mac_resource_t ENET0_Resource = {CONNECTIVITY__ENET0, ENET0_GetFreq};
 #endif
-enet_handle_t ENET0_Handle;
-enet_buffer_config_t ENET0_BuffConfig = {ENET_RXBD_NUM,
-                                         ENET_TXBD_NUM,
-                                         SDK_SIZEALIGN(ENET_RXBUFF_SIZE, CMSIS_ENET_BUFF_ALIGNMENT),
-                                         SDK_SIZEALIGN(ENET_TXBUFF_SIZE, CMSIS_ENET_BUFF_ALIGNMENT),
-                                         &g_rxBuffDescrip[0],
-                                         &g_txBuffDescrip[0],
-                                         &g_rxDataBuff[0][0],
-                                         &g_txDataBuff[0][0],
-                                         true,
-                                         true,
-                                         NULL};
+static enet_handle_t ENET0_Handle;
+static enet_buffer_config_t ENET0_BuffConfig = {ENET_RXBD_NUM,
+                                                ENET_TXBD_NUM,
+                                                SDK_SIZEALIGN(ENET_RXBUFF_SIZE, CMSIS_ENET_BUFF_ALIGNMENT),
+                                                SDK_SIZEALIGN(ENET_TXBUFF_SIZE, CMSIS_ENET_BUFF_ALIGNMENT),
+                                                &g_rxBuffDescrip[0],
+                                                &g_txBuffDescrip[0],
+                                                &g_rxDataBuff[0][0],
+                                                &g_txDataBuff[0][0],
+                                                (bool)true,
+                                                (bool)true,
+                                                NULL};
 
-cmsis_enet_mac_driver_state_t ENET0_DriverState = {&ENET0_Resource, &ENET0_Handle, &ENET0_BuffConfig};
+static cmsis_enet_mac_driver_state_t ENET0_DriverState = {&ENET0_Resource, &ENET0_Handle, &ENET0_BuffConfig};
 
-int32_t ENET0_Initialize(ARM_ETH_MAC_SignalEvent_t cb_event)
+static int32_t ENET0_Initialize(ARM_ETH_MAC_SignalEvent_t cb_event)
 {
     ENET0_InitPins();
 
     return ENET_CommonInitialize(cb_event, &ENET0_DriverState);
 }
 
-int32_t ENET0_Uninitialize(void)
+static int32_t ENET0_Uninitialize(void)
 {
     ENET0_DeinitPins();
     return ENET_CommonUninitialize(&ENET0_DriverState);
 }
 
-int32_t ENET0_PowerControl(ARM_POWER_STATE state)
+static int32_t ENET0_PowerControl(ARM_POWER_STATE state)
 {
     return ENET_CommonPowerControl(state, &ENET0_DriverState);
 }
 
-int32_t ENET0_GetMacAddress(ARM_ETH_MAC_ADDR *ptr_addr)
+static int32_t ENET0_GetMacAddress(ARM_ETH_MAC_ADDR *ptr_addr)
 {
     ENET_GetMacAddr(ENET0_Resource.base, &ptr_addr->b[0]);
 
     return ARM_DRIVER_OK;
 }
 
-int32_t ENET0_SetMacAddress(const ARM_ETH_MAC_ADDR *ptr_addr)
+static int32_t ENET0_SetMacAddress(const ARM_ETH_MAC_ADDR *ptr_addr)
 {
     uint8_t mac[6];
-    memcpy(&mac[0], ptr_addr, 6);
+    (void)memcpy((void *)&mac[0], (const void *)ptr_addr, 6);
     ENET_SetMacAddr(ENET0_Resource.base, &mac[0]);
 
     return ARM_DRIVER_OK;
 }
 
-int32_t ENET0_TransmitFrame(const uint8_t *frame, uint32_t len, uint32_t flags)
+static int32_t ENET0_TransmitFrame(const uint8_t *frame, uint32_t len, uint32_t flags)
 {
     return ENET_CommonSendFrame(&ENET0_DriverState, frame, len, flags);
 }
 
-uint32_t ENET0_GetReceiveFrameSize(void)
+static uint32_t ENET0_GetReceiveFrameSize(void)
 {
     return ENET_CommonGetFrameSize(&ENET0_DriverState);
 }
 
-int32_t ENET0_ReceiveFrame(uint8_t *frame, uint32_t len)
+static int32_t ENET0_ReceiveFrame(uint8_t *frame, uint32_t len)
 {
     return ENET_CommonReadFrame(&ENET0_DriverState, frame, len);
 }
 
-int32_t ENET0_Control(uint32_t control, uint32_t arg)
+static int32_t ENET0_Control(uint32_t control, uint32_t arg)
 {
     return ENET_CommonControl(control, arg, &ENET0_DriverState);
 }
 
-int32_t ENET0_PhyWrite(uint8_t phy_addr, uint8_t reg_addr, uint16_t data)
+static int32_t ENET0_PhyWrite(uint8_t phy_addr, uint8_t reg_addr, uint16_t data)
 {
     return ENET_Phy_Write(&ENET0_Resource, phy_addr, reg_addr, data);
 }
 
-int32_t ENET0_PhyRead(uint8_t phy_addr, uint8_t reg_addr, uint16_t *data)
+static int32_t ENET0_PhyRead(uint8_t phy_addr, uint8_t reg_addr, uint16_t *data)
 {
     return ENET_Phy_Read(&ENET0_Resource, phy_addr, reg_addr, data);
 }

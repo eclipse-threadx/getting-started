@@ -94,9 +94,10 @@ static void SAI_TxEDMACallback(edma_handle_t *handle, void *userData, bool done,
     sai_edma_private_handle_t *privHandle = (sai_edma_private_handle_t *)userData;
     sai_edma_handle_t *saiHandle          = privHandle->handle;
 
-    /* If finished a block, call the callback function */
     (void)memset(&saiHandle->saiQueue[saiHandle->queueDriver], 0, sizeof(sai_transfer_t));
-    saiHandle->queueDriver = (saiHandle->queueDriver + 1U) % SAI_XFER_QUEUE_SIZE;
+    saiHandle->queueDriver = (saiHandle->queueDriver + 1U) % (uint8_t)SAI_XFER_QUEUE_SIZE;
+
+    /* If finished a block, call the callback function */
     if (saiHandle->callback != NULL)
     {
         (saiHandle->callback)(privHandle->base, saiHandle, kStatus_SAI_TxIdle, saiHandle->userData);
@@ -116,9 +117,9 @@ static void SAI_RxEDMACallback(edma_handle_t *handle, void *userData, bool done,
     sai_edma_private_handle_t *privHandle = (sai_edma_private_handle_t *)userData;
     sai_edma_handle_t *saiHandle          = privHandle->handle;
 
-    /* If finished a block, call the callback function */
     (void)memset(&saiHandle->saiQueue[saiHandle->queueDriver], 0, sizeof(sai_transfer_t));
-    saiHandle->queueDriver = (saiHandle->queueDriver + 1U) % SAI_XFER_QUEUE_SIZE;
+    saiHandle->queueDriver = (saiHandle->queueDriver + 1U) % (uint8_t)SAI_XFER_QUEUE_SIZE;
+    /* If finished a block, call the callback function */
     if (saiHandle->callback != NULL)
     {
         (saiHandle->callback)(privHandle->base, saiHandle, kStatus_SAI_RxIdle, saiHandle->userData);
@@ -218,6 +219,8 @@ void SAI_TransferRxCreateHandleEDMA(
 /*!
  * brief Configures the SAI Tx audio format.
  *
+ * deprecated Do not use this function.  It has been superceded by ref SAI_TransferTxSetConfigEDMA
+ *
  * The audio format can be changed at run-time. This function configures the sample rate and audio data
  * format to be transferred. This function also sets the eDMA parameter according to formatting requirements.
  *
@@ -301,6 +304,8 @@ void SAI_TransferTxSetConfigEDMA(I2S_Type *base, sai_edma_handle_t *handle, sai_
 
 /*!
  * brief Configures the SAI Rx audio format.
+ *
+ * deprecated Do not use this function.  It has been superceded by ref SAI_TransferRxSetConfigEDMA
  *
  * The audio format can be changed at run-time. This function configures the sample rate and audio data
  * format to be transferred. This function also sets the eDMA parameter according to formatting requirements.
@@ -422,7 +427,7 @@ status_t SAI_TransferSendEDMA(I2S_Type *base, sai_edma_handle_t *handle, sai_tra
     handle->transferSize[handle->queueUser]      = xfer->dataSize;
     handle->saiQueue[handle->queueUser].data     = xfer->data;
     handle->saiQueue[handle->queueUser].dataSize = xfer->dataSize;
-    handle->queueUser                            = (handle->queueUser + 1U) % SAI_XFER_QUEUE_SIZE;
+    handle->queueUser                            = (handle->queueUser + 1U) % (uint8_t)SAI_XFER_QUEUE_SIZE;
 
     /* Prepare edma configure */
     EDMA_PrepareTransfer(&config, xfer->data, handle->bytesPerFrame, (uint32_t *)destAddr, handle->bytesPerFrame,
@@ -489,7 +494,7 @@ status_t SAI_TransferReceiveEDMA(I2S_Type *base, sai_edma_handle_t *handle, sai_
     handle->transferSize[handle->queueUser]      = xfer->dataSize;
     handle->saiQueue[handle->queueUser].data     = xfer->data;
     handle->saiQueue[handle->queueUser].dataSize = xfer->dataSize;
-    handle->queueUser                            = (handle->queueUser + 1U) % SAI_XFER_QUEUE_SIZE;
+    handle->queueUser                            = (handle->queueUser + 1U) % (uint8_t)SAI_XFER_QUEUE_SIZE;
 
     /* Prepare edma configure */
     EDMA_PrepareTransfer(&config, (uint32_t *)srcAddr, handle->bytesPerFrame, xfer->data, handle->bytesPerFrame,
@@ -552,7 +557,7 @@ void SAI_TransferAbortSendEDMA(I2S_Type *base, sai_edma_handle_t *handle)
 
     /* Handle the queue index */
     (void)memset(&handle->saiQueue[handle->queueDriver], 0, sizeof(sai_transfer_t));
-    handle->queueDriver = (handle->queueDriver + 1U) % SAI_XFER_QUEUE_SIZE;
+    handle->queueDriver = (handle->queueDriver + 1U) % (uint8_t)SAI_XFER_QUEUE_SIZE;
 
     /* Set the handle state */
     handle->state = (uint32_t)kSAI_Idle;
@@ -592,7 +597,7 @@ void SAI_TransferAbortReceiveEDMA(I2S_Type *base, sai_edma_handle_t *handle)
 
     /* Handle the queue index */
     (void)memset(&handle->saiQueue[handle->queueDriver], 0, sizeof(sai_transfer_t));
-    handle->queueDriver = (handle->queueDriver + 1U) % SAI_XFER_QUEUE_SIZE;
+    handle->queueDriver = (handle->queueDriver + 1U) % (uint8_t)SAI_XFER_QUEUE_SIZE;
 
     /* Set the handle state */
     handle->state = (uint32_t)kSAI_Idle;
@@ -704,4 +709,30 @@ status_t SAI_TransferGetReceiveCountEDMA(I2S_Type *base, sai_edma_handle_t *hand
     }
 
     return status;
+}
+
+/*!
+ * @rief Gets valid transfer slot.
+ *
+ * This function can be used to query the valid transfer request slot that the application can submit.
+ * It should be called in the critical section, that means the application could call it in the corresponding callback
+ * function or disable IRQ before calling it in the application, otherwise, the returned value may not correct.
+ *
+ * param base SAI base pointer
+ * param handle SAI eDMA handle pointer.
+ * retval valid slot count that application submit.
+ */
+uint32_t SAI_TransferGetValidTransferSlotsEDMA(I2S_Type *base, sai_edma_handle_t *handle)
+{
+    uint32_t validSlot = 0U;
+
+    for (uint32_t i = 0U; i < (uint32_t)SAI_XFER_QUEUE_SIZE; i++)
+    {
+        if (handle->saiQueue[i].data == NULL)
+        {
+            validSlot++;
+        }
+    }
+
+    return validSlot;
 }

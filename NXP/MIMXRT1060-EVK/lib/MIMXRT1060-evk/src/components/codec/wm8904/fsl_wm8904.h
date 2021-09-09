@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
- * Copyright 2016-2019 NXP
+ * Copyright 2016-2021 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -13,6 +13,7 @@
 #include "fsl_codec_i2c.h"
 /*!
  * @addtogroup wm8904
+ * @ingroup codec
  * @{
  */
 
@@ -21,8 +22,8 @@
  ******************************************************************************/
 /*! @name Driver version */
 /*@{*/
-/*! @brief WM8904 driver version 2.4.1. */
-#define FSL_WM8904_DRIVER_VERSION (MAKE_VERSION(2, 4, 1))
+/*! @brief WM8904 driver version 2.4.4. */
+#define FSL_WM8904_DRIVER_VERSION (MAKE_VERSION(2, 4, 4))
 /*@}*/
 
 /*! @brief wm8904 handle size */
@@ -92,15 +93,22 @@
 /*! @brief WM8904 I2C bit rate. */
 #define WM8904_I2C_BITRATE (400000U)
 
-/*! @brief WM8904 status return codes. */
-enum _wm8904_status
+/*!@brief WM8904 maximum headphone/lineout volume */
+#define WM8904_MAP_HEADPHONE_LINEOUT_MAX_VOLUME 0x3FU
+
+/*! @brief WM8904 status return codes.
+ * @anchor _wm8904_status
+ */
+enum
 {
     kStatus_WM8904_Success = 0x0, /*!< Success */
     kStatus_WM8904_Fail    = 0x1  /*!< Failure */
 };
 
-/*! @brief WM8904  lrc polarity. */
-enum _wm8904_lrc_polarity
+/*! @brief WM8904  lrc polarity.
+ * @anchor _wm8904_lrc_polarity
+ */
+enum
 {
     kWM8904_LRCPolarityNormal   = 0U,       /*!< LRC polarity  normal */
     kWM8904_LRCPolarityInverted = 1U << 4U, /*!< LRC polarity inverted */
@@ -116,8 +124,10 @@ typedef enum _wm8904_module
     kWM8904_ModuleLineout   = 4, /*!< module line out */
 } wm8904_module_t;
 
-/*! @brief wm8904 play channel  */
-enum _wm8904_play_channel
+/*! @brief wm8904 play channel
+ * @anchor _wm8904_play_channel
+ */
+enum
 {
     kWM8904_HeadphoneLeft  = 1U,
     kWM8904_HeadphoneRight = 2U,
@@ -160,12 +170,15 @@ typedef enum _wm8904_fs_ratio
 /*! @brief Sample rate. */
 typedef enum _wm8904_sample_rate
 {
-    kWM8904_SampleRate8kHz  = 0x0, /*!< 8 kHz */
-    kWM8904_SampleRate12kHz = 0x1, /*!< 11.025kHz, 12kHz */
-    kWM8904_SampleRate16kHz = 0x2, /*!< 16kHz */
-    kWM8904_SampleRate24kHz = 0x3, /*!< 22.05kHz, 24kHz */
-    kWM8904_SampleRate32kHz = 0x4, /*!< 32kHz */
-    kWM8904_SampleRate48kHz = 0x5  /*!< 44.1kHz, 48kHz */
+    kWM8904_SampleRate8kHz    = 0x0, /*!< 8 kHz */
+    kWM8904_SampleRate12kHz   = 0x1, /*!< 12kHz */
+    kWM8904_SampleRate16kHz   = 0x2, /*!< 16kHz */
+    kWM8904_SampleRate24kHz   = 0x3, /*!< 24kHz */
+    kWM8904_SampleRate32kHz   = 0x4, /*!< 32kHz */
+    kWM8904_SampleRate48kHz   = 0x5, /*!< 48kHz */
+    kWM8904_SampleRate11025Hz = 0x6, /*!< 11.025kHz */
+    kWM8904_SampleRate22050Hz = 0x7, /*!< 22.05kHz */
+    kWM8904_SampleRate44100Hz = 0x8  /*!< 44.1kHz */
 } wm8904_sample_rate_t;
 
 /*! @brief Bit width. */
@@ -177,8 +190,10 @@ typedef enum _wm8904_bit_width
     kWM8904_BitWidth32 = 0x3  /*!< 32 bits */
 } wm8904_bit_width_t;
 
-/*! @brief wm8904 record source */
-enum _wm8904_record_source
+/*! @brief wm8904 record source
+ * @anchor _wm8904_record_source
+ */
+enum
 {
     kWM8904_RecordSourceDifferentialLine = 1U, /*!< record source from differential line */
     kWM8904_RecordSourceLineInput        = 2U, /*!< record source from line input */
@@ -186,8 +201,10 @@ enum _wm8904_record_source
     kWM8904_RecordSourceDigitalMic       = 8U, /*!< record source from digital microphone */
 };
 
-/*! @brief wm8904 record channel*/
-enum _wm8904_record_channel
+/*! @brief wm8904 record channel
+ * @anchor _wm8904_record_channel
+ */
+enum
 {
     kWM8904_RecordChannelLeft1                 = 1U,  /*!< left record channel 1 */
     kWM8904_RecordChannelLeft2                 = 2U,  /*!< left record channel 2 */
@@ -203,8 +220,10 @@ enum _wm8904_record_channel
     kWM8904_RecordChannelDifferentialNegative3 = 32U, /*!< differential negative record channel 3 */
 };
 
-/*! @brief wm8904 play source*/
-enum _wm8904_play_source
+/*! @brief wm8904 play source
+ * @anchor _wm8904_play_source
+ */
+enum
 {
     kWM8904_PlaySourcePGA = 1U, /*!< play source PGA, bypass ADC */
     kWM8904_PlaySourceDAC = 4U, /*!< play source Input3 */
@@ -308,9 +327,9 @@ status_t WM8904_ModifyRegister(wm8904_handle_t *handle, uint8_t reg, uint16_t ma
  * @brief Initializes WM8904.
  *
  * @param handle WM8904 handle structure.
- * @param wm8904_config WM8904 configuration structure.
+ * @param wm8904Config WM8904 configuration structure.
  */
-status_t WM8904_Init(wm8904_handle_t *handle, wm8904_config_t *wm8904_config);
+status_t WM8904_Init(wm8904_handle_t *handle, wm8904_config_t *wm8904Config);
 
 /*!
  * @brief Deinitializes the WM8904 codec.
@@ -409,9 +428,9 @@ status_t WM8904_CheckAudioFormat(wm8904_handle_t *handle, wm8904_audio_format_t 
 /*!
  * @brief Sets the module output volume.
  *
- * The parameter should be from 0 to 100.
+ * The parameter should be from 0 to 63.
  * The resulting volume will be.
- * 0 for mute, 100 for maximum volume value.
+ * 0 for -57DB, 63 for 6DB.
  *
  * @param handle WM8904 handle structure.
  * @param volumeLeft left channel volume.
@@ -487,13 +506,13 @@ status_t WM8904_SetModulePower(wm8904_handle_t *handle, wm8904_module_t module, 
 /*!
  * @brief Sets the channel output volume.
  *
- * The parameter should be from 0 to 100.
+ * The parameter should be from 0 to 63.
  * The resulting volume will be.
- * 0 for mute, 100 for maximum volume value.
+ * 0 for -57dB, 63 for 6DB.
  *
  * @param handle codec handle structure.
  * @param channel codec channel.
- * @param volume volume value.
+ * @param volume volume value from 0 -63.
  *
  * @return kStatus_WM8904_Success if successful, different code otherwise.
  */

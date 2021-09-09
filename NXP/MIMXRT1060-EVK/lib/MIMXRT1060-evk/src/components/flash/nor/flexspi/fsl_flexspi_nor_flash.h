@@ -1,13 +1,15 @@
 /*
- * Copyright 2019-2020 NXP
+ * Copyright 2019-2021 NXP
  * All rights reserved.
  *
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#ifndef __FSL_FLEXSPI_NOR_FLASH_H__
+#define __FSL_FLEXSPI_NOR_FLASH_H__
+
 #include "fsl_flexspi.h"
-#include "fsl_common.h"
 
 /*******************************************************************************
  * Definitions
@@ -121,7 +123,7 @@ typedef enum _serial_nor_quad_mode
 {
     kSerialNorQuadMode_NotConfig            = 0, /*!< Quad mode do not configure*/
     kSerialNorQuadMode_StatusReg1_Bit6      = 1, /*!< Enable quad mode with status register 1 bit 6*/
-    kSerialNorQuadMode_StatusReg2_Bit1      = 2, /*!< Enable quad mode with status register 2 bit 1*/
+    kSerialNorQuadMode_StatusReg1AndReg2    = 2, /*!< Enable quad mode with status register 2 bit 1*/
     kSerialNorQuadMode_StatusReg2_Bit1_0x31 = 3, /*!< Enable quad mode with status register 2 bit 1(0x31)*/
     kSerialNorQuadMode_StatusReg2_Bit7      = 4, /*!< Enable quad mode with status register 2 bit 7*/
 } serial_nor_quad_mode_t;
@@ -161,7 +163,6 @@ typedef struct _flexspi_memory_config
     bool halfClkForNonReadCmd;  /*!< Half the Serial Clock for non-read command: true/false*/
     uint8_t needRestoreNoCmdMode; /*!< Need to Restore NoCmd mode after IP commmand execution*/
     bool deviceModeCfgEnable;     /*!< Device Mode Configure enable flag, true - Enable, false - Disable*/
-    uint32_t manufacturerId;      /*!< Manufacturer ID that each vendor has a unique ID depend on JESD216 spec*/
 } flexspi_mem_config_t;
 
 /*! @brief NOR Flash handle info */
@@ -173,3 +174,5 @@ typedef struct _flexspi_mem_nor_handle
                                    when flash device is busy, only need for check option kNORReadyCheckOption_RB */
     uint32_t configuredFlashSize; /*!< Flash size configured by user through device configuration. */
 } flexspi_mem_nor_handle_t;
+
+#endif /* __FSL_FLEXSPI_NOR_FLASH_H__ */

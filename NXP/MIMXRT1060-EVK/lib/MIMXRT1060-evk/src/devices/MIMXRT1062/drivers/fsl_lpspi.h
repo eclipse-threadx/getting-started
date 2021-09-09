@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * Copyright 2016-2020 NXP
+ * Copyright 2016-2020,2021 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -21,8 +21,8 @@
 
 /*! @name Driver version */
 /*@{*/
-/*! @brief LPSPI driver version 2.0.5. */
-#define FSL_LPSPI_DRIVER_VERSION (MAKE_VERSION(2, 0, 5))
+/*! @brief LPSPI driver version. */
+#define FSL_LPSPI_DRIVER_VERSION (MAKE_VERSION(2, 2, 0))
 /*@}*/
 
 #ifndef LPSPI_DUMMY_DATA
@@ -355,7 +355,9 @@ struct _lpspi_master_handle
     volatile bool isPcsContinuous; /*!< Is PCS continuous in transfer. */
     volatile bool writeTcrInIsr;   /*!< A flag that whether should write TCR in ISR. */
 
-    volatile bool isByteSwap; /*!< A flag that whether should byte swap. */
+    volatile bool isByteSwap;        /*!< A flag that whether should byte swap. */
+    volatile bool isTxMask;          /*!< A flag that whether TCR[TXMSK] is set. */
+    volatile uint16_t bytesPerFrame; /*!< Number of bytes in each frame */
 
     volatile uint8_t fifoSize; /*!< FIFO dataSize. */
 
@@ -714,12 +716,12 @@ static inline uint32_t LPSPI_GetRxRegisterAddress(LPSPI_Type *base)
 /*!
  * @brief Check the argument for transfer .
  *
+ * @param base LPSPI peripheral address.
  * @param transfer the transfer struct to be used.
- * @param bitsPerFrame The bit size of one frame.
- * @param bytesPerFrame The byte size of one frame.
+ * @param isEdma True to check for EDMA transfer, false to check interrupt non-blocking transfer
  * @return Return true for right and false for wrong.
  */
-bool LPSPI_CheckTransferArgument(lpspi_transfer_t *transfer, uint32_t bitsPerFrame, uint32_t bytesPerFrame);
+bool LPSPI_CheckTransferArgument(LPSPI_Type *base, lpspi_transfer_t *transfer, bool isEdma);
 
 /*!
  * @brief Configures the LPSPI for either master or slave.
@@ -732,6 +734,40 @@ bool LPSPI_CheckTransferArgument(lpspi_transfer_t *transfer, uint32_t bitsPerFra
 static inline void LPSPI_SetMasterSlaveMode(LPSPI_Type *base, lpspi_master_slave_mode_t mode)
 {
     base->CFGR1 = (base->CFGR1 & (~LPSPI_CFGR1_MASTER_MASK)) | LPSPI_CFGR1_MASTER(mode);
+}
+
+/*!
+ * @brief Configures the peripheral chip select used for the transfer.
+ *
+ * @param base LPSPI peripheral address.
+ * @param select LPSPI Peripheral Chip Select (PCS) configuration.
+ */
+static inline void LPSPI_SelectTransferPCS(LPSPI_Type *base, lpspi_which_pcs_t select)
+{
+    base->TCR = (base->TCR & (~LPSPI_TCR_PCS_MASK)) | LPSPI_TCR_PCS((uint8_t)select);
+}
+
+/*!
+ * @brief Set the PCS signal to continuous or uncontinuous mode.
+ *
+ * @note In master mode, continuous transfer will keep the PCS asserted at the end of the frame size, until a command
+ * word is received that starts a new frame. So PCS must be set back to uncontinuous when transfer finishes.
+ * In slave mode, when continuous transfer is enabled, the LPSPI will only transmit the first frame size bits, after
+ * that the LPSPI will transmit received data back (assuming a 32-bit shift register).
+ *
+ * @param base LPSPI peripheral address.
+ * @param IsContinous True to set the transfer PCS to continuous mode, false to set to uncontinuous mode.
+ */
+static inline void LPSPI_SetPCSContinous(LPSPI_Type *base, bool IsContinous)
+{
+    if (IsContinous)
+    {
+        base->TCR |= LPSPI_TCR_CONT_MASK;
+    }
+    else
+    {
+        base->TCR &= LPSPI_TCR_CONT_MASK;
+    }
 }
 
 /*!
@@ -993,8 +1029,7 @@ status_t LPSPI_MasterTransferBlocking(LPSPI_Type *base, lpspi_transfer_t *transf
  * @brief LPSPI master transfer data using an interrupt method.
  *
  * This function transfers data using an interrupt method. This is a non-blocking function, which returns right away.
- * When all data
- * is transferred, the callback function is called.
+ * When all data is transferred, the callback function is called.
  *
  * Note:
  * The transfer data size should be integer multiples of bytesPerFrame if bytesPerFrame is less than or equal to 4.
@@ -1061,8 +1096,7 @@ void LPSPI_SlaveTransferCreateHandle(LPSPI_Type *base,
  * @brief LPSPI slave transfer data using an interrupt method.
  *
  * This function transfer data using an interrupt method. This is a non-blocking function, which returns right away.
- * When all data
- * is transferred, the callback function is called.
+ * When all data is transferred, the callback function is called.
  *
  * Note:
  * The transfer data size should be integer multiples of bytesPerFrame if bytesPerFrame is less than or equal to 4.

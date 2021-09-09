@@ -1,5 +1,5 @@
 /*
- * Copyright  2017-2018 NXP
+ * Copyright 2017-2018, 2020 NXP
  * All rights reserved.
  *
  *
@@ -26,8 +26,8 @@ status_t VIDEO_I2C_WriteReg(uint8_t i2cAddr,
     uint8_t data[4];
     uint8_t i;
 
-    i = regWidth;
-    while (i--)
+    i = (uint8_t)regWidth;
+    while (0U != (i--))
     {
         data[i] = (uint8_t)value;
         value >>= 8;
@@ -54,17 +54,18 @@ status_t VIDEO_I2C_ReadReg(uint8_t i2cAddr,
                            void *value,
                            video_i2c_receive_func_t i2cReceiveFunc)
 {
-    uint8_t data[4];
-    uint8_t i = 0;
+    uint8_t data[4] = {0u, 0u, 0u, 0u};
+    uint8_t i       = 0;
+    uint8_t width   = (uint8_t)regWidth;
     status_t status;
 
     status = i2cReceiveFunc(i2cAddr, reg, addrType, data, regWidth);
 
     if (kStatus_Success == status)
     {
-        while (regWidth--)
+        while (0U != (width--))
         {
-            ((uint8_t *)value)[i++] = data[regWidth];
+            ((uint8_t *)value)[i++] = data[width];
         }
     }
 
@@ -81,7 +82,7 @@ status_t VIDEO_I2C_ModifyReg(uint8_t i2cAddr,
                              video_i2c_send_func_t i2cSendFunc)
 {
     status_t status;
-    uint32_t regVal;
+    uint32_t regVal = 0U;
 
     status = VIDEO_I2C_ReadReg(i2cAddr, addrType, reg, regWidth, &regVal, i2cReceiveFunc);
 

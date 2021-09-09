@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 NXP
+ * Copyright 2020-2021 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -12,11 +12,16 @@
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
+
+/*! @brief Defines the timeout macro. */
+#if defined(MDIO_TIMEOUT_COUNT_NUMBER) && MDIO_TIMEOUT_COUNT_NUMBER
+#define MDIO_TIMEOUT_COUNT MDIO_TIMEOUT_COUNT_NUMBER
+#endif
+
 /*! @brief Defines the PHY status. */
 enum _mdio_status
 {
-    kStatus_PHY_SMIVisitTimeout   = MAKE_STATUS(kStatusGroup_PHY, 1), /*!< ENET PHY SMI visit timeout. */
-    kStatus_PHY_AutoNegotiateFail = MAKE_STATUS(kStatusGroup_PHY, 2)  /*!< ENET PHY AutoNegotiate Fail. */
+    kStatus_PHY_SMIVisitTimeout = MAKE_STATUS(kStatusGroup_PHY, 0), /*!< ENET PHY SMI visit timeout. */
 };
 
 typedef struct _mdio_operations mdio_operations_t;
@@ -42,19 +47,19 @@ struct _mdio_operations
     status_t (*mdioWrite)(mdio_handle_t *handle,
                           uint32_t phyAddr,
                           uint32_t devAddr,
-                          uint32_t data); /*!< MDIO write data. */
+                          uint32_t data); /*!< IEEE 802.3 Clause 22 MDIO write data. */
     status_t (*mdioRead)(mdio_handle_t *handle,
                          uint32_t phyAddr,
                          uint32_t devAddr,
-                         uint32_t *dataPtr); /*!< MDIO read data. */
+                         uint32_t *dataPtr); /*!< IEEE 802.3 Clause 22 MDIO read data. */
     status_t (*mdioWriteExt)(mdio_handle_t *handle,
                              uint32_t phyAddr,
                              uint32_t devAddr,
-                             uint32_t data); /*!< MDIO write data. */
+                             uint32_t data); /*!< IEEE 802.3 Clause 45 MDIO write data. */
     status_t (*mdioReadExt)(mdio_handle_t *handle,
                             uint32_t phyAddr,
                             uint32_t devAddr,
-                            uint32_t *dataPtr); /*!< MDIO read data. */
+                            uint32_t *dataPtr); /*!< IEEE 802.3 Clause 45 MDIO read data. */
 };
 
 /*******************************************************************************

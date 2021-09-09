@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NXP
+ * Copyright 2018-2020 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -17,7 +17,7 @@
  ******************************************************************************/
 #if defined(XIP_BOOT_HEADER_ENABLE) && (XIP_BOOT_HEADER_ENABLE == 1)
 #if defined(__CC_ARM) || defined(__ARMCC_VERSION) || defined(__GNUC__)
-__attribute__((section(".boot_hdr.conf")))
+__attribute__((section(".boot_hdr.conf"), used))
 #elif defined(__ICCARM__)
 #pragma location = ".boot_hdr.conf"
 #endif

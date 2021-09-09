@@ -1,5 +1,5 @@
 /*
- * Copyright  2019 NXP
+ * Copyright 2019-2020 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -11,6 +11,16 @@
 #include "fsl_dc_fb.h"
 #include "fsl_elcdif.h"
 
+/*
+ * Change log:
+ *
+ *   1.0.1
+ *     - Fixed MISRA-C 2012 issues.
+ *
+ *   1.0.0
+ *     - Initial version
+ */
+
 /*!
  * @addtogroup dc_fb_elcdif
  * @{
@@ -20,7 +30,7 @@
  * Definitions
  ******************************************************************************/
 
-#define DC_FB_ELCDIF_MAX_LAYER                   1 /* Only support one layer currently. */
+#define DC_FB_ELCDIF_MAX_LAYER                   1U /* Only support one layer currently. */
 #define DC_FB_ELCDIF_DEFAULT_PIXEL_FORMAT        kVIDEO_PixelFormatRGB565
 #define DC_FB_ELCDIF_DEFAULT_PIXEL_FORMAT_ELCDIF kELCDIF_PixelFormatRGB565
 

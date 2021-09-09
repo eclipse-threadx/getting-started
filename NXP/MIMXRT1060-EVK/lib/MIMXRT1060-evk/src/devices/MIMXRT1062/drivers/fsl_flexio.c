@@ -40,6 +40,9 @@ static void *s_flexioType[FLEXIO_HANDLE_COUNT];
 /*< @brief pointer to array of FLEXIO Isr. */
 static flexio_isr_t s_flexioIsr[FLEXIO_HANDLE_COUNT];
 
+/* FlexIO common IRQ Handler. */
+static void FLEXIO_CommonIRQHandler(void);
+
 /*******************************************************************************
  * Codes
  ******************************************************************************/
@@ -379,7 +382,7 @@ status_t FLEXIO_UnregisterHandleIRQ(void *base)
     }
 }
 
-void FLEXIO_CommonIRQHandler(void)
+static void FLEXIO_CommonIRQHandler(void)
 {
     uint8_t index;
 
@@ -393,31 +396,37 @@ void FLEXIO_CommonIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void FLEXIO_DriverIRQHandler(void);
 void FLEXIO_DriverIRQHandler(void)
 {
     FLEXIO_CommonIRQHandler();
 }
 
+void FLEXIO0_DriverIRQHandler(void);
 void FLEXIO0_DriverIRQHandler(void)
 {
     FLEXIO_CommonIRQHandler();
 }
 
+void FLEXIO1_DriverIRQHandler(void);
 void FLEXIO1_DriverIRQHandler(void)
 {
     FLEXIO_CommonIRQHandler();
 }
 
+void UART2_FLEXIO_DriverIRQHandler(void);
 void UART2_FLEXIO_DriverIRQHandler(void)
 {
     FLEXIO_CommonIRQHandler();
 }
 
+void FLEXIO2_DriverIRQHandler(void);
 void FLEXIO2_DriverIRQHandler(void)
 {
     FLEXIO_CommonIRQHandler();
 }
 
+void FLEXIO3_DriverIRQHandler(void);
 void FLEXIO3_DriverIRQHandler(void)
 {
     FLEXIO_CommonIRQHandler();

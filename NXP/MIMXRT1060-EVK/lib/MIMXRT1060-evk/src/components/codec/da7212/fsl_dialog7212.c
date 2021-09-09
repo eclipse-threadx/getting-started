@@ -21,7 +21,16 @@ typedef struct _da7212_register_value
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
-
+/*!
+ * @brief DA7212 modify register.
+ *
+ * @param handle DA7212 handle structure.
+ * @param reg register address.
+ * @param mask register bits mask.
+ * @param value value to write.
+ * @return kStatus_Success, else failed.
+ */
+static status_t DA7212_ModifyRegister(da7212_handle_t *handle, uint8_t reg, uint8_t mask, uint8_t value);
 /*******************************************************************************
  * Variables
  ******************************************************************************/
@@ -41,6 +50,10 @@ static const da7212_register_value_t kInputRegisterSequence[kDA7212_Input_MAX][1
         {DIALOG7212_GAIN_RAMP_CTRL, 0x02},
         {DIALOG7212_PC_COUNT, 0x02},
         {DIALOG7212_CP_DELAY, 0x95},
+        {0, 0},
+        {0, 0},
+        {0, 0},
+        {0, 0},
     },
     /* DA7212_Input_MIC1_Dig */
     {
@@ -56,6 +69,11 @@ static const da7212_register_value_t kInputRegisterSequence[kDA7212_Input_MAX][1
         {DIALOG7212_MIC_1_GAIN, 0x01},
         {DIALOG7212_MIC_1_CTRL, 0x80},
         {DIALOG7212_ADC_FILTERS1, 0x08},
+        {0, 0},
+        {0, 0},
+        {0, 0},
+        {0, 0},
+        {0, 0},
     },
     /* DA7212_Input_MIC1_An */
     {
@@ -75,6 +93,7 @@ static const da7212_register_value_t kInputRegisterSequence[kDA7212_Input_MAX][1
         {DIALOG7212_GAIN_RAMP_CTRL, 0x02},
         {DIALOG7212_PC_COUNT, 0x02},
         {DIALOG7212_CP_DELAY, 0x95},
+        {0, 0},
     },
     /* DA7212_Input_MIC2 */
     {
@@ -92,6 +111,9 @@ static const da7212_register_value_t kInputRegisterSequence[kDA7212_Input_MAX][1
         {DIALOG7212_GAIN_RAMP_CTRL, 0x02},
         {DIALOG7212_PC_COUNT, 0x02},
         {DIALOG7212_CP_DELAY, 0x95},
+        {0, 0},
+        {0, 0},
+        {0, 0},
     }};
 
 static const da7212_register_value_t kOutputRegisterSequence[kDA7212_Output_MAX][4] = {
@@ -202,7 +224,7 @@ static const da7212_register_value_t kInitRegisterSequence[DA7212_INIT_SIZE] = {
     },
     {
         DIALOG7212_CP_VOL_THRESHOLD1,
-        (DIALOG7212_CP_VOL_THRESHOLD1_VDD2(0x32)),
+        DIALOG7212_CP_VOL_THRESHOLD1_VDD2(0x32),
     },
     {
         DIALOG7212_SYSTEM_STATUS,
@@ -210,11 +232,11 @@ static const da7212_register_value_t kInitRegisterSequence[DA7212_INIT_SIZE] = {
     },
     {
         DIALOG7212_DAC_L_GAIN,
-        kDA7212_DACGainM6DB,
+        (uint8_t)kDA7212_DACGainM6DB,
     },
     {
         DIALOG7212_DAC_R_GAIN,
-        kDA7212_DACGainM6DB,
+        (uint8_t)kDA7212_DACGainM6DB,
     },
     {
         DIALOG7212_MIXIN_L_SELECT,
@@ -290,10 +312,10 @@ status_t DA7212_ReadRegister(da7212_handle_t *handle, uint8_t u8Register, uint8_
                              (uint8_t *)pu8RegisterData, 1U);
 }
 
-status_t DA7212_ModifyRegister(da7212_handle_t *handle, uint8_t reg, uint8_t mask, uint8_t value)
+static status_t DA7212_ModifyRegister(da7212_handle_t *handle, uint8_t reg, uint8_t mask, uint8_t value)
 {
     status_t result;
-    uint8_t regValue;
+    uint8_t regValue = 0;
 
     result = DA7212_ReadRegister(handle, reg, &regValue);
     if (result != kStatus_Success)
@@ -313,6 +335,7 @@ status_t DA7212_Init(da7212_handle_t *handle, da7212_config_t *codecConfig)
     assert(handle != NULL);
 
     uint32_t i              = 0;
+    status_t error          = kStatus_Success;
     da7212_config_t *config = codecConfig;
     uint32_t sysClock       = config->format.mclk_HZ;
     handle->config          = config;
@@ -327,30 +350,50 @@ status_t DA7212_Init(da7212_handle_t *handle, da7212_config_t *codecConfig)
     /* If no config structure, use default settings */
     for (i = 0; i < DA7212_INIT_SIZE; i++)
     {
-        DA7212_WriteRegister(handle, kInitRegisterSequence[i].addr, kInitRegisterSequence[i].value);
+        if ((DA7212_WriteRegister(handle, kInitRegisterSequence[i].addr, kInitRegisterSequence[i].value)) !=
+            kStatus_Success)
+        {
+            return kStatus_Fail;
+        }
     }
 
     if (config->isMaster)
     {
         /* clock configurations */
-        DA7212_WriteRegister(handle, DIALOG7212_DAI_CLK_MODE,
-                             (config->format.isBclkInvert ? 1U << 2U : 0U) | (1U << 7U));
+        if ((DA7212_WriteRegister(handle, DIALOG7212_DAI_CLK_MODE,
+                                  (config->format.isBclkInvert ? 1U << 2U : 0U) | (1U << 7U))) != kStatus_Success)
+        {
+            return kStatus_Fail;
+        }
 
-        DA7212_SetMasterModeBits(handle, config->format.bitWidth);
+        if (DA7212_SetMasterModeBits(handle, config->format.bitWidth) != kStatus_Success)
+        {
+            return kStatus_Fail;
+        }
     }
 
     /* Set DA7212 functionality */
     if (config->dacSource == kDA7212_DACSourceADC)
     {
-        DA7212_WriteRegister(handle, DIALOG7212_DIG_ROUTING_DAC, 0x10);
+        if ((DA7212_WriteRegister(handle, DIALOG7212_DIG_ROUTING_DAC, 0x10)) != kStatus_Success)
+        {
+            return kStatus_Fail;
+        }
     }
     else
     {
-        DA7212_WriteRegister(handle, DIALOG7212_DIG_ROUTING_DAC, 0x32);
+        if ((DA7212_WriteRegister(handle, DIALOG7212_DIG_ROUTING_DAC, 0x32)) != kStatus_Success)
+        {
+            return kStatus_Fail;
+        }
     }
 
     /* Set the audio protocol */
-    DA7212_WriteRegister(handle, DIALOG7212_DAI_CTRL, DIALOG7212_DAI_EN_MASK | config->protocol);
+    if ((DA7212_WriteRegister(handle, DIALOG7212_DAI_CTRL,
+                              (uint8_t)(DIALOG7212_DAI_EN_MASK | (uint8_t)(config->protocol)))) != kStatus_Success)
+    {
+        return kStatus_Fail;
+    }
 
     if (codecConfig->sysClkSource == kDA7212_SysClkSourcePLL)
     {
@@ -359,17 +402,18 @@ status_t DA7212_Init(da7212_handle_t *handle, da7212_config_t *codecConfig)
             return kStatus_Fail;
         }
 
-        sysClock = codecConfig->pll->outputClock_HZ;
+        sysClock = (uint32_t)(codecConfig->pll->outputClock_HZ);
     }
 
-    DA7212_ConfigAudioFormat(handle, sysClock, config->format.sampleRate, config->format.bitWidth);
+    error = DA7212_ConfigAudioFormat(handle, sysClock, config->format.sampleRate, config->format.bitWidth);
 
-    return kStatus_Success;
+    return error;
 }
 
 status_t DA7212_SetPLLConfig(da7212_handle_t *handle, da7212_pll_config_t *config)
 {
     assert(config != NULL);
+    status_t retVal = kStatus_Success;
 
     uint8_t indiv = 0, inputDiv = 0, regVal = 0;
     uint64_t pllValue = 0;
@@ -386,17 +430,17 @@ status_t DA7212_SetPLLConfig(da7212_handle_t *handle, da7212_pll_config_t *confi
         inputDiv = 1;
     }
     /* Compute the PLL_INDIV and DIV value for sysClock */
-    else if ((config->refClock_HZ > 2000000) && (config->refClock_HZ <= 10000000))
+    else if ((config->refClock_HZ > 2000000U) && (config->refClock_HZ <= 10000000U))
     {
         indiv    = DIALOG7212_PLL_INDIV_2_10MHZ;
         inputDiv = 2;
     }
-    else if ((config->refClock_HZ > 10000000) && (config->refClock_HZ <= 20000000))
+    else if ((config->refClock_HZ > 10000000U) && (config->refClock_HZ <= 20000000U))
     {
         indiv    = DIALOG7212_PLL_INDIV_10_20MHZ;
         inputDiv = 4;
     }
-    else if ((config->refClock_HZ > 20000000) && (config->refClock_HZ <= 40000000))
+    else if ((config->refClock_HZ > 20000000U) && (config->refClock_HZ <= 40000000U))
     {
         indiv    = DIALOG7212_PLL_INDIV_20_40MHZ;
         inputDiv = 8;
@@ -409,36 +453,36 @@ status_t DA7212_SetPLLConfig(da7212_handle_t *handle, da7212_pll_config_t *confi
 
     /* PLL feedback divider is a Q13 value */
     pllValue =
-        (uint64_t)(((uint64_t)((((uint64_t)config->outputClock_HZ * 8) * inputDiv) << 13)) / (config->refClock_HZ));
+        (uint64_t)(((uint64_t)((((uint64_t)config->outputClock_HZ * 8U) * inputDiv) << 13U)) / (config->refClock_HZ));
 
     /* extract integer and fractional */
-    pllInteger    = pllValue >> 13;
-    pllFractional = (pllValue - (pllInteger << 13));
-    pllFracTop    = (pllFractional >> 8);
-    pllFracBottom = (pllFractional & 0xFF);
+    pllInteger    = (uint8_t)(pllValue >> 13U);
+    pllFractional = (uint32_t)(pllValue - ((uint64_t)pllInteger << 13U));
+    pllFracTop    = (uint8_t)(pllFractional >> 8U);
+    pllFracBottom = (uint8_t)(pllFractional & 0xFFU);
 
-    DA7212_WriteRegister(handle, DIALOG7212_PLL_FRAC_TOP, pllFracTop);
+    retVal = DA7212_WriteRegister(handle, DIALOG7212_PLL_FRAC_TOP, pllFracTop);
 
-    DA7212_WriteRegister(handle, DIALOG7212_PLL_FRAC_BOT, pllFracBottom);
+    retVal = DA7212_WriteRegister(handle, DIALOG7212_PLL_FRAC_BOT, pllFracBottom);
 
-    DA7212_WriteRegister(handle, DIALOG7212_PLL_INTEGER, pllInteger);
+    retVal = DA7212_WriteRegister(handle, DIALOG7212_PLL_INTEGER, pllInteger);
 
     regVal = pllEnMask | indiv;
 
-    DA7212_WriteRegister(handle, DIALOG7212_PLL_CTRL, regVal);
+    retVal = DA7212_WriteRegister(handle, DIALOG7212_PLL_CTRL, regVal);
 
     /* wait for PLL lock bits */
     while ((regVal & 1U) == 0U)
     {
-        DA7212_ReadRegister(handle, DIALOG7212_PLL_STATUS, &regVal);
+        retVal = DA7212_ReadRegister(handle, DIALOG7212_PLL_STATUS, &regVal);
     }
 
-    return kStatus_Success;
+    return retVal;
 }
 
 status_t DA7212_SetProtocol(da7212_handle_t *handle, da7212_protocol_t protocol)
 {
-    return DA7212_WriteRegister(handle, DIALOG7212_DAI_CTRL, (DIALOG7212_DAI_EN_MASK | protocol));
+    return DA7212_WriteRegister(handle, DIALOG7212_DAI_CTRL, (uint8_t)(DIALOG7212_DAI_EN_MASK | (uint8_t)protocol));
 }
 
 status_t DA7212_ConfigAudioFormat(da7212_handle_t *handle,
@@ -446,70 +490,73 @@ status_t DA7212_ConfigAudioFormat(da7212_handle_t *handle,
                                   uint32_t sampleRate_Hz,
                                   uint32_t dataBits)
 {
-    uint8_t regVal = 0;
+    uint8_t regVal  = 0;
+    status_t retVal = kStatus_Success;
 
     switch (sampleRate_Hz)
     {
         case 8000:
-            DA7212_WriteRegister(handle, DIALOG7212_SR, DIALOG7212_SR_8KHZ);
+            retVal = DA7212_WriteRegister(handle, DIALOG7212_SR, DIALOG7212_SR_8KHZ);
             break;
         case 11025:
-            DA7212_WriteRegister(handle, DIALOG7212_SR, DIALOG7212_SR_11_025KHZ);
+            retVal = DA7212_WriteRegister(handle, DIALOG7212_SR, DIALOG7212_SR_11_025KHZ);
             break;
         case 12000:
-            DA7212_WriteRegister(handle, DIALOG7212_SR, DIALOG7212_SR_12KHZ);
+            retVal = DA7212_WriteRegister(handle, DIALOG7212_SR, DIALOG7212_SR_12KHZ);
             break;
         case 16000:
-            DA7212_WriteRegister(handle, DIALOG7212_SR, DIALOG7212_SR_16KHZ);
+            retVal = DA7212_WriteRegister(handle, DIALOG7212_SR, DIALOG7212_SR_16KHZ);
             break;
         case 22050:
-            DA7212_WriteRegister(handle, DIALOG7212_SR, DIALOG7212_SR_22KHZ);
+            retVal = DA7212_WriteRegister(handle, DIALOG7212_SR, DIALOG7212_SR_22KHZ);
             break;
         case 24000:
-            DA7212_WriteRegister(handle, DIALOG7212_SR, DIALOG7212_SR_24KHZ);
+            retVal = DA7212_WriteRegister(handle, DIALOG7212_SR, DIALOG7212_SR_24KHZ);
             break;
         case 32000:
-            DA7212_WriteRegister(handle, DIALOG7212_SR, DIALOG7212_SR_32KHZ);
+            retVal = DA7212_WriteRegister(handle, DIALOG7212_SR, DIALOG7212_SR_32KHZ);
             break;
         case 44100:
-            DA7212_WriteRegister(handle, DIALOG7212_SR, DIALOG7212_SR_44_1KHZ);
+            retVal = DA7212_WriteRegister(handle, DIALOG7212_SR, DIALOG7212_SR_44_1KHZ);
             break;
         case 48000:
-            DA7212_WriteRegister(handle, DIALOG7212_SR, DIALOG7212_SR_48KHZ);
+            retVal = DA7212_WriteRegister(handle, DIALOG7212_SR, DIALOG7212_SR_48KHZ);
             break;
         case 88200:
-            DA7212_WriteRegister(handle, DIALOG7212_SR, DIALOG7212_SR_88_2KHZ);
+            retVal = DA7212_WriteRegister(handle, DIALOG7212_SR, DIALOG7212_SR_88_2KHZ);
             break;
         case 96000:
-            DA7212_WriteRegister(handle, DIALOG7212_SR, DIALOG7212_SR_96KHZ);
+            retVal = DA7212_WriteRegister(handle, DIALOG7212_SR, DIALOG7212_SR_96KHZ);
             break;
         default:
+            /* Avoid MISRA 16.4 violation */
             break;
     }
 
     /* Set data bits of word */
-    DA7212_ReadRegister(handle, DIALOG7212_DAI_CTRL, &regVal);
-    regVal &= ~DIALOG7212_DAI_WORD_LENGTH_MASK;
+    retVal = DA7212_ReadRegister(handle, DIALOG7212_DAI_CTRL, &regVal);
+    regVal &= ~(uint8_t)DIALOG7212_DAI_WORD_LENGTH_MASK;
     switch (dataBits)
     {
         case 16:
-            regVal |= DIALOG7212_DAI_WORD_LENGTH_16B;
+            regVal |= (uint8_t)DIALOG7212_DAI_WORD_LENGTH_16B;
             break;
         case 20:
-            regVal |= DIALOG7212_DAI_WORD_LENGTH_20B;
+            regVal |= (uint8_t)DIALOG7212_DAI_WORD_LENGTH_20B;
             break;
         case 24:
-            regVal |= DIALOG7212_DAI_WORD_LENGTH_24B;
+            regVal |= (uint8_t)DIALOG7212_DAI_WORD_LENGTH_24B;
             break;
         case 32:
-            regVal |= DIALOG7212_DAI_WORD_LENGTH_32B;
+            regVal |= (uint8_t)DIALOG7212_DAI_WORD_LENGTH_32B;
             break;
         default:
+            /* Avoid MISRA 16.4 violation */
             break;
     }
-    DA7212_WriteRegister(handle, DIALOG7212_DAI_CTRL, regVal);
+    retVal = DA7212_WriteRegister(handle, DIALOG7212_DAI_CTRL, regVal);
 
-    return kStatus_Success;
+    return retVal;
 }
 
 status_t DA7212_SetMasterModeBits(da7212_handle_t *handle, uint32_t bitWidth)
@@ -532,6 +579,7 @@ status_t DA7212_SetMasterModeBits(da7212_handle_t *handle, uint32_t bitWidth)
             break;
         default:
             assert(false);
+            break;
     }
 
     return DA7212_ModifyRegister(handle, DIALOG7212_DAI_CLK_MODE, 3, regVal);
@@ -544,8 +592,8 @@ void DA7212_ChangeInput(da7212_handle_t *handle, da7212_Input_t DA7212_Input)
 
     for (i = 0; i < seqSize; i++)
     {
-        DA7212_WriteRegister(handle, kInputRegisterSequence[DA7212_Input][i].addr,
-                             kInputRegisterSequence[DA7212_Input][i].value);
+        (void)DA7212_WriteRegister(handle, kInputRegisterSequence[DA7212_Input][i].addr,
+                                   kInputRegisterSequence[DA7212_Input][i].value);
     }
 }
 
@@ -556,15 +604,15 @@ void DA7212_ChangeOutput(da7212_handle_t *handle, da7212_Output_t DA7212_Output)
 
     for (i = 0; i < seqSize; i++)
     {
-        DA7212_WriteRegister(handle, kOutputRegisterSequence[DA7212_Output][i].addr,
-                             kOutputRegisterSequence[DA7212_Output][i].value);
+        (void)DA7212_WriteRegister(handle, kOutputRegisterSequence[DA7212_Output][i].addr,
+                                   kOutputRegisterSequence[DA7212_Output][i].value);
     }
 }
 
 void DA7212_ChangeHPVolume(da7212_handle_t *handle, da7212_volume_t volume)
 {
-    DA7212_WriteRegister(handle, DIALOG7212_DAC_L_GAIN, volume);
-    DA7212_WriteRegister(handle, DIALOG7212_DAC_R_GAIN, volume);
+    (void)DA7212_WriteRegister(handle, DIALOG7212_DAC_L_GAIN, (uint8_t)volume);
+    (void)DA7212_WriteRegister(handle, DIALOG7212_DAC_R_GAIN, (uint8_t)volume);
 }
 
 void DA7212_Mute(da7212_handle_t *handle, bool isMuted)
@@ -580,32 +628,32 @@ void DA7212_Mute(da7212_handle_t *handle, bool isMuted)
         val = DA7212_DAC_MUTE_DISABLED;
     }
 
-    DA7212_WriteRegister(handle, DIALOG7212_DAC_L_CTRL, val);
-    DA7212_WriteRegister(handle, DIALOG7212_DAC_R_CTRL, val);
+    (void)DA7212_WriteRegister(handle, DIALOG7212_DAC_L_CTRL, val);
+    (void)DA7212_WriteRegister(handle, DIALOG7212_DAC_R_CTRL, val);
 }
 
 status_t DA7212_SetChannelVolume(da7212_handle_t *handle, uint32_t channel, uint32_t volume)
 {
-    status_t retVal   = kStatus_Success;
-    uint16_t muteCtrl = volume == 0U ? 0x40 : 0x80U;
-    uint32_t vol      = volume == 100U ? 64U : volume;
+    status_t retVal = kStatus_Success;
 
-    if (channel & kDA7212_HeadphoneLeft)
+    if (volume > DA7212_HEADPHONE_MAX_VOLUME_VALUE)
     {
-        retVal = DA7212_WriteRegister(handle, DIALOG7212_HP_L_GAIN, vol - 1U);
-        retVal = DA7212_ModifyRegister(handle, DIALOG7212_HP_L_CTRL, 0xC0U, muteCtrl);
+        return kStatus_InvalidArgument;
     }
 
-    if (channel & kDA7212_HeadphoneRight)
+    if ((channel & (uint32_t)kDA7212_HeadphoneLeft) != 0U)
     {
-        retVal = DA7212_WriteRegister(handle, DIALOG7212_HP_R_GAIN, vol - 1U);
-        retVal = DA7212_ModifyRegister(handle, DIALOG7212_HP_R_CTRL, 0xC0U, muteCtrl);
+        retVal = DA7212_WriteRegister(handle, DIALOG7212_HP_L_GAIN, (uint8_t)volume);
     }
 
-    if (channel & kDA7212_Speaker)
+    if ((channel & (uint32_t)kDA7212_HeadphoneRight) != 0U)
     {
-        retVal = DA7212_WriteRegister(handle, DIALOG7212_LINE_GAIN, vol - 1U);
-        retVal = DA7212_ModifyRegister(handle, DIALOG7212_LINE_CTRL, 0xC0U, muteCtrl);
+        retVal = DA7212_WriteRegister(handle, DIALOG7212_HP_R_GAIN, (uint8_t)volume);
+    }
+
+    if ((channel & (uint32_t)kDA7212_Speaker) != 0U)
+    {
+        retVal = DA7212_WriteRegister(handle, DIALOG7212_LINE_GAIN, (uint8_t)volume);
     }
 
     return retVal;
@@ -616,17 +664,17 @@ status_t DA7212_SetChannelMute(da7212_handle_t *handle, uint32_t channel, bool i
     uint8_t regValue = isMute == true ? 0x40U : 0x80U;
     status_t retVal  = kStatus_Success;
 
-    if (channel & kDA7212_HeadphoneLeft)
+    if ((channel & (uint32_t)kDA7212_HeadphoneLeft) != 0U)
     {
         retVal = DA7212_ModifyRegister(handle, DIALOG7212_HP_L_CTRL, 0xC0U, regValue);
     }
 
-    if (channel & kDA7212_HeadphoneRight)
+    if ((channel & (uint32_t)kDA7212_HeadphoneRight) != 0U)
     {
         retVal = DA7212_ModifyRegister(handle, DIALOG7212_HP_R_CTRL, 0xC0U, regValue);
     }
 
-    if (channel & kDA7212_Speaker)
+    if ((channel & (uint32_t)kDA7212_Speaker) != 0U)
     {
         retVal = DA7212_ModifyRegister(handle, DIALOG7212_LINE_CTRL, 0xC0U, regValue);
     }

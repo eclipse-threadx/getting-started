@@ -361,7 +361,7 @@ static inline void RTWDOG_SetWindowValue(RTWDOG_Type *base, uint16_t windowValue
  *
  * @param base RTWDOG peripheral base address
  */
-static inline void RTWDOG_Unlock(RTWDOG_Type *base)
+__STATIC_FORCEINLINE void RTWDOG_Unlock(RTWDOG_Type *base)
 {
     if (((base->CS) & RTWDOG_CS_CMD32EN_MASK) != 0U)
     {

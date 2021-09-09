@@ -21,11 +21,15 @@
  */
 /*! @name Driver version */
 /*@{*/
-/*! @brief DCP driver version. Version 2.1.5.
+/*! @brief DCP driver version. Version 2.1.6.
  *
- * Current version: 2.1.5
+ * Current version: 2.1.6
  *
  * Change log:
+ *
+ * - Version 2.1.6
+ *  - Bug Fix
+ *   - MISRA C-2012 issue fix.
  *
  * - Version 2.1.5
  *  - Improvements
@@ -51,7 +55,7 @@
  * - Version 2.0.0
  *   - Initial version
  */
-#define FSL_DCP_DRIVER_VERSION (MAKE_VERSION(2, 1, 5))
+#define FSL_DCP_DRIVER_VERSION (MAKE_VERSION(2, 1, 6))
 /*@}*/
 
 /*! @brief DCP status return codes. */
@@ -164,6 +168,13 @@ typedef struct _dcp_config
 } dcp_config_t;
 
 /*! @} */
+
+#ifndef DCP_USE_DCACHE
+#define DCP_USE_DCACHE 1
+#endif
+/* 1 - driver supports DCACHE, 0 - drivers does not support DCACHE */
+/* When enable (DCP_USE_DCACHE = 1) Input/output buffers and hash ctx should be in */
+/* non-cached memory or handled properly (Clean & Invalidate DCACHE) */
 
 /*******************************************************************************
  * AES Definitions

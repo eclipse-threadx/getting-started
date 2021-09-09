@@ -1,5 +1,5 @@
 /*
- * Copyright  2017-2018 NXP
+ * Copyright 2017-2018, 2020 NXP
  * All rights reserved.
  *
  *
@@ -10,6 +10,16 @@
 #define _FSL_SCCB_H_
 
 #include "fsl_common.h"
+
+/*
+ * Change log:
+ *
+ *   1.0.1
+ *     - Fixed MISRA-C 2012 issues.
+ *
+ *   1.0.0
+ *     - Initial version
+ */
 
 /*******************************************************************************
  * Definitions

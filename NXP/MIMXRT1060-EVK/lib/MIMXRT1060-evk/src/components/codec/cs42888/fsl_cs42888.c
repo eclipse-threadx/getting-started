@@ -9,7 +9,7 @@
 /*******************************************************************************
  * Definitations
  ******************************************************************************/
-#define CLOCK_RATE_IN_RANGE(x, min, max) ((x > min) && (x < max))
+#define CLOCK_RATE_IN_RANGE(x, min, max) (((x) > (min)) && ((x) < (max)))
 /*! @brief CS42888 ms counter*/
 #ifndef CS42888_MS_COUNTER
 #define CS42888_MS_COUNTER 200000U /* 1ms under 200MHZ core clock */
@@ -41,7 +41,7 @@ static void CS42888_DelayMs(uint32_t ms);
  ******************************************************************************/
 static void CS42888_DelayMs(uint32_t ms)
 {
-    volatile uint32_t i = 0U, j = 0U;
+    uint32_t i = 0U, j = 0U;
 
     for (i = 0U; i < ms; i++)
     {
@@ -51,13 +51,12 @@ static void CS42888_DelayMs(uint32_t ms)
         }
     }
 }
-
 status_t CS42888_Init(cs42888_handle_t *handle, cs42888_config_t *config)
 {
     assert(handle != NULL);
     assert(config != NULL);
 
-    uint32_t i           = 0;
+    uint8_t i            = 0;
     status_t errorStatus = kStatus_Success;
 
     handle->config = config;
@@ -65,7 +64,7 @@ status_t CS42888_Init(cs42888_handle_t *handle, cs42888_config_t *config)
     /* i2c bus initialization */
     errorStatus = CODEC_I2C_Init(handle->i2cHandle, config->i2cConfig.codecI2CInstance, CS42888_I2C_BITRATE,
                                  config->i2cConfig.codecI2CSourceClock);
-    if (errorStatus != kStatus_HAL_I2cSuccess)
+    if (errorStatus != (status_t)kStatus_HAL_I2cSuccess)
     {
         return errorStatus;
     }
@@ -73,7 +72,12 @@ status_t CS42888_Init(cs42888_handle_t *handle, cs42888_config_t *config)
     /* reset codec firstly */
     CS42888_Reset(handle, ((cs42888_config_t *)config)->reset);
 
-    CS42888_WriteReg(handle, CS42888_POWER_CONTROL, 0x7F);
+    errorStatus = CS42888_WriteReg(handle, CS42888_POWER_CONTROL, 0x7F);
+    if (errorStatus != kStatus_Success)
+    {
+        return errorStatus;
+    }
+
     if (!config->master)
     {
         /* set as slave */
@@ -124,9 +128,13 @@ status_t CS42888_Init(cs42888_handle_t *handle, cs42888_config_t *config)
         return errorStatus;
     }
     /* Configure the codec AIN volume to 8db */
-    for (i = 0; i < 8; i++)
+    for (i = 1; i <= 4U; i++)
     {
-        CS42888_SetAINVolume(handle, i, 16);
+        errorStatus = CS42888_SetAINVolume(handle, i, 16);
+        if (errorStatus != kStatus_Success)
+        {
+            return errorStatus;
+        }
     }
 
     /*Delay and unmute*/
@@ -147,10 +155,10 @@ status_t CS42888_SelectFunctionalMode(cs42888_handle_t *handle, cs42888_func_mod
 
 void CS42888_SetFuncMode(cs42888_handle_t *handle, cs42888_func_mode mode)
 {
-    CS42888_ModifyReg(handle, CS42888_FUNCTIONAL_MODE, CS42888_FUNCTIONAL_MODE_DAC_FM_MASK,
-                      CS42888_FUNCTIONAL_MODE_DAC_FM(mode));
-    CS42888_ModifyReg(handle, CS42888_FUNCTIONAL_MODE, CS42888_FUNCTIONAL_MODE_ADC_FM_MASK,
-                      CS42888_FUNCTIONAL_MODE_ADC_FM(mode));
+    (void)CS42888_ModifyReg(handle, CS42888_FUNCTIONAL_MODE, CS42888_FUNCTIONAL_MODE_DAC_FM_MASK,
+                            CS42888_FUNCTIONAL_MODE_DAC_FM(mode));
+    (void)CS42888_ModifyReg(handle, CS42888_FUNCTIONAL_MODE, CS42888_FUNCTIONAL_MODE_ADC_FM_MASK,
+                            CS42888_FUNCTIONAL_MODE_ADC_FM(mode));
 }
 
 static void CS42888_Reset(cs42888_handle_t *handle, cs42888_reset codecReset)
@@ -168,14 +176,18 @@ static void CS42888_Reset(cs42888_handle_t *handle, cs42888_reset codecReset)
 status_t CS42888_Deinit(cs42888_handle_t *handle)
 {
     /* Disable all modules making CS42888 enter a low power mode */
-    CS42888_WriteReg(handle, CS42888_FUNCTIONAL_MODE, 0U);
+    if (CS42888_WriteReg(handle, CS42888_FUNCTIONAL_MODE, 0U) != kStatus_Success)
+    {
+        return kStatus_Fail;
+    }
 
     return CODEC_I2C_Deinit(handle->i2cHandle);
 }
 
 status_t CS42888_SetProtocol(cs42888_handle_t *handle, cs42888_bus_t protocol, uint32_t bitWidth)
 {
-    uint8_t format = 0U;
+    uint8_t format       = 0U;
+    status_t errorStatus = kStatus_Success;
 
     switch (protocol)
     {
@@ -183,50 +195,83 @@ status_t CS42888_SetProtocol(cs42888_handle_t *handle, cs42888_bus_t protocol, u
             if (bitWidth <= 24U)
             {
                 format = 0U;
-                break;
             }
+            else
+            {
+                errorStatus = kStatus_InvalidArgument;
+            }
+            break;
+
         case kCS42888_BusI2S:
             if (bitWidth <= 24U)
             {
                 format = 0x09U;
-                break;
             }
+            else
+            {
+                errorStatus = kStatus_InvalidArgument;
+            }
+            break;
+
         case kCS42888_BusRightJustified:
             if (bitWidth == 24U)
             {
                 format = 0x12U;
-                break;
             }
-
-            if (bitWidth == 16U)
+            else if (bitWidth == 16U)
             {
                 format = 0x1BU;
-                break;
             }
+            else
+            {
+                errorStatus = kStatus_InvalidArgument;
+            }
+            break;
+
         case kCS42888_BusOL1:
             if (bitWidth == 20U)
             {
                 format = 0x24U;
-                break;
             }
+            else
+            {
+                errorStatus = kStatus_InvalidArgument;
+            }
+            break;
+
         case kCS42888_BusOL2:
             if (bitWidth == 24U)
             {
                 format = 0x2DU;
-                break;
             }
+            else
+            {
+                errorStatus = kStatus_InvalidArgument;
+            }
+            break;
+
         case kCS42888_BusTDM:
             if (bitWidth == 24U)
             {
                 format = 0x36U;
-                break;
             }
+            else
+            {
+                errorStatus = kStatus_InvalidArgument;
+            }
+            break;
 
         default:
-            return kStatus_Fail;
+            errorStatus = kStatus_InvalidArgument;
+            break;
     }
 
-    return CS42888_ModifyReg(handle, CS42888_INTERFACE_FORMATS, 0x3FU, format);
+    if (errorStatus == kStatus_Success)
+    {
+        errorStatus = CS42888_ModifyReg(handle, CS42888_INTERFACE_FORMATS, 0x3FU, format);
+    }
+
+    return errorStatus;
 }
 
 status_t CS42888_ConfigDataFormat(cs42888_handle_t *handle, uint32_t mclk, uint32_t sample_rate, uint32_t bits)
@@ -236,9 +281,13 @@ status_t CS42888_ConfigDataFormat(cs42888_handle_t *handle, uint32_t mclk, uint3
     uint8_t val    = 0;
     uint32_t ratio = mclk / sample_rate;
 
-    CS42888_ReadReg(handle, CS42888_FUNCTIONAL_MODE, &val);
+    if (CS42888_ReadReg(handle, CS42888_FUNCTIONAL_MODE, &val) != kStatus_Success)
+    {
+        return kStatus_Fail;
+    }
+
     /* clear mfreq field */
-    val &= ~0xEU;
+    val &= (uint8_t)~0xEU;
 
     switch (ratio)
     {
@@ -283,6 +332,10 @@ status_t CS42888_ConfigDataFormat(cs42888_handle_t *handle, uint32_t mclk, uint3
             assert(CLOCK_RATE_IN_RANGE(sample_rate, 4000U, 50000U));
             val |= 8U;
             break;
+
+        default:
+            assert(false);
+            break;
     }
 
     retval = CS42888_WriteReg(handle, CS42888_FUNCTIONAL_MODE, val);
@@ -296,16 +349,21 @@ status_t CS42888_SetModule(cs42888_handle_t *handle, cs42888_module_t module, bo
     uint8_t val  = 0;
 
     /* Read Power control register value */
-    CS42888_ReadReg(handle, CS42888_POWER_CONTROL, &val);
+    if (CS42888_ReadReg(handle, CS42888_POWER_CONTROL, &val) != kStatus_Success)
+    {
+        return kStatus_Fail;
+    }
+
     if (isEnabled)
     {
-        val |= module;
+        val |= (uint8_t)module;
     }
     else
     {
-        val &= ~(uint32_t)module;
+        val &= ~(uint8_t)module;
     }
-    CS42888_WriteReg(handle, CS42888_POWER_CONTROL, val);
+
+    ret = CS42888_WriteReg(handle, CS42888_POWER_CONTROL, val);
     return ret;
 }
 
@@ -314,7 +372,7 @@ status_t CS42888_SetAOUTVolume(cs42888_handle_t *handle, uint8_t channel, uint8_
     status_t ret = kStatus_Success;
     uint8_t reg  = CS42888_VOL_CONTROL_AOUT1 + (channel - 1U);
 
-    if ((channel < 1) || (channel > 8))
+    if ((channel < 1U) || (channel > 8U))
     {
         ret = kStatus_Fail;
     }
@@ -330,7 +388,7 @@ status_t CS42888_SetAINVolume(cs42888_handle_t *handle, uint8_t channel, uint8_t
     status_t ret = kStatus_Success;
     uint8_t reg  = CS42888_VOL_CONTROL_AIN1 + (channel - 1U);
 
-    if ((channel < 1) || (channel > 4))
+    if ((channel < 1U) || (channel > 4U))
     {
         ret = kStatus_Fail;
     }
@@ -345,13 +403,13 @@ uint8_t CS42888_GetAOUTVolume(cs42888_handle_t *handle, uint8_t channel)
 {
     uint8_t val = 0;
     uint8_t reg = CS42888_VOL_CONTROL_AOUT1 + (channel - 1U);
-    if ((channel < 1) || (channel > 8))
+    if ((channel < 1U) || (channel > 8U))
     {
         val = 0;
     }
     else
     {
-        CS42888_ReadReg(handle, reg, &val);
+        (void)CS42888_ReadReg(handle, reg, &val);
     }
     return val;
 }
@@ -360,13 +418,13 @@ uint8_t CS42888_GetAINVolume(cs42888_handle_t *handle, uint8_t channel)
 {
     uint8_t val = 0;
     uint8_t reg = CS42888_VOL_CONTROL_AIN1 + (channel - 1U);
-    if ((channel < 1) || (channel > 4))
+    if ((channel < 1U) || (channel > 4U))
     {
         val = 0;
     }
     else
     {
-        CS42888_ReadReg(handle, reg, &val);
+        (void)CS42888_ReadReg(handle, reg, &val);
     }
     return val;
 }
@@ -381,7 +439,7 @@ status_t CS42888_SetMute(cs42888_handle_t *handle, uint8_t channelMask)
 
 status_t CS42888_SetChannelMute(cs42888_handle_t *handle, uint8_t channel, bool isMute)
 {
-    assert(channel >= kCS42888_AOUT1);
+    assert(channel >= (uint8_t)kCS42888_AOUT1);
 
     status_t ret = kStatus_Success;
 
@@ -395,11 +453,11 @@ status_t CS42888_SetChannelMute(cs42888_handle_t *handle, uint8_t channel, bool 
 
     if (isMute)
     {
-        val |= 1 << (channel - 1U);
+        val |= 1U << (channel - 1U);
     }
     else
     {
-        val &= ~(1 << (channel - 1u));
+        val &= ~(1U << (channel - 1u));
     }
 
     return CS42888_WriteReg(handle, CS42888_CHANNEL_MUTE, val);
@@ -408,14 +466,14 @@ status_t CS42888_SetChannelMute(cs42888_handle_t *handle, uint8_t channel, bool 
 
 status_t CS42888_WriteReg(cs42888_handle_t *handle, uint8_t reg, uint8_t val)
 {
-    assert(handle->config);
+    assert(handle->config != NULL);
 
     return CODEC_I2C_Send(handle->i2cHandle, handle->config->slaveAddress, reg, 1U, &val, 1U);
 }
 
 status_t CS42888_ReadReg(cs42888_handle_t *handle, uint8_t reg, uint8_t *val)
 {
-    assert(handle->config);
+    assert(handle->config != NULL);
 
     return CODEC_I2C_Receive(handle->i2cHandle, handle->config->slaveAddress, reg, 1U, val, 1U);
 }

@@ -20,7 +20,7 @@
 #if defined(XIP_BOOT_HEADER_ENABLE) && (XIP_BOOT_HEADER_ENABLE == 1)
 #if defined(XIP_BOOT_HEADER_DCD_ENABLE) && (XIP_BOOT_HEADER_DCD_ENABLE == 1)
 #if defined(__CC_ARM) || defined(__ARMCC_VERSION) || defined(__GNUC__)
-__attribute__((section(".boot_hdr.dcd_data")))
+__attribute__((section(".boot_hdr.dcd_data"), used))
 #elif defined(__ICCARM__)
 #pragma location = ".boot_hdr.dcd_data"
 #endif
@@ -232,10 +232,10 @@ const uint8_t dcd_data[] = {
 	0x40, 0x1F, 0x82, 0xA0, 0x00, 0x01, 0x10, 0xF9,
 	/* #1.91, command: write_value, address: SEMC_MCR, value: 0x10000004, size: 4 */
 	0x40, 0x2F, 0x00, 0x00, 0x10, 0x00, 0x00, 0x04,
-	/* #1.92, command: write_value, address: SEMC_BMCR0, value: 0x30524, size: 4 */
-	0x40, 0x2F, 0x00, 0x08, 0x00, 0x03, 0x05, 0x24,
-	/* #1.93, command: write_value, address: SEMC_BMCR1, value: 0x6030524, size: 4 */
-	0x40, 0x2F, 0x00, 0x0C, 0x06, 0x03, 0x05, 0x24,
+	/* #1.92, command: write_value, address: SEMC_BMCR0, value: 0x81, size: 4 */
+	0x40, 0x2F, 0x00, 0x08, 0x00, 0x00, 0x00, 0x81,
+	/* #1.93, command: write_value, address: SEMC_BMCR1, value: 0x81, size: 4 */
+	0x40, 0x2F, 0x00, 0x0C, 0x00, 0x00, 0x00, 0x81,
 	/* #1.94, command: write_value, address: SEMC_BR0, value: 0x8000001B, size: 4 */
 	0x40, 0x2F, 0x00, 0x10, 0x80, 0x00, 0x00, 0x1B,
 	/* #1.95, command: write_value, address: SEMC_BR1, value: 0x8200001B, size: 4 */

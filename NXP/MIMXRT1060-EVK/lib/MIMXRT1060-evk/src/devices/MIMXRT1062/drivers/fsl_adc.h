@@ -20,7 +20,7 @@
  * Definitions
  ******************************************************************************/
 /*! @brief ADC driver version */
-#define FSL_ADC_DRIVER_VERSION (MAKE_VERSION(2, 0, 3)) /*!< Version 2.0.3. */
+#define FSL_ADC_DRIVER_VERSION (MAKE_VERSION(2, 0, 4)) /*!< Version 2.0.4. */
 
 /*!
  * @brief Converter's status flags.
@@ -274,7 +274,7 @@ void ADC_SetChannelConfig(ADC_Type *base, uint32_t channelGroup, const adc_chann
  */
 static inline uint32_t ADC_GetChannelConversionValue(ADC_Type *base, uint32_t channelGroup)
 {
-    assert(channelGroup < FSL_FEATURE_ADC_CONVERSION_CONTROL_COUNT);
+    assert(channelGroup < (uint32_t)FSL_FEATURE_ADC_CONVERSION_CONTROL_COUNT);
 
     return base->R[channelGroup];
 }
@@ -298,7 +298,7 @@ static inline uint32_t ADC_GetChannelConversionValue(ADC_Type *base, uint32_t ch
  */
 static inline uint32_t ADC_GetChannelStatusFlags(ADC_Type *base, uint32_t channelGroup)
 {
-    assert(channelGroup < FSL_FEATURE_ADC_CONVERSION_CONTROL_COUNT);
+    assert(channelGroup < (uint32_t)FSL_FEATURE_ADC_CONVERSION_CONTROL_COUNT);
 
     /* If flag is set,return 1,otherwise, return 0. */
     return (((base->HS) & (1UL << channelGroup)) >> channelGroup);

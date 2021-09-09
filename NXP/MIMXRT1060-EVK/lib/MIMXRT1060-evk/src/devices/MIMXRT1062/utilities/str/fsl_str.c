@@ -9,6 +9,7 @@
 #include <math.h>
 #include <stdarg.h>
 #include <stdlib.h>
+#include <errno.h> /* MISRA C-2012 Rule 22.9 */
 #include "fsl_str.h"
 #include "fsl_debug_console_conf.h"
 
@@ -106,15 +107,11 @@ static int32_t ConvertRadixNumToString(char *numstr, void *nump, int32_t neg, in
  */
 static int32_t ConvertFloatRadixNumToString(char *numstr, void *nump, int32_t radix, uint32_t precision_width);
 
-/*!
- *
- */
-double modf(double input_dbl, double *intpart_ptr);
 #endif /* PRINTF_FLOAT_ENABLE */
 
 /*************Code for process formatted data*******************************/
 #if PRINTF_ADVANCED_ENABLE
-static uint8_t PrintGetSignChar(int32_t ival, uint32_t flags_used, char *schar)
+static uint8_t PrintGetSignChar(int64_t ival, uint32_t flags_used, char *schar)
 {
     uint8_t len = 1U;
     if (ival < 0)
@@ -133,7 +130,7 @@ static uint8_t PrintGetSignChar(int32_t ival, uint32_t flags_used, char *schar)
         }
         else
         {
-            *schar = 0;
+            *schar = '\0';
             len    = 0U;
         }
     }
@@ -461,6 +458,19 @@ static uint32_t PrintGetLengthFlag(const char **s)
     *s = p;
     return flags_used;
 }
+#else
+static void PrintFilterLengthFlag(const char **s)
+{
+    const char *p = *s;
+    char ch;
+
+    do
+    {
+        ch = *++p;
+    } while ((ch == 'h') || (ch == 'l'));
+
+    *s = --p;
+}
 #endif /* PRINTF_ADVANCED_ENABLE */
 
 static uint8_t PrintGetRadixFromobpu(const char c)
@@ -521,7 +531,6 @@ static int32_t ConvertRadixNumToString(char *numstr, void *nump, int32_t neg, in
     uint64_t ua;
     uint64_t ub;
     uint64_t uc;
-    uint64_t uc_param;
 #else
     int32_t a;
     int32_t b;
@@ -530,7 +539,6 @@ static int32_t ConvertRadixNumToString(char *numstr, void *nump, int32_t neg, in
     uint32_t ua;
     uint32_t ub;
     uint32_t uc;
-    uint32_t uc_param;
 #endif /* PRINTF_ADVANCED_ENABLE */
 
     int32_t nlen;
@@ -539,6 +547,10 @@ static int32_t ConvertRadixNumToString(char *numstr, void *nump, int32_t neg, in
     nlen     = 0;
     nstrp    = numstr;
     *nstrp++ = '\0';
+
+#if !(PRINTF_ADVANCED_ENABLE > 0)
+    neg = 0;
+#endif
 
     if (0 != neg)
     {
@@ -560,18 +572,14 @@ static int32_t ConvertRadixNumToString(char *numstr, void *nump, int32_t neg, in
             c = (int64_t)a - ((int64_t)b * (int64_t)radix);
             if (c < 0)
             {
-                uc       = (uint64_t)c;
-                uc_param = ~uc;
-                c        = (int64_t)uc_param + 1 + (int64_t)'0';
+                c = (int64_t)'0' - c;
             }
 #else
             b = a / radix;
             c = a - (b * radix);
             if (c < 0)
             {
-                uc       = (uint32_t)c;
-                uc_param = ~uc;
-                c        = (int32_t)uc_param + 1 + (int32_t)'0';
+                c = (int32_t)'0' - c;
             }
 #endif /* PRINTF_ADVANCED_ENABLE */
             else
@@ -629,7 +637,6 @@ static int32_t ConvertFloatRadixNumToString(char *numstr, void *nump, int32_t ra
     int32_t b;
     int32_t c;
     int32_t i;
-    uint32_t uc;
     double fa;
     double dc;
     double fb;
@@ -643,7 +650,7 @@ static int32_t ConvertFloatRadixNumToString(char *numstr, void *nump, int32_t ra
     nstrp    = numstr;
     *nstrp++ = '\0';
     r        = *(double *)nump;
-    if (!r)
+    if (0.0 == r)
     {
         *nstrp = '0';
         ++nlen;
@@ -651,14 +658,14 @@ static int32_t ConvertFloatRadixNumToString(char *numstr, void *nump, int32_t ra
     }
     fractpart = modf((double)r, (double *)&intpart);
     /* Process fractional part. */
-    for (i = 0; i < precision_width; i++)
+    for (i = 0; i < (int32_t)precision_width; i++)
     {
-        fractpart *= radix;
+        fractpart *= (double)radix;
     }
-    if (r >= 0)
+    if (r >= (double)0.0)
     {
         fa = fractpart + (double)0.5;
-        if (fa >= pow(10, precision_width))
+        if (fa >= pow((double)10, (double)precision_width))
         {
             intpart++;
         }
@@ -666,20 +673,19 @@ static int32_t ConvertFloatRadixNumToString(char *numstr, void *nump, int32_t ra
     else
     {
         fa = fractpart - (double)0.5;
-        if (fa <= -pow(10, precision_width))
+        if (fa <= -pow((double)10, (double)precision_width))
         {
             intpart--;
         }
     }
-    for (i = 0; i < precision_width; i++)
+    for (i = 0; i < (int32_t)precision_width; i++)
     {
-        fb = fa / (int32_t)radix;
-        dc = (fa - (int64_t)fb * (int32_t)radix);
+        fb = fa / (double)radix;
+        dc = (fa - (double)(int64_t)fb * (double)radix);
         c  = (int32_t)dc;
         if (c < 0)
         {
-            uc = (uint32_t)c;
-            c  = (int32_t)(~uc) + 1 + '0';
+            c = (int32_t)'0' - c;
         }
         else
         {
@@ -705,8 +711,7 @@ static int32_t ConvertFloatRadixNumToString(char *numstr, void *nump, int32_t ra
             c = (int32_t)a - ((int32_t)b * (int32_t)radix);
             if (c < 0)
             {
-                uc = (uint32_t)c;
-                c  = (int32_t)(~uc) + 1 + '0';
+                c = (int32_t)'0' - c;
             }
             else
             {
@@ -812,7 +817,10 @@ int StrFormatPrintf(const char *fmt, va_list ap, char *buf, printfCb cb)
 #if PRINTF_ADVANCED_ENABLE
         /* Check for the length modifier. */
         flags_used |= PrintGetLengthFlag(&p);
-#endif /* PRINTF_ADVANCED_ENABLE */
+#else
+        /* Filter length modifier. */
+        PrintFilterLengthFlag(&p);
+#endif
 
         /* Now we're ready to examine the format. */
         c = *++p;
@@ -820,7 +828,7 @@ int StrFormatPrintf(const char *fmt, va_list ap, char *buf, printfCb cb)
             if (1U == PrintIsdi(c))
             {
 #if PRINTF_ADVANCED_ENABLE
-                if (flags_used & kPRINTF_LengthLongLongInt)
+                if (0U != (flags_used & (uint32_t)kPRINTF_LengthLongLongInt))
                 {
                     ival = (int64_t)va_arg(ap, int64_t);
                 }
@@ -832,8 +840,8 @@ int StrFormatPrintf(const char *fmt, va_list ap, char *buf, printfCb cb)
                 vlen  = ConvertRadixNumToString(vstr, (void *)&ival, 1, 10, use_caps);
                 vstrp = &vstr[vlen];
 #if PRINTF_ADVANCED_ENABLE
-                vlen += PrintGetSignChar(ival, flags_used, &schar);
-                PrintOutputdifFobpu(flags_used, field_width, vlen, schar, vstrp, cb, buf, &count);
+                vlen += (int32_t)PrintGetSignChar(ival, flags_used, &schar);
+                PrintOutputdifFobpu(flags_used, field_width, (uint32_t)vlen, schar, vstrp, cb, buf, &count);
 #else
                 PrintOutputdifFobpu(0U, field_width, (uint32_t)vlen, '\0', vstrp, cb, buf, &count);
 #endif
@@ -846,10 +854,10 @@ int StrFormatPrintf(const char *fmt, va_list ap, char *buf, printfCb cb)
                 vstrp = &vstr[vlen];
 
 #if PRINTF_ADVANCED_ENABLE
-                vlen += PrintGetSignChar((int32_t)fval, flags_used, &schar);
-                PrintOutputdifFobpu(flags_used, field_width, vlen, schar, vstrp, cb, buf, &count);
+                vlen += (int32_t)PrintGetSignChar(((fval < 0.0) ? ((int64_t)-1) : ((int64_t)fval)), flags_used, &schar);
+                PrintOutputdifFobpu(flags_used, field_width, (uint32_t)vlen, schar, vstrp, cb, buf, &count);
 #else
-                PrintOutputdifFobpu(0, field_width, vlen, '\0', vstrp, cb, buf, &count);
+                PrintOutputdifFobpu(0, field_width, (uint32_t)vlen, '\0', vstrp, cb, buf, &count);
 #endif
 
 #else
@@ -863,7 +871,7 @@ int StrFormatPrintf(const char *fmt, va_list ap, char *buf, printfCb cb)
                     use_caps = false;
                 }
 #if PRINTF_ADVANCED_ENABLE
-                if (flags_used & kPRINTF_LengthLongLongInt)
+                if (0U != (flags_used & (uint32_t)kPRINTF_LengthLongLongInt))
                 {
                     uval = (uint64_t)va_arg(ap, uint64_t);
                 }
@@ -875,7 +883,7 @@ int StrFormatPrintf(const char *fmt, va_list ap, char *buf, printfCb cb)
                 vlen  = ConvertRadixNumToString(vstr, &uval, 0, 16, use_caps);
                 vstrp = &vstr[vlen];
 #if PRINTF_ADVANCED_ENABLE
-                PrintOutputxX(flags_used, field_width, vlen, use_caps, vstrp, cb, buf, &count);
+                PrintOutputxX(flags_used, field_width, (uint32_t)vlen, use_caps, vstrp, cb, buf, &count);
 #else
                 PrintOutputxX(0U, field_width, (uint32_t)vlen, use_caps, vstrp, cb, buf, &count);
 #endif
@@ -883,7 +891,7 @@ int StrFormatPrintf(const char *fmt, va_list ap, char *buf, printfCb cb)
             else if (1U == PrintIsobpu(c))
             {
 #if PRINTF_ADVANCED_ENABLE
-                if (flags_used & kPRINTF_LengthLongLongInt)
+                if (0U != (flags_used & (uint32_t)kPRINTF_LengthLongLongInt))
                 {
                     uval = (uint64_t)va_arg(ap, uint64_t);
                 }
@@ -898,7 +906,7 @@ int StrFormatPrintf(const char *fmt, va_list ap, char *buf, printfCb cb)
                 vlen  = ConvertRadixNumToString(vstr, &uval, 0, (int32_t)radix, use_caps);
                 vstrp = &vstr[vlen];
 #if PRINTF_ADVANCED_ENABLE
-                PrintOutputdifFobpu(flags_used, field_width, vlen, '\0', vstrp, cb, buf, &count);
+                PrintOutputdifFobpu(flags_used, field_width, (uint32_t)vlen, '\0', vstrp, cb, buf, &count);
 #else
                 PrintOutputdifFobpu(0U, field_width, (uint32_t)vlen, '\0', vstrp, cb, buf, &count);
 #endif
@@ -916,17 +924,17 @@ int StrFormatPrintf(const char *fmt, va_list ap, char *buf, printfCb cb)
 #if PRINTF_ADVANCED_ENABLE
                     if (valid_precision_width)
                     {
-                        vlen = precision_width;
+                        vlen = (int32_t)precision_width;
                     }
                     else
                     {
-                        vlen = strlen(sval);
+                        vlen = (int32_t)strlen(sval);
                     }
 #else
                     vlen = (int32_t)strlen(sval);
 #endif /* PRINTF_ADVANCED_ENABLE */
 #if PRINTF_ADVANCED_ENABLE
-                    if (!(flags_used & kPRINTF_Minus))
+                    if (0U == (flags_used & (uint32_t)kPRINTF_Minus))
 #endif /* PRINTF_ADVANCED_ENABLE */
                     {
                         cb(buf, &count, ' ', (int)field_width - (int)vlen);
@@ -935,13 +943,13 @@ int StrFormatPrintf(const char *fmt, va_list ap, char *buf, printfCb cb)
 #if PRINTF_ADVANCED_ENABLE
                     if (valid_precision_width)
                     {
-                        while ((*sval) && (vlen > 0))
+                        while (('\0' != *sval) && (vlen > 0))
                         {
                             cb(buf, &count, *sval++, 1);
                             vlen--;
                         }
                         /* In case that vlen sval is shorter than vlen */
-                        vlen = precision_width - vlen;
+                        vlen = (int32_t)precision_width - vlen;
                     }
                     else
                     {
@@ -955,9 +963,9 @@ int StrFormatPrintf(const char *fmt, va_list ap, char *buf, printfCb cb)
 #endif /* PRINTF_ADVANCED_ENABLE */
 
 #if PRINTF_ADVANCED_ENABLE
-                    if (flags_used & kPRINTF_Minus)
+                    if (0U != (flags_used & (uint32_t)kPRINTF_Minus))
                     {
-                        cb(buf, &count, ' ', field_width - vlen);
+                        cb(buf, &count, ' ', (int32_t)field_width - vlen);
                     }
 #endif /* PRINTF_ADVANCED_ENABLE */
                 }
@@ -1052,15 +1060,15 @@ static uint8_t StrFormatScanCheckSymbol(const char *p, int8_t *neg)
 static uint8_t StrFormatScanFillInteger(uint32_t flag, va_list *args_ptr, int32_t val)
 {
 #if SCANF_ADVANCED_ENABLE
-    if ((flag & kSCANF_Suppress))
+    if (0U != (flag & (uint32_t)kSCANF_Suppress))
     {
         return 0u;
     }
 
-    switch (flag & kSCANF_LengthMask)
+    switch (flag & (uint32_t)kSCANF_LengthMask)
     {
-        case kSCANF_LengthChar:
-            if (0 != (flag & (uint32_t)kSCANF_TypeSinged))
+        case (uint32_t)kSCANF_LengthChar:
+            if (0U != (flag & (uint32_t)kSCANF_TypeSinged))
             {
                 *va_arg(*args_ptr, signed char *) = (signed char)val;
             }
@@ -1069,8 +1077,8 @@ static uint8_t StrFormatScanFillInteger(uint32_t flag, va_list *args_ptr, int32_
                 *va_arg(*args_ptr, unsigned char *) = (unsigned char)val;
             }
             break;
-        case kSCANF_LengthShortInt:
-            if (0 != (flag & (uint32_t)kSCANF_TypeSinged))
+        case (uint32_t)kSCANF_LengthShortInt:
+            if (0U != (flag & (uint32_t)kSCANF_TypeSinged))
             {
                 *va_arg(*args_ptr, signed short *) = (signed short)val;
             }
@@ -1079,8 +1087,8 @@ static uint8_t StrFormatScanFillInteger(uint32_t flag, va_list *args_ptr, int32_
                 *va_arg(*args_ptr, unsigned short *) = (unsigned short)val;
             }
             break;
-        case kSCANF_LengthLongInt:
-            if (0 != (flag & (uint32_t)kSCANF_TypeSinged))
+        case (uint32_t)kSCANF_LengthLongInt:
+            if (0U != (flag & (uint32_t)kSCANF_TypeSinged))
             {
                 *va_arg(*args_ptr, signed long int *) = (signed long int)val;
             }
@@ -1089,8 +1097,8 @@ static uint8_t StrFormatScanFillInteger(uint32_t flag, va_list *args_ptr, int32_
                 *va_arg(*args_ptr, unsigned long int *) = (unsigned long int)val;
             }
             break;
-        case kSCANF_LengthLongLongInt:
-            if (0 != (flag & (uint32_t)kSCANF_TypeSinged))
+        case (uint32_t)kSCANF_LengthLongLongInt:
+            if (0U != (flag & (uint32_t)kSCANF_TypeSinged))
             {
                 *va_arg(*args_ptr, signed long long int *) = (signed long long int)val;
             }
@@ -1101,7 +1109,7 @@ static uint8_t StrFormatScanFillInteger(uint32_t flag, va_list *args_ptr, int32_
             break;
         default:
             /* The default type is the type int. */
-            if (0 != (flag & (uint32_t)kSCANF_TypeSinged))
+            if (0U != (flag & (uint32_t)kSCANF_TypeSinged))
             {
                 *va_arg(*args_ptr, signed int *) = (signed int)val;
             }
@@ -1232,8 +1240,13 @@ static uint8_t StrFormatScanfStringHandling(char **str, uint32_t *flag, uint32_t
         {
             {
                 char *p;
+                errno          = 0;
                 (*field_width) = strtoul(c, &p, 10);
-                c              = p - 1;
+                if (0 != errno)
+                {
+                    *field_width = 0U;
+                }
+                c = p - 1;
             }
         }
         else if ('d' == (*c))
@@ -1268,7 +1281,7 @@ static uint8_t StrFormatScanfStringHandling(char **str, uint32_t *flag, uint32_t
             (*flag) |= (uint32_t)kSCANF_DestInt;
         }
 #if SCANF_FLOAT_ENABLE
-        else if (1 == StrFormatScanIsFloat(c))
+        else if (1U == StrFormatScanIsFloat(c))
         {
             (*flag) |= (uint32_t)kSCANF_DestFloat;
         }
@@ -1337,6 +1350,10 @@ int StrFormatScanf(const char *line_ptr, char *format, va_list args_ptr)
     uint8_t exitPending = 0;
 
     const char *s;
+#if SCANF_FLOAT_ENABLE
+    char *s_temp; /* MISRA C-2012 Rule 11.3 */
+#endif
+
     /* Identifier for the input string. */
     const char *p = line_ptr;
 
@@ -1404,7 +1421,7 @@ int StrFormatScanf(const char *line_ptr, char *format, va_list args_ptr)
                 )
                 {
 #if SCANF_ADVANCED_ENABLE
-                    if (flag & kSCANF_Suppress)
+                    if (0U != (flag & (uint32_t)kSCANF_Suppress))
                     {
                         p++;
                     }
@@ -1434,7 +1451,7 @@ int StrFormatScanf(const char *line_ptr, char *format, va_list args_ptr)
                 while ((0U != (field_width--)) && (*p != '\0') && (0U == ScanIsWhiteSpace(*p)))
                 {
 #if SCANF_ADVANCED_ENABLE
-                    if (flag & kSCANF_Suppress)
+                    if (0U != (flag & (uint32_t)kSCANF_Suppress))
                     {
                         p++;
                     }
@@ -1477,14 +1494,25 @@ int StrFormatScanf(const char *line_ptr, char *format, va_list args_ptr)
                     char *tempEnd;
                     (void)memcpy(temp, p, sizeof(temp) - 1U);
                     temp[sizeof(temp) - 1U] = '\0';
+                    errno                   = 0;
                     val                     = (int32_t)strtoul(temp, &tempEnd, (int)base);
-                    p                       = p + (tempEnd - temp);
+                    if (0 != errno)
+                    {
+                        break;
+                    }
+                    p = p + (tempEnd - temp);
                 }
                 else
                 {
                     char *tempEnd;
-                    val = (int32_t)strtoul(p, &tempEnd, (int)base);
-                    p   = tempEnd;
+                    val   = 0;
+                    errno = 0;
+                    val   = (int32_t)strtoul(p, &tempEnd, (int)base);
+                    if (0 != errno)
+                    {
+                        break;
+                    }
+                    p = tempEnd;
                 }
                 n_decode += (uint32_t)p - (uint32_t)s;
 
@@ -1493,15 +1521,25 @@ int StrFormatScanf(const char *line_ptr, char *format, va_list args_ptr)
                 nassigned += StrFormatScanFillInteger(flag, &args_ptr, val);
             }
 #if SCANF_FLOAT_ENABLE
-            else if ((flag & kSCANF_DestMask) == kSCANF_DestFloat)
+            else if ((flag & (uint32_t)kSCANF_DestMask) == (uint32_t)kSCANF_DestFloat)
             {
                 n_decode += ScanIgnoreWhiteSpace(&p);
-                fnum = strtod(p, (char **)&s);
+                fnum  = 0.0;
+                errno = 0;
+
+                fnum = strtod(p, (char **)&s_temp);
+                s    = s_temp; /* MISRA C-2012 Rule 11.3 */
+
+                /* MISRA C-2012 Rule 22.9 */
+                if (0 != errno)
+                {
+                    break;
+                }
 
                 if ((fnum < HUGE_VAL) && (fnum > -HUGE_VAL))
                 {
-                    n_decode += (int)(s) - (int)(p);
-                    p = s;
+                    n_decode = (uint32_t)n_decode + (uint32_t)s - (uint32_t)p;
+                    p        = s;
                     nassigned += StrFormatScanFillFloat(flag, &args_ptr, fnum);
                 }
             }

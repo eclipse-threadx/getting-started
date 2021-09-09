@@ -1,5 +1,5 @@
 /*
- * Copyright  2017 NXP
+ * Copyright 2017, 2020 NXP
  * All rights reserved.
  *
  *
@@ -14,6 +14,9 @@
 
 /*
  * Change log:
+ *
+ *   1.0.2
+ *     - Fixed MISRA-C 2012 issues.
  *
  *   1.0.1
  *     - Add data bus width to csi_resource_t.

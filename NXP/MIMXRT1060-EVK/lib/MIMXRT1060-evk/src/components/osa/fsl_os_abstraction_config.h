@@ -14,7 +14,7 @@
 #endif
 
 #ifndef gMainThreadPriority_c
-#define gMainThreadPriority_c 1
+#define gMainThreadPriority_c 7
 #endif
 
 #ifndef gTaskMultipleInstancesManagement_c
@@ -32,5 +32,13 @@
 #endif
 #define FSL_OSA_TASK_ENABLE 1U
 #endif /* OSA_USED */
+
+#ifndef FSL_OSA_MAIN_FUNC_ENABLE
+#define FSL_OSA_MAIN_FUNC_ENABLE 1U
+#endif
+
+#ifndef FSL_OSA_BM_TIMEOUT_ENABLE
+#define FSL_OSA_BM_TIMEOUT_ENABLE 0U
+#endif
 
 #endif /* _FSL_OS_ABSTRACTION_CONFIG_H_ */

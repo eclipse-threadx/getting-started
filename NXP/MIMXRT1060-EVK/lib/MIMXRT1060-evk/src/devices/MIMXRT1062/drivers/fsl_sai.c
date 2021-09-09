@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
- * Copyright 2016-2020 NXP
+ * Copyright 2016-2021 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -1152,6 +1152,7 @@ void SAI_TxSetBitclockConfig(I2S_Type *base, sai_master_slave_t masterSlave, sai
     else
     {
         tcr2 &= ~(I2S_TCR2_BCD_MASK);
+        tcr2 |= I2S_TCR2_BCP(config->bclkPolarity);
     }
 
     base->TCR2 = tcr2;
@@ -1179,6 +1180,7 @@ void SAI_RxSetBitclockConfig(I2S_Type *base, sai_master_slave_t masterSlave, sai
     else
     {
         rcr2 &= ~(I2S_RCR2_BCD_MASK);
+        rcr2 |= I2S_RCR2_BCP(config->bclkPolarity);
     }
 
     base->RCR2 = rcr2;
@@ -1309,27 +1311,22 @@ void SAI_RxSetFifoConfig(I2S_Type *base, sai_fifo_t *config)
  */
 void SAI_TxSetFrameSyncConfig(I2S_Type *base, sai_master_slave_t masterSlave, sai_frame_sync_t *config)
 {
+    assert(config != NULL);
+    assert((config->frameSyncWidth - 1UL) <= (I2S_TCR4_SYWD_MASK >> I2S_TCR4_SYWD_SHIFT));
+
     uint32_t tcr4 = base->TCR4;
 
-    if ((masterSlave == kSAI_Master) || (masterSlave == kSAI_Bclk_Slave_FrameSync_Master))
-    {
-        assert(config != NULL);
-        assert((config->frameSyncWidth - 1UL) <= (I2S_TCR4_SYWD_MASK >> I2S_TCR4_SYWD_SHIFT));
-
-        tcr4 &= ~(I2S_TCR4_FSE_MASK | I2S_TCR4_FSP_MASK | I2S_TCR4_FSD_MASK | I2S_TCR4_SYWD_MASK);
+    tcr4 &= ~(I2S_TCR4_FSE_MASK | I2S_TCR4_FSP_MASK | I2S_TCR4_FSD_MASK | I2S_TCR4_SYWD_MASK);
 
 #if defined(FSL_FEATURE_SAI_HAS_FRAME_SYNC_ON_DEMAND) && FSL_FEATURE_SAI_HAS_FRAME_SYNC_ON_DEMAND
-        tcr4 &= ~I2S_TCR4_ONDEM_MASK;
-        tcr4 |= I2S_TCR4_ONDEM(config->frameSyncGenerateOnDemand);
+    tcr4 &= ~I2S_TCR4_ONDEM_MASK;
+    tcr4 |= I2S_TCR4_ONDEM(config->frameSyncGenerateOnDemand);
 #endif
 
-        tcr4 |= I2S_TCR4_FSE(config->frameSyncEarly) | I2S_TCR4_FSP(config->frameSyncPolarity) | I2S_TCR4_FSD(1UL) |
-                I2S_TCR4_SYWD(config->frameSyncWidth - 1UL);
-    }
-    else
-    {
-        tcr4 &= ~I2S_TCR4_FSD_MASK;
-    }
+    tcr4 |=
+        I2S_TCR4_FSE(config->frameSyncEarly) | I2S_TCR4_FSP(config->frameSyncPolarity) |
+        I2S_TCR4_FSD(((masterSlave == kSAI_Master) || (masterSlave == kSAI_Bclk_Slave_FrameSync_Master)) ? 1UL : 0U) |
+        I2S_TCR4_SYWD(config->frameSyncWidth - 1UL);
 
     base->TCR4 = tcr4;
 }
@@ -1343,27 +1340,22 @@ void SAI_TxSetFrameSyncConfig(I2S_Type *base, sai_master_slave_t masterSlave, sa
  */
 void SAI_RxSetFrameSyncConfig(I2S_Type *base, sai_master_slave_t masterSlave, sai_frame_sync_t *config)
 {
+    assert(config != NULL);
+    assert((config->frameSyncWidth - 1UL) <= (I2S_RCR4_SYWD_MASK >> I2S_RCR4_SYWD_SHIFT));
+
     uint32_t rcr4 = base->RCR4;
 
-    if ((masterSlave == kSAI_Master) || (masterSlave == kSAI_Bclk_Slave_FrameSync_Master))
-    {
-        assert(config != NULL);
-        assert((config->frameSyncWidth - 1UL) <= (I2S_RCR4_SYWD_MASK >> I2S_RCR4_SYWD_SHIFT));
-
-        rcr4 &= ~(I2S_RCR4_FSE_MASK | I2S_RCR4_FSP_MASK | I2S_RCR4_FSD_MASK | I2S_RCR4_SYWD_MASK);
+    rcr4 &= ~(I2S_RCR4_FSE_MASK | I2S_RCR4_FSP_MASK | I2S_RCR4_FSD_MASK | I2S_RCR4_SYWD_MASK);
 
 #if defined(FSL_FEATURE_SAI_HAS_FRAME_SYNC_ON_DEMAND) && FSL_FEATURE_SAI_HAS_FRAME_SYNC_ON_DEMAND
-        rcr4 &= ~I2S_RCR4_ONDEM_MASK;
-        rcr4 |= I2S_RCR4_ONDEM(config->frameSyncGenerateOnDemand);
+    rcr4 &= ~I2S_RCR4_ONDEM_MASK;
+    rcr4 |= I2S_RCR4_ONDEM(config->frameSyncGenerateOnDemand);
 #endif
 
-        rcr4 |= I2S_RCR4_FSE(config->frameSyncEarly) | I2S_RCR4_FSP(config->frameSyncPolarity) | I2S_RCR4_FSD(1UL) |
-                I2S_RCR4_SYWD(config->frameSyncWidth - 1UL);
-    }
-    else
-    {
-        rcr4 &= ~I2S_RCR4_FSD_MASK;
-    }
+    rcr4 |=
+        I2S_RCR4_FSE(config->frameSyncEarly) | I2S_RCR4_FSP(config->frameSyncPolarity) |
+        I2S_RCR4_FSD(((masterSlave == kSAI_Master) || (masterSlave == kSAI_Bclk_Slave_FrameSync_Master)) ? 1UL : 0U) |
+        I2S_RCR4_SYWD(config->frameSyncWidth - 1UL);
 
     base->RCR4 = rcr4;
 }
@@ -1745,10 +1737,25 @@ void SAI_GetRightJustifiedConfig(sai_transceiver_t *config,
 /*!
  * brief Get DSP mode configurations.
  *
+ * note DSP mode is also called PCM mode which support MODE A and MODE B,
+ * DSP/PCM MODE A configuration flow. RX is similiar but uses SAI_RxSetConfig instead of SAI_TxSetConfig:
+ * code
+ * SAI_GetDSPConfig(config, kSAI_FrameSyncLenOneBitClk, bitWidth, kSAI_Stereo, channelMask)
+ * config->frameSync.frameSyncEarly    = true;
+ * SAI_TxSetConfig(base, config)
+ * endcode
+ *
+ * DSP/PCM MODE B configuration flow for TX. RX is similiar but uses SAI_RxSetConfig instead of SAI_TxSetConfig:
+ * code
+ * SAI_GetDSPConfig(config, kSAI_FrameSyncLenOneBitClk, bitWidth, kSAI_Stereo, channelMask)
+ * SAI_TxSetConfig(base, config)
+ * endcode
+ *
  * param config transceiver configurations.
+ * param frameSyncWidth length of frame sync.
  * param bitWidth audio data bitWidth.
  * param mode audio data channel.
- * param saiChannelMask channel mask value to enable.
+ * param saiChannelMask mask value of the channel to enable.
  */
 void SAI_GetDSPConfig(sai_transceiver_t *config,
                       sai_frame_sync_len_t frameSyncWidth,
@@ -2126,7 +2133,7 @@ void SAI_WriteBlocking(I2S_Type *base, uint32_t channel, uint32_t bitWidth, uint
         }
 
         SAI_WriteNonBlocking(base, channel, 1UL << channel, channel, (uint8_t)bitWidth, buffer, bytesPerWord);
-        buffer += bytesPerWord;
+        buffer = (uint8_t *)((uint32_t)buffer + bytesPerWord);
         i += bytesPerWord;
     }
 
@@ -2179,9 +2186,10 @@ void SAI_WriteMultiChannelBlocking(
         {
         }
 
-        SAI_WriteNonBlocking(base, channel, channelMask, endChannel, (uint8_t)bitWidth, buffer, bytesPerWord);
-        buffer += bytesPerWord;
-        j += bytesPerWord;
+        SAI_WriteNonBlocking(base, channel, channelMask, endChannel, (uint8_t)bitWidth, buffer,
+                             bytesPerWord * channelNums);
+        buffer = (uint8_t *)((uint32_t)buffer + bytesPerWord * channelNums);
+        j += bytesPerWord * channelNums;
     }
 
     /* Wait until the last data is sent */
@@ -2231,9 +2239,10 @@ void SAI_ReadMultiChannelBlocking(
         {
         }
 
-        SAI_ReadNonBlocking(base, channel, channelMask, endChannel, (uint8_t)bitWidth, buffer, bytesPerWord);
-        buffer += bytesPerWord;
-        j += bytesPerWord;
+        SAI_ReadNonBlocking(base, channel, channelMask, endChannel, (uint8_t)bitWidth, buffer,
+                            bytesPerWord * channelNums);
+        buffer = (uint8_t *)((uint32_t)buffer + bytesPerWord * channelNums);
+        j += bytesPerWord * channelNums;
     }
 }
 
@@ -2264,7 +2273,7 @@ void SAI_ReadBlocking(I2S_Type *base, uint32_t channel, uint32_t bitWidth, uint8
         }
 
         SAI_ReadNonBlocking(base, channel, 1UL << channel, channel, (uint8_t)bitWidth, buffer, bytesPerWord);
-        buffer += bytesPerWord;
+        buffer = (uint8_t *)((uint32_t)buffer + bytesPerWord);
         i += bytesPerWord;
     }
 }
@@ -2461,7 +2470,7 @@ status_t SAI_TransferSendNonBlocking(I2S_Type *base, sai_handle_t *handle, sai_t
     handle->transferSize[handle->queueUser]      = xfer->dataSize;
     handle->saiQueue[handle->queueUser].data     = xfer->data;
     handle->saiQueue[handle->queueUser].dataSize = xfer->dataSize;
-    handle->queueUser                            = (handle->queueUser + 1U) % SAI_XFER_QUEUE_SIZE;
+    handle->queueUser                            = (handle->queueUser + 1U) % (uint8_t)SAI_XFER_QUEUE_SIZE;
 
     /* Set the state to busy */
     handle->state = (uint32_t)kSAI_Busy;
@@ -2510,7 +2519,7 @@ status_t SAI_TransferReceiveNonBlocking(I2S_Type *base, sai_handle_t *handle, sa
     handle->transferSize[handle->queueUser]      = xfer->dataSize;
     handle->saiQueue[handle->queueUser].data     = xfer->data;
     handle->saiQueue[handle->queueUser].dataSize = xfer->dataSize;
-    handle->queueUser                            = (handle->queueUser + 1U) % SAI_XFER_QUEUE_SIZE;
+    handle->queueUser                            = (handle->queueUser + 1U) % (uint8_t)SAI_XFER_QUEUE_SIZE;
 
     /* Set state to busy */
     handle->state = (uint32_t)kSAI_Busy;
@@ -2610,7 +2619,7 @@ void SAI_TransferAbortSend(I2S_Type *base, sai_handle_t *handle)
     handle->state = (uint32_t)kSAI_Idle;
 
     /* Clear the queue */
-    (void)memset(handle->saiQueue, 0, sizeof(sai_transfer_t) * SAI_XFER_QUEUE_SIZE);
+    (void)memset(handle->saiQueue, 0, sizeof(sai_transfer_t) * (uint8_t)SAI_XFER_QUEUE_SIZE);
     handle->queueDriver = 0;
     handle->queueUser   = 0;
 }
@@ -2640,7 +2649,7 @@ void SAI_TransferAbortReceive(I2S_Type *base, sai_handle_t *handle)
     handle->state = (uint32_t)kSAI_Idle;
 
     /* Clear the queue */
-    (void)memset(handle->saiQueue, 0, sizeof(sai_transfer_t) * SAI_XFER_QUEUE_SIZE);
+    (void)memset(handle->saiQueue, 0, sizeof(sai_transfer_t) * (uint8_t)SAI_XFER_QUEUE_SIZE);
     handle->queueDriver = 0;
     handle->queueUser   = 0;
 }
@@ -2756,7 +2765,7 @@ void SAI_TransferTxHandleIRQ(I2S_Type *base, sai_handle_t *handle)
     if (handle->saiQueue[handle->queueDriver].dataSize == 0U)
     {
         (void)memset(&handle->saiQueue[handle->queueDriver], 0, sizeof(sai_transfer_t));
-        handle->queueDriver = (handle->queueDriver + 1U) % SAI_XFER_QUEUE_SIZE;
+        handle->queueDriver = (handle->queueDriver + 1U) % (uint8_t)SAI_XFER_QUEUE_SIZE;
         if (handle->callback != NULL)
         {
             (handle->callback)(base, handle, kStatus_SAI_TxIdle, handle->userData);
@@ -2832,7 +2841,7 @@ void SAI_TransferRxHandleIRQ(I2S_Type *base, sai_handle_t *handle)
     if (handle->saiQueue[handle->queueDriver].dataSize == 0U)
     {
         (void)memset(&handle->saiQueue[handle->queueDriver], 0, sizeof(sai_transfer_t));
-        handle->queueDriver = (handle->queueDriver + 1U) % SAI_XFER_QUEUE_SIZE;
+        handle->queueDriver = (handle->queueDriver + 1U) % (uint8_t)SAI_XFER_QUEUE_SIZE;
         if (handle->callback != NULL)
         {
             (handle->callback)(base, handle, kStatus_SAI_RxIdle, handle->userData);
@@ -2847,6 +2856,7 @@ void SAI_TransferRxHandleIRQ(I2S_Type *base, sai_handle_t *handle)
 }
 
 #if defined(I2S0)
+void I2S0_DriverIRQHandler(void);
 void I2S0_DriverIRQHandler(void)
 {
 #if defined(FSL_FEATURE_SAI_FIFO_COUNT) && (FSL_FEATURE_SAI_FIFO_COUNT > 1)
@@ -2872,6 +2882,7 @@ void I2S0_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void I2S0_Tx_DriverIRQHandler(void);
 void I2S0_Tx_DriverIRQHandler(void)
 {
     assert(s_saiHandle[0][0] != NULL);
@@ -2879,6 +2890,7 @@ void I2S0_Tx_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void I2S0_Rx_DriverIRQHandler(void);
 void I2S0_Rx_DriverIRQHandler(void)
 {
     assert(s_saiHandle[0][1] != NULL);
@@ -2888,6 +2900,7 @@ void I2S0_Rx_DriverIRQHandler(void)
 #endif /* I2S0*/
 
 #if defined(I2S1)
+void I2S1_DriverIRQHandler(void);
 void I2S1_DriverIRQHandler(void)
 {
 #if defined(FSL_FEATURE_SAI_FIFO_COUNT) && (FSL_FEATURE_SAI_FIFO_COUNT > 1)
@@ -2914,6 +2927,7 @@ void I2S1_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void I2S1_Tx_DriverIRQHandler(void);
 void I2S1_Tx_DriverIRQHandler(void)
 {
     assert(s_saiHandle[1][0] != NULL);
@@ -2921,6 +2935,7 @@ void I2S1_Tx_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void I2S1_Rx_DriverIRQHandler(void);
 void I2S1_Rx_DriverIRQHandler(void)
 {
     assert(s_saiHandle[1][1] != NULL);
@@ -2930,6 +2945,7 @@ void I2S1_Rx_DriverIRQHandler(void)
 #endif /* I2S1*/
 
 #if defined(I2S2)
+void I2S2_DriverIRQHandler(void);
 void I2S2_DriverIRQHandler(void)
 {
 #if defined(FSL_FEATURE_SAI_FIFO_COUNT) && (FSL_FEATURE_SAI_FIFO_COUNT > 1)
@@ -2956,6 +2972,7 @@ void I2S2_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void I2S2_Tx_DriverIRQHandler(void);
 void I2S2_Tx_DriverIRQHandler(void)
 {
     assert(s_saiHandle[2][0] != NULL);
@@ -2963,6 +2980,7 @@ void I2S2_Tx_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void I2S2_Rx_DriverIRQHandler(void);
 void I2S2_Rx_DriverIRQHandler(void)
 {
     assert(s_saiHandle[2][1] != NULL);
@@ -2972,6 +2990,7 @@ void I2S2_Rx_DriverIRQHandler(void)
 #endif /* I2S2*/
 
 #if defined(I2S3)
+void I2S3_DriverIRQHandler(void);
 void I2S3_DriverIRQHandler(void)
 {
 #if defined(FSL_FEATURE_SAI_FIFO_COUNT) && (FSL_FEATURE_SAI_FIFO_COUNT > 1)
@@ -2997,6 +3016,7 @@ void I2S3_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void I2S3_Tx_DriverIRQHandler(void);
 void I2S3_Tx_DriverIRQHandler(void)
 {
     assert(s_saiHandle[3][0] != NULL);
@@ -3004,6 +3024,7 @@ void I2S3_Tx_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void I2S3_Rx_DriverIRQHandler(void);
 void I2S3_Rx_DriverIRQHandler(void)
 {
     assert(s_saiHandle[3][1] != NULL);
@@ -3013,6 +3034,7 @@ void I2S3_Rx_DriverIRQHandler(void)
 #endif /* I2S3*/
 
 #if defined(I2S4)
+void I2S4_DriverIRQHandler(void);
 void I2S4_DriverIRQHandler(void)
 {
 #if defined(FSL_FEATURE_SAI_FIFO_COUNT) && (FSL_FEATURE_SAI_FIFO_COUNT > 1)
@@ -3039,6 +3061,7 @@ void I2S4_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void I2S4_Tx_DriverIRQHandler(void);
 void I2S4_Tx_DriverIRQHandler(void)
 {
     assert(s_saiHandle[4][0] != NULL);
@@ -3046,6 +3069,7 @@ void I2S4_Tx_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void I2S4_Rx_DriverIRQHandler(void);
 void I2S4_Rx_DriverIRQHandler(void)
 {
     assert(s_saiHandle[4][1] != NULL);
@@ -3056,6 +3080,7 @@ void I2S4_Rx_DriverIRQHandler(void)
 
 #if defined(FSL_FEATURE_SAI_SAI5_SAI6_SHARE_IRQ) && (FSL_FEATURE_SAI_SAI5_SAI6_SHARE_IRQ) && defined(I2S5) && \
     defined(I2S6)
+void I2S56_DriverIRQHandler(void);
 void I2S56_DriverIRQHandler(void)
 {
     /* use index 5 to get handle when I2S5 & I2S6 share IRQ NUMBER */
@@ -3085,6 +3110,7 @@ void I2S56_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void I2S56_Tx_DriverIRQHandler(void);
 void I2S56_Tx_DriverIRQHandler(void)
 {
     /* use index 5 to get handle when I2S5 & I2S6 share IRQ NUMBER */
@@ -3093,6 +3119,7 @@ void I2S56_Tx_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void I2S56_Rx_DriverIRQHandler(void);
 void I2S56_Rx_DriverIRQHandler(void)
 {
     /* use index 5 to get handle when I2S5 & I2S6 share IRQ NUMBER */
@@ -3104,6 +3131,7 @@ void I2S56_Rx_DriverIRQHandler(void)
 #else
 
 #if defined(I2S5)
+void I2S5_DriverIRQHandler(void);
 void I2S5_DriverIRQHandler(void)
 {
 #if defined(FSL_FEATURE_SAI_FIFO_COUNT) && (FSL_FEATURE_SAI_FIFO_COUNT > 1)
@@ -3129,6 +3157,7 @@ void I2S5_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void I2S5_Tx_DriverIRQHandler(void);
 void I2S5_Tx_DriverIRQHandler(void)
 {
     assert(s_saiHandle[5][0] != NULL);
@@ -3136,6 +3165,7 @@ void I2S5_Tx_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void I2S5_Rx_DriverIRQHandler(void);
 void I2S5_Rx_DriverIRQHandler(void)
 {
     assert(s_saiHandle[5][1] != NULL);
@@ -3145,6 +3175,7 @@ void I2S5_Rx_DriverIRQHandler(void)
 #endif
 
 #if defined(I2S6)
+void I2S6_DriverIRQHandler(void);
 void I2S6_DriverIRQHandler(void)
 {
 #if defined(FSL_FEATURE_SAI_FIFO_COUNT) && (FSL_FEATURE_SAI_FIFO_COUNT > 1)
@@ -3170,6 +3201,7 @@ void I2S6_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void I2S6_Tx_DriverIRQHandler(void);
 void I2S6_Tx_DriverIRQHandler(void)
 {
     assert(s_saiHandle[6][0] != NULL);
@@ -3177,6 +3209,7 @@ void I2S6_Tx_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void I2S6_Rx_DriverIRQHandler(void);
 void I2S6_Rx_DriverIRQHandler(void)
 {
     assert(s_saiHandle[6][1] != NULL);
@@ -3187,6 +3220,7 @@ void I2S6_Rx_DriverIRQHandler(void)
 #endif
 
 #if defined(AUDIO__SAI0)
+void AUDIO_SAI0_INT_DriverIRQHandler(void);
 void AUDIO_SAI0_INT_DriverIRQHandler(void)
 {
 #if defined(FSL_FEATURE_SAI_FIFO_COUNT) && (FSL_FEATURE_SAI_FIFO_COUNT > 1)
@@ -3219,6 +3253,7 @@ void AUDIO_SAI0_INT_DriverIRQHandler(void)
 #endif /* AUDIO__SAI0 */
 
 #if defined(AUDIO__SAI1)
+void AUDIO_SAI1_INT_DriverIRQHandler(void);
 void AUDIO_SAI1_INT_DriverIRQHandler(void)
 {
 #if defined(FSL_FEATURE_SAI_FIFO_COUNT) && (FSL_FEATURE_SAI_FIFO_COUNT > 1)
@@ -3250,6 +3285,7 @@ void AUDIO_SAI1_INT_DriverIRQHandler(void)
 #endif /* AUDIO__SAI1 */
 
 #if defined(AUDIO__SAI2)
+void AUDIO_SAI2_INT_DriverIRQHandler(void);
 void AUDIO_SAI2_INT_DriverIRQHandler(void)
 {
 #if defined(FSL_FEATURE_SAI_FIFO_COUNT) && (FSL_FEATURE_SAI_FIFO_COUNT > 1)
@@ -3281,6 +3317,7 @@ void AUDIO_SAI2_INT_DriverIRQHandler(void)
 #endif /* AUDIO__SAI2 */
 
 #if defined(AUDIO__SAI3)
+void AUDIO_SAI3_INT_DriverIRQHandler(void);
 void AUDIO_SAI3_INT_DriverIRQHandler(void)
 {
 #if defined(FSL_FEATURE_SAI_FIFO_COUNT) && (FSL_FEATURE_SAI_FIFO_COUNT > 1)
@@ -3312,6 +3349,7 @@ void AUDIO_SAI3_INT_DriverIRQHandler(void)
 #endif
 
 #if defined(AUDIO__SAI6)
+void AUDIO_SAI6_INT_DriverIRQHandler(void);
 void AUDIO_SAI6_INT_DriverIRQHandler(void)
 {
 #if defined(FSL_FEATURE_SAI_FIFO_COUNT) && (FSL_FEATURE_SAI_FIFO_COUNT > 1)
@@ -3343,6 +3381,7 @@ void AUDIO_SAI6_INT_DriverIRQHandler(void)
 #endif /* AUDIO__SAI6 */
 
 #if defined(AUDIO__SAI7)
+void AUDIO_SAI7_INT_DriverIRQHandler(void);
 void AUDIO_SAI7_INT_DriverIRQHandler(void)
 {
 #if defined(FSL_FEATURE_SAI_FIFO_COUNT) && (FSL_FEATURE_SAI_FIFO_COUNT > 1)
@@ -3374,6 +3413,7 @@ void AUDIO_SAI7_INT_DriverIRQHandler(void)
 #endif /* AUDIO__SAI7 */
 
 #if defined(ADMA__SAI0)
+void ADMA_SAI0_INT_DriverIRQHandler(void);
 void ADMA_SAI0_INT_DriverIRQHandler(void)
 {
 #if defined(FSL_FEATURE_SAI_FIFO_COUNT) && (FSL_FEATURE_SAI_FIFO_COUNT > 1)
@@ -3405,6 +3445,7 @@ void ADMA_SAI0_INT_DriverIRQHandler(void)
 #endif /* ADMA__SAI0 */
 
 #if defined(ADMA__SAI1)
+void ADMA_SAI1_INT_DriverIRQHandler(void);
 void ADMA_SAI1_INT_DriverIRQHandler(void)
 {
 #if defined(FSL_FEATURE_SAI_FIFO_COUNT) && (FSL_FEATURE_SAI_FIFO_COUNT > 1)
@@ -3436,6 +3477,7 @@ void ADMA_SAI1_INT_DriverIRQHandler(void)
 #endif /* ADMA__SAI1 */
 
 #if defined(ADMA__SAI2)
+void ADMA_SAI2_INT_DriverIRQHandler(void);
 void ADMA_SAI2_INT_DriverIRQHandler(void)
 {
 #if defined(FSL_FEATURE_SAI_FIFO_COUNT) && (FSL_FEATURE_SAI_FIFO_COUNT > 1)
@@ -3467,6 +3509,7 @@ void ADMA_SAI2_INT_DriverIRQHandler(void)
 #endif /* ADMA__SAI2 */
 
 #if defined(ADMA__SAI3)
+void ADMA_SAI3_INT_DriverIRQHandler(void);
 void ADMA_SAI3_INT_DriverIRQHandler(void)
 {
 #if defined(FSL_FEATURE_SAI_FIFO_COUNT) && (FSL_FEATURE_SAI_FIFO_COUNT > 1)
@@ -3498,6 +3541,7 @@ void ADMA_SAI3_INT_DriverIRQHandler(void)
 #endif /* ADMA__SAI3 */
 
 #if defined(ADMA__SAI4)
+void ADMA_SAI4_INT_DriverIRQHandler(void);
 void ADMA_SAI4_INT_DriverIRQHandler(void)
 {
 #if defined(FSL_FEATURE_SAI_FIFO_COUNT) && (FSL_FEATURE_SAI_FIFO_COUNT > 1)
@@ -3530,6 +3574,7 @@ void ADMA_SAI4_INT_DriverIRQHandler(void)
 #endif /* ADMA__SAI4 */
 
 #if defined(ADMA__SAI5)
+void ADMA_SAI5_INT_DriverIRQHandler(void);
 void ADMA_SAI5_INT_DriverIRQHandler(void)
 {
 #if defined(FSL_FEATURE_SAI_FIFO_COUNT) && (FSL_FEATURE_SAI_FIFO_COUNT > 1)
@@ -3561,6 +3606,7 @@ void ADMA_SAI5_INT_DriverIRQHandler(void)
 #endif /* ADMA__SAI5 */
 
 #if defined(SAI0)
+void SAI0_DriverIRQHandler(void);
 void SAI0_DriverIRQHandler(void)
 {
 #if defined(FSL_FEATURE_SAI_FIFO_COUNT) && (FSL_FEATURE_SAI_FIFO_COUNT > 1)
@@ -3588,6 +3634,7 @@ void SAI0_DriverIRQHandler(void)
 #endif /* SAI0 */
 
 #if defined(SAI1)
+void SAI1_DriverIRQHandler(void);
 void SAI1_DriverIRQHandler(void)
 {
 #if defined(FSL_FEATURE_SAI_FIFO_COUNT) && (FSL_FEATURE_SAI_FIFO_COUNT > 1)
@@ -3615,6 +3662,7 @@ void SAI1_DriverIRQHandler(void)
 #endif /* SAI1 */
 
 #if defined(SAI2)
+void SAI2_DriverIRQHandler(void);
 void SAI2_DriverIRQHandler(void)
 {
 #if defined(FSL_FEATURE_SAI_FIFO_COUNT) && (FSL_FEATURE_SAI_FIFO_COUNT > 1)
@@ -3642,6 +3690,7 @@ void SAI2_DriverIRQHandler(void)
 #endif /* SAI2 */
 
 #if defined(SAI3)
+void SAI3_DriverIRQHandler(void);
 void SAI3_DriverIRQHandler(void)
 {
 #if defined(FSL_FEATURE_SAI_FIFO_COUNT) && (FSL_FEATURE_SAI_FIFO_COUNT > 1)
@@ -3667,6 +3716,7 @@ void SAI3_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void SAI3_TX_DriverIRQHandler(void);
 void SAI3_TX_DriverIRQHandler(void)
 {
     assert(s_saiHandle[3][0] != NULL);
@@ -3674,6 +3724,7 @@ void SAI3_TX_DriverIRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
+void SAI3_RX_DriverIRQHandler(void);
 void SAI3_RX_DriverIRQHandler(void)
 {
     assert(s_saiHandle[3][1] != NULL);
@@ -3683,6 +3734,7 @@ void SAI3_RX_DriverIRQHandler(void)
 #endif /* SAI3 */
 
 #if defined(SAI4)
+void SAI4_DriverIRQHandler(void);
 void SAI4_DriverIRQHandler(void)
 {
 #if defined(FSL_FEATURE_SAI_FIFO_COUNT) && (FSL_FEATURE_SAI_FIFO_COUNT > 1)
@@ -3710,6 +3762,7 @@ void SAI4_DriverIRQHandler(void)
 #endif /* SAI4 */
 
 #if defined(SAI5)
+void SAI5_DriverIRQHandler(void);
 void SAI5_DriverIRQHandler(void)
 {
 #if defined(FSL_FEATURE_SAI_FIFO_COUNT) && (FSL_FEATURE_SAI_FIFO_COUNT > 1)
@@ -3737,6 +3790,7 @@ void SAI5_DriverIRQHandler(void)
 #endif /* SAI5 */
 
 #if defined(SAI6)
+void SAI6_DriverIRQHandler(void);
 void SAI6_DriverIRQHandler(void)
 {
 #if defined(FSL_FEATURE_SAI_FIFO_COUNT) && (FSL_FEATURE_SAI_FIFO_COUNT > 1)

@@ -12,7 +12,8 @@
 #include "fsl_sai.h"
 
 /*!
- * @addtogroup sai_edma
+ * @addtogroup sai_edma SAI EDMA Driver
+ * @ingroup sai
  * @{
  */
 
@@ -22,7 +23,7 @@
 
 /*! @name Driver version */
 /*@{*/
-#define FSL_SAI_EDMA_DRIVER_VERSION (MAKE_VERSION(2, 3, 1)) /*!< Version 2.3.1 */
+#define FSL_SAI_EDMA_DRIVER_VERSION (MAKE_VERSION(2, 4, 0)) /*!< Version 2.4.0 */
 /*@}*/
 
 typedef struct sai_edma_handle sai_edma_handle_t;
@@ -101,6 +102,8 @@ void SAI_TransferRxCreateHandleEDMA(I2S_Type *base,
 /*!
  * @brief Configures the SAI Tx audio format.
  *
+ * @deprecated Do not use this function.  It has been superceded by @ref SAI_TransferTxSetConfigEDMA
+ *
  * The audio format can be changed at run-time. This function configures the sample rate and audio data
  * format to be transferred. This function also sets the eDMA parameter according to formatting requirements.
  *
@@ -121,6 +124,8 @@ void SAI_TransferTxSetFormatEDMA(I2S_Type *base,
 
 /*!
  * @brief Configures the SAI Rx audio format.
+ *
+ * @deprecated Do not use this function.  It has been superceded by @ref SAI_TransferRxSetConfigEDMA
  *
  * The audio format can be changed at run-time. This function configures the sample rate and audio data
  * format to be transferred. This function also sets the eDMA parameter according to formatting requirements.
@@ -255,6 +260,19 @@ status_t SAI_TransferGetSendCountEDMA(I2S_Type *base, sai_edma_handle_t *handle,
  * @retval kStatus_NoTransferInProgress There is no non-blocking transaction in progress.
  */
 status_t SAI_TransferGetReceiveCountEDMA(I2S_Type *base, sai_edma_handle_t *handle, size_t *count);
+
+/*!
+ * @brief Gets valid transfer slot.
+ *
+ * This function can be used to query the valid transfer request slot that the application can submit.
+ * It should be called in the critical section, that means the application could call it in the corresponding callback
+ * function or disable IRQ before calling it in the application, otherwise, the returned value may not correct.
+ *
+ * @param base SAI base pointer
+ * @param handle SAI eDMA handle pointer.
+ * @retval valid slot count that application submit.
+ */
+uint32_t SAI_TransferGetValidTransferSlotsEDMA(I2S_Type *base, sai_edma_handle_t *handle);
 
 /*! @} */
 

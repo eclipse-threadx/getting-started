@@ -11,10 +11,10 @@
  * Definitions
  ******************************************************************************/
 /*! @brief codec play and record capability */
-#define GET_PLAY_CHANNEL_CAPABILITY(capability)   (capability & 0xFFU)
-#define GET_PLAY_SOURCE_CAPABILITY(capability)    (capability >> 8U)
-#define GET_RECORD_SOURCE_CAPABILITY(capability)  (capability & 0x3FU)
-#define GET_RECORD_CHANNEL_CAPABILITY(capability) (capability >> 6U)
+#define GET_PLAY_CHANNEL_CAPABILITY(capability)   ((capability)&0xFFU)
+#define GET_PLAY_SOURCE_CAPABILITY(capability)    ((capability) >> 8U)
+#define GET_RECORD_SOURCE_CAPABILITY(capability)  ((capability)&0x3FU)
+#define GET_RECORD_CHANNEL_CAPABILITY(capability) ((capability) >> 6U)
 /*******************************************************************************
  * Variables
  ******************************************************************************/
@@ -86,17 +86,16 @@ status_t CODEC_ModuleControl(codec_handle_t *handle, codec_module_ctrl_cmd_t cmd
     assert((handle != NULL) && (handle->codecConfig != NULL));
     assert(handle->codecCapability != NULL);
 
-    switch (cmd)
+    if (cmd == kCODEC_ModuleSwitchI2SInInterface)
     {
-        case kCODEC_ModuleSwitchI2SInInterface:
-            if ((handle->codecCapability->codecModuleCapability & kCODEC_SupportModuleI2SInSwitchInterface) == 0U)
-            {
-                return kStatus_CODEC_NotSupport;
-            }
-            break;
-
-        default:
+        if ((handle->codecCapability->codecModuleCapability & (uint32_t)kCODEC_SupportModuleI2SInSwitchInterface) == 0U)
+        {
             return kStatus_CODEC_NotSupport;
+        }
+    }
+    else
+    {
+        return kStatus_CODEC_NotSupport;
     }
 
     return HAL_CODEC_ModuleControl(handle, (uint32_t)cmd, data);
@@ -110,19 +109,19 @@ status_t CODEC_ModuleControl(codec_handle_t *handle, codec_module_ctrl_cmd_t cmd
  * param volume volume value, support 0 ~ 100, 0 is mute, 100 is the maximum volume value.
  * return kStatus_Success is success, else configure failed.
  */
-status_t CODEC_SetVolume(codec_handle_t *handle, uint32_t playChannel, uint32_t volume)
+status_t CODEC_SetVolume(codec_handle_t *handle, uint32_t channel, uint32_t volume)
 {
     assert((handle != NULL) && (handle->codecConfig != NULL));
     assert(volume <= CODEC_VOLUME_MAX_VALUE);
     assert(handle->codecCapability != NULL);
 
     /* check capability of set volume */
-    if ((GET_PLAY_CHANNEL_CAPABILITY(handle->codecCapability->codecPlayCapability) & playChannel) == 0U)
+    if ((GET_PLAY_CHANNEL_CAPABILITY(handle->codecCapability->codecPlayCapability) & channel) == 0U)
     {
         return kStatus_CODEC_NotSupport;
     }
 
-    return HAL_CODEC_SetVolume(handle, playChannel, volume);
+    return HAL_CODEC_SetVolume(handle, channel, volume);
 }
 
 /*!
@@ -133,18 +132,18 @@ status_t CODEC_SetVolume(codec_handle_t *handle, uint32_t playChannel, uint32_t 
  * param mute true is mute, false is unmute.
  * return kStatus_Success is success, else configure failed.
  */
-status_t CODEC_SetMute(codec_handle_t *handle, uint32_t playChannel, bool mute)
+status_t CODEC_SetMute(codec_handle_t *handle, uint32_t channel, bool mute)
 {
     assert((handle != NULL) && (handle->codecConfig != NULL));
     assert(handle->codecCapability != NULL);
 
     /* check capability of mute */
-    if ((GET_PLAY_CHANNEL_CAPABILITY(handle->codecCapability->codecPlayCapability) & playChannel) == 0U)
+    if ((GET_PLAY_CHANNEL_CAPABILITY(handle->codecCapability->codecPlayCapability) & channel) == 0U)
     {
         return kStatus_CODEC_NotSupport;
     }
 
-    return HAL_CODEC_SetMute(handle, playChannel, mute);
+    return HAL_CODEC_SetMute(handle, channel, mute);
 }
 
 /*!
@@ -161,7 +160,7 @@ status_t CODEC_SetPower(codec_handle_t *handle, codec_module_t module, bool powe
     assert(handle->codecCapability != NULL);
 
     /* check capability of power switch */
-    if ((handle->codecCapability->codecModuleCapability & (1U << module)) == 0U)
+    if ((handle->codecCapability->codecModuleCapability & (1UL << (uint32_t)module)) == 0U)
     {
         return kStatus_CODEC_NotSupport;
     }

@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
- * Copyright 2016-2019 NXP
+ * Copyright 2016-2021 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -14,20 +14,17 @@
  * Definitions
  ******************************************************************************/
 /*! @brief wm8904 volume mapping */
-#define WM8904_MAP_DAC_ADC_VOLUME(volume)           (volume * (255 / 100U))
-#define WM8904_MAP_PGA_VOLUME(volume)               (volume > 0x1FU ? 0x1FU : volume)
-#define WM8904_MAP_HEADPHONE_LINEOUT_VOLUME(volume) (volume > 0x3FU ? 0x3FU : volume)
-#define WM8904_SWAP_UINT16_BYTE_SEQUENCE(x)         (__REV16(x))
-#define WM8904_MAP_SAMPLERATE(x)        \
-    (x == kWM8904_SampleRate8kHz ?      \
-         8000U :                        \
-         x == kWM8904_SampleRate12kHz ? \
-         12000U :                       \
-         x == kWM8904_SampleRate16kHz ? \
-         16000U :                       \
-         x == kWM8904_SampleRate24kHz ? 24000U : x == kWM8904_SampleRate32kHz ? 32000U : 48000U)
+#define WM8904_SWAP_UINT16_BYTE_SEQUENCE(x) (__REV16(x))
+#define WM8904_MAP_SAMPLERATE(x)          \
+    ((x) == kWM8904_SampleRate8kHz ?      \
+         8000U :                          \
+         (x) == kWM8904_SampleRate12kHz ? \
+         12000U :                         \
+         (x) == kWM8904_SampleRate16kHz ? \
+         16000U :                         \
+         (x) == kWM8904_SampleRate24kHz ? 24000U : (x) == kWM8904_SampleRate32kHz ? 32000U : 48000U)
 #define WM8904_MAP_BITWIDTH(x) \
-    (x == kWM8904_BitWidth16 ? 16 : x == kWM8904_BitWidth20 ? 20 : x == kWM8904_BitWidth24 ? 24 : 32)
+    ((x) == kWM8904_BitWidth16 ? 16 : (x) == kWM8904_BitWidth20 ? 20 : (x) == kWM8904_BitWidth24 ? 24 : 32)
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
@@ -65,7 +62,7 @@ static const uint8_t allRegisters[] = {
  ******************************************************************************/
 static status_t WM8904_UpdateFormat(wm8904_handle_t *handle, wm8904_audio_format_t *format)
 {
-    status_t result;
+    status_t result = kStatus_Success;
 
     /* Disable SYSCLK */
     result = WM8904_WriteRegister(handle, WM8904_CLK_RATES_2, 0x00);
@@ -75,14 +72,16 @@ static status_t WM8904_UpdateFormat(wm8904_handle_t *handle, wm8904_audio_format
     }
 
     /* Set Clock ratio and sample rate */
-    result = WM8904_WriteRegister(handle, WM8904_CLK_RATES_1, (format->fsRatio << 10) | format->sampleRate);
+    result = WM8904_WriteRegister(handle, WM8904_CLK_RATES_1,
+                                  (uint16_t)(((uint16_t)(format->fsRatio) << 10U) | (uint16_t)(format->sampleRate)));
     if (result != kStatus_WM8904_Success)
     {
         return result;
     }
 
     /* Set bit resolution and bclk direction */
-    result = WM8904_ModifyRegister(handle, WM8904_AUDIO_IF_1, 0x000C | (1U << 6U), format->bitWidth << 2U);
+    result =
+        WM8904_ModifyRegister(handle, WM8904_AUDIO_IF_1, (0x000CU | (1U << 6U)), ((uint16_t)(format->bitWidth) << 2U));
     if (result != kStatus_WM8904_Success)
     {
         return result;
@@ -107,13 +106,13 @@ static status_t WM8904_UpdateFormat(wm8904_handle_t *handle, wm8904_audio_format
 
 static status_t WM8904_WaitOnWriteSequencer(wm8904_handle_t *handle)
 {
-    status_t result;
+    status_t result = kStatus_Success;
     uint16_t value;
 
     do
     {
         result = WM8904_ReadRegister(handle, WM8904_WRT_SEQUENCER_4, &value);
-    } while ((result == kStatus_WM8904_Success) && (value & 1));
+    } while ((result == kStatus_WM8904_Success) && ((value & 1U) != 0U));
 
     return result;
 }
@@ -131,7 +130,7 @@ status_t WM8904_WriteRegister(wm8904_handle_t *handle, uint8_t reg, uint16_t val
     assert(handle->config != NULL);
     assert(handle->config->slaveAddress != 0U);
 
-    uint16_t writeValue = WM8904_SWAP_UINT16_BYTE_SEQUENCE(value);
+    uint16_t writeValue = (uint16_t)WM8904_SWAP_UINT16_BYTE_SEQUENCE(value);
 
     return CODEC_I2C_Send(handle->i2cHandle, handle->config->slaveAddress, reg, 1U, (uint8_t *)&writeValue, 2U);
 }
@@ -149,12 +148,13 @@ status_t WM8904_ReadRegister(wm8904_handle_t *handle, uint8_t reg, uint16_t *val
     assert(handle->config != NULL);
     assert(handle->config->slaveAddress != 0U);
 
-    uint8_t retval     = 0;
+    status_t retval    = 0;
     uint16_t readValue = 0U;
 
-    retval = CODEC_I2C_Receive(handle->i2cHandle, handle->config->slaveAddress, reg, 1U, (uint8_t *)&readValue, 2U);
+    retval = CODEC_I2C_Receive(handle->i2cHandle, handle->config->slaveAddress, (uint32_t)reg, 1U,
+                               (uint8_t *)&readValue, 2U);
 
-    *value = WM8904_SWAP_UINT16_BYTE_SEQUENCE(readValue);
+    *value = (uint16_t)WM8904_SWAP_UINT16_BYTE_SEQUENCE(readValue);
 
     return retval;
 }
@@ -170,7 +170,7 @@ status_t WM8904_ReadRegister(wm8904_handle_t *handle, uint8_t reg, uint16_t *val
  */
 status_t WM8904_ModifyRegister(wm8904_handle_t *handle, uint8_t reg, uint16_t mask, uint16_t value)
 {
-    status_t result;
+    status_t result = kStatus_Success;
     uint16_t regValue;
 
     result = WM8904_ReadRegister(handle, reg, &regValue);
@@ -196,7 +196,7 @@ status_t WM8904_Init(wm8904_handle_t *handle, wm8904_config_t *wm8904Config)
     assert(handle != NULL);
     assert(wm8904Config != NULL);
 
-    status_t result;
+    status_t result         = kStatus_Success;
     uint32_t sysclk         = 0U;
     wm8904_config_t *config = wm8904Config;
     handle->config          = config;
@@ -204,7 +204,7 @@ status_t WM8904_Init(wm8904_handle_t *handle, wm8904_config_t *wm8904Config)
     /* i2c bus initialization */
     result = CODEC_I2C_Init(handle->i2cHandle, wm8904Config->i2cConfig.codecI2CInstance, WM8904_I2C_BITRATE,
                             wm8904Config->i2cConfig.codecI2CSourceClock);
-    if (result != kStatus_HAL_I2cSuccess)
+    if (result != (status_t)kStatus_HAL_I2cSuccess)
     {
         return kStatus_WM8904_Fail;
     }
@@ -363,7 +363,7 @@ status_t WM8904_Init(wm8904_handle_t *handle, wm8904_config_t *wm8904Config)
         return result;
     }
 
-    result = WM8904_ModifyRegister(handle, WM8904_CLK_RATES_2, 1U << 14U, config->sysClkSource);
+    result = WM8904_ModifyRegister(handle, WM8904_CLK_RATES_2, (1U << 14U), (uint16_t)(config->sysClkSource));
     if (kStatus_WM8904_Success != result)
     {
         return result;
@@ -391,8 +391,8 @@ status_t WM8904_Init(wm8904_handle_t *handle, wm8904_config_t *wm8904Config)
 
     if (config->master)
     {
-        result = WM8904_SeMasterClock(handle, sysclk / 2U, WM8904_MAP_SAMPLERATE(config->format.sampleRate),
-                                      WM8904_MAP_BITWIDTH(config->format.bitWidth));
+        result = WM8904_SeMasterClock(handle, sysclk / 2U, (uint32_t)(WM8904_MAP_SAMPLERATE(config->format.sampleRate)),
+                                      (uint32_t)(WM8904_MAP_BITWIDTH(config->format.bitWidth)));
         if (result != kStatus_WM8904_Success)
         {
             return result;
@@ -455,7 +455,7 @@ status_t WM8904_Deinit(wm8904_handle_t *handle)
  */
 void WM8904_GetDefaultConfig(wm8904_config_t *config)
 {
-    memset(config, 0, sizeof(wm8904_config_t));
+    (void)memset(config, 0, sizeof(wm8904_config_t));
 
     config->master            = false;
     config->protocol          = kWM8904_ProtocolI2S;
@@ -500,7 +500,7 @@ status_t WM8904_SeMasterClock(wm8904_handle_t *handle, uint32_t sysclk, uint32_t
         return result;
     }
 
-    audioInterface &= ~0x1FU;
+    audioInterface &= ~(uint16_t)0x1FU;
     bclkDiv = (sysclk * 10U) / bclk;
 
     switch (bclkDiv)
@@ -512,10 +512,16 @@ status_t WM8904_SeMasterClock(wm8904_handle_t *handle, uint32_t sysclk, uint32_t
             audioInterface |= 1U;
             break;
         case 20:
+            /* Avoid MISRA 16.4 violation */
+            break;
         case 30:
+            /* Avoid MISRA 16.4 violation */
+            break;
         case 40:
+            /* Avoid MISRA 16.4 violation */
+            break;
         case 50:
-            audioInterface |= bclkDiv / 10U;
+            audioInterface |= (uint16_t)bclkDiv / 10U;
             break;
         case 55:
             audioInterface |= 6U;
@@ -527,9 +533,13 @@ status_t WM8904_SeMasterClock(wm8904_handle_t *handle, uint32_t sysclk, uint32_t
             audioInterface |= 8U;
             break;
         case 100:
+            /* Avoid MISRA 16.4 violation */
+            break;
         case 110:
+            /* Avoid MISRA 16.4 violation */
+            break;
         case 120:
-            audioInterface |= bclkDiv / 10U - 1U;
+            audioInterface |= (uint16_t)bclkDiv / 10U - 1U;
             break;
         case 160:
             audioInterface |= 12U;
@@ -558,6 +568,9 @@ status_t WM8904_SeMasterClock(wm8904_handle_t *handle, uint32_t sysclk, uint32_t
         case 480:
             audioInterface |= 20U;
             break;
+        default:
+            /* Avoid MISRA 16.4 violation */
+            break;
     }
     /* bclk divider */
     result = WM8904_WriteRegister(handle, WM8904_AUDIO_IF_2, audioInterface);
@@ -578,7 +591,7 @@ status_t WM8904_SeMasterClock(wm8904_handle_t *handle, uint32_t sysclk, uint32_t
         return result;
     }
     /* LRCLK direction and divider */
-    audioInterface = (1 << 11U) | (bclk / sampleRate);
+    audioInterface = (uint16_t)((1U << 11U) | (bclk / sampleRate));
     result         = WM8904_ModifyRegister(handle, WM8904_AUDIO_IF_3, 0xFFFU, audioInterface);
     if (kStatus_WM8904_Success != result)
     {
@@ -603,11 +616,11 @@ status_t WM8904_SetFLLConfig(wm8904_handle_t *handle, wm8904_fll_config_t *confi
     {
         inputDivider = 0;
     }
-    else if (referenceClock / 2 < 13500000U)
+    else if (referenceClock / 2U < 13500000U)
     {
         inputDivider = 1;
     }
-    else if (referenceClock / 4 < 13500000U)
+    else if (referenceClock / 4U < 13500000U)
     {
         inputDivider = 2;
     }
@@ -616,35 +629,35 @@ status_t WM8904_SetFLLConfig(wm8904_handle_t *handle, wm8904_fll_config_t *confi
         inputDivider = 3;
     }
 
-    if (referenceClock / (1U << inputDivider) > 13500000U)
+    if (referenceClock / (1UL << inputDivider) > 13500000U)
     {
         return kStatus_InvalidArgument;
     }
 
-    referenceClock = referenceClock / (1U << inputDivider);
+    referenceClock = referenceClock / (1UL << inputDivider);
 
-    for (outputDiv = 4U; outputDiv <= 64; outputDiv++)
+    for (outputDiv = 4U; outputDiv <= 64U; outputDiv++)
     {
         fvco = outputDiv * config->outputClock_HZ;
-        if ((fvco >= 90000000) && (fvco <= 100000000))
+        if ((fvco >= 90000000U) && (fvco <= 100000000U))
         {
             break;
         }
     }
 
-    if (referenceClock <= 64000)
+    if (referenceClock <= 64000U)
     {
         ratio = 4U;
     }
-    else if (referenceClock <= 128000)
+    else if (referenceClock <= 128000U)
     {
         ratio = 3U;
     }
-    else if (referenceClock <= 256000)
+    else if (referenceClock <= 256000U)
     {
         ratio = 2U;
     }
-    else if (referenceClock <= 1000000)
+    else if (referenceClock <= 1000000U)
     {
         ratio = 1U;
     }
@@ -653,13 +666,13 @@ status_t WM8904_SetFLLConfig(wm8904_handle_t *handle, wm8904_fll_config_t *confi
         ratio = 0U;
     }
 
-    n = fvco / ((ratio + 1) * referenceClock);
-    k = (((uint64_t)fvco) * 1000000U) / ((ratio + 1) * referenceClock);
+    n = fvco / ((ratio + 1U) * referenceClock);
+    k = (uint32_t)((uint64_t)fvco * 1000000U) / ((ratio + 1U) * referenceClock);
     if (n != 0U)
     {
         k = k - n * 1000000U;
     }
-    k = ((uint64_t)k * 65536) / 1000000U;
+    k = (uint32_t)((uint64_t)k * 65536U) / 1000000U;
 
     /* configure WM8904  */
     if (WM8904_ModifyRegister(handle, WM8904_FLL_CONTROL_1, 7U, 4U) != kStatus_Success)
@@ -668,24 +681,24 @@ status_t WM8904_SetFLLConfig(wm8904_handle_t *handle, wm8904_fll_config_t *confi
     }
 
     /* configure WM8904  */
-    if (WM8904_ModifyRegister(handle, WM8904_FLL_CONTROL_2, 0x3F07U, ((outputDiv - 1) << 8U) | ratio) !=
+    if (WM8904_ModifyRegister(handle, WM8904_FLL_CONTROL_2, 0x3F07U, (uint16_t)(((outputDiv - 1U) << 8U) | ratio)) !=
         kStatus_Success)
     {
         return kStatus_WM8904_Fail;
     }
 
-    if (kStatus_WM8904_Success != WM8904_WriteRegister(handle, WM8904_FLL_CONTROL_3, k))
+    if (kStatus_WM8904_Success != WM8904_WriteRegister(handle, WM8904_FLL_CONTROL_3, (uint16_t)k))
     {
         return kStatus_WM8904_Fail;
     }
 
-    if (WM8904_ModifyRegister(handle, WM8904_FLL_CONTROL_4, 0x7FE0, n << 5U) != kStatus_Success)
+    if (WM8904_ModifyRegister(handle, WM8904_FLL_CONTROL_4, 0x7FE0U, (uint16_t)(n << 5U)) != kStatus_Success)
     {
         return kStatus_WM8904_Fail;
     }
 
     if (kStatus_WM8904_Success !=
-        WM8904_WriteRegister(handle, WM8904_FLL_CONTROL_5, (inputDivider << 3U) | config->source))
+        WM8904_WriteRegister(handle, WM8904_FLL_CONTROL_5, (uint16_t)((inputDivider << 3U) | (uint16_t)config->source)))
     {
         return kStatus_WM8904_Fail;
     }
@@ -696,7 +709,7 @@ status_t WM8904_SetFLLConfig(wm8904_handle_t *handle, wm8904_fll_config_t *confi
     }
 
     /* enable GPIO1 output fll output clock */
-    if (kStatus_WM8904_Success != WM8904_WriteRegister(handle, 0x79, 9U))
+    if (kStatus_WM8904_Success != WM8904_WriteRegister(handle, 0x79U, (uint16_t)9U))
     {
         return kStatus_WM8904_Fail;
     }
@@ -714,7 +727,7 @@ status_t WM8904_SetFLLConfig(wm8904_handle_t *handle, wm8904_fll_config_t *confi
  */
 status_t WM8904_SetProtocol(wm8904_handle_t *handle, wm8904_protocol_t protocol)
 {
-    return WM8904_ModifyRegister(handle, WM8904_AUDIO_IF_1, (0x0003 | (1U << 4U)), (uint16_t)protocol);
+    return WM8904_ModifyRegister(handle, WM8904_AUDIO_IF_1, (0x0003U | (1U << 4U)), (uint16_t)protocol);
 }
 
 /*!
@@ -727,7 +740,7 @@ status_t WM8904_SetProtocol(wm8904_handle_t *handle, wm8904_protocol_t protocol)
  */
 status_t WM8904_SelectLRCPolarity(wm8904_handle_t *handle, uint32_t polarity)
 {
-    return WM8904_ModifyRegister(handle, WM8904_AUDIO_IF_1, 0x0010, polarity);
+    return WM8904_ModifyRegister(handle, WM8904_AUDIO_IF_1, 0x0010U, (uint16_t)polarity);
 }
 
 /*!
@@ -740,7 +753,8 @@ status_t WM8904_SelectLRCPolarity(wm8904_handle_t *handle, uint32_t polarity)
  */
 status_t WM8904_EnableDACTDMMode(wm8904_handle_t *handle, wm8904_timeslot_t timeSlot)
 {
-    return WM8904_ModifyRegister(handle, WM8904_AUDIO_IF_1, 3U << 12U, 1U << 13U | timeSlot << 12U);
+    return WM8904_ModifyRegister(handle, WM8904_AUDIO_IF_1, ((uint16_t)3U << 12U),
+                                 (((uint16_t)1U << 13U) | ((uint16_t)timeSlot << 12U)));
 }
 
 /*!
@@ -753,7 +767,8 @@ status_t WM8904_EnableDACTDMMode(wm8904_handle_t *handle, wm8904_timeslot_t time
  */
 status_t WM8904_EnableADCTDMMode(wm8904_handle_t *handle, wm8904_timeslot_t timeSlot)
 {
-    return WM8904_ModifyRegister(handle, WM8904_AUDIO_IF_1, 3U << 10U, 1U << 11U | timeSlot << 10U);
+    return WM8904_ModifyRegister(handle, WM8904_AUDIO_IF_1, ((uint16_t)3U << 10U),
+                                 (((uint16_t)1U << 11U) | ((uint16_t)timeSlot << 10U)));
 }
 
 /*!
@@ -768,9 +783,9 @@ status_t WM8904_EnableADCTDMMode(wm8904_handle_t *handle, wm8904_timeslot_t time
  */
 status_t WM8904_CheckAudioFormat(wm8904_handle_t *handle, wm8904_audio_format_t *format, uint32_t mclkFreq)
 {
-    assert(handle && format);
+    assert((handle != NULL) && (format != NULL));
 
-    status_t result;
+    status_t result     = kStatus_Success;
     uint16_t mclkDiv    = 0U;
     uint32_t sampleRate = 0U;
     uint32_t fsRatio    = 0U;
@@ -786,11 +801,17 @@ status_t WM8904_CheckAudioFormat(wm8904_handle_t *handle, wm8904_audio_format_t 
         case kWM8904_SampleRate8kHz:
             sampleRate = 8000;
             break;
+        case kWM8904_SampleRate11025Hz:
+            sampleRate = 11025;
+            break;
         case kWM8904_SampleRate12kHz:
             sampleRate = 12000;
             break;
         case kWM8904_SampleRate16kHz:
             sampleRate = 16000;
+            break;
+        case kWM8904_SampleRate22050Hz:
+            sampleRate = 22050;
             break;
         case kWM8904_SampleRate24kHz:
             sampleRate = 24000;
@@ -798,10 +819,14 @@ status_t WM8904_CheckAudioFormat(wm8904_handle_t *handle, wm8904_audio_format_t 
         case kWM8904_SampleRate32kHz:
             sampleRate = 32000;
             break;
+        case kWM8904_SampleRate44100Hz:
+            sampleRate = 44100;
+            break;
         case kWM8904_SampleRate48kHz:
             sampleRate = 48000;
             break;
         default:
+            /* Avoid MISRA 16.4 violation */
             break;
     }
 
@@ -840,6 +865,7 @@ status_t WM8904_CheckAudioFormat(wm8904_handle_t *handle, wm8904_audio_format_t 
             format->fsRatio = kWM8904_FsRatio1536X;
             break;
         default:
+            /* Avoid MISRA 16.4 violation */
             break;
     }
 
@@ -859,9 +885,10 @@ status_t WM8904_CheckAudioFormat(wm8904_handle_t *handle, wm8904_audio_format_t 
  */
 status_t WM8904_SetAudioFormat(wm8904_handle_t *handle, uint32_t sysclk, uint32_t sampleRate, uint32_t bitWidth)
 {
-    status_t result;
-    wm8904_audio_format_t format;
+    wm8904_audio_format_t format = {
+        .fsRatio = kWM8904_FsRatio1536X, .sampleRate = kWM8904_SampleRate48kHz, .bitWidth = kWM8904_BitWidth32};
     uint32_t ratio = 0;
+    status_t error = kStatus_WM8904_Success;
 
     switch (sampleRate)
     {
@@ -869,6 +896,8 @@ status_t WM8904_SetAudioFormat(wm8904_handle_t *handle, uint32_t sysclk, uint32_
             format.sampleRate = kWM8904_SampleRate8kHz;
             break;
         case 11025:
+            format.sampleRate = kWM8904_SampleRate12kHz;
+            break;
         case 12000:
             format.sampleRate = kWM8904_SampleRate12kHz;
             break;
@@ -876,6 +905,8 @@ status_t WM8904_SetAudioFormat(wm8904_handle_t *handle, uint32_t sysclk, uint32_
             format.sampleRate = kWM8904_SampleRate16kHz;
             break;
         case 22050:
+            format.sampleRate = kWM8904_SampleRate24kHz;
+            break;
         case 24000:
             format.sampleRate = kWM8904_SampleRate24kHz;
             break;
@@ -883,11 +914,19 @@ status_t WM8904_SetAudioFormat(wm8904_handle_t *handle, uint32_t sysclk, uint32_
             format.sampleRate = kWM8904_SampleRate32kHz;
             break;
         case 44100:
+            format.sampleRate = kWM8904_SampleRate48kHz;
+            break;
         case 48000:
             format.sampleRate = kWM8904_SampleRate48kHz;
             break;
         default:
-            return kStatus_WM8904_Fail;
+            error = kStatus_WM8904_Fail;
+            break;
+    }
+
+    if (error != kStatus_WM8904_Success)
+    {
+        return error;
     }
 
     switch (bitWidth)
@@ -905,7 +944,13 @@ status_t WM8904_SetAudioFormat(wm8904_handle_t *handle, uint32_t sysclk, uint32_
             format.bitWidth = kWM8904_BitWidth32;
             break;
         default:
+            error = kStatus_WM8904_Fail;
             break;
+    }
+
+    if (error != kStatus_WM8904_Success)
+    {
+        return error;
     }
 
     ratio = sysclk / sampleRate;
@@ -942,12 +987,16 @@ status_t WM8904_SetAudioFormat(wm8904_handle_t *handle, uint32_t sysclk, uint32_
             format.fsRatio = kWM8904_FsRatio1536X;
             break;
         default:
-            return kStatus_WM8904_Fail;
+            error = kStatus_WM8904_Fail;
+            break;
     }
 
-    result = WM8904_UpdateFormat(handle, &format);
+    if (error == kStatus_WM8904_Success)
+    {
+        error = WM8904_UpdateFormat(handle, &format);
+    }
 
-    return result;
+    return error;
 }
 
 /*!
@@ -965,15 +1014,19 @@ status_t WM8904_SetAudioFormat(wm8904_handle_t *handle, uint32_t sysclk, uint32_
  */
 status_t WM8904_SetVolume(wm8904_handle_t *handle, uint16_t volumeLeft, uint16_t volumeRight)
 {
-    status_t result;
+    assert(volumeRight <= WM8904_MAP_HEADPHONE_LINEOUT_MAX_VOLUME);
+    assert(volumeLeft <= WM8904_MAP_HEADPHONE_LINEOUT_MAX_VOLUME);
 
-    result = WM8904_ModifyRegister(handle, WM8904_ANALOG_OUT1_LEFT, 0x3F, volumeLeft);
+    status_t result = kStatus_Success;
+
+    /* 0x1BF means unmute the OUT and reset the OUT volume update bit and volume range fields*/
+    result = WM8904_ModifyRegister(handle, WM8904_ANALOG_OUT1_LEFT, 0x1BF, volumeLeft);
     if (result != kStatus_WM8904_Success)
     {
         return result;
     }
 
-    result = WM8904_ModifyRegister(handle, WM8904_ANALOG_OUT1_RIGHT, 0xBF, volumeRight | 0x0080);
+    result = WM8904_ModifyRegister(handle, WM8904_ANALOG_OUT1_RIGHT, 0x1BFU, ((uint16_t)volumeRight | 0x0080U));
     if (result != kStatus_WM8904_Success)
     {
         return result;
@@ -993,9 +1046,9 @@ status_t WM8904_SetVolume(wm8904_handle_t *handle, uint16_t volumeLeft, uint16_t
  */
 status_t WM8904_SetMute(wm8904_handle_t *handle, bool muteLeft, bool muteRight)
 {
-    status_t result;
-    uint16_t left  = muteLeft ? 0x0100 : 0x0000;
-    uint16_t right = muteRight ? 0x0100 : 0x0000;
+    status_t result = kStatus_Success;
+    uint16_t left   = (uint16_t)(muteLeft ? 0x0100U : 0x0000U);
+    uint16_t right  = (uint16_t)(muteRight ? 0x0100U : 0x0000U);
 
     result = WM8904_ModifyRegister(handle, WM8904_ANALOG_OUT1_LEFT, 0x0100, left);
     if (result != kStatus_WM8904_Success)
@@ -1003,7 +1056,7 @@ status_t WM8904_SetMute(wm8904_handle_t *handle, bool muteLeft, bool muteRight)
         return result;
     }
 
-    result = WM8904_ModifyRegister(handle, WM8904_ANALOG_OUT1_RIGHT, 0x0180, right | 0x0080);
+    result = WM8904_ModifyRegister(handle, WM8904_ANALOG_OUT1_RIGHT, 0x0180U, ((uint16_t)right | 0x0080U));
     if (result != kStatus_WM8904_Success)
     {
         return result;
@@ -1022,7 +1075,7 @@ status_t WM8904_SetMute(wm8904_handle_t *handle, bool muteLeft, bool muteRight)
  */
 status_t WM8904_PrintRegisters(wm8904_handle_t *handle)
 {
-    status_t result;
+    status_t result = kStatus_Success;
     uint16_t value;
     uint32_t i;
 
@@ -1046,44 +1099,43 @@ status_t WM8904_PrintRegisters(wm8904_handle_t *handle)
 /*!
  * brief Sets the channel output volume.
  *
- * The parameter should be from 0 to 100.
+ * The parameter should be from 0 to 63.
  * The resulting volume will be.
- * 0 for mute, 100 for maximum volume value.
+ * 0 for -57dB, 63 for 6DB.
  *
  * param handle codec handle structure.
  * param channel codec channel.
- * param volume volume value.
+ * param volume volume value from 0 -63.
  *
  * return kStatus_WM8904_Success if successful, different code otherwise.
  */
 status_t WM8904_SetChannelVolume(wm8904_handle_t *handle, uint32_t channel, uint32_t volume)
 {
-    status_t ret = kStatus_Fail;
-    volume       = WM8904_MAP_HEADPHONE_LINEOUT_VOLUME(volume);
+    assert(volume <= WM8904_MAP_HEADPHONE_LINEOUT_MAX_VOLUME);
 
-    /* headphone left channel */
-    if (channel & kWM8904_HeadphoneLeft)
+    status_t ret = kStatus_Fail;
+
+    /* headphone left channel
+     *  0x1BF means unmute the OUT and reset the OUT volume update bit and volume range fields
+     */
+    if ((channel & (uint32_t)kWM8904_HeadphoneLeft) != 0U)
     {
-        ret = WM8904_ModifyRegister(handle, WM8904_ANALOG_OUT1_LEFT, volume == 0U ? 0x100U : 0x3FU,
-                                    volume == 0U ? 0x100U : (volume));
+        ret = WM8904_ModifyRegister(handle, WM8904_ANALOG_OUT1_LEFT, 0x1BFU, (uint16_t)volume | 0x80U);
     }
     /* headphone right channel */
-    if (channel & kWM8904_HeadphoneRight)
+    if ((channel & (uint32_t)kWM8904_HeadphoneRight) != 0U)
     {
-        ret = WM8904_ModifyRegister(handle, WM8904_ANALOG_OUT1_RIGHT, volume == 0U ? 0x100U : 0xBFU,
-                                    volume == 0U ? 0x100U : (volume | 0x80U));
+        ret = WM8904_ModifyRegister(handle, WM8904_ANALOG_OUT1_RIGHT, 0x1BFU, ((uint16_t)volume | 0x80U));
     }
     /* line out left channel */
-    if (channel & kWM8904_LineoutLeft)
+    if ((channel & (uint32_t)kWM8904_LineoutLeft) != 0U)
     {
-        ret = WM8904_ModifyRegister(handle, WM8904_ANALOG_OUT2_LEFT, volume == 0U ? 0x100U : 0x3FU,
-                                    volume == 0U ? 0x100U : (volume));
+        ret = WM8904_ModifyRegister(handle, WM8904_ANALOG_OUT2_LEFT, 0x1BFU, (uint16_t)volume | 0X80U);
     }
     /* line out right channel */
-    if (channel & kWM8904_LineoutRight)
+    if ((channel & (uint32_t)kWM8904_LineoutRight) != 0U)
     {
-        ret = WM8904_ModifyRegister(handle, WM8904_ANALOG_OUT2_RIGHT, volume == 0U ? 0x100U : 0xBFU,
-                                    volume == 0U ? 0x100U : (volume | 0x80U));
+        ret = WM8904_ModifyRegister(handle, WM8904_ANALOG_OUT2_RIGHT, 0x1BFU, (uint16_t)volume | 0x80U);
     }
 
     return ret;
@@ -1107,25 +1159,25 @@ status_t WM8904_SetChannelMute(wm8904_handle_t *handle, uint32_t channel, bool i
     regMask  = 0x100U;
 
     /* headphone left channel */
-    if (channel & kWM8904_HeadphoneLeft)
+    if ((channel & (uint32_t)kWM8904_HeadphoneLeft) != 0U)
     {
         ret = WM8904_ModifyRegister(handle, WM8904_ANALOG_OUT1_LEFT, regMask, regValue);
     }
 
     /* headphone right channel */
-    if (channel & kWM8904_HeadphoneRight)
+    if ((channel & (uint32_t)kWM8904_HeadphoneRight) != 0U)
     {
         ret = WM8904_ModifyRegister(handle, WM8904_ANALOG_OUT1_RIGHT, regMask, regValue);
     }
 
     /* line out left channel */
-    if (channel & kWM8904_LineoutLeft)
+    if ((channel & (uint32_t)kWM8904_LineoutLeft) != 0U)
     {
         ret = WM8904_ModifyRegister(handle, WM8904_ANALOG_OUT2_LEFT, regMask, regValue);
     }
 
     /* line out right channel */
-    if (channel & kWM8904_LineoutRight)
+    if ((channel & (uint32_t)kWM8904_LineoutRight) != 0U)
     {
         ret = WM8904_ModifyRegister(handle, WM8904_ANALOG_OUT2_RIGHT, regMask, regValue);
     }
@@ -1145,6 +1197,7 @@ status_t WM8904_SetChannelMute(wm8904_handle_t *handle, uint32_t channel, bool i
 status_t WM8904_SetModulePower(wm8904_handle_t *handle, wm8904_module_t module, bool isEnabled)
 {
     uint8_t regAddr = 0, regBitMask = 0U, regValue = 0U;
+    status_t error = kStatus_WM8904_Success;
 
     switch (module)
     {
@@ -1176,10 +1229,16 @@ status_t WM8904_SetModulePower(wm8904_handle_t *handle, wm8904_module_t module, 
             regValue   = isEnabled ? 3U : 0U;
             break;
         default:
-            return kStatus_InvalidArgument;
+            error = kStatus_InvalidArgument;
+            break;
     }
 
-    return WM8904_ModifyRegister(handle, regAddr, regBitMask, regValue);
+    if (error == kStatus_WM8904_Success)
+    {
+        error = WM8904_ModifyRegister(handle, regAddr, regBitMask, regValue);
+    }
+
+    return error;
 }
 
 /*!
@@ -1195,8 +1254,8 @@ status_t WM8904_SetModulePower(wm8904_handle_t *handle, wm8904_module_t module, 
 status_t WM8904_SetRecord(wm8904_handle_t *handle, uint32_t recordSource)
 {
     uint8_t regLeftAddr = WM8904_ANALOG_LEFT_IN_1, regRightAddr = WM8904_ANALOG_RIGHT_IN_1;
-    uint16_t regLeftValue = 0U, regRightValue = 0U, regBitMask;
-    status_t ret = kStatus_Success;
+    uint16_t regLeftValue = 0U, regRightValue = 0U, regBitMask = 0U;
+    status_t error = kStatus_Success;
 
     switch (recordSource)
     {
@@ -1216,24 +1275,28 @@ status_t WM8904_SetRecord(wm8904_handle_t *handle, uint32_t recordSource)
             regBitMask    = 0x3FU;
             break;
         case kWM8904_RecordSourceDigitalMic:
-            regLeftValue = (1U << 12U);
+            regLeftValue = ((uint16_t)1U << 12);
             regLeftAddr  = WM8904_DAC_DIG_0;
             regRightAddr = 0U;
-            regBitMask   = 1U << 12U;
+            regBitMask   = ((uint16_t)1U << 12);
             break;
 
         default:
-            return kStatus_InvalidArgument;
+            error = kStatus_InvalidArgument;
+            break;
     }
 
-    ret = WM8904_ModifyRegister(handle, regLeftAddr, regBitMask, regLeftValue);
-
-    if ((ret == kStatus_Success) && (regRightAddr))
+    if (error == kStatus_Success)
     {
-        return WM8904_ModifyRegister(handle, regRightAddr, regBitMask, regRightValue);
+        error = WM8904_ModifyRegister(handle, regLeftAddr, regBitMask, regLeftValue);
     }
 
-    return kStatus_Success;
+    if ((error == kStatus_Success) && (regRightAddr != 0U))
+    {
+        error = WM8904_ModifyRegister(handle, regRightAddr, regBitMask, regRightValue);
+    }
+
+    return error;
 }
 
 /*!
@@ -1254,11 +1317,11 @@ status_t WM8904_SetRecordChannel(wm8904_handle_t *handle, uint32_t leftRecordCha
     status_t ret                = kStatus_Success;
     uint8_t leftPositiveChannel = 0U, leftNegativeChannel = 0U, rightPositiveChannel = 0U, rightNegativeChannel = 0U;
 
-    if (leftRecordChannel & kWM8904_RecordChannelDifferentialPositive1)
+    if ((leftRecordChannel & (uint32_t)kWM8904_RecordChannelDifferentialPositive1) != 0U)
     {
         leftPositiveChannel = 0U;
     }
-    else if (leftRecordChannel & kWM8904_RecordChannelDifferentialPositive2)
+    else if ((leftRecordChannel & (uint32_t)kWM8904_RecordChannelDifferentialPositive2) != 0U)
     {
         leftPositiveChannel = 1U;
     }
@@ -1267,15 +1330,15 @@ status_t WM8904_SetRecordChannel(wm8904_handle_t *handle, uint32_t leftRecordCha
         leftPositiveChannel = 2U;
     }
 
-    if (leftRecordChannel & kWM8904_RecordChannelDifferentialNegative1)
+    if ((leftRecordChannel & (uint32_t)kWM8904_RecordChannelDifferentialNegative1) != 0U)
     {
         leftNegativeChannel = 0U;
     }
-    else if (leftRecordChannel & kWM8904_RecordChannelDifferentialNegative2)
+    else if ((leftRecordChannel & (uint32_t)kWM8904_RecordChannelDifferentialNegative2) != 0U)
     {
         leftNegativeChannel = 1U;
     }
-    else if (leftRecordChannel & kWM8904_RecordChannelDifferentialNegative3)
+    else if ((leftRecordChannel & (uint32_t)kWM8904_RecordChannelDifferentialNegative3) != 0U)
     {
         leftNegativeChannel = 2U;
     }
@@ -1284,11 +1347,11 @@ status_t WM8904_SetRecordChannel(wm8904_handle_t *handle, uint32_t leftRecordCha
         leftNegativeChannel = leftPositiveChannel;
     }
 
-    if (rightRecordChannel & kWM8904_RecordChannelDifferentialPositive1)
+    if ((rightRecordChannel & (uint32_t)kWM8904_RecordChannelDifferentialPositive1) != 0U)
     {
         rightPositiveChannel = 0U;
     }
-    else if (rightRecordChannel & kWM8904_RecordChannelDifferentialPositive2)
+    else if ((rightRecordChannel & (uint32_t)kWM8904_RecordChannelDifferentialPositive2) != 0U)
     {
         rightPositiveChannel = 1U;
     }
@@ -1297,15 +1360,15 @@ status_t WM8904_SetRecordChannel(wm8904_handle_t *handle, uint32_t leftRecordCha
         rightPositiveChannel = 2U;
     }
 
-    if (rightRecordChannel & kWM8904_RecordChannelDifferentialNegative1)
+    if ((rightRecordChannel & (uint32_t)kWM8904_RecordChannelDifferentialNegative1) != 0U)
     {
         rightNegativeChannel = 0U;
     }
-    else if (rightRecordChannel & kWM8904_RecordChannelDifferentialNegative2)
+    else if ((rightRecordChannel & (uint32_t)kWM8904_RecordChannelDifferentialNegative2) != 0U)
     {
         rightNegativeChannel = 1U;
     }
-    else if (rightRecordChannel & kWM8904_RecordChannelDifferentialNegative3)
+    else if ((rightRecordChannel & (uint32_t)kWM8904_RecordChannelDifferentialNegative3) != 0U)
     {
         rightNegativeChannel = 2U;
     }
@@ -1314,13 +1377,13 @@ status_t WM8904_SetRecordChannel(wm8904_handle_t *handle, uint32_t leftRecordCha
         rightNegativeChannel = rightPositiveChannel;
     }
 
-    regLeftValue  = ((leftNegativeChannel & 3U) << 4U) | ((leftPositiveChannel & 3U) << 2U);
-    regRightValue = ((rightNegativeChannel & 3U) << 4U) | ((rightPositiveChannel & 3U) << 2U);
+    regLeftValue  = (((uint16_t)leftNegativeChannel & 3U) << 4U) | (((uint16_t)leftPositiveChannel & 3U) << 2U);
+    regRightValue = (((uint16_t)rightNegativeChannel & 3U) << 4U) | (((uint16_t)rightPositiveChannel & 3U) << 2U);
     regBitMask    = 0x3CU;
 
     ret = WM8904_ModifyRegister(handle, regLeftAddr, regBitMask, regLeftValue);
 
-    if ((ret == kStatus_Success) && (regRightAddr))
+    if (ret == kStatus_Success)
     {
         return WM8904_ModifyRegister(handle, regRightAddr, regBitMask, regRightValue);
     }
@@ -1341,14 +1404,14 @@ status_t WM8904_SetPlay(wm8904_handle_t *handle, uint32_t playSource)
     uint16_t regValue = 0U, regBitMask = 0xFU;
 
     /* source form PGA*/
-    if (playSource == kWM8904_PlaySourcePGA)
+    if (playSource == (uint32_t)kWM8904_PlaySourcePGA)
     {
         regValue |= (3U << 2U) | 3U;
     }
     /* source from DAC*/
-    if (playSource == kWM8904_PlaySourceDAC)
+    if (playSource == (uint32_t)kWM8904_PlaySourceDAC)
     {
-        regValue &= ~((3U << 2U) | 3U);
+        regValue &= (uint16_t) ~((3U << 2U) | 3U);
     }
 
     return WM8904_ModifyRegister(handle, WM8904_ANALOG_OUT12_ZC, regBitMask, regValue);
