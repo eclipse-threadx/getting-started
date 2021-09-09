@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013 - 2015, Freescale Semiconductor, Inc.
- * Copyright 2016-2018 NXP
+ * Copyright 2016-2018, 2020 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -23,7 +23,7 @@
 #define _FSL_DEBUGCONSOLE_H_
 
 #include "fsl_common.h"
-#include "serial_manager.h"
+#include "fsl_component_serial_manager.h"
 
 /*!
  * @addtogroup debugconsole
@@ -45,7 +45,7 @@ extern serial_handle_t g_serialHandle; /*!< serial manager handle */
  * to be redefined in project setting.
  */
 #ifndef SDK_DEBUGCONSOLE
-#define SDK_DEBUGCONSOLE 1U
+#define SDK_DEBUGCONSOLE DEBUGCONSOLE_REDIRECT_TO_SDK
 #endif
 
 #if defined(SDK_DEBUGCONSOLE) && !(SDK_DEBUGCONSOLE)
@@ -59,19 +59,14 @@ extern serial_handle_t g_serialHandle; /*!< serial manager handle */
  *  if SDK_DEBUGCONSOLE defined to 2,it represents disable debugconsole function.
  */
 #if SDK_DEBUGCONSOLE == DEBUGCONSOLE_DISABLE /* Disable debug console */
-#define PRINTF(...) \
-    do              \
-    {               \
-    } while (0)
-#define SCANF(...) \
-    do             \
-    {              \
-    } while (0)
-#define PUTCHAR(...) \
-    do               \
-    {                \
-    } while (0)
-#define GETCHAR() -1
+static inline int DbgConsole_Disabled(void)
+{
+    return -1;
+}
+#define PRINTF(...)  DbgConsole_Disabled()
+#define SCANF(...)   DbgConsole_Disabled()
+#define PUTCHAR(...) DbgConsole_Disabled()
+#define GETCHAR()    DbgConsole_Disabled()
 #elif SDK_DEBUGCONSOLE == DEBUGCONSOLE_REDIRECT_TO_SDK /* Select printf, scanf, putchar, getchar of SDK version. */
 #define PRINTF  DbgConsole_Printf
 #define SCANF   DbgConsole_Scanf
@@ -104,12 +99,17 @@ extern "C" {
  * initialized by the serial manager module.
  * After this function has returned, stdout and stdin are connected to the selected peripheral.
  *
- * @param instance      The instance of the module.
+ * @param instance      The instance of the module.If the device is kSerialPort_Uart,
+ *                      the instance is UART peripheral instance. The UART hardware peripheral
+ *                      type is determined by UART adapter. For example, if the instance is 1,
+ *                      if the lpuart_adapter.c is added to the current project, the UART periheral
+ *                      is LPUART1.
+ *                      If the uart_adapter.c is added to the current project, the UART periheral
+ *                      is UART1.
  * @param baudRate      The desired baud rate in bits per second.
  * @param device        Low level device type for the debug console, can be one of the following.
  *                      @arg kSerialPort_Uart,
  *                      @arg kSerialPort_UsbCdc
- *                      @arg kSerialPort_UsbCdcVirtual.
  * @param clkSrcFreq    Frequency of peripheral source clock.
  *
  * @return              Indicates whether initialization was successful or not.
@@ -126,6 +126,24 @@ status_t DbgConsole_Init(uint8_t instance, uint32_t baudRate, serial_port_type_t
  * @return Indicates whether de-initialization was successful or not.
  */
 status_t DbgConsole_Deinit(void);
+/*!
+ * @brief Prepares to enter low power consumption.
+ *
+ * This function is used to prepare to enter low power consumption.
+ *
+ * @return Indicates whether de-initialization was successful or not.
+ */
+status_t DbgConsole_EnterLowpower(void);
+
+/*!
+ * @brief Restores from low power consumption.
+ *
+ * This function is used to restore from low power consumption.
+ *
+ * @return Indicates whether de-initialization was successful or not.
+ */
+status_t DbgConsole_ExitLowpower(void);
+
 #else
 /*!
  * Use an error to replace the DbgConsole_Init when SDK_DEBUGCONSOLE is not DEBUGCONSOLE_REDIRECT_TO_SDK and
@@ -150,6 +168,25 @@ static inline status_t DbgConsole_Deinit(void)
 {
     return (status_t)kStatus_Fail;
 }
+
+/*!
+ * Use an error to replace the DbgConsole_EnterLowpower when SDK_DEBUGCONSOLE is not DEBUGCONSOLE_REDIRECT_TO_SDK and
+ * SDK_DEBUGCONSOLE_UART is not defined.
+ */
+static inline status_t DbgConsole_EnterLowpower(void)
+{
+    return (status_t)kStatus_Fail;
+}
+
+/*!
+ * Use an error to replace the DbgConsole_ExitLowpower when SDK_DEBUGCONSOLE is not DEBUGCONSOLE_REDIRECT_TO_SDK and
+ * SDK_DEBUGCONSOLE_UART is not defined.
+ */
+static inline status_t DbgConsole_ExitLowpower(void)
+{
+    return (status_t)kStatus_Fail;
+}
+
 #endif /* ((SDK_DEBUGCONSOLE == DEBUGCONSOLE_REDIRECT_TO_SDK) || defined(SDK_DEBUGCONSOLE_UART)) */
 
 #if SDK_DEBUGCONSOLE
@@ -158,10 +195,10 @@ static inline status_t DbgConsole_Deinit(void)
  *
  * Call this function to write a formatted output to the standard output stream.
  *
- * @param   formatString Format control string.
+ * @param   fmt_s Format control string.
  * @return  Returns the number of characters printed or a negative value if an error occurs.
  */
-int DbgConsole_Printf(const char *formatString, ...);
+int DbgConsole_Printf(const char *fmt_s, ...);
 
 /*!
  * @brief Writes a character to stdout.

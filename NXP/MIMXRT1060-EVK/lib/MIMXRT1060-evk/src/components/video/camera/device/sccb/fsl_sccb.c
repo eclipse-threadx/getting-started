@@ -1,5 +1,5 @@
 /*
- * Copyright  2017-2018 NXP
+ * Copyright 2017-2018, 2020 NXP
  * All rights reserved.
  *
  *
@@ -48,7 +48,7 @@ status_t SCCB_ModifyReg(uint8_t i2cAddr,
                         sccb_i2c_send_func_t i2cSendFunc)
 {
     status_t status;
-    uint8_t regVal;
+    uint8_t regVal = 0U;
 
     status = SCCB_ReadReg(i2cAddr, addrType, reg, &regVal, i2cReceiveFunc);
 
@@ -57,7 +57,7 @@ status_t SCCB_ModifyReg(uint8_t i2cAddr,
         return status;
     }
 
-    regVal = (regVal & ~((uint32_t)clrMask)) | (value & clrMask);
+    regVal = (uint8_t)(regVal & ~((uint32_t)clrMask)) | (value & clrMask);
 
     return SCCB_WriteReg(i2cAddr, addrType, reg, regVal, i2cSendFunc);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 NXP
+ * Copyright 2017-2021 NXP
  * All rights reserved.
  *
  *
@@ -48,7 +48,7 @@
 
 /*! @name Driver version */
 /*@{*/
-#define FSL_PXP_DRIVER_VERSION (MAKE_VERSION(2, 1, 0))
+#define FSL_PXP_DRIVER_VERSION (MAKE_VERSION(2, 2, 1))
 /*@}*/
 
 /* This macto indicates whether the rotate sub module is shared by process surface and output buffer. */
@@ -430,7 +430,10 @@ typedef struct _pxp_dither_config
     uint32_t : 8;
 } pxp_dither_config_t;
 
-/*! @brief pxp_porter_duff_factor_mode Porter Duff factor mode. */
+/*!
+ * @brief Porter Duff factor mode.
+ * @anchor pxp_porter_duff_factor_mode
+ */
 enum
 {
     kPXP_PorterDuffFactorOne = 0U, /*!< Use 1. */
@@ -439,7 +442,10 @@ enum
     kPXP_PorterDuffFactorInversed, /*!< Use inversed alpha. */
 };
 
-/*! @brief pxp_porter_duff_global_alpha_mode Porter Duff global alpha mode. */
+/*!
+ * @brief Porter Duff global alpha mode.
+ * @anchor pxp_porter_duff_global_alpha_mode
+ */
 enum
 {
     kPXP_PorterDuffGlobalAlpha = 0U, /*!< Use global alpha. */
@@ -447,35 +453,43 @@ enum
     kPXP_PorterDuffScaledAlpha,      /*!< Use global alpha * local alpha. */
 };
 
-/*! @brief pxp_porter_duff_alpha_mode Porter Duff alpha mode. */
+/*!
+ * @brief Porter Duff alpha mode.
+ * @anchor pxp_porter_duff_alpha_mode
+ */
 enum
 {
-    kPXP_PorterDuffAlphaStraight = 0U,
-    kPXP_PorterDuffAlphaInversed
+    kPXP_PorterDuffAlphaStraight = 0U, /*!< Use straight alpha, s0_alpha' = s0_alpha. */
+    kPXP_PorterDuffAlphaInversed       /*!< Use inversed alpha, s0_alpha' = 0xFF - s0_alpha. */
 };
 
-/*! @brief pxp_porter_duff_color_mode Porter Duff color mode. */
+/*!
+ * @brief Porter Duff color mode.
+ * @anchor pxp_porter_duff_color_mode
+ */
 enum
 {
-    kPXP_PorterDuffColorStraight = 0,
-    kPXP_PorterDuffColorInversed
+    kPXP_PorterDuffColorStraight  = 0, /*!< @deprecated Use kPXP_PorterDuffColorNoAlpha. */
+    kPXP_PorterDuffColorInversed  = 1, /*!< @deprecated Use kPXP_PorterDuffColorWithAlpha. */
+    kPXP_PorterDuffColorNoAlpha   = 0, /*!< s0_pixel' = s0_pixel. */
+    kPXP_PorterDuffColorWithAlpha = 1, /*!< s0_pixel' = s0_pixel * s0_alpha". */
 };
 
 /*! @brief PXP Porter Duff configuration. */
 typedef struct
 {
     uint32_t enable : 1;             /*!< Enable or disable Porter Duff. */
-    uint32_t srcFactorMode : 2;      /*!< Source layer (or AS, s1) factor mode, see pxp_porter_duff_factor_mode. */
+    uint32_t srcFactorMode : 2;      /*!< Source layer (or AS, s1) factor mode, see @ref pxp_porter_duff_factor_mode. */
     uint32_t dstGlobalAlphaMode : 2; /*!< Destination layer (or PS, s0) global alpha mode, see
-                                        pxp_porter_duff_global_alpha_mode. */
-    uint32_t dstAlphaMode : 1;       /*!< Destination layer (or PS, s0) alpha mode, see pxp_porter_duff_alpha_mode. */
-    uint32_t dstColorMode : 1;       /*!< Destination layer (or PS, s0) color mode, see pxp_porter_duff_color_mode. */
+                                        @ref pxp_porter_duff_global_alpha_mode. */
+    uint32_t dstAlphaMode : 1; /*!< Destination layer (or PS, s0) alpha mode, see @ref pxp_porter_duff_alpha_mode. */
+    uint32_t dstColorMode : 1; /*!< Destination layer (or PS, s0) color mode, see @ref pxp_porter_duff_color_mode. */
     uint32_t : 1;
-    uint32_t dstFactorMode : 2;      /*!< Destination layer (or PS, s0) factor mode, see pxp_porter_duff_factor_mode. */
+    uint32_t dstFactorMode : 2; /*!< Destination layer (or PS, s0) factor mode, see @ref pxp_porter_duff_factor_mode. */
     uint32_t srcGlobalAlphaMode : 2; /*!< Source layer (or AS, s1) global alpha mode, see
-                                        pxp_porter_duff_global_alpha_mode. */
-    uint32_t srcAlphaMode : 1;       /*!< Source layer (or AS, s1) alpha mode, see pxp_porter_duff_alpha_mode. */
-    uint32_t srcColorMode : 1;       /*!< Source layer (or AS, s1) color mode, see pxp_porter_duff_color_mode. */
+                                        @ref pxp_porter_duff_global_alpha_mode. */
+    uint32_t srcAlphaMode : 1;       /*!< Source layer (or AS, s1) alpha mode, see @ref pxp_porter_duff_alpha_mode. */
+    uint32_t srcColorMode : 1;       /*!< Source layer (or AS, s1) color mode, see @ref pxp_porter_duff_color_mode. */
     uint32_t : 2;
     uint32_t dstGlobalAlpha : 8; /*!< Destination layer (or PS, s0) global alpha value, 0~255. */
     uint32_t srcGlobalAlpha : 8; /*!< Source layer (or AS, s1) global alpha value, 0~255. */
@@ -1341,6 +1355,12 @@ void PXP_SetPorterDuffConfig(PXP_Type *base, const pxp_porter_duff_config_t *con
 
 /*!
  * @brief Get the Porter Duff configuration by blend mode.
+ *
+ * The FactorMode are selected based on blend mode, the AlphaMode are set to
+ * @ref kPXP_PorterDuffAlphaStraight, the ColorMode are set to
+ * @ref kPXP_PorterDuffColorWithAlpha, the GlobalAlphaMode are set to
+ * @ref kPXP_PorterDuffLocalAlpha. These values could be modified after calling
+ * this function.
  *
  * @param mode The blend mode.
  * @param config Pointer to the configuration.

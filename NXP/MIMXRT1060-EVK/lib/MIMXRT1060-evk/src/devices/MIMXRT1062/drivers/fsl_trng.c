@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * Copyright 2016-2017, 2020 NXP
+ * Copyright 2016-2017, 2020-2021 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -21,7 +21,8 @@
 /* Default values for user configuration structure.*/
 #if (defined(KW40Z4_SERIES) || defined(KW41Z4_SERIES) || defined(KW31Z4_SERIES) || defined(KW21Z4_SERIES) ||      \
      defined(MCIMX7U5_M4_SERIES) || defined(KW36Z4_SERIES) || defined(KW37A4_SERIES) || defined(KW37Z4_SERIES) || \
-     defined(KW38A4_SERIES) || defined(KW38Z4_SERIES) || defined(KW39A4_SERIES) || defined(KW35Z4_SERIES))
+     defined(KW38A4_SERIES) || defined(KW38Z4_SERIES) || defined(KW39A4_SERIES) || defined(KW35Z4_SERIES) ||      \
+     defined(KW36A4_SERIES) || defined(KW35A4_SERIES) || defined(KW34A4_SERIES))
 #define TRNG_USER_CONFIG_DEFAULT_OSC_DIV kTRNG_RingOscDiv8
 #elif (defined(KV56F24_SERIES) || defined(KV58F24_SERIES) || defined(KL28Z7_SERIES) || defined(KL81Z7_SERIES) || \
        defined(KL82Z7_SERIES) || defined(K32L2A41A_SERIES))
@@ -1781,11 +1782,10 @@ status_t TRNG_Init(TRNG_Type *base, const trng_config_t *userConfig)
         CLOCK_EnableClock(s_trngClock[trng_GetInstance(base)]);
 #endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 
-        /* Reset the registers of TRNG module to reset state. */
-        /* Must be in program mode.*/
-        TRNG_WR_MCTL_PRGM(base, kTRNG_WorkModeProgram);
-        /* Reset Defaults.*/
-        TRNG_WR_MCTL_RST_DEF(base, 1);
+        /* Clear pending errors, set program mode and reset the registers to default values.*/
+        /* MCTL[PRGM] = 1 (kTRNG_WorkModeProgram); MCTL[ERR] = 1; MCTL[RST_DEF] = 1 */
+        TRNG_RMW_MCTL(base, (TRNG_MCTL_PRGM_MASK | TRNG_MCTL_ERR_MASK | TRNG_MCTL_RST_DEF_MASK),
+                      TRNG_MCTL_PRGM(kTRNG_WorkModeProgram) | TRNG_MCTL_ERR(1) | TRNG_MCTL_RST_DEF(1));
 
         /* Set configuration.*/
         if ((result = trng_ApplyUserConfig(base, userConfig)) == kStatus_Success)
@@ -1875,6 +1875,16 @@ status_t TRNG_GetRandomData(TRNG_Type *base, void *data, size_t dataSize)
     /* Check input parameters.*/
     if ((NULL != base) && (NULL != data) && (0U != dataSize))
     {
+        /* After a deepsleep exit some errors bits are set in MCTL and must be cleared before processing further.
+            Also, trigger new 512 bits entropy generation to be sure we will have fresh bits.*/
+        if (0U != TRNG_RD_MCTL_ERR(base))
+        {
+            /* clear errors bits */
+            TRNG_WR_MCTL_ERR(base, 1);
+            /* restart new entropy generation */
+            trng_ReadEntropy(base, (TRNG_ENT_COUNT - 1u));
+        }
+
         do
         {
             /* Wait for Valid or Error flag*/
@@ -1919,7 +1929,7 @@ status_t TRNG_GetRandomData(TRNG_Type *base, void *data, size_t dataSize)
 
         /* Start a new entropy generation.
         It is done by reading of the last entropy register.*/
-        if (((unsigned)index % TRNG_ENT_COUNT) != (TRNG_ENT_COUNT - 1u))
+        if (((unsigned)index % TRNG_ENT_COUNT) != 0U)
         {
             (void)trng_ReadEntropy(base, (TRNG_ENT_COUNT - 1u));
         }

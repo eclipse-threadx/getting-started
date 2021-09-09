@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2013-2016 ARM Limited. All rights reserved.
  * Copyright (c) 2016, Freescale Semiconductor, Inc. Not a Contribution.
- * Copyright 2016-2017 NXP. Not a Contribution.
+ * Copyright 2016-2021 NXP. Not a Contribution.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -24,8 +24,11 @@
 #include "Driver_ETH_PHY.h"
 #include "RTE_Device.h"
 #include "fsl_common.h"
+#include "fsl_phy.h"
 
-#if defined(ENET) & RTE_ENET
+extern phy_handle_t phyHandle;
+
+#if RTE_ENET
 extern ARM_DRIVER_ETH_PHY Driver_ETH_PHY0;
 #endif
 #endif

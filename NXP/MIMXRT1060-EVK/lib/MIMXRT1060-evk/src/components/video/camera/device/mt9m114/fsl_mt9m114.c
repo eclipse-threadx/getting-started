@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 NXP
+ * Copyright 2017-2018, 2021 NXP
  * All rights reserved.
  *
  *
@@ -16,16 +16,16 @@
  ******************************************************************************/
 
 #define MT9M114_DelayMs(ms) VIDEO_DelayMs(ms)
-#define MT9M114_Write(handle, reg, size, value)                                                    \
-    VIDEO_I2C_WriteReg(MT9M114_I2C_ADDR, kVIDEO_RegAddr16Bit, reg, (video_reg_width_t)size, value, \
-                       ((mt9m114_resource_t *)(handle->resource))->i2cSendFunc)
-#define MT9M114_Read(handle, reg, size, value)                                                    \
-    VIDEO_I2C_ReadReg(MT9M114_I2C_ADDR, kVIDEO_RegAddr16Bit, reg, (video_reg_width_t)size, value, \
-                      ((mt9m114_resource_t *)(handle->resource))->i2cReceiveFunc)
-#define MT9M114_Modify(handle, reg, size, clrMask, value)                                                    \
-    VIDEO_I2C_ModifyReg(MT9M114_I2C_ADDR, kVIDEO_RegAddr16Bit, reg, (video_reg_width_t)size, clrMask, value, \
-                        ((mt9m114_resource_t *)(handle->resource))->i2cReceiveFunc,                          \
-                        ((mt9m114_resource_t *)(handle->resource))->i2cSendFunc)
+#define MT9M114_Write(handle, reg, size, value)                                                          \
+    VIDEO_I2C_WriteReg(MT9M114_I2C_ADDR, kVIDEO_RegAddr16Bit, (reg), (video_reg_width_t)(size), (value), \
+                       ((mt9m114_resource_t *)((handle)->resource))->i2cSendFunc)
+#define MT9M114_Read(handle, reg, size, value)                                                          \
+    VIDEO_I2C_ReadReg(MT9M114_I2C_ADDR, kVIDEO_RegAddr16Bit, (reg), (video_reg_width_t)(size), (value), \
+                      ((mt9m114_resource_t *)((handle)->resource))->i2cReceiveFunc)
+#define MT9M114_Modify(handle, reg, size, clrMask, value)                                                            \
+    VIDEO_I2C_ModifyReg(MT9M114_I2C_ADDR, kVIDEO_RegAddr16Bit, (reg), (video_reg_width_t)(size), (clrMask), (value), \
+                        ((mt9m114_resource_t *)((handle)->resource))->i2cReceiveFunc,                                \
+                        ((mt9m114_resource_t *)((handle)->resource))->i2cSendFunc)
 
 typedef struct _mt9m114_reg
 {
@@ -149,9 +149,22 @@ static status_t MT9M114_MultiWrite(camera_device_handle_t *handle, const mt9m114
 
 static status_t MT9M114_SoftwareReset(camera_device_handle_t *handle)
 {
-    MT9M114_Modify(handle, MT9M114_REG_RESET_AND_MISC_CONTROL, 2u, 0x01, 0x01);
+    status_t status;
+
+    status = MT9M114_Modify(handle, MT9M114_REG_RESET_AND_MISC_CONTROL, 2u, 0x01, 0x01);
+    if (kStatus_Success != status)
+    {
+        return status;
+    }
+
     MT9M114_DelayMs(1);
-    MT9M114_Modify(handle, MT9M114_REG_RESET_AND_MISC_CONTROL, 2u, 0x01, 0x00);
+
+    status = MT9M114_Modify(handle, MT9M114_REG_RESET_AND_MISC_CONTROL, 2u, 0x01, 0x00);
+    if (kStatus_Success != status)
+    {
+        return status;
+    }
+
     MT9M114_DelayMs(45);
 
     return kStatus_Success;
@@ -168,37 +181,62 @@ static status_t MT9M114_SoftwareReset(camera_device_handle_t *handle)
  */
 static status_t MT9M114_SetState(camera_device_handle_t *handle, uint16_t nextState)
 {
-    uint16_t value;
+    status_t status;
+    uint16_t value = 0U;
+
     /* Set the desired next state. */
-    MT9M114_Write(handle, MT9M114_VAR_SYSMGR_NEXT_STATE, 1u, nextState);
+    status = MT9M114_Write(handle, MT9M114_VAR_SYSMGR_NEXT_STATE, 1u, nextState);
+    if (kStatus_Success != status)
+    {
+        return status;
+    }
 
     /* Check that the FW is ready to accept a new command. */
-    while (1)
+    while (true)
     {
-        MT9M114_Read(handle, MT9M114_REG_COMMAND_REGISTER, 2u, &value);
-        if (!(value & MT9M114_COMMAND_SET_STATE))
+        status = MT9M114_Read(handle, MT9M114_REG_COMMAND_REGISTER, 2u, &value);
+        if (kStatus_Success != status)
+        {
+            return status;
+        }
+
+        if (0U == (value & MT9M114_COMMAND_SET_STATE))
         {
             break;
         }
     }
 
     /* Issue the Set State command. */
-    MT9M114_Write(handle, MT9M114_REG_COMMAND_REGISTER, 2u, MT9M114_COMMAND_SET_STATE | MT9M114_COMMAND_OK);
+    status = MT9M114_Write(handle, MT9M114_REG_COMMAND_REGISTER, 2u, MT9M114_COMMAND_SET_STATE | MT9M114_COMMAND_OK);
+    if (kStatus_Success != status)
+    {
+        return status;
+    }
 
     /* Wait for the FW to complete the command. */
-    while (1)
+    while (true)
     {
         MT9M114_DelayMs(1);
-        MT9M114_Read(handle, MT9M114_REG_COMMAND_REGISTER, 2u, &value);
-        if (!(value & MT9M114_COMMAND_SET_STATE))
+        status = MT9M114_Read(handle, MT9M114_REG_COMMAND_REGISTER, 2u, &value);
+        if (kStatus_Success != status)
+        {
+            return status;
+        }
+
+        if (0U == (value & MT9M114_COMMAND_SET_STATE))
         {
             break;
         }
     }
 
     /* Check the 'OK' bit to see if the command was successful. */
-    MT9M114_Read(handle, MT9M114_REG_COMMAND_REGISTER, 2u, &value);
-    if (!(value & MT9M114_COMMAND_OK))
+    status = MT9M114_Read(handle, MT9M114_REG_COMMAND_REGISTER, 2u, &value);
+    if (kStatus_Success != status)
+    {
+        return status;
+    }
+
+    if (0U == (value & MT9M114_COMMAND_OK))
     {
         return kStatus_Fail;
     }
@@ -209,7 +247,7 @@ static status_t MT9M114_SetState(camera_device_handle_t *handle, uint16_t nextSt
 status_t MT9M114_Init(camera_device_handle_t *handle, const camera_config_t *config)
 {
     status_t status;
-    uint16_t chip_id;
+    uint16_t chip_id      = 0;
     uint16_t outputFormat = 0;
 
     mt9m114_resource_t *resource = (mt9m114_resource_t *)(handle->resource);
@@ -221,31 +259,34 @@ status_t MT9M114_Init(camera_device_handle_t *handle, const camera_config_t *con
     }
 
     /* Only support 480 * 272 and 720P. */
-    if ((kVIDEO_Resolution720P != config->resolution) && (FSL_VIDEO_RESOLUTION(480, 272) != config->resolution))
+    if (((uint32_t)kVIDEO_Resolution720P != config->resolution) &&
+        (FSL_VIDEO_RESOLUTION(480, 272) != config->resolution))
     {
         return kStatus_InvalidArgument;
     }
 
     /* Only support 30 fps now. */
-    if (30 != config->framePerSec)
+    if (30U != config->framePerSec)
     {
         return kStatus_InvalidArgument;
     }
 
     /* Only support RGB565 and YUV422 */
-    if ((kVIDEO_PixelFormatRGB565 != config->pixelFormat) && (kVIDEO_PixelFormatYUYV != config->pixelFormat))
+    if ((kVIDEO_PixelFormatRGB565 != config->pixelFormat) && (kVIDEO_PixelFormatYUYV != config->pixelFormat) &&
+        (kVIDEO_PixelFormatRAW8 != config->pixelFormat))
     {
         return kStatus_InvalidArgument;
     }
 
     /* The input clock (EXTCLK) must be 24MHz. */
-    if (24000000 != resource->inputClockFreq_Hz)
+    if (24000000U != resource->inputClockFreq_Hz)
     {
         return kStatus_InvalidArgument;
     }
 
     /* Polarity check */
-    if (config->controlFlags != (kCAMERA_HrefActiveHigh | kCAMERA_DataLatchOnRisingEdge | kCAMERA_VsyncActiveLow))
+    if (config->controlFlags !=
+        ((uint32_t)kCAMERA_HrefActiveHigh | (uint32_t)kCAMERA_DataLatchOnRisingEdge | (uint32_t)kCAMERA_VsyncActiveLow))
     {
         return kStatus_InvalidArgument;
     }
@@ -267,14 +308,30 @@ status_t MT9M114_Init(camera_device_handle_t *handle, const camera_config_t *con
     }
 
     /* SW reset. */
-    MT9M114_SoftwareReset(handle);
+    status = MT9M114_SoftwareReset(handle);
+    if (kStatus_Success != status)
+    {
+        return status;
+    }
 
-    MT9M114_MultiWrite(handle, mt9m114InitConfig, ARRAY_SIZE(mt9m114InitConfig));
+    status = MT9M114_MultiWrite(handle, mt9m114InitConfig, ARRAY_SIZE(mt9m114InitConfig));
+    if (kStatus_Success != status)
+    {
+        return status;
+    }
 
     /* Pixel format. */
     if (kVIDEO_PixelFormatRGB565 == config->pixelFormat)
     {
         outputFormat |= ((1U << 8U) | (1U << 1U));
+    }
+    else if (kVIDEO_PixelFormatRAW8 == config->pixelFormat)
+    {
+        outputFormat |= ((2U << 8U) | (3U << 10U));
+    }
+    else
+    {
+        /* Empty. */
     }
 
     if (kCAMERA_InterfaceCCIR656 == config->interface)
@@ -282,25 +339,39 @@ status_t MT9M114_Init(camera_device_handle_t *handle, const camera_config_t *con
         outputFormat |= (1U << 3U);
     }
 
-    MT9M114_Write(handle, MT9M114_VAR_CAM_OUTPUT_FORMAT, 2, outputFormat);
+    status = MT9M114_Write(handle, MT9M114_VAR_CAM_OUTPUT_FORMAT, 2, outputFormat);
+    if (kStatus_Success != status)
+    {
+        return status;
+    }
 
     if (kCAMERA_InterfaceNonGatedClock == config->interface)
     {
-        MT9M114_Write(handle, MT9M114_VAR_CAM_PORT_OUTPUT_CONTROL, 2, 0x8020);
+        status = MT9M114_Write(handle, MT9M114_VAR_CAM_PORT_OUTPUT_CONTROL, 2, 0x8020);
     }
     else
     {
-        MT9M114_Write(handle, MT9M114_VAR_CAM_PORT_OUTPUT_CONTROL, 2, 0x8000);
+        status = MT9M114_Write(handle, MT9M114_VAR_CAM_PORT_OUTPUT_CONTROL, 2, 0x8000);
+    }
+
+    if (kStatus_Success != status)
+    {
+        return status;
     }
 
     /* Resolution */
     if (config->resolution == FSL_VIDEO_RESOLUTION(480, 272))
     {
-        MT9M114_MultiWrite(handle, mt9m114_480_272, ARRAY_SIZE(mt9m114_480_272));
+        status = MT9M114_MultiWrite(handle, mt9m114_480_272, ARRAY_SIZE(mt9m114_480_272));
     }
     else
     {
-        MT9M114_MultiWrite(handle, mt9m114_720p, ARRAY_SIZE(mt9m114_720p));
+        status = MT9M114_MultiWrite(handle, mt9m114_720p, ARRAY_SIZE(mt9m114_720p));
+    }
+
+    if (kStatus_Success != status)
+    {
+        return status;
     }
 
     /* Execute Change-Config command. */

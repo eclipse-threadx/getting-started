@@ -1,39 +1,27 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * Copyright 2016-2018 NXP
+ * Copyright 2016-2020 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include "fsl_phy.h"
+
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
 
 /*! @brief Defines the timeout macro. */
-#define PHY_TIMEOUT_COUNT 100000
+#define PHY_TIMEOUT_COUNT 100000U
 
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
 
-/*!
- * @brief Get the ENET instance from peripheral base address.
- *
- * @param base ENET peripheral base address.
- * @return ENET instance.
- */
-extern uint32_t ENET_GetInstance(ENET_Type *base);
-
 /*******************************************************************************
  * Variables
  ******************************************************************************/
-
-#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
-/*! @brief Pointers to enet clocks for each instance. */
-extern clock_ip_name_t s_enetClock[FSL_FEATURE_SOC_ENET_COUNT];
-#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 
 /*******************************************************************************
  * Code
@@ -56,13 +44,13 @@ status_t PHY_Init(ENET_Type *base, uint32_t phyAddr, uint32_t srcClock_Hz)
     ENET_SetSMI(base, srcClock_Hz, false);
 
     /* Initialization after PHY stars to work. */
-    while ((idReg != PHY_CONTROL_ID1) && (counter != 0))
+    while ((idReg != PHY_CONTROL_ID1) && (counter != 0U))
     {
-        PHY_Read(base, phyAddr, PHY_ID1_REG, &idReg);
+        (void)PHY_Read(base, phyAddr, PHY_ID1_REG, &idReg);
         counter--;
     }
 
-    if (!counter)
+    if (counter == 0U)
     {
         return kStatus_Fail;
     }
@@ -97,13 +85,13 @@ status_t PHY_Init(ENET_Type *base, uint32_t phyAddr, uint32_t srcClock_Hz)
             if (result == kStatus_Success)
             {
                 /* Check auto negotiation complete. */
-                while (counter--)
+                while (counter-- != 0U)
                 {
                     result = PHY_Read(base, phyAddr, PHY_BASICSTATUS_REG, &bssReg);
                     if (result == kStatus_Success)
                     {
-                        PHY_Read(base, phyAddr, PHY_CONTROL1_REG, &ctlReg);
-                        if (((bssReg & PHY_BSTATUS_AUTONEGCOMP_MASK) != 0) && (ctlReg & PHY_LINK_READY_MASK))
+                        (void)PHY_Read(base, phyAddr, PHY_CONTROL1_REG, &ctlReg);
+                        if (((bssReg & PHY_BSTATUS_AUTONEGCOMP_MASK) != 0U) && ((ctlReg & PHY_LINK_READY_MASK) != 0U))
                         {
                             /* Wait a moment for Phy status stable. */
                             for (timeDelay = 0; timeDelay < PHY_TIMEOUT_COUNT; timeDelay++)
@@ -114,7 +102,7 @@ status_t PHY_Init(ENET_Type *base, uint32_t phyAddr, uint32_t srcClock_Hz)
                         }
                     }
 
-                    if (!counter)
+                    if (counter == 0U)
                     {
                         return kStatus_PHY_AutoNegotiateFail;
                     }
@@ -137,16 +125,16 @@ status_t PHY_Write(ENET_Type *base, uint32_t phyAddr, uint32_t phyReg, uint32_t 
     ENET_StartSMIWrite(base, phyAddr, phyReg, kENET_MiiWriteValidFrame, data);
 
     /* Wait for SMI complete. */
-    for (counter = PHY_TIMEOUT_COUNT; counter > 0; counter--)
+    for (counter = PHY_TIMEOUT_COUNT; counter > 0U; counter--)
     {
-        if (ENET_GetInterruptStatus(base) & ENET_EIR_MII_MASK)
+        if ((ENET_GetInterruptStatus(base) & ENET_EIR_MII_MASK) != 0U)
         {
             break;
         }
     }
 
     /* Check for timeout. */
-    if (!counter)
+    if (counter == 0U)
     {
         return kStatus_PHY_SMIVisitTimeout;
     }
@@ -170,16 +158,16 @@ status_t PHY_Read(ENET_Type *base, uint32_t phyAddr, uint32_t phyReg, uint32_t *
     ENET_StartSMIRead(base, phyAddr, phyReg, kENET_MiiReadValidFrame);
 
     /* Wait for MII complete. */
-    for (counter = PHY_TIMEOUT_COUNT; counter > 0; counter--)
+    for (counter = PHY_TIMEOUT_COUNT; counter > 0U; counter--)
     {
-        if (ENET_GetInterruptStatus(base) & ENET_EIR_MII_MASK)
+        if ((ENET_GetInterruptStatus(base) & ENET_EIR_MII_MASK) != 0U)
         {
             break;
         }
     }
 
     /* Check for timeout. */
-    if (!counter)
+    if (counter == 0U)
     {
         return kStatus_PHY_SMIVisitTimeout;
     }
@@ -260,7 +248,7 @@ status_t PHY_GetLinkStatus(ENET_Type *base, uint32_t phyAddr, bool *status)
     result = PHY_Read(base, phyAddr, PHY_BASICSTATUS_REG, &data);
     if (result == kStatus_Success)
     {
-        if (!(PHY_BSTATUS_LINKSTATUS_MASK & data))
+        if ((PHY_BSTATUS_LINKSTATUS_MASK & data) == 0U)
         {
             /* link down. */
             *status = false;

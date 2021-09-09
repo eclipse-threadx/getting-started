@@ -21,8 +21,8 @@
 
 /*! @name Driver version */
 /*@{*/
-/*! @brief FlexIO driver version 2.0.3. */
-#define FSL_FLEXIO_DRIVER_VERSION (MAKE_VERSION(2, 0, 3))
+/*! @brief FlexIO driver version. */
+#define FSL_FLEXIO_DRIVER_VERSION (MAKE_VERSION(2, 0, 4))
 /*@}*/
 
 /*! @brief Calculate FlexIO timer trigger.*/

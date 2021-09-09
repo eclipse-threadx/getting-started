@@ -1,5 +1,5 @@
 /*
- * Copyright  2017-2018 NXP
+ * Copyright 2017-2018, 2020 NXP
  * All rights reserved.
  *
  *
@@ -19,16 +19,26 @@
 
 #define OV7725_WriteReg(handle, reg, val)                            \
     SCCB_WriteReg(OV7725_SCCB_ADDR, kSCCB_RegAddr8Bit, (reg), (val), \
-                  ((ov7725_resource_t *)(handle->resource))->i2cSendFunc)
+                  ((ov7725_resource_t *)((handle)->resource))->i2cSendFunc)
 
 #define OV7725_ReadReg(handle, reg, val)                            \
     SCCB_ReadReg(OV7725_SCCB_ADDR, kSCCB_RegAddr8Bit, (reg), (val), \
-                 ((ov7725_resource_t *)(handle->resource))->i2cReceiveFunc)
+                 ((ov7725_resource_t *)((handle)->resource))->i2cReceiveFunc)
 
 #define OV7725_ModifyReg(handle, reg, clrMask, val)                              \
     SCCB_ModifyReg(OV7725_SCCB_ADDR, kSCCB_RegAddr8Bit, (reg), (clrMask), (val), \
-                   ((ov7725_resource_t *)(handle->resource))->i2cReceiveFunc,    \
-                   ((ov7725_resource_t *)(handle->resource))->i2cSendFunc)
+                   ((ov7725_resource_t *)((handle)->resource))->i2cReceiveFunc,  \
+                   ((ov7725_resource_t *)((handle)->resource))->i2cSendFunc)
+
+#define OV7725_CHECK_RET(x)            \
+    do                                 \
+    {                                  \
+        status = (x);                  \
+        if (kStatus_Success != status) \
+        {                              \
+            return status;             \
+        }                              \
+    } while (false)
 
 typedef struct _ov7725_clock_config
 {
@@ -280,16 +290,7 @@ static const ov7725_reg_t ov7725InitRegs[] = {
 
 static void OV7725_DelayMs(uint32_t ms)
 {
-    volatile uint32_t i;
-    uint32_t loopPerMs = SystemCoreClock / 3000;
-
-    while (ms--)
-    {
-        i = loopPerMs;
-        while (i--)
-        {
-        }
-    }
+    VIDEO_DelayMs(ms);
 }
 
 static status_t OV7725_WriteRegs(camera_device_handle_t *handle, const ov7725_reg_t regs[], uint32_t num)
@@ -316,17 +317,19 @@ static status_t OV7725_SoftwareReset(camera_device_handle_t *handle)
 
 static status_t OV7725_SetClockConfig(camera_device_handle_t *handle, uint32_t frameRate_Hz, uint32_t inputClk_Hz)
 {
+    status_t status;
+
     for (uint32_t i = 0; i < ARRAY_SIZE(ov7725ClockConfigs); i++)
     {
         if ((ov7725ClockConfigs[i].frameRate_Hz == frameRate_Hz) && (ov7725ClockConfigs[i].inputClk_Hz == inputClk_Hz))
         {
-            OV7725_WriteReg(handle, OV7725_CLKRC_REG, ov7725ClockConfigs[i].clkrc);
-            OV7725_ModifyReg(handle, OV7725_COM4_REG, 0xC0, ov7725ClockConfigs[i].com4);
-            OV7725_WriteReg(handle, OV7725_EXHCL_REG, 0x00);
-            OV7725_WriteReg(handle, OV7725_DM_LNL_REG, ov7725ClockConfigs[i].dm_lnl);
-            OV7725_WriteReg(handle, OV7725_DM_LNH_REG, 0x00);
-            OV7725_WriteReg(handle, OV7725_ADVFL_REG, 0x00);
-            OV7725_WriteReg(handle, OV7725_ADVFH_REG, 0x00);
+            OV7725_CHECK_RET(OV7725_WriteReg(handle, OV7725_CLKRC_REG, ov7725ClockConfigs[i].clkrc));
+            OV7725_CHECK_RET(OV7725_ModifyReg(handle, OV7725_COM4_REG, 0xC0, ov7725ClockConfigs[i].com4));
+            OV7725_CHECK_RET(OV7725_WriteReg(handle, OV7725_EXHCL_REG, 0x00));
+            OV7725_CHECK_RET(OV7725_WriteReg(handle, OV7725_DM_LNL_REG, ov7725ClockConfigs[i].dm_lnl));
+            OV7725_CHECK_RET(OV7725_WriteReg(handle, OV7725_DM_LNH_REG, 0x00));
+            OV7725_CHECK_RET(OV7725_WriteReg(handle, OV7725_ADVFL_REG, 0x00));
+            OV7725_CHECK_RET(OV7725_WriteReg(handle, OV7725_ADVFH_REG, 0x00));
             return OV7725_WriteReg(handle, OV7725_COM5_REG, 0x65);
         }
     }
@@ -350,8 +353,9 @@ static status_t OV7725_SetPixelFormat(camera_device_handle_t *handle, video_pixe
 status_t OV7725_Init(camera_device_handle_t *handle, const camera_config_t *config)
 {
     status_t status;
-    uint8_t pid, ver;
+    uint8_t pid = 0U, ver = 0U;
     uint8_t com10 = 0;
+    uint8_t tmpReg;
     uint16_t width, height;
     uint16_t hstart, vstart, hsize;
     ov7725_resource_t *resource = (ov7725_resource_t *)(handle->resource);
@@ -365,7 +369,7 @@ status_t OV7725_Init(camera_device_handle_t *handle, const camera_config_t *conf
     width  = FSL_VIDEO_EXTRACT_WIDTH(config->resolution);
     height = FSL_VIDEO_EXTRACT_HEIGHT(config->resolution);
 
-    if ((width > 640) || (height > 480))
+    if ((width > 640U) || (height > 480U))
     {
         return kStatus_InvalidArgument;
     }
@@ -409,7 +413,7 @@ status_t OV7725_Init(camera_device_handle_t *handle, const camera_config_t *conf
     }
 
     /* Device identify OK, perform software reset. */
-    OV7725_SoftwareReset(handle);
+    OV7725_CHECK_RET(OV7725_SoftwareReset(handle));
 
     /* Delay 2ms. */
     OV7725_DelayMs(2);
@@ -437,25 +441,30 @@ status_t OV7725_Init(camera_device_handle_t *handle, const camera_config_t *conf
 
     if (kCAMERA_InterfaceCCIR656 == config->interface)
     {
-        OV7725_ModifyReg(handle, OV7725_COM7_REG, (1 << 5), (1 << 5));
-        width += 2;
+        status = OV7725_ModifyReg(handle, OV7725_COM7_REG, (1U << 5), (1U << 5));
+        width += 2U;
     }
     else
     {
-        OV7725_ModifyReg(handle, OV7725_COM7_REG, (1 << 5), (0 << 5));
+        status = OV7725_ModifyReg(handle, OV7725_COM7_REG, (1U << 5), (0U << 5));
     }
 
-    if (kCAMERA_HrefActiveHigh != (config->controlFlags & kCAMERA_HrefActiveHigh))
+    if (kStatus_Success != status)
+    {
+        return status;
+    }
+
+    if ((uint32_t)kCAMERA_HrefActiveHigh != (config->controlFlags & (uint32_t)kCAMERA_HrefActiveHigh))
     {
         com10 |= OV7725_COM10_HREF_REVERSE_MASK;
     }
 
-    if (kCAMERA_VsyncActiveHigh != (config->controlFlags & kCAMERA_VsyncActiveHigh))
+    if ((uint32_t)kCAMERA_VsyncActiveHigh != (config->controlFlags & (uint32_t)kCAMERA_VsyncActiveHigh))
     {
         com10 |= OV7725_COM10_VSYNC_NEG_MASK;
     }
 
-    if (kCAMERA_DataLatchOnRisingEdge != (config->controlFlags & kCAMERA_DataLatchOnRisingEdge))
+    if ((uint32_t)kCAMERA_DataLatchOnRisingEdge != (config->controlFlags & (uint32_t)kCAMERA_DataLatchOnRisingEdge))
     {
         com10 |= OV7725_COM10_PCLK_REVERSE_MASK;
     }
@@ -465,10 +474,10 @@ status_t OV7725_Init(camera_device_handle_t *handle, const camera_config_t *conf
         com10 |= OV7725_COM10_PCLK_OUT_MASK;
     }
 
-    OV7725_WriteReg(handle, OV7725_COM10_REG, com10);
+    OV7725_CHECK_RET(OV7725_WriteReg(handle, OV7725_COM10_REG, com10));
 
     /* Don't swap output MSB/LSB. */
-    OV7725_WriteReg(handle, OV7725_COM3_REG, 0x00);
+    OV7725_CHECK_RET(OV7725_WriteReg(handle, OV7725_COM3_REG, 0x00));
 
     /*
      * Output drive capability
@@ -477,7 +486,7 @@ status_t OV7725_Init(camera_device_handle_t *handle, const camera_config_t *conf
      * 2: 3X
      * 3: 4X
      */
-    OV7725_ModifyReg(handle, OV7725_COM2_REG, 0x03, 0x03);
+    OV7725_CHECK_RET(OV7725_ModifyReg(handle, OV7725_COM2_REG, 0x03, 0x03));
 
     /* Resolution and timing. */
     hstart = 0x22U << 2U;
@@ -485,30 +494,35 @@ status_t OV7725_Init(camera_device_handle_t *handle, const camera_config_t *conf
     hsize  = width + 16U;
 
     /* Set the window size. */
-    OV7725_WriteReg(handle, OV7725_HSTART_REG, hstart >> 2U);
-    OV7725_WriteReg(handle, OV7725_HSIZE_REG, hsize >> 2U);
-    OV7725_WriteReg(handle, OV7725_VSTART_REG, vstart >> 1U);
-    OV7725_WriteReg(handle, OV7725_VSIZE_REG, height >> 1U);
-    OV7725_WriteReg(handle, OV7725_HOUTSIZE_REG, width >> 2U);
-    OV7725_WriteReg(handle, OV7725_VOUTSIZE_REG, height >> 1U);
-    OV7725_WriteReg(handle, OV7725_HREF_REG,
-                    ((vstart & 1U) << 6U) | ((hstart & 3U) << 4U) | ((height & 1U) << 2U) | ((hsize & 3U) << 0U));
-    return OV7725_WriteReg(handle, OV7725_EXHCH_REG, ((height & 1U) << 2U) | ((width & 3U) << 0U));
+    OV7725_CHECK_RET(OV7725_WriteReg(handle, OV7725_HSTART_REG, (uint8_t)(hstart >> 2U)));
+    OV7725_CHECK_RET(OV7725_WriteReg(handle, OV7725_HSIZE_REG, (uint8_t)(hsize >> 2U)));
+    OV7725_CHECK_RET(OV7725_WriteReg(handle, OV7725_VSTART_REG, (uint8_t)(vstart >> 1U)));
+    OV7725_CHECK_RET(OV7725_WriteReg(handle, OV7725_VSIZE_REG, (uint8_t)(height >> 1U)));
+    OV7725_CHECK_RET(OV7725_WriteReg(handle, OV7725_HOUTSIZE_REG, (uint8_t)(width >> 2U)));
+    OV7725_CHECK_RET(OV7725_WriteReg(handle, OV7725_VOUTSIZE_REG, (uint8_t)(height >> 1U)));
+
+    tmpReg = (((uint8_t)vstart & 1U) << 6U) | (((uint8_t)hstart & 3U) << 4U) | (((uint8_t)height & 1U) << 2U) |
+             (((uint8_t)hsize & 3U) << 0U);
+
+    OV7725_CHECK_RET(OV7725_WriteReg(handle, OV7725_HREF_REG, tmpReg));
+
+    return OV7725_WriteReg(handle, OV7725_EXHCH_REG, (((uint8_t)height & 1U) << 2U) | (((uint8_t)width & 3U) << 0U));
 }
 
 status_t OV7725_SetSpecialEffect(camera_device_handle_t *handle, int32_t effect)
 {
     uint8_t i;
+    status_t status;
 
     for (i = 0; i < ARRAY_SIZE(ov7725SpecialEffectConfigs); i++)
     {
-        if (effect == ov7725SpecialEffectConfigs[i].effect)
+        if (effect == (int32_t)ov7725SpecialEffectConfigs[i].effect)
         {
-            OV7725_WriteReg(handle, OV7725_SDE_REG, ov7725SpecialEffectConfigs[i].sde);
-            OV7725_WriteReg(handle, OV7725_UFIX_REG, ov7725SpecialEffectConfigs[i].ufix);
-            OV7725_WriteReg(handle, OV7725_VFIX_REG, ov7725SpecialEffectConfigs[i].vfix);
+            OV7725_CHECK_RET(OV7725_WriteReg(handle, OV7725_SDE_REG, ov7725SpecialEffectConfigs[i].sde));
+            OV7725_CHECK_RET(OV7725_WriteReg(handle, OV7725_UFIX_REG, ov7725SpecialEffectConfigs[i].ufix));
+            OV7725_CHECK_RET(OV7725_WriteReg(handle, OV7725_VFIX_REG, ov7725SpecialEffectConfigs[i].vfix));
 
-            return OV7725_ModifyReg(handle, OV7725_DSP_CTRL1_REG, 1 << 5, 1 << 5);
+            return OV7725_ModifyReg(handle, OV7725_DSP_CTRL1_REG, 1U << 5, 1U << 5);
         }
     }
 
@@ -523,11 +537,16 @@ status_t OV7725_SetContrast(camera_device_handle_t *handle, int32_t contrast)
         return kStatus_InvalidArgument;
     }
 
-    return OV7725_WriteReg(handle, OV7725_CNST_REG, 0x20 + (0x04 * contrast));
+    contrast *= 4;
+    contrast += 0x20;
+
+    return OV7725_WriteReg(handle, OV7725_CNST_REG, (uint8_t)contrast);
 }
 
 status_t OV7725_SetBrightness(camera_device_handle_t *handle, int32_t brightness)
 {
+    status_t status;
+
     if ((brightness < -4) || (brightness > 4))
     {
         return kStatus_InvalidArgument;
@@ -535,43 +554,47 @@ status_t OV7725_SetBrightness(camera_device_handle_t *handle, int32_t brightness
 
     if (brightness >= 0)
     {
-        OV7725_WriteReg(handle, OV7725_BRIGHT_REG, 0x08 + (0x10 * brightness));
+        OV7725_CHECK_RET(OV7725_WriteReg(handle, OV7725_BRIGHT_REG, 0x08U + (0x10U * (uint8_t)brightness)));
         return OV7725_WriteReg(handle, OV7725_SIGN_REG, 0x06);
     }
     else
     {
         brightness = -brightness - 1;
-        OV7725_WriteReg(handle, OV7725_BRIGHT_REG, 0x08 + (0x10 * brightness));
+        OV7725_CHECK_RET(OV7725_WriteReg(handle, OV7725_BRIGHT_REG, 0x08U + (0x10U * (uint8_t)brightness)));
         return OV7725_WriteReg(handle, OV7725_SIGN_REG, 0x0e);
     }
 }
 
 status_t OV7725_SetSaturation(camera_device_handle_t *handle, int32_t saturation)
 {
+    status_t status;
+
     if ((saturation < -4) || (saturation > 4))
     {
         return kStatus_InvalidArgument;
     }
 
-    uint8_t val = (saturation + 4) * 0x10;
+    saturation += 4;
+    uint8_t val = (uint8_t)saturation * 0x10U;
 
-    OV7725_WriteReg(handle, OV7725_USAT_REG, val);
+    OV7725_CHECK_RET(OV7725_WriteReg(handle, OV7725_USAT_REG, val));
     return OV7725_WriteReg(handle, OV7725_VSAT_REG, val);
 }
 
 status_t OV7725_SetLightMode(camera_device_handle_t *handle, int32_t lightMode)
 {
     uint8_t i;
+    status_t status;
 
     for (i = 0; i < ARRAY_SIZE(ov7725LightModeConfigs); i++)
     {
-        if (lightMode == ov7725LightModeConfigs[i].lightMode)
+        if (lightMode == (int32_t)ov7725LightModeConfigs[i].lightMode)
         {
-            OV7725_WriteReg(handle, OV7725_COM8_REG, ov7725LightModeConfigs[i].com8);
-            OV7725_WriteReg(handle, OV7725_BLUE_REG, ov7725LightModeConfigs[i].blue);
-            OV7725_WriteReg(handle, OV7725_RED_REG, ov7725LightModeConfigs[i].red);
-            OV7725_WriteReg(handle, OV7725_COM5_REG, ov7725LightModeConfigs[i].com5);
-            OV7725_WriteReg(handle, OV7725_ADVFL_REG, 0);
+            OV7725_CHECK_RET(OV7725_WriteReg(handle, OV7725_COM8_REG, ov7725LightModeConfigs[i].com8));
+            OV7725_CHECK_RET(OV7725_WriteReg(handle, OV7725_BLUE_REG, ov7725LightModeConfigs[i].blue));
+            OV7725_CHECK_RET(OV7725_WriteReg(handle, OV7725_RED_REG, ov7725LightModeConfigs[i].red));
+            OV7725_CHECK_RET(OV7725_WriteReg(handle, OV7725_COM5_REG, ov7725LightModeConfigs[i].com5));
+            OV7725_CHECK_RET(OV7725_WriteReg(handle, OV7725_ADVFL_REG, 0));
             return OV7725_WriteReg(handle, OV7725_ADVFH_REG, 0);
         }
     }
@@ -586,7 +609,7 @@ status_t OV7725_SetNightMode(camera_device_handle_t *handle, int32_t nightMode)
 
     for (i = 0; i < ARRAY_SIZE(ov7725NightModeConfigs); i++)
     {
-        if (nightMode == ov7725NightModeConfigs[i].nightMode)
+        if (nightMode == (int32_t)ov7725NightModeConfigs[i].nightMode)
         {
             return OV7725_ModifyReg(handle, OV7725_COM5_REG, 0xF0, ov7725NightModeConfigs[i].com5);
         }

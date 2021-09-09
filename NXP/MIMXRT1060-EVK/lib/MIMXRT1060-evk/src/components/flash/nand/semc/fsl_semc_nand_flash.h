@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NXP
+ * Copyright 2018-2021 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -20,8 +20,8 @@
  * Definitions
  ******************************************************************************/
 
-/*! @brief NAND Flash vendor type */
-enum _nand_vendor_type_index
+/*! @brief NAND Flash vendor type, _nand_vendor_type_index */
+enum
 {
     kNandVendorType_Micron   = 0U,
     kNandVendorType_Spansion = 1U,
@@ -33,8 +33,8 @@ enum _nand_vendor_type_index
     kNandVendorType_Unknown  = 7U,
 };
 
-/*! @brief Parallel NAND Flash AC timing mode */
-enum _nand_ac_timing_table_index
+/*! @brief Parallel NAND Flash AC timing mode, _nand_ac_timing_table_index */
+enum
 {
     kNandAcTimingTableIndex_ONFI_1p0_Mode0_10MHz = 0U,
     kNandAcTimingTableIndex_ONFI_1p0_Mode1_20MHz = 1U,
@@ -45,8 +45,8 @@ enum _nand_ac_timing_table_index
     kNandAcTimingTableIndex_ONFI_1p0_FastestMode = 6U,
 };
 
-/*! @brief Parallel NAND Flash commands */
-enum _nand_onfi_command_set
+/*! @brief Parallel NAND Flash commands, _nand_onfi_command_set */
+enum
 {
     /* Must-have command */
     kNandDeviceCmd_ONFI_Reset                         = 0xFFU,
@@ -66,6 +66,15 @@ enum _nand_onfi_command_set
     kNandDeviceCmd_ONFI_ReadStatusEnhanced = 0x78U,
     kNandDeviceCmd_ONFI_SetFeatures        = 0xEFU,
     kNandDeviceCmd_ONFI_GetFeatures        = 0xEEU,
+    kNandDeviceCmd_ONFI_GetManufacturerID  = 0x90U,
+};
+
+/*! @brief Parallel NAND Flash feature set*/
+enum
+{
+    kNandDeviceFeature_ArrayOperationMode_Address    = 0x90U,
+    kNandDeviceFeature_ArrayOperationMode_DisableECC = 0x00U,
+    kNandDeviceFeature_ArrayOperationMode_EnableECC  = 0x08U,
 };
 
 /*! @brief Parallel NAND Flash ONFI Version */
@@ -129,11 +138,11 @@ typedef struct __nand_onfi_parameter_config
     } optionalCommands;    /*!< [0x008-0x009] */
     uint8_t reserved0[22]; /*!< [0x00a-0x01f] */
     /* Manufacturer information block */
-    uint8_t deviceManufacturer[12]; /*!< [0x020-0x02b] */
-    uint8_t deviceModel[20];        /*!< [0x02c-0x03f] */
-    uint8_t JEDECid;                /*!< [0x040-0x040] */
-    uint8_t dataCode[2];            /*!< [0x041-0x042] */
-    uint8_t reserved1[13];          /*!< [0x043-0x04f] */
+    char deviceManufacturer[12]; /*!< [0x020-0x02b] */
+    uint8_t deviceModel[20];     /*!< [0x02c-0x03f] */
+    uint8_t JEDECid;             /*!< [0x040-0x040] */
+    uint8_t dataCode[2];         /*!< [0x041-0x042] */
+    uint8_t reserved1[13];       /*!< [0x043-0x04f] */
     /* Memory organization block */
     uint32_t dataBytesPerPage;  /*!< [0x050-0x053] */
     uint16_t spareBytesPerPage; /*!< [0x054-0x055] */

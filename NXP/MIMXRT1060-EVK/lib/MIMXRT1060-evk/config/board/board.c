@@ -254,7 +254,7 @@ void BOARD_ConfigMPU(void)
     uint32_t nonCacheStart = (uint32_t)__NCACHE_REGION_START;
     uint32_t size          = (uint32_t)__NCACHE_REGION_SIZE;
 #endif
-    uint32_t i = 0;
+    volatile uint32_t i = 0;
 
     /* Disable I cache and D cache */
     if (SCB_CCR_IC_Msk == (SCB_CCR_IC_Msk & SCB->CCR))

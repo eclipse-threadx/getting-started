@@ -1,5 +1,5 @@
 /*
- * Copyright  2017 NXP
+ * Copyright 2017, 2020 NXP
  * All rights reserved.
  *
  *
@@ -95,20 +95,20 @@ static status_t CSI_ADAPTER_Init(camera_receiver_handle_t *handle,
     csiConfig.width           = FSL_VIDEO_EXTRACT_WIDTH(config->resolution);
 
     csiConfig.polarityFlags = 0U;
-    if (kCAMERA_HrefActiveHigh == (config->controlFlags & kCAMERA_HrefActiveHigh))
+    if ((uint32_t)kCAMERA_HrefActiveHigh == (config->controlFlags & (uint32_t)kCAMERA_HrefActiveHigh))
     {
-        csiConfig.polarityFlags |= kCSI_HsyncActiveHigh;
+        csiConfig.polarityFlags |= (uint32_t)kCSI_HsyncActiveHigh;
     }
-    if (kCAMERA_DataLatchOnRisingEdge == (config->controlFlags & kCAMERA_DataLatchOnRisingEdge))
+    if ((uint32_t)kCAMERA_DataLatchOnRisingEdge == (config->controlFlags & (uint32_t)kCAMERA_DataLatchOnRisingEdge))
     {
-        csiConfig.polarityFlags |= kCSI_DataLatchOnRisingEdge;
+        csiConfig.polarityFlags |= (uint32_t)kCSI_DataLatchOnRisingEdge;
     }
-    if (kCAMERA_VsyncActiveHigh != (config->controlFlags & kCAMERA_VsyncActiveHigh))
+    if ((uint32_t)kCAMERA_VsyncActiveHigh != (config->controlFlags & (uint32_t)kCAMERA_VsyncActiveHigh))
     {
-        csiConfig.polarityFlags |= kCSI_VsyncActiveLow;
+        csiConfig.polarityFlags |= (uint32_t)kCSI_VsyncActiveLow;
     }
 
-    CSI_Init(resource->csiBase, &csiConfig);
+    (void)CSI_Init(resource->csiBase, &csiConfig);
 
     privateData->callback = callback;
     privateData->userData = userData;
@@ -153,7 +153,7 @@ static void CSI_ADAPTER_Callback(CSI_Type *base, csi_handle_t *handle, status_t 
     camera_receiver_handle_t *cameraReceiverHandle = (camera_receiver_handle_t *)userData;
     csi_private_data_t *privateData                = (csi_private_data_t *)(cameraReceiverHandle->privateData);
 
-    if (privateData->callback)
+    if (NULL != privateData->callback)
     {
         if (kStatus_CSI_FrameDone == status)
         {

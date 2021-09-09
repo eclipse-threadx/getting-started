@@ -938,6 +938,8 @@ status_t FLEXIO_SPI_MasterTransferCreateHandle(FLEXIO_SPI_Type *base,
     handle->callback = callback;
     handle->userData = userData;
 
+    /* Clear pending NVIC IRQ before enable NVIC IRQ. */
+    NVIC_ClearPendingIRQ(flexio_irqs[FLEXIO_SPI_GetInstance(base)]);
     /* Enable interrupt in NVIC. */
     (void)EnableIRQ(flexio_irqs[FLEXIO_SPI_GetInstance(base)]);
 
@@ -1189,6 +1191,8 @@ status_t FLEXIO_SPI_SlaveTransferCreateHandle(FLEXIO_SPI_Type *base,
     handle->callback = callback;
     handle->userData = userData;
 
+    /* Clear pending NVIC IRQ before enable NVIC IRQ. */
+    NVIC_ClearPendingIRQ(flexio_irqs[FLEXIO_SPI_GetInstance(base)]);
     /* Enable interrupt in NVIC. */
     (void)EnableIRQ(flexio_irqs[FLEXIO_SPI_GetInstance(base)]);
 

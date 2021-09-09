@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2013-2016 ARM Limited. All rights reserved.
  * Copyright (c) 2016, Freescale Semiconductor, Inc. Not a Contribution.
- * Copyright 2016-2017 NXP. Not a Contribution.
+ * Copyright 2016-2021 NXP. Not a Contribution.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -20,6 +20,7 @@
 
 #ifndef _FSL_ENET_CMSIS_H_
 #define _FSL_ENET_CMSIS_H_
+
 #include "Driver_ETH.h"
 #include "Driver_ETH_MAC.h"
 #include "RTE_Device.h"
@@ -27,12 +28,13 @@
 #include "fsl_enet.h"
 
 /* ENET Driver state flags */
-#define ENET_FLAG_UNINIT     (0)
-#define ENET_FLAG_INIT       (1 << 0)
-#define ENET_FLAG_POWER      (1 << 1)
-#define ETH_MAC_EVENT_OTHERS (ARM_ETH_MAC_EVENT_TIMER_ALARM + 1)
+#define ENET_FLAG_UNINIT     (0U)
+#define ENET_FLAG_INIT       (1U << 0)
+#define ENET_FLAG_POWER      (1U << 1)
+#define ETH_MAC_EVENT_OTHERS (ARM_ETH_MAC_EVENT_TIMER_ALARM + 1U)
 
-#if defined(ENET)
 extern ARM_DRIVER_ETH_MAC Driver_ETH_MAC0;
-#endif
+
+extern uint32_t ENET0_GetFreq(void);
+
 #endif

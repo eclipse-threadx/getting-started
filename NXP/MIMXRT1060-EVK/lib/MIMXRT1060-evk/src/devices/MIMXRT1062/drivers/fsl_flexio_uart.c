@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015-2016, Freescale Semiconductor, Inc.
- * Copyright 2016-2020 NXP
+ * Copyright 2016-2021 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -118,8 +118,8 @@ static bool FLEXIO_UART_TransferIsRxRingBufferFull(flexio_uart_handle_t *handle)
  * param base Pointer to the FLEXIO_UART_Type structure.
  * param userConfig Pointer to the flexio_uart_config_t structure.
  * param srcClock_Hz FlexIO source clock in Hz.
- * retval kStatus_Success Configuration success
- * retval kStatus_InvalidArgument Buadrate configuration out of range
+ * retval kStatus_Success Configuration success.
+ * retval kStatus_FLEXIO_UART_BaudrateNotSupport Baudrate is not supported for current clock source frequency.
 */
 status_t FLEXIO_UART_Init(FLEXIO_UART_Type *base, const flexio_uart_config_t *userConfig, uint32_t srcClock_Hz)
 {
@@ -130,7 +130,9 @@ status_t FLEXIO_UART_Init(FLEXIO_UART_Type *base, const flexio_uart_config_t *us
     uint32_t ctrlReg  = 0;
     uint16_t timerDiv = 0;
     uint16_t timerCmp = 0;
-    status_t result   = kStatus_Success;
+    uint32_t calculatedBaud;
+    uint32_t diff;
+    status_t result = kStatus_Success;
 
     /* Clear the shifterConfig & timerConfig struct. */
     (void)memset(&shifterConfig, 0, sizeof(shifterConfig));
@@ -188,7 +190,21 @@ status_t FLEXIO_UART_Init(FLEXIO_UART_Type *base, const flexio_uart_config_t *us
 
     if (timerDiv > 0xFFU)
     {
-        result = kStatus_InvalidArgument;
+        /* Check whether the calculated timerDiv is within allowed range. */
+        return kStatus_FLEXIO_UART_BaudrateNotSupport;
+    }
+    else
+    {
+        /* Check to see if actual baud rate is within 3% of desired baud rate
+         * based on the best calculated timerDiv value */
+        calculatedBaud = srcClock_Hz / (((uint32_t)timerDiv + 1U) * 2U);
+        /* timerDiv cannot be larger than the ideal divider, so calculatedBaud is definitely larger
+           than configured baud */
+        diff = calculatedBaud - userConfig->baudRate_Bps;
+        if (diff > ((userConfig->baudRate_Bps / 100U) * 3U))
+        {
+            return kStatus_FLEXIO_UART_BaudrateNotSupport;
+        }
     }
 
     timerCmp = ((uint16_t)userConfig->bitCountPerChar * 2U - 1U) << 8U;
@@ -502,6 +518,8 @@ status_t FLEXIO_UART_TransferCreateHandle(FLEXIO_UART_Type *base,
     handle->callback = callback;
     handle->userData = userData;
 
+    /* Clear pending NVIC IRQ before enable NVIC IRQ. */
+    NVIC_ClearPendingIRQ(flexio_irqs[FLEXIO_UART_GetInstance(base)]);
     /* Enable interrupt in NVIC. */
     (void)EnableIRQ(flexio_irqs[FLEXIO_UART_GetInstance(base)]);
 
@@ -593,7 +611,7 @@ status_t FLEXIO_UART_TransferSendNonBlocking(FLEXIO_UART_Type *base,
     status_t status;
 
     /* Return error if xfer invalid. */
-    if ((0U == xfer->dataSize) || (NULL == xfer->data))
+    if ((0U == xfer->dataSize) || (NULL == xfer->txData))
     {
         return kStatus_InvalidArgument;
     }
@@ -605,7 +623,7 @@ status_t FLEXIO_UART_TransferSendNonBlocking(FLEXIO_UART_Type *base,
     }
     else
     {
-        handle->txData        = xfer->data;
+        handle->txData        = xfer->txData;
         handle->txDataSize    = xfer->dataSize;
         handle->txDataSizeAll = xfer->dataSize;
         handle->txState       = (uint8_t)kFLEXIO_UART_TxBusy;
@@ -703,7 +721,7 @@ status_t FLEXIO_UART_TransferReceiveNonBlocking(FLEXIO_UART_Type *base,
     size_t bytesCurrentReceived;
 
     /* Return error if xfer invalid. */
-    if ((0U == xfer->dataSize) || (NULL == xfer->data))
+    if ((0U == xfer->dataSize) || (NULL == xfer->rxData))
     {
         return kStatus_InvalidArgument;
     }
@@ -745,7 +763,7 @@ status_t FLEXIO_UART_TransferReceiveNonBlocking(FLEXIO_UART_Type *base,
                 /* Copy data from ring buffer to user memory. */
                 for (i = 0U; i < bytesToCopy; i++)
                 {
-                    xfer->data[bytesCurrentReceived++] = handle->rxRingBuffer[handle->rxRingBufferTail];
+                    xfer->rxData[bytesCurrentReceived++] = handle->rxRingBuffer[handle->rxRingBufferTail];
 
                     /* Wrap to 0. Not use modulo (%) because it might be large and slow. */
                     if ((uint32_t)handle->rxRingBufferTail + 1U == handle->rxRingBufferSize)
@@ -763,9 +781,9 @@ status_t FLEXIO_UART_TransferReceiveNonBlocking(FLEXIO_UART_Type *base,
             if (bytesToReceive != 0U)
             {
                 /* No data in ring buffer, save the request to UART handle. */
-                handle->rxData        = xfer->data + bytesCurrentReceived;
+                handle->rxData        = xfer->rxData + bytesCurrentReceived;
                 handle->rxDataSize    = bytesToReceive;
-                handle->rxDataSizeAll = bytesToReceive;
+                handle->rxDataSizeAll = xfer->dataSize;
                 handle->rxState       = (uint8_t)kFLEXIO_UART_RxBusy;
             }
 
@@ -784,7 +802,7 @@ status_t FLEXIO_UART_TransferReceiveNonBlocking(FLEXIO_UART_Type *base,
         /* Ring buffer not used. */
         else
         {
-            handle->rxData        = xfer->data + bytesCurrentReceived;
+            handle->rxData        = xfer->rxData + bytesCurrentReceived;
             handle->rxDataSize    = bytesToReceive;
             handle->rxDataSizeAll = bytesToReceive;
             handle->rxState       = (uint8_t)kFLEXIO_UART_RxBusy;

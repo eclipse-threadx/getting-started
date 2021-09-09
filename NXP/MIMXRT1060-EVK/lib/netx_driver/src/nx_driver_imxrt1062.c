@@ -27,7 +27,7 @@
 
 /****** DRIVER SPECIFIC ****** Start of part/vendor specific include area.  Include driver-specific include file here!  */
 
-//#ifndef NX_DRIVER_IMXRT1052_H
+#ifndef NX_DRIVER_IMXRT1062_H
 
 /* Determine if the driver uses IP deferred processing or direct ISR processing.  */
 
@@ -41,7 +41,7 @@
 /* Include driver specific include file.  */
 #include "nx_driver_imxrt1062.h"
 
-//#endif
+#endif
 
 /****** DRIVER SPECIFIC ****** End of part/vendor specific include file area!  */
 
@@ -56,7 +56,7 @@ static NX_DRIVER_INFORMATION   nx_driver_information;
 /* Define driver specific ethernet hardware address.  */
 
 #ifndef NX_DRIVER_ETHERNET_MAC
-UCHAR   _nx_driver_hardware_address[] = {0x00, 0x11, 0x22, 0x33, 0x44, 0x56};  
+UCHAR   _nx_driver_hardware_address[] = {0x02, 0x11, 0x22, 0x33, 0x44, 0x52};
 #else
 UCHAR   _nx_driver_hardware_address[] = NX_DRIVER_ETHERNET_MAC;  
 #endif
@@ -110,10 +110,10 @@ static UINT         _nx_driver_hardware_capability_set(NX_IP_DRIVER *driver_req_
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    nx_driver_imx                                       PORTABLE C      */ 
-/*                                                           5.0          */ 
+/*                                                           6.1          */
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Microsoft Corporation                                   */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -151,7 +151,9 @@ static UINT         _nx_driver_hardware_capability_set(NX_IP_DRIVER *driver_req_
 /*                                                                        */ 
 /*    DATE              NAME                      DESCRIPTION             */ 
 /*                                                                        */ 
-/*  02-01-2018     Yuxin Zhou               Initial Version 5.0           */ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */ 
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */ 
 /**************************************************************************/ 
 /****** DRIVER SPECIFIC ****** Start of part/vendor specific global driver entry function name.  */
@@ -281,10 +283,10 @@ VOID  nx_driver_imx(NX_IP_DRIVER *driver_req_ptr)
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_driver_interface_attach                         PORTABLE C      */ 
-/*                                                           5.0          */ 
+/*                                                           6.1          */
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Microsoft Corporation                                   */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -311,7 +313,9 @@ VOID  nx_driver_imx(NX_IP_DRIVER *driver_req_ptr)
 /*                                                                        */ 
 /*    DATE              NAME                      DESCRIPTION             */ 
 /*                                                                        */ 
-/*  02-01-2018     Yuxin Zhou               Initial Version 5.0           */ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */ 
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */ 
 /**************************************************************************/ 
 static VOID  _nx_driver_interface_attach(NX_IP_DRIVER *driver_req_ptr)
@@ -336,10 +340,10 @@ static VOID  _nx_driver_interface_attach(NX_IP_DRIVER *driver_req_ptr)
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_driver_initialize                               PORTABLE C      */ 
-/*                                                           5.0          */ 
+/*                                                           6.1          */
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Microsoft Corporation                                   */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -368,7 +372,9 @@ static VOID  _nx_driver_interface_attach(NX_IP_DRIVER *driver_req_ptr)
 /*                                                                        */ 
 /*    DATE              NAME                      DESCRIPTION             */ 
 /*                                                                        */ 
-/*  02-01-2018     Yuxin Zhou               Initial Version 5.0           */ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */ 
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */ 
 /**************************************************************************/ 
 static VOID  _nx_driver_initialize(NX_IP_DRIVER *driver_req_ptr)
@@ -455,10 +461,10 @@ UINT            status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_driver_enable                                   PORTABLE C      */ 
-/*                                                           5.0          */ 
+/*                                                           6.1          */
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Microsoft Corporation                                   */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -487,7 +493,9 @@ UINT            status;
 /*                                                                        */ 
 /*    DATE              NAME                      DESCRIPTION             */ 
 /*                                                                        */ 
-/*  02-01-2018     Yuxin Zhou               Initial Version 5.0           */ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */ 
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */ 
 /**************************************************************************/ 
 static VOID  _nx_driver_enable(NX_IP_DRIVER *driver_req_ptr)
@@ -543,10 +551,10 @@ UINT            status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_driver_disable                                  PORTABLE C      */ 
-/*                                                           5.0          */ 
+/*                                                           6.1          */
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Microsoft Corporation                                   */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -575,7 +583,9 @@ UINT            status;
 /*                                                                        */ 
 /*    DATE              NAME                      DESCRIPTION             */ 
 /*                                                                        */ 
-/*  02-01-2018     Yuxin Zhou               Initial Version 5.0           */ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */ 
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */ 
 /**************************************************************************/ 
 static VOID  _nx_driver_disable(NX_IP_DRIVER *driver_req_ptr)
@@ -627,10 +637,10 @@ UINT            status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_driver_packet_send                              PORTABLE C      */ 
-/*                                                           5.0          */ 
+/*                                                           6.1          */
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Microsoft Corporation                                   */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -659,7 +669,9 @@ UINT            status;
 /*                                                                        */ 
 /*    DATE              NAME                      DESCRIPTION             */ 
 /*                                                                        */ 
-/*  02-01-2018     Yuxin Zhou               Initial Version 5.0           */ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */ 
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */ 
 /**************************************************************************/ 
 static VOID  _nx_driver_packet_send(NX_IP_DRIVER *driver_req_ptr)
@@ -788,10 +800,10 @@ UINT            status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_driver_multicast_join                           PORTABLE C      */ 
-/*                                                           5.0          */ 
+/*                                                           6.1          */
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Microsoft Corporation                                   */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -820,7 +832,9 @@ UINT            status;
 /*                                                                        */ 
 /*    DATE              NAME                      DESCRIPTION             */ 
 /*                                                                        */ 
-/*  02-01-2018     Yuxin Zhou               Initial Version 5.0           */ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */ 
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */ 
 /**************************************************************************/ 
 static VOID  _nx_driver_multicast_join(NX_IP_DRIVER *driver_req_ptr)
@@ -862,10 +876,10 @@ UINT        status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_driver_multicast_leave                          PORTABLE C      */ 
-/*                                                           5.0          */ 
+/*                                                           6.1          */
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Microsoft Corporation                                   */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -895,7 +909,9 @@ UINT        status;
 /*                                                                        */ 
 /*    DATE              NAME                      DESCRIPTION             */ 
 /*                                                                        */ 
-/*  02-01-2018     Yuxin Zhou               Initial Version 5.0           */ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */ 
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */ 
 /**************************************************************************/ 
 static VOID  _nx_driver_multicast_leave(NX_IP_DRIVER *driver_req_ptr)
@@ -936,10 +952,10 @@ UINT        status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_driver_get_status                               PORTABLE C      */ 
-/*                                                           5.0          */ 
+/*                                                           6.1          */
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Microsoft Corporation                                   */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -968,7 +984,9 @@ UINT        status;
 /*                                                                        */ 
 /*    DATE              NAME                      DESCRIPTION             */ 
 /*                                                                        */ 
-/*  02-01-2018     Yuxin Zhou               Initial Version 5.0           */ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */ 
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */ 
 /**************************************************************************/ 
 static VOID  _nx_driver_get_status(NX_IP_DRIVER *driver_req_ptr)
@@ -1003,10 +1021,10 @@ UINT        status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_driver_capability_get                         PORTABLE C        */ 
-/*                                                           5.0          */ 
+/*                                                           6.1          */
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Microsoft Corporation                                   */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -1034,6 +1052,8 @@ UINT        status;
 /*    DATE              NAME                      DESCRIPTION             */ 
 /*                                                                        */ 
 /*  01-01-2014     Yuxin Zhou               Initial Version 5.0           */ 
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */ 
 /**************************************************************************/ 
 static VOID  _nx_driver_capability_get(NX_IP_DRIVER *driver_req_ptr)
@@ -1052,10 +1072,10 @@ static VOID  _nx_driver_capability_get(NX_IP_DRIVER *driver_req_ptr)
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_driver_capability_set                         PORTABLE C        */ 
-/*                                                           5.0          */ 
+/*                                                           6.1          */
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Microsoft Corporation                                   */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -1083,6 +1103,8 @@ static VOID  _nx_driver_capability_get(NX_IP_DRIVER *driver_req_ptr)
 /*    DATE              NAME                      DESCRIPTION             */ 
 /*                                                                        */ 
 /*  01-01-2014     Yuxin Zhou               Initial Version 5.0           */ 
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */ 
 /**************************************************************************/ 
 static VOID  _nx_driver_capability_set(NX_IP_DRIVER *driver_req_ptr)
@@ -1118,10 +1140,10 @@ UINT        status;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_driver_deferred_processing                      PORTABLE C      */ 
-/*                                                           5.0          */ 
+/*                                                           6.1          */
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    XC, Microsoft Corporation                                           */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -1150,7 +1172,9 @@ UINT        status;
 /*                                                                        */ 
 /*    DATE              NAME                      DESCRIPTION             */ 
 /*                                                                        */ 
-/*  02-01-2018     Yuxin Zhou               Initial Version 5.0           */ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */ 
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */ 
 /**************************************************************************/ 
 static VOID  _nx_driver_deferred_processing(NX_IP_DRIVER *driver_req_ptr)
@@ -1179,7 +1203,7 @@ ULONG       deferred_events;
         _nx_driver_hardware_packet_transmitted();
     }    
     
-    /* Check for received packet.  */
+    /* Check for recevied packet.  */
     if(deferred_events & NX_DRIVER_DEFERRED_PACKET_RECEIVED)
     {
 
@@ -1198,10 +1222,10 @@ ULONG       deferred_events;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_driver_transfer_to_netx                         PORTABLE C      */ 
-/*                                                           5.0          */ 
+/*                                                           6.1          */
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Microsoft Corporation                                   */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -1234,7 +1258,9 @@ ULONG       deferred_events;
 /*                                                                        */ 
 /*    DATE              NAME                      DESCRIPTION             */ 
 /*                                                                        */ 
-/*  02-01-2018     Yuxin Zhou               Initial Version 5.0           */ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */ 
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */ 
 /**************************************************************************/ 
 static VOID _nx_driver_transfer_to_netx(NX_IP *ip_ptr, NX_PACKET *packet_ptr)
@@ -1316,10 +1342,10 @@ USHORT    packet_type;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_driver_transmit_packet_enqueue                  PORTABLE C      */ 
-/*                                                           5.0          */ 
+/*                                                           6.1          */
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Microsoft Corporation                                   */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -1354,7 +1380,9 @@ USHORT    packet_type;
 /*                                                                        */ 
 /*    DATE              NAME                      DESCRIPTION             */ 
 /*                                                                        */ 
-/*  02-01-2018     Yuxin Zhou               Initial Version 5.0           */ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */ 
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */ 
 /**************************************************************************/ 
 static VOID _nx_driver_transmit_packet_enqueue(NX_PACKET *packet_ptr)
@@ -1415,10 +1443,10 @@ static VOID _nx_driver_transmit_packet_enqueue(NX_PACKET *packet_ptr)
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_driver_transmit_packet_dequeue                  PORTABLE C      */ 
-/*                                                           5.0          */ 
+/*                                                           6.1          */
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Microsoft Corporation                                   */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -1450,7 +1478,9 @@ static VOID _nx_driver_transmit_packet_enqueue(NX_PACKET *packet_ptr)
 /*                                                                        */ 
 /*    DATE              NAME                      DESCRIPTION             */ 
 /*                                                                        */ 
-/*  02-01-2018     Yuxin Zhou               Initial Version 5.0           */ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */ 
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */ 
 /**************************************************************************/ 
 static NX_PACKET *_nx_driver_transmit_packet_dequeue(VOID)
@@ -1496,13 +1526,6 @@ typedef struct
     phy_duplex_t         duplex;        /* Ethernet Duplex          */
     uint8_t              mac[6];        /* Ethernet Address         */
 } ENET_CONFIG_IMX;
-
-void enet_init_imx(ENET_CONFIG_IMX *config);
-void delay(void);
-void BOARD_InitModule(void);
-void enet_init();
-VOID nx_driver_link_mode_changed(VOID);
-VOID nx_driver_imx_ethernet_isr(VOID);
 
 void enet_init_imx(ENET_CONFIG_IMX *config)
 {
@@ -1581,235 +1604,34 @@ void enet_init_imx(ENET_CONFIG_IMX *config)
 #endif
 
 }
-
-void delay(void)
-{
-	volatile uint32_t i = 0;
-	for (i = 0; i < 1000000; ++i)
-	{
-		__asm("NOP"); /* delay */
-	}
-}
-
-void BOARD_InitModule(void)
-{
-	gpio_pin_config_t pinConfig;
-	clock_enet_pll_config_t pllConfig;
-  
-	//Configure ENET PLL (50MHz)
-	pllConfig.enableClkOutput = true;
-	pllConfig.enableClkOutput25M = false;
-	pllConfig.loopDivider = 1;
-	pllConfig.src = 0;
-	pllConfig.enableClkOutput1 = true;
-	pllConfig.loopDivider1 = 1;
-	CLOCK_InitEnetPll(&pllConfig);
-  
-	//Enable ENET1_TX_CLK output driver
-	IOMUXC_EnableMode(IOMUXC_GPR, kIOMUXC_GPR_ENET1TxClkOutputDir, true);
-  
-	//Enable IOMUXC clock
-	CLOCK_EnableClock(kCLOCK_Iomuxc);
-  
-	//Configure GPIO_B1_04 pin as ENET_RX_DATA00
-	IOMUXC_SetPinMux(IOMUXC_GPIO_B1_04_ENET_RX_DATA00, 0);
-  
-	//Set GPIO_B1_04 pad properties
-	IOMUXC_SetPinConfig(IOMUXC_GPIO_B1_04_ENET_RX_DATA00,
-		IOMUXC_SW_PAD_CTL_PAD_HYS(0) |
-		IOMUXC_SW_PAD_CTL_PAD_PUS(0) |
-		IOMUXC_SW_PAD_CTL_PAD_PUE(0) |
-		IOMUXC_SW_PAD_CTL_PAD_PKE(0) |
-		IOMUXC_SW_PAD_CTL_PAD_ODE(0) |
-		IOMUXC_SW_PAD_CTL_PAD_SPEED(3) |
-		IOMUXC_SW_PAD_CTL_PAD_DSE(0) |
-		IOMUXC_SW_PAD_CTL_PAD_SRE(1));
-  
-	//Configure GPIO_B1_05 pin as ENET_RX_DATA01
-	IOMUXC_SetPinMux(IOMUXC_GPIO_B1_05_ENET_RX_DATA01, 0);
-  
-	//Set GPIO_B1_05 pad properties
-	IOMUXC_SetPinConfig(IOMUXC_GPIO_B1_05_ENET_RX_DATA01,
-		IOMUXC_SW_PAD_CTL_PAD_HYS(0) |
-		IOMUXC_SW_PAD_CTL_PAD_PUS(0) |
-		IOMUXC_SW_PAD_CTL_PAD_PUE(0) |
-		IOMUXC_SW_PAD_CTL_PAD_PKE(0) |
-		IOMUXC_SW_PAD_CTL_PAD_ODE(0) |
-		IOMUXC_SW_PAD_CTL_PAD_SPEED(3) |
-		IOMUXC_SW_PAD_CTL_PAD_DSE(0) |
-		IOMUXC_SW_PAD_CTL_PAD_SRE(1));
-  
-	//Configure GPIO_B1_06 pin as ENET_RX_EN
-	IOMUXC_SetPinMux(IOMUXC_GPIO_B1_06_ENET_RX_EN, 0);
-  
-	//Set GPIO_B1_06 pad properties
-	IOMUXC_SetPinConfig(IOMUXC_GPIO_B1_06_ENET_RX_EN,
-		IOMUXC_SW_PAD_CTL_PAD_HYS(0) |
-		IOMUXC_SW_PAD_CTL_PAD_PUS(0) |
-		IOMUXC_SW_PAD_CTL_PAD_PUE(0) |
-		IOMUXC_SW_PAD_CTL_PAD_PKE(0) |
-		IOMUXC_SW_PAD_CTL_PAD_ODE(0) |
-		IOMUXC_SW_PAD_CTL_PAD_SPEED(3) |
-		IOMUXC_SW_PAD_CTL_PAD_DSE(0) |
-		IOMUXC_SW_PAD_CTL_PAD_SRE(1));
-  
-	//Configure GPIO_B1_07 pin as ENET_TX_DATA00
-	IOMUXC_SetPinMux(IOMUXC_GPIO_B1_07_ENET_TX_DATA00, 0);
-  
-	//Set GPIO_B1_07 pad properties
-	IOMUXC_SetPinConfig(IOMUXC_GPIO_B1_07_ENET_TX_DATA00,
-		IOMUXC_SW_PAD_CTL_PAD_HYS(0) |
-		IOMUXC_SW_PAD_CTL_PAD_PUS(0) |
-		IOMUXC_SW_PAD_CTL_PAD_PUE(0) |
-		IOMUXC_SW_PAD_CTL_PAD_PKE(0) |
-		IOMUXC_SW_PAD_CTL_PAD_ODE(0) |
-		IOMUXC_SW_PAD_CTL_PAD_SPEED(3) |
-		IOMUXC_SW_PAD_CTL_PAD_DSE(5) |
-		IOMUXC_SW_PAD_CTL_PAD_SRE(1));
-  
-	//Configure GPIO_B1_08 pin as ENET_TX_DATA01
-	IOMUXC_SetPinMux(IOMUXC_GPIO_B1_08_ENET_TX_DATA01, 0);
-  
-	//Set GPIO_B1_08 pad properties
-	IOMUXC_SetPinConfig(IOMUXC_GPIO_B1_08_ENET_TX_DATA01,
-		IOMUXC_SW_PAD_CTL_PAD_HYS(0) |
-		IOMUXC_SW_PAD_CTL_PAD_PUS(0) |
-		IOMUXC_SW_PAD_CTL_PAD_PUE(0) |
-		IOMUXC_SW_PAD_CTL_PAD_PKE(0) |
-		IOMUXC_SW_PAD_CTL_PAD_ODE(0) |
-		IOMUXC_SW_PAD_CTL_PAD_SPEED(3) |
-		IOMUXC_SW_PAD_CTL_PAD_DSE(5) |
-		IOMUXC_SW_PAD_CTL_PAD_SRE(1));
-  
-	//Configure GPIO_B1_09 pin as ENET_TX_EN
-	IOMUXC_SetPinMux(IOMUXC_GPIO_B1_09_ENET_TX_EN, 0);
-  
-	//Set GPIO_B1_09 pad properties
-	IOMUXC_SetPinConfig(IOMUXC_GPIO_B1_09_ENET_TX_EN,
-		IOMUXC_SW_PAD_CTL_PAD_HYS(0) |
-		IOMUXC_SW_PAD_CTL_PAD_PUS(0) |
-		IOMUXC_SW_PAD_CTL_PAD_PUE(0) |
-		IOMUXC_SW_PAD_CTL_PAD_PKE(0) |
-		IOMUXC_SW_PAD_CTL_PAD_ODE(0) |
-		IOMUXC_SW_PAD_CTL_PAD_SPEED(3) |
-		IOMUXC_SW_PAD_CTL_PAD_DSE(5) |
-		IOMUXC_SW_PAD_CTL_PAD_SRE(1));
-  
-	//Configure GPIO_B1_10 pin as ENET_REF_CLK
-	IOMUXC_SetPinMux(IOMUXC_GPIO_B1_10_ENET_REF_CLK, 1);
-  
-	//Set GPIO_B1_10 pad properties
-	IOMUXC_SetPinConfig(IOMUXC_GPIO_B1_10_ENET_REF_CLK,
-		IOMUXC_SW_PAD_CTL_PAD_HYS(0) |
-		IOMUXC_SW_PAD_CTL_PAD_PUS(0) |
-		IOMUXC_SW_PAD_CTL_PAD_PUE(0) |
-		IOMUXC_SW_PAD_CTL_PAD_PKE(0) |
-		IOMUXC_SW_PAD_CTL_PAD_ODE(0) |
-		IOMUXC_SW_PAD_CTL_PAD_SPEED(3) |
-		IOMUXC_SW_PAD_CTL_PAD_DSE(5) |
-		IOMUXC_SW_PAD_CTL_PAD_SRE(1));
-  
-	//Configure GPIO_B1_11 pin as ENET_RX_ER
-	IOMUXC_SetPinMux(IOMUXC_GPIO_B1_11_ENET_RX_ER, 0);
-  
-	//Set GPIO_B1_11 pad properties
-	IOMUXC_SetPinConfig(IOMUXC_GPIO_B1_11_ENET_RX_ER,
-		IOMUXC_SW_PAD_CTL_PAD_HYS(0) |
-		IOMUXC_SW_PAD_CTL_PAD_PUS(0) |
-		IOMUXC_SW_PAD_CTL_PAD_PUE(0) |
-		IOMUXC_SW_PAD_CTL_PAD_PKE(0) |
-		IOMUXC_SW_PAD_CTL_PAD_ODE(0) |
-		IOMUXC_SW_PAD_CTL_PAD_SPEED(3) |
-		IOMUXC_SW_PAD_CTL_PAD_DSE(0) |
-		IOMUXC_SW_PAD_CTL_PAD_SRE(1));
-  
-	//Configure GPIO_EMC_40 pin as ENET_MDC
-	IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_40_ENET_MDC, 0);
-  
-	//Set GPIO_EMC_40 pad properties
-	IOMUXC_SetPinConfig(IOMUXC_GPIO_EMC_40_ENET_MDC,
-		IOMUXC_SW_PAD_CTL_PAD_HYS(0) |
-		IOMUXC_SW_PAD_CTL_PAD_PUS(0) |
-		IOMUXC_SW_PAD_CTL_PAD_PUE(0) |
-		IOMUXC_SW_PAD_CTL_PAD_PKE(0) |
-		IOMUXC_SW_PAD_CTL_PAD_ODE(0) |
-		IOMUXC_SW_PAD_CTL_PAD_SPEED(0) |
-		IOMUXC_SW_PAD_CTL_PAD_DSE(5) |
-		IOMUXC_SW_PAD_CTL_PAD_SRE(1));
-  
-	//Configure GPIO_EMC_41 pin as ENET_MDIO
-	IOMUXC_SetPinMux(IOMUXC_GPIO_EMC_41_ENET_MDIO, 0);
-  
-	//Set GPIO_EMC_41 pad properties
-	IOMUXC_SetPinConfig(IOMUXC_GPIO_EMC_41_ENET_MDIO,
-		IOMUXC_SW_PAD_CTL_PAD_HYS(0) |
-		IOMUXC_SW_PAD_CTL_PAD_PUS(2) |
-		IOMUXC_SW_PAD_CTL_PAD_PUE(1) |
-		IOMUXC_SW_PAD_CTL_PAD_PKE(1) |
-		IOMUXC_SW_PAD_CTL_PAD_ODE(1) |
-		IOMUXC_SW_PAD_CTL_PAD_SPEED(0) |
-		IOMUXC_SW_PAD_CTL_PAD_DSE(5) |
-		IOMUXC_SW_PAD_CTL_PAD_SRE(1));
-  
-	//Configure GPIO_AD_B0_09 pin as GPIO1_IO09
-	IOMUXC_SetPinMux(IOMUXC_GPIO_AD_B0_09_GPIO1_IO09, 0);
-  
-	//Set GPIO_AD_B0_09 pad properties
-	IOMUXC_SetPinConfig(IOMUXC_GPIO_AD_B0_09_GPIO1_IO09,
-		IOMUXC_SW_PAD_CTL_PAD_HYS(0) |
-		IOMUXC_SW_PAD_CTL_PAD_PUS(0) |
-		IOMUXC_SW_PAD_CTL_PAD_PUE(0) |
-		IOMUXC_SW_PAD_CTL_PAD_PKE(0) |
-		IOMUXC_SW_PAD_CTL_PAD_ODE(0) |
-		IOMUXC_SW_PAD_CTL_PAD_SPEED(0) |
-		IOMUXC_SW_PAD_CTL_PAD_DSE(5) |
-		IOMUXC_SW_PAD_CTL_PAD_SRE(0));
-  
-	//Configure GPIO_AD_B0_10 pin as GPIO1_IO10
-	IOMUXC_SetPinMux(IOMUXC_GPIO_AD_B0_10_GPIO1_IO10, 0);
-  
-	//Set GPIO_AD_B0_10 pad properties
-	IOMUXC_SetPinConfig(IOMUXC_GPIO_AD_B0_10_GPIO1_IO10,
-		IOMUXC_SW_PAD_CTL_PAD_HYS(0) |
-		IOMUXC_SW_PAD_CTL_PAD_PUS(2) |
-		IOMUXC_SW_PAD_CTL_PAD_PUE(1) |
-		IOMUXC_SW_PAD_CTL_PAD_PKE(1) |
-		IOMUXC_SW_PAD_CTL_PAD_ODE(0) |
-		IOMUXC_SW_PAD_CTL_PAD_SPEED(0) |
-		IOMUXC_SW_PAD_CTL_PAD_DSE(0) |
-		IOMUXC_SW_PAD_CTL_PAD_SRE(0));
-  
-	//Configure ENET_RST as an output
-	pinConfig.direction = kGPIO_DigitalOutput;
-	pinConfig.outputLogic = 0;
-	pinConfig.interruptMode = kGPIO_NoIntmode;
-	GPIO_PinInit(GPIO1, 9, &pinConfig);
-  
-	//Configure ENET_INT as an input
-	pinConfig.direction = kGPIO_DigitalInput;
-	pinConfig.outputLogic = 0;
-	pinConfig.interruptMode = kGPIO_NoIntmode;
-	GPIO_PinInit(GPIO1, 10, &pinConfig);
-  
-	//Reset PHY transceiver (hard reset)
-	GPIO_PinWrite(GPIO1, 9, 0);
-	delay();
-	GPIO_PinWrite(GPIO1, 9, 1);
-	delay();
-//	sleep(10);
-}
-
-void enet_init()
+UINT enet_init()
 {
     bool link = false;
     phy_speed_t speed;
     phy_duplex_t duplex;  
     uint32_t sysClock;
-    int32_t    status;
-    ENET_CONFIG_IMX     econf;   
-	// Hardware initialization
-    BOARD_InitModule();
+    int32_t status;
+    ENET_CONFIG_IMX econf;   
+    int32_t  unique_id;
     
+#ifndef NX_DRIVER_ETHERNET_MAC    
+    /*Use unique id as mac address*/    
+    unique_id = OCOTP->CFG0;
+    _nx_driver_hardware_address[2]=(UCHAR)unique_id;
+    _nx_driver_hardware_address[3]= (UCHAR)(unique_id >> 8); 
+    _nx_driver_hardware_address[4]= (UCHAR)(unique_id >> 16); 
+    _nx_driver_hardware_address[5]= (UCHAR)(unique_id >> 24); 
+    
+#ifdef NX_DEBUG
+    printf("MAC address : %x:%x:%x:%x:%x:%x\r\n", _nx_driver_hardware_address[0],
+                                                  _nx_driver_hardware_address[1],
+                                                  _nx_driver_hardware_address[2],
+                                                  _nx_driver_hardware_address[3],
+                                                  _nx_driver_hardware_address[4],
+                                                  _nx_driver_hardware_address[5]); 
+#endif
+#endif
+ 
     econf.interface = kENET_RmiiMode;
     econf.neg = 0; /*autoneg on */
     econf.speed = kPHY_Speed100M;
@@ -1821,23 +1643,19 @@ void enet_init()
     econf.mac[4] = _nx_driver_hardware_address[4];
     econf.mac[5] = _nx_driver_hardware_address[5];
  
- 
-    /* Get default configuration. */
-    /*
-     * config.miiMode = kENET_RmiiMode;
-     * config.miiSpeed = kENET_MiiSpeed100M;
-     * config.miiDuplex = kENET_MiiFullDuplex;
-     * config.rxMaxFrameLen = ENET_FRAME_MAX_FRAMELEN;
-     */
-   // ENET_GetDefaultConfig(&config);
-
     /* Set SMI to get PHY link status. */
-    sysClock = CLOCK_GetFreq(kCLOCK_AhbClk);
+    sysClock = CLOCK_GetFreq(kCLOCK_IpgClk);
     status = PHY_Init(EXAMPLE_ENET, EXAMPLE_PHY, sysClock);
-    while (status != kStatus_Success)
-    {
-        PRINTF("\r\nPHY Auto-negotiation failed. Please check the cable connection and link partner setting.\r\n");
+    if (status != kStatus_Success)
+    {      
         status = PHY_Init(EXAMPLE_ENET, EXAMPLE_PHY, sysClock);
+        if (status != kStatus_Success)
+        {
+#ifdef NX_DEBUG
+            printf("\r\nPHY Auto-negotiation failed. Please check the cable connection and link partner setting.\r\n");
+#endif
+            return(NX_DRIVER_ERROR);
+        }
     }
 
     PHY_GetLinkStatus(EXAMPLE_ENET, EXAMPLE_PHY, &link);
@@ -1851,6 +1669,8 @@ void enet_init()
     }
 
    enet_init_imx(&econf);
+   
+   return(NX_SUCCESS);
 }
 
 /**************************************************************************/ 
@@ -1858,10 +1678,10 @@ void enet_init()
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_driver_hardware_initialize                      PORTABLE C      */ 
-/*                                                           5.0          */ 
+/*                                                           6.1          */
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Microsoft Corporation                                   */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -1890,7 +1710,9 @@ void enet_init()
 /*                                                                        */ 
 /*    DATE              NAME                      DESCRIPTION             */ 
 /*                                                                        */ 
-/*  02-01-2018     Yuxin Zhou               Initial Version 5.0           */ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */ 
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */ 
 /**************************************************************************/ 
 static UINT  _nx_driver_hardware_initialize(NX_IP_DRIVER *driver_req_ptr)
@@ -1919,10 +1741,10 @@ UINT                i;
     }
    
         
-    enet_init();
-    
-
-    
+    if (enet_init()== NX_DRIVER_ERROR)
+    {    
+        return(NX_DRIVER_ERROR);
+    }
    
     /* Initialize TX Descriptors list: Ring Mode.  */
     
@@ -2028,10 +1850,10 @@ UINT                i;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_driver_hardware_enable                          PORTABLE C      */ 
-/*                                                           5.0          */ 
+/*                                                           6.1          */
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Microsoft Corporation                                   */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -2057,7 +1879,9 @@ UINT                i;
 /*                                                                        */ 
 /*    DATE              NAME                      DESCRIPTION             */ 
 /*                                                                        */ 
-/*  02-01-2018     Yuxin Zhou               Initial Version 5.0           */ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */ 
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */ 
 /**************************************************************************/ 
 static UINT  _nx_driver_hardware_enable(NX_IP_DRIVER *driver_req_ptr)
@@ -2086,10 +1910,10 @@ static UINT  _nx_driver_hardware_enable(NX_IP_DRIVER *driver_req_ptr)
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_driver_hardware_disable                         PORTABLE C      */ 
-/*                                                           5.0          */ 
+/*                                                           6.1          */
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Microsoft Corporation                                   */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -2115,7 +1939,9 @@ static UINT  _nx_driver_hardware_enable(NX_IP_DRIVER *driver_req_ptr)
 /*                                                                        */ 
 /*    DATE              NAME                      DESCRIPTION             */ 
 /*                                                                        */ 
-/*  02-01-2018     Yuxin Zhou               Initial Version 5.0           */ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */ 
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */ 
 /**************************************************************************/ 
 static UINT  _nx_driver_hardware_disable(NX_IP_DRIVER *driver_req_ptr)
@@ -2135,10 +1961,10 @@ static UINT  _nx_driver_hardware_disable(NX_IP_DRIVER *driver_req_ptr)
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_driver_hardware_packet_send                     PORTABLE C      */ 
-/*                                                           5.0          */ 
+/*                                                           6.1          */
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Microsoft Corporation                                   */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -2165,7 +1991,9 @@ static UINT  _nx_driver_hardware_disable(NX_IP_DRIVER *driver_req_ptr)
 /*                                                                        */ 
 /*    DATE              NAME                      DESCRIPTION             */ 
 /*                                                                        */ 
-/*  02-01-2018     Yuxin Zhou               Initial Version 5.0           */ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */ 
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */ 
 /**************************************************************************/ 
 static UINT  _nx_driver_hardware_packet_send(NX_PACKET *packet_ptr)
@@ -2277,11 +2105,12 @@ UCHAR*         src_addr;
 /**************************************************************************/ 
 /*                                                                        */ 
 /*  FUNCTION                                               RELEASE        */ 
+/*                                                                        */
 /*    nx_crc32()                                         PORTABLE C       */ 
-/*                                                           1.0          */ 
+/*                                                           6.1          */
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    SK - Microsoft Corporation                                          */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */ 
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -2309,7 +2138,9 @@ UCHAR*         src_addr;
 /*                                                                        */ 
 /*    DATE              NAME                      DESCRIPTION             */ 
 /*                                                                        */ 
-/*  03-09-2007           SK                    Initial Version 1.0        */ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */ 
 /**************************************************************************/ 
 static ULONG  nx_crc32(UCHAR dbuf[], INT length)    
@@ -2346,10 +2177,10 @@ ULONG           data;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_driver_hardware_multicast_join                  PORTABLE C      */ 
-/*                                                           5.0          */ 
+/*                                                           6.1          */
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Microsoft Corporation                                   */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -2376,7 +2207,9 @@ ULONG           data;
 /*                                                                        */ 
 /*    DATE              NAME                      DESCRIPTION             */ 
 /*                                                                        */ 
-/*  02-01-2018     Yuxin Zhou               Initial Version 5.0           */ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */ 
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */ 
 /**************************************************************************/ 
 static UINT  _nx_driver_hardware_multicast_join(NX_IP_DRIVER *driver_req_ptr)
@@ -2425,10 +2258,10 @@ ULONG           crc_val;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_driver_hardware_multicast_leave                 PORTABLE C      */ 
-/*                                                           5.0          */ 
+/*                                                           6.1          */
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Microsoft Corporation                                   */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -2455,7 +2288,9 @@ ULONG           crc_val;
 /*                                                                        */ 
 /*    DATE              NAME                      DESCRIPTION             */ 
 /*                                                                        */ 
-/*  02-01-2018     Yuxin Zhou               Initial Version 5.0           */ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */ 
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */ 
 /**************************************************************************/ 
 static UINT  _nx_driver_hardware_multicast_leave(NX_IP_DRIVER *driver_req_ptr)
@@ -2507,10 +2342,10 @@ ULONG           crc_val;
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_driver_hardware_get_status                      PORTABLE C      */ 
-/*                                                           5.0          */ 
+/*                                                           6.1          */
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Microsoft Corporation                                   */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -2536,7 +2371,9 @@ ULONG           crc_val;
 /*                                                                        */ 
 /*    DATE              NAME                      DESCRIPTION             */ 
 /*                                                                        */ 
-/*  02-01-2018     Yuxin Zhou               Initial Version 5.0           */ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */ 
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */ 
 /**************************************************************************/ 
 static UINT  _nx_driver_hardware_get_status(NX_IP_DRIVER *driver_req_ptr)
@@ -2553,10 +2390,10 @@ static UINT  _nx_driver_hardware_get_status(NX_IP_DRIVER *driver_req_ptr)
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_driver_hardware_packet_transmitted              PORTABLE C      */ 
-/*                                                           5.0          */ 
+/*                                                           6.1          */
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Microsoft Corporation                                   */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -2585,7 +2422,9 @@ static UINT  _nx_driver_hardware_get_status(NX_IP_DRIVER *driver_req_ptr)
 /*                                                                        */ 
 /*    DATE              NAME                      DESCRIPTION             */ 
 /*                                                                        */ 
-/*  02-01-2018     Yuxin Zhou               Initial Version 5.0           */ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */ 
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */ 
 /**************************************************************************/ 
 static VOID  _nx_driver_hardware_packet_transmitted(VOID)
@@ -2643,10 +2482,10 @@ ULONG idx =       nx_driver_information.nx_driver_information_transmit_release_i
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    _nx_driver_hardware_packet_received                 PORTABLE C      */ 
-/*                                                           5.0          */ 
+/*                                                           6.1          */
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Microsoft Corporation                                   */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -2675,7 +2514,9 @@ ULONG idx =       nx_driver_information.nx_driver_information_transmit_release_i
 /*                                                                        */ 
 /*    DATE              NAME                      DESCRIPTION             */ 
 /*                                                                        */ 
-/*  02-01-2018     Yuxin Zhou               Initial Version 5.0           */ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */ 
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */ 
 /**************************************************************************/ 
 static VOID  _nx_driver_hardware_packet_received(VOID)
@@ -2801,10 +2642,10 @@ NX_PACKET     *received_packet_ptr = nx_driver_information.nx_driver_information
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
 /*    nx_driver_link_mode_changed                         PORTABLE C      */ 
-/*                                                           5.0          */ 
+/*                                                           6.1          */
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Microsoft Corporation                                   */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -2831,7 +2672,9 @@ NX_PACKET     *received_packet_ptr = nx_driver_information.nx_driver_information
 /*                                                                        */ 
 /*    DATE              NAME                      DESCRIPTION             */ 
 /*                                                                        */ 
-/*  02-01-2018     Yuxin Zhou               Initial Version 5.0           */ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */ 
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */ 
 /**************************************************************************/ 
 VOID  nx_driver_link_mode_changed(VOID)
@@ -2933,11 +2776,11 @@ ULONG idx;
 /*                                                                        */ 
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
-/*    nx_driver_imx_ethernet_isr                          PORTABLE C      */ 
-/*                                                           5.0          */ 
+/*    nx_driver_imx6ul_ethernet_isr                       PORTABLE C      */ 
+/*                                                           6.1          */
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
-/*    Yuxin Zhou, Microsoft Corporation                                   */ 
+/*    Yuxin Zhou, Microsoft Corporation                                   */
 /*                                                                        */ 
 /*  DESCRIPTION                                                           */ 
 /*                                                                        */ 
@@ -2965,14 +2808,16 @@ ULONG idx;
 /*                                                                        */ 
 /*    DATE              NAME                      DESCRIPTION             */ 
 /*                                                                        */ 
-/*  02-01-2018     Yuxin Zhou               Initial Version 5.0           */ 
+/*  05-19-2020     Yuxin Zhou               Initial Version 6.0           */ 
+/*  09-30-2020     Yuxin Zhou               Modified comment(s),          */
+/*                                            resulting in version 6.1    */
 /*                                                                        */ 
 /**************************************************************************/ 
 VOID  nx_driver_imx_ethernet_isr(VOID)
 {
 UINT status;
   status = ENET->EIR;
-	
+
   if(status & ENET_EIR_RXF_MASK )
   {
     /* Receive packet interrupt.  */

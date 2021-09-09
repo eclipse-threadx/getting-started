@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
- * Copyright 2016-2020 NXP
+ * Copyright 2016-2021 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -21,26 +21,32 @@
 
 /*! @name Driver version */
 /*@{*/
-/*! @brief Driver version 2.5.1. */
-#define FSL_USDHC_DRIVER_VERSION (MAKE_VERSION(2U, 5U, 1U))
+/*! @brief Driver version 2.8.0. */
+#define FSL_USDHC_DRIVER_VERSION (MAKE_VERSION(2U, 8U, 0U))
 /*@}*/
 
 /*! @brief Maximum block count can be set one time */
 #define USDHC_MAX_BLOCK_COUNT (USDHC_BLK_ATT_BLKCNT_MASK >> USDHC_BLK_ATT_BLKCNT_SHIFT)
 
+/*! @brief USDHC scatter gather feature control macro */
+#ifndef FSL_USDHC_ENABLE_SCATTER_GATHER_TRANSFER
+#define FSL_USDHC_ENABLE_SCATTER_GATHER_TRANSFER 0U
+#endif
+
 /*! @brief Enum _usdhc_status. USDHC status. */
 enum
 {
-    kStatus_USDHC_BusyTransferring            = MAKE_STATUS(kStatusGroup_USDHC, 0U), /*!< Transfer is on-going. */
-    kStatus_USDHC_PrepareAdmaDescriptorFailed = MAKE_STATUS(kStatusGroup_USDHC, 1U), /*!< Set DMA descriptor failed. */
-    kStatus_USDHC_SendCommandFailed           = MAKE_STATUS(kStatusGroup_USDHC, 2U), /*!< Send command failed. */
-    kStatus_USDHC_TransferDataFailed          = MAKE_STATUS(kStatusGroup_USDHC, 3U), /*!< Transfer data failed. */
-    kStatus_USDHC_DMADataAddrNotAlign         = MAKE_STATUS(kStatusGroup_USDHC, 4U), /*!< Data address not aligned. */
-    kStatus_USDHC_ReTuningRequest             = MAKE_STATUS(kStatusGroup_USDHC, 5U), /*!< Re-tuning request. */
-    kStatus_USDHC_TuningError                 = MAKE_STATUS(kStatusGroup_USDHC, 6U), /*!< Tuning error. */
-    kStatus_USDHC_NotSupport                  = MAKE_STATUS(kStatusGroup_USDHC, 7U), /*!< Not support. */
-    kStatus_USDHC_TransferDataComplete        = MAKE_STATUS(kStatusGroup_USDHC, 8U), /*!< Transfer data complete. */
-    kStatus_USDHC_SendCommandSuccess          = MAKE_STATUS(kStatusGroup_USDHC, 9U), /*!< Transfer command complete. */
+    kStatus_USDHC_BusyTransferring            = MAKE_STATUS(kStatusGroup_USDHC, 0U),  /*!< Transfer is on-going. */
+    kStatus_USDHC_PrepareAdmaDescriptorFailed = MAKE_STATUS(kStatusGroup_USDHC, 1U),  /*!< Set DMA descriptor failed. */
+    kStatus_USDHC_SendCommandFailed           = MAKE_STATUS(kStatusGroup_USDHC, 2U),  /*!< Send command failed. */
+    kStatus_USDHC_TransferDataFailed          = MAKE_STATUS(kStatusGroup_USDHC, 3U),  /*!< Transfer data failed. */
+    kStatus_USDHC_DMADataAddrNotAlign         = MAKE_STATUS(kStatusGroup_USDHC, 4U),  /*!< Data address not aligned. */
+    kStatus_USDHC_ReTuningRequest             = MAKE_STATUS(kStatusGroup_USDHC, 5U),  /*!< Re-tuning request. */
+    kStatus_USDHC_TuningError                 = MAKE_STATUS(kStatusGroup_USDHC, 6U),  /*!< Tuning error. */
+    kStatus_USDHC_NotSupport                  = MAKE_STATUS(kStatusGroup_USDHC, 7U),  /*!< Not support. */
+    kStatus_USDHC_TransferDataComplete        = MAKE_STATUS(kStatusGroup_USDHC, 8U),  /*!< Transfer data complete. */
+    kStatus_USDHC_SendCommandSuccess          = MAKE_STATUS(kStatusGroup_USDHC, 9U),  /*!< Transfer command complete. */
+    kStatus_USDHC_TransferDMAComplete         = MAKE_STATUS(kStatusGroup_USDHC, 10U), /*!< Transfer DMA complete. */
 };
 
 /*! @brief Enum _usdhc_capability_flag. Host controller capabilities flag mask.
@@ -215,8 +221,9 @@ enum
     kUSDHC_CardDetectFlag   = (kUSDHC_CardInsertionFlag | kUSDHC_CardRemovalFlag),    /*!< Card detection interrupts */
     kUSDHC_SDR104TuningFlag = (kUSDHC_TuningErrorFlag | kUSDHC_TuningPassFlag | kUSDHC_ReTuningEventFlag),
     /*!< SDR104 tuning flag. */
-    kUSDHC_AllInterruptFlags = (kUSDHC_BlockGapEventFlag | kUSDHC_CardInterruptFlag | kUSDHC_CommandFlag |
-                                kUSDHC_DataFlag | kUSDHC_ErrorFlag | kUSDHC_SDR104TuningFlag), /*!< All flags mask */
+    kUSDHC_AllInterruptFlags =
+        (kUSDHC_BlockGapEventFlag | kUSDHC_CardInterruptFlag | kUSDHC_CommandFlag | kUSDHC_DataFlag | kUSDHC_ErrorFlag |
+         kUSDHC_SDR104TuningFlag | kUSDHC_DmaCompleteFlag), /*!< All flags mask */
 };
 
 /*! @brief Enum _usdhc_auto_command12_error_status_flag. Auto CMD12 error status flag mask.
@@ -240,8 +247,9 @@ enum
     kUSDHC_TuningSampleClockSel = 0U, /*!< not support */
 #else
     kUSDHC_ExecuteTuning = USDHC_AUTOCMD12_ERR_STATUS_EXECUTE_TUNING_MASK, /*!< Used to start tuning procedure. */
-    kUSDHC_TuningSampleClockSel = USDHC_AUTOCMD12_ERR_STATUS_SMP_CLK_SEL_MASK,
-/*!< When <b>std_tuning_en</b> bit is set, this bit is used to select sampleing clock. */
+    kUSDHC_TuningSampleClockSel =
+        USDHC_AUTOCMD12_ERR_STATUS_SMP_CLK_SEL_MASK,               /*!< When <b>std_tuning_en</b> bit is set, this
+                                                                    bit is used to select sampleing clock. */
 #endif
 };
 
@@ -280,8 +288,8 @@ enum
  */
 enum
 {
-    kUSDHC_ForceEventAutoCommand12NotExecuted = USDHC_FORCE_EVENT_FEVTAC12NE_MASK,
-    /*!< Auto CMD12 not executed error. */
+    kUSDHC_ForceEventAutoCommand12NotExecuted =
+        USDHC_FORCE_EVENT_FEVTAC12NE_MASK, /*!< Auto CMD12 not executed error. */
     kUSDHC_ForceEventAutoCommand12Timeout    = USDHC_FORCE_EVENT_FEVTAC12TOE_MASK,  /*!< Auto CMD12 timeout error. */
     kUSDHC_ForceEventAutoCommand12CrcError   = USDHC_FORCE_EVENT_FEVTAC12CE_MASK,   /*!< Auto CMD12 CRC error. */
     kUSDHC_ForceEventEndBitError             = USDHC_FORCE_EVENT_FEVTAC12EBE_MASK,  /*!< Auto CMD12 end bit error. */
@@ -546,10 +554,11 @@ enum
     kUSDHC_AdmaDescriptorSingleFlag = 0U,
     /*!< Try to finish the transfer in a single ADMA descriptor. If transfer size is bigger than one
        ADMA descriptor's ability, new another descriptor for data transfer. */
-    kUSDHC_AdmaDescriptorMultipleFlag = 1U,
-    /*!< Create multiple ADMA descriptors within the ADMA table, this is used for mmc boot mode
-       specifically, which need to modify the ADMA descriptor on the fly, so the flag should be used
-       combining with stop at block gap feature. */
+    kUSDHC_AdmaDescriptorMultipleFlag =
+        1U, /*!< Create multiple ADMA descriptors within the ADMA table, this is used for
+             mmc boot mode specifically, which need
+             to modify the ADMA descriptor on the fly, so the flag should be used
+             combining with stop at block gap feature. */
 };
 
 /*! @brief DMA transfer burst len config. */
@@ -618,25 +627,6 @@ typedef struct _usdhc_config
 } usdhc_config_t;
 
 /*!
- * @brief Card data descriptor.
- *
- * Defines a structure to contain data-related attribute. The 'enableIgnoreError' is used when upper card
- * driver wants to ignore the error event to read/write all the data and not to stop read/write immediately when an
- * error event happens. For example, bus testing procedure for MMC card.
- */
-typedef struct _usdhc_data
-{
-    bool enableAutoCommand12; /*!< Enable auto CMD12. */
-    bool enableAutoCommand23; /*!< Enable auto CMD23. */
-    bool enableIgnoreError;   /*!< Enable to ignore error event to read/write all the data. */
-    uint8_t dataType;         /*!< this is used to distinguish the normal/tuning/boot data. */
-    size_t blockSize;         /*!< Block size. */
-    uint32_t blockCount;      /*!< Block count. */
-    uint32_t *rxData;         /*!< Buffer to save data read. */
-    const uint32_t *txData;   /*!< Data buffer to write. */
-} usdhc_data_t;
-
-/*!
  * @brief Card command descriptor.
  *
  * Defines card command-related attribute.
@@ -663,6 +653,64 @@ typedef struct _usdhc_adma_config
     uint32_t *admaTable;     /*!< ADMA table address, can't be null if transfer way is ADMA1/ADMA2. */
     uint32_t admaTableWords; /*!< ADMA table length united as words, can't be 0 if transfer way is ADMA1/ADMA2. */
 } usdhc_adma_config_t;
+
+/*!
+ * @brief Card scatter gather data list.
+ *
+ * Allow application register uncontinuous data buffer for data transfer.
+ */
+typedef struct _usdhc_scatter_gather_data_list
+{
+    uint32_t *dataAddr;
+    uint32_t dataSize;
+    struct _usdhc_scatter_gather_data_list *dataList;
+} usdhc_scatter_gather_data_list_t;
+
+/*!
+ * @brief Card scatter gather data descriptor.
+ *
+ * Defines a structure to contain data-related attribute. The 'enableIgnoreError' is used when upper card
+ * driver wants to ignore the error event to read/write all the data and not to stop read/write immediately when an
+ * error event happens. For example, bus testing procedure for MMC card.
+ */
+typedef struct _usdhc_scatter_gather_data
+{
+    bool enableAutoCommand12; /*!< Enable auto CMD12. */
+    bool enableAutoCommand23; /*!< Enable auto CMD23. */
+    bool enableIgnoreError;   /*!< Enable to ignore error event to read/write all the data. */
+
+    usdhc_transfer_direction_t dataDirection; /*!< data direction */
+    uint8_t dataType;                         /*!< this is used to distinguish the normal/tuning/boot data. */
+    size_t blockSize;                         /*!< Block size. */
+
+    usdhc_scatter_gather_data_list_t sgData; /*!<  scatter gather data */
+} usdhc_scatter_gather_data_t;
+
+/*! @brief usdhc scatter gather transfer. */
+typedef struct _usdhc_scatter_gather_transfer
+{
+    usdhc_scatter_gather_data_t *data; /*!< Data to transfer. */
+    usdhc_command_t *command;          /*!< Command to send. */
+} usdhc_scatter_gather_transfer_t;
+
+/*!
+ * @brief Card data descriptor.
+ *
+ * Defines a structure to contain data-related attribute. The 'enableIgnoreError' is used when upper card
+ * driver wants to ignore the error event to read/write all the data and not to stop read/write immediately when an
+ * error event happens. For example, bus testing procedure for MMC card.
+ */
+typedef struct _usdhc_data
+{
+    bool enableAutoCommand12; /*!< Enable auto CMD12. */
+    bool enableAutoCommand23; /*!< Enable auto CMD23. */
+    bool enableIgnoreError;   /*!< Enable to ignore error event to read/write all the data. */
+    uint8_t dataType;         /*!< this is used to distinguish the normal/tuning/boot data. */
+    size_t blockSize;         /*!< Block size. */
+    uint32_t blockCount;      /*!< Block count. */
+    uint32_t *rxData;         /*!< Buffer to save data read. */
+    const uint32_t *txData;   /*!< Data buffer to write. */
+} usdhc_data_t;
 
 /*! @brief Transfer state. */
 typedef struct _usdhc_transfer
@@ -698,7 +746,11 @@ typedef struct _usdhc_transfer_callback
  */
 struct _usdhc_handle
 {
-    usdhc_data_t *volatile data;       /*!< Transfer parameter. Data to transfer. */
+#if (defined FSL_USDHC_ENABLE_SCATTER_GATHER_TRANSFER) && FSL_USDHC_ENABLE_SCATTER_GATHER_TRANSFER
+    usdhc_scatter_gather_data_t *volatile data; /*!< scatter gather data pointer  */
+#else
+    usdhc_data_t *volatile data;                                   /*!< Transfer parameter. Data to transfer. */
+#endif
     usdhc_command_t *volatile command; /*!< Transfer parameter. Command to send. */
 
     volatile uint32_t transferredWords; /*!< Transfer status. Words transferred by DATAPORT way. */
@@ -1309,6 +1361,8 @@ static inline void USDHC_EnableAutoTuning(USDHC_Type *base, bool enable)
     }
 }
 
+#if !(defined(FSL_FEATURE_USDHC_REGISTER_HOST_CTRL_CAP_HAS_NO_RETUNING_TIME_COUNTER) && \
+      FSL_FEATURE_USDHC_REGISTER_HOST_CTRL_CAP_HAS_NO_RETUNING_TIME_COUNTER)
 /*!
  * @brief Configs the re-tuning timer for mode 1 and mode 3.
  * This timer is used for standard tuning auto re-tuning,
@@ -1320,6 +1374,7 @@ static inline void USDHC_SetRetuningTimer(USDHC_Type *base, uint32_t counter)
     base->HOST_CTRL_CAP &= ~USDHC_HOST_CTRL_CAP_TIME_COUNT_RETUNING_MASK;
     base->HOST_CTRL_CAP |= USDHC_HOST_CTRL_CAP_TIME_COUNT_RETUNING(counter);
 }
+#endif /* FSL_FEATURE_USDHC_REGISTER_HOST_CTRL_CAP_HAS_RETUNING_TIME_COUNTER */
 
 /*!
  * @brief The auto tuning enbale for CMD/DATA line.
@@ -1339,13 +1394,50 @@ void USDHC_EnableAutoTuningForCmdAndData(USDHC_Type *base);
 void USDHC_EnableManualTuning(USDHC_Type *base, bool enable);
 
 /*!
+ * @brief Get the tuning delay cell setting.
+ *
+ * @param base USDHC peripheral base address.
+ * @retval CLK Tuning Control and Status register value.
+ */
+static inline uint32_t USDHC_GetTuningDelayStatus(USDHC_Type *base)
+{
+    return base->CLK_TUNE_CTRL_STATUS >> 16U;
+}
+
+/*!
+ * @brief The tuning delay cell setting.
+ *
+ * @param base USDHC peripheral base address.
+ * @param preDelay Set the number of delay cells on the feedback clock between the feedback clock and CLK_PRE.
+ * @param outDelay Set the number of delay cells on the feedback clock between CLK_PRE and CLK_OUT.
+ * @param postDelay Set the number of delay cells on the feedback clock between CLK_OUT and CLK_POST.
+ * @retval kStatus_Fail config the delay setting fail
+ * @retval kStatus_Success config the delay setting success
+ */
+status_t USDHC_SetTuningDelay(USDHC_Type *base, uint32_t preDelay, uint32_t outDelay, uint32_t postDelay);
+
+/*!
  * @brief Adjusts delay for mannual tuning.
+ * @deprecated Do not use this function.  It has been superceded by USDHC_SetTuingDelay
  * @param base USDHC peripheral base address.
  * @param delay setting configuration
  * @retval #kStatus_Fail config the delay setting fail
  * @retval #kStatus_Success config the delay setting success
  */
 status_t USDHC_AdjustDelayForManualTuning(USDHC_Type *base, uint32_t delay);
+
+/*!
+ * @brief set tuning counter tuning.
+ * @param base USDHC peripheral base address.
+ * @param counter tuning counter
+ * @retval #kStatus_Fail config the delay setting fail
+ * @retval #kStatus_Success config the delay setting success
+ */
+static inline void USDHC_SetStandardTuningCounter(USDHC_Type *base, uint8_t counter)
+{
+    base->TUNING_CTRL =
+        (base->TUNING_CTRL & (~USDHC_TUNING_CTRL_TUNING_COUNTER_MASK)) | USDHC_TUNING_CTRL_TUNING_COUNTER(counter);
+}
 
 /*!
  * @brief The enable standard tuning function.
@@ -1505,27 +1597,6 @@ void USDHC_SetDataConfig(USDHC_Type *base,
  */
 
 /*!
- * @brief Transfers the command/data using a blocking method.
- *
- * This function waits until the command response/data is received or the USDHC encounters an error by polling the
- * status flag. \n
- * The application must not call this API in multiple threads at the same time. Because this API doesn't
- * support the re-entry mechanism.
- *
- * @note There is no need to call API @ref USDHC_TransferCreateHandle when calling this API.
- *
- * @param base USDHC peripheral base address.
- * @param dmaConfig adma configuration
- * @param transfer Transfer content.
- * @retval #kStatus_InvalidArgument Argument is invalid.
- * @retval #kStatus_USDHC_PrepareAdmaDescriptorFailed Prepare ADMA descriptor failed.
- * @retval #kStatus_USDHC_SendCommandFailed Send command failed.
- * @retval #kStatus_USDHC_TransferDataFailed Transfer data failed.
- * @retval #kStatus_Success Operate successfully.
- */
-status_t USDHC_TransferBlocking(USDHC_Type *base, usdhc_adma_config_t *dmaConfig, usdhc_transfer_t *transfer);
-
-/*!
  * @brief Creates the USDHC handle.
  *
  * @param base USDHC peripheral base address.
@@ -1538,6 +1609,33 @@ void USDHC_TransferCreateHandle(USDHC_Type *base,
                                 const usdhc_transfer_callback_t *callback,
                                 void *userData);
 
+#if (defined FSL_USDHC_ENABLE_SCATTER_GATHER_TRANSFER) && FSL_USDHC_ENABLE_SCATTER_GATHER_TRANSFER
+/*!
+ * @brief Transfers the command/scatter gather data using an interrupt and an asynchronous method.
+ *
+ * This function sends a command and data and returns immediately. It doesn't wait for the transfer to complete or
+ * to encounter an error. The application must not call this API in multiple threads at the same time. Because of that
+ * this API doesn't support the re-entry mechanism.
+ * This function is target for the application would like to have scatter gather buffer to be transferred within one
+ * read/write request, non scatter gather buffer is support by this function also.
+ *
+ * @note Call API @ref USDHC_TransferCreateHandle when calling this API.
+ *
+ * @param base USDHC peripheral base address.
+ * @param handle USDHC handle.
+ * @param dmaConfig adma configurations, must be not NULL, since the function is target for ADMA only.
+ * @param transfer scatter gather transfer content.
+ *
+ * @retval #kStatus_InvalidArgument Argument is invalid.
+ * @retval #kStatus_USDHC_BusyTransferring Busy transferring.
+ * @retval #kStatus_USDHC_PrepareAdmaDescriptorFailed Prepare ADMA descriptor failed.
+ * @retval #kStatus_Success Operate successfully.
+ */
+status_t USDHC_TransferScatterGatherADMANonBlocking(USDHC_Type *base,
+                                                    usdhc_handle_t *handle,
+                                                    usdhc_adma_config_t *dmaConfig,
+                                                    usdhc_scatter_gather_transfer_t *transfer);
+#else
 /*!
  * @brief Transfers the command/data using an interrupt and an asynchronous method.
  *
@@ -1560,6 +1658,28 @@ status_t USDHC_TransferNonBlocking(USDHC_Type *base,
                                    usdhc_handle_t *handle,
                                    usdhc_adma_config_t *dmaConfig,
                                    usdhc_transfer_t *transfer);
+#endif
+
+/*!
+ * @brief Transfers the command/data using a blocking method.
+ *
+ * This function waits until the command response/data is received or the USDHC encounters an error by polling the
+ * status flag. \n
+ * The application must not call this API in multiple threads at the same time. Because this API doesn't
+ * support the re-entry mechanism.
+ *
+ * @note There is no need to call API @ref USDHC_TransferCreateHandle when calling this API.
+ *
+ * @param base USDHC peripheral base address.
+ * @param dmaConfig adma configuration
+ * @param transfer Transfer content.
+ * @retval #kStatus_InvalidArgument Argument is invalid.
+ * @retval #kStatus_USDHC_PrepareAdmaDescriptorFailed Prepare ADMA descriptor failed.
+ * @retval #kStatus_USDHC_SendCommandFailed Send command failed.
+ * @retval #kStatus_USDHC_TransferDataFailed Transfer data failed.
+ * @retval #kStatus_Success Operate successfully.
+ */
+status_t USDHC_TransferBlocking(USDHC_Type *base, usdhc_adma_config_t *dmaConfig, usdhc_transfer_t *transfer);
 
 /*!
  * @brief IRQ handler for the USDHC.

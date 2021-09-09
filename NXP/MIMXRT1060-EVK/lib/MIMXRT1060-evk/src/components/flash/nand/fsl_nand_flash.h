@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NXP
+ * Copyright 2018-2020 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -64,16 +64,17 @@ extern "C" {
  *        The "memControlConfig" and "driverBaseAddr" are controller specific structure.
  *        please set those two parameter with your Nand controller configuration structure type pointer.
  *        such as for SEMC:
- *
+ *  @code
  *        semc_mem_nand_config_t semcNandconfig =
  *        {
  *            .....
  *        }
  *        nand_config_t config =
  *        {
- *            .memControlConfig = (void *)\&semcNandconfig;
+ *            .memControlConfig = (void *)&semcNandconfig;
  *            .driverBaseAddr   = (void *)SEMC;
  *        }
+ *  @endcode
  * @param handle    The NAND Flash handler.
  * @retval execution status
  */
@@ -112,7 +113,7 @@ status_t Nand_Flash_Read_Page_Partial(
  * @param length  Nand flash read length.
  * @retval execution status
  */
-status_t Nand_Flash_Page_Program(nand_handle_t *handle, uint32_t pageIndex, uint8_t *src, uint32_t length);
+status_t Nand_Flash_Page_Program(nand_handle_t *handle, uint32_t pageIndex, const uint8_t *src, uint32_t length);
 
 /*!
  * @brief Erase block NAND Flash.

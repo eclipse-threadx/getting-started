@@ -34,9 +34,9 @@ status_t CODEC_I2C_Init(void *handle, uint32_t i2cInstance, uint32_t i2cBaudrate
     masterConfig.enableMaster = true;
     masterConfig.baudRate_Bps = i2cBaudrate;
     masterConfig.srcClock_Hz  = i2cSourceClockHz;
-    masterConfig.instance     = i2cInstance;
+    masterConfig.instance     = (uint8_t)i2cInstance;
 
-    return HAL_I2cMasterInit((hal_i2c_master_handle_t *)handle, &masterConfig);
+    return (status_t)HAL_I2cMasterInit((hal_i2c_master_handle_t *)handle, &masterConfig);
 }
 
 /*!
@@ -47,7 +47,7 @@ status_t CODEC_I2C_Init(void *handle, uint32_t i2cInstance, uint32_t i2cBaudrate
  */
 status_t CODEC_I2C_Deinit(void *handle)
 {
-    return HAL_I2cMasterDeinit((hal_i2c_master_handle_t *)handle);
+    return (status_t)HAL_I2cMasterDeinit((hal_i2c_master_handle_t *)handle);
 }
 
 /*!
@@ -76,9 +76,9 @@ status_t CODEC_I2C_Send(void *handle,
     masterXfer.subaddressSize = subaddressSize;
     masterXfer.data           = txBuff;
     masterXfer.dataSize       = txBuffSize;
-    masterXfer.flags          = kHAL_I2cTransferDefaultFlag;
+    masterXfer.flags          = (uint32_t)kHAL_I2cTransferDefaultFlag;
 
-    return HAL_I2cMasterTransferBlocking((hal_i2c_master_handle_t *)handle, &masterXfer);
+    return (status_t)HAL_I2cMasterTransferBlocking((hal_i2c_master_handle_t *)handle, &masterXfer);
 }
 
 /*!
@@ -107,7 +107,7 @@ status_t CODEC_I2C_Receive(void *handle,
     masterXfer.subaddressSize = subaddressSize;
     masterXfer.data           = rxBuff;
     masterXfer.dataSize       = rxBuffSize;
-    masterXfer.flags          = kHAL_I2cTransferDefaultFlag;
+    masterXfer.flags          = (uint32_t)kHAL_I2cTransferDefaultFlag;
 
-    return HAL_I2cMasterTransferBlocking((hal_i2c_master_handle_t *)handle, &masterXfer);
+    return (status_t)HAL_I2cMasterTransferBlocking((hal_i2c_master_handle_t *)handle, &masterXfer);
 }

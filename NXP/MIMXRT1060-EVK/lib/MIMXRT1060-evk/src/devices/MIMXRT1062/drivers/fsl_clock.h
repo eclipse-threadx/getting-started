@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 - 2020 NXP
+ * Copyright 2018 - 2021 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -39,8 +39,8 @@
 
 /*! @name Driver version */
 /*@{*/
-/*! @brief CLOCK driver version 2.3.2. */
-#define FSL_CLOCK_DRIVER_VERSION (MAKE_VERSION(2, 3, 2))
+/*! @brief CLOCK driver version 2.5.0. */
+#define FSL_CLOCK_DRIVER_VERSION (MAKE_VERSION(2, 5, 0))
 
 /* Definition for delay API in clock driver, users can redefine it to the real application. */
 #ifndef SDK_DEVICE_MAXIMUM_CPU_CLOCK_FREQUENCY
@@ -48,8 +48,8 @@
 #endif
 
 /* analog pll definition */
-#define CCM_ANALOG_PLL_BYPASS_SHIFT (16U)
-#define CCM_ANALOG_PLL_BYPASS_CLK_SRC_MASK (0xC000U)
+#define CCM_ANALOG_PLL_BYPASS_SHIFT         (16U)
+#define CCM_ANALOG_PLL_BYPASS_CLK_SRC_MASK  (0xC000U)
 #define CCM_ANALOG_PLL_BYPASS_CLK_SRC_SHIFT (14U)
 
 /*@}*/
@@ -57,34 +57,34 @@
 /*!
  * @brief CCM registers offset.
  */
-#define CCSR_OFFSET 0x0C
-#define CBCDR_OFFSET 0x14
-#define CBCMR_OFFSET 0x18
+#define CCSR_OFFSET   0x0C
+#define CBCDR_OFFSET  0x14
+#define CBCMR_OFFSET  0x18
 #define CSCMR1_OFFSET 0x1C
 #define CSCMR2_OFFSET 0x20
 #define CSCDR1_OFFSET 0x24
-#define CDCDR_OFFSET 0x30
+#define CDCDR_OFFSET  0x30
 #define CSCDR2_OFFSET 0x38
 #define CSCDR3_OFFSET 0x3C
-#define CACRR_OFFSET 0x10
+#define CACRR_OFFSET  0x10
 #define CS1CDR_OFFSET 0x28
 #define CS2CDR_OFFSET 0x2C
 
 /*!
  * @brief CCM Analog registers offset.
  */
-#define PLL_ARM_OFFSET 0x00
-#define PLL_SYS_OFFSET 0x30
-#define PLL_USB1_OFFSET 0x10
+#define PLL_ARM_OFFSET   0x00
+#define PLL_SYS_OFFSET   0x30
+#define PLL_USB1_OFFSET  0x10
 #define PLL_AUDIO_OFFSET 0x70
 #define PLL_VIDEO_OFFSET 0xA0
-#define PLL_ENET_OFFSET 0xE0
-#define PLL_USB2_OFFSET 0x20
+#define PLL_ENET_OFFSET  0xE0
+#define PLL_USB2_OFFSET  0x20
 
 #define CCM_TUPLE(reg, shift, mask, busyShift) \
     (int)(((reg)&0xFFU) | ((shift) << 8U) | ((((mask) >> (shift)) & 0x1FFFU) << 13U) | ((busyShift) << 26U))
 #define CCM_TUPLE_REG(base, tuple) (*((volatile uint32_t *)(((uint32_t)(base)) + ((uint32_t)(tuple)&0xFFU))))
-#define CCM_TUPLE_SHIFT(tuple) ((((uint32_t)tuple) >> 8U) & 0x1FU)
+#define CCM_TUPLE_SHIFT(tuple)     ((((uint32_t)tuple) >> 8U) & 0x1FU)
 #define CCM_TUPLE_MASK(tuple) \
     ((uint32_t)((((uint32_t)(tuple) >> 13U) & 0x1FFFU) << (((((uint32_t)tuple) >> 8U) & 0x1FU))))
 #define CCM_TUPLE_BUSY_SHIFT(tuple) ((((uint32_t)tuple) >> 26U) & 0x3FU)
@@ -94,7 +94,7 @@
 /*!
  * @brief CCM ANALOG tuple macros to map corresponding registers and bit fields.
  */
-#define CCM_ANALOG_TUPLE(reg, shift) ((((reg)&0xFFFU) << 16U) | (shift))
+#define CCM_ANALOG_TUPLE(reg, shift)  ((((reg)&0xFFFU) << 16U) | (shift))
 #define CCM_ANALOG_TUPLE_SHIFT(tuple) (((uint32_t)tuple) & 0x1FU)
 #define CCM_ANALOG_TUPLE_REG_OFF(base, tuple, off) \
     (*((volatile uint32_t *)((uint32_t)(base) + (((uint32_t)(tuple) >> 16U) & 0xFFFU) + (off))))
@@ -132,7 +132,7 @@ extern volatile uint32_t g_xtalFreq;
 extern volatile uint32_t g_rtcXtalFreq;
 
 /* For compatible with other platforms */
-#define CLOCK_SetXtal0Freq CLOCK_SetXtalFreq
+#define CLOCK_SetXtal0Freq  CLOCK_SetXtalFreq
 #define CLOCK_SetXtal32Freq CLOCK_SetRtcXtalFreq
 
 /*! @brief Clock ip name array for ADC. */
@@ -389,15 +389,77 @@ extern volatile uint32_t g_rtcXtalFreq;
     }
 
 /*! @brief Clock ip name array for XBARA. */
-#define XBARA_CLOCKS \
-    {                \
-        kCLOCK_Xbar1 \
+#define XBARA_CLOCKS                   \
+    {                                  \
+        kCLOCK_IpInvalid, kCLOCK_Xbar1 \
     }
 
 /*! @brief Clock ip name array for XBARB. */
 #define XBARB_CLOCKS                                                   \
     {                                                                  \
         kCLOCK_IpInvalid, kCLOCK_IpInvalid, kCLOCK_Xbar2, kCLOCK_Xbar3 \
+    }
+
+#define CLOCK_SOURCE_NONE (0xFFU)
+
+#define CLOCK_ROOT_SOUCE                                                                                 \
+    {                                                                                                    \
+        {kCLOCK_SysPllPfd2Clk, kCLOCK_SysPllPfd0Clk, kCLOCK_NoneName,                                    \
+         kCLOCK_NoneName,      kCLOCK_NoneName,      kCLOCK_NoneName}, /* USDHC1 Clock Root. */          \
+            {kCLOCK_SysPllPfd2Clk, kCLOCK_SysPllPfd0Clk, kCLOCK_NoneName,                                \
+             kCLOCK_NoneName,      kCLOCK_NoneName,      kCLOCK_NoneName}, /* USDHC2 Clock Root. */      \
+            {kCLOCK_SemcClk,        kCLOCK_Usb1SwClk, kCLOCK_SysPllPfd2Clk,                              \
+             kCLOCK_Usb1PllPfd0Clk, kCLOCK_NoneName,  kCLOCK_NoneName}, /* FLEXSPI Clock Root. */        \
+            {kCLOCK_SysPllPfd2Clk, kCLOCK_Usb1PllPfd0Clk, kCLOCK_Usb1PllPfd1Clk,                         \
+             kCLOCK_SysPllClk,     kCLOCK_NoneName,       kCLOCK_NoneName}, /* FLEXSPI2 Clock Root. */   \
+            {kCLOCK_OscClk,         kCLOCK_SysPllPfd2Clk, kCLOCK_Usb1Sw120MClk,                          \
+             kCLOCK_Usb1PllPfd1Clk, kCLOCK_NoneName,      kCLOCK_NoneName}, /* CSI Clock Root. */        \
+            {kCLOCK_Usb1PllPfd1Clk, kCLOCK_Usb1PllPfd0Clk, kCLOCK_SysPllClk,                             \
+             kCLOCK_SysPllPfd2Clk,  kCLOCK_NoneName,       kCLOCK_NoneName}, /* LPSPI Clock Root. */     \
+            {kCLOCK_SysPllClk,     kCLOCK_SysPllPfd2Clk, kCLOCK_SysPllPfd0Clk,                           \
+             kCLOCK_SysPllPfd1Clk, kCLOCK_NoneName,      kCLOCK_NoneName}, /* TRACE Clock Root */        \
+            {kCLOCK_Usb1PllPfd2Clk, kCLOCK_VideoPllClk, kCLOCK_AudioPllClk,                              \
+             kCLOCK_NoneName,       kCLOCK_NoneName,    kCLOCK_NoneName}, /* SAI1 Clock Root */          \
+            {kCLOCK_Usb1PllPfd2Clk, kCLOCK_VideoPllClk, kCLOCK_AudioPllClk,                              \
+             kCLOCK_NoneName,       kCLOCK_NoneName,    kCLOCK_NoneName}, /* SAI2 Clock Root */          \
+            {kCLOCK_Usb1PllPfd2Clk, kCLOCK_VideoPllClk, kCLOCK_AudioPllClk,                              \
+             kCLOCK_NoneName,       kCLOCK_NoneName,    kCLOCK_NoneName}, /* SAI3 Clock Root */          \
+            {kCLOCK_Usb1Sw60MClk, kCLOCK_OscClk,   kCLOCK_NoneName,                                      \
+             kCLOCK_NoneName,     kCLOCK_NoneName, kCLOCK_NoneName}, /* LPI2C Clock Root */              \
+            {kCLOCK_Usb1Sw60MClk, kCLOCK_OscClk,   kCLOCK_Usb1Sw80MClk,                                  \
+             kCLOCK_NoneName,     kCLOCK_NoneName, kCLOCK_NoneName}, /* CAN Clock Root. */               \
+            {kCLOCK_Usb1Sw80MClk, kCLOCK_OscClk,   kCLOCK_NoneName,                                      \
+             kCLOCK_NoneName,     kCLOCK_NoneName, kCLOCK_NoneName}, /* UART Clock Root */               \
+            {kCLOCK_SysPllClk,     kCLOCK_Usb1PllPfd3Clk, kCLOCK_VideoPllClk,                            \
+             kCLOCK_SysPllPfd0Clk, kCLOCK_SysPllPfd1Clk,  kCLOCK_Usb1PllPfd1Clk}, /* LCDIF Clock Root */ \
+            {kCLOCK_AudioPllClk, kCLOCK_Usb1PllPfd2Clk, kCLOCK_VideoPllClk,                              \
+             kCLOCK_Usb1SwClk,   kCLOCK_NoneName,       kCLOCK_NoneName}, /* SPDIF0 Clock Root */        \
+            {kCLOCK_AudioPllClk, kCLOCK_Usb1PllPfd2Clk, kCLOCK_VideoPllClk,                              \
+             kCLOCK_Usb1SwClk,   kCLOCK_NoneName,       kCLOCK_NoneName}, /* FLEXIO1 Clock Root */       \
+            {kCLOCK_AudioPllClk, kCLOCK_Usb1PllPfd2Clk, kCLOCK_VideoPllClk,                              \
+             kCLOCK_Usb1PllClk,  kCLOCK_NoneName,       kCLOCK_NoneName}, /* FLEXIO2 Clock ROOT */       \
+    }
+
+#define CLOCK_ROOT_MUX_TUPLE                                                                                       \
+    {                                                                                                              \
+        kCLOCK_Usdhc1Mux, kCLOCK_Usdhc2Mux, kCLOCK_FlexspiMux, kCLOCK_Flexspi2Mux, kCLOCK_CsiMux, kCLOCK_LpspiMux, \
+            kCLOCK_TraceMux, kCLOCK_Sai1Mux, kCLOCK_Sai2Mux, kCLOCK_Sai3Mux, kCLOCK_Lpi2cMux, kCLOCK_CanMux,       \
+            kCLOCK_UartMux, kCLOCK_LcdifPreMux, kCLOCK_SpdifMux, kCLOCK_Flexio1Mux, kCLOCK_Flexio2Mux,             \
+    }
+
+#define CLOCK_ROOT_NONE_PRE_DIV 0UL
+
+#define CLOCK_ROOT_DIV_TUPLE                                                                    \
+    {                                                                                           \
+        {kCLOCK_NonePreDiv, kCLOCK_Usdhc1Div}, {kCLOCK_NonePreDiv, kCLOCK_Usdhc2Div},           \
+            {kCLOCK_NonePreDiv, kCLOCK_FlexspiDiv}, {kCLOCK_NonePreDiv, kCLOCK_Flexspi2Div},    \
+            {kCLOCK_NonePreDiv, kCLOCK_CsiDiv}, {kCLOCK_NonePreDiv, kCLOCK_LpspiDiv},           \
+            {kCLOCK_NonePreDiv, kCLOCK_TraceDiv}, {kCLOCK_Sai1PreDiv, kCLOCK_Sai1Div},          \
+            {kCLOCK_Sai2PreDiv, kCLOCK_Sai2Div}, {kCLOCK_Sai3PreDiv, kCLOCK_Sai3Div},           \
+            {kCLOCK_NonePreDiv, kCLOCK_Lpi2cDiv}, {kCLOCK_NonePreDiv, kCLOCK_CanDiv},           \
+            {kCLOCK_NonePreDiv, kCLOCK_UartDiv}, {kCLOCK_LcdifPreDiv, kCLOCK_LcdifDiv},         \
+            {kCLOCK_Spdif0PreDiv, kCLOCK_Spdif0Div}, {kCLOCK_Flexio1PreDiv, kCLOCK_Flexio1Div}, \
+            {kCLOCK_Flexio2PreDiv, kCLOCK_Flexio2Div},                                          \
     }
 
 /*! @brief Clock name used to get clock frequency. */
@@ -419,6 +481,10 @@ typedef enum _clock_name
     kCLOCK_Usb1PllPfd1Clk = 0xAU, /*!< USB1PLLPFD1CLK. */
     kCLOCK_Usb1PllPfd2Clk = 0xBU, /*!< USB1PLLPFD2CLK. */
     kCLOCK_Usb1PllPfd3Clk = 0xCU, /*!< USB1PLLPFD3CLK. */
+    kCLOCK_Usb1SwClk      = 0x18U,
+    kCLOCK_Usb1Sw120MClk  = 0x19U,
+    kCLOCK_Usb1Sw60MClk   = 0x1AU,
+    kCLOCK_Usb1Sw80MClk   = 0x1BU,
 
     kCLOCK_Usb2PllClk = 0xDU, /*!< USB2PLLCLK. */
 
@@ -434,9 +500,11 @@ typedef enum _clock_name
 
     kCLOCK_AudioPllClk = 0x16U, /*!< Audio PLLCLK. */
     kCLOCK_VideoPllClk = 0x17U, /*!< Video PLLCLK. */
+
+    kCLOCK_NoneName = CLOCK_SOURCE_NONE,
 } clock_name_t;
 
-#define kCLOCK_CoreSysClk kCLOCK_CpuClk             /*!< For compatible with other platforms without CCM. */
+#define kCLOCK_CoreSysClk       kCLOCK_CpuClk       /*!< For compatible with other platforms without CCM. */
 #define CLOCK_GetCoreSysClkFreq CLOCK_GetCpuClkFreq /*!< For compatible with other platforms without CCM. */
 
 /*!
@@ -853,6 +921,8 @@ typedef enum _clock_div
 
     kCLOCK_CsiDiv = CCM_TUPLE(
         CSCDR3_OFFSET, CCM_CSCDR3_CSI_PODF_SHIFT, CCM_CSCDR3_CSI_PODF_MASK, CCM_NO_BUSY_WAIT), /*!< csi div name */
+
+    kCLOCK_NonePreDiv = CLOCK_ROOT_NONE_PRE_DIV,
 } clock_div_t;
 
 /*! @brief USB clock source definition. */
@@ -973,6 +1043,84 @@ typedef enum _clock_pfd
     kCLOCK_Pfd3 = 3U, /*!< PLL PFD3 */
 } clock_pfd_t;
 
+/*!
+ * @brief The enumerater of clock output1's clock source, such as USB1 PLL, SYS PLL and so on.
+ */
+typedef enum _clock_output1_selection
+{
+    kCLOCK_OutputPllUsb1       = 0U,    /*!< Selects USB1 PLL clock(Divided by 2) output. */
+    kCLOCK_OutputPllSys        = 1U,    /*!< Selects SYS PLL clock(Divided by 2) output. */
+    kCLOCK_OutputPllVideo      = 3U,    /*!< Selects Video PLL clock(Divided by 2) output. */
+    kCLOCK_OutputSemcClk       = 5U,    /*!< Selects semc clock root output. */
+    kCLOCK_OutputLcdifPixClk   = 0xAU,  /*!< Selects Lcdif pix clock root output. */
+    kCLOCK_OutputAhbClk        = 0xBU,  /*!< Selects AHB clock root output. */
+    kCLOCK_OutputIpgClk        = 0xCU,  /*!< Selects IPG clock root output. */
+    kCLOCK_OutputPerClk        = 0xDU,  /*!< Selects PERCLK clock root output. */
+    kCLOCK_OutputCkilSyncClk   = 0xEU,  /*!< Selects Ckil clock root output. */
+    kCLOCK_OutputPll4MainClk   = 0xFU,  /*!< Selects PLL4 main clock output. */
+    kCLOCK_DisableClockOutput1 = 0x10U, /*!< Disables CLKO1. */
+} clock_output1_selection_t;
+
+/*!
+ * @brief The enumerater of clock output2's clock source, such as USDHC1 clock root, LPI2C clock root and so on.
+ *
+ */
+typedef enum _clock_output2_selection
+{
+    kCLOCK_OutputUsdhc1Clk     = 3U,    /*!< Selects USDHC1 clock root output. */
+    kCLOCK_OutputLpi2cClk      = 6U,    /*!< Selects LPI2C clock root output. */
+    kCLOCK_OutputCsiClk        = 0xBU,  /*!< Selects CSI clock root output. */
+    kCLOCK_OutputOscClk        = 0xEU,  /*!< Selects OSC output. */
+    kCLOCK_OutputUsdhc2Clk     = 0x11U, /*!< Selects USDHC2 clock root output. */
+    kCLOCK_OutputSai1Clk       = 0x12U, /*!< Selects SAI1 clock root output. */
+    kCLOCK_OutputSai2Clk       = 0x13U, /*!< Selects SAI2 clock root output. */
+    kCLOCK_OutputSai3Clk       = 0x14U, /*!< Selects SAI3 clock root output. */
+    kCLOCK_OutputCanClk        = 0x17U, /*!< Selects CAN clock root output. */
+    kCLOCK_OutputFlexspiClk    = 0x1BU, /*!< Selects FLEXSPI clock root output. */
+    kCLOCK_OutputUartClk       = 0x1CU, /*!< Selects UART clock root output. */
+    kCLOCK_OutputSpdif0Clk     = 0x1DU, /*!< Selects SPDIF0 clock root output. */
+    kCLOCK_DisableClockOutput2 = 0x1FU, /*!< Disables CLKO2. */
+} clock_output2_selection_t;
+
+/*!
+ * @brief The enumerator of clock output's divider.
+ */
+typedef enum _clock_output_divider
+{
+    kCLOCK_DivideBy1 = 0U, /*!< Output clock divided by 1. */
+    kCLOCK_DivideBy2,      /*!< Output clock divided by 2. */
+    kCLOCK_DivideBy3,      /*!< Output clock divided by 3. */
+    kCLOCK_DivideBy4,      /*!< Output clock divided by 4. */
+    kCLOCK_DivideBy5,      /*!< Output clock divided by 5. */
+    kCLOCK_DivideBy6,      /*!< Output clock divided by 6. */
+    kCLOCK_DivideBy7,      /*!< Output clock divided by 7. */
+    kCLOCK_DivideBy8,      /*!< Output clock divided by 8. */
+} clock_output_divider_t;
+
+/*!
+ * @brief The enumerator of clock root.
+ */
+typedef enum _clock_root
+{
+    kCLOCK_Usdhc1ClkRoot = 0U, /*!< USDHC1 clock root. */
+    kCLOCK_Usdhc2ClkRoot,      /*!< USDHC2 clock root. */
+    kCLOCK_FlexspiClkRoot,     /*!< FLEXSPI clock root. */
+    kCLOCK_Flexspi2ClkRoot,    /*!< FLEXSPI2 clock root. */
+    kCLOCK_CsiClkRoot,         /*!< CSI clock root. */
+    kCLOCK_LpspiClkRoot,       /*!< LPSPI clock root. */
+    kCLOCK_TraceClkRoot,       /*!< Trace clock root. */
+    kCLOCK_Sai1ClkRoot,        /*!< SAI1 clock root. */
+    kCLOCK_Sai2ClkRoot,        /*!< SAI2 clock root. */
+    kCLOCK_Sai3ClkRoot,        /*!< SAI3 clock root. */
+    kCLOCK_Lpi2cClkRoot,       /*!< LPI2C clock root. */
+    kCLOCK_CanClkRoot,         /*!< CAN clock root. */
+    kCLOCK_UartClkRoot,        /*!< UART clock root. */
+    kCLOCK_LcdifClkRoot,       /*!< LCD clock root. */
+    kCLOCK_SpdifClkRoot,       /*!< SPDIF clock root. */
+    kCLOCK_Flexio1ClkRoot,     /*!< FLEXIO1 clock root. */
+    kCLOCK_Flexio2ClkRoot,     /*!< FLEXIO2 clock root. */
+} clock_root_t;
+
 /*******************************************************************************
  * API
  ******************************************************************************/
@@ -1023,6 +1171,7 @@ static inline uint32_t CLOCK_GetMux(clock_mux_t mux)
  *
  * @param divider Which div node to set, see \ref clock_div_t.
  * @param value   Clock div value to set, different divider has different value range.
+ *                Divided clock frequency = Undivided clock frequency / (value + 1).
  */
 static inline void CLOCK_SetDiv(clock_div_t divider, uint32_t value)
 {
@@ -1062,14 +1211,14 @@ static inline uint32_t CLOCK_GetDiv(clock_div_t divider)
  */
 static inline void CLOCK_ControlGate(clock_ip_name_t name, clock_gate_value_t value)
 {
-    uint32_t index = ((uint32_t)name) >> 8U;
-    uint32_t shift = ((uint32_t)name) & 0x1FU;
+    uint32_t index = ((uint32_t)name) >> 8UL;
+    uint32_t shift = ((uint32_t)name) & 0x1FUL;
     volatile uint32_t *reg;
 
     assert(index <= 7UL);
 
-    reg  = (volatile uint32_t *)(&(((volatile uint32_t *)&CCM->CCGR0)[index]));
-    *reg = ((*reg) & ~((uint32_t)(3UL << shift))) | (((uint32_t)value) << shift);
+    reg = (volatile uint32_t *)(&(((volatile uint32_t *)&CCM->CCGR0)[index]));
+    SDK_ATOMIC_LOCAL_CLEAR_AND_SET(reg, (3UL << shift), (((uint32_t)value) << (uint32_t)shift));
 }
 
 /*!
@@ -1163,6 +1312,14 @@ static inline uint32_t CLOCK_GetCpuClkFreq(void)
 {
     return CLOCK_GetFreq(kCLOCK_CpuClk);
 }
+
+/*!
+ * @brief Gets the frequency of selected clock root.
+ *
+ * @param clockRoot The clock root used to get the frequency, please refer to @ref clock_root_t.
+ * @return The frequency of selected clock root.
+ */
+uint32_t CLOCK_GetClockRootFreq(clock_root_t clockRoot);
 
 /*!
  * @name OSC operations
@@ -1486,6 +1643,16 @@ void CLOCK_InitSysPfd(clock_pfd_t pfd, uint8_t pfdFrac);
 void CLOCK_DeinitSysPfd(clock_pfd_t pfd);
 
 /*!
+ * @brief Check if Sys PFD is enabled
+ *
+ * @param pfd PFD control name
+ * @return PFD bypass status.
+ *         - true: power on.
+ *         - false: power off.
+ */
+bool CLOCK_IsSysPfdEnabled(clock_pfd_t pfd);
+
+/*!
  * @brief Initialize the USB1 PLL PFD.
  *
  * This function initializes the USB1 PLL PFD. During new value setting,
@@ -1505,6 +1672,16 @@ void CLOCK_InitUsb1Pfd(clock_pfd_t pfd, uint8_t pfdFrac);
  * @param pfd Which PFD clock to disable.
  */
 void CLOCK_DeinitUsb1Pfd(clock_pfd_t pfd);
+
+/*!
+ * @brief Check if Usb1 PFD is enabled
+ *
+ * @param pfd PFD control name.
+ * @return PFD bypass status.
+ *         - true: power on.
+ *         - false: power off.
+ */
+bool CLOCK_IsUsb1PfdEnabled(clock_pfd_t pfd);
 
 /*!
  * @brief Get current System PLL PFD output frequency.
@@ -1561,6 +1738,43 @@ bool CLOCK_EnableUsbhs1PhyPllClock(clock_usb_phy_src_t src, uint32_t freq);
 void CLOCK_DisableUsbhs1PhyPllClock(void);
 
 /* @} */
+
+/*!
+ * @name Clock Output Inferfaces
+ * @{
+ */
+
+/*!
+ * @brief Set the clock source and the divider of the clock output1.
+ *
+ * @param selection The clock source to be output, please refer to @ref clock_output1_selection_t.
+ * @param divider The divider of the output clock signal, please refer to @ref clock_output_divider_t.
+ */
+void CLOCK_SetClockOutput1(clock_output1_selection_t selection, clock_output_divider_t divider);
+
+/*!
+ * @brief Set the clock source and the divider of the clock output2.
+ *
+ * @param selection The clock source to be output, please refer to @ref clock_output2_selection_t.
+ * @param divider The divider of the output clock signal, please refer to @ref clock_output_divider_t.
+ */
+void CLOCK_SetClockOutput2(clock_output2_selection_t selection, clock_output_divider_t divider);
+
+/*!
+ * @brief Get the frequency of clock output1 clock signal.
+ *
+ * @return The frequency of clock output1 clock signal.
+ */
+uint32_t CLOCK_GetClockOutCLKO1Freq(void);
+
+/*!
+ * @brief Get the frequency of clock output2 clock signal.
+ *
+ * @return The frequency of clock output2 clock signal.
+ */
+uint32_t CLOCK_GetClockOutClkO2Freq(void);
+
+/*! @} */
 
 #if defined(__cplusplus)
 }

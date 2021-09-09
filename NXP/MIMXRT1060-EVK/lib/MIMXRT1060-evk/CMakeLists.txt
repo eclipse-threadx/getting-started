@@ -10,9 +10,9 @@ set(SOURCES
     src/boards/evkmimxrt1060/xip/evkmimxrt1060_flexspi_nor_config.c
     src/components/phyksz8081/fsl_phy.c
     src/components/phyksz8081/fsl_phy.h
-    src/components/serial_manager/serial_manager.c
-    src/components/serial_manager/serial_port_uart.c
-    src/components/uart/lpuart_adapter.c
+    src/components/serial_manager/fsl_component_serial_manager.c
+    src/components/serial_manager/fsl_component_serial_port_uart.c
+    src/components/uart/fsl_adapter_lpuart.c
     src/devices/MIMXRT1062/drivers/fsl_clock.c
     src/devices/MIMXRT1062/drivers/fsl_enet.c
     src/devices/MIMXRT1062/drivers/fsl_gpio.c
@@ -28,6 +28,11 @@ set(TARGET MIMXRT1060-evk)
 
 add_library(${TARGET} OBJECT
     ${SOURCES}
+)
+
+target_compile_options(${TARGET}
+    PRIVATE
+        -Wno-error
 )
 
 target_compile_definitions(${TARGET}
@@ -48,8 +53,9 @@ target_include_directories(${TARGET}
         src/components/phyksz8081
         src/components/serial_manager
         src/components/uart
-        src/CMSIS/Include
-		src/devices/MIMXRT1062
+        src/CMSIS/Driver/Include
+        src/CMSIS/Core/Include
+        src/devices/MIMXRT1062
         src/devices/MIMXRT1062/drivers
         src/devices/MIMXRT1062/utilities/debug_console
         src/devices/MIMXRT1062/utilities/str

@@ -292,6 +292,8 @@ static status_t FLEXIO_I2C_MasterTransferRunStateMachine(FLEXIO_I2C_Type *base,
                     else
                     {
                         (void)FLEXIO_I2C_MasterSetTransferCount(base, (uint16_t)(handle->transfer.dataSize + 1U));
+                        /* Delay at least one clock cycle so that the restart setup time is up to spec standard. */
+                        SDK_DelayAtLeastUs(1000000UL / base->baudrate, SDK_DEVICE_MAXIMUM_CPU_CLOCK_FREQUENCY);
                         FLEXIO_I2C_MasterStart(base, handle->transfer.slaveAddress, kFLEXIO_I2C_Read);
 
                         /* Next state, receive data begin. */
