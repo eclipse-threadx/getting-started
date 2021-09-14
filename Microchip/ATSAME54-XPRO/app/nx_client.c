@@ -141,29 +141,31 @@ static void direct_method_cb(AZURE_IOT_NX_CONTEXT* nx_context,
     USHORT context_length)
 {
     UINT status;
-    UINT http_status    = 501;
-    CHAR* http_response = "{}";
 
     if (strncmp((CHAR*)method, SET_LED_STATE_COMMAND, method_length) == 0)
     {
         bool arg = (strncmp((CHAR*)payload, "true", payload_length) == 0);
         set_led_state(arg);
 
+        if ((status = nx_azure_iot_hub_client_direct_method_message_response(
+                 &nx_context->iothub_client, 200, context, context_length, NULL, 0, NX_WAIT_FOREVER)))
+        {
+            printf("Direct method response failed! (0x%08x)\r\n", status);
+            return;
+        }
+
         azure_iot_nx_client_publish_bool_property(&azure_iot_nx_client, LED_STATE_PROPERTY, arg);
-
-        http_status = 200;
     }
-
-    if ((status = nx_azure_iot_hub_client_direct_method_message_response(&nx_context->iothub_client,
-             http_status,
-             context,
-             context_length,
-             (UCHAR*)http_response,
-             strlen(http_response),
-             NX_WAIT_FOREVER)))
+    else
     {
-        printf("Direct method response failed! (0x%08x)\r\n", status);
-        return;
+        printf("Direct method is not for this device\r\n");
+
+        if ((status = nx_azure_iot_hub_client_direct_method_message_response(
+                 &nx_context->iothub_client, 501, context, context_length, NULL, 0, NX_WAIT_FOREVER)))
+        {
+            printf("Direct method response failed! (0x%08x)\r\n", status);
+            return;
+        }
     }
 }
 
