@@ -243,6 +243,18 @@ static void direct_method_cb(AZURE_IOT_NX_CONTEXT* nx_context,
 
         azure_iot_nx_client_publish_bool_property(&azure_iot_nx_client, LED_STATE_PROPERTY, arg);
     }
+    else if (strncmp((CHAR*)method, SET_DISPLAY_TEXT_COMMAND, method_length) == 0)
+    {
+        // drop the first and last character to remove the quotes
+        screen_printn((CHAR*)payload + 1, payload_length - 2, L0);
+
+        if ((status = nx_azure_iot_hub_client_direct_method_message_response(
+                 &nx_context->iothub_client, 200, context, context_length, NULL, 0, NX_WAIT_FOREVER)))
+        {
+            printf("Direct method response failed! (0x%08x)\r\n", status);
+            return;
+        }
+    }    
     else
     {
         printf("Direct method is not for this device\r\n");
