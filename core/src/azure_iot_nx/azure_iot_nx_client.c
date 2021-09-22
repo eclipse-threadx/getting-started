@@ -212,6 +212,7 @@ static VOID process_properties(AZURE_IOT_NX_CONTEXT* nx_context)
         }
     }
 
+    // Release the received packet, as ownership was passed to the application from the middleware
     nx_packet_release(packet_ptr);
 
     // Send event to notify device twin received
@@ -260,6 +261,7 @@ static VOID process_writable_properties(AZURE_IOT_NX_CONTEXT* nx_context)
             }
         }
 
+        // Release the received packet, as ownership was passed to the application from the middleware
         nx_packet_release(packet_ptr);
     }
 
@@ -806,7 +808,7 @@ UINT azure_iot_nx_client_publish_telemetry(AZURE_IOT_NX_CONTEXT* context_ptr,
         (status = nx_azure_iot_json_writer_append_end_object(&json_writer)))
     {
         printf("Error: Failed to build reported property (0x%08x)\r\n", status);
-        nx_packet_release(packet_ptr);
+        nx_azure_iot_hub_client_telemetry_message_delete(packet_ptr);
         return status;
     }
 
