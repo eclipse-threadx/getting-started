@@ -27,8 +27,9 @@
 #define MODULE_ID   ""
 #define DPS_PAYLOAD "{\"modelId\":\"%s\"}"
 
-#define DPS_PAYLOAD_SIZE    200
-#define PUBLISH_BUFFER_SIZE 512
+#define DPS_PAYLOAD_SIZE      200
+#define PUBLISH_BUFFER_SIZE   512
+#define TELEMETRY_BUFFER_SIZE 128
 
 #define MAX_EXPONENTIAL_BACKOFF_JITTER_PERCENT 60
 #define MAX_EXPONENTIAL_BACKOFF_IN_SEC         (10 * 60)
@@ -37,8 +38,6 @@
 // Connection timeouts in threadx ticks
 #define HUB_CONNECT_TIMEOUT_TICKS  (10 * TX_TIMER_TICKS_PER_SECOND)
 #define DPS_REGISTER_TIMEOUT_TICKS (3 * TX_TIMER_TICKS_PER_SECOND)
-
-#define TELEMETRY_BUFFER_SIZE 128
 
 static UCHAR telemetry_buffer[TELEMETRY_BUFFER_SIZE];
 
@@ -205,7 +204,7 @@ static VOID process_properties(AZURE_IOT_NX_CONTEXT* nx_context)
                  NX_NULL,
                  0,
                  buffer,
-                 PUBLISH_BUFFER_SIZE,
+                 sizeof(buffer),
                  nx_context->property_received_cb,
                  nx_context)))
         {
@@ -213,8 +212,7 @@ static VOID process_properties(AZURE_IOT_NX_CONTEXT* nx_context)
         }
     }
 
-    // Deinit the reader, the reader owns the NX_PACKET at this point, so will release it
-    nx_azure_iot_json_reader_deinit(&json_reader);
+    nx_packet_release(packet_ptr);
 
     // Send event to notify device twin received
     tx_event_flags_set(&nx_context->events, PROPERTIES_COMPLETE_EVENT, TX_OR);
@@ -262,8 +260,7 @@ static VOID process_writable_properties(AZURE_IOT_NX_CONTEXT* nx_context)
             }
         }
 
-        // Deinit the reader, the reader owns the NX_PACKET at this point, so will release it
-        nx_azure_iot_json_reader_deinit(&json_reader);
+        nx_packet_release(packet_ptr);
     }
 
     // If we failed for anything other than no packet, then report error
