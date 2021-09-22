@@ -34,12 +34,12 @@ extern "C"
      * @return A `UINT` with the result of the API.
      *   @retval #NX_AZURE_IOT_SUCCESS Successful if successful parsed command name.
      */
-    UINT nx_azure_iot_pnp_helper_command_name_parse(const UCHAR* method_name_ptr,
-        UINT method_name_length,
-        const UCHAR** component_name_pptr,
-        UINT* component_name_length_ptr,
-        const UCHAR** pnp_command_name_pptr,
-        UINT* pnp_command_name_length_ptr);
+    // UINT nx_azure_iot_pnp_helper_command_name_parse(const UCHAR* method_name_ptr,
+    //     UINT method_name_length,
+    //     const UCHAR** component_name_pptr,
+    //     UINT* component_name_length_ptr,
+    //     const UCHAR** pnp_command_name_pptr,
+    //     UINT* pnp_command_name_length_ptr);
 
     /**
      * @brief Parse twin data and call callback on each desired property
@@ -81,11 +81,11 @@ extern "C"
      * @return A `UINT` with the result of the API.
      *   @retval #NX_AZURE_IOT_SUCCESS Successful if successful created NX_PACKET.
      */
-    UINT nx_azure_iot_pnp_helper_telemetry_message_create(NX_AZURE_IOT_HUB_CLIENT* iothub_client_ptr,
-        UCHAR* component_name,
-        UINT component_name_len,
-        NX_PACKET** packet_pptr,
-        UINT wait_option);
+    // UINT nx_azure_iot_pnp_helper_telemetry_message_create(NX_AZURE_IOT_HUB_CLIENT* iothub_client_ptr,
+    //     UCHAR* component_name,
+    //     UINT component_name_len,
+    //     NX_PACKET** packet_pptr,
+    //     UINT wait_option);
 
     /**
      * @brief Build PnP reported property into user provided buffer
@@ -98,11 +98,11 @@ extern "C"
      * @return A `UINT` with the result of the API.
      *   @retval #NX_AZURE_IOT_SUCCESS Successful if successful created reported property message.
      */
-    UINT nx_azure_iot_pnp_helper_build_reported_property(UCHAR* component_name_ptr,
-        UINT component_name_len,
-        UINT (*append_reported_property)(NX_AZURE_IOT_JSON_WRITER* json_builder_ptr, VOID* context),
-        VOID* context,
-        NX_AZURE_IOT_JSON_WRITER* json_builder_ptr);
+    // UINT nx_azure_iot_pnp_helper_build_reported_property(UCHAR* component_name_ptr,
+    //     UINT component_name_len,
+    //     UINT (*append_reported_property)(NX_AZURE_IOT_JSON_WRITER* json_builder_ptr, VOID* context),
+    //     VOID* context,
+    //     NX_AZURE_IOT_JSON_WRITER* json_builder_ptr);
 
     /**
      * @brief Build reported property with status
@@ -121,17 +121,17 @@ extern "C"
      * @return A `UINT` with the result of the API.
      *   @retval #NX_AZURE_IOT_SUCCESS Successful if successful created reported property message.
      */
-    UINT nx_azure_iot_pnp_helper_build_reported_property_with_status(UCHAR* component_name_ptr,
-        UINT component_name_len,
-        UCHAR* property_name_ptr,
-        UINT property_name_len,
-        UINT (*append_value)(NX_AZURE_IOT_JSON_WRITER* builder, VOID* context),
-        VOID* context,
-        INT result,
-        UCHAR* description_ptr,
-        UINT description_len,
-        UINT ack_version,
-        NX_AZURE_IOT_JSON_WRITER* json_builder_ptr);
+    // UINT nx_azure_iot_pnp_helper_build_reported_property_with_status(UCHAR* component_name_ptr,
+    //     UINT component_name_len,
+    //     UCHAR* property_name_ptr,
+    //     UINT property_name_len,
+    //     UINT (*append_value)(NX_AZURE_IOT_JSON_WRITER* builder, VOID* context),
+    //     VOID* context,
+    //     INT result,
+    //     UCHAR* description_ptr,
+    //     UINT description_len,
+    //     UINT ack_version,
+    //     NX_AZURE_IOT_JSON_WRITER* json_builder_ptr);
 
 #ifdef __cplusplus
 }

@@ -92,12 +92,13 @@ UINT azure_iot_nx_client_connect(AZURE_IOT_NX_CONTEXT* context);
 
 UINT azure_iot_nx_client_properties_request_and_wait(AZURE_IOT_NX_CONTEXT* context);
 
-UINT azure_iot_nx_client_publish_telemetry(AZURE_IOT_NX_CONTEXT* context,
-    UINT (*append_properties)(NX_AZURE_IOT_JSON_WRITER* json_builder_ptr, VOID* context));
+UINT azure_iot_nx_client_publish_telemetry(AZURE_IOT_NX_CONTEXT* context_ptr,
+    CHAR* component_name_ptr,
+    UINT (*append_properties)(NX_AZURE_IOT_JSON_WRITER* json_writer_ptr));
 
-UINT azure_iot_nx_client_publish_properties(AZURE_IOT_NX_CONTEXT* context,
-    CHAR* component,
-    UINT (*append_properties)(NX_AZURE_IOT_JSON_WRITER* json_builder_ptr, VOID* context));
+UINT azure_iot_nx_client_publish_properties(AZURE_IOT_NX_CONTEXT* context_ptr,
+    CHAR* component_name_ptr,
+    UINT (*append_properties)(NX_AZURE_IOT_JSON_WRITER* json_writer_ptr));
 UINT azure_iot_nx_client_publish_bool_property(AZURE_IOT_NX_CONTEXT* context, CHAR* property, bool value);
 
 UINT azure_nx_client_respond_int_writable_property(
