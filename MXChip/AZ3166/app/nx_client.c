@@ -209,22 +209,22 @@ static void set_led_state(bool level)
 {
     if (level)
     {
-        printf("LED is turned ON\r\n");
+        printf("\tLED is turned ON\r\n");
         HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
     }
     else
     {
-        printf("LED is turned OFF\r\n");
+        printf("\tLED is turned OFF\r\n");
         HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
     }
 }
 
-static void direct_method_cb(AZURE_IOT_NX_CONTEXT* nx_context,
+static void command_received_cb(NX_AZURE_IOT_HUB_CLIENT* hub_client_ptr,
     const UCHAR* method,
     USHORT method_length,
     UCHAR* payload,
     USHORT payload_length,
-    VOID* context,
+    VOID* context_ptr,
     USHORT context_length)
 {
     UINT status;
@@ -234,8 +234,8 @@ static void direct_method_cb(AZURE_IOT_NX_CONTEXT* nx_context,
         bool arg = (strncmp((CHAR*)payload, "true", payload_length) == 0);
         set_led_state(arg);
 
-        if ((status = nx_azure_iot_hub_client_direct_method_message_response(
-                 &nx_context->iothub_client, 200, context, context_length, NULL, 0, NX_WAIT_FOREVER)))
+        if ((status = nx_azure_iot_hub_client_command_message_response(
+                 hub_client_ptr, 200, context_ptr, context_length, NULL, 0, NX_WAIT_FOREVER)))
         {
             printf("Direct method response failed! (0x%08x)\r\n", status);
             return;
@@ -247,20 +247,19 @@ static void direct_method_cb(AZURE_IOT_NX_CONTEXT* nx_context,
     {
         // drop the first and last character to remove the quotes
         screen_printn((CHAR*)payload + 1, payload_length - 2, L0);
-
-        if ((status = nx_azure_iot_hub_client_direct_method_message_response(
-                 &nx_context->iothub_client, 200, context, context_length, NULL, 0, NX_WAIT_FOREVER)))
+        if ((status = nx_azure_iot_hub_client_command_message_response(
+                 hub_client_ptr, 200, context_ptr, context_length, NULL, 0, NX_WAIT_FOREVER)))
         {
             printf("Direct method response failed! (0x%08x)\r\n", status);
             return;
         }
-    }    
+    }
     else
     {
         printf("Direct method is not for this device\r\n");
 
-        if ((status = nx_azure_iot_hub_client_direct_method_message_response(
-                 &nx_context->iothub_client, 501, context, context_length, NULL, 0, NX_WAIT_FOREVER)))
+        if ((status = nx_azure_iot_hub_client_command_message_response(
+                 hub_client_ptr, 501, context_ptr, context_length, NULL, 0, NX_WAIT_FOREVER)))
         {
             printf("Direct method response failed! (0x%08x)\r\n", status);
             return;
@@ -268,7 +267,7 @@ static void direct_method_cb(AZURE_IOT_NX_CONTEXT* nx_context,
     }
 }
 
-static void device_twin_desired_property_cb(UCHAR* component_name,
+static void writable_property_received_cb(UCHAR* component_name,
     UINT component_name_len,
     UCHAR* property_name,
     UINT property_name_len,
@@ -285,7 +284,7 @@ static void device_twin_desired_property_cb(UCHAR* component_name,
         if (status == NX_AZURE_IOT_SUCCESS)
         {
             // Confirm reception back to hub
-            azure_nx_client_respond_int_writeable_property(
+            azure_nx_client_respond_int_writable_property(
                 nx_context, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval, 200, version);
 
             // Set a telemetry event so we pick up the change immediately
@@ -294,7 +293,7 @@ static void device_twin_desired_property_cb(UCHAR* component_name,
     }
 }
 
-static void device_twin_property_cb(UCHAR* component_name,
+static void property_received_cb(UCHAR* component_name,
     UINT component_name_len,
     UCHAR* property_name,
     UINT property_name_len,
@@ -356,9 +355,9 @@ UINT azure_iot_nx_client_entry(
     }
 
     // Register the callbacks
-    azure_iot_nx_client_register_direct_method(&azure_iot_nx_client, direct_method_cb);
-    azure_iot_nx_client_register_device_twin_desired_prop(&azure_iot_nx_client, device_twin_desired_property_cb);
-    azure_iot_nx_client_register_device_twin_prop(&azure_iot_nx_client, device_twin_property_cb);
+    azure_iot_nx_client_register_command_callback(&azure_iot_nx_client, command_received_cb);
+    azure_iot_nx_client_register_writable_property_callback(&azure_iot_nx_client, writable_property_received_cb);
+    azure_iot_nx_client_register_property_callback(&azure_iot_nx_client, property_received_cb);
 
     if ((status = azure_iot_nx_client_connect(&azure_iot_nx_client)))
     {
@@ -366,15 +365,15 @@ UINT azure_iot_nx_client_entry(
         return status;
     }
 
-    // Request the device twin for writeable property update
-    if ((status = azure_iot_nx_client_device_twin_request_and_wait(&azure_iot_nx_client)))
+    // Request the device twin for writable property update
+    if ((status = azure_iot_nx_client_properties_request_and_wait(&azure_iot_nx_client)))
     {
-        printf("ERROR: azure_iot_nx_client_device_twin_request_and_wait failed (0x%08x)\r\n", status);
+        printf("ERROR: azure_iot_nx_client_properties_request_and_wait failed (0x%08x)\r\n", status);
         return status;
     }
 
     // Send out property updates
-    azure_iot_nx_client_publish_int_writeable_property(
+    azure_iot_nx_client_publish_int_writable_property(
         &azure_iot_nx_client, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
     azure_iot_nx_client_publish_bool_property(&azure_iot_nx_client, LED_STATE_PROPERTY, false);
     azure_iot_nx_client_publish_properties(
