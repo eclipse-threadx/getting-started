@@ -27,10 +27,6 @@
 #define MODULE_ID   ""
 #define DPS_PAYLOAD "{\"modelId\":\"%s\"}"
 
-#define DPS_PAYLOAD_SIZE      200
-#define PUBLISH_BUFFER_SIZE   512
-#define TELEMETRY_BUFFER_SIZE 128
-
 #define MAX_EXPONENTIAL_BACKOFF_JITTER_PERCENT 60
 #define MAX_EXPONENTIAL_BACKOFF_IN_SEC         (10 * 60)
 #define INITIAL_EXPONENTIAL_BACKOFF_IN_SEC     3
@@ -39,7 +35,12 @@
 #define HUB_CONNECT_TIMEOUT_TICKS  (10 * TX_TIMER_TICKS_PER_SECOND)
 #define DPS_REGISTER_TIMEOUT_TICKS (3 * TX_TIMER_TICKS_PER_SECOND)
 
+#define DPS_PAYLOAD_SIZE       200
+#define TELEMETRY_BUFFER_SIZE  256
+#define PROPERTIES_BUFFER_SIZE 128
+
 static UCHAR telemetry_buffer[TELEMETRY_BUFFER_SIZE];
+static UCHAR properties_buffer[PROPERTIES_BUFFER_SIZE];
 
 static VOID printf_packet(CHAR* prepend, NX_PACKET* packet_ptr)
 {
@@ -173,7 +174,6 @@ static VOID process_properties(AZURE_IOT_NX_CONTEXT* nx_context)
     UINT status;
     NX_PACKET* packet_ptr;
     NX_AZURE_IOT_JSON_READER json_reader;
-    UCHAR buffer[PUBLISH_BUFFER_SIZE];
 
     if ((status = nx_azure_iot_hub_client_properties_receive(&nx_context->iothub_client, &packet_ptr, NX_WAIT_FOREVER)))
     {
@@ -203,8 +203,8 @@ static VOID process_properties(AZURE_IOT_NX_CONTEXT* nx_context)
                  NX_FALSE,
                  NX_NULL,
                  0,
-                 buffer,
-                 sizeof(buffer),
+                 properties_buffer,
+                 sizeof(properties_buffer),
                  nx_context->property_received_cb,
                  nx_context)))
         {
@@ -224,7 +224,6 @@ static VOID process_writable_properties(AZURE_IOT_NX_CONTEXT* nx_context)
     UINT status;
     NX_PACKET* packet_ptr;
     NX_AZURE_IOT_JSON_READER json_reader;
-    UCHAR buffer[128];
 
     while ((status = nx_azure_iot_hub_client_writable_properties_receive(
                 &nx_context->iothub_client, &packet_ptr, NX_NO_WAIT)) == NX_AZURE_IOT_SUCCESS)
@@ -252,8 +251,8 @@ static VOID process_writable_properties(AZURE_IOT_NX_CONTEXT* nx_context)
                      NX_TRUE,
                      NX_NULL,
                      0,
-                     buffer,
-                     sizeof(buffer),
+                     properties_buffer,
+                     sizeof(properties_buffer),
                      nx_context->writable_property_received_cb,
                      nx_context)))
             {
@@ -791,11 +790,11 @@ UINT azure_iot_nx_client_publish_telemetry(AZURE_IOT_NX_CONTEXT* context_ptr,
         printf("Error: nx_azure_iot_hub_client_telemetry_message_create failed (0x%08x)\r\n", status);
     }
 
-    if ((status = nx_azure_iot_json_writer_with_buffer_init(&json_writer, telemetry_buffer, TELEMETRY_BUFFER_SIZE)))
+    if ((status = nx_azure_iot_json_writer_with_buffer_init(&json_writer, telemetry_buffer, sizeof(telemetry_buffer))))
     {
         printf("Error: Failed to initialize json writer (0x%08x)\r\n", status);
         nx_azure_iot_hub_client_telemetry_message_delete(packet_ptr);
-        return NX_NOT_SUCCESSFUL;
+        return status;
     }
 
     if ((status = nx_azure_iot_json_writer_append_begin_object(&json_writer)) ||
@@ -807,7 +806,7 @@ UINT azure_iot_nx_client_publish_telemetry(AZURE_IOT_NX_CONTEXT* context_ptr,
                                                &context_ptr->iothub_client, &json_writer))) ||
         (status = nx_azure_iot_json_writer_append_end_object(&json_writer)))
     {
-        printf("Error: Failed to build reported property (0x%08x)\r\n", status);
+        printf("Error: Failed to build telemetry (0x%08x)\r\n", status);
         nx_azure_iot_hub_client_telemetry_message_delete(packet_ptr);
         return status;
     }
@@ -951,32 +950,32 @@ UINT azure_nx_client_respond_int_writable_property(
              &context->iothub_client, &packet_ptr, NX_WAIT_FOREVER)))
     {
         printf("Error: Failed create reported properties (0x%08x)\r\n", status);
-        return NX_NOT_SUCCESSFUL;
+        return status;
     }
 
     if ((status = nx_azure_iot_json_writer_init(&json_writer, packet_ptr, NX_WAIT_FOREVER)))
     {
         printf("Error: Failed to initialize json writer (0x%08x)\r\n", status);
         nx_packet_release(packet_ptr);
-        return NX_NOT_SUCCESSFUL;
+        return status;
     }
 
-    if (nx_azure_iot_json_writer_append_begin_object(&json_writer) ||
-        nx_azure_iot_hub_client_reported_properties_status_begin(&context->iothub_client,
-            &json_writer,
-            (const UCHAR*)property,
-            strlen(property),
-            http_status,
-            version,
-            NULL,
-            0) ||
-        nx_azure_iot_json_writer_append_int32(&json_writer, value) ||
-        nx_azure_iot_hub_client_reported_properties_status_end(&context->iothub_client, &json_writer) ||
-        nx_azure_iot_json_writer_append_end_object(&json_writer))
+    if ((status = nx_azure_iot_json_writer_append_begin_object(&json_writer)) ||
+        (status = nx_azure_iot_hub_client_reported_properties_status_begin(&context->iothub_client,
+             &json_writer,
+             (const UCHAR*)property,
+             strlen(property),
+             http_status,
+             version,
+             NULL,
+             0)) ||
+        (status = nx_azure_iot_json_writer_append_int32(&json_writer, value)) ||
+        (status = nx_azure_iot_hub_client_reported_properties_status_end(&context->iothub_client, &json_writer)) ||
+        (status = nx_azure_iot_json_writer_append_end_object(&json_writer)))
     {
         printf("Error: Failed to build uint writable property response (0x%08x)\r\n", status);
         nx_packet_release(packet_ptr);
-        return NX_NOT_SUCCESSFUL;
+        return status;
     }
 
     printf_packet("Sending writable property: ", packet_ptr);
