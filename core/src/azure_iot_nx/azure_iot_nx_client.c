@@ -7,7 +7,6 @@
 
 #include "nx_azure_iot_hub_client.h"
 #include "nx_azure_iot_hub_client_properties.h"
-#include "nx_azure_iot_pnp_helpers.h"
 
 #include "azure_iot_cert.h"
 #include "azure_iot_ciphersuites.h"
@@ -148,7 +147,7 @@ static VOID process_command(AZURE_IOT_NX_CONTEXT* nx_context)
 
         if (nx_context->command_received_cb)
         {
-            nx_context->command_received_cb(&nx_context->iothub_client,
+            nx_context->command_received_cb(nx_context,
                 command_name_ptr,
                 command_name_length,
                 payload_ptr,
@@ -169,46 +168,112 @@ static VOID process_command(AZURE_IOT_NX_CONTEXT* nx_context)
     }
 }
 
-static VOID process_properties(AZURE_IOT_NX_CONTEXT* nx_context)
+static UINT process_properties_shared(AZURE_IOT_NX_CONTEXT* nx_context,
+    NX_PACKET* packet_ptr,
+    UINT message_type,
+    UINT property_type,
+    UCHAR* scratch_buffer,
+    UINT scratch_buffer_len,
+    func_ptr_property_received property_received_cb)
 {
     UINT status;
-    NX_PACKET* packet_ptr;
+    const UCHAR* component_name_ptr;
+    USHORT component_name_length = 0;
+    UINT property_name_length;
+    ULONG properties_version;
     NX_AZURE_IOT_JSON_READER json_reader;
 
-    if ((status = nx_azure_iot_hub_client_properties_receive(&nx_context->iothub_client, &packet_ptr, NX_WAIT_FOREVER)))
+    if ((status = nx_azure_iot_json_reader_init(&json_reader, packet_ptr)))
     {
-        printf("Error: receive property failed (0x%08x)\r\n", status);
-        return;
+        printf("Error: failed to initialize json reader (0x%08x)\r\n", status);
+        nx_packet_release(packet_ptr);
+        return status;
     }
 
-    printf_packet("Receive properties: ", packet_ptr);
-
-    if (packet_ptr->nx_packet_length > (ULONG)(packet_ptr->nx_packet_append_ptr - packet_ptr->nx_packet_prepend_ptr))
+    // Get the version
+    if ((status = nx_azure_iot_hub_client_properties_version_get(
+             &nx_context->iothub_client, &json_reader, message_type, &properties_version)))
     {
-        printf("Error: json is large than nx_packet\r\n");
+        printf("Error: Properties version get failed (0x%08x)\r\n", status);
         nx_packet_release(packet_ptr);
-        return;
+        return status;
+    }
+
+    if ((status = nx_azure_iot_json_reader_init(&json_reader, packet_ptr)))
+    {
+        printf("Init json reader failed!: error code = 0x%08x\r\n", status);
+        nx_packet_release(packet_ptr);
+        return status;
     }
 
     if ((status = nx_azure_iot_json_reader_init(&json_reader, packet_ptr)))
     {
         printf("Error: failed to initialize json reader (0x%08x)\r\n", status);
         nx_packet_release(packet_ptr);
+        return status;
+    }
+
+    while ((status = nx_azure_iot_hub_client_properties_component_property_next_get(&nx_context->iothub_client,
+                &json_reader,
+                message_type,
+                property_type,
+                &component_name_ptr,
+                &component_name_length)) == NX_AZURE_IOT_SUCCESS)
+    {
+        if (nx_azure_iot_json_reader_token_string_get(
+                &json_reader, scratch_buffer, scratch_buffer_len, &property_name_length))
+        {
+            printf("Failed to get string property value\r\n");
+            return NX_NOT_SUCCESSFUL;
+        }
+
+        nx_azure_iot_json_reader_next_token(&json_reader);
+
+        property_received_cb(nx_context,
+            component_name_ptr,
+            component_name_length,
+            scratch_buffer,
+            property_name_length,
+            &json_reader,
+            properties_version);
+
+        // If we are still looking at the value, then skip over it (including if it has children)
+        if (nx_azure_iot_json_reader_token_type(&json_reader) == NX_AZURE_IOT_READER_TOKEN_BEGIN_OBJECT)
+        {
+            nx_azure_iot_json_reader_skip_children(&json_reader);
+        }
+
+        nx_azure_iot_json_reader_next_token(&json_reader);
+    }
+
+    return NX_AZURE_IOT_SUCCESS;
+}
+
+static VOID process_properties(AZURE_IOT_NX_CONTEXT* nx_context)
+{
+    UINT status;
+    NX_PACKET* packet_ptr;
+
+    if ((status = nx_azure_iot_hub_client_properties_receive(&nx_context->iothub_client, &packet_ptr, NX_WAIT_FOREVER)))
+    {
+        printf("Error: nx_azure_iot_hub_client_properties_receive failed (0x%08x)\r\n", status);
         return;
     }
 
+    printf_packet("Receive properties: ", packet_ptr);
+
     if (nx_context->property_received_cb)
     {
-        if ((status = nx_azure_iot_pnp_helper_twin_data_parse(&json_reader,
-                 NX_FALSE,
-                 NX_NULL,
-                 0,
+        // Parse the writable properties from the device twin receive receive message
+        if ((status = process_properties_shared(nx_context,
+                 packet_ptr,
+                 NX_AZURE_IOT_HUB_PROPERTIES,
+                 NX_AZURE_IOT_HUB_CLIENT_PROPERTY_WRITABLE,
                  properties_buffer,
                  sizeof(properties_buffer),
-                 nx_context->property_received_cb,
-                 nx_context)))
+                 nx_context->property_received_cb)))
         {
-            printf("Error: failed to parse twin data (0x%08x)\r\n", status);
+            printf("Error: failed to parse properties (0x%08x)\r\n", status);
         }
     }
 
@@ -223,53 +288,33 @@ static VOID process_writable_properties(AZURE_IOT_NX_CONTEXT* nx_context)
 {
     UINT status;
     NX_PACKET* packet_ptr;
-    NX_AZURE_IOT_JSON_READER json_reader;
 
-    while ((status = nx_azure_iot_hub_client_writable_properties_receive(
-                &nx_context->iothub_client, &packet_ptr, NX_NO_WAIT)) == NX_AZURE_IOT_SUCCESS)
+    if ((status = nx_azure_iot_hub_client_writable_properties_receive(
+             &nx_context->iothub_client, &packet_ptr, NX_WAIT_FOREVER)))
     {
-        printf_packet("Receive writable properties: ", packet_ptr);
-
-        if (packet_ptr->nx_packet_length >
-            (ULONG)(packet_ptr->nx_packet_append_ptr - packet_ptr->nx_packet_prepend_ptr))
-        {
-            printf("Error: json is large than nx_packet\r\n");
-            nx_packet_release(packet_ptr);
-            continue;
-        }
-
-        if ((status = nx_azure_iot_json_reader_init(&json_reader, packet_ptr)))
-        {
-            printf("Error: failed to initialize json reader (0x%08x)\r\n", status);
-            nx_packet_release(packet_ptr);
-            continue;
-        }
-
-        if (nx_context->writable_property_received_cb)
-        {
-            if ((status = nx_azure_iot_pnp_helper_twin_data_parse(&json_reader,
-                     NX_TRUE,
-                     NX_NULL,
-                     0,
-                     properties_buffer,
-                     sizeof(properties_buffer),
-                     nx_context->writable_property_received_cb,
-                     nx_context)))
-            {
-                printf("Error: failed to parse twin data (0x%08x)\r\n", status);
-            }
-        }
-
-        // Release the received packet, as ownership was passed to the application from the middleware
-        nx_packet_release(packet_ptr);
-    }
-
-    // If we failed for anything other than no packet, then report error
-    if (status != NX_AZURE_IOT_NO_PACKET)
-    {
-        printf("Error: device twin writable property receive failed (0x%08x)\r\n", status);
+        printf("Error: nx_azure_iot_hub_client_writable_properties_receive failed (0x%08x)\r\n", status);
         return;
     }
+
+    printf_packet("Receive properties: ", packet_ptr);
+
+    if (nx_context->property_received_cb)
+    {
+        // Parse the writable properties from the writable receive message
+        if ((status = process_properties_shared(nx_context,
+                 packet_ptr,
+                 NX_AZURE_IOT_HUB_WRITABLE_PROPERTIES,
+                 NX_AZURE_IOT_HUB_CLIENT_PROPERTY_WRITABLE,
+                 properties_buffer,
+                 sizeof(properties_buffer),
+                 nx_context->property_received_cb)))
+        {
+            printf("Error: failed to parse properties (0x%08x)\r\n", status);
+        }
+    }
+
+    // Release the received packet, as ownership was passed to the application from the middleware
+    nx_packet_release(packet_ptr);
 }
 
 static VOID event_thread(ULONG parameter)
@@ -869,7 +914,7 @@ UINT azure_iot_nx_client_publish_properties(AZURE_IOT_NX_CONTEXT* context_ptr,
     {
         printf("Error: nx_azure_iot_hub_client_reported_properties_send failed (0x%08x)\r\n", status);
         nx_packet_release(packet_ptr);
-        return (status);
+        return status;
     }
 
     if ((response_status < 200) || (response_status >= 300))
@@ -938,7 +983,7 @@ UINT azure_iot_nx_client_publish_bool_property(AZURE_IOT_NX_CONTEXT* context, CH
 }
 
 UINT azure_nx_client_respond_int_writable_property(
-    AZURE_IOT_NX_CONTEXT* context, CHAR* property, int value, int http_status, int version)
+    AZURE_IOT_NX_CONTEXT* context, CHAR* property, INT value, INT http_status, INT version)
 {
     UINT status;
     UINT response_status;

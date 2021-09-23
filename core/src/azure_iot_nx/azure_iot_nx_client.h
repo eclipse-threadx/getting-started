@@ -24,10 +24,14 @@
 
 typedef struct AZURE_IOT_NX_CONTEXT_STRUCT AZURE_IOT_NX_CONTEXT;
 
-typedef void (*func_ptr_command_received)(
-    NX_AZURE_IOT_HUB_CLIENT*, const UCHAR*, USHORT, UCHAR*, USHORT, VOID*, USHORT);
-typedef void (*func_ptr_writable_property_received)(UCHAR*, UINT, UCHAR*, UINT, NX_AZURE_IOT_JSON_READER, UINT, VOID*);
-typedef void (*func_ptr_property_received)(UCHAR*, UINT, UCHAR*, UINT, NX_AZURE_IOT_JSON_READER, UINT, VOID*);
+typedef void (*func_ptr_command_received)(AZURE_IOT_NX_CONTEXT*, const UCHAR*, USHORT, UCHAR*, USHORT, VOID*, USHORT);
+
+typedef void (*func_ptr_writable_property_received)(
+    AZURE_IOT_NX_CONTEXT*, const UCHAR*, UINT, UCHAR*, UINT, NX_AZURE_IOT_JSON_READER*, UINT);
+
+typedef void (*func_ptr_property_received)(
+    AZURE_IOT_NX_CONTEXT*, const UCHAR*, UINT, UCHAR*, UINT, NX_AZURE_IOT_JSON_READER*, UINT);
+
 typedef ULONG (*func_ptr_unix_time_get)(VOID);
 
 struct AZURE_IOT_NX_CONTEXT_STRUCT
@@ -102,7 +106,7 @@ UINT azure_iot_nx_client_publish_properties(AZURE_IOT_NX_CONTEXT* context_ptr,
 UINT azure_iot_nx_client_publish_bool_property(AZURE_IOT_NX_CONTEXT* context, CHAR* property, bool value);
 
 UINT azure_nx_client_respond_int_writable_property(
-    AZURE_IOT_NX_CONTEXT* context, CHAR* property, int value, int http_status, int version);
+    AZURE_IOT_NX_CONTEXT* context, CHAR* property, INT value, INT http_status, INT version);
 UINT azure_iot_nx_client_publish_int_writable_property(AZURE_IOT_NX_CONTEXT* context, CHAR* property, UINT value);
 
 #endif

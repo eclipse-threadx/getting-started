@@ -15,7 +15,6 @@
 #include "nx_azure_iot_provisioning_client.h"
 
 #include "azure_iot_nx_client.h"
-#include "nx_azure_iot_pnp_helpers.h"
 
 #include "azure_config.h"
 #include "azure_device_x509_cert_config.h"
@@ -219,7 +218,7 @@ static void set_led_state(bool level)
     }
 }
 
-static void command_received_cb(NX_AZURE_IOT_HUB_CLIENT* hub_client_ptr,
+static void command_received_cb(AZURE_IOT_NX_CONTEXT* context,
     const UCHAR* method,
     USHORT method_length,
     UCHAR* payload,
@@ -235,7 +234,7 @@ static void command_received_cb(NX_AZURE_IOT_HUB_CLIENT* hub_client_ptr,
         set_led_state(arg);
 
         if ((status = nx_azure_iot_hub_client_command_message_response(
-                 hub_client_ptr, 200, context_ptr, context_length, NULL, 0, NX_WAIT_FOREVER)))
+                 &context->iothub_client, 200, context_ptr, context_length, NULL, 0, NX_WAIT_FOREVER)))
         {
             printf("Direct method response failed! (0x%08x)\r\n", status);
             return;
@@ -248,7 +247,7 @@ static void command_received_cb(NX_AZURE_IOT_HUB_CLIENT* hub_client_ptr,
         // drop the first and last character to remove the quotes
         screen_printn((CHAR*)payload + 1, payload_length - 2, L0);
         if ((status = nx_azure_iot_hub_client_command_message_response(
-                 hub_client_ptr, 200, context_ptr, context_length, NULL, 0, NX_WAIT_FOREVER)))
+                 &context->iothub_client, 200, context_ptr, context_length, NULL, 0, NX_WAIT_FOREVER)))
         {
             printf("Direct method response failed! (0x%08x)\r\n", status);
             return;
@@ -259,7 +258,7 @@ static void command_received_cb(NX_AZURE_IOT_HUB_CLIENT* hub_client_ptr,
         printf("Direct method is not for this device\r\n");
 
         if ((status = nx_azure_iot_hub_client_command_message_response(
-                 hub_client_ptr, 501, context_ptr, context_length, NULL, 0, NX_WAIT_FOREVER)))
+                 &context->iothub_client, 501, context_ptr, context_length, NULL, 0, NX_WAIT_FOREVER)))
         {
             printf("Direct method response failed! (0x%08x)\r\n", status);
             return;
@@ -267,25 +266,26 @@ static void command_received_cb(NX_AZURE_IOT_HUB_CLIENT* hub_client_ptr,
     }
 }
 
-static void writable_property_received_cb(UCHAR* component_name,
+static void writable_property_received_cb(AZURE_IOT_NX_CONTEXT* context,
+    const UCHAR* component_name,
     UINT component_name_len,
     UCHAR* property_name,
     UINT property_name_len,
-    NX_AZURE_IOT_JSON_READER property_value_reader,
-    UINT version,
-    VOID* userContextCallback)
+    NX_AZURE_IOT_JSON_READER* json_reader_ptr,
+    UINT version)
 {
     UINT status;
-    AZURE_IOT_NX_CONTEXT* nx_context = (AZURE_IOT_NX_CONTEXT*)userContextCallback;
 
     if (strncmp((CHAR*)property_name, TELEMETRY_INTERVAL_PROPERTY, property_name_len) == 0)
     {
-        status = nx_azure_iot_json_reader_token_int32_get(&property_value_reader, &telemetry_interval);
+        status = nx_azure_iot_json_reader_token_int32_get(json_reader_ptr, &telemetry_interval);
         if (status == NX_AZURE_IOT_SUCCESS)
         {
+            printf("\tUpdating %s to %ld\r\n", TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
+
             // Confirm reception back to hub
             azure_nx_client_respond_int_writable_property(
-                nx_context, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval, 200, version);
+                context, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval, 200, version);
 
             // Set a telemetry event so we pick up the change immediately
             tx_event_flags_set(&azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR);
@@ -293,17 +293,23 @@ static void writable_property_received_cb(UCHAR* component_name,
     }
 }
 
-static void property_received_cb(UCHAR* component_name,
+static void property_received_cb(AZURE_IOT_NX_CONTEXT* context,
+    const UCHAR* component_name,
     UINT component_name_len,
     UCHAR* property_name,
     UINT property_name_len,
-    NX_AZURE_IOT_JSON_READER property_value_reader,
-    UINT version,
-    VOID* userContextCallback)
+    NX_AZURE_IOT_JSON_READER* json_reader_ptr,
+    UINT version)
 {
+    UINT status;
+
     if (strncmp((CHAR*)property_name, TELEMETRY_INTERVAL_PROPERTY, property_name_len) == 0)
     {
-        nx_azure_iot_json_reader_token_int32_get(&property_value_reader, &telemetry_interval);
+        status = nx_azure_iot_json_reader_token_int32_get(json_reader_ptr, &telemetry_interval);
+        if (status == NX_AZURE_IOT_SUCCESS)
+        {
+            printf("\tUpdating %s to %ld\r\n", TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
+        }
     }
 }
 
@@ -398,11 +404,12 @@ UINT azure_iot_nx_client_entry(
                 break;
 
             case TELEMETRY_STATE_ACCELEROMETER:
-                azure_iot_nx_client_publish_telemetry(&azure_iot_nx_client, NULL,  append_device_telemetry_accelerometer);
+                azure_iot_nx_client_publish_telemetry(
+                    &azure_iot_nx_client, NULL, append_device_telemetry_accelerometer);
                 break;
 
             case TELEMETRY_STATE_GYROSCOPE:
-                azure_iot_nx_client_publish_telemetry(&azure_iot_nx_client, NULL,  append_device_telemetry_gyroscope);
+                azure_iot_nx_client_publish_telemetry(&azure_iot_nx_client, NULL, append_device_telemetry_gyroscope);
                 break;
 
             default:
