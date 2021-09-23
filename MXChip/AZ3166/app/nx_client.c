@@ -57,7 +57,7 @@ static TX_EVENT_FLAGS_GROUP azure_iot_flags;
 
 static int32_t telemetry_interval = 10;
 
-static UINT append_device_info_properties(NX_AZURE_IOT_JSON_WRITER* json_writer, VOID* context)
+static UINT append_device_info_properties(NX_AZURE_IOT_JSON_WRITER* json_writer)
 {
     if (nx_azure_iot_json_writer_append_property_with_string_value(json_writer,
             (UCHAR*)DEVICE_INFO_MANUFACTURER_PROPERTY_NAME,
@@ -106,7 +106,7 @@ static UINT append_device_info_properties(NX_AZURE_IOT_JSON_WRITER* json_writer,
     return NX_AZURE_IOT_SUCCESS;
 }
 
-static UINT append_device_telemetry(NX_AZURE_IOT_JSON_WRITER* json_writer, VOID* context)
+static UINT append_device_telemetry(NX_AZURE_IOT_JSON_WRITER* json_writer)
 {
     lps22hb_t lps22hb_data    = lps22hb_data_read();
     hts221_data_t hts221_data = hts221_data_read();
@@ -127,7 +127,7 @@ static UINT append_device_telemetry(NX_AZURE_IOT_JSON_WRITER* json_writer, VOID*
     return NX_AZURE_IOT_SUCCESS;
 }
 
-static UINT append_device_telemetry_magnetometer(NX_AZURE_IOT_JSON_WRITER* json_writer, VOID* context)
+static UINT append_device_telemetry_magnetometer(NX_AZURE_IOT_JSON_WRITER* json_writer)
 {
     lis2mdl_data_t lis2mdl_data = lis2mdl_data_read();
 
@@ -153,7 +153,7 @@ static UINT append_device_telemetry_magnetometer(NX_AZURE_IOT_JSON_WRITER* json_
     return NX_AZURE_IOT_SUCCESS;
 }
 
-static UINT append_device_telemetry_accelerometer(NX_AZURE_IOT_JSON_WRITER* json_writer, VOID* context)
+static UINT append_device_telemetry_accelerometer(NX_AZURE_IOT_JSON_WRITER* json_writer)
 {
     lsm6dsl_data_t lsm6dsl_data = lsm6dsl_data_read();
 
@@ -179,7 +179,7 @@ static UINT append_device_telemetry_accelerometer(NX_AZURE_IOT_JSON_WRITER* json
     return NX_AZURE_IOT_SUCCESS;
 }
 
-static UINT append_device_telemetry_gyroscope(NX_AZURE_IOT_JSON_WRITER* json_writer, VOID* context)
+static UINT append_device_telemetry_gyroscope(NX_AZURE_IOT_JSON_WRITER* json_writer)
 {
     lsm6dsl_data_t lsm6dsl_data = lsm6dsl_data_read();
 
@@ -390,19 +390,19 @@ UINT azure_iot_nx_client_entry(
         switch (telemetry_state)
         {
             case TELEMETRY_STATE_DEFAULT:
-                azure_iot_nx_client_publish_telemetry(&azure_iot_nx_client, append_device_telemetry);
+                azure_iot_nx_client_publish_telemetry(&azure_iot_nx_client, NULL, append_device_telemetry);
                 break;
 
             case TELEMETRY_STATE_MAGNETOMETER:
-                azure_iot_nx_client_publish_telemetry(&azure_iot_nx_client, append_device_telemetry_magnetometer);
+                azure_iot_nx_client_publish_telemetry(&azure_iot_nx_client, NULL, append_device_telemetry_magnetometer);
                 break;
 
             case TELEMETRY_STATE_ACCELEROMETER:
-                azure_iot_nx_client_publish_telemetry(&azure_iot_nx_client, append_device_telemetry_accelerometer);
+                azure_iot_nx_client_publish_telemetry(&azure_iot_nx_client, NULL,  append_device_telemetry_accelerometer);
                 break;
 
             case TELEMETRY_STATE_GYROSCOPE:
-                azure_iot_nx_client_publish_telemetry(&azure_iot_nx_client, append_device_telemetry_gyroscope);
+                azure_iot_nx_client_publish_telemetry(&azure_iot_nx_client, NULL,  append_device_telemetry_gyroscope);
                 break;
 
             default:
