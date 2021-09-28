@@ -12,6 +12,9 @@
 #ifndef NX_USER_H
 #define NX_USER_H
 
+#define NX_ENABLE_TCPIP_OFFLOAD
+#define NX_ENABLE_INTERFACE_CAPABILITY
+
 /* Secure */
 #define NX_SECURE_ENABLE
 
