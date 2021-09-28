@@ -119,26 +119,6 @@ static bool wifi_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
 
     printf("SUCCESS: WiFi connected to %s\r\n\r\n", ssid);
 
-    printf("Initializing DHCP\r\n");
-
-    uint8_t ip_address[4];
-    if (WIFI_GetIP_Address(ip_address) != WIFI_STATUS_OK)
-    {
-        return false;
-    }
-
-    uint8_t gateway_address[4];
-    if (WIFI_GetGateway_Address(gateway_address) != WIFI_STATUS_OK)
-    {
-        return false;
-    }
-
-    // Output IP address and gateway address
-    print_address("IP address", ip_address);
-    print_address("Gateway", gateway_address);
-
-    printf("SUCCESS: DHCP initialized\r\n\r\n");
-
     return true;
 }
 
@@ -206,10 +186,18 @@ UINT stm32_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
         return NX_NOT_SUCCESSFUL;
     }
 
+    printf("Initializing DHCP\r\n");
+
     // Get WIFI information
     WIFI_GetIP_Address(ip_address);
     WIFI_GetIP_Mask(ip_mask);
     WIFI_GetGateway_Address(gateway_address);
+
+    // Output IP address and gateway address
+    print_address("IP address", ip_address);
+    print_address("Gateway", gateway_address);
+
+    printf("SUCCESS: DHCP initialized\r\n\r\n");
 
     // Initialize the NetX system
     nx_system_initialize();
