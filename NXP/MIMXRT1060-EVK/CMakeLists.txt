@@ -21,6 +21,7 @@ endif()
 include(${GSG_BASE_DIR}/cmake/utilities.cmake)
 
 # Define the Project
+# CXX enables IntelliSense only. Sources are still compiled as C.
 project(mimxrt1060_azure_iot C CXX ASM)
 
 add_subdirectory(${CORE_SRC_DIR} core_src)

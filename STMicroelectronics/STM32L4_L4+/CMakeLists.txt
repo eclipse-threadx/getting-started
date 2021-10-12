@@ -21,6 +21,7 @@ endif()
 include(${GSG_BASE_DIR}/cmake/utilities.cmake)
 
 # Define the Project
+# CXX enables IntelliSense only. Sources are still compiled as C.
 project(stm32l4_azure_iot C CXX ASM)
 
 # Disable common networking component, STM has it's own

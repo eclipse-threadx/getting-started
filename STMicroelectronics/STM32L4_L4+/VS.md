@@ -70,10 +70,12 @@ This section shows how to configure your development environment with the new vc
     start devenv .
     ```
 
-1. Choose the "arm-gcc-cortex-m4" configuration and the "Launch" Debug Target.
+1. Ensure that both the Configure Preset and the Build Preset are set to "arm-gcc-cortex-m4"
+    
+    ![configuration-choice](../../docs/media/vs-preset-configuration-m4.png)
 
-    ![configuration-choice](../../docs/media/vs-configuration-m4.png)
-
+1. Ensure that the "Launch" target is selected as the Debug Target.
+    
     ![debug-target-choice](../../docs/media/vs-debug-target-stm32l4.png)
 
 1. Press `F5` to start debugging the application.

@@ -30,7 +30,7 @@ This section shows how to configure your development environment with the new vc
     Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine
     ```
 
-1. Open a new PowerShell terminal and navigate to the following path in the repo.
+1. Open a new PowerShell terminal and navigate to the following path in the repo:
 
     > *getting-started\MXChip\AZ3166*
 
@@ -64,16 +64,18 @@ This section shows how to configure your development environment with the new vc
 
 1. Connect the Micro USB cable from the DevKit to your computer. If it is already connected, disconnect and reconnect it.
 
-1. Launch Visual Studio:
+1. Launch Visual Studio.
 
     ```Shell
     start devenv .
     ```
 
-1. Choose the "arm-gcc-cortex-m4" configuration and the "Launch" Debug Target.
+1. Ensure that both the Configure Preset and the Build Preset are set to "arm-gcc-cortex-m4"
+    
+    ![configuration-choice](../../docs/media/vs-preset-configuration-m4.png)
 
-    ![configuration-choice](../../docs/media/vs-configuration-m4.png)
-
+1. Ensure that the "Launch" target is selected as the Debug Target.
+    
     ![debug-target-choice](../../docs/media/vs-debug-target-az3166.png)
 
 1. Press `F5` to start debugging the application.

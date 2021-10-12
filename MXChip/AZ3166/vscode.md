@@ -136,9 +136,15 @@ This section shows how to configure your development environment with the new vc
 
     > Completing this step will install the following extensions: [C/C++](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools) and [CMake Tools](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cmake-tools).
 
-1. If prompted for a CMake kit, select "ARM GCC Cortex".
+1. If prompted for a Configure Preset, select "arm-gcc-cortex-m4".
 
-    ![cmake-kit](../../docs/media/vscode-az3166-cmake-kit.png)
+    ![configure-preset](../../docs/media/vscode-az3166-configure-preset.png)
+
+1. If on the right side of the Status Bar, No Build Preset is selected:
+
+    ![build-preset](../../docs/media/vscode-build-preset.png)
+
+    Click it and choose the "arm-gcc-cortex-m4" Build Preset.
 
 1. Navigate to the Run and Debug view (`Ctrl-Shift-D`) and select the Launch configuration.
 

@@ -76,17 +76,19 @@ This section shows how to configure your development environment with the new vc
     start devenv .
     ```
 
-1. Choose the "arm-gcc-cortex-m7" configuration and the "Launch" Debug Target.
+1. Ensure that both the Configure Preset and the Build Preset are set to "arm-gcc-cortex-m7"
+    
+    ![configuration-choice](../../docs/media/vs-preset-configuration-m7.png)
 
-    ![configuration-choice](../../docs/media/vs-configuration-m7.png)
-
+1. Ensure that the "Launch" target is selected as the Debug Target.
+    
     ![debug-target-choice](../../docs/media/vs-debug-target-mimxrt1060evk.png)
 
 1. Press `F5` to start debugging the application. A dialog for the J-Link Terms of use may appear. Click the check box “Do not show this message again for today” and accept the terms of use if you agree.
 
     > Visual Studio will build and flash the application to the device, then pause the debugger at the application entry point.
 
-1. Press `F5` to resume execution. The debugger is now running and connected the device. 
+1. Press `F5` to resume execution. The debugger is now running and connected the device.
 
 ## Restoring Your Development Environment
 

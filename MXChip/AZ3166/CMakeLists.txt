@@ -24,6 +24,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 include(utilities)
 
 # Define the Project
+# CXX enables IntelliSense only. Sources are still compiled as C.
 project(mxchip_azure_iot C CXX ASM)
 
 # Disable common networking component, MXCHIP has it's own
