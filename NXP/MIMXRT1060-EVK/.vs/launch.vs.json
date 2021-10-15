@@ -1,6 +1,5 @@
 {
     "version": "0.2.1",
-    "defaults": {},
     "configurations": [
         {
             "project": "CMakeLists.txt",
