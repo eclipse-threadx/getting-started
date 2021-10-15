@@ -38,7 +38,7 @@
             "debugServerArgs": "-f board/stm32f4discovery.cfg",
             "serverStarted": "Listening on port .* for gdb connections",
             "filterStderr": true,
-            "stopAtEntry": true,
+            "stopAtConnect": true,
             "hardwareBreakpoints": {
                 "require": true,
                 "limit": 6

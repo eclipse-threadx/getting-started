@@ -40,7 +40,7 @@
             "debugServerArgs": "-if swd -speed 4000 -endian little -port 3333 -device MIMXRT1062xxx6A -x ${workspaceFolder}/.vscode/reset.gdb",
             "serverStarted": "Connected to target",
             "filterStdout": true,
-            "stopAtEntry": true,
+            "stopAtConnect": true,
             // There is no need for hardware breakpoint limits with J-Link probes because they support unlimited flash breakpoints.
             // However, if desired, uncomment below to force use of hardware breakpoints only:
             // "hardwareBreakpoints": {
