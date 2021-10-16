@@ -218,7 +218,7 @@ static void set_led_state(bool level)
     }
 }
 
-static void command_received_cb(AZURE_IOT_NX_CONTEXT* context,
+static void command_received_cb(AZURE_IOT_NX_CONTEXT* nx_context_ptr,
     const UCHAR* method,
     USHORT method_length,
     UCHAR* payload,
@@ -234,7 +234,7 @@ static void command_received_cb(AZURE_IOT_NX_CONTEXT* context,
         set_led_state(arg);
 
         if ((status = nx_azure_iot_hub_client_command_message_response(
-                 &context->iothub_client, 200, context_ptr, context_length, NULL, 0, NX_WAIT_FOREVER)))
+                 &nx_context_ptr->iothub_client, 200, context_ptr, context_length, NULL, 0, NX_WAIT_FOREVER)))
         {
             printf("Direct method response failed! (0x%08x)\r\n", status);
             return;
@@ -247,7 +247,7 @@ static void command_received_cb(AZURE_IOT_NX_CONTEXT* context,
         // drop the first and last character to remove the quotes
         screen_printn((CHAR*)payload + 1, payload_length - 2, L0);
         if ((status = nx_azure_iot_hub_client_command_message_response(
-                 &context->iothub_client, 200, context_ptr, context_length, NULL, 0, NX_WAIT_FOREVER)))
+                 &nx_context_ptr->iothub_client, 200, context_ptr, context_length, NULL, 0, NX_WAIT_FOREVER)))
         {
             printf("Direct method response failed! (0x%08x)\r\n", status);
             return;
@@ -258,7 +258,7 @@ static void command_received_cb(AZURE_IOT_NX_CONTEXT* context,
         printf("Direct method is not for this device\r\n");
 
         if ((status = nx_azure_iot_hub_client_command_message_response(
-                 &context->iothub_client, 501, context_ptr, context_length, NULL, 0, NX_WAIT_FOREVER)))
+                 &nx_context_ptr->iothub_client, 501, context_ptr, context_length, NULL, 0, NX_WAIT_FOREVER)))
         {
             printf("Direct method response failed! (0x%08x)\r\n", status);
             return;
@@ -266,7 +266,7 @@ static void command_received_cb(AZURE_IOT_NX_CONTEXT* context,
     }
 }
 
-static void writable_property_received_cb(AZURE_IOT_NX_CONTEXT* context,
+static void writable_property_received_cb(AZURE_IOT_NX_CONTEXT* nx_context,
     const UCHAR* component_name,
     UINT component_name_len,
     UCHAR* property_name,
@@ -285,7 +285,7 @@ static void writable_property_received_cb(AZURE_IOT_NX_CONTEXT* context,
 
             // Confirm reception back to hub
             azure_nx_client_respond_int_writable_property(
-                context, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval, 200, version);
+                nx_context, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval, 200, version);
 
             // Set a telemetry event so we pick up the change immediately
             tx_event_flags_set(&azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR);
