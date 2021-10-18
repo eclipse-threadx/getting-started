@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.13)
 set(CMAKE_C_STANDARD 99)
 
 set(GSG_BASE_DIR ${CMAKE_SOURCE_DIR}/../../../../..)
-set(CORE_LIB_DIR ${GSG_BASE_DIR}/core/lib)
+set(SHARED_LIB_DIR ${GSG_BASE_DIR}/core/lib)
 
 # use the repo version of ninja on Windows as there is no Ninja installer
 if(WIN32)

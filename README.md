@@ -29,6 +29,10 @@ The following guides will get you started:
 
 **Device Lab Status:** A DevOps pipeline running on actual hardware in the lab.
 
+## Device Plug and Play Models
+
+The Plug and Play models associated with these guides can be found in the [shared/model](shared/model) directory.
+
 ## Contributing
 
 For details on contributing to this repository, see the [contributing](CONTRIBUTING.md) guide.

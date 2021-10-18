@@ -19,12 +19,19 @@
 /* Secure */
 #define NX_SECURE_ENABLE
 
+/* MQTT */
+#define NXD_MQTT_PING_TIMEOUT_DELAY 500
+#define NXD_MQTT_SOCKET_TIMEOUT     0
+
 /* Azure IoT Security Module */
 #define NX_ENABLE_IP_PACKET_FILTER
 
 /* Enable MQTT Cloud */
 #define NXD_MQTT_CLOUD_ENABLE
 #define NX_ENABLE_EXTENDED_NOTIFY_SUPPORT
+
+/* SNTP */
+#define NX_SNTP_CLIENT_MIN_SERVER_STRATUM 3
 
 /* NetX */
 #define NX_DNS_CLIENT_USER_CREATE_PACKET_POOL
