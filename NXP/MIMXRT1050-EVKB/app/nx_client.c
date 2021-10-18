@@ -11,7 +11,6 @@
 #include "nx_azure_iot_provisioning_client.h"
 
 #include "azure_iot_nx_client.h"
-#include "nx_azure_iot_pnp_helpers.h"
 
 #include "azure_config.h"
 #include "azure_device_x509_cert_config.h"
@@ -33,7 +32,7 @@ static TX_EVENT_FLAGS_GROUP azure_iot_flags;
 
 static int32_t telemetry_interval = 10;
 
-static UINT append_device_info_properties(NX_AZURE_IOT_JSON_WRITER* json_writer, VOID* context)
+static UINT append_device_info_properties(NX_AZURE_IOT_JSON_WRITER* json_writer)
 {
     if (nx_azure_iot_json_writer_append_property_with_string_value(json_writer,
             (UCHAR*)DEVICE_INFO_MANUFACTURER_PROPERTY_NAME,
@@ -82,7 +81,7 @@ static UINT append_device_info_properties(NX_AZURE_IOT_JSON_WRITER* json_writer,
     return NX_AZURE_IOT_SUCCESS;
 }
 
-static UINT append_device_telemetry(NX_AZURE_IOT_JSON_WRITER* json_writer, VOID* context)
+static UINT append_device_telemetry(NX_AZURE_IOT_JSON_WRITER* json_writer)
 {
     TEMPMON_StartMeasure(TEMPMON);
     float temperature = TEMPMON_GetCurrentTemperature(TEMPMON);
@@ -113,59 +112,62 @@ static void set_led_state(bool level)
     }
 }
 
-static void direct_method_cb(AZURE_IOT_NX_CONTEXT* nx_context,
+static void command_received_cb(AZURE_IOT_NX_CONTEXT* nx_context_ptr,
     const UCHAR* method,
     USHORT method_length,
     UCHAR* payload,
     USHORT payload_length,
-    VOID* context,
+    VOID* context_ptr,
     USHORT context_length)
 {
     UINT status;
-    UINT http_status    = 501;
-    CHAR* http_response = "{}";
 
     if (strncmp((CHAR*)method, SET_LED_STATE_COMMAND, method_length) == 0)
     {
         bool arg = (strncmp((CHAR*)payload, "true", payload_length) == 0);
         set_led_state(arg);
 
+        if ((status = nx_azure_iot_hub_client_command_message_response(
+                 &nx_context_ptr->iothub_client, 200, context_ptr, context_length, NULL, 0, NX_WAIT_FOREVER)))
+        {
+            printf("Direct method response failed! (0x%08x)\r\n", status);
+            return;
+        }
+
         azure_iot_nx_client_publish_bool_property(&azure_iot_nx_client, LED_STATE_PROPERTY, arg);
-
-        http_status = 200;
     }
-
-    if ((status = nx_azure_iot_hub_client_direct_method_message_response(&nx_context->iothub_client,
-             http_status,
-             context,
-             context_length,
-             (UCHAR*)http_response,
-             strlen(http_response),
-             NX_WAIT_FOREVER)))
+    else
     {
-        printf("Direct method response failed! (0x%08x)\r\n", status);
-        return;
+        printf("Direct method is not for this device\r\n");
+
+        if ((status = nx_azure_iot_hub_client_command_message_response(
+                 &nx_context_ptr->iothub_client, 501, context_ptr, context_length, NULL, 0, NX_WAIT_FOREVER)))
+        {
+            printf("Direct method response failed! (0x%08x)\r\n", status);
+            return;
+        }
     }
 }
 
-static void device_twin_desired_property_cb(UCHAR* component_name,
+static void writable_property_received_cb(AZURE_IOT_NX_CONTEXT* nx_context,
+    const UCHAR* component_name,
     UINT component_name_len,
     UCHAR* property_name,
     UINT property_name_len,
-    NX_AZURE_IOT_JSON_READER property_value_reader,
-    UINT version,
-    VOID* userContextCallback)
+    NX_AZURE_IOT_JSON_READER* json_reader_ptr,
+    UINT version)
 {
     UINT status;
-    AZURE_IOT_NX_CONTEXT* nx_context = (AZURE_IOT_NX_CONTEXT*)userContextCallback;
 
     if (strncmp((CHAR*)property_name, TELEMETRY_INTERVAL_PROPERTY, property_name_len) == 0)
     {
-        status = nx_azure_iot_json_reader_token_int32_get(&property_value_reader, &telemetry_interval);
+        status = nx_azure_iot_json_reader_token_int32_get(json_reader_ptr, &telemetry_interval);
         if (status == NX_AZURE_IOT_SUCCESS)
         {
+            printf("\tUpdating %s to %ld\r\n", TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
+
             // Confirm reception back to hub
-            azure_nx_client_respond_int_writeable_property(
+            azure_nx_client_respond_int_writable_property(
                 nx_context, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval, 200, version);
 
             // Set a telemetry event so we pick up the change immediately
@@ -174,17 +176,23 @@ static void device_twin_desired_property_cb(UCHAR* component_name,
     }
 }
 
-static void device_twin_property_cb(UCHAR* component_name,
+static void property_received_cb(AZURE_IOT_NX_CONTEXT* context,
+    const UCHAR* component_name,
     UINT component_name_len,
     UCHAR* property_name,
     UINT property_name_len,
-    NX_AZURE_IOT_JSON_READER property_value_reader,
-    UINT version,
-    VOID* userContextCallback)
+    NX_AZURE_IOT_JSON_READER* json_reader_ptr,
+    UINT version)
 {
+    UINT status;
+
     if (strncmp((CHAR*)property_name, TELEMETRY_INTERVAL_PROPERTY, property_name_len) == 0)
     {
-        nx_azure_iot_json_reader_token_int32_get(&property_value_reader, &telemetry_interval);
+        status = nx_azure_iot_json_reader_token_int32_get(json_reader_ptr, &telemetry_interval);
+        if (status == NX_AZURE_IOT_SUCCESS)
+        {
+            printf("\tUpdating %s to %ld\r\n", TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
+        }
     }
 }
 
@@ -235,9 +243,9 @@ UINT azure_iot_nx_client_entry(
     }
 
     // Register the callbacks
-    azure_iot_nx_client_register_direct_method(&azure_iot_nx_client, direct_method_cb);
-    azure_iot_nx_client_register_device_twin_desired_prop(&azure_iot_nx_client, device_twin_desired_property_cb);
-    azure_iot_nx_client_register_device_twin_prop(&azure_iot_nx_client, device_twin_property_cb);
+    azure_iot_nx_client_register_command_callback(&azure_iot_nx_client, command_received_cb);
+    azure_iot_nx_client_register_writable_property_callback(&azure_iot_nx_client, writable_property_received_cb);
+    azure_iot_nx_client_register_property_callback(&azure_iot_nx_client, property_received_cb);
 
     if ((status = azure_iot_nx_client_connect(&azure_iot_nx_client)))
     {
@@ -245,15 +253,15 @@ UINT azure_iot_nx_client_entry(
         return status;
     }
 
-    // Request the device twin for writeable property update
-    if ((status = azure_iot_nx_client_device_twin_request_and_wait(&azure_iot_nx_client)))
+    // Request the device twin for writable property update
+    if ((status = azure_iot_nx_client_properties_request_and_wait(&azure_iot_nx_client)))
     {
-        printf("ERROR: azure_iot_nx_client_device_twin_request_and_wait failed (0x%08x)\r\n", status);
+        printf("ERROR: azure_iot_nx_client_properties_request_and_wait failed (0x%08x)\r\n", status);
         return status;
     }
 
     // Send out property updates
-    azure_iot_nx_client_publish_int_writeable_property(
+    azure_iot_nx_client_publish_int_writable_property(
         &azure_iot_nx_client, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
     azure_iot_nx_client_publish_bool_property(&azure_iot_nx_client, LED_STATE_PROPERTY, false);
     azure_iot_nx_client_publish_properties(
@@ -266,7 +274,7 @@ UINT azure_iot_nx_client_entry(
         tx_event_flags_get(
             &azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR_CLEAR, &events, telemetry_interval * NX_IP_PERIODIC_RATE);
 
-        azure_iot_nx_client_publish_telemetry(&azure_iot_nx_client, append_device_telemetry);
+        azure_iot_nx_client_publish_telemetry(&azure_iot_nx_client, NULL, append_device_telemetry);
     }
 
     return NX_SUCCESS;

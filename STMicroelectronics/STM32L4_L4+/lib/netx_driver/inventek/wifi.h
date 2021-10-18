@@ -124,6 +124,7 @@ WIFI_Status_t       WIFI_Connect(
                              const char* Password,
                              WIFI_Ecn_t ecn);
 WIFI_Status_t       WIFI_GetIP_Address(uint8_t  *ipaddr);
+WIFI_Status_t       WIFI_GetIP_Mask(uint8_t  *mask);
 WIFI_Status_t       WIFI_GetDNS_Address (uint8_t  *DNS1addr,uint8_t  *DNS2addr);
 WIFI_Status_t       WIFI_GetGateway_Address (uint8_t  *Gateway_addr);
 WIFI_Status_t       WIFI_GetMAC_Address(uint8_t  *mac);

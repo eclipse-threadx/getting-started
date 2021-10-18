@@ -1688,10 +1688,13 @@ int32_t R_WIFI_SX_ULPGN_SendSocket (int32_t socket_number, uint8_t *data, int32_
             }
 
             sended_length += current_send_length;
-            if(-1 == socket_check_timeout(socket_number, 0))
-            {
-            	break;
-            }
+			if(0 != timeout_ms)
+			{
+				if(-1 == socket_check_timeout(socket_number, 0))
+				{
+					break;
+				}
+			}
         }
 		api_ret = sended_length;
 
@@ -3133,7 +3136,7 @@ static int32_t socket_check_timeout(uint8_t socket_number, uint8_t flag)
     {
         if(*thistime >= *endtime || *thistime < *starttime)
         {
-            return -1;
+     		return -1;
         }
     }
     else

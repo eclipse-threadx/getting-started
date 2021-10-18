@@ -2,7 +2,7 @@
 # Licensed under the MIT License.
 
 set(SOURCES
-    src/nx_wifi.c
+    nx_driver_rx65n_cloud_kit.c
 )
 
 set(TARGET netx_driver)
@@ -13,7 +13,7 @@ add_library(${TARGET} OBJECT
 
 target_include_directories(${TARGET}
     PUBLIC
-        src
+        .
 )
 
 target_link_libraries(${TARGET} 
