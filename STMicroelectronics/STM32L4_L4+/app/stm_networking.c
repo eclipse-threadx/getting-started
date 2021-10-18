@@ -22,8 +22,6 @@ NX_IP nx_ip;
 NX_PACKET_POOL nx_pool;
 NX_DNS nx_dns_client;
 
-VOID nx_driver_stm32l4(NX_IP_DRIVER* driver_req_ptr);
-
 // WiFi firmware version required
 static const UINT wifi_required_version[] = {3, 5, 2, 5};
 
@@ -133,7 +131,7 @@ static UINT dns_create()
     status = nx_dns_create(&nx_dns_client, &nx_ip, (UCHAR*)"DNS Client");
     if (status != NX_SUCCESS)
     {
-        printf("ERROR: Failed to create DNS (%0x02)\r\n", status);
+        printf("ERROR: Failed to create DNS (0x%04x)\r\n", status);
         return status;
     }
 
@@ -155,18 +153,18 @@ static UINT dns_create()
         return NX_NOT_SUCCESSFUL;
     }
 
+    // Output DNS Server address
+    print_address("DNS address", dns_address_1);
+
     // Add an IPv4 server address to the Client list.
     status = nx_dns_server_add(
         &nx_dns_client, IP_ADDRESS(dns_address_1[0], dns_address_1[1], dns_address_1[2], dns_address_1[3]));
     if (status != NX_SUCCESS)
     {
-        printf("ERROR: Failed to add dns server (%0x02)\r\n", status);
+        printf("ERROR: Failed to add DNS server (0x%04x)\r\n", status);
         nx_dns_delete(&nx_dns_client);
         return status;
     }
-
-    // Output DNS Server address
-    print_address("DNS address", dns_address_1);
 
     printf("SUCCESS: DNS client initialized\r\n\r\n");
 
@@ -223,7 +221,8 @@ UINT stm32_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
         1);
     if (status != NX_SUCCESS)
     {
-        printf("ERROR: Packet pool create fail.\r\n");
+        nx_packet_pool_delete(&nx_pool);
+        printf("ERROR: IP create fail.\r\n");
         return status;
     }
 

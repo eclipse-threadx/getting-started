@@ -15,39 +15,39 @@
 /**                                                                       */
 /** NetX Component                                                        */
 /**                                                                       */
-/**   NetX Porting layer for RX65N Cloud Kit                              */
+/**   Ethernet driver for RX65N Cloud Kit family of microprocessors       */
 /**                                                                       */
 /**************************************************************************/
 /**************************************************************************/
-#ifndef _NX_WIFI_H_
-#define _NX_WIFI_H_
 
-#ifdef __cplusplus
- extern "C" {
+#ifndef NX_DRIVER_RX65N_CLOUD_KIT_H
+#define NX_DRIVER_RX65N_CLOUD_KIT_H
+
+
+#ifdef   __cplusplus
+
+/* Yes, C++ compiler is present.  Use standard C.  */
+extern   "C" {
 #endif
 
+#include <r_wifi_sx_ulpgn_if.h>
 #include "nx_api.h"
 
-#define WIFI_RECEIVE_QUEUE_SIZE  10
 
-UINT nx_wifi_initialize(NX_IP *ip_ptr, NX_PACKET_POOL *packet_pool);
-UINT  nx_wifi_tcp_client_socket_connect(NX_TCP_SOCKET *socket_ptr,
-                                        NXD_ADDRESS *server_ip,
-                                        UINT server_port,
-                                        ULONG wait_option);
-UINT  nx_wifi_tcp_socket_disconnect(NX_TCP_SOCKET *socket_ptr, ULONG wait_option);
-UINT  nx_wifi_tcp_socket_send(NX_TCP_SOCKET *socket_ptr, NX_PACKET *packet_ptr, ULONG wait_option);
-UINT  nx_wifi_tcp_socket_receive(NX_TCP_SOCKET *socket_ptr, NX_PACKET **packet_ptr, ULONG wait_option);
-UINT  nx_wifi_udp_socket_bind(NX_UDP_SOCKET *socket_ptr, UINT  port, ULONG wait_option);
-UINT  nx_wifi_udp_socket_unbind(NX_UDP_SOCKET *socket_ptr);
-UINT  nx_wifi_udp_socket_send(NX_UDP_SOCKET *socket_ptr, NX_PACKET *packet_ptr,
-                              NXD_ADDRESS *ip_address, UINT port);
-UINT  nx_wifi_udp_socket_receive(NX_UDP_SOCKET *socket_ptr, NX_PACKET **packet_ptr, ULONG wait_option);
+#define NX_DRIVER_STATE_NOT_INITIALIZED         1
+#define NX_DRIVER_STATE_INITIALIZE_FAILED       2
+#define NX_DRIVER_STATE_INITIALIZED             3    
+#define NX_DRIVER_STATE_LINK_ENABLED            4
 
-#ifdef __cplusplus
-}
+#define NX_DRIVER_ERROR                         90
+    
+/* Define global driver entry function. */
+
+VOID  nx_driver_rx65n_cloud_kit(NX_IP_DRIVER *driver_req_ptr);
+
+#ifdef   __cplusplus
+/* Yes, C++ compiler is present.  Use standard C.  */
+    }
 #endif
-
-#endif /* _WIFI_H_ */
-
+#endif
 

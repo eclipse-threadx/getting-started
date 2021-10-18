@@ -9,12 +9,11 @@ set(SOURCES
     azure_iot_mqtt/hmac_sha256.c
     azure_iot_mqtt/sas_token.c
     azure_iot_mqtt/sha256.c
+    azure_iot_mqtt/json_utils.c
 
-    azure_iot_nx/azure_iot_nx_client.c
-
+    azure_iot_nx_client.c
     azure_iot_cert.c
     azure_iot_ciphersuites.c
-    json_utils.c
     sntp_client.c
 )
 
@@ -40,7 +39,6 @@ target_include_directories(${TARGET}
     PUBLIC
         .
         azure_iot_mqtt
-        azure_iot_nx
 )
 
 target_link_libraries(${TARGET}
