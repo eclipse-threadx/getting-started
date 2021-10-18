@@ -7,7 +7,7 @@
             "binaryDir": "${sourceDir}/build",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/install}",
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/install",
                 "CMAKE_TOOLCHAIN_FILE": {
                     "type": "FILEPATH",
                     "value": "${sourceDir}/../../cmake/arm-gcc-cortex-m7.cmake"
