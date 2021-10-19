@@ -17,9 +17,9 @@ set(NXD_ENABLE_FILE_SERVERS OFF CACHE BOOL "Disable fileX dependency by netxduo"
 set(NX_AZURE_DISABLE_IOT_SECURITY_MODULE ON CACHE BOOL "Disable ASC")
 
 # Core libraries
-add_subdirectory(${CORE_LIB_DIR}/threadx threadx)
-add_subdirectory(${CORE_LIB_DIR}/netxduo netxduo)
-add_subdirectory(${CORE_LIB_DIR}/jsmn jsmn)
+add_subdirectory(${SHARED_LIB_DIR}/threadx threadx)
+add_subdirectory(${SHARED_LIB_DIR}/netxduo netxduo)
+add_subdirectory(${SHARED_LIB_DIR}/jsmn jsmn)
 
 # Gecko SDK
 add_subdirectory(gecko_sdk_3.0.0_efr32mg12)

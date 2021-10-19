@@ -139,6 +139,22 @@ WIFI_Status_t WIFI_GetIP_Address (uint8_t  *ipaddr)
 }
 
 /**
+  * @brief  This function retrieves the WiFi interface's IP mask.
+  * @retval Operation Status.
+  */
+WIFI_Status_t WIFI_GetIP_Mask (uint8_t  *mask)
+{
+  WIFI_Status_t ret = WIFI_STATUS_ERROR;
+  
+  if (ES_WIFI_IsConnected(&EsWifiObj) == 1)
+  {
+    memcpy(mask, EsWifiObj.NetSettings.IP_Mask, 4);
+    ret = WIFI_STATUS_OK;
+  }
+  return ret;
+}
+
+/**
   * @brief  This function retrieves the WiFi interface's Gateway address.
   * @retval Operation Status.
   */

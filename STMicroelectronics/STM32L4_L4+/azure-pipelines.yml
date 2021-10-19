@@ -36,7 +36,7 @@ jobs:
       scriptType: 'ps'
       scriptLocation: 'scriptPath'
       scriptPath: '$(Build.SourcesDirectory)\Device-Lab\generate_creds.ps1'
-      arguments: '$(Build.SourcesDirectory)\getting-started\core\model'
+      arguments: '$(Build.SourcesDirectory)\getting-started\shared\model'
       useGlobalConfig: true
     displayName: "Start Certification"
 

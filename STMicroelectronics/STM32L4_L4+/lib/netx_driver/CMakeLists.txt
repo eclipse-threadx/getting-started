@@ -6,7 +6,7 @@ set(SOURCES
     inventek/es_wifi_io.c
     inventek/wifi.c
 
-    nx_wifi.c
+    nx_driver_stm32l4.c
 )
 
 set(PROJECT netx_driver)
@@ -24,5 +24,6 @@ target_link_libraries(${PROJECT}
 
 target_include_directories(${PROJECT}
     PUBLIC
+        .
         inventek
 )

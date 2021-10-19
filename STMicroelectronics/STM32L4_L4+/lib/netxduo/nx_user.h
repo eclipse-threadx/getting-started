@@ -12,6 +12,10 @@
 #ifndef NX_USER_H
 #define NX_USER_H
 
+#define NX_ENABLE_TCPIP_OFFLOAD
+#define NX_ENABLE_INTERFACE_CAPABILITY
+#define NX_DISABLE_IPV6
+
 /* Secure */
 #define NX_SECURE_ENABLE
 
@@ -21,7 +25,6 @@
 
 /* SNTP */
 #define NX_SNTP_CLIENT_MIN_SERVER_STRATUM 3
-#define NX_SNTP_CLIENT_MESSAGE_CHECK_DISABLE
 
 /* Azure IoT Security Module */
 #define NX_ENABLE_IP_PACKET_FILTER
@@ -29,9 +32,6 @@
 /* Enable MQTT Cloud */
 #define NXD_MQTT_CLOUD_ENABLE
 #define NX_ENABLE_EXTENDED_NOTIFY_SUPPORT
-
-/* Override wait option as the L475/L4S5 doesn't support 0 wait time */
-#define NX_AZURE_IOT_PROVISIONING_CLIENT_CONNECT_WAIT_OPTION (40 * NX_IP_PERIODIC_RATE)
 
 /* NetX */
 #define NX_DNS_CLIENT_USER_CREATE_PACKET_POOL

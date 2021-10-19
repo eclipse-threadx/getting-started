@@ -5,8 +5,8 @@ cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 set(CMAKE_C_STANDARD 99)
 
 set(GSG_BASE_DIR ${CMAKE_SOURCE_DIR}/../..)
-set(CORE_SRC_DIR ${GSG_BASE_DIR}/core/src)
-set(CORE_LIB_DIR ${GSG_BASE_DIR}/core/lib)
+set(SHARED_SRC_DIR ${GSG_BASE_DIR}/shared/src)
+set(SHARED_LIB_DIR ${GSG_BASE_DIR}/shared/lib)
 
 # use the repo version of ninja on Windows as there is no Ninja installer
 if(WIN32)
@@ -23,6 +23,6 @@ include(${GSG_BASE_DIR}/cmake/utilities.cmake)
 # Define the Project
 project(mimxrt1050_azure_iot C ASM)
 
-add_subdirectory(${CORE_SRC_DIR} core_src)
+add_subdirectory(${SHARED_SRC_DIR} shared_src)
 add_subdirectory(lib)
 add_subdirectory(app)

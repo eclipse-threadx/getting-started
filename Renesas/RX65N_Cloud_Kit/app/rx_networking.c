@@ -4,21 +4,25 @@
 #include "rx_networking.h"
 
 #include "nx_api.h"
+#include "nx_driver_rx65n_cloud_kit.h"
 #include "nx_secure_tls_api.h"
-#include "nx_wifi.h"
 #include "nxd_dns.h"
 
 #include <r_wifi_sx_ulpgn_if.h>
 
-#define THREADX_PACKET_COUNT 60
-#define THREADX_PACKET_SIZE  1536
-#define THREADX_POOL_SIZE    ((THREADX_PACKET_SIZE + sizeof(NX_PACKET)) * THREADX_PACKET_COUNT)
+#define THREADX_IP_STACK_SIZE 2048
+#define THREADX_PACKET_COUNT  60
+#define THREADX_PACKET_SIZE   1500
+#define THREADX_POOL_SIZE     ((THREADX_PACKET_SIZE + sizeof(NX_PACKET)) * THREADX_PACKET_COUNT)
 
+static UCHAR threadx_ip_stack[THREADX_IP_STACK_SIZE];
 static UCHAR threadx_ip_pool[THREADX_POOL_SIZE];
 
 NX_IP nx_ip;
 NX_PACKET_POOL nx_pool;
 NX_DNS nx_dns_client;
+
+wifi_ip_configuration_t ip_cfg = {0};
 
 // Print IPv4 address
 static void print_address(CHAR* preable, uint32_t address)
@@ -66,11 +70,8 @@ static bool wifi_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
         return false;
     }
 
-    // checkWifiVersion();
-
     // Connect to the specified SSID
-    int32_t wifiConnectCounter     = 1;
-    wifi_ip_configuration_t ip_cfg = {0};
+    int32_t wifiConnectCounter = 1;
     printf("\tConnecting to SSID '%s'\r\n", ssid);
     while (R_WIFI_SX_ULPGN_Connect(ssid, password, security_mode, 1, &ip_cfg))
     {
@@ -79,19 +80,6 @@ static bool wifi_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
     }
 
     printf("SUCCESS: WiFi connected to %s\r\n\r\n", ssid);
-
-    printf("Initializing DHCP\r\n");
-
-    if (R_WIFI_SX_ULPGN_GetIpAddress(&ip_cfg) != WIFI_SUCCESS)
-    {
-        return false;
-    }
-
-    // Output IP address and gateway address
-    print_address("IP address", ip_cfg.ipaddress);
-    print_address("Gateway", ip_cfg.gateway);
-
-    printf("SUCCESS: DHCP initialized\r\n\r\n");
 
     return true;
 }
@@ -132,9 +120,7 @@ static UINT dns_create()
     print_address("DNS address", dns_address_1);
 
     // Add an IPv4 server address to the Client list.
-    status = nx_dns_server_add(&nx_dns_client,
-        IP_ADDRESS(
-            dns_address_1 >> 24 & 0xFF, dns_address_1 >> 16 & 0xFF, dns_address_1 >> 8 & 0xFF, dns_address_1 & 0xFF));
+    status = nx_dns_server_add(&nx_dns_client, dns_address_1);
     if (status != NX_SUCCESS)
     {
         printf("ERROR: Failed to add DNS server (0x%04x)\r\n", status);
@@ -150,12 +136,25 @@ static UINT dns_create()
 int rx_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
 {
     UINT status;
+    UCHAR ip_address[4];
+    UCHAR ip_mask[4];
+    UCHAR gateway_address[4];
 
     // Intialize Wifi
     if (!wifi_init(ssid, password, mode))
     {
         return NX_NOT_SUCCESSFUL;
     }
+
+    printf("Initializing DHCP\r\n");
+
+    R_WIFI_SX_ULPGN_GetIpAddress(&ip_cfg);
+
+    // Output IP address and gateway address
+    print_address("IP address", ip_cfg.ipaddress);
+    print_address("Gateway", ip_cfg.gateway);
+
+    printf("SUCCESS: DHCP initialized\r\n\r\n");
 
     // Initialize the NetX system
     nx_system_initialize();
@@ -170,7 +169,15 @@ int rx_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
     }
 
     // Create an IP instance
-    status = nx_ip_create(&nx_ip, "NetX IP Instance 0", 0, 0, &nx_pool, NULL, NULL, 0, 0);
+    status = nx_ip_create(&nx_ip,
+        "NetX IP Instance 0",
+        ip_cfg.ipaddress,
+        ip_cfg.subnetmask,
+        &nx_pool,
+        nx_driver_rx65n_cloud_kit,
+        (UCHAR*)threadx_ip_stack,
+        THREADX_IP_STACK_SIZE,
+        1);
     if (status != NX_SUCCESS)
     {
         nx_packet_pool_delete(&nx_pool);
@@ -178,14 +185,34 @@ int rx_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
         return status;
     }
 
-    // Initialize NetX WiFi
-    status = nx_wifi_initialize(&nx_ip, &nx_pool);
+    // Set gateway address
+    status = nx_ip_gateway_address_set(&nx_ip, ip_cfg.gateway);
     if (status != NX_SUCCESS)
     {
         nx_ip_delete(&nx_ip);
         nx_packet_pool_delete(&nx_pool);
-        printf("ERROR: WiFi initialize fail.\r\n");
-        return status;
+        printf("THREADX platform initialize fail: Gateway set FAIL.\r\n");
+        return false;
+    }
+
+    // Enable TCP traffic
+    status = nx_tcp_enable(&nx_ip);
+    if (status != NX_SUCCESS)
+    {
+        nx_ip_delete(&nx_ip);
+        nx_packet_pool_delete(&nx_pool);
+        printf("THREADX platform initialize fail: TCP ENABLE FAIL.\r\n");
+        return false;
+    }
+
+    // Enable UDP traffic
+    status = nx_udp_enable(&nx_ip);
+    if (status != NX_SUCCESS)
+    {
+        nx_ip_delete(&nx_ip);
+        nx_packet_pool_delete(&nx_pool);
+        printf("THREADX platform initialize fail: UDP ENABLE FAIL.\r\n");
+        return false;
     }
 
     // Initialize TLS

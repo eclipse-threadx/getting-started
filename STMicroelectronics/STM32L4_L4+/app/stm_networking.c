@@ -4,16 +4,18 @@
 #include "stm_networking.h"
 
 #include "nx_api.h"
+#include "nx_driver_stm32l4.h"
 #include "nx_secure_tls_api.h"
-#include "nx_wifi.h"
 #include "nxd_dns.h"
 
 #include "wifi.h"
 
-#define THREADX_PACKET_COUNT 20
-#define THREADX_PACKET_SIZE  1200 // Set the default value to 1200 since WIFI payload size (ES_WIFI_PAYLOAD_SIZE) is 1200
-#define THREADX_POOL_SIZE    ((THREADX_PACKET_SIZE + sizeof(NX_PACKET)) * THREADX_PACKET_COUNT)
+#define THREADX_IP_STACK_SIZE 2048
+#define THREADX_PACKET_COUNT  20
+#define THREADX_PACKET_SIZE   1200 // Set the default value to 1200 since WIFI payload size (ES_WIFI_PAYLOAD_SIZE) is 1200
+#define THREADX_POOL_SIZE     ((THREADX_PACKET_SIZE + sizeof(NX_PACKET)) * THREADX_PACKET_COUNT)
 
+static UCHAR threadx_ip_stack[THREADX_IP_STACK_SIZE];
 static UCHAR threadx_ip_pool[THREADX_POOL_SIZE];
 
 NX_IP nx_ip;
@@ -115,26 +117,6 @@ static bool wifi_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
 
     printf("SUCCESS: WiFi connected to %s\r\n\r\n", ssid);
 
-    printf("Initializing DHCP\r\n");
-
-    uint8_t ip_address[4];
-    if (WIFI_GetIP_Address(ip_address) != WIFI_STATUS_OK)
-    {
-        return false;
-    }
-
-    uint8_t gateway_address[4];
-    if (WIFI_GetGateway_Address(gateway_address) != WIFI_STATUS_OK)
-    {
-        return false;
-    }
-
-    // Output IP address and gateway address
-    print_address("IP address", ip_address);
-    print_address("Gateway", gateway_address);
-
-    printf("SUCCESS: DHCP initialized\r\n\r\n");
-
     return true;
 }
 
@@ -149,7 +131,7 @@ static UINT dns_create()
     status = nx_dns_create(&nx_dns_client, &nx_ip, (UCHAR*)"DNS Client");
     if (status != NX_SUCCESS)
     {
-        printf("ERROR: Failed to create DNS (%0x02)\r\n", status);
+        printf("ERROR: Failed to create DNS (0x%04x)\r\n", status);
         return status;
     }
 
@@ -171,33 +153,49 @@ static UINT dns_create()
         return NX_NOT_SUCCESSFUL;
     }
 
+    // Output DNS Server address
+    print_address("DNS address", dns_address_1);
+
     // Add an IPv4 server address to the Client list.
     status = nx_dns_server_add(
         &nx_dns_client, IP_ADDRESS(dns_address_1[0], dns_address_1[1], dns_address_1[2], dns_address_1[3]));
     if (status != NX_SUCCESS)
     {
-        printf("ERROR: Failed to add dns server (%0x02)\r\n", status);
+        printf("ERROR: Failed to add DNS server (0x%04x)\r\n", status);
         nx_dns_delete(&nx_dns_client);
         return status;
     }
-
-    // Output DNS Server address
-    print_address("DNS address", dns_address_1);
 
     printf("SUCCESS: DNS client initialized\r\n\r\n");
 
     return NX_SUCCESS;
 }
 
-int stm32_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
+UINT stm32_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
 {
     UINT status;
+    UCHAR ip_address[4];
+    UCHAR ip_mask[4];
+    UCHAR gateway_address[4];
 
     // Intialize Wifi
     if (!wifi_init(ssid, password, mode))
     {
         return NX_NOT_SUCCESSFUL;
     }
+
+    printf("Initializing DHCP\r\n");
+
+    // Get WIFI information
+    WIFI_GetIP_Address(ip_address);
+    WIFI_GetIP_Mask(ip_mask);
+    WIFI_GetGateway_Address(gateway_address);
+
+    // Output IP address and gateway address
+    print_address("IP address", ip_address);
+    print_address("Gateway", gateway_address);
+
+    printf("SUCCESS: DHCP initialized\r\n\r\n");
 
     // Initialize the NetX system
     nx_system_initialize();
@@ -212,7 +210,15 @@ int stm32_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
     }
 
     // Create an IP instance
-    status = nx_ip_create(&nx_ip, "NetX IP Instance 0", 0, 0, &nx_pool, NULL, NULL, 0, 0);
+    status = nx_ip_create(&nx_ip,
+        "NetX IP Instance 0",
+        IP_ADDRESS(ip_address[0], ip_address[1], ip_address[2], ip_address[3]),
+        IP_ADDRESS(ip_mask[0], ip_mask[1], ip_mask[2], ip_mask[3]),
+        &nx_pool,
+        nx_driver_stm32l4,
+        (UCHAR*)threadx_ip_stack,
+        THREADX_IP_STACK_SIZE,
+        1);
     if (status != NX_SUCCESS)
     {
         nx_packet_pool_delete(&nx_pool);
@@ -220,14 +226,35 @@ int stm32_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
         return status;
     }
 
-    // Initialize NetX WiFi
-    status = nx_wifi_initialize(&nx_ip, &nx_pool);
+    // Set gateway address
+    status = nx_ip_gateway_address_set(
+        &nx_ip, IP_ADDRESS(gateway_address[0], gateway_address[1], gateway_address[2], gateway_address[3]));
     if (status != NX_SUCCESS)
     {
         nx_ip_delete(&nx_ip);
         nx_packet_pool_delete(&nx_pool);
-        printf("ERROR: WiFi initialize fail.\r\n");
-        return status;
+        printf("THREADX platform initialize fail: Gateway set FAIL.\r\n");
+        return false;
+    }
+
+    // Enable TCP traffic
+    status = nx_tcp_enable(&nx_ip);
+    if (status != NX_SUCCESS)
+    {
+        nx_ip_delete(&nx_ip);
+        nx_packet_pool_delete(&nx_pool);
+        printf("THREADX platform initialize fail: TCP ENABLE FAIL.\r\n");
+        return false;
+    }
+
+    // Enable UDP traffic
+    status = nx_udp_enable(&nx_ip);
+    if (status != NX_SUCCESS)
+    {
+        nx_ip_delete(&nx_ip);
+        nx_packet_pool_delete(&nx_pool);
+        printf("THREADX platform initialize fail: UDP ENABLE FAIL.\r\n");
+        return false;
     }
 
     // Initialize TLS
