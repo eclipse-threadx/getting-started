@@ -800,7 +800,7 @@ UINT azure_iot_nx_client_disconnect(AZURE_IOT_NX_CONTEXT* context)
 UINT azure_iot_nx_client_properties_request_and_wait(AZURE_IOT_NX_CONTEXT* context)
 {
     UINT status;
-    ULONG app_events;
+    ULONG app_events = 0;
 
     // Request the properties
     if ((status = nx_azure_iot_hub_client_properties_request(&context->iothub_client, NX_WAIT_FOREVER)))
