@@ -319,7 +319,7 @@ static VOID process_writable_properties(AZURE_IOT_NX_CONTEXT* nx_context)
 
 static VOID event_thread(ULONG parameter)
 {
-    ULONG app_events;
+    ULONG app_events = 0;
 
     AZURE_IOT_NX_CONTEXT* context = (AZURE_IOT_NX_CONTEXT*)parameter;
 
