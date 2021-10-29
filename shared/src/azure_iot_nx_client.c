@@ -298,7 +298,7 @@ static VOID process_writable_properties(AZURE_IOT_NX_CONTEXT* nx_context)
 
     printf_packet("Receive properties: ", packet_ptr);
 
-    if (nx_context->property_received_cb)
+    if (nx_context->writable_property_received_cb)
     {
         // Parse the writable properties from the writable receive message
         if ((status = process_properties_shared(nx_context,
@@ -307,7 +307,7 @@ static VOID process_writable_properties(AZURE_IOT_NX_CONTEXT* nx_context)
                  NX_AZURE_IOT_HUB_CLIENT_PROPERTY_WRITABLE,
                  properties_buffer,
                  sizeof(properties_buffer),
-                 nx_context->property_received_cb)))
+                 nx_context->writable_property_received_cb)))
         {
             printf("Error: failed to parse properties (0x%08x)\r\n", status);
         }
