@@ -19,9 +19,6 @@
 #include "azure_device_x509_cert_config.h"
 #include "azure_pnp_info.h"
 
-#define TELEMETRY_SCRATCH_BUFFER_SIZE 128
-#define CALLBACK_SCRATCH_BUFFER_SIZE  128
-
 #define IOT_MODEL_ID "dtmi:azurertos:devkit:gsg;2"
 
 #define TELEMETRY_TEMPERATURE       "temperature"
