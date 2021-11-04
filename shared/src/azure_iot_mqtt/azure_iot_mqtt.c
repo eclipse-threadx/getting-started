@@ -124,20 +124,20 @@ UINT tls_setup(NXD_MQTT_CLIENT* client,
         return status;
     }
 
-    status = nx_secure_tls_remote_certificate_allocate(tls_session,	
-        &azure_iot_mqtt->mqtt_remote_certificate,	
-        azure_iot_mqtt->mqtt_remote_cert_buffer,	
-        sizeof(azure_iot_mqtt->mqtt_remote_cert_buffer));	
-    if (status != NX_SUCCESS)	
-    {	
-        printf("Failed to create remote certificate buffer (0x%04x)\r\n", status);	
-        return status;	
+    status = nx_secure_tls_remote_certificate_allocate(tls_session,
+        &azure_iot_mqtt->mqtt_remote_certificate,
+        azure_iot_mqtt->mqtt_remote_cert_buffer,
+        sizeof(azure_iot_mqtt->mqtt_remote_cert_buffer));
+    if (status != NX_SUCCESS)
+    {
+        printf("Failed to create remote certificate buffer (0x%04x)\r\n", status);
+        return status;
     }
 
     // Add a CA Certificate to our trusted store for verifying incoming server certificates
     status = nx_secure_x509_certificate_initialize(trusted_cert,
-        (UCHAR*)azure_iot_root_ca,
-        azure_iot_root_ca_len,
+        (UCHAR*)azure_iot_root_cert,
+        azure_iot_root_cert_size,
         NX_NULL,
         0,
         NX_NULL,
