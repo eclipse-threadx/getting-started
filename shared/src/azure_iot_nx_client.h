@@ -46,16 +46,21 @@ struct AZURE_IOT_NX_CONTEXT_STRUCT
     UINT azure_iot_device_sas_key_len;
     NX_SECURE_X509_CERT device_certificate;
 
-    CHAR azure_iot_hub_hostname[AZURE_IOT_HOST_NAME_SIZE];
-    CHAR azure_iot_device_id[AZURE_IOT_DEVICE_ID_SIZE];
     CHAR* azure_iot_model_id;
+    CHAR* azure_iot_dps_scope_id;
+    CHAR* azure_iot_dps_registration_id;
+
+    CHAR azure_iot_hub_hostname[AZURE_IOT_HOST_NAME_SIZE];
+    UINT azure_iot_hub_hostname_len;
+    CHAR azure_iot_device_id[AZURE_IOT_DEVICE_ID_SIZE];
+    UINT azure_iot_hub_device_id_len;
 
     TX_THREAD azure_iot_thread;
     TX_EVENT_FLAGS_GROUP events;
 
     NX_AZURE_IOT nx_azure_iot;
 
-    // Union dps and hub as they are used consecutively and will save RAM
+    // Union DPS and Hub as they are used consecutively and will save space
     union CLIENT_UNION {
         NX_AZURE_IOT_HUB_CLIENT iothub;
         NX_AZURE_IOT_PROVISIONING_CLIENT dps;
