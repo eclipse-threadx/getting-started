@@ -396,8 +396,23 @@ static UINT azure_iot_nx_client_hub_create_internal(AZURE_IOT_NX_CONTEXT* contex
         }
     }
 
+    if (status != NX_AZURE_IOT_SUCCESS)
+    {
+        printf("Failed to set auth credentials\r\n");
+    }
+
+    // Add more CA certificates
+    else if ((status = nx_azure_iot_hub_client_trusted_cert_add(&context->iothub_client, &context->root_ca_cert_2)))
+    {
+        printf("Failed on nx_azure_iot_hub_client_trusted_cert_add!: error code = 0x%08x\r\n", status);
+    }
+    else if ((status = nx_azure_iot_hub_client_trusted_cert_add(&context->iothub_client, &context->root_ca_cert_3)))
+    {
+        printf("Failed on nx_azure_iot_hub_client_trusted_cert_add!: error code = 0x%08x\r\n", status);
+    }
+    
     // Set Model id
-    if ((status = nx_azure_iot_hub_client_model_id_set(
+    else if ((status = nx_azure_iot_hub_client_model_id_set(
              &context->iothub_client, (UCHAR*)context->azure_iot_model_id, strlen(context->azure_iot_model_id))))
     {
         printf("Error: nx_azure_iot_hub_client_model_id_set (0x%08x)\r\n", status);
@@ -578,10 +593,38 @@ UINT azure_iot_nx_client_create(AZURE_IOT_NX_CONTEXT* context,
         return status;
     }
 
-    // Initialize CA root certificate
+    // Initialize CA root certificates
     if ((status = nx_secure_x509_certificate_initialize(&context->root_ca_cert,
-             (UCHAR*)azure_iot_root_ca,
-             (USHORT)azure_iot_root_ca_len,
+             (UCHAR*)azure_iot_root_cert,
+             (USHORT)azure_iot_root_cert_size,
+             NX_NULL,
+             0,
+             NULL,
+             0,
+             NX_SECURE_X509_KEY_TYPE_NONE)))
+    {
+        printf("Failed to initialize ROOT CA certificate!: error code = 0x%08x\r\n", status);
+        nx_azure_iot_delete(&context->nx_azure_iot);
+        return status;
+    }
+
+    if ((status = nx_secure_x509_certificate_initialize(&context->root_ca_cert_2,
+             (UCHAR*)azure_iot_root_cert_2,
+             (USHORT)azure_iot_root_cert_size_2,
+             NX_NULL,
+             0,
+             NULL,
+             0,
+             NX_SECURE_X509_KEY_TYPE_NONE)))
+    {
+        printf("Failed to initialize ROOT CA certificate!: error code = 0x%08x\r\n", status);
+        nx_azure_iot_delete(&context->nx_azure_iot);
+        return status;
+    }
+
+    if ((status = nx_secure_x509_certificate_initialize(&context->root_ca_cert_3,
+             (UCHAR*)azure_iot_root_cert_3,
+             (USHORT)azure_iot_root_cert_size_3,
              NX_NULL,
              0,
              NULL,
@@ -691,8 +734,24 @@ UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CONTEXT* context, CHAR* dps_id_
         }
     }
 
+    if (status != NX_AZURE_IOT_SUCCESS)
+    {
+        printf("Failed to set auth credentials\r\n");
+    }
+
+    // Add more CA certificates
+    else if ((status = nx_azure_iot_provisioning_client_trusted_cert_add(&context->dps_client, &context->root_ca_cert_2)))
+    {
+        printf("Failed on nx_azure_iot_provisioning_client_trusted_cert_add!: error code = 0x%08x\r\n", status);
+    }
+    else if ((status =
+                     nx_azure_iot_provisioning_client_trusted_cert_add(&context->dps_client, &context->root_ca_cert_3)))
+    {
+        printf("Failed on nx_azure_iot_provisioning_client_trusted_cert_add!: error code = 0x%08x\r\n", status);
+    }
+
     // Set the payload containing the model Id
-    if ((status = nx_azure_iot_provisioning_client_registration_payload_set(
+    else if ((status = nx_azure_iot_provisioning_client_registration_payload_set(
              &context->dps_client, (UCHAR*)payload, strlen(payload))))
     {
         printf("Error: nx_azure_iot_provisioning_client_registration_payload_set (0x%08x\r\n", status);
