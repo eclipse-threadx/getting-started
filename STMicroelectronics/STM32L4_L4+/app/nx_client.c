@@ -26,10 +26,10 @@
 #define LED_STATE_PROPERTY          "ledState"
 #define SET_LED_STATE_COMMAND       "setLedState"
 
-#define TELEMETRY_INTERVAL_EVENT 1
+//#define TELEMETRY_INTERVAL_EVENT 1
 
 static AZURE_IOT_NX_CONTEXT azure_iot_nx_client;
-static TX_EVENT_FLAGS_GROUP azure_iot_flags;
+//static TX_EVENT_FLAGS_GROUP azure_iot_flags;
 
 static int32_t telemetry_interval = 10;
 
@@ -167,13 +167,16 @@ static void writable_property_received_cb(AZURE_IOT_NX_CONTEXT* nx_context,
             azure_nx_client_respond_int_writable_property(
                 nx_context, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval, 200, version);
 
-            // Set a telemetry event so we pick up the change immediately
-            tx_event_flags_set(&azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR);
+//            // Set a telemetry event so we pick up the change immediately
+//            tx_event_flags_set(&azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR);
+
+            // :TODO: update the periodic interval
+            azure_nx_client_periodic_interval_set(nx_context, telemetry_interval);
         }
     }
 }
 
-static void property_received_cb(AZURE_IOT_NX_CONTEXT* context,
+static void property_received_cb(AZURE_IOT_NX_CONTEXT* nx_context,
     const UCHAR* component_name,
     UINT component_name_len,
     UCHAR* property_name,
@@ -193,20 +196,36 @@ static void property_received_cb(AZURE_IOT_NX_CONTEXT* context,
     }
 }
 
+static void properties_complete_cb(AZURE_IOT_NX_CONTEXT* nx_context)
+{
+    // Device twin processing is done, send out property updates
+    azure_iot_nx_client_publish_properties(nx_context, DEVICE_INFO_COMPONENT_NAME, append_device_info_properties);
+    azure_iot_nx_client_publish_int_writable_property(nx_context, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
+    azure_iot_nx_client_publish_bool_property(nx_context, LED_STATE_PROPERTY, false);
+
+    printf("\r\nStarting Main loop\r\n");
+}
+
+static void telemetry_cb(AZURE_IOT_NX_CONTEXT* nx_context)
+{
+    // Send out telemetry
+    azure_iot_nx_client_publish_telemetry(nx_context, NULL, append_device_telemetry);
+}
+
 UINT azure_iot_nx_client_entry(
     NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, UINT (*unix_time_callback)(ULONG* unix_time))
 {
     UINT status;
-    ULONG events = 0;
+    //    ULONG events = 0;
 
-    if ((status = tx_event_flags_create(&azure_iot_flags, "Azure IoT flags")))
-    {
-        printf("FAIL: Unable to create nx_client event flags (0x%08x)\r\n", status);
-        return status;
-    }
+    /*    if ((status = tx_event_flags_create(&azure_iot_flags, "Azure IoT flags")))
+        {
+            printf("FAIL: Unable to create nx_client event flags (0x%08x)\r\n", status);
+            return status;
+        }*/
 
-    status =
-        azure_iot_nx_client_create(&azure_iot_nx_client, ip_ptr, pool_ptr, dns_ptr, unix_time_callback, IOT_MODEL_ID);
+    status = azure_iot_nx_client_create(
+        &azure_iot_nx_client, ip_ptr, pool_ptr, dns_ptr, unix_time_callback, IOT_MODEL_ID, sizeof(IOT_MODEL_ID) - 1);
     if (status != NX_SUCCESS)
     {
         printf("ERROR: azure_iot_nx_client_create failed (0x%08x)\r\n", status);
@@ -214,65 +233,89 @@ UINT azure_iot_nx_client_entry(
     }
 
 #ifdef ENABLE_X509
-    status = azure_iot_nx_client_cert_set(&azure_iot_nx_client,
-        (UCHAR*)iot_x509_device_cert,
-        iot_x509_device_cert_len,
-        (UCHAR*)iot_x509_private_key,
-        iot_x509_private_key_len);
-#else
-    status = azure_iot_nx_client_sas_set(&azure_iot_nx_client, IOT_DEVICE_SAS_KEY);
-#endif
-    if (status != NX_SUCCESS)
+    if ((status = azure_iot_nx_client_cert_set(&azure_iot_nx_client,
+             (UCHAR*)iot_x509_device_cert,
+             iot_x509_device_cert_len,
+             (UCHAR*)iot_x509_private_key,
+             iot_x509_private_key_len)))
     {
-        printf("ERROR: azure_iot_nx_client_[sas|cert]_set failed (0x%08x)\r\n", status);
+        printf("ERROR: azure_iot_nx_client_cert_set (0x%08x)\r\n", status);
         return status;
     }
+#else
+    if ((status = azure_iot_nx_client_sas_set(&azure_iot_nx_client, IOT_DEVICE_SAS_KEY)))
+    {
+        printf("ERROR: azure_iot_nx_client_sas_set (0x%08x)\r\n", status);
+        return status;
+    }
+#endif
 
 #ifdef ENABLE_DPS
-    status = azure_iot_nx_client_dps_create(&azure_iot_nx_client, IOT_DPS_ID_SCOPE, IOT_DPS_REGISTRATION_ID);
-#else
-    status = azure_iot_nx_client_hub_create(&azure_iot_nx_client, IOT_HUB_HOSTNAME, IOT_HUB_DEVICE_ID);
-#endif
-    if (status != NX_SUCCESS)
+    if ((status = azure_iot_nx_client_dps_config_set(&azure_iot_nx_client, IOT_DPS_ID_SCOPE, IOT_DPS_REGISTRATION_ID)))
     {
-        printf("ERROR: azure_iot_nx_client_[hub|dps]_create failed (0x%08x)\r\n", status);
+        printf("ERROR: azure_iot_nx_client_set_dps_config (0x%08x)\r\n", status);
         return status;
     }
+#else
+    if ((status = azure_iot_nx_client_hub_config_set(&azure_iot_nx_client, IOT_HUB_HOSTNAME, IOT_HUB_DEVICE_ID)))
+    {
+        printf("ERROR: azure_iot_nx_client_set_hub_config (0x%08x)\r\n", status);
+        return status;
+    }
+#endif
+
+    /*#ifdef ENABLE_DPS
+        status = azure_iot_nx_client_dps_create(&azure_iot_nx_client, IOT_DPS_ID_SCOPE, IOT_DPS_REGISTRATION_ID);
+    #else
+        status = azure_iot_nx_client_hub_create(&azure_iot_nx_client, IOT_HUB_HOSTNAME, IOT_HUB_DEVICE_ID);
+    #endif
+        if (status != NX_SUCCESS)
+        {
+            printf("ERROR: azure_iot_nx_client_[hub|dps]_create failed (0x%08x)\r\n", status);
+            return status;
+        }*/
 
     // Register the callbacks
     azure_iot_nx_client_register_command_callback(&azure_iot_nx_client, command_received_cb);
     azure_iot_nx_client_register_writable_property_callback(&azure_iot_nx_client, writable_property_received_cb);
     azure_iot_nx_client_register_property_callback(&azure_iot_nx_client, property_received_cb);
+    azure_iot_nx_client_register_properties_complete_callback(&azure_iot_nx_client, properties_complete_cb);
+    azure_iot_nx_client_register_timer_callback(&azure_iot_nx_client, telemetry_cb);
 
-    if ((status = azure_iot_nx_client_connect(&azure_iot_nx_client)))
-    {
-        printf("ERROR: failed to connect nx client (0x%08x)\r\n", status);
-        return status;
-    }
+    /*    if ((status = azure_iot_nx_client_connect(&azure_iot_nx_client)))
+        {
+            printf("ERROR: failed to connect nx client (0x%08x)\r\n", status);
+            return status;
+        }*/
+
+    // :TODO: wait for connection
 
     // Request the device twin for writable property update
-    if ((status = azure_iot_nx_client_properties_request_and_wait(&azure_iot_nx_client)))
-    {
-        printf("ERROR: azure_iot_nx_client_properties_request_and_wait failed (0x%08x)\r\n", status);
-        return status;
-    }
+    /*    if ((status = azure_iot_nx_client_properties_request_and_wait(&azure_iot_nx_client)))
+        {
+            printf("ERROR: azure_iot_nx_client_properties_request_and_wait failed (0x%08x)\r\n", status);
+            return status;
+        }*/
 
     // Send out property updates
-    azure_iot_nx_client_publish_int_writable_property(
-        &azure_iot_nx_client, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
-    azure_iot_nx_client_publish_bool_property(&azure_iot_nx_client, LED_STATE_PROPERTY, false);
-    azure_iot_nx_client_publish_properties(
-        &azure_iot_nx_client, DEVICE_INFO_COMPONENT_NAME, append_device_info_properties);
+    /*    azure_iot_nx_client_publish_int_writable_property(
+            &azure_iot_nx_client, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
+        azure_iot_nx_client_publish_bool_property(&azure_iot_nx_client, LED_STATE_PROPERTY, false);
+        azure_iot_nx_client_publish_properties(
+            &azure_iot_nx_client, DEVICE_INFO_COMPONENT_NAME, append_device_info_properties);*/
 
-    printf("\r\nStarting Main loop\r\n");
+    // Enter the main processing loop
+//    printf("\r\nStarting Main loop\r\n");
+    azure_iot_nx_client_run(&azure_iot_nx_client);
 
-    while (true)
-    {
-        tx_event_flags_get(
-            &azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR_CLEAR, &events, telemetry_interval * NX_IP_PERIODIC_RATE);
+    /*    while (true)
+        {
+            tx_event_flags_get(
+                &azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR_CLEAR, &events, telemetry_interval *
+       NX_IP_PERIODIC_RATE);
 
-        azure_iot_nx_client_publish_telemetry(&azure_iot_nx_client, NULL, append_device_telemetry);
-    }
+            azure_iot_nx_client_publish_telemetry(&azure_iot_nx_client, NULL, append_device_telemetry);
+        }*/
 
     return NX_SUCCESS;
 }
