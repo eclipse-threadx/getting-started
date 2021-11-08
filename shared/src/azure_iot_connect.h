@@ -6,6 +6,7 @@
 
 #include "nx_api.h"
 
-VOID connection_monitor(AZURE_IOT_NX_CONTEXT* nx_context, UINT (*iothub_init)(AZURE_IOT_NX_CONTEXT* nx_context));
+VOID connection_monitor(
+    AZURE_IOT_NX_CONTEXT* nx_context, UINT (*iothub_init)(AZURE_IOT_NX_CONTEXT* nx_context), UINT (*network_connect)());
 
 #endif

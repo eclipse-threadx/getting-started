@@ -106,7 +106,7 @@ UINT azure_iot_nx_client_register_property_callback(
     AZURE_IOT_NX_CONTEXT* nx_context, func_ptr_property_received callback);
 UINT azure_iot_nx_client_register_properties_complete_callback(
     AZURE_IOT_NX_CONTEXT* nx_context, func_ptr_properties_complete callback);
-UINT azure_iot_nx_client_register_timer_callback(AZURE_IOT_NX_CONTEXT* nx_context, func_ptr_timer callback);
+UINT azure_iot_nx_client_register_timer_callback(AZURE_IOT_NX_CONTEXT* nx_context, func_ptr_timer callback, int32_t interval);
 
 UINT azure_iot_nx_client_sas_set(AZURE_IOT_NX_CONTEXT* context, CHAR* device_sas_key);
 UINT azure_iot_nx_client_cert_set(AZURE_IOT_NX_CONTEXT* context,
@@ -135,7 +135,7 @@ UINT azure_iot_nx_client_create(AZURE_IOT_NX_CONTEXT* context,
 
 // UINT azure_iot_nx_client_delete(AZURE_IOT_NX_CONTEXT* nx_context);
 
-UINT azure_iot_nx_client_run(AZURE_IOT_NX_CONTEXT* nx_context);
+UINT azure_iot_nx_client_run(AZURE_IOT_NX_CONTEXT* nx_context,  UINT (*network_connect)());
 // UINT azure_iot_nx_client_connect(AZURE_IOT_NX_CONTEXT* context);
 
 // UINT azure_iot_nx_client_properties_request_and_wait(AZURE_IOT_NX_CONTEXT* context);

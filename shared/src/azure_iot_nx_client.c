@@ -65,29 +65,16 @@ static VOID connection_status_callback(NX_AZURE_IOT_HUB_CLIENT* hub_client_ptr, 
 
     if (status == NX_SUCCESS)
     {
-        printf("Connected to IoT Hub\r\n");
+//        printf("SUCCESS: Connected to IoT Hub\r\n\r\n");
         tx_event_flags_set(&nx_context->events, HUB_CONNECT_EVENT, TX_OR);
     }
     else
     {
-        printf("Disconnect from IoT Hub\r\n");
+//        printf("Disconnected from IoT Hub\r\n");
         tx_event_flags_set(&nx_context->events, HUB_DISCONNECT_EVENT, TX_OR);
-        /*        printf("Connection failure from IoT Hub (0x%08x)\r\n", status);
-
-                UINT connect_status = NX_AZURE_IOT_FAILURE;
-                UINT retry_count    = 0;
-                while (connect_status)
-                {
-                    printf("Reconnecting to IoT Hub...\r\n");
-
-                    if ((connect_status = nx_azure_iot_hub_client_connect(hub_client_ptr, NX_TRUE,
-           HUB_CONNECT_TIMEOUT_TICKS)))
-                    {
-                        printf("Failed reconnect on nx_azure_iot_hub_client_connect (0x%08x)\r\n", connect_status);
-                        tx_thread_sleep(exponential_backoff_with_jitter(&retry_count));
-                    }
-                }*/
     }
+
+    nx_context->azure_iot_connection_status = status;
 }
 
 static VOID message_receive_command(NX_AZURE_IOT_HUB_CLIENT* hub_client_ptr, VOID* context)
@@ -427,6 +414,8 @@ static VOID process_connect(AZURE_IOT_NX_CONTEXT* nx_context)
 {
     UINT status;
 
+    printf("SUCCESS: Connected to IoT Hub\r\n\r\n");
+
     // Request the client properties
     if ((status = nx_azure_iot_hub_client_properties_request(&nx_context->iothub_client, NX_WAIT_FOREVER)))
     {
@@ -437,6 +426,17 @@ static VOID process_connect(AZURE_IOT_NX_CONTEXT* nx_context)
     if ((status = tx_timer_activate(&nx_context->periodic_timer)))
     {
         printf("ERROR: tx_timer_activate (0x%08x)\r\n", status);
+    }
+}
+
+static VOID process_disconnect(AZURE_IOT_NX_CONTEXT* nx_context)
+{
+    UINT status;
+
+    // Stop the periodic timer
+    if ((status = tx_timer_deactivate(&nx_context->periodic_timer)))
+    {
+        printf("ERROR: tx_timer_deactivate (0x%08x)\r\n", status);
     }
 }
 
@@ -647,6 +647,14 @@ static VOID process_writable_properties(AZURE_IOT_NX_CONTEXT* nx_context)
 
     // Release the received packet, as ownership was passed to the application from the middleware
     nx_packet_release(packet_ptr);
+}
+
+static void process_timer_event(AZURE_IOT_NX_CONTEXT* nx_context)
+{
+    if (nx_context->timer_cb)
+    {
+        nx_context->timer_cb(nx_context);
+    }
 }
 
 /*static VOID event_thread(ULONG parameter)
@@ -865,14 +873,18 @@ UINT azure_iot_nx_client_register_properties_complete_callback(
     return NX_SUCCESS;
 }
 
-UINT azure_iot_nx_client_register_timer_callback(AZURE_IOT_NX_CONTEXT* nx_context, func_ptr_timer callback)
+UINT azure_iot_nx_client_register_timer_callback(
+    AZURE_IOT_NX_CONTEXT* nx_context, func_ptr_timer callback, int32_t interval)
 {
     if (nx_context == NULL || nx_context->timer_cb != NULL)
     {
         return NX_PTR_ERROR;
     }
 
+    azure_nx_client_periodic_interval_set(nx_context, interval);
+
     nx_context->timer_cb = callback;
+
     return NX_SUCCESS;
 }
 
@@ -1050,8 +1062,8 @@ UINT azure_iot_nx_client_create(AZURE_IOT_NX_CONTEXT* nx_context,
                   "periodic_timer",
                   periodic_timer_entry,
                   (ULONG)nx_context,
-                  NX_IP_PERIODIC_RATE,
-                  NX_IP_PERIODIC_RATE,
+                  60 * NX_IP_PERIODIC_RATE,
+                  60 * NX_IP_PERIODIC_RATE,
                   TX_NO_ACTIVATE)))
     {
         printf("ERROR: tx_timer_create (0x%08x)\r\n", status);
@@ -1257,22 +1269,28 @@ UINT azure_iot_nx_client_create(AZURE_IOT_NX_CONTEXT* nx_context,
     return NX_SUCCESS;
 }*/
 
-UINT azure_iot_nx_client_run(AZURE_IOT_NX_CONTEXT* nx_context)
+UINT azure_iot_nx_client_run(AZURE_IOT_NX_CONTEXT* nx_context, UINT (*network_connect)())
 {
-    ULONG app_events = 0;
+    ULONG app_events;
 
     while (true)
     {
+        app_events = 0;
         tx_event_flags_get(&nx_context->events, HUB_ALL_EVENTS, TX_OR_CLEAR, &app_events, NX_IP_PERIODIC_RATE);
+
+        if (app_events & HUB_DISCONNECT_EVENT)
+        {
+            process_disconnect(nx_context);
+        }
 
         if (app_events & HUB_CONNECT_EVENT)
         {
             process_connect(nx_context);
         }
 
-        if (app_events & HUB_DISCONNECT_EVENT)
+        if (app_events & HUB_PERIODIC_TIMER_EVENT)
         {
-            // nothing here yet
+            process_timer_event(nx_context);
         }
 
         if (app_events & HUB_PROPERTIES_COMPLETE_EVENT)
@@ -1296,7 +1314,7 @@ UINT azure_iot_nx_client_run(AZURE_IOT_NX_CONTEXT* nx_context)
         }
 
         // Monitor and reconnect where possible
-        connection_monitor(nx_context, iot_hub_initialize);
+        connection_monitor(nx_context, iot_hub_initialize, network_connect);
     }
 
     return NX_SUCCESS;

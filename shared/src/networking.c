@@ -93,7 +93,7 @@ static UINT dhcp_wait()
 
     printf("SUCCESS: DHCP initialized\r\n\r\n");
 
-    return status;
+    return NX_SUCCESS;
 }
 
 static UINT dns_create()

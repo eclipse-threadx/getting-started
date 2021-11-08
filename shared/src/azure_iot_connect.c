@@ -1,13 +1,5 @@
-/**************************************************************************/
-/*                                                                        */
-/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
-/*                                                                        */
-/*       This software is licensed under the Microsoft Software License   */
-/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
-/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
-/*       and in the root directory of this software.                      */
-/*                                                                        */
-/**************************************************************************/
+/* Copyright (c) Microsoft Corporation.
+   Licensed under the MIT License. */
 
 #include <stdio.h>
 
@@ -61,6 +53,26 @@ static UINT exponential_backoff_with_jitter()
     return ((UINT)(base_delay * (1 + jitter_percent)) * NX_IP_PERIODIC_RATE);
 }
 
+static void iothub_connect(AZURE_IOT_NX_CONTEXT* nx_context,  UINT (*network_connect)())
+{
+    // Wait for network
+//    ULONG gateway_address;
+/*    while (nx_ip_gateway_address_get(nx_context->azure_iot_nx_ip, &gateway_address))
+    {
+        tx_thread_sleep(NX_IP_PERIODIC_RATE);
+    }*/
+    network_connect();
+
+    // Connect to IoT hub
+    printf("Initializing Azure IoT Hub client\r\n");
+    printf("\tHub hostname: %.*s\r\n", nx_context->azure_iot_hub_hostname_len, nx_context->azure_iot_hub_hostname);
+    printf("\tDevice id: %.*s\r\n", nx_context->azure_iot_hub_device_id_len, nx_context->azure_iot_hub_device_id);
+    printf("\tModel id: %.*s\r\n", nx_context->azure_iot_model_id_len, nx_context->azure_iot_model_id);
+
+    nx_context->azure_iot_connection_status =
+        nx_azure_iot_hub_client_connect(&nx_context->iothub_client, NX_FALSE, NX_WAIT_FOREVER);
+}
+
 //----------------------------------------------------------------------------------------------------
 //
 //   +-------------+           +-------------+           +-------------+           +-------------+
@@ -78,11 +90,9 @@ static UINT exponential_backoff_with_jitter()
 //                             +---------------------------------------+
 //
 //----------------------------------------------------------------------------------------------------
-VOID connection_monitor(AZURE_IOT_NX_CONTEXT* nx_context, UINT (*iothub_init)(AZURE_IOT_NX_CONTEXT* nx_context))
+VOID connection_monitor(
+    AZURE_IOT_NX_CONTEXT* nx_context, UINT (*iothub_init)(AZURE_IOT_NX_CONTEXT* nx_context), UINT (*network_connect)())
 {
-    UINT loop = NX_TRUE;
-    ULONG gateway_address;
-
     // Check parameters
     if ((nx_context == NX_NULL) || (iothub_init == NX_NULL))
     {
@@ -104,7 +114,7 @@ VOID connection_monitor(AZURE_IOT_NX_CONTEXT* nx_context, UINT (*iothub_init)(AZ
     }
 
     // Recover
-    while (loop)
+    while (true)
     {
         switch (nx_context->azure_iot_connection_status)
         {
@@ -130,15 +140,7 @@ VOID connection_monitor(AZURE_IOT_NX_CONTEXT* nx_context, UINT (*iothub_init)(AZ
                 }
                 else
                 {
-                    // Wait for network
-                    while (nx_ip_gateway_address_get(nx_context->azure_iot_nx_ip, &gateway_address))
-                    {
-                        tx_thread_sleep(NX_IP_PERIODIC_RATE);
-                    }
-
-                    // Connect to IoT hub
-                    nx_context->azure_iot_connection_status =
-                        nx_azure_iot_hub_client_connect(&nx_context->iothub_client, NX_FALSE, NX_WAIT_FOREVER);
+                    iothub_connect(nx_context, network_connect);
                 }
             }
             break;
@@ -155,14 +157,7 @@ VOID connection_monitor(AZURE_IOT_NX_CONTEXT* nx_context, UINT (*iothub_init)(AZ
 
                 tx_thread_sleep(exponential_backoff_with_jitter());
 
-                // Wait for network
-                while (nx_ip_gateway_address_get(nx_context->azure_iot_nx_ip, &gateway_address))
-                {
-                    tx_thread_sleep(NX_IP_PERIODIC_RATE);
-                }
-
-                nx_context->azure_iot_connection_status =
-                    nx_azure_iot_hub_client_connect(&nx_context->iothub_client, NX_FALSE, NX_WAIT_FOREVER);
+                iothub_connect(nx_context, network_connect);
             }
             break;
         }

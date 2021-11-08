@@ -18,6 +18,7 @@
 #include "azure_config.h"
 #include "azure_device_x509_cert_config.h"
 #include "azure_pnp_info.h"
+#include "stm_networking.h"
 
 #define IOT_MODEL_ID "dtmi:azurertos:devkit:gsg;2"
 
@@ -26,10 +27,7 @@
 #define LED_STATE_PROPERTY          "ledState"
 #define SET_LED_STATE_COMMAND       "setLedState"
 
-//#define TELEMETRY_INTERVAL_EVENT 1
-
 static AZURE_IOT_NX_CONTEXT azure_iot_nx_client;
-//static TX_EVENT_FLAGS_GROUP azure_iot_flags;
 
 static int32_t telemetry_interval = 10;
 
@@ -192,6 +190,7 @@ static void property_received_cb(AZURE_IOT_NX_CONTEXT* nx_context,
         if (status == NX_AZURE_IOT_SUCCESS)
         {
             printf("\tUpdating %s to %ld\r\n", TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
+            azure_nx_client_periodic_interval_set(nx_context, telemetry_interval);            
         }
     }
 }
@@ -280,7 +279,7 @@ UINT azure_iot_nx_client_entry(
     azure_iot_nx_client_register_writable_property_callback(&azure_iot_nx_client, writable_property_received_cb);
     azure_iot_nx_client_register_property_callback(&azure_iot_nx_client, property_received_cb);
     azure_iot_nx_client_register_properties_complete_callback(&azure_iot_nx_client, properties_complete_cb);
-    azure_iot_nx_client_register_timer_callback(&azure_iot_nx_client, telemetry_cb);
+    azure_iot_nx_client_register_timer_callback(&azure_iot_nx_client, telemetry_cb, telemetry_interval);
 
     /*    if ((status = azure_iot_nx_client_connect(&azure_iot_nx_client)))
         {
@@ -306,7 +305,7 @@ UINT azure_iot_nx_client_entry(
 
     // Enter the main processing loop
 //    printf("\r\nStarting Main loop\r\n");
-    azure_iot_nx_client_run(&azure_iot_nx_client);
+    azure_iot_nx_client_run(&azure_iot_nx_client, stm_network_connect);
 
     /*    while (true)
         {
