@@ -13,7 +13,6 @@
 #include "azure_iot_connect.h"
 
 #define NX_AZURE_IOT_THREAD_PRIORITY 4
-#define THREAD_PRIORITY              16
 
 // Incoming events from the middleware
 #define HUB_ALL_EVENTS                        0xFFF
@@ -29,10 +28,6 @@
 
 #define MODULE_ID   ""
 #define DPS_PAYLOAD "{\"modelId\":\"%s\"}"
-
-#define MAX_EXPONENTIAL_BACKOFF_JITTER_PERCENT 60
-#define MAX_EXPONENTIAL_BACKOFF_IN_SEC         (10 * 60)
-#define INITIAL_EXPONENTIAL_BACKOFF_IN_SEC     3
 
 // Connection timeouts in threadx ticks
 #define HUB_CONNECT_TIMEOUT_TICKS  (10 * TX_TIMER_TICKS_PER_SECOND)
@@ -72,7 +67,8 @@ static VOID connection_status_callback(NX_AZURE_IOT_HUB_CLIENT* hub_client_ptr, 
         tx_event_flags_set(&nx_context->events, HUB_DISCONNECT_EVENT, TX_OR);
     }
 
-    nx_context->azure_iot_connection_status = status;
+    // update the connection status in the connect workflow
+    set_connection_status(nx_context, status);
 }
 
 static VOID message_receive_command(NX_AZURE_IOT_HUB_CLIENT* hub_client_ptr, VOID* context)
@@ -250,7 +246,7 @@ static UINT iot_hub_initialize(AZURE_IOT_NX_CONTEXT* nx_context)
              (UCHAR*)nx_context->azure_iot_hub_device_id,
              nx_context->azure_iot_hub_device_id_len,
              (UCHAR*)MODULE_ID,
-             strlen(MODULE_ID),
+             sizeof(MODULE_ID) - 1,
              _nx_azure_iot_tls_supported_crypto,
              _nx_azure_iot_tls_supported_crypto_size,
              _nx_azure_iot_tls_ciphersuite_map,
@@ -734,8 +730,8 @@ UINT azure_iot_nx_client_hub_config_set(
 
     // take a copy of the hub config
     nx_context->azure_iot_connect_mode      = AZURE_IOT_CONNECT_MODE_HUB;
-    nx_context->azure_iot_hub_hostname_len  = strlen(iot_hub_hostname) - 1;
-    nx_context->azure_iot_hub_device_id_len = strlen(iot_hub_device_id) - 1;
+    nx_context->azure_iot_hub_hostname_len  = strlen(iot_hub_hostname);
+    nx_context->azure_iot_hub_device_id_len = strlen(iot_hub_device_id);
     memcpy(nx_context->azure_iot_hub_hostname, iot_hub_hostname, nx_context->azure_iot_hub_hostname_len);
     memcpy(nx_context->azure_iot_hub_device_id, iot_hub_hostname, nx_context->azure_iot_hub_device_id_len);
 

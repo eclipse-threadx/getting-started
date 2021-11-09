@@ -165,10 +165,6 @@ static void writable_property_received_cb(AZURE_IOT_NX_CONTEXT* nx_context,
             azure_nx_client_respond_int_writable_property(
                 nx_context, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval, 200, version);
 
-//            // Set a telemetry event so we pick up the change immediately
-//            tx_event_flags_set(&azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR);
-
-            // :TODO: update the periodic interval
             azure_nx_client_periodic_interval_set(nx_context, telemetry_interval);
         }
     }
@@ -190,7 +186,7 @@ static void property_received_cb(AZURE_IOT_NX_CONTEXT* nx_context,
         if (status == NX_AZURE_IOT_SUCCESS)
         {
             printf("\tUpdating %s to %ld\r\n", TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
-            azure_nx_client_periodic_interval_set(nx_context, telemetry_interval);            
+            azure_nx_client_periodic_interval_set(nx_context, telemetry_interval);
         }
     }
 }
@@ -215,13 +211,6 @@ UINT azure_iot_nx_client_entry(
     NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, UINT (*unix_time_callback)(ULONG* unix_time))
 {
     UINT status;
-    //    ULONG events = 0;
-
-    /*    if ((status = tx_event_flags_create(&azure_iot_flags, "Azure IoT flags")))
-        {
-            printf("FAIL: Unable to create nx_client event flags (0x%08x)\r\n", status);
-            return status;
-        }*/
 
     status = azure_iot_nx_client_create(
         &azure_iot_nx_client, ip_ptr, pool_ptr, dns_ptr, unix_time_callback, IOT_MODEL_ID, sizeof(IOT_MODEL_ID) - 1);
@@ -263,17 +252,6 @@ UINT azure_iot_nx_client_entry(
     }
 #endif
 
-    /*#ifdef ENABLE_DPS
-        status = azure_iot_nx_client_dps_create(&azure_iot_nx_client, IOT_DPS_ID_SCOPE, IOT_DPS_REGISTRATION_ID);
-    #else
-        status = azure_iot_nx_client_hub_create(&azure_iot_nx_client, IOT_HUB_HOSTNAME, IOT_HUB_DEVICE_ID);
-    #endif
-        if (status != NX_SUCCESS)
-        {
-            printf("ERROR: azure_iot_nx_client_[hub|dps]_create failed (0x%08x)\r\n", status);
-            return status;
-        }*/
-
     // Register the callbacks
     azure_iot_nx_client_register_command_callback(&azure_iot_nx_client, command_received_cb);
     azure_iot_nx_client_register_writable_property_callback(&azure_iot_nx_client, writable_property_received_cb);
@@ -281,40 +259,8 @@ UINT azure_iot_nx_client_entry(
     azure_iot_nx_client_register_properties_complete_callback(&azure_iot_nx_client, properties_complete_cb);
     azure_iot_nx_client_register_timer_callback(&azure_iot_nx_client, telemetry_cb, telemetry_interval);
 
-    /*    if ((status = azure_iot_nx_client_connect(&azure_iot_nx_client)))
-        {
-            printf("ERROR: failed to connect nx client (0x%08x)\r\n", status);
-            return status;
-        }*/
-
-    // :TODO: wait for connection
-
-    // Request the device twin for writable property update
-    /*    if ((status = azure_iot_nx_client_properties_request_and_wait(&azure_iot_nx_client)))
-        {
-            printf("ERROR: azure_iot_nx_client_properties_request_and_wait failed (0x%08x)\r\n", status);
-            return status;
-        }*/
-
-    // Send out property updates
-    /*    azure_iot_nx_client_publish_int_writable_property(
-            &azure_iot_nx_client, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
-        azure_iot_nx_client_publish_bool_property(&azure_iot_nx_client, LED_STATE_PROPERTY, false);
-        azure_iot_nx_client_publish_properties(
-            &azure_iot_nx_client, DEVICE_INFO_COMPONENT_NAME, append_device_info_properties);*/
-
     // Enter the main processing loop
-//    printf("\r\nStarting Main loop\r\n");
     azure_iot_nx_client_run(&azure_iot_nx_client, stm_network_connect);
-
-    /*    while (true)
-        {
-            tx_event_flags_get(
-                &azure_iot_flags, TELEMETRY_INTERVAL_EVENT, TX_OR_CLEAR, &events, telemetry_interval *
-       NX_IP_PERIODIC_RATE);
-
-            azure_iot_nx_client_publish_telemetry(&azure_iot_nx_client, NULL, append_device_telemetry);
-        }*/
 
     return NX_SUCCESS;
 }

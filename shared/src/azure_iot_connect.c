@@ -53,14 +53,14 @@ static UINT exponential_backoff_with_jitter()
     return ((UINT)(base_delay * (1 + jitter_percent)) * NX_IP_PERIODIC_RATE);
 }
 
-static void iothub_connect(AZURE_IOT_NX_CONTEXT* nx_context,  UINT (*network_connect)())
+static void iothub_connect(AZURE_IOT_NX_CONTEXT* nx_context, UINT (*network_connect)())
 {
     // Wait for network
-//    ULONG gateway_address;
-/*    while (nx_ip_gateway_address_get(nx_context->azure_iot_nx_ip, &gateway_address))
-    {
-        tx_thread_sleep(NX_IP_PERIODIC_RATE);
-    }*/
+    //    ULONG gateway_address;
+    /*    while (nx_ip_gateway_address_get(nx_context->azure_iot_nx_ip, &gateway_address))
+        {
+            tx_thread_sleep(NX_IP_PERIODIC_RATE);
+        }*/
     network_connect();
 
     // Connect to IoT hub
@@ -71,6 +71,11 @@ static void iothub_connect(AZURE_IOT_NX_CONTEXT* nx_context,  UINT (*network_con
 
     nx_context->azure_iot_connection_status =
         nx_azure_iot_hub_client_connect(&nx_context->iothub_client, NX_FALSE, NX_WAIT_FOREVER);
+}
+
+VOID set_connection_status(AZURE_IOT_NX_CONTEXT* nx_context, UINT connection_status)
+{
+    nx_context->azure_iot_connection_status = connection_status;
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -119,7 +124,7 @@ VOID connection_monitor(
         switch (nx_context->azure_iot_connection_status)
         {
             // Something bad has happened with client state, we need to re-initialize it
-            case NX_DNS_QUERY_FAILED:
+
             case NXD_MQTT_ERROR_BAD_USERNAME_PASSWORD:
             case NXD_MQTT_ERROR_NOT_AUTHORIZED:
             {
