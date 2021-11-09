@@ -73,7 +73,7 @@ static void iothub_connect(AZURE_IOT_NX_CONTEXT* nx_context, UINT (*network_conn
         nx_azure_iot_hub_client_connect(&nx_context->iothub_client, NX_FALSE, NX_WAIT_FOREVER);
 }
 
-VOID set_connection_status(AZURE_IOT_NX_CONTEXT* nx_context, UINT connection_status)
+VOID connection_status_set(AZURE_IOT_NX_CONTEXT* nx_context, UINT connection_status)
 {
     nx_context->azure_iot_connection_status = connection_status;
 }
@@ -124,7 +124,6 @@ VOID connection_monitor(
         switch (nx_context->azure_iot_connection_status)
         {
             // Something bad has happened with client state, we need to re-initialize it
-
             case NXD_MQTT_ERROR_BAD_USERNAME_PASSWORD:
             case NXD_MQTT_ERROR_NOT_AUTHORIZED:
             {

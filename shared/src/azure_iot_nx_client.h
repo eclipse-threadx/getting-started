@@ -22,10 +22,6 @@
 #define AZURE_IOT_AUTH_MODE_SAS     1
 #define AZURE_IOT_AUTH_MODE_CERT    2
 
-#define AZURE_IOT_CONNECT_MODE_UNKNOWN 0
-#define AZURE_IOT_CONNECT_MODE_HUB     1
-#define AZURE_IOT_CONNECT_MODE_DPS     2
-
 typedef struct AZURE_IOT_NX_CONTEXT_STRUCT AZURE_IOT_NX_CONTEXT;
 
 typedef void (*func_ptr_command_received)(AZURE_IOT_NX_CONTEXT*, const UCHAR*, USHORT, UCHAR*, USHORT, VOID*, USHORT);
@@ -51,7 +47,6 @@ struct AZURE_IOT_NX_CONTEXT_STRUCT
     ULONG azure_iot_thread_stack[AZURE_IOT_STACK_SIZE / sizeof(ULONG)];
 
     UINT azure_iot_auth_mode;
-    UINT azure_iot_connect_mode;
 
     // pnp model id
     CHAR* azure_iot_model_id;
@@ -82,7 +77,7 @@ struct AZURE_IOT_NX_CONTEXT_STRUCT
 
     UINT azure_iot_connection_status;
 
-    // Union DPS and Hub as they are used consecutively and will save space
+    // union DPS and Hub as they are used consecutively and will save space
     union CLIENT_UNION {
         NX_AZURE_IOT_HUB_CLIENT iothub;
         NX_AZURE_IOT_PROVISIONING_CLIENT dps;
@@ -116,11 +111,6 @@ UINT azure_iot_nx_client_cert_set(AZURE_IOT_NX_CONTEXT* context,
     UCHAR* device_x509_key,
     UINT device_x509_key_len);
 
-UINT azure_iot_nx_client_hub_config_set(
-    AZURE_IOT_NX_CONTEXT* nx_context, CHAR* iot_hub_hostname, CHAR* iot_hub_device_id);
-UINT azure_iot_nx_client_dps_config_set(
-    AZURE_IOT_NX_CONTEXT* nx_context, CHAR* dps_id_scope, CHAR* dps_registration_id);
-
 UINT azure_nx_client_periodic_interval_set(AZURE_IOT_NX_CONTEXT* nx_context, INT interval);
 
 UINT azure_iot_nx_client_create(AZURE_IOT_NX_CONTEXT* context,
@@ -131,7 +121,10 @@ UINT azure_iot_nx_client_create(AZURE_IOT_NX_CONTEXT* context,
     CHAR* iot_model_id,
     UINT iot_model_id_len);
 
-UINT azure_iot_nx_client_run(AZURE_IOT_NX_CONTEXT* nx_context, UINT (*network_connect)());
+UINT azure_iot_nx_client_hub_run(
+    AZURE_IOT_NX_CONTEXT* nx_context, CHAR* iot_hub_hostname, CHAR* iot_hub_device_id, UINT (*network_connect)());
+UINT azure_iot_nx_client_dps_run(
+    AZURE_IOT_NX_CONTEXT* nx_context, CHAR* dps_id_scope, CHAR* dps_registration_id, UINT (*network_connect)());
 
 UINT azure_iot_nx_client_publish_telemetry(AZURE_IOT_NX_CONTEXT* context_ptr,
     CHAR* component_name_ptr,

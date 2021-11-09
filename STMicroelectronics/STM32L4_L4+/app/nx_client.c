@@ -212,14 +212,26 @@ UINT azure_iot_nx_client_entry(
 {
     UINT status;
 
-    status = azure_iot_nx_client_create(
-        &azure_iot_nx_client, ip_ptr, pool_ptr, dns_ptr, unix_time_callback, IOT_MODEL_ID, sizeof(IOT_MODEL_ID) - 1);
-    if (status != NX_SUCCESS)
+    if ((status = azure_iot_nx_client_create(&azure_iot_nx_client,
+             ip_ptr,
+             pool_ptr,
+             dns_ptr,
+             unix_time_callback,
+             IOT_MODEL_ID,
+             sizeof(IOT_MODEL_ID) - 1)))
     {
         printf("ERROR: azure_iot_nx_client_create failed (0x%08x)\r\n", status);
         return status;
     }
 
+    // Register the callbacks
+    azure_iot_nx_client_register_command_callback(&azure_iot_nx_client, command_received_cb);
+    azure_iot_nx_client_register_writable_property_callback(&azure_iot_nx_client, writable_property_received_cb);
+    azure_iot_nx_client_register_property_callback(&azure_iot_nx_client, property_received_cb);
+    azure_iot_nx_client_register_properties_complete_callback(&azure_iot_nx_client, properties_complete_cb);
+    azure_iot_nx_client_register_timer_callback(&azure_iot_nx_client, telemetry_cb, telemetry_interval);
+
+    // Setup authentication
 #ifdef ENABLE_X509
     if ((status = azure_iot_nx_client_cert_set(&azure_iot_nx_client,
              (UCHAR*)iot_x509_device_cert,
@@ -238,29 +250,12 @@ UINT azure_iot_nx_client_entry(
     }
 #endif
 
+    // Enter the main loop
 #ifdef ENABLE_DPS
-    if ((status = azure_iot_nx_client_dps_config_set(&azure_iot_nx_client, IOT_DPS_ID_SCOPE, IOT_DPS_REGISTRATION_ID)))
-    {
-        printf("ERROR: azure_iot_nx_client_set_dps_config (0x%08x)\r\n", status);
-        return status;
-    }
+    azure_iot_nx_client_dps_run(&azure_iot_nx_client, IOT_DPS_ID_SCOPE, IOT_DPS_REGISTRATION_ID, stm_network_connect);
 #else
-    if ((status = azure_iot_nx_client_hub_config_set(&azure_iot_nx_client, IOT_HUB_HOSTNAME, IOT_HUB_DEVICE_ID)))
-    {
-        printf("ERROR: azure_iot_nx_client_set_hub_config (0x%08x)\r\n", status);
-        return status;
-    }
+    azure_iot_nx_client_hub_run(&azure_iot_nx_client, IOT_HUB_HOSTNAME, IOT_HUB_DEVICE_ID, stm_network_connect);
 #endif
-
-    // Register the callbacks
-    azure_iot_nx_client_register_command_callback(&azure_iot_nx_client, command_received_cb);
-    azure_iot_nx_client_register_writable_property_callback(&azure_iot_nx_client, writable_property_received_cb);
-    azure_iot_nx_client_register_property_callback(&azure_iot_nx_client, property_received_cb);
-    azure_iot_nx_client_register_properties_complete_callback(&azure_iot_nx_client, properties_complete_cb);
-    azure_iot_nx_client_register_timer_callback(&azure_iot_nx_client, telemetry_cb, telemetry_interval);
-
-    // Enter the main processing loop
-    azure_iot_nx_client_run(&azure_iot_nx_client, stm_network_connect);
 
     return NX_SUCCESS;
 }
