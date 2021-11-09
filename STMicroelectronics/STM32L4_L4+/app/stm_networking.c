@@ -99,31 +99,6 @@ static bool wifi_init()
     return true;
 }
 
-/*static UINT dns_init()
-{
-    UINT status;
-
-    status = nx_dns_create(&nx_dns_client, &nx_ip, (UCHAR*)"DNS Client");
-    if (status != NX_SUCCESS)
-    {
-        printf("ERROR: nx_dns_create (0x%04x)\r\n", status);
-        return status;
-    }
-
-    // Use the packet pool here
-#ifdef NX_DNS_CLIENT_USER_CREATE_PACKET_POOL
-    status = nx_dns_packet_pool_set(&nx_dns_client, nx_ip.nx_ip_default_packet_pool);
-    if (status != NX_SUCCESS)
-    {
-        printf("ERROR: nx_dns_packet_pool_set (%0x08)\r\n", status);
-        nx_dns_delete(&nx_dns_client);
-        return status;
-    }
-#endif
-
-    return NX_SUCCESS;
-}*/
-
 static UINT dhcp_connect()
 {
     UINT status;
@@ -265,7 +240,7 @@ UINT stm_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
         nx_ip_delete(&nx_ip);
         nx_packet_pool_delete(&nx_pool);
         printf("ERROR: nx_tcp_enable (0x%08x)\r\n", status);
-        return false;
+        return status;
     }
 
     // Enable UDP traffic
@@ -274,7 +249,7 @@ UINT stm_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
         nx_ip_delete(&nx_ip);
         nx_packet_pool_delete(&nx_pool);
         printf("ERROR: nx_udp_enable (0x%08x)\r\n", status);
-        return false;
+        return status;
     }
 
     status = nx_dns_create(&nx_dns_client, &nx_ip, (UCHAR*)"DNS Client");

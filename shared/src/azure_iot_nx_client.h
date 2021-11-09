@@ -106,7 +106,8 @@ UINT azure_iot_nx_client_register_property_callback(
     AZURE_IOT_NX_CONTEXT* nx_context, func_ptr_property_received callback);
 UINT azure_iot_nx_client_register_properties_complete_callback(
     AZURE_IOT_NX_CONTEXT* nx_context, func_ptr_properties_complete callback);
-UINT azure_iot_nx_client_register_timer_callback(AZURE_IOT_NX_CONTEXT* nx_context, func_ptr_timer callback, int32_t interval);
+UINT azure_iot_nx_client_register_timer_callback(
+    AZURE_IOT_NX_CONTEXT* nx_context, func_ptr_timer callback, int32_t interval);
 
 UINT azure_iot_nx_client_sas_set(AZURE_IOT_NX_CONTEXT* context, CHAR* device_sas_key);
 UINT azure_iot_nx_client_cert_set(AZURE_IOT_NX_CONTEXT* context,
@@ -130,15 +131,7 @@ UINT azure_iot_nx_client_create(AZURE_IOT_NX_CONTEXT* context,
     CHAR* iot_model_id,
     UINT iot_model_id_len);
 
-// UINT azure_iot_nx_client_hub_create(AZURE_IOT_NX_CONTEXT* context, CHAR* iot_hub_hostname, CHAR* iot_device_id);
-// UINT azure_iot_nx_client_dps_create(AZURE_IOT_NX_CONTEXT* context, CHAR* dps_id_scope, CHAR* dps_registration_id);
-
-// UINT azure_iot_nx_client_delete(AZURE_IOT_NX_CONTEXT* nx_context);
-
-UINT azure_iot_nx_client_run(AZURE_IOT_NX_CONTEXT* nx_context,  UINT (*network_connect)());
-// UINT azure_iot_nx_client_connect(AZURE_IOT_NX_CONTEXT* context);
-
-// UINT azure_iot_nx_client_properties_request_and_wait(AZURE_IOT_NX_CONTEXT* context);
+UINT azure_iot_nx_client_run(AZURE_IOT_NX_CONTEXT* nx_context, UINT (*network_connect)());
 
 UINT azure_iot_nx_client_publish_telemetry(AZURE_IOT_NX_CONTEXT* context_ptr,
     CHAR* component_name_ptr,
