@@ -32,10 +32,10 @@ void azure_thread_entry(ULONG parameter)
     printf("Starting Azure thread\r\n\r\n");
 
     // Initialize the network
-    if (status = network_init(nx_driver_rx_fit)))
-        {
-            printf("ERROR: Failed to initialize the network (0x%08x)\r\n", status);
-        }
+    if ((status = network_init(nx_driver_rx_fit)))
+    {
+        printf("ERROR: Failed to initialize the network (0x%08x)\r\n", status);
+    }
 
     // Connect the network
     else if ((status = network_connect() != NX_SUCCESS))
