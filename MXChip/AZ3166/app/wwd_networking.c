@@ -320,6 +320,8 @@ UINT wwd_network_connect()
         return NX_SUCCESS;
     }
 
+    wwd_wifi_leave(WWD_STA_INTERFACE);
+
     printf("Connecting WiFi\r\n");
 
     wiced_ssid_t wiced_ssid = {0};
@@ -332,9 +334,9 @@ UINT wwd_network_connect()
 
     // Obtain the IP internal mutex before reconnecting WiFi
     tx_mutex_get(&(nx_ip.nx_ip_protection), TX_WAIT_FOREVER);
-    while (wwd_wifi_join(
-               &wiced_ssid, netx_mode, (uint8_t*)netx_password, strlen(netx_password), NULL, WWD_STA_INTERFACE) !=
-           WWD_SUCCESS)
+    while (
+        WWD_SUCCESS !=
+        wwd_wifi_join(&wiced_ssid, netx_mode, (uint8_t*)netx_password, strlen(netx_password), NULL, WWD_STA_INTERFACE))
     {
         printf("\tWiFi is unable to connect', attempt = %ld\r\n", wifiConnectCounter++);
         tx_thread_sleep(5 * TX_TIMER_TICKS_PER_SECOND);
