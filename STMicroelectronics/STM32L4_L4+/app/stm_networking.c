@@ -202,16 +202,13 @@ UINT stm_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
             break;
     };
 
+    // Initialize the NetX system
+    nx_system_initialize();
+
     // Initialize Wifi
     if (!wifi_init())
     {
         return NX_NOT_SUCCESSFUL;
-    }
-
-    // Initialize the NetX system
-    if ((status = nx_system_initialize()))
-    {
-        printf("ERROR: nx_system_initialize (0x%08x)\r\n", status);
     }
 
     // Create a packet pool
@@ -271,12 +268,9 @@ UINT stm_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
 #endif
 
     // Initialize TLS
-    else if ((status = nx_secure_tls_initialize()))
+    else
     {
-        nx_dns_delete(&nx_dns_client);
-        nx_ip_delete(&nx_ip);
-        nx_packet_pool_delete(&nx_pool);
-        printf("ERROR: nx_secure_tls_initialize (%0x08)\r\n", status);
+        nx_secure_tls_initialize();
     }
 
     return status;

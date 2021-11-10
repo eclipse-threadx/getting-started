@@ -31,13 +31,13 @@ void azure_thread_entry(ULONG parameter)
     printf("\r\nStarting Azure thread\r\n\r\n");
 
     // Initialize the network
-    if (stm_network_init(WIFI_SSID, WIFI_PASSWORD, WIFI_MODE) != NX_SUCCESS)
+    if ((status = stm_network_init(WIFI_SSID, WIFI_PASSWORD, WIFI_MODE) != NX_SUCCESS))
     {
         printf("ERROR: Failed to initialize the network (0x%08x)\r\n", status);
     }
 
     // Connect the network
-    else if (stm_network_connect() != NX_SUCCESS)
+    else if ((status = stm_network_connect() != NX_SUCCESS))
     {
         printf("ERROR: Failed to connect the network (0x%08x)\r\n", status);
     }    
