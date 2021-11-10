@@ -164,7 +164,7 @@ static UINT dns_connect()
         return status;
     }
 
-    // Add an IPv4 server address to the Client list.
+    // Add an IPv4 server address to the Client list
     if ((status = nx_dns_server_add(
              &nx_dns_client, IP_ADDRESS(dns_address_1[0], dns_address_1[1], dns_address_1[2], dns_address_1[3]))))
     {
@@ -283,7 +283,7 @@ UINT stm_network_connect()
     WIFI_Status_t join_result;
 
     // Check if Wifi is already connected
-    if (WIFI_IsConnected() == WIFI_STATUS_OK)
+    if (WIFI_STATUS_OK == WIFI_IsConnected())
     {
         return NX_SUCCESS;
     }
@@ -302,7 +302,7 @@ UINT stm_network_connect()
         tx_mutex_put(&(nx_ip.nx_ip_protection));
 
         tx_thread_sleep(5 * TX_TIMER_TICKS_PER_SECOND);
-    } while (join_result != WIFI_STATUS_OK);
+    } while (WIFI_STATUS_OK != join_result);
 
     printf("SUCCESS: WiFi connected\r\n\r\n");
 

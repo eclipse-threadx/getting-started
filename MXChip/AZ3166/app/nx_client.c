@@ -110,11 +110,13 @@ static UINT append_device_telemetry(NX_AZURE_IOT_JSON_WRITER* json_writer)
 
     if (nx_azure_iot_json_writer_append_property_with_double_value(
             json_writer, (UCHAR*)TELEMETRY_HUMIDITY, sizeof(TELEMETRY_HUMIDITY) - 1, hts221_data.humidity_perc, 2) ||
+
         nx_azure_iot_json_writer_append_property_with_double_value(json_writer,
             (UCHAR*)TELEMETRY_TEMPERATURE,
             sizeof(TELEMETRY_TEMPERATURE) - 1,
             lps22hb_data.temperature_degC,
             2) ||
+
         nx_azure_iot_json_writer_append_property_with_double_value(
             json_writer, (UCHAR*)TELEMETRY_PRESSURE, sizeof(TELEMETRY_PRESSURE) - 1, lps22hb_data.pressure_hPa, 2))
     {
@@ -133,11 +135,13 @@ static UINT append_device_telemetry_magnetometer(NX_AZURE_IOT_JSON_WRITER* json_
             sizeof(TELEMETRY_MAGNETOMETERX) - 1,
             lis2mdl_data.magnetic_mG[0],
             2) ||
+
         nx_azure_iot_json_writer_append_property_with_double_value(json_writer,
             (UCHAR*)TELEMETRY_MAGNETOMETERY,
             sizeof(TELEMETRY_MAGNETOMETERY) - 1,
             lis2mdl_data.magnetic_mG[1],
             2) ||
+
         nx_azure_iot_json_writer_append_property_with_double_value(json_writer,
             (UCHAR*)TELEMETRY_MAGNETOMETERZ,
             sizeof(TELEMETRY_MAGNETOMETERZ) - 1,
@@ -159,11 +163,13 @@ static UINT append_device_telemetry_accelerometer(NX_AZURE_IOT_JSON_WRITER* json
             sizeof(TELEMETRY_ACCELEROMETERX) - 1,
             lsm6dsl_data.acceleration_mg[0],
             2) ||
+
         nx_azure_iot_json_writer_append_property_with_double_value(json_writer,
             (UCHAR*)TELEMETRY_ACCELEROMETERY,
             sizeof(TELEMETRY_ACCELEROMETERY) - 1,
             lsm6dsl_data.acceleration_mg[1],
             2) ||
+
         nx_azure_iot_json_writer_append_property_with_double_value(json_writer,
             (UCHAR*)TELEMETRY_ACCELEROMETERZ,
             sizeof(TELEMETRY_ACCELEROMETERZ) - 1,
@@ -185,11 +191,13 @@ static UINT append_device_telemetry_gyroscope(NX_AZURE_IOT_JSON_WRITER* json_wri
             sizeof(TELEMETRY_GYROSCOPEX) - 1,
             lsm6dsl_data.angular_rate_mdps[0],
             2) ||
+
         nx_azure_iot_json_writer_append_property_with_double_value(json_writer,
             (UCHAR*)TELEMETRY_GYROSCOPEY,
             sizeof(TELEMETRY_GYROSCOPEY) - 1,
             lsm6dsl_data.angular_rate_mdps[1],
             2) ||
+
         nx_azure_iot_json_writer_append_property_with_double_value(json_writer,
             (UCHAR*)TELEMETRY_GYROSCOPEZ,
             sizeof(TELEMETRY_GYROSCOPEZ) - 1,
@@ -324,9 +332,6 @@ static void properties_complete_cb(AZURE_IOT_NX_CONTEXT* nx_context)
 
 static void telemetry_cb(AZURE_IOT_NX_CONTEXT* nx_context)
 {
-    // Send out telemetry
-    //    azure_iot_nx_client_publish_telemetry(nx_context, NULL, append_device_telemetry);
-
     static TELEMETRY_STATE telemetry_state = TELEMETRY_STATE_DEFAULT;
 
     switch (telemetry_state)

@@ -31,6 +31,7 @@ void azure_thread_entry(ULONG parameter)
 
     printf("Starting Azure thread\r\n\r\n");
 
+    // Initialize the network
     if ((status = wwd_network_init(WIFI_SSID, WIFI_PASSWORD, WIFI_MODE)))
     {
         printf("ERROR: Failed to initialize the network (0x%08x)\r\n", status);
@@ -51,7 +52,7 @@ void azure_thread_entry(ULONG parameter)
     // Wait for an SNTP sync
     else if ((status = sntp_sync_wait()))
     {
-        printf("ERROR: Failed to start sync SNTP time (0x%02x)\r\n", status);
+        printf("ERROR: Failed to start sync SNTP time (0x%08x)\r\n", status);
     }
 
 #ifdef ENABLE_LEGACY_MQTT
@@ -60,7 +61,7 @@ void azure_thread_entry(ULONG parameter)
     else if ((status = azure_iot_nx_client_entry(&nx_ip, &nx_pool[0], &nx_dns_client, sntp_time)))
 #endif
     {
-        printf("ERROR: Failed to run Azure IoT (0x%04x)\r\n", status);
+        printf("ERROR: Failed to run Azure IoT (0x%08x)\r\n", status);
     }
 }
 

@@ -58,6 +58,12 @@ static UINT wifi_init()
 
     printf("Initializing WiFi\r\n");
 
+    if (netx_ssid[0] == 0)
+    {
+        printf("ERROR: wifi_ssid is empty\r\n");
+        return NX_NOT_SUCCESSFUL;
+    }
+
     // Set pools for wifi
     if (wwd_buffer_init(nx_pool) != WWD_SUCCESS)
     {
