@@ -710,9 +710,16 @@ UINT azure_iot_nx_client_cert_set(AZURE_IOT_NX_CONTEXT* nx_context,
 UINT azure_nx_client_periodic_interval_set(AZURE_IOT_NX_CONTEXT* nx_context, INT interval)
 {
     UINT status;
+    UINT active;
     UINT ticks = interval * TX_TIMER_TICKS_PER_SECOND;
 
-    if ((status = tx_timer_deactivate(&nx_context->periodic_timer)))
+    if ((status = tx_timer_info_get(&nx_context->periodic_timer, NULL, &active, NULL, NULL, NULL)))
+    {
+        printf("ERROR: tx_timer_deactivate (0x%08x)\r\n", status);
+        return status;
+    }
+
+    if (active == TX_TRUE && (status = tx_timer_deactivate(&nx_context->periodic_timer)))
     {
         printf("ERROR: tx_timer_deactivate (0x%08x)\r\n", status);
     }
@@ -722,7 +729,7 @@ UINT azure_nx_client_periodic_interval_set(AZURE_IOT_NX_CONTEXT* nx_context, INT
         printf("ERROR: tx_timer_change (0x%08x)\r\n", status);
     }
 
-    else if ((status = tx_timer_activate(&nx_context->periodic_timer)))
+    else if (active == TX_TRUE && (status = tx_timer_activate(&nx_context->periodic_timer)))
     {
         printf("ERROR: tx_timer_activate (0x%08x)\r\n", status);
     }
