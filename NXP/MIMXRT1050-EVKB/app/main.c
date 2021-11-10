@@ -92,5 +92,6 @@ int main(void)
 
     // Enter the ThreadX kernel
     tx_kernel_enter();
+
     return 0;
 }
