@@ -5,6 +5,8 @@
 
 #include "tx_api.h"
 
+#include "nx_driver_same54.h"
+
 #include "board_init.h"
 #include "networking.h"
 #include "sntp_client.h"
@@ -20,8 +22,6 @@
 TX_THREAD azure_thread;
 ULONG azure_thread_stack[AZURE_THREAD_STACK_SIZE / sizeof(ULONG)];
 
-extern VOID nx_driver_same54(NX_IP_DRIVER*);
-
 void azure_thread_entry(ULONG parameter);
 void tx_application_define(void* first_unused_memory);
 
@@ -31,7 +31,7 @@ void azure_thread_entry(ULONG parameter)
 
     printf("Starting Azure thread\r\n\r\n");
 
-    // Initialise the network
+    // Initialize the network
     if ((status = network_init(nx_driver_same54)))
     {
         printf("ERROR: Failed to initialize the network (0x%08x)\r\n", status);
