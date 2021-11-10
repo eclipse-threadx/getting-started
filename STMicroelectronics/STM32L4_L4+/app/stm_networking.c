@@ -64,7 +64,7 @@ static void check_firmware_version(CHAR* data)
     }
 }
 
-static bool wifi_init()
+static UINT wifi_init()
 {
     CHAR data[32];
     uint8_t mac[6];
@@ -74,13 +74,13 @@ static bool wifi_init()
     if (netx_ssid[0] == 0)
     {
         printf("ERROR: wifi_ssid is empty\r\n");
-        return false;
+        return NX_NOT_SUCCESSFUL;
     }
 
     if (WIFI_Init() != WIFI_STATUS_OK)
     {
         printf("ERROR: WIFI_Init\r\n");
-        return false;
+        return NX_NOT_SUCCESSFUL;
     }
 
     WIFI_GetModuleID(data);
@@ -96,7 +96,7 @@ static bool wifi_init()
 
     printf("SUCCESS: WiFi initialized\r\n\r\n");
 
-    return true;
+    return NX_SUCCESS;
 }
 
 static UINT dhcp_connect()
@@ -206,9 +206,9 @@ UINT stm_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
     nx_system_initialize();
 
     // Initialize Wifi
-    if (!wifi_init())
+    if ((status = wifi_init()))
     {
-        return NX_NOT_SUCCESSFUL;
+        printf("ERROR: wifi_init (0x%08x)\r\n", status);
     }
 
     // Create a packet pool
@@ -297,7 +297,7 @@ UINT stm_network_connect()
     while (WIFI_Connect(netx_ssid, netx_password, netx_mode) != WIFI_STATUS_OK)
     {
         printf("\tWiFi is unable to connect', attempt = %ld\r\n", wifiConnectCounter++);
-        tx_thread_sleep(TX_TIMER_TICKS_PER_SECOND);
+        tx_thread_sleep(5 * TX_TIMER_TICKS_PER_SECOND);
     }
     tx_mutex_put(&(nx_ip.nx_ip_protection));
 
@@ -307,15 +307,13 @@ UINT stm_network_connect()
     if ((status = dhcp_connect()))
     {
         printf("ERROR: dhcp_connect\r\n");
-        return status;
     }
 
     // Create DNS
-    if ((status = dns_connect()))
+    else if ((status = dns_connect()))
     {
         printf("ERROR: dns_connect\r\n");
-        return status;
     }
 
-    return NX_SUCCESS;
+    return status;
 }

@@ -33,7 +33,7 @@ static VOID exponential_backoff_with_jitter()
     uint64_t delay;
     UINT backoff_seconds;
 
-    // If the retry is 0, then we don't need to delay this round
+    // If the retry is 0, then we don't need to delay the first time
     if (exponential_retry_count == 0)
     {
         exponential_retry_count++;

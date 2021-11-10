@@ -28,19 +28,19 @@ void azure_thread_entry(ULONG parameter)
 {
     UINT status;
 
-    printf("\r\nStarting Azure thread\r\n\r\n");
+    printf("Starting Azure thread\r\n\r\n");
 
     // Initialize the network
-    if ((status = stm_network_init(WIFI_SSID, WIFI_PASSWORD, WIFI_MODE) != NX_SUCCESS))
+    if ((status = stm_network_init(WIFI_SSID, WIFI_PASSWORD, WIFI_MODE)))
     {
         printf("ERROR: Failed to initialize the network (0x%08x)\r\n", status);
     }
 
     // Connect the network
-    else if ((status = stm_network_connect() != NX_SUCCESS))
+    else if ((status = stm_network_connect()))
     {
         printf("ERROR: Failed to connect the network (0x%08x)\r\n", status);
-    }    
+    }
 
     // Start the SNTP client
     else if ((status = sntp_start()))
@@ -93,5 +93,6 @@ int main(void)
 
     // Enter the ThreadX kernel
     tx_kernel_enter();
+
     return 0;
 }
