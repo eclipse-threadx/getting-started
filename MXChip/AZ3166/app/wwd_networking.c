@@ -313,6 +313,9 @@ UINT wwd_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
 UINT wwd_network_connect()
 {
     UINT status;
+    int32_t wifiConnectCounter = 1;
+    wiced_ssid_t wiced_ssid    = {0};
+    wwd_result_t join_result;
 
     // Check if Wifi is already connected
     if (wwd_wifi_is_ready_to_transceive(WWD_STA_INTERFACE) == WWD_SUCCESS)
@@ -320,28 +323,30 @@ UINT wwd_network_connect()
         return NX_SUCCESS;
     }
 
+    // Halt any existing connection attempts
+    wwd_wifi_join_halt(WICED_TRUE);
     wwd_wifi_leave(WWD_STA_INTERFACE);
+    wwd_wifi_join_halt(WICED_FALSE);
 
     printf("Connecting WiFi\r\n");
 
-    wiced_ssid_t wiced_ssid = {0};
-    wiced_ssid.length       = strlen(netx_ssid);
+    wiced_ssid.length = strlen(netx_ssid);
     memcpy(wiced_ssid.value, netx_ssid, wiced_ssid.length);
 
     // Connect to the specified SSID
-    int32_t wifiConnectCounter = 1;
     printf("\tConnecting to SSID '%s'\r\n", netx_ssid);
-
-    // Obtain the IP internal mutex before reconnecting WiFi
-    tx_mutex_get(&(nx_ip.nx_ip_protection), TX_WAIT_FOREVER);
-    while (
-        WWD_SUCCESS !=
-        wwd_wifi_join(&wiced_ssid, netx_mode, (uint8_t*)netx_password, strlen(netx_password), NULL, WWD_STA_INTERFACE))
+    do
     {
-        printf("\tWiFi is unable to connect', attempt = %ld\r\n", wifiConnectCounter++);
+        printf("\tWiFi connection attempt %ld\r\n", wifiConnectCounter++);
+
+        // Obtain the IP internal mutex before reconnecting WiFi
+        tx_mutex_get(&(nx_ip.nx_ip_protection), TX_WAIT_FOREVER);
+        join_result = wwd_wifi_join(
+            &wiced_ssid, netx_mode, (uint8_t*)netx_password, strlen(netx_password), NULL, WWD_STA_INTERFACE);
+        tx_mutex_put(&(nx_ip.nx_ip_protection));
+
         tx_thread_sleep(5 * TX_TIMER_TICKS_PER_SECOND);
-    }
-    tx_mutex_put(&(nx_ip.nx_ip_protection));
+    } while (join_result != WWD_SUCCESS);
 
     printf("SUCCESS: WiFi connected\r\n\r\n");
 

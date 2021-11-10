@@ -279,6 +279,8 @@ UINT stm_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
 UINT stm_network_connect()
 {
     UINT status;
+    int32_t wifiConnectCounter = 1;
+    WIFI_Status_t join_result;
 
     // Check if Wifi is already connected
     if (WIFI_IsConnected() == WIFI_STATUS_OK)
@@ -289,17 +291,18 @@ UINT stm_network_connect()
     printf("Connecting WiFi\r\n");
 
     // Connect to the specified SSID
-    int32_t wifiConnectCounter = 1;
     printf("\tConnecting to SSID '%s'\r\n", netx_ssid);
-
-    // Obtain the IP internal mutex before reconnecting WiFi
-    tx_mutex_get(&(nx_ip.nx_ip_protection), TX_WAIT_FOREVER);
-    while (WIFI_Connect(netx_ssid, netx_password, netx_mode) != WIFI_STATUS_OK)
+    do
     {
-        printf("\tWiFi is unable to connect', attempt = %ld\r\n", wifiConnectCounter++);
+        printf("\tWiFi connection attempt %ld\r\n", wifiConnectCounter++);
+
+        // Obtain the IP internal mutex before reconnecting WiFi
+        tx_mutex_get(&(nx_ip.nx_ip_protection), TX_WAIT_FOREVER);
+        join_result = WIFI_Connect(netx_ssid, netx_password, netx_mode);
+        tx_mutex_put(&(nx_ip.nx_ip_protection));
+
         tx_thread_sleep(5 * TX_TIMER_TICKS_PER_SECOND);
-    }
-    tx_mutex_put(&(nx_ip.nx_ip_protection));
+    } while (join_result != WIFI_STATUS_OK);
 
     printf("SUCCESS: WiFi connected\r\n\r\n");
 
