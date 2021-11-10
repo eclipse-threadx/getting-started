@@ -26,11 +26,19 @@ static VOID exponential_backoff_reset()
     exponential_retry_count = 0;
 }
 
-static UINT exponential_backoff_with_jitter()
+static VOID exponential_backoff_with_jitter()
 {
     double jitter_percent = (SAMPLE_MAX_EXPONENTIAL_BACKOFF_JITTER_PERCENT / 100.0) * (rand() / ((double)RAND_MAX));
     UINT base_delay       = SAMPLE_MAX_EXPONENTIAL_BACKOFF_IN_SEC;
     uint64_t delay;
+    UINT backoff_seconds;
+
+    // If the retry is 0, then we don't need to delay this round
+    if (exponential_retry_count == 0)
+    {
+        exponential_retry_count++;
+        return;
+    }
 
     if (exponential_retry_count < (sizeof(UINT) * 8))
     {
@@ -50,17 +58,14 @@ static UINT exponential_backoff_with_jitter()
         exponential_retry_count++;
     }
 
-    return ((UINT)(base_delay * (1 + jitter_percent)) * NX_IP_PERIODIC_RATE);
+    backoff_seconds = (UINT)(base_delay * (1 + jitter_percent));
+
+    printf("Backoff for %d seconds\r\n", backoff_seconds);
+    tx_thread_sleep(backoff_seconds * NX_IP_PERIODIC_RATE);
 }
 
-static void iothub_connect(AZURE_IOT_NX_CONTEXT* nx_context, UINT (*network_connect)())
+static VOID iothub_connect(AZURE_IOT_NX_CONTEXT* nx_context, UINT (*network_connect)())
 {
-    // Wait for network
-    //    ULONG gateway_address;
-    /*    while (nx_ip_gateway_address_get(nx_context->azure_iot_nx_ip, &gateway_address))
-        {
-            tx_thread_sleep(NX_IP_PERIODIC_RATE);
-        }*/
     network_connect();
 
     // Connect to IoT hub
@@ -134,8 +139,7 @@ VOID connection_monitor(
             // Fallthrough
             case NX_AZURE_IOT_NOT_INITIALIZED:
             {
-                //                printf("Re-initializing iothub connection, after backoff\r\n");
-                tx_thread_sleep(exponential_backoff_with_jitter());
+                exponential_backoff_with_jitter();
 
                 // Initialize iot hub
                 if (iothub_init(nx_context))
@@ -157,10 +161,7 @@ VOID connection_monitor(
             // Fallthrough
             default:
             {
-                printf("Reconnecting iothub, after backoff\r\n");
-
-                tx_thread_sleep(exponential_backoff_with_jitter());
-
+                exponential_backoff_with_jitter();
                 iothub_connect(nx_context, network_connect);
             }
             break;

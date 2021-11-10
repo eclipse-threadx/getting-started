@@ -99,14 +99,6 @@ static UINT iot_hub_initialize(AZURE_IOT_NX_CONTEXT* nx_context)
 {
     UINT status;
 
-    /*    if (nx_context->azure_iot_connect_mode == AZURE_IOT_CONNECT_MODE_DPS)
-        {
-            if ((status = dps_initialize(nx_context)))
-            {
-                printf("ERROR: dps_initialize (0x%08x)\r\n", status);
-            }
-        }*/
-
     // Initialize IoT Hub client.
     if ((status = nx_azure_iot_hub_client_initialize(&nx_context->iothub_client,
              &nx_context->nx_azure_iot,
@@ -720,9 +712,19 @@ UINT azure_nx_client_periodic_interval_set(AZURE_IOT_NX_CONTEXT* nx_context, INT
     UINT status;
     UINT ticks = interval * TX_TIMER_TICKS_PER_SECOND;
 
-    if ((status = tx_timer_change(&nx_context->periodic_timer, ticks, ticks)))
+    if ((status = tx_timer_deactivate(&nx_context->periodic_timer)))
+    {
+        printf("ERROR: tx_timer_deactivate (0x%08x)\r\n", status);
+    }
+
+    else if ((status = tx_timer_change(&nx_context->periodic_timer, ticks, ticks)))
     {
         printf("ERROR: tx_timer_change (0x%08x)\r\n", status);
+    }
+
+    else if ((status = tx_timer_activate(&nx_context->periodic_timer)))
+    {
+        printf("ERROR: tx_timer_activate (0x%08x)\r\n", status);
     }
 
     return status;

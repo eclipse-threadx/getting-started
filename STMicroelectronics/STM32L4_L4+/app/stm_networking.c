@@ -143,8 +143,8 @@ static UINT dhcp_connect()
 static UINT dns_connect()
 {
     UINT status;
-    UCHAR dns_address_1[4];
-    UCHAR dns_address_2[4];
+    UCHAR dns_address_1[4] = {0};
+    UCHAR dns_address_2[4] = {0};
 
     printf("Initializing DNS client\r\n");
 
@@ -202,82 +202,84 @@ UINT stm_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
             break;
     };
 
-    // Initialize the NetX system
-    nx_system_initialize();
-
     // Initialize Wifi
     if (!wifi_init())
     {
         return NX_NOT_SUCCESSFUL;
     }
 
+    // Initialize the NetX system
+    if ((status = nx_system_initialize()))
+    {
+        printf("ERROR: nx_system_initialize (0x%08x)\r\n", status);
+    }
+
     // Create a packet pool
-    if ((status = nx_packet_pool_create(&nx_pool, "NetX Packet Pool", NETX_PACKET_SIZE, netx_ip_pool, NETX_POOL_SIZE)))
+    else if ((status = nx_packet_pool_create(
+                  &nx_pool, "NetX Packet Pool", NETX_PACKET_SIZE, netx_ip_pool, NETX_POOL_SIZE)))
     {
         printf("ERROR: nx_packet_pool_create (0x%08x)\r\n", status);
-        return status;
     }
 
     // Create an IP instance
-    if ((status = nx_ip_create(&nx_ip,
-             "NetX IP Instance 0",
-             NETX_IPV4_ADDRESS,
-             NETX_IPV4_MASK,
-             &nx_pool,
-             nx_driver_stm32l4,
-             (UCHAR*)netx_ip_stack,
-             NETX_IP_STACK_SIZE,
-             1)))
+    else if ((status = nx_ip_create(&nx_ip,
+                  "NetX IP Instance 0",
+                  NETX_IPV4_ADDRESS,
+                  NETX_IPV4_MASK,
+                  &nx_pool,
+                  nx_driver_stm32l4,
+                  (UCHAR*)netx_ip_stack,
+                  NETX_IP_STACK_SIZE,
+                  1)))
     {
         nx_packet_pool_delete(&nx_pool);
         printf("ERROR: nx_ip_create (0x%08x)\r\n", status);
-        return status;
     }
 
     // Enable TCP traffic
-    if ((status = nx_tcp_enable(&nx_ip)))
+    else if ((status = nx_tcp_enable(&nx_ip)))
     {
         nx_ip_delete(&nx_ip);
         nx_packet_pool_delete(&nx_pool);
         printf("ERROR: nx_tcp_enable (0x%08x)\r\n", status);
-        return status;
     }
 
     // Enable UDP traffic
-    if ((status = nx_udp_enable(&nx_ip)))
+    else if ((status = nx_udp_enable(&nx_ip)))
     {
         nx_ip_delete(&nx_ip);
         nx_packet_pool_delete(&nx_pool);
         printf("ERROR: nx_udp_enable (0x%08x)\r\n", status);
-        return status;
     }
 
-    status = nx_dns_create(&nx_dns_client, &nx_ip, (UCHAR*)"DNS Client");
-    if (status != NX_SUCCESS)
+    else if ((status = nx_dns_create(&nx_dns_client, &nx_ip, (UCHAR*)"DNS Client")))
     {
-        printf("ERROR: nx_dns_create (0x%04x)\r\n", status);
         nx_ip_delete(&nx_ip);
         nx_packet_pool_delete(&nx_pool);
-        return status;
+        printf("ERROR: nx_dns_create (0x%04x)\r\n", status);
     }
 
     // Use the packet pool here
 #ifdef NX_DNS_CLIENT_USER_CREATE_PACKET_POOL
-    status = nx_dns_packet_pool_set(&nx_dns_client, nx_ip.nx_ip_default_packet_pool);
-    if (status != NX_SUCCESS)
+    else if ((status = nx_dns_packet_pool_set(&nx_dns_client, nx_ip.nx_ip_default_packet_pool)))
     {
-        printf("ERROR: nx_dns_packet_pool_set (%0x08)\r\n", status);
+        nx_dns_delete(&nx_dns_client);
         nx_ip_delete(&nx_ip);
         nx_packet_pool_delete(&nx_pool);
-        nx_dns_delete(&nx_dns_client);
-        return status;
+        printf("ERROR: nx_dns_packet_pool_set (%0x08)\r\n", status);
     }
 #endif
 
     // Initialize TLS
-    nx_secure_tls_initialize();
+    else if ((status = nx_secure_tls_initialize()))
+    {
+        nx_dns_delete(&nx_dns_client);
+        nx_ip_delete(&nx_ip);
+        nx_packet_pool_delete(&nx_pool);
+        printf("ERROR: nx_secure_tls_initialize (%0x08)\r\n", status);
+    }
 
-    return NX_SUCCESS;
+    return status;
 }
 
 UINT stm_network_connect()
@@ -296,7 +298,7 @@ UINT stm_network_connect()
     int32_t wifiConnectCounter = 1;
     printf("\tConnecting to SSID '%s'\r\n", netx_ssid);
 
-    // Obtain the IP internal mutex before processing the IP event
+    // Obtain the IP internal mutex before reconnecting WiFi
     tx_mutex_get(&(nx_ip.nx_ip_protection), TX_WAIT_FOREVER);
     while (WIFI_Connect(netx_ssid, netx_password, netx_mode) != WIFI_STATUS_OK)
     {

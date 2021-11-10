@@ -32,36 +32,36 @@ void azure_thread_entry(ULONG parameter)
     printf("Starting Azure thread\r\n\r\n");
 
     // Initialise the network
-    if (!network_init(nx_driver_same54))
+    if ((status = network_init(nx_driver_same54)))
     {
-        printf("Failed to initialize the network\r\n");
-        return;
+        printf("ERROR: Failed to initialize the network (0x%08x)\r\n", status);
+    }
+
+    // Connect the network
+    else if ((status = network_connect() != NX_SUCCESS))
+    {
+        printf("ERROR: Failed to connect the network (0x%08x)\r\n", status);
     }
 
     // Start the SNTP client
-    status = sntp_start();
-    if (status != NX_SUCCESS)
+    else if ((status = sntp_start()))
     {
-        printf("Failed to start the SNTP client (0x%02x)\r\n", status);
-        return;
+        printf("Failed to start the SNTP client (0x%08x)\r\n", status);
     }
 
     // Wait for an SNTP sync
-    status = sntp_sync_wait();
-    if (status != NX_SUCCESS)
+    else if ((status = sntp_sync_wait()))
     {
-        printf("Failed to start sync SNTP time (0x%02x)\r\n", status);
-        return;
+        printf("Failed to start sync SNTP time (0x%08x)\r\n", status);
     }
 
 #ifdef ENABLE_LEGACY_MQTT
-    if ((status = azure_iot_mqtt_entry(&nx_ip, &nx_pool, &nx_dns_client, sntp_time_get)))
+    else if ((status = azure_iot_mqtt_entry(&nx_ip, &nx_pool, &nx_dns_client, sntp_time_get)))
 #else
-    if ((status = azure_iot_nx_client_entry(&nx_ip, &nx_pool, &nx_dns_client, sntp_time)))
+    else if ((status = azure_iot_nx_client_entry(&nx_ip, &nx_pool, &nx_dns_client, sntp_time)))
 #endif
     {
         printf("Failed to run Azure IoT (0x%04x)\r\n", status);
-        return;
     }
 }
 

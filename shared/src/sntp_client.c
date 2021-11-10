@@ -4,6 +4,7 @@
 #include "sntp_client.h"
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #include "nx_api.h"
 #include "nxd_dns.h"
