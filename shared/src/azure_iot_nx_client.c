@@ -374,6 +374,8 @@ static VOID process_disconnect(AZURE_IOT_NX_CONTEXT* nx_context)
 {
     UINT status;
 
+    printf("Disconnected from IoT Hub\r\n");
+
     // Stop the periodic timer
     if ((status = tx_timer_deactivate(&nx_context->periodic_timer)))
     {

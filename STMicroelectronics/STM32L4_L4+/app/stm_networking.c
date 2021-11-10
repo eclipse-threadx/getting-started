@@ -294,7 +294,7 @@ UINT stm_network_connect()
     printf("\tConnecting to SSID '%s'\r\n", netx_ssid);
     do
     {
-        printf("\tWiFi connection attempt %ld\r\n", wifiConnectCounter++);
+        printf("\tAttempt %ld\r\n", wifiConnectCounter++);
 
         // Obtain the IP internal mutex before reconnecting WiFi
         tx_mutex_get(&(nx_ip.nx_ip_protection), TX_WAIT_FOREVER);
