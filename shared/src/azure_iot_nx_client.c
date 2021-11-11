@@ -355,8 +355,6 @@ static VOID process_connect(AZURE_IOT_NX_CONTEXT* nx_context)
 {
     UINT status;
 
-    printf("SUCCESS: Connected to IoT Hub\r\n\r\n");
-
     // Request the client properties
     if ((status = nx_azure_iot_hub_client_properties_request(&nx_context->iothub_client, NX_WAIT_FOREVER)))
     {
@@ -905,8 +903,8 @@ UINT azure_iot_nx_client_hub_run(
     }
 
     // take a copy of the hub config
-    memcpy(nx_context->azure_iot_hub_hostname, iot_hub_hostname, nx_context->azure_iot_hub_hostname_len);
-    memcpy(nx_context->azure_iot_hub_device_id, iot_hub_hostname, nx_context->azure_iot_hub_device_id_len);
+    memcpy(nx_context->azure_iot_hub_hostname, iot_hub_hostname, AZURE_IOT_HOST_NAME_SIZE);
+    memcpy(nx_context->azure_iot_hub_device_id, iot_hub_device_id, AZURE_IOT_DEVICE_ID_SIZE);
     nx_context->azure_iot_hub_hostname_len  = strlen(iot_hub_hostname);
     nx_context->azure_iot_hub_device_id_len = strlen(iot_hub_device_id);
 

@@ -10,6 +10,8 @@
 #include "nxd_dhcp_client.h"
 #include "nxd_dns.h"
 
+#include "sntp_client.h"
+
 #define NETX_IP_STACK_SIZE  2048
 #define NETX_PACKET_COUNT   60
 #define NETX_PACKET_SIZE    1536
@@ -66,7 +68,13 @@ static UINT dhcp_connect()
 
     printf("Initializing DHCP\r\n");
 
-    // Wait until address is solved.
+    if ((status = nx_dhcp_force_renew(&nx_dhcp_client)))
+    {
+        printf("ERROR: nx_dhcp_force_renew (0x%08x\r\n", status);
+        return status;
+    }
+
+    // Wait until address is solved
     if ((status = nx_ip_status_check(&nx_ip, NX_IP_ADDRESS_RESOLVED, &actual_status, DHCP_WAIT_TIME_TICKS)))
     {
         // DHCP Failed...  no IP address!
@@ -193,16 +201,16 @@ UINT network_init(VOID (*ip_link_driver)(struct NX_IP_DRIVER_STRUCT*))
     {
         nx_ip_delete(&nx_ip);
         nx_packet_pool_delete(&nx_pool);
-        printf("ERROR: nx_dhcp_create (0x%04x)\r\n", status);
+        printf("ERROR: nx_dhcp_create (0x%08x)\r\n", status);
     }
 
-    // Start the DHCP Client.
-    else if ((status = nx_dhcp_start(&nx_dhcp_client)))
+    // Start the DHCP Client
+    if ((status = nx_dhcp_start(&nx_dhcp_client)))
     {
         nx_dhcp_delete(&nx_dhcp_client);
         nx_ip_delete(&nx_ip);
         nx_packet_pool_delete(&nx_pool);
-        printf("ERROR: nx_dhcp_start (0x%04x)\r\n", status);
+        printf("ERROR: nx_dhcp_start (0x%08x)\r\n", status);
     }
 
     // Create DNS
@@ -211,7 +219,7 @@ UINT network_init(VOID (*ip_link_driver)(struct NX_IP_DRIVER_STRUCT*))
         nx_dhcp_delete(&nx_dhcp_client);
         nx_ip_delete(&nx_ip);
         nx_packet_pool_delete(&nx_pool);
-        printf("ERROR: nx_dns_create (0x%04x)\r\n", status);
+        printf("ERROR: nx_dns_create (0x%08x)\r\n", status);
     }
 
     // Use the packet pool here
@@ -226,6 +234,12 @@ UINT network_init(VOID (*ip_link_driver)(struct NX_IP_DRIVER_STRUCT*))
     }
 #endif
 
+    // Initialize the SNTP client
+    else if ((status = sntp_init()))
+    {
+        printf("ERROR: Failed to init the SNTP client (0x%08x)\r\n", status);
+    }
+
     // Initialize TLS
     else
     {
@@ -239,14 +253,6 @@ UINT network_connect()
 {
     UINT status;
 
-    // Wait for network
-    ULONG gateway_address;
-    while (nx_ip_gateway_address_get(&nx_ip, &gateway_address))
-    {
-        printf("Waiting for network\r\n");
-        tx_thread_sleep(5 * NX_IP_PERIODIC_RATE);
-    }
-
     // Fetch IP details
     if ((status = dhcp_connect()))
     {
@@ -257,6 +263,12 @@ UINT network_connect()
     else if ((status = dns_connect()))
     {
         printf("ERROR: dns_connect\r\n");
+    }
+
+    // Wait for an SNTP sync
+    else if ((status = sntp_sync()))
+    {
+        printf("ERROR: Failed to sync SNTP time (0x%08x)\r\n", status);
     }
 
     return status;

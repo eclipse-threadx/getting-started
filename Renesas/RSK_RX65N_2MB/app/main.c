@@ -22,10 +22,7 @@
 TX_THREAD azure_thread;
 ULONG azure_thread_stack[AZURE_THREAD_STACK_SIZE / sizeof(ULONG)];
 
-void azure_thread_entry(ULONG parameter);
-void tx_application_define(void* first_unused_memory);
-
-void azure_thread_entry(ULONG parameter)
+static void azure_thread_entry(ULONG parameter)
 {
     UINT status;
 
@@ -35,24 +32,6 @@ void azure_thread_entry(ULONG parameter)
     if ((status = network_init(nx_driver_rx_fit)))
     {
         printf("ERROR: Failed to initialize the network (0x%08x)\r\n", status);
-    }
-
-    // Connect the network
-    else if ((status = network_connect() != NX_SUCCESS))
-    {
-        printf("ERROR: Failed to connect the network (0x%08x)\r\n", status);
-    }
-
-    // Start the SNTP client
-    else if ((status = sntp_start()))
-    {
-        printf("Failed to start the SNTP client (0x%08x)\r\n", status);
-    }
-
-    // Wait for an SNTP sync
-    else if ((status = sntp_sync_wait()))
-    {
-        printf("Failed to start sync SNTP time (0x%08x)\r\n", status);
     }
 
 #ifdef ENABLE_LEGACY_MQTT

@@ -10,6 +10,8 @@
 
 #include "wifi.h"
 
+#include "sntp_client.h"
+
 #define NETX_IP_STACK_SIZE 2048
 #define NETX_PACKET_COUNT  20
 #define NETX_PACKET_SIZE   1200 // Set the default value to 1200 since WIFI payload size (ES_WIFI_PAYLOAD_SIZE) is 1200
@@ -253,7 +255,7 @@ UINT stm_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
     {
         nx_ip_delete(&nx_ip);
         nx_packet_pool_delete(&nx_pool);
-        printf("ERROR: nx_dns_create (0x%04x)\r\n", status);
+        printf("ERROR: nx_dns_create (0x%08x)\r\n", status);
     }
 
     // Use the packet pool here
@@ -266,6 +268,12 @@ UINT stm_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
         printf("ERROR: nx_dns_packet_pool_set (%0x08)\r\n", status);
     }
 #endif
+
+    // Initialize the SNTP client
+    else if ((status = sntp_init()))
+    {
+        printf("ERROR: Failed to init the SNTP client (0x%08x)\r\n", status);
+    }
 
     // Initialize TLS
     else
@@ -283,28 +291,26 @@ UINT stm_network_connect()
     WIFI_Status_t join_result;
 
     // Check if Wifi is already connected
-    if (WIFI_STATUS_OK == WIFI_IsConnected())
+    if (WIFI_IsConnected() != WIFI_STATUS_OK)
     {
-        return NX_SUCCESS;
+        printf("Connecting WiFi\r\n");
+
+        // Connect to the specified SSID
+        printf("\tConnecting to SSID '%s'\r\n", netx_ssid);
+        do
+        {
+            printf("\tAttempt %ld...\r\n", wifiConnectCounter++);
+
+            // Obtain the IP internal mutex before reconnecting WiFi
+            tx_mutex_get(&(nx_ip.nx_ip_protection), TX_WAIT_FOREVER);
+            join_result = WIFI_Connect(netx_ssid, netx_password, netx_mode);
+            tx_mutex_put(&(nx_ip.nx_ip_protection));
+
+            tx_thread_sleep(5 * TX_TIMER_TICKS_PER_SECOND);
+        } while (join_result != WWD_SUCCESS);
+
+        printf("SUCCESS: WiFi connected\r\n\r\n");
     }
-
-    printf("Connecting WiFi\r\n");
-
-    // Connect to the specified SSID
-    printf("\tConnecting to SSID '%s'\r\n", netx_ssid);
-    do
-    {
-        printf("\tAttempt %ld\r\n", wifiConnectCounter++);
-
-        // Obtain the IP internal mutex before reconnecting WiFi
-        tx_mutex_get(&(nx_ip.nx_ip_protection), TX_WAIT_FOREVER);
-        join_result = WIFI_Connect(netx_ssid, netx_password, netx_mode);
-        tx_mutex_put(&(nx_ip.nx_ip_protection));
-
-        tx_thread_sleep(5 * TX_TIMER_TICKS_PER_SECOND);
-    } while (WIFI_STATUS_OK != join_result);
-
-    printf("SUCCESS: WiFi connected\r\n\r\n");
 
     // Fetch IP details
     if ((status = dhcp_connect()))
@@ -316,6 +322,12 @@ UINT stm_network_connect()
     else if ((status = dns_connect()))
     {
         printf("ERROR: dns_connect\r\n");
+    }
+
+    // Wait for an SNTP sync
+    else if ((status = sntp_sync()))
+    {
+        printf("ERROR: Failed to sync SNTP time (0x%08x)\r\n", status);
     }
 
     return status;

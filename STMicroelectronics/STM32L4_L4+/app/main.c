@@ -21,10 +21,7 @@
 TX_THREAD azure_thread;
 ULONG azure_thread_stack[AZURE_THREAD_STACK_SIZE / sizeof(ULONG)];
 
-void azure_thread_entry(ULONG parameter);
-void tx_application_define(void* first_unused_memory);
-
-void azure_thread_entry(ULONG parameter)
+static void azure_thread_entry(ULONG parameter)
 {
     UINT status;
 
@@ -34,24 +31,6 @@ void azure_thread_entry(ULONG parameter)
     if ((status = stm_network_init(WIFI_SSID, WIFI_PASSWORD, WIFI_MODE)))
     {
         printf("ERROR: Failed to initialize the network (0x%08x)\r\n", status);
-    }
-
-    // Connect the network
-    else if ((status = stm_network_connect()))
-    {
-        printf("ERROR: Failed to connect the network (0x%08x)\r\n", status);
-    }
-
-    // Start the SNTP client
-    else if ((status = sntp_start()))
-    {
-        printf("ERROR: Failed to start the SNTP client (0x%08x)\r\n", status);
-    }
-
-    // Wait for an SNTP sync
-    else if ((status = sntp_sync_wait()))
-    {
-        printf("ERROR: Failed to start sync SNTP time (0x%02x)\r\n", status);
     }
 
 #ifdef ENABLE_LEGACY_MQTT

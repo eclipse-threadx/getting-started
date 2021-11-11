@@ -7,6 +7,8 @@
 #include "nx_secure_tls_api.h"
 #include "nxd_dns.h"
 
+#include "sntp_client.h"
+
 #include "nx_driver_rx65n_cloud_kit.h"
 
 #include "r_wifi_sx_ulpgn_if.h"
@@ -167,7 +169,7 @@ UINT rx_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
     // Intialize Wifi
     if (status = wifi_init(ssid, password, mode))
     {
-        printf("ERROR: wifi_init (0x%08x)\r\n", status);        
+        printf("ERROR: wifi_init (0x%08x)\r\n", status);
     }
 
     // Create a packet pool
@@ -226,6 +228,12 @@ UINT rx_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
     }
 #endif
 
+    // Initialize the SNTP client
+    else if ((status = sntp_init()))
+    {
+        printf("ERROR: Failed to init the SNTP client (0x%08x)\r\n", status);
+    }
+
     // Initialize TLS
     else
     {
@@ -242,28 +250,26 @@ UINT rx_network_connect()
     wifi_err_t join_result;
 
     // Check if Wifi is already connected
-    if (0 == R_WIFI_SX_ULPGN_IsConnected())
+    if (R_WIFI_SX_ULPGN_IsConnected() != 0)
     {
-        return NX_SUCCESS;
+        printf("Connecting WiFi\r\n");
+
+        // Connect to the specified SSID
+        printf("\tConnecting to SSID '%s'\r\n", netx_ssid);
+        do
+        {
+            printf("\tAttempt %ld\r\n", wifiConnectCounter++);
+
+            // Obtain the IP internal mutex before reconnecting WiFi
+            tx_mutex_get(&(nx_ip.nx_ip_protection), TX_WAIT_FOREVER);
+            join_result = R_WIFI_SX_ULPGN_Connect(netx_ssid, netx_password, netx_mode, 1, &ip_cfg);
+            tx_mutex_put(&(nx_ip.nx_ip_protection));
+
+            tx_thread_sleep(5 * TX_TIMER_TICKS_PER_SECOND);
+        } while (join_result != WIFI_SUCCESS);
+
+        printf("SUCCESS: WiFi connected\r\n\r\n");
     }
-
-    printf("Connecting WiFi\r\n");
-
-    // Connect to the specified SSID
-    printf("\tConnecting to SSID '%s'\r\n", netx_ssid);
-    do
-    {
-        printf("\tAttempt %ld\r\n", wifiConnectCounter++);
-
-        // Obtain the IP internal mutex before reconnecting WiFi
-        tx_mutex_get(&(nx_ip.nx_ip_protection), TX_WAIT_FOREVER);
-        join_result = R_WIFI_SX_ULPGN_Connect(netx_ssid, netx_password, netx_mode, 1, &ip_cfg);
-        tx_mutex_put(&(nx_ip.nx_ip_protection));
-
-        tx_thread_sleep(5 * TX_TIMER_TICKS_PER_SECOND);
-    } while (WIFI_SUCCESS != join_result);
-
-    printf("SUCCESS: WiFi connected\r\n\r\n");
 
     // Fetch IP details
     if ((status = dhcp_connect()))
@@ -275,6 +281,12 @@ UINT rx_network_connect()
     else if ((status = dns_connect()))
     {
         printf("ERROR: dns_connect\r\n");
+    }
+
+    // Wait for an SNTP sync
+    else if ((status = sntp_sync()))
+    {
+        printf("ERROR: Failed to sync SNTP time (0x%08x)\r\n", status);
     }
 
     return status;
