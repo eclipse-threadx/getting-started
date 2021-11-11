@@ -1,42 +1,42 @@
 /* Copyright (c) Microsoft Corporation.
    Licensed under the MIT License. */
 
-#include "networking.h"
+#include "sl_networking.h"
 
 #include "nx_api.h"
 #include "nx_secure_tls_api.h"
-#include "nx_sl_wfx_driver.h"
 #include "nxd_dhcp_client.h"
 #include "nxd_dns.h"
 
-#include "azure_config.h"
+#include "nx_sl_wfx_driver.h"
+
+//#include "azure_config.h"
 
 // Define the priority of the threads and stack size
-#define THREADX_IP_THREAD_PRIORITY 3
-#define THREADX_IP_STACK_SIZE      4096
+#define NETX_IP_THREAD_PRIORITY 3
+#define NETX_IP_STACK_SIZE      4096
 
-// Define pool size for IP thread
-#define THREADX_PACKET_SIZE  1536
-#define THREADX_PACKET_COUNT 60
-#define THREADX_POOL_SIZE    ((THREADX_PACKET_SIZE + sizeof(NX_PACKET)) * THREADX_PACKET_COUNT)
+#define NETX_PACKET_COUNT   60
+#define NETX_PACKET_SIZE    1536
+#define NETX_POOL_SIZE      ((NETX_PACKET_SIZE + sizeof(NX_PACKET)) * NETX_PACKET_COUNT)
+#define NETX_ARP_CACHE_SIZE 512
 
-// Define ARP cache size
-#define THREADX_ARP_CACHE_SIZE 512
+#define NETX_IPV4_ADDRESS IP_ADDRESS(0, 0, 0, 0)
+#define NETX_IPV4_MASK    IP_ADDRESS(255, 255, 255, 0)
+
+static UCHAR netx_ip_stack[NETX_IP_STACK_SIZE];
+static UCHAR netx_ip_pool[NETX_POOL_SIZE];
+static UCHAR netx_arp_cache_area[NETX_ARP_CACHE_SIZE];
+static NX_DHCP nx_dhcp_client;
 
 // Declare network control blocks for network initialization
 NX_IP nx_ip;
 NX_PACKET_POOL nx_pool;
 NX_DNS nx_dns_client;
 
-static NX_DHCP nx_dhcp_client;
-
-// Declare the stack/cache space
-static UCHAR threadx_ip_stack[THREADX_IP_STACK_SIZE];
-static UCHAR threadx_ip_pool[THREADX_POOL_SIZE];
-static UCHAR threadx_arp_cache_area[THREADX_ARP_CACHE_SIZE];
-
 // Declare wifi information
-static nx_sl_wfx_wifi_info_t wifi_info = {.ssid = WIFI_SSID, .password = WIFI_PASSWORD};
+// static nx_sl_wfx_wifi_info_t wifi_info = {.ssid = WIFI_SSID, .password = WIFI_PASSWORD};
+static nx_sl_wfx_wifi_info_t wifi_info;
 
 static void print_address(CHAR* preable, ULONG address)
 {
@@ -48,9 +48,6 @@ static void print_address(CHAR* preable, ULONG address)
         (uint8_t)(address & 0xFF));
 }
 
-/******************************************************************************
- * Start DHCP and get IP address
- ******************************************************************************/
 static UINT dhcp_wait()
 {
     UINT status;
@@ -153,11 +150,15 @@ static UINT dns_create()
     return NX_SUCCESS;
 }
 
-bool network_init(void (*ip_link_driver)(struct NX_IP_DRIVER_STRUCT*))
+UINT network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
 {
     UINT status;
 
-    switch (WIFI_MODE)
+    // Stash WiFi credentials
+    strncpy(wifi_info.ssid, ssid, sizeof(wifi_info.ssid));
+    strncpy(wifi_info.password, password, sizeof(wifi_info.password));
+    
+    switch (mode)
     {
         case None:
             wifi_info.mode = WFM_SECURITY_MODE_OPEN;
@@ -178,36 +179,68 @@ bool network_init(void (*ip_link_driver)(struct NX_IP_DRIVER_STRUCT*))
     nx_system_initialize();
 
     // Create a packet pool
-    status =
-        nx_packet_pool_create(&nx_pool, "NetX Packet Pool", THREADX_PACKET_SIZE, threadx_ip_pool, THREADX_POOL_SIZE);
-    if (status != NX_SUCCESS)
+    if ((status = nx_packet_pool_create(
+                  &nx_pool, "NetX Packet Pool", NETX_PACKET_SIZE, netx_ip_pool, NETX_POOL_SIZE)))
     {
-        printf("THREADX platform initialize fail: PACKET POOL CREATE FAIL.\r\n");
-        return false;
+        printf("ERROR: nx_packet_pool_create (0x%08x)\r\n", status);
     }
 
     // Create an IP instance
-    status = nx_ip_create(&nx_ip,
+    else if ((status = nx_ip_create(&nx_ip,
         "NetX IP Instance",
         IP_ADDRESS(0, 0, 0, 0),
         IP_ADDRESS(0, 0, 0, 0),
         &nx_pool,
-        ip_link_driver,
-        threadx_ip_stack,
-        THREADX_IP_STACK_SIZE,
-        THREADX_IP_THREAD_PRIORITY);
-    if (status != NX_SUCCESS)
+        nx_sl_wfx_driver_entry,
+        netx_ip_stack,
+        NETX_IP_STACK_SIZE,
+        NETX_IP_THREAD_PRIORITY)))
     {
         nx_packet_pool_delete(&nx_pool);
-        printf("THREADX platform initialize fail: IP CREATE FAIL.\r\n");
-        return false;
+        printf("ERROR: nx_ip_create (0x%08x)\r\n", status);
     }
+
+    // Enable ARP and supply ARP cache memory
+    else if ((status = nx_arp_enable(&nx_ip, (VOID*)netx_arp_cache_area, NETX_ARP_CACHE_SIZE)))
+    {
+        nx_ip_delete(&nx_ip);
+        nx_packet_pool_delete(&nx_pool);
+        printf("ERROR: nx_arp_enable (0x%08x)\r\n", status);
+    }
+
+    // Enable TCP traffic
+    else if ((status = nx_tcp_enable(&nx_ip)))
+    {
+        nx_ip_delete(&nx_ip);
+        nx_packet_pool_delete(&nx_pool);
+        printf("ERROR: nx_tcp_enable (0x%08x)\r\n", status);
+        return status;
+    }
+
+    // Enable UDP traffic
+    else if ((status = nx_udp_enable(&nx_ip)))
+    {
+        nx_ip_delete(&nx_ip);
+        nx_packet_pool_delete(&nx_pool);
+        printf("ERROR: nx_udp_enable (0x%08x)\r\n", status);
+    }
+
+    // Enable ICMP traffic
+    else if ((status = nx_icmp_enable(&nx_ip)))
+    {
+        nx_ip_delete(&nx_ip);
+        nx_packet_pool_delete(&nx_pool);
+        printf("ERROR: nx_icmp_enable (0x%08x)\r\n", status);
+    }    
+
+
+
 
     // Set wifi network information
     nx_ip.nx_ip_interface[0].nx_interface_additional_link_info = (void*)&wifi_info;
 
     // Enable ARP and supply ARP cache memory
-    status = nx_arp_enable(&nx_ip, (VOID*)threadx_arp_cache_area, THREADX_ARP_CACHE_SIZE);
+/*    status = nx_arp_enable(&nx_ip, (VOID*)netx_arp_cache_area, NETX_ARP_CACHE_SIZE);
     if (status != NX_SUCCESS)
     {
         nx_ip_delete(&nx_ip);
@@ -244,7 +277,7 @@ bool network_init(void (*ip_link_driver)(struct NX_IP_DRIVER_STRUCT*))
         nx_packet_pool_delete(&nx_pool);
         printf("THREADX platform initialize fail: ICMP ENABLE FAIL.\r\n");
         return false;
-    }
+    }*/
 
     // Start DHCP to obtain IP address
     status = dhcp_wait();
@@ -271,4 +304,25 @@ bool network_init(void (*ip_link_driver)(struct NX_IP_DRIVER_STRUCT*))
     nx_secure_tls_initialize();
 
     return true;
+}
+
+UINT network_connect()
+{
+    UINT status;
+
+    // :TODO: wifi connection stuff here, if any?
+
+    // Fetch IP details
+    if ((status = dhcp_connect()))
+    {
+        printf("ERROR: dhcp_connect\r\n");
+    }
+
+    // Create DNS
+    else if ((status = dns_connect()))
+    {
+        printf("ERROR: dns_connect\r\n");
+    }
+
+    return status;
 }

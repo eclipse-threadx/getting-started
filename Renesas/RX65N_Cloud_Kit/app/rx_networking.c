@@ -4,9 +4,10 @@
 #include "rx_networking.h"
 
 #include "nx_api.h"
-#include "nx_driver_rx65n_cloud_kit.h"
 #include "nx_secure_tls_api.h"
 #include "nxd_dns.h"
+
+#include "nx_driver_rx65n_cloud_kit.h"
 
 #include "r_wifi_sx_ulpgn_if.h"
 

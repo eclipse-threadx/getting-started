@@ -10,8 +10,6 @@
 #include "nxd_dhcp_client.h"
 #include "nxd_dns.h"
 
-#include "sntp_client.h"
-
 #define NETX_IP_STACK_SIZE  2048
 #define NETX_PACKET_COUNT   60
 #define NETX_PACKET_SIZE    1536
@@ -130,7 +128,6 @@ static UINT dns_connect()
 }
 
 UINT network_init(VOID (*ip_link_driver)(struct NX_IP_DRIVER_STRUCT*))
-// bool network_init(VOID (*ip_link_driver)(struct NX_IP_DRIVER_STRUCT*))
 {
     UINT status;
 
@@ -150,7 +147,7 @@ UINT network_init(VOID (*ip_link_driver)(struct NX_IP_DRIVER_STRUCT*))
                   NETX_IPV4_MASK,
                   &nx_pool,
                   ip_link_driver,
-                  (UCHAR*)netx_ip_stack,
+                  netx_ip_stack,
                   NETX_IP_STACK_SIZE,
                   1)))
     {

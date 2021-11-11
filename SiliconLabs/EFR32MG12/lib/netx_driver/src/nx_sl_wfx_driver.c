@@ -33,9 +33,10 @@
 /* Maximum retry number for connecting to Wifi access point */
 #define NX_DRIVER_JOIN_MAX_CNT  10
 
-static sl_wfx_context_t nx_sl_wfx_context;
-static NX_PACKET_POOL   *nx_sl_pool_ptr = NULL;
-static NX_IP            *nx_sl_ip_ptr   = NULL;
+static nx_sl_wfx_wifi_info_t *nx_sl_wifi_info_ptr;
+static sl_wfx_context_t       nx_sl_wfx_context;
+static NX_PACKET_POOL        *nx_sl_pool_ptr = NULL;
+static NX_IP                 *nx_sl_ip_ptr   = NULL;
 
 /* Define the routines for processing each driver entry request */
 static UINT nx_sl_driver_initialize(NX_IP_DRIVER *driver_req_ptr);
@@ -52,6 +53,14 @@ static UINT nx_sl_driver_hardware_enable(CHAR *ssid,
 static UINT nx_sl_driver_packet_enqueue(NX_PACKET *packet_ptr);
 static void nx_sl_driver_transfer_to_netx(NX_IP *ip_ptr,
                                           NX_PACKET *packet_ptr);
+
+/**************************************************************************//**
+ * Network driver entry function
+ *****************************************************************************/
+void nx_sl_wifi_info_set(nx_sl_wfx_wifi_info_t *wifi_info_ptr)
+{
+  nx_sl_wifi_info_ptr = wifi_info_ptr;
+}
 
 /**************************************************************************//**
  * Network driver entry function
@@ -304,18 +313,14 @@ static UINT nx_sl_driver_hardware_initialize(void)
  *****************************************************************************/
 static UINT nx_sl_driver_enable(NX_IP_DRIVER *driver_req_ptr)
 {
-  UINT                  error_code;
-  nx_sl_wfx_wifi_info_t *wifi_info_ptr = NULL;
+  UINT error_code;
 
-  /* Get the wifi connection info from application */
-  wifi_info_ptr = (nx_sl_wfx_wifi_info_t *)driver_req_ptr->nx_ip_driver_interface->nx_interface_additional_link_info;
-
-  if (wifi_info_ptr != NULL) {
-    error_code = nx_sl_driver_hardware_enable(wifi_info_ptr->ssid,
-                                              wifi_info_ptr->password,
-                                              wifi_info_ptr->mode);
+  if (nx_sl_wifi_info_ptr != NULL) {
+    error_code = nx_sl_driver_hardware_enable(nx_sl_wifi_info_ptr->ssid,
+                                              nx_sl_wifi_info_ptr->password,
+                                              nx_sl_wifi_info_ptr->mode);
   } else {
-    printf("[Error] Wifi ssid and password not set\r\n");
+    printf("ERROR: WiFi SSID / password not set\r\n");
     error_code = NX_DRIVER_ERROR;
   }
 

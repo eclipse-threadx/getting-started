@@ -19,13 +19,10 @@
 #define AZURE_THREAD_STACK_SIZE 4096
 #define AZURE_THREAD_PRIORITY   4
 
-TX_THREAD azure_thread;
-ULONG azure_thread_stack[AZURE_THREAD_STACK_SIZE / sizeof(ULONG)];
+static TX_THREAD azure_thread;
+static ULONG azure_thread_stack[AZURE_THREAD_STACK_SIZE / sizeof(ULONG)];
 
-void azure_thread_entry(ULONG parameter);
-void tx_application_define(void* first_unused_memory);
-
-void azure_thread_entry(ULONG parameter)
+void azure_thread_entry(ULONG thread_input)
 {
     UINT status;
 
