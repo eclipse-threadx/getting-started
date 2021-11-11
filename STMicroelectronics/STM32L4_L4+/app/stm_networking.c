@@ -307,7 +307,7 @@ UINT stm_network_connect()
             tx_mutex_put(&(nx_ip.nx_ip_protection));
 
             tx_thread_sleep(5 * TX_TIMER_TICKS_PER_SECOND);
-        } while (join_result != WWD_SUCCESS);
+        } while (join_result != NX_SUCCESS);
 
         printf("SUCCESS: WiFi connected\r\n\r\n");
     }
