@@ -92,19 +92,19 @@ static UINT sntp_client_run()
              5 * NX_IP_PERIODIC_RATE,
              NX_IP_VERSION_V4)))
     {
-        printf("ERROR: Unable to resolve SNTP IP %s (0x%04x)\r\n", SNTP_SERVER[sntp_server_count], status);
+        printf("ERROR: Unable to resolve SNTP IP %s (0x%08x)\r\n", SNTP_SERVER[sntp_server_count], status);
     }
 
     // Initialize the service
     else if ((status = nxd_sntp_client_initialize_unicast(&sntp_client, &sntp_address)))
     {
-        printf("ERROR: Unable to initialize unicast SNTP client (0x%04x)\r\n", status);
+        printf("ERROR: Unable to initialize unicast SNTP client (0x%08x)\r\n", status);
     }
 
     // Run Unicast client
     else if ((status = nx_sntp_client_run_unicast(&sntp_client)))
     {
-        printf("ERROR: Unable to start unicast SNTP client (0x%04x)\r\n", status);
+        printf("ERROR: Unable to start unicast SNTP client (0x%08x)\r\n", status);
     }
 
     // rotate to the next SNTP service
@@ -155,7 +155,7 @@ UINT sntp_init()
     // Setup time update callback function
     else if ((status = nx_sntp_client_set_time_update_notify(&sntp_client, time_update_callback)))
     {
-        printf("ERROR: Unable to set time update notify CB (0x%04x)\r\n", status);
+        printf("ERROR: nx_sntp_client_set_time_update_notify (0x%08x)\r\n", status);
         nx_sntp_client_delete(&sntp_client);
     }
 
