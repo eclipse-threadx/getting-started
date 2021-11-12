@@ -1268,16 +1268,22 @@ wifi_err_t R_WIFI_SX_ULPGN_Scan (wifi_scan_result_t *ap_results, uint32_t max_ne
 
 /**
 * @fn
-* @brief Get Tcp Socket Status
+* @brief Get Socket Connection Status
 */
-int32_t R_WIFI_SX_ULPGN_GetTcpSocketStatus(uint8_t socket_number)
+int32_t R_WIFI_SX_ULPGN_IsSocketConnected(uint8_t socket_number)
 {
 	if(socket_number >= g_wifi_createble_sockets)
 	{
 	    return -1;
 	}
-	g_wifi_socket[socket_number].socket_status = wifi_get_socket_status(socket_number);
-	return g_wifi_socket[socket_number].socket_status;
+	
+	int32_t status = wifi_get_socket_status(socket_number);
+	if (status != WIFI_SOCKET_STATUS_CONNECTED)
+	{
+		return -1;
+	}
+
+	return 1;
 }
 
 /**
@@ -1839,6 +1845,17 @@ int32_t R_WIFI_SX_ULPGN_ReceiveSocket (int32_t socket_number, uint8_t *data, int
 			return 0;
 		}
 #endif
+		/* Check if still connected */
+		if (recvcnt == 0)
+		{
+			ret = wifi_get_socket_status(socket_number);
+			if(ret != ULPGN_SOCKET_STATUS_CONNECTED)
+			{
+				wifi_give_mutex(MUTEX_RX);
+				return -1;
+			}
+		}
+
 		/* socket is not closed, and recieve data size is 0. */
 		/* Give back the socketInUse mutex. */
 		api_ret = recvcnt;

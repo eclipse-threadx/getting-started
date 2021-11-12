@@ -250,26 +250,23 @@ UINT rx_network_connect()
     wifi_err_t join_result;
 
     // Check if Wifi is already connected
-    if (R_WIFI_SX_ULPGN_IsConnected() != 0)
+    printf("Connecting WiFi\r\n");
+
+    // Connect to the specified SSID
+    printf("\tConnecting to SSID '%s'\r\n", netx_ssid);
+    do
     {
-        printf("Connecting WiFi\r\n");
+        printf("\tAttempt %ld...\r\n", wifiConnectCounter++);
 
-        // Connect to the specified SSID
-        printf("\tConnecting to SSID '%s'\r\n", netx_ssid);
-        do
-        {
-            printf("\tAttempt %ld\r\n", wifiConnectCounter++);
+        // Obtain the IP internal mutex before reconnecting WiFi
+        tx_mutex_get(&(nx_ip.nx_ip_protection), TX_WAIT_FOREVER);
+        join_result = R_WIFI_SX_ULPGN_Connect(netx_ssid, netx_password, netx_mode, 1, &ip_cfg);
+        tx_mutex_put(&(nx_ip.nx_ip_protection));
 
-            // Obtain the IP internal mutex before reconnecting WiFi
-            tx_mutex_get(&(nx_ip.nx_ip_protection), TX_WAIT_FOREVER);
-            join_result = R_WIFI_SX_ULPGN_Connect(netx_ssid, netx_password, netx_mode, 1, &ip_cfg);
-            tx_mutex_put(&(nx_ip.nx_ip_protection));
+        tx_thread_sleep(5 * TX_TIMER_TICKS_PER_SECOND);
+    } while (join_result != WIFI_SUCCESS);
 
-            tx_thread_sleep(5 * TX_TIMER_TICKS_PER_SECOND);
-        } while (join_result != WIFI_SUCCESS);
-
-        printf("SUCCESS: WiFi connected\r\n\r\n");
-    }
+    printf("SUCCESS: WiFi connected\r\n\r\n");
 
     // Fetch IP details
     if ((status = dhcp_connect()))

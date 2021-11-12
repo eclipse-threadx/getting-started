@@ -150,7 +150,7 @@ extern uint8_t g_wifi_createble_sockets;
 extern uint8_t wifi_command_port;
 extern uint8_t wifi_data_port;
 
-int32_t R_WIFI_SX_ULPGN_GetTcpSocketStatus(uint8_t socket_number);
+int32_t R_WIFI_SX_ULPGN_IsSocketConnected(uint8_t socket_number);
 
 wifi_err_t R_WIFI_SX_ULPGN_Open(void);
 wifi_err_t R_WIFI_SX_ULPGN_Close(void);

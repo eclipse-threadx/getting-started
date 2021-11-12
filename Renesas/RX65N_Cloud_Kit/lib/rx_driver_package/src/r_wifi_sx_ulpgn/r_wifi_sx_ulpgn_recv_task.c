@@ -335,7 +335,7 @@ static void wifi_recv_task( ULONG input )
 				{
 					wifi_analyze_get_socket_status_string(presponse_buff);
 				}
-				else if(0 == strcmp((const char *)presponse_buff,WIFI_RETURN_TEXT_ERROR))
+				if(0 == strcmp((const char *)presponse_buff,WIFI_RETURN_TEXT_ERROR))
 				{
 					wifi_set_result_to_current_running_queue( WIFI_RETURN_ENUM_ERROR );
 				}
@@ -648,10 +648,9 @@ void wifi_analyze_get_socket_status_string(uint8_t *pstring)
 		str_ptr = strchr((const char *)pstring, ',');
 	    if(str_ptr != NULL)
 	    {
-	    	str_ptr = "\0";
 	        for(i = 0; i < 5; i++)
 	        {
-	            if(0 == strcmp((const char *)str_ptr, (const char *)wifi_socket_status_tbl[i]))
+	            if(0 == strncmp((const char *)pstring, (const char *)wifi_socket_status_tbl[i], str_ptr - (char*)pstring))
 	            {
 	                break;
 	            }
