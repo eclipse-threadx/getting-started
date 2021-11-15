@@ -37,6 +37,9 @@ typedef ULONG (*func_ptr_unix_time_get)(VOID);
 struct AZURE_IOT_NX_CONTEXT_STRUCT
 {
     NX_SECURE_X509_CERT root_ca_cert;
+    NX_SECURE_X509_CERT root_ca_cert_2;
+    NX_SECURE_X509_CERT root_ca_cert_3;
+
     ULONG nx_azure_iot_tls_metadata_buffer[NX_AZURE_IOT_TLS_METADATA_BUFFER_SIZE / sizeof(ULONG)];
     ULONG nx_azure_iot_thread_stack[NX_AZURE_IOT_STACK_SIZE / sizeof(ULONG)];
     ULONG azure_iot_thread_stack[AZURE_IOT_STACK_SIZE / sizeof(ULONG)];
