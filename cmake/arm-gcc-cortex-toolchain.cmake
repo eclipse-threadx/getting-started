@@ -56,7 +56,7 @@ set(CMAKE_EXE_LINKER_FLAGS "${LD_FLAGS} -fno-common -Wl,--gc-sections,-print-mem
 
 set(CMAKE_C_FLAGS_DEBUG "-O0")
 set(CMAKE_CXX_ASM_FLAGS_DEBUG "-O0")
-set(CMAKE_ASM_FLAGS_DEBUG "")
+set(CMAKE_ASM_FLAGS_DEBUG "-g3")
 
 set(CMAKE_C_FLAGS_RELEASE "-Os")
 set(CMAKE_CXX_FLAGS_RELEASE "-Os")
