@@ -66,7 +66,7 @@ static void set_sntp_time()
     nx_sntp_client_utility_display_date_time(&sntp_client, time_buffer, sizeof(time_buffer));
 
     printf("\tSNTP time update: %s\r\n", time_buffer);
-    printf("SUCCESS: SNTP initialized\r\n\r\n");    
+    printf("SUCCESS: SNTP initialized\r\n");    
 }
 
 static UINT sntp_client_run()
@@ -168,7 +168,7 @@ UINT sntp_sync()
     UINT server_status;
     ULONG events = 0;
 
-    printf("Initializing SNTP time sync\r\n");
+    printf("\r\nInitializing SNTP time sync\r\n");
 
     while (NX_TRUE)
     {

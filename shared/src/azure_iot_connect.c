@@ -51,7 +51,7 @@ static VOID exponential_backoff_with_jitter()
 
     backoff_seconds = (UINT)(base_delay * (1 + jitter_percent));
 
-    printf("Connection backoff for %d seconds\r\n", backoff_seconds);
+    printf("\r\nIoT connection backoff for %d seconds\r\n", backoff_seconds);
     tx_thread_sleep(backoff_seconds * NX_IP_PERIODIC_RATE);
 }
 
@@ -60,7 +60,7 @@ static void iothub_connect(AZURE_IOT_NX_CONTEXT* nx_context)
     UINT status;
 
     // Connect to IoT hub
-    printf("Initializing Azure IoT Hub client\r\n");
+    printf("\r\nInitializing Azure IoT Hub client\r\n");
     printf("\tHub hostname: %.*s\r\n", nx_context->azure_iot_hub_hostname_len, nx_context->azure_iot_hub_hostname);
     printf("\tDevice id: %.*s\r\n", nx_context->azure_iot_hub_device_id_len, nx_context->azure_iot_hub_device_id);
     printf("\tModel id: %.*s\r\n", nx_context->azure_iot_model_id_len, nx_context->azure_iot_model_id);
@@ -141,25 +141,24 @@ VOID connection_monitor(
             // Fallthrough
             case NX_AZURE_IOT_NOT_INITIALIZED:
             {
-                exponential_backoff_with_jitter();
+                // Set the state to not initialized
+                nx_context->azure_iot_connection_status = NX_AZURE_IOT_NOT_INITIALIZED;
 
                 // Connect the network
                 if (network_connect() != NX_SUCCESS)
                 {
-                    nx_context->azure_iot_connection_status = NX_AZURE_IOT_NOT_INITIALIZED;
+                    // Failed, break out to try again next time
+                    break;
                 }
 
-                // Initialize IoT hub
-                else if (iothub_init(nx_context) != NX_SUCCESS)
+                // Initialize IoT Hub
+                exponential_backoff_with_jitter();
+                if (iothub_init(nx_context) == NX_SUCCESS)
                 {
-                    nx_context->azure_iot_connection_status = NX_AZURE_IOT_NOT_INITIALIZED;
-                }
-
-                // Attempt to connect to Hub
-                else
-                {
+                    // Connect IoT Hub
                     iothub_connect(nx_context);
                 }
+
             }
             break;
 
@@ -171,6 +170,7 @@ VOID connection_monitor(
             // Fallthrough
             default:
             {
+                // Connect IoT Hub
                 exponential_backoff_with_jitter();
                 iothub_connect(nx_context);
             }

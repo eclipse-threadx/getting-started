@@ -236,7 +236,7 @@ static UINT dps_initialize(AZURE_IOT_NX_CONTEXT* nx_context)
         return NX_PTR_ERROR;
     }
 
-    printf("Initializing Azure IoT DPS client\r\n");
+    printf("\r\nInitializing Azure IoT DPS client\r\n");
     printf("\tDPS endpoint: %s\r\n", AZURE_IOT_DPS_ENDPOINT);
     printf("\tDPS ID scope: %.*s\r\n", nx_context->azure_iot_dps_id_scope_len, nx_context->azure_iot_dps_id_scope);
     printf("\tRegistration ID: %.*s\r\n",
@@ -346,7 +346,7 @@ static UINT dps_initialize(AZURE_IOT_NX_CONTEXT* nx_context)
         return status;
     }
 
-    printf("SUCCESS: Azure IoT DPS client initialized\r\n\r\n");
+    printf("SUCCESS: Azure IoT DPS client initialized\r\n");
 
     return iot_hub_initialize(nx_context);
 }

@@ -49,7 +49,7 @@ static UINT wifi_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
 {
     uint8_t mac[6];
 
-    printf("Initializing WiFi\r\n");
+    printf("\r\nInitializing WiFi\r\n");
 
     if (netx_ssid[0] == 0)
     {
@@ -67,7 +67,7 @@ static UINT wifi_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
     printf("\tMAC address: %02X:%02X:%02X:%02X:%02X:%02X\r\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
     printf("\tFirmware version: %d\r\n", R_WIFI_SX_ULPGN_GetVersion());
 
-    printf("SUCCESS: WiFi initialized\r\n\r\n");
+    printf("SUCCESS: WiFi initialized\r\n");
 
     return NX_SUCCESS;
 }
@@ -76,7 +76,7 @@ static UINT dhcp_connect()
 {
     UINT status;
 
-    printf("Initializing DHCP\r\n");
+    printf("\r\nInitializing DHCP\r\n");
 
     R_WIFI_SX_ULPGN_GetIpAddress(&ip_cfg);
 
@@ -99,7 +99,7 @@ static UINT dhcp_connect()
         return status;
     }
 
-    printf("SUCCESS: DHCP initialized\r\n\r\n");
+    printf("SUCCESS: DHCP initialized\r\n");
 
     return NX_SUCCESS;
 }
@@ -109,7 +109,7 @@ static UINT dns_connect()
     UINT status;
     uint32_t dns_address_1;
 
-    printf("Initializing DNS client\r\n");
+    printf("\r\nInitializing DNS client\r\n");
 
     if (R_WIFI_SX_ULPGN_GetDnsServerAddress(&dns_address_1) != WIFI_SUCCESS)
     {
@@ -133,7 +133,7 @@ static UINT dns_connect()
         return status;
     }
 
-    printf("SUCCESS: DNS client initialized\r\n\r\n");
+    printf("SUCCESS: DNS client initialized\r\n");
 
     return NX_SUCCESS;
 }
@@ -250,7 +250,7 @@ UINT rx_network_connect()
     wifi_err_t join_result;
 
     // Check if Wifi is already connected
-    printf("Connecting WiFi\r\n");
+    printf("\r\nConnecting WiFi\r\n");
 
     // Connect to the specified SSID
     printf("\tConnecting to SSID '%s'\r\n", netx_ssid);
@@ -266,7 +266,7 @@ UINT rx_network_connect()
         tx_thread_sleep(5 * TX_TIMER_TICKS_PER_SECOND);
     } while (join_result != WIFI_SUCCESS);
 
-    printf("SUCCESS: WiFi connected\r\n\r\n");
+    printf("SUCCESS: WiFi connected\r\n");
 
     // Fetch IP details
     if ((status = dhcp_connect()))

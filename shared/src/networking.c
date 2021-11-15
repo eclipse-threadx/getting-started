@@ -66,7 +66,7 @@ static UINT dhcp_connect()
     ULONG network_mask;
     ULONG gateway_address;
 
-    printf("Initializing DHCP\r\n");
+    printf("\r\nInitializing DHCP\r\n");
 
     if ((status = nx_dhcp_force_renew(&nx_dhcp_client)))
     {
@@ -92,7 +92,7 @@ static UINT dhcp_connect()
     print_address("Mask", network_mask);
     print_address("Gateway", gateway_address);
 
-    printf("SUCCESS: DHCP initialized\r\n\r\n");
+    printf("SUCCESS: DHCP initialized\r\n");
 
     return NX_SUCCESS;
 }
@@ -103,7 +103,7 @@ static UINT dns_connect()
     ULONG dns_server_address[3]  = {0};
     UINT dns_server_address_size = 12;
 
-    printf("Initializing DNS client\r\n");
+    printf("\r\nInitializing DNS client\r\n");
 
     // Retrieve DNS server address
     if ((status = nx_dhcp_interface_user_option_retrieve(
@@ -130,7 +130,7 @@ static UINT dns_connect()
         return status;
     }
 
-    printf("SUCCESS: DNS client initialized\r\n\r\n");
+    printf("SUCCESS: DNS client initialized\r\n");
 
     return NX_SUCCESS;
 }

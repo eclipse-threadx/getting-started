@@ -57,7 +57,7 @@ static UINT wifi_init()
 {
     wiced_mac_t mac;
 
-    printf("Initializing WiFi\r\n");
+    printf("\r\nInitializing WiFi\r\n");
 
     if (netx_ssid[0] == 0)
     {
@@ -88,7 +88,7 @@ static UINT wifi_init()
         mac.octet[4],
         mac.octet[5]);
 
-    printf("SUCCESS: WiFi initialized\r\n\r\n");
+    printf("SUCCESS: WiFi initialized\r\n");
 
     return NX_SUCCESS;
 }
@@ -101,7 +101,7 @@ static UINT dhcp_connect(void)
     ULONG network_mask;
     ULONG gateway_address;
 
-    printf("Initializing DHCP\r\n");
+    printf("\r\nInitializing DHCP\r\n");
 
     // Wait until address is solved.
     if ((status = nx_ip_status_check(&nx_ip, NX_IP_ADDRESS_RESOLVED, &actual_status, DHCP_WAIT_TIME_TICKS)))
@@ -120,7 +120,7 @@ static UINT dhcp_connect(void)
     print_address("Mask", network_mask);
     print_address("Gateway", gateway_address);
 
-    printf("SUCCESS: DHCP initialized\r\n\r\n");
+    printf("SUCCESS: DHCP initialized\r\n");
 
     return NX_SUCCESS;
 }
@@ -131,7 +131,7 @@ static UINT dns_connect()
     ULONG dns_server_address[3]  = {0};
     UINT dns_server_address_size = 12;
 
-    printf("Initializing DNS client\r\n");
+    printf("\r\nInitializing DNS client\r\n");
 
     // Retrieve DNS server address
     if ((status = nx_dhcp_interface_user_option_retrieve(
@@ -158,7 +158,7 @@ static UINT dns_connect()
         return status;
     }
 
-    printf("SUCCESS: DNS client initialized\r\n\r\n");
+    printf("SUCCESS: DNS client initialized\r\n");
 
     return NX_SUCCESS;
 }
@@ -333,7 +333,7 @@ UINT wwd_network_connect()
     // Check if Wifi is already connected
     if (wwd_wifi_is_ready_to_transceive(WWD_STA_INTERFACE) != WWD_SUCCESS)
     {
-        printf("Connecting WiFi\r\n");
+        printf("\r\nConnecting WiFi\r\n");
 
         // Halt any existing connection attempts
         wwd_wifi_join_halt(WICED_TRUE);
@@ -358,7 +358,7 @@ UINT wwd_network_connect()
             tx_thread_sleep(5 * TX_TIMER_TICKS_PER_SECOND);
         } while (join_result != WWD_SUCCESS);
 
-        printf("SUCCESS: WiFi connected\r\n\r\n");
+        printf("SUCCESS: WiFi connected\r\n");
     }
 
     // Fetch IP details

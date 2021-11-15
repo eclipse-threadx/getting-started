@@ -71,7 +71,7 @@ static UINT wifi_init()
     CHAR data[32];
     uint8_t mac[6];
 
-    printf("Initializing WiFi\r\n");
+    printf("\r\nInitializing WiFi\r\n");
 
     if (netx_ssid[0] == 0)
     {
@@ -96,7 +96,7 @@ static UINT wifi_init()
 
     check_firmware_version(data);
 
-    printf("SUCCESS: WiFi initialized\r\n\r\n");
+    printf("SUCCESS: WiFi initialized\r\n");
 
     return NX_SUCCESS;
 }
@@ -108,7 +108,7 @@ static UINT dhcp_connect()
     UCHAR ip_mask[4];
     UCHAR gateway_address[4];
 
-    printf("Initializing DHCP\r\n");
+    printf("\r\nInitializing DHCP\r\n");
 
     // Get WIFI information
     WIFI_GetIP_Address(ip_address);
@@ -137,7 +137,7 @@ static UINT dhcp_connect()
         return status;
     }
 
-    printf("SUCCESS: DHCP initialized\r\n\r\n");
+    printf("SUCCESS: DHCP initialized\r\n");
 
     return NX_SUCCESS;
 }
@@ -148,7 +148,7 @@ static UINT dns_connect()
     UCHAR dns_address_1[4] = {0};
     UCHAR dns_address_2[4] = {0};
 
-    printf("Initializing DNS client\r\n");
+    printf("\r\nInitializing DNS client\r\n");
 
     if (WIFI_GetDNS_Address(dns_address_1, dns_address_2) != WIFI_STATUS_OK)
     {
@@ -174,7 +174,7 @@ static UINT dns_connect()
         return status;
     }
 
-    printf("SUCCESS: DNS client initialized\r\n\r\n");
+    printf("SUCCESS: DNS client initialized\r\n");
 
     return NX_SUCCESS;
 }
@@ -293,7 +293,7 @@ UINT stm_network_connect()
     // Check if Wifi is already connected
     if (WIFI_IsConnected() != WIFI_STATUS_OK)
     {
-        printf("Connecting WiFi\r\n");
+        printf("\r\nConnecting WiFi\r\n");
 
         // Connect to the specified SSID
         printf("\tConnecting to SSID '%s'\r\n", netx_ssid);
@@ -309,7 +309,7 @@ UINT stm_network_connect()
             tx_thread_sleep(5 * TX_TIMER_TICKS_PER_SECOND);
         } while (join_result != NX_SUCCESS);
 
-        printf("SUCCESS: WiFi connected\r\n\r\n");
+        printf("SUCCESS: WiFi connected\r\n");
     }
 
     // Fetch IP details
