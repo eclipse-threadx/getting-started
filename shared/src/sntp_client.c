@@ -170,6 +170,9 @@ UINT sntp_sync()
 
     printf("\r\nInitializing SNTP time sync\r\n");
 
+    // Reset the server index so we start from the beginning
+    sntp_server_count = 0;
+
     while (NX_TRUE)
     {
         // Run the client
@@ -181,7 +184,7 @@ UINT sntp_sync()
 
         // Clear and wait for events
         events = 0;
-        tx_event_flags_get(&sntp_flags, SNTP_UPDATE_EVENT /*| SNTP_STOP_EVENT*/, TX_OR_CLEAR, &events, SNTP_WAIT_TIME);
+        tx_event_flags_get(&sntp_flags, SNTP_UPDATE_EVENT, TX_OR_CLEAR, &events, SNTP_WAIT_TIME);
 
         if (events & SNTP_UPDATE_EVENT)
         {
