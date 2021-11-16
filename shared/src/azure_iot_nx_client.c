@@ -421,6 +421,8 @@ static VOID process_command(AZURE_IOT_NX_CONTEXT* nx_context)
         if (nx_context->command_received_cb)
         {
             nx_context->command_received_cb(nx_context,
+                component_name_ptr,
+                component_name_length,
                 command_name_ptr,
                 command_name_length,
                 payload_ptr,
@@ -1003,12 +1005,16 @@ UINT azure_iot_nx_client_publish_properties(AZURE_IOT_NX_CONTEXT* context_ptr,
     }
 
     if ((status = nx_azure_iot_json_writer_append_begin_object(&json_writer)) ||
+
         (component_name_ptr != NX_NULL &&
             (status = nx_azure_iot_hub_client_reported_properties_component_begin(
                  &context_ptr->iothub_client, &json_writer, (UCHAR*)component_name_ptr, strlen(component_name_ptr)))) ||
+
         (status = append_properties(&json_writer)) ||
+
         (component_name_ptr != NX_NULL && (status = nx_azure_iot_hub_client_reported_properties_component_end(
                                                &context_ptr->iothub_client, &json_writer))) ||
+
         (status = nx_azure_iot_json_writer_append_end_object(&json_writer)))
     {
         printf("Error: Failed to build reported property (0x%08x)\r\n", status);
@@ -1153,5 +1159,6 @@ UINT azure_nx_client_respond_int_writable_property(
 
 UINT azure_iot_nx_client_publish_int_writable_property(AZURE_IOT_NX_CONTEXT* context, CHAR* property, UINT value)
 {
+    // Pass in a version of 1, as we a reporting the writable property, not responding to a server request
     return azure_nx_client_respond_int_writable_property(context, property, value, 200, 1);
 }

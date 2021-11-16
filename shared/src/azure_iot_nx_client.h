@@ -24,7 +24,7 @@
 
 typedef struct AZURE_IOT_NX_CONTEXT_STRUCT AZURE_IOT_NX_CONTEXT;
 
-typedef void (*func_ptr_command_received)(AZURE_IOT_NX_CONTEXT*, const UCHAR*, USHORT, UCHAR*, USHORT, VOID*, USHORT);
+typedef void (*func_ptr_command_received)(AZURE_IOT_NX_CONTEXT*, const UCHAR*, USHORT, const UCHAR*, USHORT, UCHAR*, USHORT, VOID*, USHORT);
 typedef void (*func_ptr_writable_property_received)(
     AZURE_IOT_NX_CONTEXT*, const UCHAR*, UINT, UCHAR*, UINT, NX_AZURE_IOT_JSON_READER*, UINT);
 typedef void (*func_ptr_property_received)(

@@ -130,6 +130,8 @@ static void set_led_state(bool level)
 }
 
 static void command_received_cb(AZURE_IOT_NX_CONTEXT* nx_context_ptr,
+    const UCHAR* component,
+    USHORT component_length,
     const UCHAR* method,
     USHORT method_length,
     UCHAR* payload,
