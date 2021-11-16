@@ -9,7 +9,7 @@
             "runToMain": true,
             "executable": "${workspaceFolder}/build/app/mimxrt1060_azure_iot.elf",
             "device": "MIMXRT1062xxx6A",
-            "svdFile": "${workspaceFolder}/.vscode/MIMXRT1062.svd",
+            "svdFile": "${workspaceFolder}/MIMXRT1062.svd",
         },
         {
             "name": "NXP: Remote",
@@ -20,7 +20,7 @@
             "gdbTarget": "${input:device.host}",
             "runToMain": true,
             "device": "MIMXRT1062xxx6A",
-            "svdFile": "${workspaceFolder}/.vscode/MIMXRT1062.svd",
+            "svdFile": "${workspaceFolder}/MIMXRT1062.svd",
         },
         {
             "name": "Launch",
@@ -47,7 +47,8 @@
             //     "require": true,
             //     "limit": 8
             // },
-            "preLaunchTask": "Flash"
+            "preLaunchTask": "Flash",
+            "svdPath": "${workspaceFolder}/MIMXRT1062.svd"
         }
     ],
     "inputs": [
