@@ -30,7 +30,8 @@
                     "text": "-interpreter-exec console \"monitor reset halt\"",
                     "ignoreFailures": false
                 }
-            ]
+            ],
+            "svdPath": "${workspaceRoot}/STM32F412.svd"
         }
     ]
 }

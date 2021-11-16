@@ -32,7 +32,8 @@
                     "text": "-interpreter-exec console \"monitor reset halt\"",
                     "ignoreFailures": false
                 }
-            ]
+            ],
+            "svdPath": "${workspaceRoot}/MIMXRT1062.svd"
         }
     ]
 }
