@@ -24,7 +24,8 @@
 
 typedef struct AZURE_IOT_NX_CONTEXT_STRUCT AZURE_IOT_NX_CONTEXT;
 
-typedef void (*func_ptr_command_received)(AZURE_IOT_NX_CONTEXT*, const UCHAR*, USHORT, const UCHAR*, USHORT, UCHAR*, USHORT, VOID*, USHORT);
+typedef void (*func_ptr_command_received)(
+    AZURE_IOT_NX_CONTEXT*, const UCHAR*, USHORT, const UCHAR*, USHORT, UCHAR*, USHORT, VOID*, USHORT);
 typedef void (*func_ptr_writable_property_received)(
     AZURE_IOT_NX_CONTEXT*, const UCHAR*, UINT, UCHAR*, UINT, NX_AZURE_IOT_JSON_READER*, UINT);
 typedef void (*func_ptr_property_received)(
@@ -133,10 +134,16 @@ UINT azure_iot_nx_client_publish_telemetry(AZURE_IOT_NX_CONTEXT* context_ptr,
 UINT azure_iot_nx_client_publish_properties(AZURE_IOT_NX_CONTEXT* context_ptr,
     CHAR* component_name_ptr,
     UINT (*append_properties)(NX_AZURE_IOT_JSON_WRITER* json_writer_ptr));
-UINT azure_iot_nx_client_publish_bool_property(AZURE_IOT_NX_CONTEXT* context, CHAR* property, bool value);
+UINT azure_iot_nx_client_publish_bool_property(
+    AZURE_IOT_NX_CONTEXT* nx_context, CHAR* component_name_ptr, CHAR* property_ptr, bool value);
 
-UINT azure_nx_client_respond_int_writable_property(
-    AZURE_IOT_NX_CONTEXT* context, CHAR* property, INT value, INT http_status, INT version);
-UINT azure_iot_nx_client_publish_int_writable_property(AZURE_IOT_NX_CONTEXT* context, CHAR* property, UINT value);
+UINT azure_nx_client_respond_int_writable_property(AZURE_IOT_NX_CONTEXT* nx_context,
+    CHAR* component_name_ptr,
+    CHAR* property_ptr,
+    INT value,
+    INT http_status,
+    INT version);
+UINT azure_iot_nx_client_publish_int_writable_property(
+    AZURE_IOT_NX_CONTEXT* nx_context, CHAR* component_ptr, CHAR* property_ptr, UINT value);
 
 #endif

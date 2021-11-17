@@ -1041,7 +1041,8 @@ UINT azure_iot_nx_client_publish_properties(AZURE_IOT_NX_CONTEXT* context_ptr,
     return NX_SUCCESS;
 }
 
-UINT azure_iot_nx_client_publish_bool_property(AZURE_IOT_NX_CONTEXT* context, CHAR* property, bool value)
+UINT azure_iot_nx_client_publish_bool_property(
+    AZURE_IOT_NX_CONTEXT* nx_context, CHAR* component_name_ptr, CHAR* property_ptr, bool value)
 {
     UINT status;
     UINT response_status;
@@ -1051,7 +1052,7 @@ UINT azure_iot_nx_client_publish_bool_property(AZURE_IOT_NX_CONTEXT* context, CH
     NX_PACKET* packet_ptr;
 
     if ((status = nx_azure_iot_hub_client_reported_properties_create(
-             &context->iothub_client, &packet_ptr, NX_WAIT_FOREVER)))
+             &nx_context->iothub_client, &packet_ptr, NX_WAIT_FOREVER)))
     {
         printf("Error: Failed create reported properties (0x%08x)\r\n", status);
         return status;
@@ -1065,8 +1066,17 @@ UINT azure_iot_nx_client_publish_bool_property(AZURE_IOT_NX_CONTEXT* context, CH
     }
 
     if ((status = nx_azure_iot_json_writer_append_begin_object(&json_writer)) ||
+
+        (component_name_ptr != NX_NULL &&
+            (status = nx_azure_iot_hub_client_reported_properties_component_begin(
+                 &nx_context->iothub_client, &json_writer, (UCHAR*)component_name_ptr, strlen(component_name_ptr)))) ||
+
         (status = nx_azure_iot_json_writer_append_property_with_bool_value(
-             &json_writer, (const UCHAR*)property, strlen(property), value)) ||
+             &json_writer, (const UCHAR*)property_ptr, strlen(property_ptr), value)) ||
+
+        (component_name_ptr != NX_NULL && (status = nx_azure_iot_hub_client_reported_properties_component_end(
+                                               &nx_context->iothub_client, &json_writer))) ||
+
         (status = nx_azure_iot_json_writer_append_end_object(&json_writer)))
     {
         printf("Error: Failed to build bool property (0x%08x)\r\n", status);
@@ -1076,7 +1086,7 @@ UINT azure_iot_nx_client_publish_bool_property(AZURE_IOT_NX_CONTEXT* context, CH
 
     printf_packet("Sending property: ", packet_ptr);
 
-    if ((status = nx_azure_iot_hub_client_reported_properties_send(&context->iothub_client,
+    if ((status = nx_azure_iot_hub_client_reported_properties_send(&nx_context->iothub_client,
              packet_ptr,
              &request_id,
              &response_status,
@@ -1097,8 +1107,12 @@ UINT azure_iot_nx_client_publish_bool_property(AZURE_IOT_NX_CONTEXT* context, CH
     return NX_SUCCESS;
 }
 
-UINT azure_nx_client_respond_int_writable_property(
-    AZURE_IOT_NX_CONTEXT* context, CHAR* property, INT value, INT http_status, INT version)
+UINT azure_nx_client_respond_int_writable_property(AZURE_IOT_NX_CONTEXT* nx_context,
+    CHAR* component_name_ptr,
+    CHAR* property_ptr,
+    INT value,
+    INT http_status,
+    INT version)
 {
     UINT status;
     UINT response_status;
@@ -1107,7 +1121,7 @@ UINT azure_nx_client_respond_int_writable_property(
     NX_PACKET* packet_ptr;
 
     if ((status = nx_azure_iot_hub_client_reported_properties_create(
-             &context->iothub_client, &packet_ptr, NX_WAIT_FOREVER)))
+             &nx_context->iothub_client, &packet_ptr, NX_WAIT_FOREVER)))
     {
         printf("Error: Failed create reported properties (0x%08x)\r\n", status);
         return status;
@@ -1121,16 +1135,27 @@ UINT azure_nx_client_respond_int_writable_property(
     }
 
     if ((status = nx_azure_iot_json_writer_append_begin_object(&json_writer)) ||
-        (status = nx_azure_iot_hub_client_reported_properties_status_begin(&context->iothub_client,
+
+        (component_name_ptr != NX_NULL &&
+            (status = nx_azure_iot_hub_client_reported_properties_component_begin(
+                 &nx_context->iothub_client, &json_writer, (UCHAR*)component_name_ptr, strlen(component_name_ptr)))) ||
+
+        (status = nx_azure_iot_hub_client_reported_properties_status_begin(&nx_context->iothub_client,
              &json_writer,
-             (const UCHAR*)property,
-             strlen(property),
+             (const UCHAR*)property_ptr,
+             strlen(property_ptr),
              http_status,
              version,
              NULL,
              0)) ||
+
         (status = nx_azure_iot_json_writer_append_int32(&json_writer, value)) ||
-        (status = nx_azure_iot_hub_client_reported_properties_status_end(&context->iothub_client, &json_writer)) ||
+
+        (status = nx_azure_iot_hub_client_reported_properties_status_end(&nx_context->iothub_client, &json_writer)) ||
+
+        (component_name_ptr != NX_NULL && (status = nx_azure_iot_hub_client_reported_properties_component_end(
+                                               &nx_context->iothub_client, &json_writer))) ||
+
         (status = nx_azure_iot_json_writer_append_end_object(&json_writer)))
     {
         printf("Error: Failed to build uint writable property response (0x%08x)\r\n", status);
@@ -1141,7 +1166,7 @@ UINT azure_nx_client_respond_int_writable_property(
     printf_packet("Sending writable property: ", packet_ptr);
 
     if (nx_azure_iot_hub_client_reported_properties_send(
-            &context->iothub_client, packet_ptr, &request_id, &response_status, NX_NULL, 5 * NX_IP_PERIODIC_RATE))
+            &nx_context->iothub_client, packet_ptr, &request_id, &response_status, NX_NULL, 5 * NX_IP_PERIODIC_RATE))
     {
         printf("Error: nx_azure_iot_hub_client_reported_properties_send failed (0x%08x)\r\n", status);
         nx_packet_release(packet_ptr);
@@ -1157,8 +1182,9 @@ UINT azure_nx_client_respond_int_writable_property(
     return NX_SUCCESS;
 }
 
-UINT azure_iot_nx_client_publish_int_writable_property(AZURE_IOT_NX_CONTEXT* context, CHAR* property, UINT value)
+UINT azure_iot_nx_client_publish_int_writable_property(
+    AZURE_IOT_NX_CONTEXT* nx_context, CHAR* component_ptr, CHAR* property_ptr, UINT value)
 {
     // Pass in a version of 1, as we a reporting the writable property, not responding to a server request
-    return azure_nx_client_respond_int_writable_property(context, property, value, 200, 1);
+    return azure_nx_client_respond_int_writable_property(nx_context, component_ptr, property_ptr, value, 200, 1);
 }
