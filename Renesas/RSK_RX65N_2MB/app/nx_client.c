@@ -145,7 +145,7 @@ static void command_received_cb(AZURE_IOT_NX_CONTEXT* nx_context_ptr,
             return;
         }
 
-        azure_iot_nx_client_publish_bool_property(&azure_iot_nx_client, LED_STATE_PROPERTY, arg);
+        azure_iot_nx_client_publish_bool_property(&azure_iot_nx_client, NULL, LED_STATE_PROPERTY, arg);
     }
     else
     {
