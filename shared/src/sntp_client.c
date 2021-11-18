@@ -66,7 +66,7 @@ static void set_sntp_time()
     nx_sntp_client_utility_display_date_time(&sntp_client, time_buffer, sizeof(time_buffer));
 
     printf("\tSNTP time update: %s\r\n", time_buffer);
-    printf("SUCCESS: SNTP initialized\r\n");    
+    printf("SUCCESS: SNTP initialized\r\n");
 }
 
 static UINT sntp_client_run()
@@ -176,13 +176,9 @@ UINT sntp_sync()
     while (NX_TRUE)
     {
         // Run the client
-        if ((status = sntp_client_run()))
-        {
-            // Failed to read time, break out with the error
-            break;
-        }
+        sntp_client_run();
 
-        // Clear and wait for events
+        // Wait for new events
         events = 0;
         tx_event_flags_get(&sntp_flags, SNTP_UPDATE_EVENT, TX_OR_CLEAR, &events, SNTP_WAIT_TIME);
 
