@@ -48,6 +48,7 @@ static void print_address(CHAR* preable, uint32_t address)
 static UINT wifi_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
 {
     uint8_t mac[6];
+    uint8_t ver;
 
     printf("\r\nInitializing WiFi\r\n");
 
@@ -65,7 +66,9 @@ static UINT wifi_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
 
     R_WIFI_SX_ULPGN_GetMacAddress(mac);
     printf("\tMAC address: %02X:%02X:%02X:%02X:%02X:%02X\r\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-    printf("\tFirmware version: %d\r\n", R_WIFI_SX_ULPGN_GetVersion());
+
+    ver = R_WIFI_SX_ULPGN_GetVersion();
+    printf("\tFirmware version %d.%2d\n", ((ver >> 16) & 0x0000FFFF), (ver & 0x0000FFFF));
 
     printf("SUCCESS: WiFi initialized\r\n");
 
@@ -258,10 +261,11 @@ UINT rx_network_connect()
     {
         printf("\tAttempt %ld...\r\n", wifiConnectCounter++);
 
-        // Obtain the IP internal mutex before reconnecting WiFi
-        tx_mutex_get(&(nx_ip.nx_ip_protection), TX_WAIT_FOREVER);
+        // Force a disconnect
+        R_WIFI_SX_ULPGN_Disconnect();
+
+            // Obtain the IP internal mutex before reconnecting WiFi
         join_result = R_WIFI_SX_ULPGN_Connect(netx_ssid, netx_password, netx_mode, 1, &ip_cfg);
-        tx_mutex_put(&(nx_ip.nx_ip_protection));
 
         tx_thread_sleep(5 * TX_TIMER_TICKS_PER_SECOND);
     } while (join_result != WIFI_SUCCESS);

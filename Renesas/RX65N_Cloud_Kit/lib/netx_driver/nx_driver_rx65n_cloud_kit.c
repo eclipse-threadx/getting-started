@@ -997,6 +997,7 @@ UINT i;
 NX_PACKET *packet_ptr;
 UINT packet_type;
 UINT status;
+int32_t socket_status;
 NXD_ADDRESS local_ip;
 NXD_ADDRESS remote_ip;
 uint16_t data_length;
@@ -1051,7 +1052,10 @@ NX_PACKET_POOL *pool_ptr = nx_driver_information.nx_driver_information_packet_po
                 size = R_WIFI_SX_ULPGN_ReceiveSocket(nx_driver_sockets[i].socket_id, (uint8_t*)(packet_ptr -> nx_packet_prepend_ptr),
                                                      data_length, 10);
 
-                if (size < 0)
+                /* Get the socket connection status.  */
+                socket_status = R_WIFI_SX_ULPGN_GetTcpSocketStatus(nx_driver_sockets[i].socket_id);
+
+                if (size < 0 || socket_status != ULPGN_SOCKET_STATUS_CONNECTED)
                 {
                     /* Connection error. Notify upper layer with Null packet.  */
                     if (nx_driver_sockets[i].protocol == NX_PROTOCOL_TCP)
@@ -1060,8 +1064,7 @@ NX_PACKET_POOL *pool_ptr = nx_driver_information.nx_driver_information_packet_po
                     }
                     else
                     {
-                        _nx_udp_socket_driver_packet_receive(nx_driver_sockets[i].socket_ptr, NX_NULL,
-                                                                      NX_NULL, NX_NULL, 0);
+                        _nx_udp_socket_driver_packet_receive(nx_driver_sockets[i].socket_ptr, NX_NULL, NX_NULL, NX_NULL, 0);
                     }
                     nx_packet_release(packet_ptr);
                     break;
