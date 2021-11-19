@@ -24,6 +24,7 @@
 * History : DD.MM.YYYY Version  Description
 *         : 08.10.2019 1.00     First Release
 *         : 10.12.2019 1.01     Modified comment.
+*         : 18.05.2021 1.02     Modified bsp_swint_clear_task function and bsp_swint_clear_all_task function.
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -658,7 +659,7 @@ static e_bsp_swint_err_t bsp_swint_clear_task(e_bsp_swint_unit_t unit, void * co
          * regardless of whether a task has been set in the task buffer. To avoid it, setting of the interrupt 
          * request occurs in this timing.
          */
-        R_BSP_SoftwareInterruptControl(unit, BSP_SWINT_CMD_SET_INTERRUPT_REQUEST, FIT_NO_PTR);
+        bsp_swint_set_interrupt_request(unit);
     }
     else
     {
@@ -728,7 +729,7 @@ static e_bsp_swint_err_t bsp_swint_clear_all_task(e_bsp_swint_unit_t unit)
              * regardless of whether a task has been set in the task buffer. To avoid it, setting of the interrupt 
              * request occurs in this timing.
              */
-            R_BSP_SoftwareInterruptControl(unit, BSP_SWINT_CMD_SET_INTERRUPT_REQUEST, FIT_NO_PTR);
+            bsp_swint_set_interrupt_request(unit);
         }
     }
     else

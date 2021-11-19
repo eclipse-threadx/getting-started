@@ -24,6 +24,7 @@
 * History : DD.MM.YYYY Version  Description
 *         : 28.02.2019 1.00     First Release
 *         : 08.10.2019 1.10     Added include file and macro definitions for Renesas RTOS (RI600V4 or RI600PX).
+*         : 26.02.2021 1.11     Changed BSP_CFG_RTOS_USED for Azure RTOS.
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -52,6 +53,7 @@ Includes   <System Includes> , "Project Includes"
 
 #undef  BSP_CFG_RTOS_SYSTEM_TIMER
 #define BSP_CFG_RTOS_SYSTEM_TIMER      _RI_CLOCK_TIMER
+#elif BSP_CFG_RTOS_USED == 5    /* Azure RTOS */
 #else
 #endif
 
