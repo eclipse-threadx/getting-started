@@ -23,9 +23,6 @@ include(${GSG_BASE_DIR}/cmake/utilities.cmake)
 # Define the Project
 project(efr32mg12_azure_iot C ASM)
 
-# Disable common networking component, Silabs has it's own
-set(DISABLE_COMMON_NETWORK true)
-
 add_subdirectory(${SHARED_SRC_DIR} shared_src)
 add_subdirectory(lib)
 add_subdirectory(app)

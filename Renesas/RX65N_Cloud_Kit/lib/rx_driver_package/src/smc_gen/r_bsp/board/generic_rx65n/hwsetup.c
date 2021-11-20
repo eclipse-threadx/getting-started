@@ -32,6 +32,7 @@
 *                                Fixed coding style.
 *                                Added the following function.
 *                                - rom_cache_function_set
+*         : 20.11.2020 2.01      Modified the proccess of bsp_adc_initial_configure function.
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -212,6 +213,11 @@ static void bsp_adc_initial_configure(void)
 
     /* Release from the module-stop state */
     MSTP(S12AD1) = 0;
+
+    if(0 != MSTP(S12AD1))
+    {
+        R_BSP_NOP();
+    }
 
     /* Writing to the A/D conversion time setting register is enabled. */
     S12AD1.ADSAMPR.BYTE = 0x03;

@@ -35,10 +35,11 @@ r_wifi_sx_ulpgn
 |
 +---src
         r_wifi_sx_ulpgn_api.c
+        r_wifi_sx_ulpgn_atcmd.c
+        r_wifi_sx_ulpgn_os_wrap.c
+        r_wifi_sx_ulpgn_os_wrap.h
         r_wifi_sx_ulpgn_private.h
-        r_wifi_sx_ulpgn_queue.c
-        r_wifi_sx_ulpgn_recv_task.c
-   
+
 r_config
     r_wifi_sx_ulpgn_config.h
 

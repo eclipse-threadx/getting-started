@@ -35,6 +35,9 @@
 *                                - BSP_PRV_DPSW_INIT
 *         : 26.07.2019 3.01      Added vbatt_voltage_stability_wait function.
 *         : 08.10.2019 3.10      Changed for added support of Renesas RTOS (RI600V4 or RI600PX).
+*         : 20.11.2020 3.11      Changed vbatt_voltage_stability_wait function.
+*         : 26.02.2021 3.12      Changed BSP_CFG_RTOS_USED for Azure RTOS.
+*         : 18.05.2021 3.13      Changed vbatt_voltage_stability_wait function.
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -154,7 +157,7 @@ Private global variables and functions
 R_BSP_POR_FUNCTION(R_BSP_STARTUP_FUNCTION);
 
 /* Main program function declaration */
-#if BSP_CFG_RTOS_USED == 0    /* Non-OS */
+#if (BSP_CFG_RTOS_USED == 0) || (BSP_CFG_RTOS_USED == 5)    /* Non-OS or Azure RTOS */
 extern void R_BSP_MAIN_FUNCTION(void);
 #endif
 
@@ -235,7 +238,7 @@ R_BSP_POR_FUNCTION(R_BSP_STARTUP_FUNCTION)
 #endif /* defined(__CCRX__), defined(__GNUC__) */
 
     /* Wait for power voltage stabilization of VBATT function. */
-#if (defined(BSP_CFG_VBATT_ENABLE) && (BSP_CFG_VBATT_ENABLE == 0))
+#ifdef BSP_MCU_VBATT_INITIALIZE
     vbatt_voltage_stability_wait();
 #endif
 
@@ -298,7 +301,7 @@ R_BSP_POR_FUNCTION(R_BSP_STARTUP_FUNCTION)
     /* Enable the bus error interrupt to catch accesses to illegal/reserved areas of memory */
     R_BSP_InterruptControl(BSP_INT_SRC_BUS_ERROR, BSP_INT_CMD_INTERRUPT_ENABLE, FIT_NO_PTR);
 
-#if BSP_CFG_RTOS_USED == 0    /* Non-OS */
+#if (BSP_CFG_RTOS_USED == 0) || (BSP_CFG_RTOS_USED == 5)    /* Non-OS or Azure RTOS */
     /* Call the main program function (should not return) */
     R_BSP_MAIN_FUNCTION();
 #elif BSP_CFG_RTOS_USED == 1    /* FreeRTOS */

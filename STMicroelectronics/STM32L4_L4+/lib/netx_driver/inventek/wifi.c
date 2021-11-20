@@ -107,6 +107,16 @@ WIFI_Status_t WIFI_Connect(
   return ret;
 }
 
+WIFI_Status_t WIFI_IsConnected()
+{
+  if (ES_WIFI_IsConnected(&EsWifiObj) == 0)
+  {
+    return WIFI_STATUS_ERROR;
+  }
+
+  return WIFI_STATUS_OK;
+}
+
 /**
   * @brief  This function retrieves the WiFi interface's MAC address.
   * @retval Operation Status.

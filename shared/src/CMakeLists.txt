@@ -12,6 +12,7 @@ set(SOURCES
     azure_iot_mqtt/json_utils.c
 
     azure_iot_nx_client.c
+    azure_iot_connect.c
     azure_iot_cert.c
     azure_iot_ciphersuites.c
     sntp_client.c
