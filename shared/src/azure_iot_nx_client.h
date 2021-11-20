@@ -94,6 +94,27 @@ struct AZURE_IOT_NX_CONTEXT_STRUCT
     func_ptr_timer timer_cb;
 };
 
+UINT azure_nx_client_periodic_interval_set(AZURE_IOT_NX_CONTEXT* nx_context, INT interval);
+
+UINT azure_iot_nx_client_publish_telemetry(AZURE_IOT_NX_CONTEXT* nx_context,
+    CHAR* component_name_ptr,
+    UINT (*append_properties)(NX_AZURE_IOT_JSON_WRITER* json_writer_ptr));
+
+UINT azure_iot_nx_client_publish_properties(AZURE_IOT_NX_CONTEXT* nx_context,
+    CHAR* component_name_ptr,
+    UINT (*append_properties)(NX_AZURE_IOT_JSON_WRITER* json_writer_ptr));
+UINT azure_iot_nx_client_publish_bool_property(
+    AZURE_IOT_NX_CONTEXT* nx_context, CHAR* component_name_ptr, CHAR* property_ptr, bool value);
+
+UINT azure_nx_client_respond_int_writable_property(AZURE_IOT_NX_CONTEXT* nx_context,
+    CHAR* component_name_ptr,
+    CHAR* property_ptr,
+    INT value,
+    INT http_status,
+    INT version);
+UINT azure_iot_nx_client_publish_int_writable_property(
+    AZURE_IOT_NX_CONTEXT* nx_context, CHAR* component_ptr, CHAR* property_ptr, UINT value);
+
 UINT azure_iot_nx_client_register_command_callback(
     AZURE_IOT_NX_CONTEXT* nx_context, func_ptr_command_received callback);
 UINT azure_iot_nx_client_register_writable_property_callback(
@@ -112,8 +133,6 @@ UINT azure_iot_nx_client_cert_set(AZURE_IOT_NX_CONTEXT* context,
     UCHAR* device_x509_key,
     UINT device_x509_key_len);
 
-UINT azure_nx_client_periodic_interval_set(AZURE_IOT_NX_CONTEXT* nx_context, INT interval);
-
 UINT azure_iot_nx_client_create(AZURE_IOT_NX_CONTEXT* context,
     NX_IP* nx_ip,
     NX_PACKET_POOL* nx_pool,
@@ -126,24 +145,5 @@ UINT azure_iot_nx_client_hub_run(
     AZURE_IOT_NX_CONTEXT* nx_context, CHAR* iot_hub_hostname, CHAR* iot_hub_device_id, UINT (*network_connect)());
 UINT azure_iot_nx_client_dps_run(
     AZURE_IOT_NX_CONTEXT* nx_context, CHAR* dps_id_scope, CHAR* dps_registration_id, UINT (*network_connect)());
-
-UINT azure_iot_nx_client_publish_telemetry(AZURE_IOT_NX_CONTEXT* context_ptr,
-    CHAR* component_name_ptr,
-    UINT (*append_properties)(NX_AZURE_IOT_JSON_WRITER* json_writer_ptr));
-
-UINT azure_iot_nx_client_publish_properties(AZURE_IOT_NX_CONTEXT* context_ptr,
-    CHAR* component_name_ptr,
-    UINT (*append_properties)(NX_AZURE_IOT_JSON_WRITER* json_writer_ptr));
-UINT azure_iot_nx_client_publish_bool_property(
-    AZURE_IOT_NX_CONTEXT* nx_context, CHAR* component_name_ptr, CHAR* property_ptr, bool value);
-
-UINT azure_nx_client_respond_int_writable_property(AZURE_IOT_NX_CONTEXT* nx_context,
-    CHAR* component_name_ptr,
-    CHAR* property_ptr,
-    INT value,
-    INT http_status,
-    INT version);
-UINT azure_iot_nx_client_publish_int_writable_property(
-    AZURE_IOT_NX_CONTEXT* nx_context, CHAR* component_ptr, CHAR* property_ptr, UINT value);
 
 #endif
