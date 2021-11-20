@@ -183,7 +183,7 @@ static void writable_property_received_cb(AZURE_IOT_NX_CONTEXT* nx_context,
         status = nx_azure_iot_json_reader_token_int32_get(json_reader_ptr, &telemetry_interval);
         if (status == NX_AZURE_IOT_SUCCESS)
         {
-            printf("\tUpdating %s to %ld\r\n", TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
+            printf("Updating %s to %ld\r\n", TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
 
             // Confirm reception back to hub
             azure_nx_client_respond_int_writable_property(
@@ -209,7 +209,7 @@ static void property_received_cb(AZURE_IOT_NX_CONTEXT* nx_context,
         status = nx_azure_iot_json_reader_token_int32_get(json_reader_ptr, &telemetry_interval);
         if (status == NX_AZURE_IOT_SUCCESS)
         {
-            printf("\tUpdating %s to %ld\r\n", TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
+            printf("Updating %s to %ld\r\n", TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
             azure_nx_client_periodic_interval_set(nx_context, telemetry_interval);
         }
     }
@@ -219,9 +219,9 @@ static void properties_complete_cb(AZURE_IOT_NX_CONTEXT* nx_context)
 {
     // Device twin processing is done, send out property updates
     azure_iot_nx_client_publish_properties(nx_context, DEVICE_INFO_COMPONENT_NAME, append_device_info_properties);
+    azure_iot_nx_client_publish_bool_property(nx_context, NULL, LED_STATE_PROPERTY, false);
     azure_iot_nx_client_publish_int_writable_property(
         nx_context, NULL, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
-    azure_iot_nx_client_publish_bool_property(nx_context, NULL, LED_STATE_PROPERTY, false);
 
     printf("\r\nStarting Main loop\r\n");
 }
