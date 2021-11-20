@@ -325,9 +325,9 @@ static void properties_complete_cb(AZURE_IOT_NX_CONTEXT* nx_context)
 {
     // Device twin processing is done, send out property updates
     azure_iot_nx_client_publish_properties(nx_context, DEVICE_INFO_COMPONENT_NAME, append_device_info_properties);
+    azure_iot_nx_client_publish_bool_property(nx_context, NULL, LED_STATE_PROPERTY, false);
     azure_iot_nx_client_publish_int_writable_property(
         nx_context, NULL, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
-    azure_iot_nx_client_publish_bool_property(nx_context, NULL, LED_STATE_PROPERTY, false);
 
     printf("\r\nStarting Main loop\r\n");
     screen_print("Azure IoT", L0);

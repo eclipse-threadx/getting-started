@@ -15,14 +15,14 @@
 #define NX_AZURE_IOT_THREAD_PRIORITY 4
 
 // Incoming events from the middleware
-#define HUB_ALL_EVENTS                        0xFFF
-#define HUB_CONNECT_EVENT                     0x001
-#define HUB_DISCONNECT_EVENT                  0x002
-#define HUB_COMMAND_RECEIVE_EVENT             0x004
-#define HUB_PROPERTIES_RECEIVE_EVENT          0x008
-#define HUB_WRITABLE_PROPERTIES_RECEIVE_EVENT 0x010
-#define HUB_PROPERTIES_COMPLETE_EVENT         0x020
-#define HUB_PERIODIC_TIMER_EVENT              0x040
+#define HUB_ALL_EVENTS                        0xFF
+#define HUB_CONNECT_EVENT                     0x01
+#define HUB_DISCONNECT_EVENT                  0x02
+#define HUB_COMMAND_RECEIVE_EVENT             0x04
+#define HUB_PROPERTIES_RECEIVE_EVENT          0x08
+#define HUB_WRITABLE_PROPERTIES_RECEIVE_EVENT 0x10
+#define HUB_PROPERTIES_COMPLETE_EVENT         0x20
+#define HUB_PERIODIC_TIMER_EVENT              0x40
 
 #define AZURE_IOT_DPS_ENDPOINT "global.azure-devices-provisioning.net"
 
@@ -33,7 +33,7 @@
 #define HUB_CONNECT_TIMEOUT_TICKS  (10 * TX_TIMER_TICKS_PER_SECOND)
 #define DPS_REGISTER_TIMEOUT_TICKS (30 * TX_TIMER_TICKS_PER_SECOND)
 
-#define DPS_PAYLOAD_SIZE       200
+#define DPS_PAYLOAD_SIZE       (15 + 128)
 #define TELEMETRY_BUFFER_SIZE  256
 #define PROPERTIES_BUFFER_SIZE 128
 
@@ -270,7 +270,7 @@ static UINT dps_initialize(AZURE_IOT_NX_CONTEXT* nx_context)
              sizeof(nx_context->nx_azure_iot_tls_metadata_buffer),
              &nx_context->root_ca_cert)))
     {
-        printf("Failed on nx_azure_iot_provisioning_client_initialize (0x%08x)\r\n", status);
+        printf("ERROR: nx_azure_iot_provisioning_client_initialize (0x%08x)\r\n", status);
         return status;
     }
 
@@ -278,12 +278,12 @@ static UINT dps_initialize(AZURE_IOT_NX_CONTEXT* nx_context)
     else if ((status = nx_azure_iot_provisioning_client_trusted_cert_add(
                   &nx_context->dps_client, &nx_context->root_ca_cert_2)))
     {
-        printf("Failed on nx_azure_iot_provisioning_client_trusted_cert_add!: error code = 0x%08x\r\n", status);
+        printf("ERROR: nx_azure_iot_provisioning_client_trusted_cert_add!: error code = 0x%08x\r\n", status);
     }
     else if ((status = nx_azure_iot_provisioning_client_trusted_cert_add(
                   &nx_context->dps_client, &nx_context->root_ca_cert_3)))
     {
-        printf("Failed on nx_azure_iot_provisioning_client_trusted_cert_add!: error code = 0x%08x\r\n", status);
+        printf("ERROR: nx_azure_iot_provisioning_client_trusted_cert_add!: error code = 0x%08x\r\n", status);
     }
 
     else
@@ -531,7 +531,7 @@ static VOID process_properties(AZURE_IOT_NX_CONTEXT* nx_context)
 
     if ((status = nx_azure_iot_hub_client_properties_receive(&nx_context->iothub_client, &packet_ptr, NX_WAIT_FOREVER)))
     {
-        printf("Error: nx_azure_iot_hub_client_properties_receive failed (0x%08x)\r\n", status);
+        printf("ERROR: nx_azure_iot_hub_client_properties_receive failed (0x%08x)\r\n", status);
         return;
     }
 
@@ -704,8 +704,8 @@ static UINT reported_properties_begin(AZURE_IOT_NX_CONTEXT* context_ptr,
     }
 
     else if (component_name_ptr != NX_NULL &&
-        (status = nx_azure_iot_hub_client_reported_properties_component_begin(
-             &context_ptr->iothub_client, json_writer, (UCHAR*)component_name_ptr, strlen(component_name_ptr))))
+             (status = nx_azure_iot_hub_client_reported_properties_component_begin(
+                  &context_ptr->iothub_client, json_writer, (UCHAR*)component_name_ptr, strlen(component_name_ptr))))
     {
         printf("Error: Failed to append component begin (0x%08x)\r\n", status);
     }
