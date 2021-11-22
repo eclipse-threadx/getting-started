@@ -37,7 +37,7 @@ This section shows how to configure your development environment with the new `v
 1. Install `vcpkg-ce`.
 
     ```PowerShell
-    iex (iwr -useb aka.ms/install-ce.ps1)
+    iex (iwr -useb aka.ms/install-vcpkg.ps1)
     ```
 
 1. Download, install, and activate developer tools.
