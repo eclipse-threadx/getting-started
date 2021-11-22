@@ -76,6 +76,9 @@ This section shows how to configure your development environment with the new vc
     start devenv .
     ```
 
+    > Note that if you have more than one version of Visual Studio installed this may not launch the current preview, in that case you will need to use the full path to your preview installation, for example: 
+    "C:\Program Files\Microsoft Visual Studio\2022\Preview\Common7\IDE\devenv"
+
 1. Ensure that both the Configure Preset and the Build Preset are set to "arm-gcc-cortex-m7"
     
     ![configuration-choice](../../docs/media/vs-preset-configuration-m7.png)
