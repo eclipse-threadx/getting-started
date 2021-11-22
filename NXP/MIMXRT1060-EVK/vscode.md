@@ -124,9 +124,9 @@ This section shows how to configure your development environment with the new vc
 
 1. Connect the Micro USB cable from the DevKit to your computer. If it is already connected, disconnect and reconnect it.
 
-1. Launch Visual Studio Code.
+1. Launch Visual Studio Code from a PowerShell terminal.
 
-    ```Shell
+    ```PowerShell
     code .
     ```
 
@@ -162,7 +162,7 @@ This section shows how to configure your development environment with the new vc
 
 `ce` only modifies the path in the shell in which it is activated. If you close your shell and wish to restore the development environment in a future session:
 
-1. Open a new terminal.
+1. Open a new PowerShell terminal.
 
 1. Re-activate `ce`.
 
