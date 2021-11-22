@@ -18,10 +18,10 @@
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
-* File Name    : Config_SCI5.h
-* Version      : 1.9.1
-* Device(s)    : R5F565NEDxFP
-* Description  : This file implements device driver for Config_SCI5.
+* File Name        : Config_SCI5.h
+* Component Version: 1.11.0
+* Device(s)        : R5F565NEDxFP
+* Description      : This file implements device driver for Config_SCI5.
 ***********************************************************************************************************************/
 
 #ifndef CFG_Config_SCI5_H
@@ -48,9 +48,9 @@ Typedef definitions
 Global functions
 ***********************************************************************************************************************/
 void R_Config_SCI5_Create(void);
+void R_Config_SCI5_Create_UserInit(void);
 void R_Config_SCI5_Start(void);
 void R_Config_SCI5_Stop(void);
-void R_Config_SCI5_Create_UserInit(void);
 MD_STATUS R_Config_SCI5_Serial_Send(uint8_t * const tx_buf, uint16_t tx_num);
 void r_Config_SCI5_transmitend_interrupt(void);
 static void r_Config_SCI5_callback_transmitend(void);

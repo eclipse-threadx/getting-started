@@ -9,7 +9,7 @@
             "device": "STM32L475VG",
             "runToMain": true,
             "executable": "${workspaceFolder}/build/app/stm32l475_azure_iot.elf",
-            "svdFile": "${workspaceFolder}/.vscode/STM32L4x5.svd",
+            "svdFile": "${workspaceFolder}/STM32L4x5.svd",
             "cwd": "${workspaceRoot}",
             "configFiles": [
                 "board/stm32l4discovery.cfg"
@@ -23,7 +23,7 @@
             "device": "STM32L4S5VI",
             "runToMain": true,
             "executable": "${workspaceFolder}/build/app/stm32l4S5_azure_iot.elf",
-            "svdFile": "${workspaceFolder}/.vscode/STM32L4x5.svd",
+            "svdFile": "${workspaceFolder}/STM32L4x5.svd",
             "cwd": "${workspaceRoot}",
             "configFiles": [
                 "board/stm32l4discovery.cfg"
@@ -37,7 +37,7 @@
             "servertype": "external",
             "gdbTarget": "${input:device.host}",
             "runToMain": true,
-            "svdFile": "${workspaceFolder}/.vscode/STM32L4x5.svd",
+            "svdFile": "${workspaceFolder}/STM32L4x5.svd",
         },
         {
             "name": "STM L4S5I: Remote",
@@ -47,7 +47,7 @@
             "servertype": "external",
             "gdbTarget": "${input:device.host}",
             "runToMain": true,
-            "svdFile": "${workspaceFolder}/.vscode/STM32L4S5.svd",
+            "svdFile": "${workspaceFolder}/STM32L4S5.svd",
         },
         {
             "name": "Launch",
@@ -67,7 +67,8 @@
                 "require": true,
                 "limit": 6
             },
-            "preLaunchTask": "Flash"
+            "preLaunchTask": "Flash",
+            "svdPath": "${workspaceFolder}/STM32L4S5.svd"
         }
     ],
     "inputs": [

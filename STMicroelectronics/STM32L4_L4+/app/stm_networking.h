@@ -13,6 +13,7 @@ extern NX_IP nx_ip;
 extern NX_PACKET_POOL nx_pool;
 extern NX_DNS nx_dns_client;
 
-UINT stm32_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode);
+UINT stm_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode);
+UINT stm_network_connect();
 
 #endif // _NETWORKING_H

@@ -24,6 +24,7 @@
 /**********************************************************************************************************************
 * History : DD.MM.YYYY Version  Description
 *         : 28.02.2019 1.00     First Release
+*         : 18.05.2021 1.01     Added definition for Address exceptions.
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -68,6 +69,9 @@ R_BSP_PRAGMA_INTERRUPT_FUNCTION(excep_undefined_inst_isr)
 #endif
 #ifdef BSP_MCU_EXCEP_FLOATING_POINT_ISR
 R_BSP_PRAGMA_INTERRUPT_FUNCTION(excep_floating_point_isr)
+#endif
+#ifdef BSP_MCU_EXCEP_ADDRESS_ISR
+R_BSP_PRAGMA_INTERRUPT_FUNCTION(excep_address_isr)
 #endif
 #ifdef BSP_MCU_NON_MASKABLE_ISR
 R_BSP_PRAGMA_INTERRUPT_FUNCTION(non_maskable_isr)

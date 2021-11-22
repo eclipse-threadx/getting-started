@@ -2,9 +2,9 @@
 # Licensed under the MIT License.
 
 set(SOURCES
-    src/r_wifi_sx_ulpgn/r_wifi_sx_ulpgn_api.c
-    src/r_wifi_sx_ulpgn/r_wifi_sx_ulpgn_queue.c
-    src/r_wifi_sx_ulpgn/r_wifi_sx_ulpgn_recv_task.c
+    src/r_wifi_sx_ulpgn/src/r_wifi_sx_ulpgn_api.c
+    src/r_wifi_sx_ulpgn/src/r_wifi_sx_ulpgn_atcmd.c
+    src/r_wifi_sx_ulpgn/src/r_wifi_sx_ulpgn_os_wrap.c
 
     src/smc_gen/Config_PORT/Config_PORT.c
     src/smc_gen/Config_PORT/Config_PORT_user.c
@@ -64,7 +64,6 @@ add_library(${TARGET} OBJECT
 
 target_include_directories(${TARGET}
     PUBLIC
-        src/
         src/r_wifi_sx_ulpgn
         src/smc_gen/general
         src/smc_gen/Config_SCI5
@@ -79,7 +78,7 @@ target_include_directories(${TARGET}
         src/smc_gen/r_pincfg
         src/smc_gen/r_sci_iic_rx
         src/smc_gen/r_sci_rx
-        src/smc_gen_
+
     PRIVATE
         src/smc_gen/r_sci_iic_rx/src
 )

@@ -14,7 +14,6 @@ set(SOURCES
     sl_wfx_host/sl_wfx_host.c
     sl_wfx_host/sl_wfx_task.c
 
-    networking.c
     console.c
     main.c
     nx_client.c

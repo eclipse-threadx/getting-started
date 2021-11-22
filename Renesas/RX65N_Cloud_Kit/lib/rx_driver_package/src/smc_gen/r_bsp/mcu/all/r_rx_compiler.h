@@ -49,6 +49,9 @@
 *                               - _R_BSP_ATTRIB_SECTION_CHANGE_D4
 *                               - _R_BSP_ATTRIB_SECTION_CHANGE_D8
 *         : 17.12.2019 1.02     Modified the comment of description.
+*         : 20.11.2020 1.03     Changed to suppress the warning that occurs when the warning level is raised in 
+*                               the IAR compiler.
+*         : 18.05.2021 1.04     Added definition for Address exceptions.
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -642,13 +645,17 @@ extern void * const                   exvectors_start[];
 
 #elif defined(__ICCRX__)
 
-#define _R_BSP_ASM(...)           #__VA_ARGS__
-#define R_BSP_ASM(...)            _R_BSP_ASM(__VA_ARGS__\n)
+#define _R_BSP_ASM(...)           #__VA_ARGS__ "\n"
+#define R_BSP_ASM(...)            _R_BSP_ASM(__VA_ARGS__)
 #define R_BSP_ASM_LAB_NEXT(n)     _lab##n
 #define R_BSP_ASM_LAB_PREV(n)     _lab##n
 #define R_BSP_ASM_LAB(n_colon)    R_BSP_ASM(_lab##n_colon)
-#define R_BSP_ASM_BEGIN           asm(
-#define R_BSP_ASM_END             );
+#define R_BSP_ASM_BEGIN           R_BSP_PRAGMA(diag_suppress = Pa174)\
+                                  R_BSP_PRAGMA(diag_suppress = Pe010)\
+                                  __asm volatile(
+#define R_BSP_ASM_END             );\
+                                  R_BSP_PRAGMA(diag_default = Pe010)\
+                                  R_BSP_PRAGMA(diag_default = Pa174)
 
 #endif
 
@@ -1593,6 +1600,7 @@ R_BSP_PRAGMA(bitfields=default)\
 /* #define excep_floating_point_isr */
 /* #define non_maskable_isr */
 /* #define undefined_interrupt_source_isr */
+/* #define excep_address_isr */
 
 #elif defined(__GNUC__)
 
@@ -1612,6 +1620,7 @@ R_BSP_PRAGMA(bitfields=default)\
 /* #define excep_floating_point_isr */
 /* #define non_maskable_isr */
 /* #define undefined_interrupt_source_isr */
+/* #define excep_address_isr */
 
 #elif defined(__ICCRX__)
 
@@ -1631,6 +1640,7 @@ R_BSP_PRAGMA(bitfields=default)\
 #define excep_floating_point_isr            _float_placeholder
 #define non_maskable_isr                    __NMI_handler
 #define undefined_interrupt_source_isr      __undefined_interrupt_source_handler
+#define excep_address_isr                   __excep_address_inst
 
 #endif
 
