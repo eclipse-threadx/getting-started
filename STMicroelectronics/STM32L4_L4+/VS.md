@@ -14,13 +14,15 @@ This is a companion to the [Quickstart Guide](https://docs.microsoft.com/en-us/a
 
 ## Configure Your Development Environment with `vcpkg-ce`
 
-This section shows how to configure your development environment with the new `vcpkg-ce` tool: `ce`, short for "configure environment", bootstraps project dependencies from a manifest file, `vcpkg-configuration.json`. This makes it easy to express which compilers and build tools are required by a project. Upon activation, the tools specified by the manifest are added to the path of the current shell. If the tools are not present, `vcpkg-ce` acquires them and installs them to a common location. The `vcpkg-ce` tool runs in user mode without elevation.
+This section shows how to configure your development environment with the new `vcpkg-ce`, short for "configure environment", bootstraps project dependencies from a manifest file, `vcpkg-configuration.json`. This makes it easy to express which compilers and build tools are required by a project. Upon activation, the tools specified by the manifest are added to the path of the current shell. If the tools are not present, `vcpkg-ce` acquires them and installs them to a common location. The `vcpkg-ce` tool runs in user mode without elevation.
 
 > `vcpkg-ce` is in early preview. To report problems or provide feedback, please open issues at https://github.com/microsoft/vcpkg-ce.
 
 ### Windows 10
 
 1. Download and install [Visual Studio](https://visualstudio.microsoft.com/downloads/).
+
+    > The preview version of VS 2022 will have new embedded features. 
 
 1. Download and install the [ST-LINK Drivers](https://www.st.com/en/development-tools/stsw-link009.html). Restart your computer after installation is complete.
 
