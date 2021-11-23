@@ -71,7 +71,7 @@ jobs:
       targetType: 'filePath'
       filePath: '$(Build.SourcesDirectory)\Device-Lab\scan_serial.ps1'
       arguments: > # Use this to avoid newline characters in multiline string
-        -TestString 'SUCCESS: Azure IoT Hub client initialized'
+        -TestString 'SUCCESS: Connected to IoT Hub'
     displayName: 'Scan serial port'
 
   # Azure CLI to run certification

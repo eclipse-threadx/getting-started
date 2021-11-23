@@ -69,6 +69,12 @@
 
 typedef enum
 {
+    WICED_FALSE = 0,
+    WICED_TRUE  = 1
+} wiced_bool_t;
+
+typedef enum
+{
     WWD_RESULT_LIST(WWD_) WLAN_RESULT_LIST(WWD_WLAN_)
 } wwd_result_t;
 
@@ -146,6 +152,9 @@ extern wwd_result_t wwd_wifi_join(const wiced_ssid_t* ssid,
     TX_SEMAPHORE* semaphore,
     wwd_interface_t interface);
 
+extern wwd_result_t wwd_wifi_leave(wwd_interface_t interface);
+extern wwd_result_t wwd_wifi_join_halt(wiced_bool_t halt);
 extern wwd_result_t wwd_wifi_get_mac_address(wiced_mac_t* mac, wwd_interface_t interface);
+extern wwd_result_t wwd_wifi_is_ready_to_transceive(wwd_interface_t interface);
 
 #endif

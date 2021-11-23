@@ -9,8 +9,7 @@
 ULONG sntp_time_get();
 UINT sntp_time(ULONG* unix_time);
 
-UINT sntp_sync_wait();
-UINT sntp_start();
-UINT sntp_stop();
+UINT sntp_init();
+UINT sntp_sync();
 
-#endif // _SNTP_CLIENT_H
+#endif

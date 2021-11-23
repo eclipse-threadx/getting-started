@@ -9,10 +9,11 @@
 
 #include "azure_config.h"
 
-extern NX_IP          nx_ip;
+extern NX_IP nx_ip;
 extern NX_PACKET_POOL nx_pool;
-extern NX_DNS         nx_dns_client;
+extern NX_DNS nx_dns_client;
 
-int rx_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode);
+UINT rx_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode);
+UINT rx_network_connect();
 
 #endif // _RX_NETWORKING_H

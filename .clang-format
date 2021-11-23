@@ -6,3 +6,5 @@ AlignConsecutiveMacros: true
 AlignConsecutiveAssignments: true
 IndentCaseLabels: true
 PointerAlignment: Left
+BraceWrapping:
+  AfterCaseLabel: true
