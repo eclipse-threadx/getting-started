@@ -22,7 +22,7 @@ This section shows how to configure your development environment with the new `v
 
 1. Download and install [Visual Studio](https://visualstudio.microsoft.com/downloads/).
 
-    > The preview version of VS 2022 will have new embedded features. 
+    > The Preview version of VS 2022 will have new embedded features. 
 
 1. Download and install the [ST-LINK Drivers](https://www.st.com/en/development-tools/stsw-link009.html). Restart your computer after installation is complete.
 

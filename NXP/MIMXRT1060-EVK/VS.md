@@ -22,7 +22,7 @@ This section shows how to configure your development environment with the new `v
 
 1. Download and install [Visual Studio](https://visualstudio.microsoft.com/downloads/).
 
-    > The preview version of VS 2022 will have new embedded features. 
+    > The Preview version of VS 2022 will have new embedded features. 
 
 1. Download and install the [SEGGER J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack) V7.00 or greater. _Note: Version V7.00 or greater is required to support the on-board DAPLink probe._
 
