@@ -4,8 +4,6 @@
 set(SOURCES
     startup/${THREADX_TOOLCHAIN}/tx_initialize_low_level.S
     
-    stm32cubel4/stm32l4xx_hal_msp.c
-    stm32cubel4/stm32l4xx_it.c
     legacy/mqtt.c
     azure_config.h
     board_init.c
