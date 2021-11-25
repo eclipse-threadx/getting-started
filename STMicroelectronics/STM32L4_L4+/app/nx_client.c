@@ -127,14 +127,14 @@ static UINT append_device_telemetry_magnetometer(NX_AZURE_IOT_JSON_WRITER* json_
     int16_t data[3];
     BSP_MAGNETO_GetXYZ(data);
 
-    if (nx_azure_iot_json_writer_append_property_with_int32_value(
-            json_writer, (UCHAR*)TELEMETRY_MAGNETOMETERX, sizeof(TELEMETRY_MAGNETOMETERX) - 1, data[0]) ||
+    if (nx_azure_iot_json_writer_append_property_with_double_value(
+            json_writer, (UCHAR*)TELEMETRY_MAGNETOMETERX, sizeof(TELEMETRY_MAGNETOMETERX) - 1, data[0], 2) ||
 
-        nx_azure_iot_json_writer_append_property_with_int32_value(
-            json_writer, (UCHAR*)TELEMETRY_MAGNETOMETERY, sizeof(TELEMETRY_MAGNETOMETERY) - 1, data[1]) ||
+        nx_azure_iot_json_writer_append_property_with_double_value(
+            json_writer, (UCHAR*)TELEMETRY_MAGNETOMETERY, sizeof(TELEMETRY_MAGNETOMETERY) - 1, data[1], 2) ||
 
-        nx_azure_iot_json_writer_append_property_with_int32_value(
-            json_writer, (UCHAR*)TELEMETRY_MAGNETOMETERZ, sizeof(TELEMETRY_MAGNETOMETERZ) - 1, data[2]))
+        nx_azure_iot_json_writer_append_property_with_double_value(
+            json_writer, (UCHAR*)TELEMETRY_MAGNETOMETERZ, sizeof(TELEMETRY_MAGNETOMETERZ) - 1, data[2], 2))
     {
         return NX_NOT_SUCCESSFUL;
     }
@@ -147,14 +147,14 @@ static UINT append_device_telemetry_accelerometer(NX_AZURE_IOT_JSON_WRITER* json
     int16_t data[3];
     BSP_ACCELERO_AccGetXYZ(data);
 
-    if (nx_azure_iot_json_writer_append_property_with_int32_value(
-            json_writer, (UCHAR*)TELEMETRY_ACCELEROMETERX, sizeof(TELEMETRY_ACCELEROMETERX) - 1, data[0]) ||
+    if (nx_azure_iot_json_writer_append_property_with_double_value(
+            json_writer, (UCHAR*)TELEMETRY_ACCELEROMETERX, sizeof(TELEMETRY_ACCELEROMETERX) - 1, data[0], 2) ||
 
-        nx_azure_iot_json_writer_append_property_with_int32_value(
-            json_writer, (UCHAR*)TELEMETRY_ACCELEROMETERY, sizeof(TELEMETRY_ACCELEROMETERY) - 1, data[1]) ||
+        nx_azure_iot_json_writer_append_property_with_double_value(
+            json_writer, (UCHAR*)TELEMETRY_ACCELEROMETERY, sizeof(TELEMETRY_ACCELEROMETERY) - 1, data[1], 2) ||
 
-        nx_azure_iot_json_writer_append_property_with_int32_value(
-            json_writer, (UCHAR*)TELEMETRY_ACCELEROMETERZ, sizeof(TELEMETRY_ACCELEROMETERZ) - 1, data[2]))
+        nx_azure_iot_json_writer_append_property_with_double_value(
+            json_writer, (UCHAR*)TELEMETRY_ACCELEROMETERZ, sizeof(TELEMETRY_ACCELEROMETERZ) - 1, data[2], 2))
     {
         return NX_NOT_SUCCESSFUL;
     }
