@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "STM L475E: Local OpenOCD",
+            "name": "L475E: Launch",
             "type": "cortex-debug",
             "request": "launch",
             "servertype": "openocd",
@@ -16,7 +16,7 @@
             ]
         },        
         {
-            "name": "STM L4S5I: Local OpenOCD",
+            "name": "L4S5I: Launch",
             "type": "cortex-debug",
             "request": "launch",
             "servertype": "openocd",
@@ -28,26 +28,6 @@
             "configFiles": [
                 "board/stm32l4discovery.cfg"
             ]
-        },
-        {
-            "name": "STM L475E: Remote",
-            "type": "cortex-debug",
-            "executable": "${workspaceFolder}/build/app/stm32l475_azure_iot.elf",
-            "request": "launch",
-            "servertype": "external",
-            "gdbTarget": "${input:device.host}",
-            "runToMain": true,
-            "svdFile": "${workspaceFolder}/STM32L4x5.svd",
-        },
-        {
-            "name": "STM L4S5I: Remote",
-            "type": "cortex-debug",
-            "executable": "${workspaceFolder}/build/app/stm32l4S5_azure_iot.elf",
-            "request": "launch",
-            "servertype": "external",
-            "gdbTarget": "${input:device.host}",
-            "runToMain": true,
-            "svdFile": "${workspaceFolder}/STM32L4S5.svd",
         },
         {
             "name": "Launch",
@@ -69,14 +49,6 @@
             },
             "preLaunchTask": "Flash",
             "svdPath": "${workspaceFolder}/STM32L4S5.svd"
-        }
-    ],
-    "inputs": [
-        {
-            "id": "device.host",
-            "type": "promptString",
-            "default": "host.docker.internal:3333",
-            "description": "The local hostname with port for GDB to connect to"
         }
     ]
 }
