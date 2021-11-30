@@ -39,17 +39,29 @@ For guidance on connecting additional devices, see the [Embedded device quicksta
     *getting-started\tools\get-toolchain.bat*
 
 1. Add Wi-Fi and Azure IoT configuration to the config file:
-    
+
     *getting-started\STMicroelectronics\STM32L4_L4+\app\azure_config.h*
-    
+
 1. Build the binary image:
 
     *getting-started\STMicroelectronics\STM32L4_L4+\tools\rebuild.bat*
 
-1. Flash the image to the device by copying the image file to the **DIS_L4IOT** drive:
+1. Flash the image to the device by copying one of the image files to the **DIS_L4IOT** drive:
 
-    *getting-started\STMicroelectronics\STM32L4_L4+\build\app\stm32l475_azure_iot.bin*; or
+    *getting-started\STMicroelectronics\STM32L4_L4+\build\app\stm32l**475**_azure_iot.bin*; or
 
-    *getting-started\STMicroelectronics\STM32L4_L4+\build\app\stm32l4S5_azure_iot.bin*
+    *getting-started\STMicroelectronics\STM32L4_L4+\build\app\stm32l**4S5**_azure_iot.bin*
 
 1. Configure a serial port app at baud rate **115,200** to monitor the device output.
+
+## Debugging with VSCode or Visual Studio
+
+The following guides are available on how to build, flash and debug the devkit using some popular development environments:
+
+* [Debugging with VSCode](vscode.md)
+* [Debugging with Visual Studio 2022](vs.md)
+
+## STM32CubeMX configuration
+
+The board specific code was creating using [STM32CubeMX](https://www.st.com/en/development-tools/stm32cubemx.html). The project file can be found in the [lib/stmcubel4/stmcubemx]() directory if further customization is needed.
+
