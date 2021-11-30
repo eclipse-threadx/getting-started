@@ -6,6 +6,11 @@
 #include <stdio.h>
 
 #include "stm32l475e_iot01.h"
+#include "stm32l475e_iot01_accelero.h"
+#include "stm32l475e_iot01_gyro.h"
+#include "stm32l475e_iot01_hsensor.h"
+#include "stm32l475e_iot01_magneto.h"
+#include "stm32l475e_iot01_psensor.h"
 #include "stm32l475e_iot01_tsensor.h"
 
 #include "nx_api.h"
@@ -20,12 +25,32 @@
 #include "azure_pnp_info.h"
 #include "stm_networking.h"
 
-#define IOT_MODEL_ID "dtmi:azurertos:devkit:gsg;2"
+#define IOT_MODEL_ID "dtmi:azurertos:devkit:gsgstml4s5;1"
 
+#define TELEMETRY_HUMIDITY          "humidity"
 #define TELEMETRY_TEMPERATURE       "temperature"
+#define TELEMETRY_PRESSURE          "pressure"
+#define TELEMETRY_MAGNETOMETERX     "magnetometerX"
+#define TELEMETRY_MAGNETOMETERY     "magnetometerY"
+#define TELEMETRY_MAGNETOMETERZ     "magnetometerZ"
+#define TELEMETRY_ACCELEROMETERX    "accelerometerX"
+#define TELEMETRY_ACCELEROMETERY    "accelerometerY"
+#define TELEMETRY_ACCELEROMETERZ    "accelerometerZ"
+#define TELEMETRY_GYROSCOPEX        "gyroscopeX"
+#define TELEMETRY_GYROSCOPEY        "gyroscopeY"
+#define TELEMETRY_GYROSCOPEZ        "gyroscopeZ"
 #define TELEMETRY_INTERVAL_PROPERTY "telemetryInterval"
 #define LED_STATE_PROPERTY          "ledState"
 #define SET_LED_STATE_COMMAND       "setLedState"
+
+typedef enum TELEMETRY_STATE_ENUM
+{
+    TELEMETRY_STATE_DEFAULT,
+    TELEMETRY_STATE_MAGNETOMETER,
+    TELEMETRY_STATE_ACCELEROMETER,
+    TELEMETRY_STATE_GYROSCOPE,
+    TELEMETRY_STATE_END
+} TELEMETRY_STATE;
 
 static AZURE_IOT_NX_CONTEXT azure_iot_nx_client;
 
@@ -82,10 +107,74 @@ static UINT append_device_info_properties(NX_AZURE_IOT_JSON_WRITER* json_writer)
 
 static UINT append_device_telemetry(NX_AZURE_IOT_JSON_WRITER* json_writer)
 {
-    float temperature = BSP_TSENSOR_ReadTemp();
+    if (nx_azure_iot_json_writer_append_property_with_double_value(
+            json_writer, (UCHAR*)TELEMETRY_HUMIDITY, sizeof(TELEMETRY_HUMIDITY) - 1, BSP_HSENSOR_ReadHumidity(), 2) ||
+
+        nx_azure_iot_json_writer_append_property_with_double_value(
+            json_writer, (UCHAR*)TELEMETRY_TEMPERATURE, sizeof(TELEMETRY_TEMPERATURE) - 1, BSP_TSENSOR_ReadTemp(), 2) ||
+
+        nx_azure_iot_json_writer_append_property_with_double_value(
+            json_writer, (UCHAR*)TELEMETRY_PRESSURE, sizeof(TELEMETRY_PRESSURE) - 1, BSP_PSENSOR_ReadPressure(), 2))
+    {
+        return NX_NOT_SUCCESSFUL;
+    }
+
+    return NX_AZURE_IOT_SUCCESS;
+}
+
+static UINT append_device_telemetry_magnetometer(NX_AZURE_IOT_JSON_WRITER* json_writer)
+{
+    int16_t data[3];
+    BSP_MAGNETO_GetXYZ(data);
 
     if (nx_azure_iot_json_writer_append_property_with_double_value(
-            json_writer, (UCHAR*)TELEMETRY_TEMPERATURE, sizeof(TELEMETRY_TEMPERATURE) - 1, temperature, 2))
+            json_writer, (UCHAR*)TELEMETRY_MAGNETOMETERX, sizeof(TELEMETRY_MAGNETOMETERX) - 1, data[0], 2) ||
+
+        nx_azure_iot_json_writer_append_property_with_double_value(
+            json_writer, (UCHAR*)TELEMETRY_MAGNETOMETERY, sizeof(TELEMETRY_MAGNETOMETERY) - 1, data[1], 2) ||
+
+        nx_azure_iot_json_writer_append_property_with_double_value(
+            json_writer, (UCHAR*)TELEMETRY_MAGNETOMETERZ, sizeof(TELEMETRY_MAGNETOMETERZ) - 1, data[2], 2))
+    {
+        return NX_NOT_SUCCESSFUL;
+    }
+
+    return NX_AZURE_IOT_SUCCESS;
+}
+
+static UINT append_device_telemetry_accelerometer(NX_AZURE_IOT_JSON_WRITER* json_writer)
+{
+    int16_t data[3];
+    BSP_ACCELERO_AccGetXYZ(data);
+
+    if (nx_azure_iot_json_writer_append_property_with_double_value(
+            json_writer, (UCHAR*)TELEMETRY_ACCELEROMETERX, sizeof(TELEMETRY_ACCELEROMETERX) - 1, data[0], 2) ||
+
+        nx_azure_iot_json_writer_append_property_with_double_value(
+            json_writer, (UCHAR*)TELEMETRY_ACCELEROMETERY, sizeof(TELEMETRY_ACCELEROMETERY) - 1, data[1], 2) ||
+
+        nx_azure_iot_json_writer_append_property_with_double_value(
+            json_writer, (UCHAR*)TELEMETRY_ACCELEROMETERZ, sizeof(TELEMETRY_ACCELEROMETERZ) - 1, data[2], 2))
+    {
+        return NX_NOT_SUCCESSFUL;
+    }
+
+    return NX_AZURE_IOT_SUCCESS;
+}
+
+static UINT append_device_telemetry_gyroscope(NX_AZURE_IOT_JSON_WRITER* json_writer)
+{
+    float data[3];
+    BSP_GYRO_GetXYZ(data);
+
+    if (nx_azure_iot_json_writer_append_property_with_double_value(
+            json_writer, (UCHAR*)TELEMETRY_GYROSCOPEX, sizeof(TELEMETRY_GYROSCOPEX) - 1, data[0], 2) ||
+
+        nx_azure_iot_json_writer_append_property_with_double_value(
+            json_writer, (UCHAR*)TELEMETRY_GYROSCOPEY, sizeof(TELEMETRY_GYROSCOPEY) - 1, data[1], 2) ||
+
+        nx_azure_iot_json_writer_append_property_with_double_value(
+            json_writer, (UCHAR*)TELEMETRY_GYROSCOPEZ, sizeof(TELEMETRY_GYROSCOPEZ) - 1, data[2], 2))
     {
         return NX_NOT_SUCCESSFUL;
     }
@@ -206,8 +295,31 @@ static void properties_complete_cb(AZURE_IOT_NX_CONTEXT* nx_context)
 
 static void telemetry_cb(AZURE_IOT_NX_CONTEXT* nx_context)
 {
-    // Send out telemetry
-    azure_iot_nx_client_publish_telemetry(nx_context, NULL, append_device_telemetry);
+    static TELEMETRY_STATE telemetry_state = TELEMETRY_STATE_DEFAULT;
+
+    switch (telemetry_state)
+    {
+        case TELEMETRY_STATE_DEFAULT:
+            azure_iot_nx_client_publish_telemetry(&azure_iot_nx_client, NULL, append_device_telemetry);
+            break;
+
+        case TELEMETRY_STATE_MAGNETOMETER:
+            azure_iot_nx_client_publish_telemetry(&azure_iot_nx_client, NULL, append_device_telemetry_magnetometer);
+            break;
+
+        case TELEMETRY_STATE_ACCELEROMETER:
+            azure_iot_nx_client_publish_telemetry(&azure_iot_nx_client, NULL, append_device_telemetry_accelerometer);
+            break;
+
+        case TELEMETRY_STATE_GYROSCOPE:
+            azure_iot_nx_client_publish_telemetry(&azure_iot_nx_client, NULL, append_device_telemetry_gyroscope);
+            break;
+
+        default:
+            break;
+    }
+
+    telemetry_state = (telemetry_state + 1) % TELEMETRY_STATE_END;    
 }
 
 UINT azure_iot_nx_client_entry(

@@ -2,6 +2,11 @@
 # Licensed under the MIT License.
 
 set(SOURCES
+    stmcubemx/Core/Src/main.c
+    stmcubemx/Core/Src/stm32l4xx_hal_msp.c
+    stmcubemx/Core/Src/stm32l4xx_it.c
+    stmcubemx/Core/Src/system_stm32l4xx.c
+
     Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal.c
     Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_adc.c
     Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_adc_ex.c
@@ -32,7 +37,6 @@ set(SOURCES
     Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_iwdg.c
     Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_lcd.c
     Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_lptim.c
-    Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_msp_template.c
     Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_nand.c
     Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_nor.c
     Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_opamp.c
@@ -58,7 +62,6 @@ set(SOURCES
     Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_swpmi.c
     Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_tim.c
     Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_tim_ex.c
-    Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_timebase_tim_template.c
     Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_tsc.c
     Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_uart.c
     Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_uart_ex.c
@@ -95,7 +98,6 @@ set(SOURCES
     Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01_hsensor.c
     Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01_magneto.c
     Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01_psensor.c
-    Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01_qspi.c
     Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01_tsensor.c
     Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01.c
 
@@ -103,8 +105,6 @@ set(SOURCES
     Drivers/BSP/Components/lis3mdl/lis3mdl.c
     Drivers/BSP/Components/hts221/hts221.c
     Drivers/BSP/Components/lps22hb/lps22hb.c
-
-    Drivers/CMSIS/Device/ST/STM32L4xx/Source/Templates/system_stm32l4xx.c
 )
 
 set(TARGET stm32cubel4)
@@ -122,7 +122,7 @@ target_compile_definitions(${TARGET}
 
 target_include_directories(${TARGET} 
     PUBLIC
-        config/
+        stmcubemx/Core/Inc
         Drivers/BSP/B-L475E-IOT01
         Drivers/CMSIS/Device/ST/STM32L4xx/Include
         Drivers/CMSIS/Include
