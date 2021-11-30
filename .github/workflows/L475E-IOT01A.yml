@@ -1,4 +1,4 @@
-name: STM32L4_L4+
+name: L475E-IOT01A
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 defaults:
   run:
-    working-directory: STMicroelectronics/STM32L4_L4+
+    working-directory: STMicroelectronics/B-L475E-IOT01A
 
 jobs:
   build:
