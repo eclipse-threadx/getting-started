@@ -25,7 +25,7 @@
 #include "azure_pnp_info.h"
 #include "stm_networking.h"
 
-#define IOT_MODEL_ID "dtmi:azurertos:devkit:gsgstml4s5;1"
+#define IOT_MODEL_ID "dtmi:azurertos:devkit:gsgstml4s5;2"
 
 #define TELEMETRY_HUMIDITY          "humidity"
 #define TELEMETRY_TEMPERATURE       "temperature"
