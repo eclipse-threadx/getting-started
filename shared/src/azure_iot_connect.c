@@ -126,6 +126,7 @@ VOID connection_monitor(
         {
             // Something bad has happened with client state, we need to re-initialize it
             case NX_DNS_QUERY_FAILED:
+            case NXD_MQTT_COMMUNICATION_FAILURE:
             case NXD_MQTT_ERROR_BAD_USERNAME_PASSWORD:
             case NXD_MQTT_ERROR_NOT_AUTHORIZED:
             {
@@ -153,7 +154,6 @@ VOID connection_monitor(
                     // Connect IoT Hub
                     iothub_connect(nx_context);
                 }
-
             }
             break;
 
