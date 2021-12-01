@@ -1,6 +1,6 @@
 {
     "@context": "dtmi:dtdl:context;2",
-    "@id": "dtmi:azurertos:devkit:gsgstml4s5;1",    
+    "@id": "dtmi:azurertos:devkit:gsgstml4s5;2",    
     "@type": "Interface",
     "displayName": "STM L4S5 Getting Started Guide",
     "description": "Example model for the Azure RTOS L4S5 Getting Started Guide",
@@ -138,18 +138,6 @@
                 "displayName": "State",
                 "description": "True is LED on, false is LED off.",
                 "schema": "boolean"
-            }
-        },
-        {
-            "@type": "Command",
-            "name": "setDisplayText",
-            "displayName": "Display Text",
-            "description": "Display text on screen.",
-            "request": {
-                "name": "text",
-                "displayName": "Text",
-                "description": "Text displayed on the screen.",
-                "schema": "string"
             }
         },
         {
