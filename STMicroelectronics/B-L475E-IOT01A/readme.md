@@ -55,7 +55,7 @@ For guidance on connecting additional devices, see the [Embedded device quicksta
 The following guides are available on how to build, flash and debug the devkit using some popular development environments:
 
 * [Debugging with VSCode](vscode.md)
-* [Debugging with Visual Studio 2022](vs.md)
+* [Debugging with Visual Studio 2022](VS.md)
 
 ## STM32CubeMX configuration
 
