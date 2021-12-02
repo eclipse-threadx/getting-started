@@ -27,7 +27,7 @@ The following guides will get you started:
 
 **Build Status:** A GitHub workflow building on Windows & Linux.
 
-**Device Lab Status:** A DevOps pipeline running on actual hardware in the lab.
+**Device Lab Status:** A DevOps pipeline running on physical hardware in the lab.
 
 ## Device Plug and Play Models
 
