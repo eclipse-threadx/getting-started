@@ -36,6 +36,7 @@
 *                               Fixed coding style.
 *         : 08.10.2019 1.11     Added process for software interrupt.
 *         : 10.12.2019 1.12     Modified comment.
+*         : 18.05.2021 1.13     Added function for Address exceptions.
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -775,6 +776,21 @@ R_BSP_ATTRIB_INTERRUPT void excep_floating_point_isr(void)
     R_BSP_SET_FPSW(tmp_fpsw & ((uint32_t)~BSP_PRV_FPU_CAUSE_FLAGS));
 #endif
 } /* End of function excep_floating_point_isr() */
+#endif
+
+#ifdef BSP_MCU_EXCEP_ADDRESS_ISR
+/***********************************************************************************************************************
+* Function name: excep_address_isr
+* Description  : Address exception ISR
+* Arguments    : none
+* Return Value : none
+* Note         : This function is supported by only CCRX and GCC.
+***********************************************************************************************************************/
+R_BSP_ATTRIB_INTERRUPT void excep_address_isr(void)
+{
+    /* If user has registered a callback for this exception then call it. */
+    R_BSP_InterruptControl(BSP_INT_SRC_EXC_ADDRESS, BSP_INT_CMD_CALL_CALLBACK, FIT_NO_PTR);
+} /* End of function excep_address_isr() */
 #endif
 
 #ifdef BSP_MCU_NON_MASKABLE_ISR

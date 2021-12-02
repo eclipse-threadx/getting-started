@@ -33,6 +33,7 @@ typedef struct nx_sl_wfx_wifi_info_s {
   sl_wfx_security_mode_t mode;
 } nx_sl_wfx_wifi_info_t;
 
+void nx_sl_wifi_info_set(nx_sl_wfx_wifi_info_t *wifi_info_ptr);
 void nx_sl_wfx_driver_entry(NX_IP_DRIVER *driver_req_ptr);
 void nx_sl_driver_receive_callback(sl_wfx_received_ind_t *rx_buffer);
 

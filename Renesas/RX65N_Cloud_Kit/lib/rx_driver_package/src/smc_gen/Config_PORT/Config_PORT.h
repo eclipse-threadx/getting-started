@@ -18,10 +18,10 @@
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
-* File Name    : Config_PORT.h
-* Version      : 2.1.1
-* Device(s)    : R5F565NEDxFP
-* Description  : This file implements device driver for Config_PORT.
+* File Name        : Config_PORT.h
+* Component Version: 2.3.0
+* Device(s)        : R5F565NEDxFP
+* Description      : This file implements device driver for Config_PORT.
 ***********************************************************************************************************************/
 
 #ifndef CFG_Config_PORT_H

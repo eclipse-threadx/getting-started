@@ -409,7 +409,7 @@ static UINT azure_iot_mqtt_create_common(AZURE_IOT_MQTT* azure_iot_mqtt, NX_IP* 
 {
     UINT status;
 
-    printf("Initializing MQTT Hub client\r\n");
+    printf("\r\nInitializing MQTT Hub client\r\n");
 
     status = nxd_mqtt_client_create(&azure_iot_mqtt->nxd_mqtt_client,
         "MQTT client",
@@ -618,7 +618,7 @@ UINT azure_iot_mqtt_create_with_dps(AZURE_IOT_MQTT* azure_iot_mqtt,
 {
     UINT status;
 
-    printf("Initializing MQTT DPS client\r\n");
+    printf("\r\nInitializing MQTT DPS client\r\n");
 
     if (azure_iot_mqtt == NULL)
     {
@@ -665,7 +665,7 @@ UINT azure_iot_mqtt_create_with_dps(AZURE_IOT_MQTT* azure_iot_mqtt,
         return status;
     }
 
-    printf("SUCCESS: MQTT DPS client initialized\r\n\r\n");
+    printf("SUCCESS: MQTT DPS client initialized\r\n");
 
     // call into common code
     return azure_iot_mqtt_create_common(azure_iot_mqtt, nx_ip, nx_pool);

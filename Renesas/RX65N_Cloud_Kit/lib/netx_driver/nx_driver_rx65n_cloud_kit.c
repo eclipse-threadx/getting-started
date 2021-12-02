@@ -304,7 +304,7 @@ VOID  nx_driver_rx65n_cloud_kit(NX_IP_DRIVER *driver_req_ptr)
 /*                                                                        */ 
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
-/*    _nx_driver_interface_attach                        PORTABLE C       */ 
+/*    _nx_driver_interface_attach                         PORTABLE C      */ 
 /*                                                           6.x          */
 /*  AUTHOR                                                                */
 /*                                                                        */
@@ -353,7 +353,7 @@ static VOID  _nx_driver_interface_attach(NX_IP_DRIVER *driver_req_ptr)
 /*                                                                        */ 
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
-/*    _nx_driver_initialize                              PORTABLE C       */ 
+/*    _nx_driver_initialize                               PORTABLE C      */ 
 /*                                                           6.x          */
 /*  AUTHOR                                                                */
 /*                                                                        */
@@ -457,7 +457,7 @@ UINT          status;
 /*                                                                        */ 
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
-/*    _nx_driver_enable                                  PORTABLE C       */ 
+/*    _nx_driver_enable                                   PORTABLE C      */ 
 /*                                                           6.x          */
 /*  AUTHOR                                                                */
 /*                                                                        */
@@ -548,7 +548,7 @@ UINT            status;
 /*                                                                        */ 
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
-/*    _nx_driver_disable                                 PORTABLE C       */ 
+/*    _nx_driver_disable                                  PORTABLE C      */ 
 /*                                                           6.x          */
 /*  AUTHOR                                                                */
 /*                                                                        */
@@ -630,7 +630,7 @@ UINT            status;
 /*                                                                        */ 
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
-/*    _nx_driver_multicast_join                          PORTABLE C       */ 
+/*    _nx_driver_multicast_join                           PORTABLE C      */ 
 /*                                                           6.x          */
 /*  AUTHOR                                                                */
 /*                                                                        */
@@ -678,7 +678,7 @@ static VOID  _nx_driver_multicast_join(NX_IP_DRIVER *driver_req_ptr)
 /*                                                                        */ 
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
-/*    _nx_driver_multicast_leave                         PORTABLE C       */ 
+/*    _nx_driver_multicast_leave                          PORTABLE C      */ 
 /*                                                           6.x          */
 /*  AUTHOR                                                                */
 /*                                                                        */
@@ -727,7 +727,7 @@ static VOID  _nx_driver_multicast_leave(NX_IP_DRIVER *driver_req_ptr)
 /*                                                                        */ 
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
-/*    _nx_driver_get_status                              PORTABLE C       */ 
+/*    _nx_driver_get_status                               PORTABLE C      */ 
 /*                                                           6.x          */
 /*  AUTHOR                                                                */
 /*                                                                        */
@@ -793,7 +793,7 @@ UINT        status;
 /*                                                                        */ 
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
-/*    _nx_driver_capability_get                          PORTABLE C       */ 
+/*    _nx_driver_capability_get                           PORTABLE C      */ 
 /*                                                           6.x          */
 /*  AUTHOR                                                                */
 /*                                                                        */
@@ -842,7 +842,7 @@ static VOID  _nx_driver_capability_get(NX_IP_DRIVER *driver_req_ptr)
 /*                                                                        */ 
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
-/*    _nx_driver_capability_set                          PORTABLE C       */ 
+/*    _nx_driver_capability_set                           PORTABLE C      */ 
 /*                                                           6.x          */
 /*  AUTHOR                                                                */
 /*                                                                        */
@@ -906,7 +906,7 @@ UINT        status;
 /*                                                                        */ 
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
-/*    _nx_driver_deferred_processing                     PORTABLE C       */ 
+/*    _nx_driver_deferred_processing                      PORTABLE C      */ 
 /*                                                           6.x          */
 /*  AUTHOR                                                                */
 /*                                                                        */
@@ -950,7 +950,7 @@ static VOID  _nx_driver_deferred_processing(NX_IP_DRIVER *driver_req_ptr)
 /*                                                                        */ 
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
-/*    _nx_driver_thread_entry                            PORTABLE C       */ 
+/*    _nx_driver_thread_entry                             PORTABLE C      */ 
 /*                                                           6.x          */
 /*  AUTHOR                                                                */
 /*                                                                        */
@@ -978,7 +978,6 @@ static VOID  _nx_driver_deferred_processing(NX_IP_DRIVER *driver_req_ptr)
 /*    nx_packet_allocate                    Allocate a packet for incoming*/
 /*                                            TCP and UDP data            */
 /*    _nx_tcp_socket_driver_packet_receive  Receive TCP packet            */
-/*    _nx_tcp_socket_driver_establish       Establish TCP connection      */
 /*    _nx_udp_socket_driver_packet_receive  Receive UDP packet            */
 /*                                                                        */
 /*  CALLED BY                                                             */ 
@@ -998,6 +997,7 @@ UINT i;
 NX_PACKET *packet_ptr;
 UINT packet_type;
 UINT status;
+int32_t socket_status;
 NXD_ADDRESS local_ip;
 NXD_ADDRESS remote_ip;
 uint16_t data_length;
@@ -1025,7 +1025,6 @@ NX_PACKET_POOL *pool_ptr = nx_driver_information.nx_driver_information_packet_po
                 continue;
             }
 
-
             /* Set packet type.  */
             if (nx_driver_sockets[i].protocol == NX_PROTOCOL_TCP)
             {
@@ -1050,13 +1049,14 @@ NX_PACKET_POOL *pool_ptr = nx_driver_information.nx_driver_information_packet_po
                 data_length = (uint16_t)(packet_ptr -> nx_packet_data_end - packet_ptr -> nx_packet_prepend_ptr);
 
                 /* Receive data without suspending.  */
-                size = R_WIFI_SX_ULPGN_ReceiveSocket(nx_driver_sockets[i].socket_id, 
-                                                     (uint8_t*)(packet_ptr -> nx_packet_prepend_ptr),
+                size = R_WIFI_SX_ULPGN_ReceiveSocket(nx_driver_sockets[i].socket_id, (uint8_t*)(packet_ptr -> nx_packet_prepend_ptr),
                                                      data_length, 10);
 
-                if (size < 0)
-                {
+                /* Get the socket connection status.  */
+                socket_status = R_WIFI_SX_ULPGN_GetTcpSocketStatus(nx_driver_sockets[i].socket_id);
 
+                if (size < 0 || socket_status != ULPGN_SOCKET_STATUS_CONNECTED)
+                {
                     /* Connection error. Notify upper layer with Null packet.  */
                     if (nx_driver_sockets[i].protocol == NX_PROTOCOL_TCP)
                     {
@@ -1064,8 +1064,7 @@ NX_PACKET_POOL *pool_ptr = nx_driver_information.nx_driver_information_packet_po
                     }
                     else
                     {
-                        _nx_udp_socket_driver_packet_receive(nx_driver_sockets[i].socket_ptr, NX_NULL,
-                                                             NX_NULL, NX_NULL, 0);
+                        _nx_udp_socket_driver_packet_receive(nx_driver_sockets[i].socket_ptr, NX_NULL, NX_NULL, NX_NULL, 0);
                     }
                     nx_packet_release(packet_ptr);
                     break;
@@ -1091,6 +1090,7 @@ NX_PACKET_POOL *pool_ptr = nx_driver_information.nx_driver_information_packet_po
                 }
                 else
                 {
+
                     /* Convert IP version.  */
                     remote_ip.nxd_ip_version = NX_IP_VERSION_V4;
                     remote_ip.nxd_ip_address.v4 = nx_driver_sockets[i].remote_ip;
@@ -1098,8 +1098,8 @@ NX_PACKET_POOL *pool_ptr = nx_driver_information.nx_driver_information_packet_po
                     local_ip.nxd_ip_address.v4 = nx_driver_sockets[i].local_ip;
 
                     _nx_udp_socket_driver_packet_receive(nx_driver_sockets[i].socket_ptr,
-                                                         packet_ptr, &local_ip, &remote_ip,
-                                                         nx_driver_sockets[i].remote_port);
+                                                                  packet_ptr, &local_ip, &remote_ip,
+                                                                  nx_driver_sockets[i].remote_port);
                 }
             }
         }
@@ -1117,7 +1117,7 @@ NX_PACKET_POOL *pool_ptr = nx_driver_information.nx_driver_information_packet_po
 /*                                                                        */ 
 /*  FUNCTION                                               RELEASE        */ 
 /*                                                                        */ 
-/*    _nx_driver_tcpip_handler                           PORTABLE C       */ 
+/*    _nx_driver_tcpip_handler                            PORTABLE C      */ 
 /*                                                           6.x          */
 /*  AUTHOR                                                                */
 /*                                                                        */
@@ -1171,7 +1171,7 @@ NX_PACKET *current_packet;
 ULONG packet_size;
 ULONG offset;
 uint16_t sent_size;
-UINT i;
+UINT i = 0;
 int32_t socket_id;
 
     if ((operation == NX_TCPIP_OFFLOAD_TCP_CLIENT_SOCKET_CONNECT) ||
@@ -1179,7 +1179,7 @@ int32_t socket_id;
     {
 
         /* Find a socket that is not used.  */
-        for (i = 0; i < NX_DRIVER_SOCKETS_MAXIMUM; i++)
+        while (i < NX_DRIVER_SOCKETS_MAXIMUM)
         {
             if (nx_driver_sockets[i].socket_ptr == NX_NULL)
             {
@@ -1188,6 +1188,7 @@ int32_t socket_id;
                 nx_driver_sockets[i].socket_ptr = socket_ptr;
                 break;
             }
+            i++;
         }
 
         if (i == NX_DRIVER_SOCKETS_MAXIMUM)
@@ -1206,7 +1207,7 @@ int32_t socket_id;
 
         /* Create the socket. */
         socket_id = R_WIFI_SX_ULPGN_CreateSocket(WIFI_SOCKET_IP_PROTOCOL_TCP, WIFI_SOCKET_IP_VERSION_4);
-        if (socket_id < 0)
+        if(socket_id < 0)
         {
             return(NX_NOT_SUCCESSFUL);
         }
@@ -1227,8 +1228,6 @@ int32_t socket_id;
         nx_driver_sockets[i].local_port = local_port;
         nx_driver_sockets[i].remote_port = *remote_port;
         nx_driver_sockets[i].protocol = NX_PROTOCOL_TCP;
-
-        status = NX_SUCCESS;
         break;
 
     case NX_TCPIP_OFFLOAD_TCP_SOCKET_DISCONNECT:
@@ -1242,7 +1241,6 @@ int32_t socket_id;
 
         /* Reset socket to free this entry.  */
         nx_driver_sockets[i].socket_ptr = NX_NULL;
-        status = NX_SUCCESS;
         break;
 
     case NX_TCPIP_OFFLOAD_UDP_SOCKET_BIND:
@@ -1365,6 +1363,7 @@ int32_t socket_id;
         /* Loop to send the packet.  */
         while(current_packet)
         {
+
             /* Calculate current packet size. */
             packet_size = (ULONG)(current_packet -> nx_packet_append_ptr - current_packet -> nx_packet_prepend_ptr);
             packet_size -= offset;
@@ -1414,8 +1413,9 @@ int32_t socket_id;
 
         /* Release the packet.  */
         nx_packet_transmit_release(packet_ptr);
-        
+
         status = NX_SUCCESS;
+
         break;
 
     default:

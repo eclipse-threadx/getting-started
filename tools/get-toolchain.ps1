@@ -5,15 +5,15 @@
 
 echo "`nInstalling prerequisites. Please leave the window open until the installation completes."
 
-$gccarm_path = 'https://developer.arm.com/-/media/Files/downloads/gnu-rm/10.3-2021.07/gcc-arm-none-eabi-10.3-2021.07win32'
-$gccarm_file = 'gcc-arm-none-eabi-10.3-2021.07-win32.exe'
-$gccarm_name = 'GCC-ARM 10.3-2021.07'
-$gccarm_hash = '8D3B1D62865BF509FFCE8DEC499ECDF09067666D1B0E59F30D3C788902C2A7F4'
+$gccarm_path = 'https://developer.arm.com/-/media/Files/downloads/gnu-rm/10.3-2021.10/'
+$gccarm_file = 'gcc-arm-none-eabi-10.3-2021.10-win32.exe'
+$gccarm_name = 'GCC-ARM 10.3-2021.10'
+$gccarm_hash = '3BEBF304C59F9CC9F544EE5ED38B27DF3019177B0548627C97F5F8BB02300395'
 
-$cmake_path = 'https://github.com/Kitware/CMake/releases/download/v3.21.1'
-$cmake_file = 'cmake-3.21.1-windows-i386.msi'
-$cmake_name = 'CMake v3.21.1'
-$cmake_hash = '905204C104276C41C8A6E7693A64AE4FEA8DDEC1C6B3887448BC6F73997CD674'
+$cmake_path = 'https://github.com/Kitware/CMake/releases/download/v3.21.4'
+$cmake_file = 'cmake-3.21.4-windows-i386.msi'
+$cmake_name = 'CMake v3.21.4'
+$cmake_hash = 'C769ECE7EC8E91529F4CC938F088B4699A1F5CD39B7F44158D1AA0AB6E76AB74'
 
 $termite_path = 'https://www.compuphase.com/software'
 $termite_file = 'termite-3.4.exe'

@@ -2,10 +2,10 @@
    Licensed under the MIT License. */
 
 #include <stdio.h>
-#include <time.h>
+
+#include "tx_api.h"
 
 #include "nx_driver_rx_fit.h"
-#include "tx_api.h"
 
 #include "board_init.h"
 #include "networking.h"
@@ -22,52 +22,31 @@
 TX_THREAD azure_thread;
 ULONG azure_thread_stack[AZURE_THREAD_STACK_SIZE / sizeof(ULONG)];
 
-void azure_thread_entry(ULONG parameter);
-void tx_application_define(void* first_unused_memory);
-
-void azure_thread_entry(ULONG parameter)
+static void azure_thread_entry(ULONG parameter)
 {
     UINT status;
 
-    printf("\r\nStarting Azure thread\r\n\r\n");
+    printf("Starting Azure thread\r\n\r\n");
 
     // Initialize the network
-    if (!network_init(nx_driver_rx_fit))
+    if ((status = network_init(nx_driver_rx_fit)))
     {
-        printf("Failed to initialize the network\r\n");
-        return;
-    }
-
-    // Start the SNTP client
-    status = sntp_start();
-    if (status != NX_SUCCESS)
-    {
-        printf("Failed to start the SNTP client (0x%02x)\r\n", status);
-        return;
-    }
-
-    // Wait for an SNTP sync
-    status = sntp_sync_wait();
-    if (status != NX_SUCCESS)
-    {
-        printf("Failed to start sync SNTP time (0x%02x)\r\n", status);
-        return;
+        printf("ERROR: Failed to initialize the network (0x%08x)\r\n", status);
     }
 
 #ifdef ENABLE_LEGACY_MQTT
-    if ((status = azure_iot_mqtt_entry(&nx_ip, &nx_pool, &nx_dns_client, sntp_time_get)))
+    else if ((status = azure_iot_mqtt_entry(&nx_ip, &nx_pool, &nx_dns_client, sntp_time_get)))
 #else
-    if ((status = azure_iot_nx_client_entry(&nx_ip, &nx_pool, &nx_dns_client, sntp_time)))
+    else if ((status = azure_iot_nx_client_entry(&nx_ip, &nx_pool, &nx_dns_client, sntp_time)))
 #endif
     {
         printf("Failed to run Azure IoT (0x%04x)\r\n", status);
-        return;
     }
 }
 
 void tx_application_define(void* first_unused_memory)
 {
-    // Create Azure SDK thread.
+    // Create Azure thread
     UINT status = tx_thread_create(&azure_thread,
         "Azure Thread",
         azure_thread_entry,
@@ -87,7 +66,7 @@ void tx_application_define(void* first_unused_memory)
 
 int main(void)
 {
-    // Initialise the board
+    // Initialize the board
     board_init();
 
     tx_kernel_enter();

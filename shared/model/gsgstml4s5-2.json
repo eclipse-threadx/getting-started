@@ -1,0 +1,151 @@
+{
+    "@context": "dtmi:dtdl:context;2",
+    "@id": "dtmi:azurertos:devkit:gsgstml4s5;2",    
+    "@type": "Interface",
+    "displayName": "STM L4S5 Getting Started Guide",
+    "description": "Example model for the Azure RTOS L4S5 Getting Started Guide",
+    "contents": [
+        {
+            "@type": [
+                "Telemetry",
+                "Temperature"
+            ],
+            "name": "temperature",
+            "displayName": "Temperature",
+            "unit": "degreeCelsius",
+            "schema": "double"
+        },
+        {
+            "@type": [
+                "Telemetry",
+                "RelativeHumidity"
+            ],
+            "name": "humidity",
+            "displayName": "Humidity",
+            "unit": "percent",
+            "schema": "double"
+        },
+        {
+            "@type": [
+                "Telemetry",
+                "Pressure"
+            ],
+            "name": "pressure",
+            "displayName": "Pressure",
+            "unit": "kilopascal",
+            "schema": "double"
+        },
+        {
+            "@type": "Telemetry",
+            "name": "magnetometerX",
+            "displayName": "Magnetometer X / mgauss",
+            "schema": "double"
+        },
+        {
+            "@type": "Telemetry",
+            "name": "magnetometerY",
+            "displayName": "Magnetometer Y / mgauss",
+            "schema": "double"
+        },
+        {
+            "@type": "Telemetry",
+            "name": "magnetometerZ",
+            "displayName": "Magnetometer Z / mgauss",
+            "schema": "double"
+        },
+        {
+            "@type": [
+                "Telemetry",
+                "Acceleration"
+            ],
+            "name": "accelerometerX",
+            "displayName": "Accelerometer X",
+            "schema": "double",
+            "unit": "gForce"
+        },
+        {
+            "@type": [
+                "Telemetry",
+                "Acceleration"
+            ],
+            "name": "accelerometerY",
+            "displayName": "Accelerometer Y",
+            "schema": "double",
+            "unit": "gForce"
+        },
+        {
+            "@type": [
+                "Telemetry",
+                "Acceleration"
+            ],
+            "name": "accelerometerZ",
+            "displayName": "Accelerometer Z",
+            "schema": "double",
+            "unit": "gForce"
+        },
+        {
+            "@type": [
+                "Telemetry",
+                "AngularVelocity"
+            ],
+            "name": "gyroscopeX",
+            "displayName": "Gyroscope X",
+            "schema": "double",
+            "unit": "degreePerSecond"
+        },
+        {
+            "@type": [
+                "Telemetry",
+                "AngularVelocity"
+            ],
+            "name": "gyroscopeY",
+            "displayName": "Gyroscope Y",
+            "schema": "double",
+            "unit": "degreePerSecond"
+        },
+        {
+            "@type": [
+                "Telemetry",
+                "AngularVelocity"
+            ],
+            "name": "gyroscopeZ",
+            "displayName": "Gyroscope Z",
+            "schema": "double",
+            "unit": "degreePerSecond"
+        },
+        {
+            "@type": "Property",
+            "name": "telemetryInterval",
+            "displayName": "Telemetry Interval",
+            "description": "Control the frequency of the telemetry loop.",
+            "schema": "integer",
+            "writable": true
+        },
+        {
+            "@type": "Property",
+            "name": "ledState",
+            "displayName": "LED state",
+            "description": "Returns the current state of the onboard LED.",
+            "schema": "boolean"
+        },        
+        {
+            "@type": "Command",
+            "name": "setLedState",
+            "displayName": "Set LED state",
+            "description": "Sets the state of the onboard LED.",
+            "request": {
+                "name": "state",
+                "displayName": "State",
+                "description": "True is LED on, false is LED off.",
+                "schema": "boolean"
+            }
+        },
+        {
+            "@type": "Component",
+            "schema": "dtmi:azure:DeviceManagement:DeviceInformation;1",
+            "name": "deviceInformation",
+            "displayName": "Device Information",
+            "description": "Interface with basic device hardware information."
+        }
+    ]
+}

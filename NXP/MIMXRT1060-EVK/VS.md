@@ -12,15 +12,17 @@ This is a companion to the [Quickstart Guide](https://docs.microsoft.com/en-us/a
 
  _*Note: It is not necessary to install the tools described in the quickstart guide. Tool installation will be covered in the next section below.*_
 
-## Configure Your Development Environment with vcpkg `ce`
+## Configure Your Development Environment with `vcpkg-ce`
 
-This section shows how to configure your development environment with the new vcpkg `ce` tool: `ce`, short for "configure environment", bootstraps project dependencies from a manifest file, `environment.yaml`. This makes it easy to express which compilers and build tools are required by a project. Upon activation, the tools specified by the manifest are added to the path of the current shell. If the tools are not present, `ce` acquires them and installs them to a common location. The `ce` tool runs in user mode without elevation.
+This section shows how to configure your development environment with the new `vcpkg-ce`, short for "configure environment", bootstraps project dependencies from a manifest file, `vcpkg-configuration.json`. This makes it easy to express which compilers and build tools are required by a project. Upon activation, the tools specified by the manifest are added to the path of the current shell. If the tools are not present, `vcpkg-ce` acquires them and installs them to a common location. The `vcpkg-ce` tool runs in user mode without elevation.
 
-> `ce` is in early preview prior to being integrated as a part of `vcpkg`. To report problems or provide feedback, please open issues at https://github.com/microsoft/vcpkg-ce.
+> `vcpkg-ce` is in early preview. To report problems or provide feedback, please open issues at https://github.com/microsoft/vcpkg-ce.
 
 ### Windows 10
 
 1. Download and install [Visual Studio](https://visualstudio.microsoft.com/downloads/).
+
+    > The Preview version of VS 2022 will have new embedded features. 
 
 1. Download and install the [SEGGER J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack) V7.00 or greater. _Note: Version V7.00 or greater is required to support the on-board DAPLink probe._
 
@@ -40,22 +42,16 @@ This section shows how to configure your development environment with the new vc
 
     > *getting-started\NXP\MIMXRT1060-EVK*
 
-1. Install `ce`.
+1. Install `vcpkg-ce`.
 
     ```PowerShell
-    iex (iwr -useb aka.ms/install-ce.ps1)
-    ```
-
-1. Review the end-user license agreement at https://aka.ms/vcpkg-ce-eula.txt. Run the following command to accept.
-
-    ```PowerShell
-    ce --accept-eula
+    iex (iwr -useb aka.ms/install-vcpkg.ps1)
     ```
 
 1. Download, install, and activate developer tools.
 
     ```PowerShell
-    ce activate
+    vcpkg activate
     ```
 
 1. Run the following code to confirm that CMake version 3.20 or later is installed.
@@ -70,11 +66,14 @@ This section shows how to configure your development environment with the new vc
 
 1. Connect the Micro USB cable from the DevKit to your computer. If it is already connected, disconnect and reconnect it.
 
-1. Launch Visual Studio.
+1. Launch Visual Studio from a PowerShell terminal.
 
-    ```Shell
+    ```PowerShell
     start devenv .
     ```
+
+    > Note that if you have more than one version of Visual Studio installed this may not launch the current preview. In that case you will need to use the full path to your preview installation. For example: 
+    "C:\Program Files\Microsoft Visual Studio\2022\Preview\Common7\IDE\devenv"
 
 1. Ensure that both the Configure Preset and the Build Preset are set to "arm-gcc-cortex-m7"
     
@@ -92,14 +91,14 @@ This section shows how to configure your development environment with the new vc
 
 ## Restoring Your Development Environment
 
-`ce` only modifies the path in the shell in which it is activated. If you close your shell and wish to restore the development environment in a future session:
+`vcpkg-ce` only modifies the path in the shell in which it is activated. If you close your shell and wish to restore the development environment in a future session:
 
-1. Open a new terminal.
+1. Open a new PowerShell terminal.
 
-1. Re-activate `ce`.
+1. Re-activate `vcpkg-ce`.
 
     ```Shell
-    . ~/.ce/ce activate
+    . ~/.vcpkg/vcpkg activate
     ```
 
 1. Launch Visual Studio.

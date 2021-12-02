@@ -1,0 +1,40 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "L475E: Launch",
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "device": "STM32L475VG",
+            "runToMain": true,
+            "executable": "${workspaceFolder}/build/app/stm32l475_azure_iot.elf",
+            "svdFile": "${workspaceFolder}/STM32L4x5.svd",
+            "cwd": "${workspaceRoot}",
+            "configFiles": [
+                "board/stm32l4discovery.cfg"
+            ]
+        },
+        {
+            "name": "Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/build/app/stm32l475_azure_iot.elf",
+            "MIMode": "gdb",
+            "miDebuggerPath": "arm-none-eabi-gdb",
+            "miDebuggerServerAddress": "localhost:3333",
+            "debugServerPath": "openocd",
+            "debugServerArgs": "-f board/stm32l4discovery.cfg",
+            "serverStarted": "Listening on port .* for gdb connections",
+            "filterStderr": true,
+            "stopAtConnect": true,
+            "hardwareBreakpoints": {
+                "require": true,
+                "limit": 6
+            },
+            "preLaunchTask": "Flash",
+            "svdPath": "${workspaceFolder}/STM32L4x5.svd"
+        }
+    ]
+}

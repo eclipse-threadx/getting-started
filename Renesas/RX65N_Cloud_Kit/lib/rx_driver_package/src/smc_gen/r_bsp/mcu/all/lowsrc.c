@@ -25,6 +25,7 @@
 *         : 28.02.2019 3.00     Merged processing of all devices.
 *                               Added support for GNUC and ICCRX.
 *                               Fixed coding style.
+*         : 29.01.2021 3.01     Added tha __write function and __read function for ICCRX.
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -38,7 +39,11 @@ Includes   <System Includes> , "Project Includes"
 #include "r_bsp_config.h"
 #include "lowlvl.h"
 #include "lowsrc.h"
-
+#if defined(__ICCRX__)
+#if (BSP_CFG_USER_CHARPUT_ENABLED == 1) || (BSP_CFG_USER_CHARGET_ENABLED == 1)
+#include <stddef.h>
+#endif
+#endif
 
 /* When using the user startup program, disable the following code. */
 #if BSP_CFG_STARTUP_DISABLE == 0
@@ -566,6 +571,72 @@ void lseek (void)
 }
 
 #endif /* defined(__GNUC__) */
+
+#if defined(__ICCRX__)
+#if BSP_CFG_USER_CHARPUT_ENABLED == 1
+/***********************************************************************************************************************
+* Function Name: __write
+* Description  : Data write (for ICCRX)
+* Arguments    : handle - handler
+*                buf - The address of destination buffer
+*                bufSize - buffer size
+* Return Value : Number of write characters (Pass)
+***********************************************************************************************************************/
+size_t __write(int handle, const unsigned char *buf, size_t bufSize)
+{
+    unsigned char c; 
+    size_t nChars = 0;
+
+    if (handle == -1)
+    {
+        return 0;
+    }
+
+    if (handle != 1 && handle != 2)
+    {
+        return -1;
+    }
+
+    for ( ; bufSize > 0; --bufSize)
+    {
+        c = *buf++;
+        charput(c);
+        ++nChars;
+    }
+
+    return nChars;
+} /* End of function __write() */
+#endif
+
+#if BSP_CFG_USER_CHARGET_ENABLED == 1
+/***********************************************************************************************************************
+* Function Name: __read
+* Description  : Data read (for ICCRX)
+* Arguments    : handle - handler
+*                buf - The address of destination buffer
+*                bufSize - buffer size
+* Return Value : Number of read characters (Pass)
+***********************************************************************************************************************/
+size_t __read(int handle, unsigned char *buf, size_t bufSize)
+{
+    size_t nChars = 0;
+
+    if (handle != 0)
+    {
+        return -1;
+    }
+
+    for ( ; bufSize > 0; --bufSize)
+    {
+        *buf = charget();
+        buf++;
+        ++nChars;
+    }
+
+    return nChars;
+} /* End of function __read() */
+#endif
+#endif /* defined(__ICCRX__) */
 
 #endif /* BSP_CFG_STARTUP_DISABLE == 0 */
 

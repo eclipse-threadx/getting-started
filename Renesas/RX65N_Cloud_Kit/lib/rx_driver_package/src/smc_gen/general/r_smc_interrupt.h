@@ -18,10 +18,10 @@
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
-* File Name    : r_smc_interrupt.h
-* Version      : 1.2.0
-* Device(s)    : R5F565NEDxFP
-* Description  : This file implements interrupt setting.
+* File Name        : r_smc_interrupt.h
+* Version          : 1.2.2
+* Device(s)        : R5F565NEDxFP
+* Description      : This file implements interrupt setting.
 ***********************************************************************************************************************/
 
 #ifndef SMC_INTERRUPT_H
@@ -286,4 +286,6 @@ Typedef definitions
 Global functions
 ***********************************************************************************************************************/
 void R_Interrupt_Create(void);
+/* Start user code for function. Do not edit comment generated here */
+/* End user code. Do not edit comment generated here */
 #endif
