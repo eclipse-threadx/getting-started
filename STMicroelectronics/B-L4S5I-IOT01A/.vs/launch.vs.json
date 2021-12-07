@@ -3,7 +3,7 @@
     "configurations": [
         {
             "project": "CMakeLists.txt",
-            "projectTarget": "stm32l4S5_azure_iot.elf (app\\stm32l4S5_azure_iot.elf)",
+            "projectTarget": "stm32l4s5_azure_iot.elf (app\\stm32l4s5_azure_iot.elf)",
             "name": "Launch",
             "type": "cppdbg",
             "request": "launch",

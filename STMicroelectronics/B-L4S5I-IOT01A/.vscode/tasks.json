@@ -4,7 +4,7 @@
         {
             "label": "Flash",
             "type": "shell",
-            "command": "openocd -f board/stm32l4discovery.cfg -c \"program build/app/stm32l4S5_azure_iot.elf verify\" -c \"reset halt\" -c shutdown",
+            "command": "openocd -f board/stm32l4discovery.cfg -c \"program build/app/stm32l4s5_azure_iot.elf verify\" -c \"reset halt\" -c shutdown",
             "windows": {
                 "options": {
                   "shell": {

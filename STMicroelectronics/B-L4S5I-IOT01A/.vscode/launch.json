@@ -20,7 +20,7 @@
             "type": "cppdbg",
             "request": "launch",
             "cwd": "${workspaceFolder}",
-            "program": "${workspaceFolder}/build/app/stm32l4S5_azure_iot.elf",
+            "program": "${workspaceFolder}/build/app/stm32l4s5_azure_iot.elf",
             "MIMode": "gdb",
             "miDebuggerPath": "arm-none-eabi-gdb",
             "miDebuggerServerAddress": "localhost:3333",
