@@ -31,7 +31,12 @@ jobs:
       - name: Install Ninja
         uses: seanmiddleditch/gha-setup-ninja@v3
 
-      - name: Build project
+      - name: Build debug
         run: |
-          cmake -Bbuild -GNinja -DCMAKE_TOOLCHAIN_FILE="../../cmake/arm-gcc-cortex-m4.cmake" 
-          cmake --build build
+          cmake -Bbuild/debug -GNinja -DCMAKE_TOOLCHAIN_FILE="../../cmake/arm-gcc-cortex-m4.cmake" -DCMAKE_BUILD_TYPE="Debug"
+          cmake --build build/debug
+
+      - name: Build release
+        run: |
+          cmake -Bbuild/release -GNinja -DCMAKE_TOOLCHAIN_FILE="../../cmake/arm-gcc-cortex-m4.cmake" -DCMAKE_BUILD_TYPE="Release"
+          cmake --build build/release
