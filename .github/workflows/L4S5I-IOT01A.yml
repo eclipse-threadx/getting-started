@@ -16,6 +16,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
+        type: [Debug, Release]
 
     steps:
       - name: Checkout code
@@ -31,12 +32,7 @@ jobs:
       - name: Install Ninja
         uses: seanmiddleditch/gha-setup-ninja@v3
 
-      - name: Build debug
+      - name: Build binary
         run: |
-          cmake -Bbuild/debug -GNinja -DCMAKE_TOOLCHAIN_FILE="../../cmake/arm-gcc-cortex-m4.cmake" -DCMAKE_BUILD_TYPE="Debug"
-          cmake --build build/debug
-
-      - name: Build release
-        run: |
-          cmake -Bbuild/release -GNinja -DCMAKE_TOOLCHAIN_FILE="../../cmake/arm-gcc-cortex-m4.cmake" -DCMAKE_BUILD_TYPE="Release"
-          cmake --build build/release
+          cmake -Bbuild -GNinja -DCMAKE_TOOLCHAIN_FILE="../../cmake/arm-gcc-cortex-m4.cmake" -DCMAKE_BUILD_TYPE="${{ matrix.type }}"
+          cmake --build build   
