@@ -32,10 +32,15 @@ target_include_directories(${PROJECT_NAME}
         .
 )
 
+target_link_directories(${PROJECT_NAME} 
+    PUBLIC 
+       startup/${THREADX_TOOLCHAIN}    
+)
+
 if(CMAKE_C_COMPILER_ID STREQUAL "IAR")
-    set_target_linker(${PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/startup/iar/linker_script.icf)
+    set_target_linker(${PROJECT_NAME} linker_script.icf)
 else()
-    set_target_linker(${PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/startup/gnu/linker_script.ld)
+    set_target_linker(${PROJECT_NAME} linker_script.ld)
     target_link_options(${PROJECT_NAME} PRIVATE -Wl,-e_PowerON_Reset)
 endif()
 

@@ -32,10 +32,15 @@ target_include_directories(${PROJECT_NAME}
         .
 )
 
+target_link_directories(${PROJECT_NAME}
+    PUBLIC 
+       startup/${THREADX_TOOLCHAIN}
+)
+
 if(CMAKE_C_COMPILER_ID STREQUAL "IAR")
-    set_target_linker(${PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/startup/iar/stm32l4s5xx_flash.icf)
+    set_target_linker(${PROJECT_NAME} stm32l4s5xx_flash.icf)
 else()
-    set_target_linker(${PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/startup/gnu/STM32L4S5VITx_FLASH.ld)
+    set_target_linker(${PROJECT_NAME} STM32L4S5VITx_FLASH.ld)
 endif()
 
 post_build(${PROJECT_NAME})

@@ -1,8 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-set(LINKER_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/startup/efr32mg12p.ld")
-
 set(SOURCES
     startup/startup_efr32mg12p.S
     startup/system_efr32mg12p.c
@@ -43,10 +41,15 @@ target_compile_definitions(${PROJECT_NAME}
         SLEXP802X
 )
 
+target_link_directories(${PROJECT_NAME}
+    PUBLIC 
+       startup
+)
+
 if(CMAKE_C_COMPILER_ID STREQUAL "IAR")
     message(FATAL_ERROR, "IAR is not currently implemented for this device")
 else()
-    set_target_linker(${PROJECT_NAME} ${LINKER_SCRIPT})
+    set_target_linker(${PROJECT_NAME} efr32mg12p.ld)
 endif()
 
 post_build(${PROJECT_NAME})

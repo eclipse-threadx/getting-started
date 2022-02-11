@@ -30,10 +30,15 @@ target_include_directories(${PROJECT_NAME}
         .
 )
 
+target_link_directories(${PROJECT_NAME}
+    PUBLIC 
+       startup/${THREADX_TOOLCHAIN}
+)
+
 if(CMAKE_C_COMPILER_ID STREQUAL "IAR")
-    set_target_linker(${PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/startup/iar/MIMXRT1052xxxxx_flexspi_nor.icf)
+    set_target_linker(${PROJECT_NAME} MIMXRT1052xxxxx_flexspi_nor.icf)
 else()
-    set_target_linker(${PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/startup/gnu/MIMXRT1052xxxxx_flexspi_nor.ld)
+    set_target_linker(${PROJECT_NAME} MIMXRT1052xxxxx_flexspi_nor.ld)
 endif()
 
 post_build(${PROJECT_NAME})
