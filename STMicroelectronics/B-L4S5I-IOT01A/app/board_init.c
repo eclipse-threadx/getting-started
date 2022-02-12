@@ -95,7 +95,7 @@ void board_init(void)
 
 int hardware_rand(void)
 {
-    uint32_t rand;
+    uint32_t rand = 0;
     HAL_RNG_GenerateRandomNumber(&hrng, &rand);
     return rand;
 }

@@ -50,6 +50,11 @@ add_library(${TARGET} OBJECT
     ${SOURCES}
 )
 
+target_compile_options(${TARGET}
+    PRIVATE
+        -Wno-maybe-uninitialized
+)
+
 target_include_directories(${TARGET}
     PUBLIC
         src/smc_gen/general

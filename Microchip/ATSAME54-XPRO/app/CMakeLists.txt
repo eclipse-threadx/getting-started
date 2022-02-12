@@ -30,10 +30,15 @@ target_include_directories(${PROJECT_NAME}
         .
 )
 
+target_link_directories(${PROJECT_NAME}
+    PUBLIC 
+       startup/${THREADX_TOOLCHAIN}
+)
+
 if(CMAKE_C_COMPILER_ID STREQUAL "IAR")
-    set_target_linker(${PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/startup/iar/same54x20_flash.icf)
+    set_target_linker(${PROJECT_NAME} same54x20_flash.icf)
 else()
-    set_target_linker(${PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/startup/gnu/same54p20a_flash.ld)
+    set_target_linker(${PROJECT_NAME} same54p20a_flash.ld)
 endif()
 
 post_build(${PROJECT_NAME})

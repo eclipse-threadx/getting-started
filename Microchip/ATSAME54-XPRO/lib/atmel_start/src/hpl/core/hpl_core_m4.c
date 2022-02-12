@@ -211,6 +211,7 @@ void _delay_init(void *const hw)
 /**
  * \brief Delay loop to delay n number of cycles
  */
+__attribute__((noinline))
 void _delay_cycles(void *const hw, uint32_t cycles)
 {
 #ifndef _UNIT_TEST_

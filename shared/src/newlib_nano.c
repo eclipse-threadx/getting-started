@@ -72,5 +72,7 @@ int lseek(int file, int ptr, int dir) __attribute__((weak, alias("_lseek")));
 int fstat(int file, struct stat* st) __attribute__((weak, alias("_fstat")));
 int close(int file) __attribute__((weak, alias("_close")));
 int isatty(int file) __attribute__((weak, alias("_isatty")));
+int getpid(void) __attribute__((weak, alias("_getpid")));
+void kill(int pid, int sig) __attribute__((weak, alias("_kill")));
 
 #endif

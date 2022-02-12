@@ -32,10 +32,16 @@ target_include_directories(${PROJECT_NAME}
         .
 )
 
+target_link_directories(${PROJECT_NAME} 
+    PUBLIC 
+       startup/${THREADX_TOOLCHAIN}    
+)
+
+
 if(CMAKE_C_COMPILER_ID STREQUAL "IAR")
     message(FATAL_ERROR, "IAR is not currently implemented for this device")
 else()
-    set_target_linker(${PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/startup/gnu/linker_script.ld)
+    set_target_linker(${PROJECT_NAME} linker_script.ld)
     target_link_options(${PROJECT_NAME} PRIVATE -Wl,-e_PowerON_Reset)
 endif()
 
