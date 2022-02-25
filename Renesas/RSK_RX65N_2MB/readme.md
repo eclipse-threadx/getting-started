@@ -52,7 +52,7 @@ For guidance on connecting additional devices, see the [Embedded device quicksta
     1. Connect the **Ethernet** to your router
     1. Connect **G1CUSB0** to your computer
     1. Connect the **E2Lite** to your computer
-    1. Connect the **E2Lite** to the **RX54N RSK**
+    1. Connect the **E2Lite** to the **RX65N RSK**
     1. Connect the **Ethernet** to your router
 
 1. Flash the image to the device using the [Renesas Flash Programmer](https://www.renesas.com/software-tool/renesas-flash-programmer-programming-gui) and the following settings:
