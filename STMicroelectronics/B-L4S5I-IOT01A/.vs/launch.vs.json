@@ -13,7 +13,7 @@
             "miDebuggerPath": "arm-none-eabi-gdb",
             "miDebuggerServerAddress": "localhost:3333",
             "debugServerPath": "openocd",
-            "debugServerArgs": "-f board/stm32l4discovery.cfg -c \"$_TARGETNAME configure -rtos auto\"",
+            "debugServerArgs": "-f board/stm32l4discovery.cfg",
             "serverStarted": "Listening on port .* for gdb connections",
             "filterStderr": true,
             "stopAtConnect": true,
