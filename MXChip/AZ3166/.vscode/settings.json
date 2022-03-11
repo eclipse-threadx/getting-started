@@ -2,5 +2,6 @@
     "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
     "cmake.configureOnOpen": true,
     "cmake.generator": "Ninja",
-    "cmake.buildDirectory": "${workspaceFolder}/build"
+    "cmake.buildDirectory": "${workspaceFolder}/build",
+    "vscode-embedded.loggingVerbosity": "warn",
 }
