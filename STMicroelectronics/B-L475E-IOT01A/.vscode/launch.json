@@ -7,7 +7,7 @@
             "request": "launch",
             "servertype": "openocd",
             "device": "STM32L475VG",
-            "runToMain": true,
+            "runToEntry": true,
             "executable": "${workspaceFolder}/build/app/stm32l475_azure_iot.elf",
             "svdFile": "${workspaceFolder}/STM32L4x5.svd",
             "cwd": "${workspaceRoot}",

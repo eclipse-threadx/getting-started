@@ -264,6 +264,14 @@ VOID  nx_driver_stm32l4(NX_IP_DRIVER *driver_req_ptr)
         break;
     }
         
+    case NX_LINK_GET_INTERFACE_TYPE: 
+    {  
+                                     
+        /* Return the link's interface type in the supplied return pointer. */ 
+        *(driver_req_ptr -> nx_ip_driver_return_ptr) = NX_INTERFACE_TYPE_WIFI; 
+        break; 
+    }  
+
     case NX_LINK_DEFERRED_PROCESSING:
     {
 
