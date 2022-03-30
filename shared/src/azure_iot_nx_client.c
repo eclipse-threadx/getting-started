@@ -11,6 +11,10 @@
 #include "azure_iot_cert.h"
 #include "azure_iot_ciphersuites.h"
 #include "azure_iot_connect.h"
+#include "log/gsg_log.h"
+#include "log/azure_iot_logger.h"
+
+#define LOG_COMPONENT_NAME "azure_iot_nx_client"
 
 #define NX_AZURE_IOT_THREAD_PRIORITY 4
 
@@ -23,6 +27,7 @@
 #define HUB_WRITABLE_PROPERTIES_RECEIVE_EVENT 0x10
 #define HUB_PROPERTIES_COMPLETE_EVENT         0x20
 #define HUB_PERIODIC_TIMER_EVENT              0x40
+#define HUB_LOGGING_TIMER_EVENT               0x80
 
 #define AZURE_IOT_DPS_ENDPOINT "global.azure-devices-provisioning.net"
 
@@ -34,24 +39,11 @@
 #define DPS_REGISTER_TIMEOUT_TICKS (30 * TX_TIMER_TICKS_PER_SECOND)
 
 #define DPS_PAYLOAD_SIZE       (15 + 128)
-#define TELEMETRY_BUFFER_SIZE  256
+#define TELEMETRY_BUFFER_SIZE  1024
 #define PROPERTIES_BUFFER_SIZE 128
 
 static UCHAR telemetry_buffer[TELEMETRY_BUFFER_SIZE];
 static UCHAR properties_buffer[PROPERTIES_BUFFER_SIZE];
-
-static VOID printf_packet(CHAR* prepend, NX_PACKET* packet_ptr)
-{
-    printf("%s", prepend);
-
-    while (packet_ptr != NX_NULL)
-    {
-        printf("%.*s", (INT)(packet_ptr->nx_packet_length), (CHAR*)packet_ptr->nx_packet_prepend_ptr);
-        packet_ptr = packet_ptr->nx_packet_next;
-    }
-
-    printf("\r\n");
-}
 
 static VOID connection_status_callback(NX_AZURE_IOT_HUB_CLIENT* hub_client_ptr, UINT status)
 {
@@ -95,6 +87,12 @@ static VOID periodic_timer_entry(ULONG context)
     tx_event_flags_set(&nx_context->events, HUB_PERIODIC_TIMER_EVENT, TX_OR);
 }
 
+static VOID logging_timer_entry(ULONG context)
+{
+    AZURE_IOT_NX_CONTEXT* nx_context = (AZURE_IOT_NX_CONTEXT*)context;
+    tx_event_flags_set(&nx_context->events, HUB_LOGGING_TIMER_EVENT, TX_OR);
+}
+
 static UINT iot_hub_initialize(AZURE_IOT_NX_CONTEXT* nx_context)
 {
     UINT status;
@@ -116,7 +114,7 @@ static UINT iot_hub_initialize(AZURE_IOT_NX_CONTEXT* nx_context)
              sizeof(nx_context->nx_azure_iot_tls_metadata_buffer),
              &nx_context->root_ca_cert)))
     {
-        printf("Error: on nx_azure_iot_hub_client_initialize (0x%08x)\r\n", status);
+        GsgLogError("nx_azure_iot_hub_client_initialize (0x%08x)", status);
         return status;
     }
 
@@ -128,7 +126,7 @@ static UINT iot_hub_initialize(AZURE_IOT_NX_CONTEXT* nx_context)
                  (UCHAR*)nx_context->azure_iot_device_sas_key,
                  nx_context->azure_iot_device_sas_key_len)))
         {
-            printf("Error: failed on nx_azure_iot_hub_client_symmetric_key_set (0x%08x)\r\n", status);
+            GsgLogError("nx_azure_iot_hub_client_symmetric_key_set (0x%08x)", status);
         }
     }
     else if (nx_context->azure_iot_auth_mode == AZURE_IOT_AUTH_MODE_CERT)
@@ -137,25 +135,25 @@ static UINT iot_hub_initialize(AZURE_IOT_NX_CONTEXT* nx_context)
         if ((status = nx_azure_iot_hub_client_device_cert_set(
                  &nx_context->iothub_client, &nx_context->device_certificate)))
         {
-            printf("Error: failed on nx_azure_iot_hub_client_device_cert_set!: error code = 0x%08x\r\n", status);
+            GsgLogError("nx_azure_iot_hub_client_device_cert_set (0x%08x)", status);
         }
     }
 
     if (status != NX_AZURE_IOT_SUCCESS)
     {
-        printf("Failed to set auth credentials\r\n");
+        GsgLogError("Failed to set auth credentials");
     }
 
     // Add more CA certificates
     else if ((status =
                      nx_azure_iot_hub_client_trusted_cert_add(&nx_context->iothub_client, &nx_context->root_ca_cert_2)))
     {
-        printf("Failed on nx_azure_iot_hub_client_trusted_cert_add!: error code = 0x%08x\r\n", status);
+        GsgLogError("Failed on nx_azure_iot_hub_client_trusted_cert_add (0x%08x)", status);
     }
     else if ((status =
                      nx_azure_iot_hub_client_trusted_cert_add(&nx_context->iothub_client, &nx_context->root_ca_cert_3)))
     {
-        printf("Failed on nx_azure_iot_hub_client_trusted_cert_add!: error code = 0x%08x\r\n", status);
+        GsgLogError("Failed on nx_azure_iot_hub_client_trusted_cert_add (0x%08x", status);
     }
 
     // Set Model id
@@ -163,26 +161,26 @@ static UINT iot_hub_initialize(AZURE_IOT_NX_CONTEXT* nx_context)
                   (UCHAR*)nx_context->azure_iot_model_id,
                   nx_context->azure_iot_model_id_len)))
     {
-        printf("Error: nx_azure_iot_hub_client_model_id_set (0x%08x)\r\n", status);
+        GsgLogError("nx_azure_iot_hub_client_model_id_set (0x%08x)", status);
     }
 
     // Set connection status callback
     else if ((status = nx_azure_iot_hub_client_connection_status_callback_set(
                   &nx_context->iothub_client, connection_status_callback)))
     {
-        printf("Error: failed on connection_status_callback (0x%08x)\r\n", status);
+        GsgLogError("failed on connection_status_callback (0x%08x)", status);
     }
 
     // Enable commands
     else if ((status = nx_azure_iot_hub_client_command_enable(&nx_context->iothub_client)))
     {
-        printf("Error: command receive enable failed (0x%08x)\r\n", status);
+        GsgLogError("command receive enable failed (0x%08x)", status);
     }
 
     // Enable properties
     else if ((status = nx_azure_iot_hub_client_properties_enable(&nx_context->iothub_client)))
     {
-        printf("Failed on nx_azure_iot_hub_client_properties_enable!: error code = 0x%08x\r\n", status);
+        GsgLogError("Failed on nx_azure_iot_hub_client_properties_enable (0x%08x)", status);
     }
 
     // Set properties callback
@@ -191,14 +189,14 @@ static UINT iot_hub_initialize(AZURE_IOT_NX_CONTEXT* nx_context)
                   message_receive_callback_properties,
                   (VOID*)nx_context)))
     {
-        printf("Error: device twin callback set (0x%08x)\r\n", status);
+        GsgLogError("device twin callback set (0x%08x)", status);
     }
 
     // Set command callback
     else if ((status = nx_azure_iot_hub_client_receive_callback_set(
                   &nx_context->iothub_client, NX_AZURE_IOT_HUB_COMMAND, message_receive_command, (VOID*)nx_context)))
     {
-        printf("Error: device method callback set (0x%08x)\r\n", status);
+        GsgLogError("device method callback set (0x%08x)", status);
     }
 
     // Set the writable property callback
@@ -207,7 +205,7 @@ static UINT iot_hub_initialize(AZURE_IOT_NX_CONTEXT* nx_context)
                   message_receive_callback_writable_property,
                   (VOID*)nx_context)))
     {
-        printf("Error: device twin desired property callback set (0x%08x)\r\n", status);
+        GsgLogError("device twin desired property callback set (0x%08x)", status);
     }
 
     if (status != NX_AZURE_IOT_SUCCESS)
@@ -225,21 +223,21 @@ static UINT dps_initialize(AZURE_IOT_NX_CONTEXT* nx_context)
 
     if (nx_context == NULL)
     {
-        printf("ERROR: context is NULL\r\n");
+        GsgLogError("context is NULL");
         return NX_PTR_ERROR;
     }
 
     // Return error if empty credentials
     if (nx_context->azure_iot_dps_id_scope_len == 0 || nx_context->azure_iot_dps_registration_id_len == 0)
     {
-        printf("ERROR: azure_iot_nx_client_dps_entry incorrect parameters\r\n");
+        GsgLogError("azure_iot_nx_client_dps_entry incorrect parameters");
         return NX_PTR_ERROR;
     }
 
-    printf("\r\nInitializing Azure IoT DPS client\r\n");
-    printf("\tDPS endpoint: %s\r\n", AZURE_IOT_DPS_ENDPOINT);
-    printf("\tDPS ID scope: %.*s\r\n", nx_context->azure_iot_dps_id_scope_len, nx_context->azure_iot_dps_id_scope);
-    printf("\tRegistration ID: %.*s\r\n",
+    GsgLogInfo("Initializing Azure IoT DPS client");
+    GsgLogInfo("\tDPS endpoint: %s", AZURE_IOT_DPS_ENDPOINT);
+    GsgLogInfo("\tDPS ID scope: %.*s", nx_context->azure_iot_dps_id_scope_len, nx_context->azure_iot_dps_id_scope);
+    GsgLogInfo("\tRegistration ID: %.*s",
         nx_context->azure_iot_dps_registration_id_len,
         nx_context->azure_iot_dps_registration_id);
 
@@ -249,7 +247,7 @@ static UINT dps_initialize(AZURE_IOT_NX_CONTEXT* nx_context)
 
     if (snprintf(payload, sizeof(payload), DPS_PAYLOAD, nx_context->azure_iot_model_id) > DPS_PAYLOAD_SIZE - 1)
     {
-        printf("ERROR: insufficient buffer size to create DPS payload\r\n");
+        GsgLogError("insufficient buffer size to create DPS payload");
         return NX_SIZE_ERROR;
     }
 
@@ -270,7 +268,7 @@ static UINT dps_initialize(AZURE_IOT_NX_CONTEXT* nx_context)
              sizeof(nx_context->nx_azure_iot_tls_metadata_buffer),
              &nx_context->root_ca_cert)))
     {
-        printf("ERROR: nx_azure_iot_provisioning_client_initialize (0x%08x)\r\n", status);
+        GsgLogError("nx_azure_iot_provisioning_client_initialize (0x%08x)", status);
         return status;
     }
 
@@ -278,12 +276,12 @@ static UINT dps_initialize(AZURE_IOT_NX_CONTEXT* nx_context)
     else if ((status = nx_azure_iot_provisioning_client_trusted_cert_add(
                   &nx_context->dps_client, &nx_context->root_ca_cert_2)))
     {
-        printf("ERROR: nx_azure_iot_provisioning_client_trusted_cert_add!: error code = 0x%08x\r\n", status);
+        GsgLogError("nx_azure_iot_provisioning_client_trusted_cert_add (0x%08x)", status);
     }
     else if ((status = nx_azure_iot_provisioning_client_trusted_cert_add(
                   &nx_context->dps_client, &nx_context->root_ca_cert_3)))
     {
-        printf("ERROR: nx_azure_iot_provisioning_client_trusted_cert_add!: error code = 0x%08x\r\n", status);
+        GsgLogError("nx_azure_iot_provisioning_client_trusted_cert_add (0x%08x)", status);
     }
 
     else
@@ -296,7 +294,7 @@ static UINT dps_initialize(AZURE_IOT_NX_CONTEXT* nx_context)
                          (UCHAR*)nx_context->azure_iot_device_sas_key,
                          nx_context->azure_iot_device_sas_key_len)))
                 {
-                    printf("ERROR: nx_azure_iot_provisioning_client_symmetric_key_set (0x%08x)\r\n", status);
+                    GsgLogError("nx_azure_iot_provisioning_client_symmetric_key_set (0x%08x)", status);
                 }
                 break;
 
@@ -305,7 +303,7 @@ static UINT dps_initialize(AZURE_IOT_NX_CONTEXT* nx_context)
                 if ((status = nx_azure_iot_provisioning_client_device_cert_set(
                          &nx_context->dps_client, &nx_context->device_certificate)))
                 {
-                    printf("ERROR: nx_azure_iot_provisioning_client_device_cert_set (0x%08x)\r\n", status);
+                    GsgLogError("nx_azure_iot_provisioning_client_device_cert_set (0x%08x)", status);
                 }
                 break;
         }
@@ -313,19 +311,19 @@ static UINT dps_initialize(AZURE_IOT_NX_CONTEXT* nx_context)
 
     if (status != NX_AZURE_IOT_SUCCESS)
     {
-        printf("ERROR: failed to set initialize DPS\r\n");
+        GsgLogError("failed to initialize DPS");
     }
 
     // Set the payload containing the model Id
     else if ((status = nx_azure_iot_provisioning_client_registration_payload_set(
                   &nx_context->dps_client, (UCHAR*)payload, strlen(payload))))
     {
-        printf("ERROR: nx_azure_iot_provisioning_client_registration_payload_set (0x%08x\r\n", status);
+        GsgLogError("nx_azure_iot_provisioning_client_registration_payload_set (0x%08x)", status);
     }
 
     else if ((status = nx_azure_iot_provisioning_client_register(&nx_context->dps_client, DPS_REGISTER_TIMEOUT_TICKS)))
     {
-        printf("\tERROR: nx_azure_iot_provisioning_client_register (0x%08x)\r\n", status);
+        GsgLogError("nx_azure_iot_provisioning_client_register (0x%08x)", status);
     }
 
     // Stash IoT Hub Device info
@@ -335,7 +333,7 @@ static UINT dps_initialize(AZURE_IOT_NX_CONTEXT* nx_context)
                   (UCHAR*)nx_context->azure_iot_hub_device_id,
                   &nx_context->azure_iot_hub_device_id_len)))
     {
-        printf("ERROR: nx_azure_iot_provisioning_client_iothub_device_info_get (0x%08x)\r\n", status);
+        GsgLogError("nx_azure_iot_provisioning_client_iothub_device_info_get (0x%08x)", status);
     }
 
     // Destroy Provisioning Client
@@ -346,7 +344,7 @@ static UINT dps_initialize(AZURE_IOT_NX_CONTEXT* nx_context)
         return status;
     }
 
-    printf("SUCCESS: Azure IoT DPS client initialized\r\n");
+    GsgLogInfo("SUCCESS: Azure IoT DPS client initialized");
 
     return iot_hub_initialize(nx_context);
 }
@@ -358,13 +356,19 @@ static VOID process_connect(AZURE_IOT_NX_CONTEXT* nx_context)
     // Request the client properties
     if ((status = nx_azure_iot_hub_client_properties_request(&nx_context->iothub_client, NX_WAIT_FOREVER)))
     {
-        printf("ERROR: failed to request properties (0x%08x)\r\n", status);
+        GsgLogError("failed to request properties (0x%08x)", status);
     }
 
     // Start the periodic timer
     if ((status = tx_timer_activate(&nx_context->periodic_timer)))
     {
-        printf("ERROR: tx_timer_activate (0x%08x)\r\n", status);
+        GsgLogError("tx_timer_activate (0x%08x)", status);
+    }
+
+    // Start the logging timer
+    if ((status = tx_timer_activate(&nx_context->logging_timer)))
+    {
+        GsgLogError("tx_timer_activate (0x%08x)", status);
     }
 }
 
@@ -372,12 +376,18 @@ static VOID process_disconnect(AZURE_IOT_NX_CONTEXT* nx_context)
 {
     UINT status;
 
-    printf("Disconnected from IoT Hub\r\n");
+    GsgLogInfo("Disconnected from IoT Hub");
 
     // Stop the periodic timer
     if ((status = tx_timer_deactivate(&nx_context->periodic_timer)))
     {
-        printf("ERROR: tx_timer_deactivate (0x%08x)\r\n", status);
+        GsgLogError("tx_timer_deactivate (0x%08x)", status);
+    }
+
+    // Stop the logging timer
+    if ((status = tx_timer_deactivate(&nx_context->logging_timer)))
+    {
+        GsgLogError("tx_timer_deactivate (0x%08x)", status);
     }
 }
 
@@ -412,8 +422,9 @@ static VOID process_command(AZURE_IOT_NX_CONTEXT* nx_context)
                 &packet_ptr,
                 NX_NO_WAIT)) == NX_AZURE_IOT_SUCCESS)
     {
-        printf("Received command: %.*s\r\n", (INT)command_name_length, (CHAR*)command_name_ptr);
-        printf_packet("\tPayload: ", packet_ptr);
+        GsgLogInfo("Received command: %.*s", (INT)command_name_length, (CHAR*)command_name_ptr);
+        GsgLogInfo(
+            "Received payload: %.*s", (INT)(packet_ptr->nx_packet_length), (CHAR*)packet_ptr->nx_packet_prepend_ptr);
 
         payload_ptr    = packet_ptr->nx_packet_prepend_ptr;
         payload_length = packet_ptr->nx_packet_append_ptr - packet_ptr->nx_packet_prepend_ptr;
@@ -438,7 +449,7 @@ static VOID process_command(AZURE_IOT_NX_CONTEXT* nx_context)
     // If we failed for anything other than no packet, then report error
     if (status != NX_AZURE_IOT_NO_PACKET)
     {
-        printf("Error: Command receive failed (0x%08x)\r\n", status);
+        GsgLogError("Command receive failed (0x%08x)", status);
         return;
     }
 }
@@ -535,7 +546,8 @@ static VOID process_properties(AZURE_IOT_NX_CONTEXT* nx_context)
         return;
     }
 
-    printf_packet("Receive properties: ", packet_ptr);
+    GsgLogInfo(
+        "Received properties: %.*s", (INT)(packet_ptr->nx_packet_length), (CHAR*)packet_ptr->nx_packet_prepend_ptr);
 
     if (nx_context->property_received_cb)
     {
@@ -571,7 +583,8 @@ static VOID process_writable_properties(AZURE_IOT_NX_CONTEXT* nx_context)
         return;
     }
 
-    printf_packet("Receive properties: ", packet_ptr);
+    GsgLogInfo(
+        "Received properties: %.*s", (INT)(packet_ptr->nx_packet_length), (CHAR*)packet_ptr->nx_packet_prepend_ptr);
 
     if (nx_context->writable_property_received_cb)
     {
@@ -675,7 +688,7 @@ UINT azure_iot_nx_client_publish_telemetry(AZURE_IOT_NX_CONTEXT* context_ptr,
         return status;
     }
 
-    printf("Telemetry message sent: %.*s.\r\n", telemetry_length, telemetry_buffer);
+    GsgLogInfo("Telemetry message sent: %.*s", telemetry_length, telemetry_buffer);
 
     return status;
 }
@@ -734,7 +747,8 @@ static UINT reported_properties_end(AZURE_IOT_NX_CONTEXT* nx_context,
         return status;
     }
 
-    printf_packet("Sending property: ", *packet_ptr);
+    GsgLogInfo(
+        "Sending property: %.*s", (INT)(*packet_ptr)->nx_packet_length, (CHAR*)(*packet_ptr)->nx_packet_prepend_ptr);
 
     if ((status = nx_azure_iot_hub_client_reported_properties_send(
              &nx_context->iothub_client, *packet_ptr, NX_NULL, &response_status, NX_NULL, 5 * NX_IP_PERIODIC_RATE)))
@@ -1024,6 +1038,19 @@ UINT azure_iot_nx_client_create(AZURE_IOT_NX_CONTEXT* nx_context,
         tx_event_flags_delete(&nx_context->events);
     }
 
+    else if ((status = tx_timer_create(&nx_context->logging_timer,
+                  "logging_timer",
+                  logging_timer_entry,
+                  (ULONG)nx_context,
+                  10 * NX_IP_PERIODIC_RATE,
+                  10 * NX_IP_PERIODIC_RATE,
+                  TX_NO_ACTIVATE)))
+    {
+        printf("ERROR: tx_timer_create (0x%08x)\r\n", status);
+        tx_event_flags_delete(&nx_context->events);
+        tx_timer_delete(&nx_context->periodic_timer);
+    }
+
     // Create Azure IoT handler
     else if ((status = nx_azure_iot_create(&nx_context->nx_azure_iot,
                   (UCHAR*)"Azure IoT",
@@ -1038,6 +1065,7 @@ UINT azure_iot_nx_client_create(AZURE_IOT_NX_CONTEXT* nx_context,
         printf("ERROR: failed on nx_azure_iot_create (0x%08x)\r\n", status);
         tx_event_flags_delete(&nx_context->events);
         tx_timer_delete(&nx_context->periodic_timer);
+        tx_timer_delete(&nx_context->logging_timer);
     }
 
     return status;
@@ -1066,6 +1094,11 @@ static UINT client_run(
         if (app_events & HUB_PERIODIC_TIMER_EVENT)
         {
             process_timer_event(nx_context);
+        }
+
+        if (app_events & HUB_LOGGING_TIMER_EVENT)
+        {
+            process_logs(nx_context);
         }
 
         if (app_events & HUB_PROPERTIES_COMPLETE_EVENT)

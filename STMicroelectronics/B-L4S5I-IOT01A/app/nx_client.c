@@ -19,11 +19,14 @@
 #include "nx_azure_iot_provisioning_client.h"
 
 #include "azure_iot_nx_client.h"
+#include "log/gsg_log.h"
 
 #include "azure_config.h"
 #include "azure_device_x509_cert_config.h"
 #include "azure_pnp_info.h"
 #include "stm_networking.h"
+
+#define LOG_COMPONENT_NAME "nx_client"
 
 #define IOT_MODEL_ID "dtmi:azurertos:devkit:gsgstml4s5;2"
 
@@ -186,12 +189,12 @@ static void set_led_state(bool level)
 {
     if (level)
     {
-        printf("\tLED is turned ON\r\n");
+        GsgLogInfo("\tLED is turned ON");
         BSP_LED_On(LED_GREEN);
     }
     else
     {
-        printf("\tLED is turned OFF\r\n");
+        GsgLogInfo("\tLED is turned OFF");
         BSP_LED_Off(LED_GREEN);
     }
 }
@@ -216,7 +219,7 @@ static void command_received_cb(AZURE_IOT_NX_CONTEXT* nx_context_ptr,
         if ((status = nx_azure_iot_hub_client_command_message_response(
                  &nx_context_ptr->iothub_client, 200, context_ptr, context_length, NULL, 0, NX_WAIT_FOREVER)))
         {
-            printf("Direct method response failed! (0x%08x)\r\n", status);
+            GsgLogError("Direct method response failed! (0x%08x)", status);
             return;
         }
 
@@ -224,12 +227,12 @@ static void command_received_cb(AZURE_IOT_NX_CONTEXT* nx_context_ptr,
     }
     else
     {
-        printf("Direct method is not for this device\r\n");
+        GsgLogWarning("Direct method is not for this device");
 
         if ((status = nx_azure_iot_hub_client_command_message_response(
                  &nx_context_ptr->iothub_client, 501, context_ptr, context_length, NULL, 0, NX_WAIT_FOREVER)))
         {
-            printf("Direct method response failed! (0x%08x)\r\n", status);
+            GsgLogError("Direct method response failed! (0x%08x)", status);
             return;
         }
     }
@@ -250,7 +253,7 @@ static void writable_property_received_cb(AZURE_IOT_NX_CONTEXT* nx_context,
         status = nx_azure_iot_json_reader_token_int32_get(json_reader_ptr, &telemetry_interval);
         if (status == NX_AZURE_IOT_SUCCESS)
         {
-            printf("Updating %s to %ld\r\n", TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
+            GsgLogInfo("Updating %s to %ld", TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
 
             // Confirm reception back to hub
             azure_nx_client_respond_int_writable_property(
@@ -276,7 +279,7 @@ static void property_received_cb(AZURE_IOT_NX_CONTEXT* nx_context,
         status = nx_azure_iot_json_reader_token_int32_get(json_reader_ptr, &telemetry_interval);
         if (status == NX_AZURE_IOT_SUCCESS)
         {
-            printf("Updating %s to %ld\r\n", TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
+            GsgLogInfo("Updating %s to %ld", TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
             azure_nx_client_periodic_interval_set(nx_context, telemetry_interval);
         }
     }
@@ -290,7 +293,7 @@ static void properties_complete_cb(AZURE_IOT_NX_CONTEXT* nx_context)
     azure_iot_nx_client_publish_int_writable_property(
         nx_context, NULL, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
 
-    printf("\r\nStarting Main loop\r\n");
+    GsgLogInfo("Starting Main loop");
 }
 
 static void telemetry_cb(AZURE_IOT_NX_CONTEXT* nx_context)
@@ -335,7 +338,7 @@ UINT azure_iot_nx_client_entry(
              IOT_MODEL_ID,
              sizeof(IOT_MODEL_ID) - 1)))
     {
-        printf("ERROR: azure_iot_nx_client_create failed (0x%08x)\r\n", status);
+        GsgLogError("azure_iot_nx_client_create failed (0x%08x)", status);
         return status;
     }
 
@@ -354,13 +357,13 @@ UINT azure_iot_nx_client_entry(
              (UCHAR*)iot_x509_private_key,
              iot_x509_private_key_len)))
     {
-        printf("ERROR: azure_iot_nx_client_cert_set (0x%08x)\r\n", status);
+        GsgLogError("azure_iot_nx_client_cert_set (0x%08x)", status);
         return status;
     }
 #else
     if ((status = azure_iot_nx_client_sas_set(&azure_iot_nx_client, IOT_DEVICE_SAS_KEY)))
     {
-        printf("ERROR: azure_iot_nx_client_sas_set (0x%08x)\r\n", status);
+        GsgLogError("azure_iot_nx_client_sas_set (0x%08x)", status);
         return status;
     }
 #endif

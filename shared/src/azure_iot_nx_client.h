@@ -73,6 +73,7 @@ struct AZURE_IOT_NX_CONTEXT_STRUCT
     TX_THREAD azure_iot_thread;
     TX_EVENT_FLAGS_GROUP events;
     TX_TIMER periodic_timer;
+    TX_TIMER logging_timer;
 
     NX_AZURE_IOT nx_azure_iot;
 

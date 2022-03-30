@@ -90,7 +90,7 @@ VOID connection_status_set(AZURE_IOT_NX_CONTEXT* nx_context, UINT connection_sta
 //   |             | SUCCESS      |             |  CONNECTED   |             |
 //   |    INIT     +------------->|   CONNECT   +------------->|  CONNECTED  |
 //   |             |              |             |              |             |
-//   +-------------+              +---+---------+              +------+------+ 
+//   +-------------+              +---+---------+              +------+------+
 //          ^ REINITIALIZE       FAIL |     ^ RECONNECT               | DISCONNECT
 //          |                         |     |                         |
 //          +-------------------------+     +-------------------------+
@@ -133,7 +133,6 @@ VOID connection_monitor(
                 // Deinitialize iot hub client
                 nx_azure_iot_hub_client_deinitialize(&nx_context->iothub_client);
             }
-
             // Fallthrough
             case NX_AZURE_IOT_NOT_INITIALIZED:
             {

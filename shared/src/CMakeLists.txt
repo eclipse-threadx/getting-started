@@ -16,6 +16,9 @@ set(SOURCES
     azure_iot_cert.c
     azure_iot_ciphersuites.c
     sntp_client.c
+
+    log/gsg_log.c
+    log/azure_iot_logger.c
 )
 
 # Allow to disable the common networking component

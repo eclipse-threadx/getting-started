@@ -7,12 +7,12 @@
             "command": "openocd -f board/stm32l4discovery.cfg -c \"program build/app/stm32l475_azure_iot.elf verify\" -c \"reset halt\" -c shutdown",
             "windows": {
                 "options": {
-                  "shell": {
-                      "executable": "cmd.exe",
-                      "args": ["/c"]
-                  }
+                    "shell": {
+                    "executable": "cmd.exe",
+                        "args": ["/c"]
+                    }
                 }
-              },  
+            },
             "problemMatcher": [],
             "dependsOn": [ "Build" ]
         },
