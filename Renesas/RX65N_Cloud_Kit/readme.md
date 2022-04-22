@@ -12,7 +12,7 @@ products:
 
 ---
 page_type: sample
-description: Connecting an Microchip ATSAME54-XPro device to Azure IoT using Azure RTOS
+description: Connecting a Renesas RX65N Cloud Kit to Azure IoT using Azure RTOS
 languages:
 - c
 products:
