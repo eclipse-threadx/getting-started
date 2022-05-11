@@ -10,19 +10,6 @@ products:
 - azure-iot-central
 ---
 
----
-page_type: sample
-description: Connecting a Renesas RX65N Cloud Kit to Azure IoT using Azure RTOS
-languages:
-- c
-products:
-- azure-iot
-- azure-iot-pnp
-- azure-rtos
-- azure-iot-dps
-- azure-iot-hub
----
-
 # Connect an Renesas RX65N Cloud Kit to Azure IoT
 
 [![Quickstart article](../../docs/media/docs-link-buttons/azure-quickstart.svg)](https://docs.microsoft.com/azure/iot-develop/quickstart-devkit-renesas-rx65n-cloud-kit)
