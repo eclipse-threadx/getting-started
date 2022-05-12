@@ -5,14 +5,13 @@ cmake_minimum_required(VERSION 3.13)
 set(CMAKE_C_STANDARD 99)
 
 set(GSG_BASE_DIR ${CMAKE_SOURCE_DIR}/../../../../..)
-set(SHARED_LIB_DIR ${GSG_BASE_DIR}/core/lib)
+set(SHARED_SRC_DIR ${GSG_BASE_DIR}/shared/src)
+set(SHARED_LIB_DIR ${GSG_BASE_DIR}/shared/lib)
 
 # use the repo version of ninja on Windows as there is no Ninja installer
 if(WIN32)
     set(CMAKE_MAKE_PROGRAM ${GSG_BASE_DIR}/cmake/ninja CACHE STRING "Ninja location")
 endif()
-
-set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: Debug Release." FORCE)
 
 list(APPEND CMAKE_MODULE_PATH ${GSG_BASE_DIR}/cmake)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/../../../cmake)
@@ -120,3 +119,7 @@ target_link_libraries(${TARGET}
         azrtos::threadx
         azrtos::netxduo
 )
+
+add_custom_target(${TARGET}.stripped ALL 
+    DEPENDS ${TARGET}
+    COMMAND ${CMAKE_STRIP} -s lib${TARGET}.a)
