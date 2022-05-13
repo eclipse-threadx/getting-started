@@ -5,6 +5,6 @@
 #include "wiced_resource.h"
 
 extern const resource_hnd_t resources_firmware_DIR_43362_DIR_43362A2_bin;
-extern const char resources_firmware_DIR_43362_DIR_43362A2_bin_data[213160];
+extern const char resources_firmware_DIR_43362_DIR_43362A2_bin_data[213732];
 
 #endif /* ifndef INCLUDED_RESOURCES_H_ */
