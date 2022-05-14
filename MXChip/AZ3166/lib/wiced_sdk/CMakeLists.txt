@@ -1,7 +1,8 @@
 set(TARGET wiced_sdk)
 
 add_library(${TARGET}
-    STATIC IMPORTED GLOBAL)
+    STATIC IMPORTED GLOBAL
+)
 
 set_target_properties(${TARGET}
     PROPERTIES
@@ -10,5 +11,5 @@ set_target_properties(${TARGET}
 
 target_include_directories(${TARGET}
     INTERFACE
-        include
+        inc
 )
