@@ -11,5 +11,5 @@ set_target_properties(${TARGET}
 
 target_include_directories(${TARGET}
     INTERFACE
-        include
+        inc
 )

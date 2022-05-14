@@ -20,6 +20,8 @@ project(wiced_sdk C)
 
 add_subdirectory(../.. MXCHIP_lib)
 
+set(TARGET wiced_sdk_bin)
+
 set(WICED_SDK_SRC
     src/43362A2_bin.c
     43xxx_Wi-Fi/platforms/BCM943362WCD6/platform.c
@@ -58,11 +60,10 @@ set(WICED_SDK_SRC
     43xxx_Wi-Fi/WICED/platform/MCU/STM32F4xx/peripherals/libraries/src/stm32f4xx_syscfg.c
 )
 
-set(TARGET wiced_sdk_bin)
-
 # Add a library with the above sources
-add_library(${TARGET} 
-    ${WICED_SDK_SRC})
+add_library(${TARGET}
+    ${WICED_SDK_SRC}
+)
 
 # Preprocessor macros
 target_compile_definitions(${TARGET}
@@ -77,41 +78,42 @@ target_compile_definitions(${TARGET}
 target_include_directories(${TARGET}
     PUBLIC
         inc
+        include
 
         43xxx_Wi-Fi/include
-        43xxx_Wi-Fi/WICED/RTOS/ThreadX/WWD
-        43xxx_Wi-Fi/WICED/platform/include
-        43xxx_Wi-Fi/WICED/platform/GCC
+        43xxx_Wi-Fi/libraries/inputs/gpio_button
+        43xxx_Wi-Fi/libraries/filesystems/wicedfs/src
+        43xxx_Wi-Fi/libraries/utilities/crc
+        43xxx_Wi-Fi/libraries/utilities/linked_list
+        43xxx_Wi-Fi/libraries/utilities/ring_buffer
+        43xxx_Wi-Fi/libraries/utilities/tlv
+        43xxx_Wi-Fi/libraries/utilities/wifi
+        43xxx_Wi-Fi/platforms/BCM943362WCD6
+        43xxx_Wi-Fi/WICED/network/NetX_Duo/WICED
+        43xxx_Wi-Fi/WICED/network/NetX_Duo/WWD
         43xxx_Wi-Fi/WICED/platform/ARM_CM4
         43xxx_Wi-Fi/WICED/platform/ARM_CM4/CMSIS
-        43xxx_Wi-Fi/WICED/WWD/include
-        43xxx_Wi-Fi/WICED/WWD/include/RTOS
-        43xxx_Wi-Fi/WICED/WWD/include/network
-        43xxx_Wi-Fi/WICED/WWD
-        43xxx_Wi-Fi/libraries/filesystems/wicedfs/src
+        43xxx_Wi-Fi/WICED/platform/GCC
+        43xxx_Wi-Fi/WICED/platform/include
         43xxx_Wi-Fi/WICED/platform/MCU
         43xxx_Wi-Fi/WICED/platform/MCU/STM32F4xx
-        43xxx_Wi-Fi/WICED/platform/MCU/STM32F4xx/peripherals/libraries
-        43xxx_Wi-Fi/platforms/BCM943362WCD6
-        43xxx_Wi-Fi/WICED/WWD/internal/chips/43362
-        43xxx_Wi-Fi/WICED/network/NetX_Duo/WWD
-        43xxx_Wi-Fi/WICED/network/NetX_Duo/WICED
-        43xxx_Wi-Fi/WICED/security/BESL/include
-        43xxx_Wi-Fi/WICED/security/BESL/host/WICED
-        43xxx_Wi-Fi/WICED/security/BESL/crypto_internal
-        43xxx_Wi-Fi/WICED/security/BESL/mbedtls_open/include
-        43xxx_Wi-Fi/WICED/WWD/internal/bus_protocols/SDIO
         43xxx_Wi-Fi/WICED/platform/MCU/STM32F4xx/peripherals
         43xxx_Wi-Fi/WICED/platform/MCU/STM32F4xx/peripherals/libraries
         43xxx_Wi-Fi/WICED/platform/MCU/STM32F4xx/peripherals/libraries/inc
-        43xxx_Wi-Fi/libraries/utilities/tlv
-        43xxx_Wi-Fi/libraries/utilities/wifi
-        43xxx_Wi-Fi/libraries/utilities/ring_buffer
-        43xxx_Wi-Fi/libraries/utilities/linked_list
-        43xxx_Wi-Fi/libraries/inputs/gpio_button
-        43xxx_Wi-Fi/WICED/security/PostgreSQL/include
-        43xxx_Wi-Fi/WICED/RTOS/ThreadX/WWD/CM3_CM4
         43xxx_Wi-Fi/WICED/RTOS/ThreadX/WICED
+        43xxx_Wi-Fi/WICED/RTOS/ThreadX/WWD
+        43xxx_Wi-Fi/WICED/RTOS/ThreadX/WWD/CM3_CM4
+        43xxx_Wi-Fi/WICED/security/BESL/crypto_internal
+        43xxx_Wi-Fi/WICED/security/BESL/host/WICED
+        43xxx_Wi-Fi/WICED/security/BESL/include
+        43xxx_Wi-Fi/WICED/security/PostgreSQL/include
+        43xxx_Wi-Fi/WICED/WWD
+        43xxx_Wi-Fi/WICED/WWD/include
+        43xxx_Wi-Fi/WICED/WWD/include/network
+        43xxx_Wi-Fi/WICED/WWD/include/RTOS
+        43xxx_Wi-Fi/WICED/WWD/internal
+        43xxx_Wi-Fi/WICED/WWD/internal/bus_protocols/SDIO
+        43xxx_Wi-Fi/WICED/WWD/internal/chips/43362
 )
 
 target_link_libraries(${TARGET}
@@ -122,4 +124,6 @@ target_link_libraries(${TARGET}
 
 add_custom_target(${TARGET}.stripped ALL 
     DEPENDS ${TARGET}
-    COMMAND ${CMAKE_STRIP} -s lib${TARGET}.a)
+    COMMAND ${CMAKE_STRIP} --strip-debug lib${TARGET}.a
+    COMMAND ${CMAKE_COMMAND} -E copy lib${TARGET}.a ../../lib/
+)
