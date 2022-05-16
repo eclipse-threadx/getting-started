@@ -163,20 +163,25 @@ static UINT dns_connect()
     if ((status = nx_dns_server_remove_all(&nx_dns_client)))
     {
         printf("ERROR: nx_dns_server_remove_all (0x%08x)\r\n", status);
-        return status;
     }
 
-    // Add an IPv4 server address to the Client list
-    if ((status = nx_dns_server_add(
-             &nx_dns_client, IP_ADDRESS(dns_address_1[0], dns_address_1[1], dns_address_1[2], dns_address_1[3]))))
+    else if ((status = nx_dns_server_add(
+                  &nx_dns_client, IP_ADDRESS(dns_address_1[0], dns_address_1[1], dns_address_1[2], dns_address_1[3]))))
     {
         printf("ERROR: nx_dns_server_add (0x%08x)\r\n", status);
-        return status;
     }
 
-    printf("SUCCESS: DNS client initialized\r\n");
+    else if ((status = nx_dns_server_add(
+                  &nx_dns_client, IP_ADDRESS(dns_address_2[0], dns_address_2[1], dns_address_2[2], dns_address_2[3]))))
+    {
+        printf("ERROR: nx_dns_server_add (0x%08x)\r\n", status);
+    }
+    else
+    {
+        printf("SUCCESS: DNS client initialized\r\n");
+    }
 
-    return NX_SUCCESS;
+    return status;
 }
 
 UINT stm_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
@@ -272,6 +277,9 @@ UINT stm_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
     // Initialize the SNTP client
     else if ((status = sntp_init()))
     {
+        nx_dns_delete(&nx_dns_client);
+        nx_ip_delete(&nx_ip);
+        nx_packet_pool_delete(&nx_pool);
         printf("ERROR: Failed to init the SNTP client (0x%08x)\r\n", status);
     }
 

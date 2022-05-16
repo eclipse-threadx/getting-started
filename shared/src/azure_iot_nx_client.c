@@ -37,11 +37,11 @@
 #define TELEMETRY_BUFFER_SIZE  256
 #define PROPERTIES_BUFFER_SIZE 128
 
-// define static strings for content type and -encoding on message property bag 
-static const UCHAR content_type_property[] = "$.ct";
+// define static strings for content type and -encoding on message property bag
+static const UCHAR content_type_property[]     = "$.ct";
 static const UCHAR content_encoding_property[] = "$.ce";
-static const UCHAR content_type_json[] = "application%2Fjson";
-static const UCHAR content_encoding_utf8[] = "utf-8";
+static const UCHAR content_type_json[]         = "application%2Fjson";
+static const UCHAR content_encoding_utf8[]     = "utf-8";
 
 static UCHAR telemetry_buffer[TELEMETRY_BUFFER_SIZE];
 static UCHAR properties_buffer[PROPERTIES_BUFFER_SIZE];
@@ -673,23 +673,27 @@ UINT azure_iot_nx_client_publish_telemetry(AZURE_IOT_NX_CONTEXT* context_ptr,
     }
 
     // set the ContentType property on the message to "application/json" (url-encoded)
-    status = nx_azure_iot_hub_client_telemetry_property_add(packet_ptr, content_type_property, sizeof( content_type_property )-1,
-                                                            content_type_json,  sizeof( content_type_json )-1,
-                                                            NX_WAIT_FOREVER);
-    if (status != NX_AZURE_IOT_SUCCESS)
+    if ((status = nx_azure_iot_hub_client_telemetry_property_add(packet_ptr,
+             content_type_property,
+             sizeof(content_type_property) - 1,
+             content_type_json,
+             sizeof(content_type_json) - 1,
+             NX_WAIT_FOREVER)))
     {
-        printf("Error:  cannot set ContentType message property (0x%08X)\r\n", status);
+        printf("Error: Cant set ContentType message property (0x%08X)\r\n", status);
         nx_azure_iot_hub_client_telemetry_message_delete(packet_ptr);
         return status;
     }
-        
+
     // set the ContentEncoding property on the message to "utf-8"
-    status = nx_azure_iot_hub_client_telemetry_property_add(packet_ptr, content_encoding_property, sizeof( content_encoding_property )-1,
-                                                            content_encoding_utf8, sizeof( content_encoding_utf8 )-1,
-                                                            NX_WAIT_FOREVER);
-    if (status != NX_AZURE_IOT_SUCCESS)
+    if ((status = nx_azure_iot_hub_client_telemetry_property_add(packet_ptr,
+             content_encoding_property,
+             sizeof(content_encoding_property) - 1,
+             content_encoding_utf8,
+             sizeof(content_encoding_utf8) - 1,
+             NX_WAIT_FOREVER)))
     {
-        printf("Error: Canot set ContentEncoding message property (0x%08X)\r\n", status);
+        printf("Error: Cant set ContentEncoding message property (0x%08X)\r\n", status);
         nx_azure_iot_hub_client_telemetry_message_delete(packet_ptr);
         return status;
     }

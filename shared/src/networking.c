@@ -17,6 +17,7 @@
 #define NETX_PACKET_SIZE    1536
 #define NETX_POOL_SIZE      ((NETX_PACKET_SIZE + sizeof(NX_PACKET)) * NETX_PACKET_COUNT)
 #define NETX_ARP_CACHE_SIZE 512
+#define NETX_DNS_COUNT      6
 
 #define NETX_IPV4_ADDRESS IP_ADDRESS(0, 0, 0, 0)
 #define NETX_IPV4_MASK    IP_ADDRESS(255, 255, 255, 0)
@@ -100,8 +101,8 @@ static UINT dhcp_connect()
 static UINT dns_connect()
 {
     UINT status;
-    ULONG dns_server_address[3]  = {0};
-    UINT dns_server_address_size = 12;
+    ULONG dns_server_address[NETX_DNS_COUNT] = {0};
+    UINT dns_server_address_size             = sizeof(UINT) * NETX_DNS_COUNT;
 
     printf("\r\nInitializing DNS client\r\n");
 
@@ -113,21 +114,22 @@ static UINT dns_connect()
         return status;
     }
 
-    // Output DNS Server address
-    print_address("DNS address 1", dns_server_address[0]);
-    print_address("DNS address 2", dns_server_address[1]);
-
     if ((status = nx_dns_server_remove_all(&nx_dns_client)))
     {
         printf("ERROR: nx_dns_server_remove_all (0x%08x)\r\n", status);
         return status;
     }
 
-    // Add an IPv4 server address to the Client list
-    if ((status = nx_dns_server_add(&nx_dns_client, dns_server_address[0])))
+    for (int i = 0; i < dns_server_address_size / sizeof(UINT); ++i)
     {
-        printf("ERROR: nx_dns_server_add (0x%08x)\r\n", status);
-        return status;
+        print_address("DNS address", dns_server_address[i]);
+
+        // Add an IPv4 server address to the Client list
+        if ((status = nx_dns_server_add(&nx_dns_client, dns_server_address[i])))
+        {
+            printf("ERROR: nx_dns_server_add (0x%08x)\r\n", status);
+            return status;
+        }
     }
 
     printf("SUCCESS: DNS client initialized\r\n");

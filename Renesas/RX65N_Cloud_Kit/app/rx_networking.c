@@ -234,6 +234,9 @@ UINT rx_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
     // Initialize the SNTP client
     else if ((status = sntp_init()))
     {
+        nx_dns_delete(&nx_dns_client);
+        nx_ip_delete(&nx_ip);
+        nx_packet_pool_delete(&nx_pool);        
         printf("ERROR: Failed to init the SNTP client (0x%08x)\r\n", status);
     }
 
