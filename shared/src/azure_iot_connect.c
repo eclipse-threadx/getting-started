@@ -143,7 +143,8 @@ VOID connection_monitor(
                 // Connect the network
                 if (network_connect() != NX_SUCCESS)
                 {
-                    // Failed, break out to try again next time
+                    // Failed, sleep and break out to try again next time
+                    tx_thread_sleep(5 * TX_TIMER_TICKS_PER_SECOND);
                     break;
                 }
 
