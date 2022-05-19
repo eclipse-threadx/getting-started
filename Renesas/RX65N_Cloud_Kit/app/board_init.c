@@ -1,6 +1,7 @@
 /* Copyright (c) Microsoft Corporation.
    Licensed under the MIT License. */
 
+#include "tx_api.h"
 #include "board_init.h"
 
 #include "r_cmt_rx_if.h"
@@ -26,7 +27,7 @@ void board_init()
     R_Config_SCI5_Start();
 
     // Create periodic timer for the system tick
-    R_CMT_CreatePeriodic(100u, timer_callback, &chan);
+    R_CMT_CreatePeriodic(TX_TIMER_TICKS_PER_SECOND, timer_callback, &chan);
 
     // Initialize the Option Board sensors
     init_sensors();
