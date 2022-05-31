@@ -6,6 +6,7 @@ The Getting Started guides will help you get started with Azure RTOS. Each guide
 
 For more information on Azure IoT Device Development:
 * [Azure IoT Device Development Documentation](https://docs.microsoft.com/azure/iot-develop) - Get started with Azure IoT device development
+* For product issues, bugs, or feature requests please use our GitHub issues pages for the dedicated middleware (e.g. for ThreadX: https://github.com/azure-rtos/threadx/issues).
 * [Azure RTOS Q&A](https://aka.ms/QnA/azure-rtos) - Ask a question
 
 ## Getting Started Guides
