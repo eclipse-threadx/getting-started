@@ -656,9 +656,9 @@ UINT azure_iot_nx_client_publish_telemetry(AZURE_IOT_NX_CONTEXT* context_ptr,
                                                                   strlen(component_name_ptr),
                                                                   NX_WAIT_FOREVER)))
     {
-        printf("Telemetry message failed to set component\r\n");
+        printf("Error: nx_azure_iot_hub_client_telemetry_component_set failed (0x%08x)\r\n", status);
         nx_azure_iot_hub_client_telemetry_message_delete(packet_ptr);
-        return(NX_NOT_SUCCESSFUL);
+        return status;
     }
 
     if ((status = nx_azure_iot_json_writer_with_buffer_init(&json_writer, telemetry_buffer, sizeof(telemetry_buffer))))
