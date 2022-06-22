@@ -12,9 +12,6 @@
 
 #include "networking.h"
 
-#define SNTP_THREAD_STACK_SIZE 1024
-#define SNTP_THREAD_PRIORITY   9
-
 #define SNTP_UPDATE_EVENT 1
 
 // Time to wait for each server poll
