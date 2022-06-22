@@ -651,6 +651,18 @@ UINT azure_iot_nx_client_publish_telemetry(AZURE_IOT_NX_CONTEXT* context_ptr,
         printf("Error: nx_azure_iot_hub_client_telemetry_message_create failed (0x%08x)\r\n", status);
     }
 
+    if (component_name_ptr != NX_NULL)
+    {
+        printf("appending component name: %s\r\n", component_name_ptr);
+        if ((status = nx_azure_iot_hub_client_telemetry_component_set(
+                 packet_ptr, (UCHAR*)component_name_ptr, strlen(component_name_ptr), NX_WAIT_FOREVER)))
+        {
+            printf("Error: nx_azure_iot_hub_client_telemetry_component_set failed (0x%08x)\r\n", status);
+            nx_azure_iot_hub_client_telemetry_message_delete(packet_ptr);
+            return status;
+        }
+    }
+
     if ((status = nx_azure_iot_json_writer_with_buffer_init(&json_writer, telemetry_buffer, sizeof(telemetry_buffer))))
     {
         printf("Error: Failed to initialize json writer (0x%08x)\r\n", status);
@@ -659,12 +671,7 @@ UINT azure_iot_nx_client_publish_telemetry(AZURE_IOT_NX_CONTEXT* context_ptr,
     }
 
     if ((status = nx_azure_iot_json_writer_append_begin_object(&json_writer)) ||
-        (component_name_ptr != NX_NULL &&
-            (status = nx_azure_iot_hub_client_reported_properties_component_begin(
-                 &context_ptr->iothub_client, &json_writer, (UCHAR*)component_name_ptr, strlen(component_name_ptr)))) ||
         (status = append_properties(&json_writer)) ||
-        (component_name_ptr != NX_NULL && (status = nx_azure_iot_hub_client_reported_properties_component_end(
-                                               &context_ptr->iothub_client, &json_writer))) ||
         (status = nx_azure_iot_json_writer_append_end_object(&json_writer)))
     {
         printf("Error: Failed to build telemetry (0x%08x)\r\n", status);
