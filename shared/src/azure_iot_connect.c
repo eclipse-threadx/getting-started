@@ -97,10 +97,10 @@ VOID connection_status_set(AZURE_IOT_NX_CONTEXT* nx_context, UINT connection_sta
 //
 //---------------------------------------------------------------------------------
 VOID connection_monitor(
-    AZURE_IOT_NX_CONTEXT* nx_context, UINT (*iothub_init)(AZURE_IOT_NX_CONTEXT* nx_context), UINT (*network_connect)())
+    AZURE_IOT_NX_CONTEXT* nx_context, UINT (*iot_initialize)(AZURE_IOT_NX_CONTEXT* nx_context), UINT (*network_connect)())
 {
     // Check parameters
-    if ((nx_context == NX_NULL) || (iothub_init == NX_NULL))
+    if ((nx_context == NX_NULL) || (iot_initialize == NX_NULL))
     {
         return;
     }
@@ -150,7 +150,7 @@ VOID connection_monitor(
 
                 // Initialize IoT Hub
                 exponential_backoff_with_jitter();
-                if (iothub_init(nx_context) == NX_SUCCESS)
+                if (iot_initialize(nx_context) == NX_SUCCESS)
                 {
                     // Connect IoT Hub
                     iothub_connect(nx_context);

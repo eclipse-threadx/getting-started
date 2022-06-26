@@ -216,6 +216,18 @@ static UINT iot_hub_initialize(AZURE_IOT_NX_CONTEXT* nx_context)
         printf("Error: device twin desired property callback set (0x%08x)\r\n", status);
     }
 
+    // Register the pnp components for receiving
+    for (int i = 0; i < nx_context->azure_iot_component_count; ++i)
+    {
+        if ((status = nx_azure_iot_hub_client_component_add(&nx_context->iothub_client,
+                 (UCHAR*)nx_context->azure_iot_components[i],
+                 strlen(nx_context->azure_iot_components[i]))))
+        {
+            printf("ERROR: nx_azure_iot_hub_client_component_add failed (0x%08x)\r\n", status);
+            break;
+        }
+    }
+
     if (status != NX_AZURE_IOT_SUCCESS)
     {
         nx_azure_iot_hub_client_deinitialize(&nx_context->iothub_client);
@@ -480,13 +492,7 @@ static UINT process_properties_shared(AZURE_IOT_NX_CONTEXT* nx_context,
         return status;
     }
 
-    if ((status = nx_azure_iot_json_reader_init(&json_reader, packet_ptr)))
-    {
-        printf("Init json reader failed!: error code = 0x%08x\r\n", status);
-        nx_packet_release(packet_ptr);
-        return status;
-    }
-
+    // reinitialize the json reader after reading the version to reset
     if ((status = nx_azure_iot_json_reader_init(&json_reader, packet_ptr)))
     {
         printf("Error: failed to initialize json reader (0x%08x)\r\n", status);
@@ -934,6 +940,23 @@ UINT azure_iot_nx_client_register_timer_callback(
 
     nx_context->timer_cb = callback;
 
+    return NX_SUCCESS;
+}
+
+UINT azure_iot_nx_client_add_component(AZURE_IOT_NX_CONTEXT* nx_context, CHAR* component_name)
+{
+    if (nx_context == NULL || component_name == NULL)
+    {
+        return NX_PTR_ERROR;
+    }
+
+    if (nx_context->azure_iot_component_count >= NX_AZURE_IOT_HUB_CLIENT_MAX_COMPONENT_LIST)
+    {
+        return NX_AZURE_IOT_INSUFFICIENT_BUFFER_SPACE;
+    }
+
+    nx_context->azure_iot_components[nx_context->azure_iot_component_count] = component_name;
+    nx_context->azure_iot_component_count++;
     return NX_SUCCESS;
 }
 

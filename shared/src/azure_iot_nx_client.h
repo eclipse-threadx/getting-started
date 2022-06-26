@@ -53,6 +53,10 @@ struct AZURE_IOT_NX_CONTEXT_STRUCT
     CHAR* azure_iot_model_id;
     UINT azure_iot_model_id_len;
 
+    // pnp components
+    CHAR* azure_iot_components[NX_AZURE_IOT_HUB_CLIENT_MAX_COMPONENT_LIST];
+    UINT azure_iot_component_count;
+
     // auth config
     CHAR* azure_iot_device_sas_key;
     UINT azure_iot_device_sas_key_len;
@@ -125,6 +129,8 @@ UINT azure_iot_nx_client_register_properties_complete_callback(
     AZURE_IOT_NX_CONTEXT* nx_context, func_ptr_properties_complete callback);
 UINT azure_iot_nx_client_register_timer_callback(
     AZURE_IOT_NX_CONTEXT* nx_context, func_ptr_timer callback, int32_t interval);
+
+UINT azure_iot_nx_client_add_component(AZURE_IOT_NX_CONTEXT* nx_context, CHAR* component_name);
 
 UINT azure_iot_nx_client_sas_set(AZURE_IOT_NX_CONTEXT* context, CHAR* device_sas_key);
 UINT azure_iot_nx_client_cert_set(AZURE_IOT_NX_CONTEXT* context,
