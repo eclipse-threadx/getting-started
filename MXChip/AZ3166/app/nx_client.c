@@ -37,7 +37,11 @@
 #define TELEMETRY_GYROSCOPEY        "gyroscopeY"
 #define TELEMETRY_GYROSCOPEZ        "gyroscopeZ"
 #define TELEMETRY_INTERVAL_PROPERTY "telemetryInterval"
+
+// Properties
 #define LED_STATE_PROPERTY          "ledState"
+
+// Commands
 #define SET_LED_STATE_COMMAND       "setLedState"
 #define SET_DISPLAY_TEXT_COMMAND    "setDisplayText"
 
