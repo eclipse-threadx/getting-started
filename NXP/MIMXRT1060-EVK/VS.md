@@ -89,6 +89,29 @@ This section shows how to configure your development environment with the new `v
 
 1. Press `F5` to resume execution. The debugger is now running and connected the device.
 
+## Using Visual Studio's Embedded Tooling
+
+Visual Studio now supports additional tooling to help embedded programmers debug their applications, a Peripheral Viewer, a RTOS Viewer, and a Serial Monitor.
+
+1. The Peripheral viewer allows developers to view and manipulate all of the peripherals on the hardware.
+
+    ![peripheral-viewer](../../docs/media/peripheral-viewer-nxp.png)
+
+1. The RTOS viewer allows developers to view all of the various RTOS components of their programs. This includes things like RTOS threads, mutexes, and more!
+
+    ![rtos-views](../../docs/media/rtos-views.png)
+    ![rtos-threads](../../docs/media/rtos-threads-nxp.png)
+
+1. The Serial Monitor allows developers to send and receive data to their devices.
+
+    ![serial-monitor](../../docs/media/serial-monitor-nxp.png)
+
+> Note that to see the Peripheral Viewer and the RTOS viewer, you must be debugging. The Serial Monitor tool window is available at all times. To access these tools, navigate to `Debug -> Windows`
+
+![embedded-debug-windows](../../docs/media/embedded-debug-windows.png)
+
+> Note that if you don't see the aforementioned tooling, ensure that you have the `Linux and embedded development with C++` workload installed on your Visual Studio instance. 
+
 ## Restoring Your Development Environment
 
 `vcpkg-ce` only modifies the path in the shell in which it is activated. If you close your shell and wish to restore the development environment in a future session:

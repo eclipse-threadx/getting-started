@@ -144,6 +144,26 @@ This section shows how to configure your development environment with the new `v
 
 1. Press `F5` to resume execution. The debugger is now running and connected the device.
 
+## Using Visual Studio Code's Embedded Tooling
+
+Visual Studio Code now supports additional tooling to help embedded programmers debug their applications, a Peripheral Viewer, a RTOS Viewer, and a Serial Monitor.
+
+1. The Peripheral viewer allows developers to view and manipulate all of the peripherals on the hardware.
+
+    ![peripheral-viewer](../../docs/media/peripheral-viewer-st-vscode.png)
+
+1. The RTOS viewer allows developers to view all of the various RTOS components of their programs. This includes things like RTOS threads, mutexes, and more! Navigate to the various RTOS views (threads, mutexes) by using the command pallete.
+
+    ![rtos-threads](../../docs/media/rtos-threads-st-vscode.png)
+
+1. The Serial Monitor allows developers to send and receive data to their devices.
+
+    ![serial-monitor](../../docs/media/serial-monitor-st-vscode.png)
+
+> Note that to see the Peripheral Viewer and the RTOS viewer, you must be debugging. The Serial Monitor tool window is available at all times.
+
+> Note that if you don't see the aforementioned tooling, ensure that you have the extensions installed, [Embedded Tools](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-embedded-tools) and [Serial Monitor](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-serial-monitor)
+
 ## Restoring Your Development Environment
 
 `vcpkg-ce` only modifies the path in the shell in which it is activated. If you close your shell and wish to restore the development environment in a future session:

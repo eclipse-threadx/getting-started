@@ -1,14 +1,14 @@
-# Using Visual Studio with the STMicroelectronics B-L475E-IOT01A Discovery Kit
+# Using Visual Studio with the STMicroelectronics B-L4S5I-IOT01A Discovery Kit
 
-This guide describes how to use Visual Studio to build, flash, and debug with the **STMicroelectronics B-L475E-IOT01A Discovery Kit**.
+This guide describes how to use Visual Studio to build, flash, and debug with the **STMicroelectronics B-L4S5I-IOT01A Discovery Kit**.
 
-This is a companion to the [Quickstart Guide](https://docs.microsoft.com/en-us/azure/iot-develop/quickstart-devkit-stm-b-l475e). Please ensure you have completed the following steps of the Quickstart Guide before continuing.
+This is a companion to the [Quickstart Guide](https://docs.microsoft.com/en-us/azure/iot-develop/quickstart-devkit-stm-b-l4s5i). Please ensure you have completed the following steps of the Quickstart Guide before continuing.
 
-1.	[Clone the repo for the quickstart](https://docs.microsoft.com/en-us/azure/iot-develop/quickstart-devkit-stm-b-l475e#clone-the-repo-for-the-quickstart).
+1.	[Clone the repo for the quickstart](https://docs.microsoft.com/en-us/azure/iot-develop/quickstart-devkit-stm-b-l4s5i#clone-the-repo-for-the-quickstart).
 
-1.	[Create the cloud components](https://docs.microsoft.com/en-us/azure/iot-develop/quickstart-devkit-stm-b-l475e#create-the-cloud-components).
+1.	[Create the cloud components](https://docs.microsoft.com/en-us/azure/iot-develop/quickstart-devkit-stm-b-l4s5i#create-the-cloud-components).
 
-1.	[Configure Wi-Fi and Azure IoT connection settings](https://docs.microsoft.com/en-us/azure/iot-develop/quickstart-devkit-stm-b-l475e#add-configuration).
+1.	[Configure Wi-Fi and Azure IoT connection settings](https://docs.microsoft.com/en-us/azure/iot-develop/quickstart-devkit-stm-b-l4s5i#add-configuration).
 
  _*Note: It is not necessary to install the tools described in the quickstart guide. Tool installation will be covered in the next section below.*_
 
@@ -34,7 +34,7 @@ This section shows how to configure your development environment with the new `v
 
 1. Open a new PowerShell terminal and navigate to the following path in the repo.
 
-    > *getting-started\STMicroelectronics\B-L475E-IOT01A*
+    > *getting-started\STMicroelectronics\B-L4S5I-IOT01A*
 
 1. Install `vcpkg-ce`.
 
@@ -70,11 +70,11 @@ This section shows how to configure your development environment with the new `v
     "C:\Program Files\Microsoft Visual Studio\2022\Preview\Common7\IDE\devenv"
 
 1. Ensure that both the Configure Preset and the Build Preset are set to "arm-gcc-cortex-m4"
-    
+
     ![configuration-choice](../../docs/media/vs-preset-configuration-m4.png)
 
 1. Ensure that the "Launch" target is selected as the Debug Target.
-    
+
     ![debug-target-choice](../../docs/media/vs-debug-target-stm32l4.png)
 
 1. Press `F5` to start debugging the application.
@@ -82,6 +82,29 @@ This section shows how to configure your development environment with the new `v
     > Visual Studio will build and flash the application to the device, then pause the debugger at the application entry point.
 
 1. Press `F5` to resume execution. The debugger is now running and connected the device.
+
+## Using Visual Studio's Embedded Tooling
+
+Visual Studio now supports additional tooling to help embedded programmers debug their applications, a Peripheral Viewer, a RTOS Viewer, and a Serial Monitor.
+
+1. The Peripheral viewer allows developers to view and manipulate all of the peripherals on the hardware. Access this tooling by selecting `Debug -> Windows -> Peripheral Viewer` while debugging.
+
+    ![peripheral-viewer](../../docs/media/peripheral-viewer-st.png)
+
+1. The RTOS viewer allows developers to view all of the various RTOS components of their programs. This includes things like RTOS threads, mutexes, and more! Access this tooling by selecting `Debug -> Windows -> RTOS Viewer`.
+
+    ![rtos-views](../../docs/media/rtos-views.png)
+    ![rtos-threads](../../docs/media/rtos-threads-st.png)
+
+1. The Serial Monitor allows developers to send and receive data to their devices. Access this tooling by selecting `Debug -> Windows -> Serial Monitor`. 
+
+    ![serial-monitor](../../docs/media/serial-monitor-st.png)
+
+> Note that to see the Peripheral Viewer and the RTOS viewer, you must be debugging. The Serial Monitor tool window is available at all times. To access these tools, navigate to Debug -> Windows
+
+![embedded-debug-windows](../../docs/media/embedded-debug-windows.png)
+
+> Note that if you don't see the aforementioned tooling, ensure that you have the `Linux and embedded development with C++` workload installed on your Visual Studio instance. 
 
 ## Restoring Your Development Environment
 
