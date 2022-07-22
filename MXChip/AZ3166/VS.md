@@ -85,7 +85,7 @@ This section shows how to configure your development environment with the new `v
 
 ## Using Visual Studio's Embedded Tooling
 
-Visual Studio now supports additional tooling to help embedded programmers debug their applications, a [Peripheral Viewer](https://docs.microsoft.com/en-us/cpp/embedded/peripheral-view?view=msvc-170?tabs=visual-studio), a [RTOS Viewer](https://docs.microsoft.com/en-us/cpp/embedded/rtos-view?view=msvc-170?tabs=visual-studio), and a [Serial Monitor](https://docs.microsoft.com/en-us/cpp/embedded/serial-monitor?view=msvc-170?tabs=visual-studio).
+Visual Studio now supports additional tooling to help embedded programmers debug their applications, a [Peripheral Viewer](https://docs.microsoft.com/en-us/cpp/embedded/peripheral-view?view=msvc-170&tabs=visual-studio), a [RTOS Viewer](https://docs.microsoft.com/en-us/cpp/embedded/rtos-view?view=msvc-170&tabs=visual-studio), and a [Serial Monitor](https://docs.microsoft.com/en-us/cpp/embedded/serial-monitor?view=msvc-170&tabs=visual-studio).
 
 > Note that if you don't see the aforementioned tooling, ensure that you have the `Linux and embedded development with C++` workload installed on your Visual Studio instance.
 
