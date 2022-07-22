@@ -85,24 +85,9 @@ This section shows how to configure your development environment with the new `v
 
 ## Using Visual Studio's Embedded Tooling
 
-Visual Studio now supports additional tooling to help embedded programmers debug their applications, a Peripheral Viewer, a RTOS Viewer, and a Serial Monitor.
+Visual Studio now supports additional tooling to help embedded programmers debug their applications, a [Peripheral Viewer](https://docs.microsoft.com/en-us/cpp/embedded/peripheral-view?view=msvc-170?tabs=visual-studio), a [RTOS Viewer](https://docs.microsoft.com/en-us/cpp/embedded/rtos-view?view=msvc-170?tabs=visual-studio), and a [Serial Monitor](https://docs.microsoft.com/en-us/cpp/embedded/serial-monitor?view=msvc-170?tabs=visual-studio).
 
-1. The Peripheral viewer allows developers to view and manipulate all of the peripherals on the hardware. Access this tooling by selecting `Debug -> Windows -> Peripheral Viewer` while debugging.
-
-    ![peripheral-viewer](../../docs/media/peripheral-viewer-st.png)
-
-1. The RTOS viewer allows developers to view all of the various RTOS components of their programs. This includes things like RTOS threads, mutexes, and more! Access this tooling by selecting `Debug -> Windows -> RTOS Viewer`.
-
-    ![rtos-views](../../docs/media/rtos-views.png)
-    ![rtos-threads](../../docs/media/rtos-threads-st.png)
-
-1. The Serial Monitor allows developers to send and receive data to their devices. Access this tooling by selecting `Debug -> Windows -> Serial Monitor`. 
-
-    ![serial-monitor](../../docs/media/serial-monitor-st.png)
-
-> Note that to see the Peripheral Viewer and the RTOS viewer, you must be debugging. The Serial Monitor tool window is available at all times. To access these tools, navigate to Debug -> Windows
-
-![embedded-debug-windows](../../docs/media/embedded-debug-windows.png)
+> Note that if you don't see the aforementioned tooling, ensure that you have the `Linux and embedded development with C++` workload installed on your Visual Studio instance.
 
 > Note that if you don't see the aforementioned tooling, ensure that you have the `Linux and embedded development with C++` workload installed on your Visual Studio instance. 
 
