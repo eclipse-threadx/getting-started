@@ -1,14 +1,14 @@
-# Using Visual Studio with the STMicroelectronics B-L4S5I-IOT01A Discovery Kit
+# Using Visual Studio with the STMicroelectronics B-L475E-IOT01A Discovery Kit
 
-This guide describes how to use Visual Studio to build, flash, and debug with the **STMicroelectronics B-L4S5I-IOT01A Discovery Kit**.
+This guide describes how to use Visual Studio to build, flash, and debug with the **STMicroelectronics B-L475E-IOT01A Discovery Kit**.
 
-This is a companion to the [Quickstart Guide](https://docs.microsoft.com/en-us/azure/iot-develop/quickstart-devkit-stm-b-l4s5i). Please ensure you have completed the following steps of the Quickstart Guide before continuing.
+This is a companion to the [Quickstart Guide](https://docs.microsoft.com/en-us/azure/iot-develop/quickstart-devkit-stm-b-l474e). Please ensure you have completed the following steps of the Quickstart Guide before continuing.
 
-1.	[Clone the repo for the quickstart](https://docs.microsoft.com/en-us/azure/iot-develop/quickstart-devkit-stm-b-l4s5i#clone-the-repo-for-the-quickstart).
+1.	[Clone the repo for the quickstart](https://docs.microsoft.com/en-us/azure/iot-develop/quickstart-devkit-stm-b-l474e#clone-the-repo-for-the-quickstart).
 
-1.	[Create the cloud components](https://docs.microsoft.com/en-us/azure/iot-develop/quickstart-devkit-stm-b-l4s5i#create-the-cloud-components).
+1.	[Create the cloud components](https://docs.microsoft.com/en-us/azure/iot-develop/quickstart-devkit-stm-b-l474e#create-the-cloud-components).
 
-1.	[Configure Wi-Fi and Azure IoT connection settings](https://docs.microsoft.com/en-us/azure/iot-develop/quickstart-devkit-stm-b-l4s5i#add-configuration).
+1.	[Configure Wi-Fi and Azure IoT connection settings](https://docs.microsoft.com/en-us/azure/iot-develop/quickstart-devkit-stm-b-l474e#add-configuration).
 
  _*Note: It is not necessary to install the tools described in the quickstart guide. Tool installation will be covered in the next section below.*_
 
@@ -34,7 +34,7 @@ This section shows how to configure your development environment with the new `v
 
 1. Open a new PowerShell terminal and navigate to the following path in the repo.
 
-    > *getting-started\STMicroelectronics\B-L4S5I-IOT01A*
+    > *getting-started\STMicroelectronics\B-L475E-IOT01A*
 
 1. Install `vcpkg-ce`.
 
