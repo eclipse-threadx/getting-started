@@ -2,13 +2,13 @@
 
 This guide describes how to use Visual Studio Code to build, flash, and debug with the **MXChip AZ3166 IoT DevKit**.
 
-This is a companion to the [Quickstart Guide](https://docs.microsoft.com/en-us/azure/iot-develop/quickstart-devkit-mxchip-az3166). Please ensure you have completed the following steps of the Quickstart Guide before continuing.
+This is a companion to the [Quickstart Guide](https://docs.microsoft.com/azure/iot-develop/quickstart-devkit-mxchip-az3166). Please ensure you have completed the following steps of the Quickstart Guide before continuing.
 
-1.	[Clone the repo for the quickstart](https://docs.microsoft.com/en-us/azure/iot-develop/quickstart-devkit-mxchip-az3166#clone-the-repo-for-the-quickstart).
+1.	[Clone the repo for the quickstart](https://docs.microsoft.com/azure/iot-develop/quickstart-devkit-mxchip-az3166#clone-the-repo-for-the-quickstart).
 
-1.	[Create the cloud components](https://docs.microsoft.com/en-us/azure/iot-develop/quickstart-devkit-mxchip-az3166#create-the-cloud-components).
+1.	[Create the cloud components](https://docs.microsoft.com/azure/iot-develop/quickstart-devkit-mxchip-az3166#create-the-cloud-components).
 
-1.	[Configure Wi-Fi and Azure IoT connection settings](https://docs.microsoft.com/en-us/azure/iot-develop/quickstart-devkit-mxchip-az3166#add-configuration).
+1.	[Configure Wi-Fi and Azure IoT connection settings](https://docs.microsoft.com/azure/iot-develop/quickstart-devkit-mxchip-az3166#add-configuration).
 
  _*Note: It is not necessary to install the tools described in the quickstart guide. Tool installation will be covered in the next section below.*_
 
@@ -143,6 +143,12 @@ This section shows how to configure your development environment with the new `v
     > Visual Studio Code will build and flash the application to the device, then pause the debugger at the application entry point.
 
 1. Press `F5` to resume execution. The debugger is now running and connected the device.
+
+## Using Visual Studio Code's Embedded Tooling
+
+Visual Studio Code now supports additional tooling to help embedded programmers debug their applications: a [Peripheral Viewer](https://docs.microsoft.com/cpp/embedded/peripheral-view?view=msvc-170&tabs=visual-studio-code), a [RTOS Viewer](https://docs.microsoft.com/cpp/embedded/rtos-view?view=msvc-170&tabs=visual-studio-code), and a [Serial Monitor](https://docs.microsoft.com/cpp/embedded/serial-monitor?view=msvc-170&tabs=visual-studio-code).
+
+> Note that if you don't see the aforementioned tooling, ensure that you have the extensions installed, [Embedded Tools](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-embedded-tools) and [Serial Monitor](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-serial-monitor)
 
 ## Restoring Your Development Environment
 

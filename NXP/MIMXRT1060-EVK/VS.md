@@ -2,13 +2,13 @@
 
 This guide describes how to use Visual Studio to build, flash, and debug with the **NXP MIMXRT1060-EVK Evaluation Kit**.
 
-This is a companion to the [Quickstart Guide](https://docs.microsoft.com/en-us/azure/iot-develop/quickstart-devkit-nxp-mimxrt1060-evk). Please ensure you have completed the following steps of the Quickstart Guide before continuing.
+This is a companion to the [Quickstart Guide](https://docs.microsoft.com/azure/iot-develop/quickstart-devkit-nxp-mimxrt1060-evk). Please ensure you have completed the following steps of the Quickstart Guide before continuing.
 
-1.	[Clone the repo for the quickstart](https://docs.microsoft.com/en-us/azure/iot-develop/quickstart-devkit-nxp-mimxrt1060-evk#clone-the-repo-for-the-quickstart).
+1.	[Clone the repo for the quickstart](https://docs.microsoft.com/azure/iot-develop/quickstart-devkit-nxp-mimxrt1060-evk#clone-the-repo-for-the-quickstart).
 
-1.	[Create the cloud components](https://docs.microsoft.com/en-us/azure/iot-develop/quickstart-devkit-nxp-mimxrt1060-evk#create-the-cloud-components).
+1.	[Create the cloud components](https://docs.microsoft.com/azure/iot-develop/quickstart-devkit-nxp-mimxrt1060-evk#create-the-cloud-components).
 
-1.	[Configure Azure IoT connection settings](https://docs.microsoft.com/en-us/azure/iot-develop/quickstart-devkit-nxp-mimxrt1060-evk#add-configuration).
+1.	[Configure Azure IoT connection settings](https://docs.microsoft.com/azure/iot-develop/quickstart-devkit-nxp-mimxrt1060-evk#add-configuration).
 
  _*Note: It is not necessary to install the tools described in the quickstart guide. Tool installation will be covered in the next section below.*_
 
@@ -88,6 +88,12 @@ This section shows how to configure your development environment with the new `v
     > Visual Studio will build and flash the application to the device, then pause the debugger at the application entry point.
 
 1. Press `F5` to resume execution. The debugger is now running and connected the device.
+
+## Using Visual Studio's Embedded Tooling
+
+Visual Studio now supports additional tooling to help embedded programmers debug their applications: a [Peripheral Viewer](https://docs.microsoft.com/cpp/embedded/peripheral-view?view=msvc-170&tabs=visual-studio), a [RTOS Viewer](https://docs.microsoft.com/cpp/embedded/rtos-view?view=msvc-170&tabs=visual-studio), and a [Serial Monitor](https://docs.microsoft.com/cpp/embedded/serial-monitor?view=msvc-170&tabs=visual-studio).
+
+> If you can't find these tools, ensure that you have the `Linux and embedded development with C++` workload and the `Embedded and IoT tools` component installed on your Visual Studio instance.
 
 ## Restoring Your Development Environment
 
