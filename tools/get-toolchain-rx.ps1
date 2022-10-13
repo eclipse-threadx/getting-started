@@ -7,7 +7,7 @@ echo "`nInstalling prerequisites. Please leave the window open until the install
 
 $gccrx_path = 'http://gcc-renesas.com/downloads/get.php?f=rx/8.3.0.202004-gnurx'
 $gccrx_file = 'gcc-8.3.0.202004-GNURX-ELF.exe'
-$gccrx_name = 'GCC-RX 8.3.0.20204'
+$gccrx_name = 'GCC-RX 8.3.0.202004'
 $gccrx_hash = 'C3340B4915208361A33885505CFB89B69E1607A07F89FBF2A79096182D293978'
 
 $cmake_path = 'https://github.com/Kitware/CMake/releases/download/v3.21.4'

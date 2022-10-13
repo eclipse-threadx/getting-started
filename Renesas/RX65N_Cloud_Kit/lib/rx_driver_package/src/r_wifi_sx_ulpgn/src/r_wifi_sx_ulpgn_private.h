@@ -65,9 +65,7 @@
 #define CERT_PROFILE_MAX               (5)       // Number of Certificate profiles
 #define CERT_HOSTNAME_MAX              (256)     // Number of Certificate host name
 
-/* Reduce timeout to 3 seconds which will force an error on socket status check when disconnected */
-//#define ATCMD_RESP_TIMEOUT             (15000)   // Timeout threshold for AT command response (msec)
-#define ATCMD_RESP_TIMEOUT             (3000)   // Timeout threshold for AT command response (msec)
+#define ATCMD_RESP_TIMEOUT             (15000)   // Timeout threshold for AT command response (msec)
 #define SX_ULPGN_AT_CMD_BUF_MAX        (512)
 #define SX_ULPGN_AT_RESP_BUF_MAX       (2048)
 #define SX_ULPGN_AT_TIMEOUT            (10000)

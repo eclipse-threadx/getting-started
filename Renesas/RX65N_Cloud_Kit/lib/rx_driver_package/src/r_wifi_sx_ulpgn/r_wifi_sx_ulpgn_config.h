@@ -1,3 +1,4 @@
+/* Generated configuration header file - do not edit */
 /**********************************************************************************************************************
  * DISCLAIMER
  * This software is supplied by Renesas Electronics Corporation and is only intended for use with Renesas products. No
@@ -38,7 +39,7 @@
 
 #define WIFI_CFG_SCI_CHANNEL                  (0)
 
-#define WIFI_CFG_SCI_INTERRUPT_LEVEL          (4)
+#define WIFI_CFG_SCI_INTERRUPT_LEVEL          (14)
 
 #define WIFI_CFG_SCI_SECOND_CHANNEL           (1)
 
@@ -56,7 +57,7 @@
 
 #define WIFI_CFG_CREATABLE_SOCKETS            (4)
 
-#define WIFI_CFG_SOCKETS_RECEIVE_BUFFER_SIZE  (8192)
+#define WIFI_CFG_SOCKETS_RECEIVE_BUFFER_SIZE  (4096)
 
 #define WIFI_CFG_USE_CALLBACK_FUNCTION        (0)
 
