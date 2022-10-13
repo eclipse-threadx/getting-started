@@ -40,7 +40,7 @@
 
 /* Driver Version Number. */
 #define WIFI_SX_ULPGN_CFG_VERSION_MAJOR           (1)
-#define WIFI_SX_ULPGN_CFG_VERSION_MINOR           (13)
+#define WIFI_SX_ULPGN_CFG_VERSION_MINOR           (14)
 
 /* Configuration */
 #define WIFI_SOCKET_IP_PROTOCOL_TCP               (0)       // Socket type = TCP
@@ -452,6 +452,6 @@ wifi_err_t R_WIFI_SX_ULPGN_EraseAllServerCertificate (void);
  *********************************************************************************************************************/
 wifi_err_t R_WIFI_SX_ULPGN_SetCertificateProfile (uint8_t certificate_id, uint32_t ipaddress, char * servername);
 
-wifi_err_t R_WIFI_SX_ULPGN_GetDnsServerAddress(uint32_t *dns_address);
+wifi_err_t R_WIFI_SX_ULPGN_GetDnsServerAddress(uint32_t *dns_address, uint32_t *dns_address_count);
 
 #endif /* R_WIFI_SX_ULPGN_CFG_IF_H */

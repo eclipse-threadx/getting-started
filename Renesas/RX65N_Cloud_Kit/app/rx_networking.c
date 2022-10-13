@@ -17,6 +17,7 @@
 #define NETX_PACKET_COUNT  60
 #define NETX_PACKET_SIZE   1500
 #define NETX_POOL_SIZE     ((NETX_PACKET_SIZE + sizeof(NX_PACKET)) * NETX_PACKET_COUNT)
+#define NETX_DNS_COUNT     3
 
 #define NETX_IPV4_ADDRESS IP_ADDRESS(0, 0, 0, 0)
 #define NETX_IPV4_MASK    IP_ADDRESS(255, 255, 255, 0)
@@ -110,18 +111,16 @@ static UINT dhcp_connect()
 static UINT dns_connect()
 {
     UINT status;
-    uint32_t dns_address_1;
+    uint32_t dns_address[NETX_DNS_COUNT];
+    uint32_t dns_address_count = NETX_DNS_COUNT;
 
     printf("\r\nInitializing DNS client\r\n");
 
-    if (R_WIFI_SX_ULPGN_GetDnsServerAddress(&dns_address_1) != WIFI_SUCCESS)
+    if (R_WIFI_SX_ULPGN_GetDnsServerAddress(&dns_address, &dns_address_count) != WIFI_SUCCESS)
     {
         printf("ERROR: Failed to fetch Wifi DNS\r\n");
         return NX_NOT_SUCCESSFUL;
     }
-
-    // Output DNS Server address
-    print_address("DNS address", dns_address_1);
 
     if ((status = nx_dns_server_remove_all(&nx_dns_client)))
     {
@@ -129,11 +128,15 @@ static UINT dns_connect()
         return status;
     }
 
-    // Add an IPv4 server address to the Client list.
-    if ((status = nx_dns_server_add(&nx_dns_client, dns_address_1)))
+    for (int i = 0; i < dns_address_count; ++i)
     {
-        printf("ERROR: nx_dns_server_add (0x%08x)\r\n", status);
-        return status;
+        print_address("DNS address", dns_address[i]);
+
+        if ((status = nx_dns_server_add(&nx_dns_client, dns_address[i])))
+        {
+            printf("ERROR: nx_dns_server_add (0x%08x)\r\n", status);
+            return status;
+        }
     }
 
     printf("SUCCESS: DNS client initialized\r\n");
