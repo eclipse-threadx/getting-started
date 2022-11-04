@@ -1,0 +1,49 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Flash",
+            "type": "shell",
+            "command": "openocd -f board/microchip_same54_xplained_pro.cfg -c \"program build/app/atsame54_azure_iot.elf verify\" -c \"reset halt\" -c shutdown",
+            "windows": {
+                "options": {
+                    "shell": {
+                        "executable": "cmd.exe",
+                        "args": [
+                            "/c"
+                        ]
+                    }
+                }
+            },
+            "problemMatcher": [],
+            "dependsOn": [
+                "Build"
+            ]
+        },
+        // {
+        //     "label": "Build",
+        //     "type": "cmake",
+        //     "command": "build",
+        //     "problemMatcher": "$gcc",
+        //     "group": {
+        //         "kind": "build",
+        //         "isDefault": true
+        //     },
+        //     "options": {
+        //         "shell": {
+        //             "executable": "cmd.exe",
+        //             "args": [
+        //                 "/c"
+        //             ]
+        //         }
+        //     }
+        // },
+        {
+            "type": "cmake",
+            "label": "Build",
+            "command": "build",
+            "preset": "${command:cmake.activeBuildPresetName}",
+            "group": "build",
+        }
+    ]
+}

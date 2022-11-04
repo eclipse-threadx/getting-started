@@ -9,21 +9,11 @@
             "dependsOn": [ "Build" ]
         },
         {
-            "label": "Build",
             "type": "cmake",
+            "label": "Build",
             "command": "build",
-            "problemMatcher": "$gcc",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            // This must be commented out to run on Linux.
-            "options": {
-                "shell": {
-                    "executable": "cmd.exe",
-                    "args": [ "/c" ]
-                }
-            }
+            "preset": "${command:cmake.activeBuildPresetName}",
+            "group": "build",
         }
     ]
 }

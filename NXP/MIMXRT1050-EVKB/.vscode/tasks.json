@@ -1,0 +1,24 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Flash",
+            "type": "shell",
+            "windows": {
+                "command": "jlink -if swd -speed 4000 -device MIMXRT1052xxxxB -commanderscript .vscode/flash.jlink",
+            },
+            "linux": {
+                "command": "JLinkExe -if swd -speed 4000 -device MIMXRT1062xxxxB -commanderscript .vscode/flash.jlink",
+            },
+            "problemMatcher": [],
+            "dependsOn": [ "Build" ]
+        },
+        {
+            "type": "cmake",
+            "label": "Build",
+            "command": "build",
+            "preset": "${command:cmake.activeBuildPresetName}",
+            "group": "build",
+        }
+    ]
+}

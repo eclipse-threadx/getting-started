@@ -2,33 +2,32 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "NXP: Local J-Link",
-            "type": "cortex-debug",
+            "name": "Launch",
+            "type": "cppdbg",
             "request": "launch",
-            "servertype":"jlink",
-            "runToMain": true,
-            "executable": "${workspaceFolder}/build/app/mimxrt1050_azure_iot.elf",
-            "device": "MIMXRT1052xxx6A",
-            "svdFile": "${workspaceFolder}/.vscode/MIMXRT1052.svd",
-        },
-        {
-            "name": "NXP: Remote",
-            "type": "cortex-debug",
-            "executable": "${workspaceFolder}/build/app/mimxrt1050_azure_iot.elf",
-            "request": "launch",
-            "servertype": "external",
-            "gdbTarget": "${input:device.host}",
-            "runToMain": true,
-            "device": "MIMXRT1052xxx6A",
-            "svdFile": "${workspaceFolder}/.vscode/MIMXRT1052.svd",
-        }      
-    ],
-    "inputs": [
-        {
-            "id": "device.host",
-            "type": "promptString",
-            "default": "host.docker.internal:3333",
-            "description": "The local hostname with port for GDB to connect to"
-        }
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/build/app/mimxrt1050_azure_iot.elf",
+            "MIMode": "gdb",
+            "miDebuggerPath": "arm-none-eabi-gdb",
+            "miDebuggerServerAddress": "localhost:3333",
+            "windows": {
+                "debugServerPath": "JLinkGDBServerCL",
+            },
+            "linux": {
+                "debugServerPath": "JLinkGDBServerCLExe",
+            },
+            "debugServerArgs": "-if swd -speed 4000 -endian little -port 3333 -device MIMXRT1052xxxxB -x ${workspaceFolder}/.vscode/reset.gdb",
+            "serverStarted": "Connected to target",
+            "filterStdout": true,
+            "stopAtConnect": true,
+            // There is no need for hardware breakpoint limits with J-Link probes because they support unlimited flash breakpoints.
+            // However, if desired, uncomment below to force use of hardware breakpoints only:
+            // "hardwareBreakpoints": {
+            //     "require": true,
+            //     "limit": 8
+            // },
+            "preLaunchTask": "Flash",
+            "svdPath": "${workspaceFolder}/MIMXRT1052.svd"
+        }        
     ]
 }
