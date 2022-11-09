@@ -25,7 +25,7 @@
             "miDebuggerPath": "arm-none-eabi-gdb",
             "miDebuggerServerAddress": "localhost:3333",
             "debugServerPath": "openocd",
-            "debugServerArgs": "-f board/stm32l4discovery.cfg",
+            "debugServerArgs": "-f board/stm32l4discovery.cfg -c \"tpiu config internal :9753 uart off 120000000\" -c \"itm ports on\"",
             "serverStarted": "Listening on port .* for gdb connections",
             "filterStderr": true,
             "stopAtConnect": true,
