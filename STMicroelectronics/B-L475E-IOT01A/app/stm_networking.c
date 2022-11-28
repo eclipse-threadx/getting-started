@@ -20,6 +20,8 @@
 #define NETX_IPV4_ADDRESS IP_ADDRESS(0, 0, 0, 0)
 #define NETX_IPV4_MASK    IP_ADDRESS(255, 255, 255, 0)
 
+#define NETX_DNS_COUNT 2
+
 static UCHAR netx_ip_stack[NETX_IP_STACK_SIZE];
 static UCHAR netx_ip_pool[NETX_POOL_SIZE];
 
@@ -145,41 +147,40 @@ static UINT dhcp_connect()
 static UINT dns_connect()
 {
     UINT status;
-    UCHAR dns_address_1[4] = {0};
-    UCHAR dns_address_2[4] = {0};
+    UCHAR dns_server_address[NETX_DNS_COUNT][4];
 
     printf("\r\nInitializing DNS client\r\n");
 
-    if (WIFI_GetDNS_Address(dns_address_1, dns_address_2) != WIFI_STATUS_OK)
+    if (WIFI_GetDNS_Address(dns_server_address[0], dns_server_address[1]) != WIFI_STATUS_OK)
     {
         printf("ERROR: WIFI_GetDNS_Address\r\n");
         return NX_NOT_SUCCESSFUL;
     }
-
-    // Output DNS Server address
-    print_address("DNS address 1", dns_address_1);
-    print_address("DNS address 2", dns_address_2);
 
     if ((status = nx_dns_server_remove_all(&nx_dns_client)))
     {
         printf("ERROR: nx_dns_server_remove_all (0x%08x)\r\n", status);
     }
 
-    else if ((status = nx_dns_server_add(
-                  &nx_dns_client, IP_ADDRESS(dns_address_1[0], dns_address_1[1], dns_address_1[2], dns_address_1[3]))))
+    for (int i = 0; i < NETX_DNS_COUNT; ++i)
     {
-        printf("ERROR: nx_dns_server_add (0x%08x)\r\n", status);
+        print_address("DNS address", dns_server_address[i]);
+
+        // Add an IPv4 server address to the Client list
+        status = nx_dns_server_add(&nx_dns_client,
+            IP_ADDRESS(dns_server_address[i][0],
+                dns_server_address[i][1],
+                dns_server_address[i][2],
+                dns_server_address[i][3]));
+
+        if (status != NX_DNS_SUCCESS && status != NX_DNS_DUPLICATE_ENTRY)
+        {
+            printf("ERROR: nx_dns_server_add (0x%08x)\r\n", status);
+            return status;
+        }
     }
 
-    else if ((status = nx_dns_server_add(
-                  &nx_dns_client, IP_ADDRESS(dns_address_2[0], dns_address_2[1], dns_address_2[2], dns_address_2[3]))))
-    {
-        printf("ERROR: nx_dns_server_add (0x%08x)\r\n", status);
-    }
-    else
-    {
-        printf("SUCCESS: DNS client initialized\r\n");
-    }
+    printf("SUCCESS: DNS client initialized\r\n");
 
     return status;
 }

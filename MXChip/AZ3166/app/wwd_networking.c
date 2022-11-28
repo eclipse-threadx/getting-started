@@ -148,12 +148,14 @@ static UINT dns_connect()
         return status;
     }
 
-    for (int i = 0; i < dns_server_address_size / sizeof(UINT); ++i)
+    for (int i = 0; i < NETX_DNS_COUNT; ++i)
     {
         print_address("DNS address", dns_server_address[i]);
 
         // Add an IPv4 server address to the Client list
-        if ((status = nx_dns_server_add(&nx_dns_client, dns_server_address[i])))
+        status = nx_dns_server_add(&nx_dns_client, dns_server_address[i]);
+
+        if (status != NX_DNS_SUCCESS && status != NX_DNS_DUPLICATE_ENTRY)
         {
             printf("ERROR: nx_dns_server_add (0x%08x)\r\n", status);
             return status;
@@ -317,7 +319,7 @@ UINT wwd_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
         nx_dhcp_delete(&nx_dhcp_client);
         nx_ip_delete(&nx_ip);
         nx_packet_pool_delete(&nx_pool[0]);
-        nx_packet_pool_delete(&nx_pool[1]);        
+        nx_packet_pool_delete(&nx_pool[1]);
     }
 
     // Initialize TLS
