@@ -148,7 +148,7 @@ static UINT dns_connect()
         return status;
     }
 
-    for (int i = 0; i < NETX_DNS_COUNT; ++i)
+    for (int i = 0; i < dns_server_address_size / sizeof(UINT); ++i)
     {
         print_address("DNS address", dns_server_address[i]);
 
