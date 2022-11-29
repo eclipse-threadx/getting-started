@@ -158,7 +158,7 @@ static UINT dns_connect()
         if (status != NX_DNS_SUCCESS && status != NX_DNS_DUPLICATE_ENTRY)
         {
             printf("ERROR: nx_dns_server_add (0x%08x)\r\n", status);
-            return status;
+            continue;
         }
     }
 
