@@ -167,14 +167,13 @@ static UINT dns_connect()
         print_address("DNS address", dns_server_address[i]);
 
         // Add an IPv4 server address to the Client list
-        status = nx_dns_server_add(&nx_dns_client,
-            IP_ADDRESS(dns_server_address[i][0],
-                dns_server_address[i][1],
-                dns_server_address[i][2],
-                dns_server_address[i][3]));
-
-        if (status != NX_DNS_SUCCESS && status != NX_DNS_DUPLICATE_ENTRY)
+        if ((status = nx_dns_server_add(&nx_dns_client,
+                 IP_ADDRESS(dns_server_address[i][0],
+                     dns_server_address[i][1],
+                     dns_server_address[i][2],
+                     dns_server_address[i][3]))))
         {
+            // print an error but just keep going
             printf("ERROR: nx_dns_server_add (0x%08x)\r\n", status);
             continue;
         }
