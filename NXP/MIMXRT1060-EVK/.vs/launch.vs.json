@@ -33,7 +33,7 @@
                     "ignoreFailures": false
                 },
                 {
-                    "text": "set mem inaccessible-by-default off",
+                    "text": "-interpreter-exec console \"set mem inaccessible-by-default off\"",
                     "ignoreFailures": true
                 }
             ],
