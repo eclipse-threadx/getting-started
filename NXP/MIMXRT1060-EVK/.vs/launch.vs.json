@@ -31,6 +31,10 @@
                 {
                     "text": "-interpreter-exec console \"monitor reset halt\"",
                     "ignoreFailures": false
+                },
+                {
+                    "text": "-interpreter-exec console \"set mem inaccessible-by-default off\"",
+                    "ignoreFailures": true
                 }
             ],
             "svdPath": "${workspaceRoot}/MIMXRT1062.svd"

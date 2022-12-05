@@ -48,7 +48,14 @@
             //     "limit": 8
             // },
             "preLaunchTask": "Flash",
-            "svdPath": "${workspaceFolder}/MIMXRT1062.svd"
+            "svdPath": "${workspaceFolder}/MIMXRT1062.svd",
+            "setupCommands": [
+                {
+                    "description": "Allow reading of peripheral registers",
+                    "text": "set mem inaccessible-by-default off",
+                    "ignoreFailures": true
+                }
+            ]
         }
     ],
     "inputs": [
