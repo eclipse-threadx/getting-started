@@ -24,6 +24,7 @@ For guidance on connecting additional devices, see the [Embedded device quicksta
 * The [MXCHIP AZ3166 IoT DevKit](https://aka.ms/iot-devkit)
 * Wi-Fi 2.4 GHz
 * USB 2.0 A male to Micro USB male cable
+* The [ST Microelectronics USB driver (Windows only)](http://www.st.com/en/development-tools/stsw-link009.html) installed on your computer.
 
 ## Steps
 
