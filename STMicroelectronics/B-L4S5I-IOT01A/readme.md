@@ -17,7 +17,7 @@ products:
 
 The **Quickstart** button above provides the complete steps for creating an IoT Hub application and then configuring, building and flashing the device.
 
-For guidance on connecting additional devices, see [Getting started with IoT device development](https://learn.microsoft.com/en-us/azure/iot-develop/about-getting-started-device-development).
+For guidance on connecting additional devices, see [Getting started with IoT device development](https://learn.microsoft.com/azure/iot-develop/about-getting-started-device-development).
 
 ## What you need
 
