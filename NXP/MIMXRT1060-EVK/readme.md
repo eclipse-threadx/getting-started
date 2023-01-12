@@ -12,12 +12,12 @@ products:
 
 # Connect an NXP MIMXRT1060-EVK Evaluation kit to Azure IoT
 
-[![Quickstart article](../../docs/media/docs-link-buttons/azure-quickstart.svg)](https://docs.microsoft.com/azure/iot-develop/quickstart-devkit-nxp-mimxrt1060-evk)
+[![Quickstart article](../../docs/media/docs-link-buttons/azure-quickstart.svg)](https://learn.microsoft.com/azure/iot-develop/quickstart-devkit-nxp-mimxrt1060-evk-iot-hub)
 [![Documentation](../../docs/media/docs-link-buttons/azure-documentation.svg)](https://docs.microsoft.com/azure/iot-develop/)
 
-The **Quickstart** button above provides the complete steps for creating an IoT Central application and then configuring, building and flashing the device.
+The **Quickstart** button above provides the complete steps for creating an IoT Hub application and then configuring, building and flashing the device.
 
-For guidance on connecting additional devices, see the [Embedded device quickstarts](https://docs.microsoft.com/azure/iot-develop/quickstart-devkit-mxchip-az3166).
+For guidance on connecting additional devices, see [Get started with IoT device development](https://learn.microsoft.com/azure/iot-develop/about-getting-started-device-development).
 
 ## What you need
 
