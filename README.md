@@ -25,6 +25,7 @@ The following guides will get you started:
 |[Silicon Labs EFR32MG12](SiliconLabs/EFR32MG12)|![](https://github.com/azure-rtos/getting-started/actions/workflows/EFR32MG12.yml/badge.svg)||
 |[STMicroelectronics B-L475E-IOT01A](STMicroelectronics/B-L475E-IOT01A)|![](https://github.com/azure-rtos/getting-started/actions/workflows/L475E-IOT01A.yml/badge.svg)|
 |[STMicroelectronics B-L4S5I-IOT01A](STMicroelectronics/B-L4S5I-IOT01A)|![](https://github.com/azure-rtos/getting-started/actions/workflows/L4S5I-IOT01A.yml/badge.svg)|
+|[STMicroelectronics B-U585I-IOT02A](STMicroelectronics/B-U585I-IOT02A)|![](https://github.com/azure-rtos/getting-started/actions/workflows/U585I-IOT02A.yml/badge.svg)|
 
 **Build Status:** A GitHub workflow building on Windows & Linux.
 
