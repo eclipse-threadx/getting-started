@@ -1,0 +1,16 @@
+{
+    "registries": [
+        {
+            "name": "microsoft",
+            "location": "https://aka.ms/vcpkg-ce-default",
+            "kind": "artifact"
+        }
+    ],
+    "requires": {
+        "microsoft:compilers/arm/gcc": "* 2020.10.0",
+        "microsoft:tools/compuphase/termite": "* 3.4.0",
+        "microsoft:tools/microsoft/openocd": "0.11.0-ms2",
+        "microsoft:tools/kitware/cmake": "* 3.20.1",
+        "microsoft:tools/ninja-build/ninja": "* 1.10.2"
+    }
+}

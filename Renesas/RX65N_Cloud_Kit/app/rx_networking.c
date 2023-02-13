@@ -239,7 +239,7 @@ UINT rx_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
     {
         nx_dns_delete(&nx_dns_client);
         nx_ip_delete(&nx_ip);
-        nx_packet_pool_delete(&nx_pool);        
+        nx_packet_pool_delete(&nx_pool);
         printf("ERROR: Failed to init the SNTP client (0x%08x)\r\n", status);
     }
 
@@ -270,7 +270,7 @@ UINT rx_network_connect()
         // Force a disconnect
         R_WIFI_SX_ULPGN_Disconnect();
 
-            // Obtain the IP internal mutex before reconnecting WiFi
+        // Obtain the IP internal mutex before reconnecting WiFi
         join_result = R_WIFI_SX_ULPGN_Connect(netx_ssid, netx_password, netx_mode, 1, &ip_cfg);
 
         tx_thread_sleep(5 * TX_TIMER_TICKS_PER_SECOND);

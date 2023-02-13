@@ -1,0 +1,33 @@
+{
+  "version": 2,
+  "configurePresets": [
+    {
+      "name": "arm-gcc-cortex-m33",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/install",
+        "CMAKE_TOOLCHAIN_FILE": {
+          "type": "FILEPATH",
+          "value": "${sourceDir}/../../cmake/arm-gcc-cortex-m33.cmake"
+        }
+      },
+      "architecture": {
+        "value": "unspecified",
+        "strategy": "external"
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "intelliSenseMode": "linux-gcc-arm"
+        }
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "arm-gcc-cortex-m33",
+      "configurePreset": "arm-gcc-cortex-m33"
+    }
+  ]
+}
