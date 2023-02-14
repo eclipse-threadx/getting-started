@@ -53,6 +53,33 @@ static void print_address(CHAR* preable, ULONG address)
         (address & 0xFF));
 }
 
+static UINT wifi_init()
+{
+    printf("\r\nInitializing WiFi\r\n");
+
+    if (netx_ssid[0] == 0)
+    {
+        printf("ERROR: WIFI_SSID is empty\r\n");
+        return NX_NOT_SUCCESSFUL;
+    }
+
+    printf("\tSSID: %s\r\n", netx_ssid);
+
+    printf("\tPassword: ");
+    if (netx_password[0] == 0)
+    {
+        printf("<EMPTY>\r\n");
+    }
+    else
+    {
+        printf("*****\r\n");
+    }
+
+    printf("SUCCESS: WiFi initialized\r\n");
+
+    return NX_SUCCESS;
+}
+
 UINT dhcp_connect()
 {
     UINT status;
@@ -160,6 +187,12 @@ UINT stm_network_init(CHAR* ssid, CHAR* password, WiFi_Mode mode)
     // Initialize the NetX system
     nx_system_initialize();
 
+    // Initialize Wifi
+    if ((status = wifi_init()))
+    {
+        printf("ERROR: wifi_init (0x%08x)\r\n", status);
+    }
+
     // Create a packet pool
     if ((status = nx_packet_pool_create(&nx_pool, "NetX Packet Pool", NETX_PACKET_SIZE, netx_ip_pool, NETX_POOL_SIZE)))
     {
@@ -256,6 +289,7 @@ bool wifiConnect(MX_WIFIObject_t* pMxWifiObj)
 
 UINT stm_network_connect()
 {
+    static bool first_run = true;
     UINT status;
     int32_t wifiConnectCounter = 1;
 
@@ -263,6 +297,17 @@ UINT stm_network_connect()
     printf("\r\nConnecting WiFi\r\n");
 
     MX_WIFIObject_t* pMxWifiObj = wifi_obj_get();
+
+    if (first_run)
+    {
+        first_run = false;
+
+        // Print associated Wifi driver information
+        uint8_t* fw_rev       = pMxWifiObj->SysInfo.FW_Rev;
+        uint8_t* mac          = pMxWifiObj->SysInfo.MAC;
+        printf("\tFW: %s\r\n", fw_rev);
+        printf("\tMAC address: %02X:%02X:%02X:%02X:%02X:%02X\r\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    }
 
     // Connect to the specified SSID
     printf("\tConnecting to SSID '%s'\r\n", netx_ssid);
