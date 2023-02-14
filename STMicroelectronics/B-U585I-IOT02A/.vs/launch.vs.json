@@ -1,0 +1,39 @@
+{
+    "version": "0.2.1",
+    "configurations": [
+        {
+            "project": "CMakeLists.txt",
+            "projectTarget": "stm32u585_azure_iot.elf (app\\stm32u585_azure_iot.elf)",
+            "name": "Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "cwd": "${workspaceRoot}",
+            "program": "${debugInfo.fullTargetPath}",
+            "processName": "stm32u585_azure_iot",
+            "MIMode": "gdb",
+            "miDebuggerPath": "arm-none-eabi-gdb",
+            "miDebuggerServerAddress": "localhost:3333",
+            "debugServerPath": "openocd",
+            "debugServerArgs": "-f interface/stlink.cfg -f target/stm32u5x.cfg",
+            "serverStarted": "Listening on port .* for gdb connections",
+            "filterStderr": true,
+            //"stopAtConnect": true,
+            "stopOnEntry": true,
+            "svdPath": "${workspaceRoot}/STM32U5xx.svd",
+            "hardwareBreakpoints": {
+                "require": true,
+                "limit": 6
+            },
+            "postRemoteConnectCommands": [
+                {
+                    "text": "-target-download",
+                    "ignoreFailures": false
+                },
+                {
+                    "text": "-interpreter-exec console \"monitor reset halt\"",
+                    "ignoreFailures": false
+                }
+            ]
+        }
+    ]
+}
