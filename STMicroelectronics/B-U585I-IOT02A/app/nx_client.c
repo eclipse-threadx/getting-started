@@ -16,6 +16,7 @@
 #include "azure_iot_nx_client.h"
 
 #include "azure_config.h"
+#include "azure_device_x509_cert_config.h"
 #include "azure_pnp_info.h"
 #include "stm_networking.h"
 
