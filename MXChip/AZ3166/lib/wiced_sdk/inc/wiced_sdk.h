@@ -82,7 +82,8 @@ typedef enum
 
 typedef enum
 {
-    WICED_COUNTRY_UNITED_STATES = MK_CNTRY('U', 'S', 0)
+    WICED_COUNTRY_UNITED_STATES = MK_CNTRY('U', 'S', 0),
+    WICED_COUNTRY_WORLD_WIDE_XX = MK_CNTRY('X', 'X', 0)
 } wiced_country_code_t;
 
 #define WEP_ENABLED    0x0001
