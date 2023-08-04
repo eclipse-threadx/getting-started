@@ -21,7 +21,7 @@ For guidance on connecting additional devices, see [Getting started with IoT dev
 
 ## What you need
 
-* The [Microchip ATSAME54-XPro](https://www.microchip.com/developmenttools/productdetails/atsame54-xpro)
+* The [Microchip ATSAME54-XPro](https://www.microchip.com/development-tool/atsame54-xpro)
 * USB 2.0 A male to Micro USB male cable
 * Wired Ethernet access
 * Ethernet cable
