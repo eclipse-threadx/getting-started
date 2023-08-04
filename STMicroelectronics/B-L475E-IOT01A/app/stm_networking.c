@@ -32,14 +32,14 @@ NX_PACKET_POOL nx_pool;
 NX_DNS nx_dns_client;
 
 // WiFi firmware version required
-static const UINT wifi_required_version[] = {3, 5, 2, 5};
+static const UINT wifi_required_version[] = {3, 5, 2, 7};
 
 static void print_address(CHAR* preable, uint8_t address[4])
 {
     printf("\t%s: %d.%d.%d.%d\r\n", preable, address[0], address[1], address[2], address[3]);
 }
 
-static void check_firmware_version(CHAR* data)
+static bool check_firmware_version(CHAR* data)
 {
     UINT status = 0;
     UINT version[4];
@@ -49,21 +49,23 @@ static void check_firmware_version(CHAR* data)
     if (status <= 0)
     {
         printf("ERROR: Unable to decode WiFi firmware\r\n");
-        return;
+        return false;
     }
 
     for (int i = 0; i < 4; ++i)
     {
         if (version[i] > wifi_required_version[i])
         {
-            break;
+            return true;
         }
         else if (version[i] < wifi_required_version[i])
         {
-            printf("ERROR: WiFi firmware is out of date\r\n");
-            break;
+            printf("ERROR: WIFI FIRMWARE IS OUTDATED, PLEASE UPDATE TO AVOID CONNECTION ISSUES\r\n");
+            return false;
         }
     }
+
+    return true;
 }
 
 static UINT wifi_init()
@@ -94,9 +96,10 @@ static UINT wifi_init()
     WIFI_GetModuleFwRevision(data);
     printf("\tFirmware revision: %s\r\n", data);
 
-    check_firmware_version(data);
-
-    printf("SUCCESS: WiFi initialized\r\n");
+    if (check_firmware_version(data))
+    {
+        printf("SUCCESS: WiFi initialized\r\n");
+    }
 
     return NX_SUCCESS;
 }
