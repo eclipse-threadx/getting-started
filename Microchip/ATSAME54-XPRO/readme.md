@@ -21,13 +21,13 @@ For guidance on connecting additional devices, see [Getting started with IoT dev
 
 ## What you need
 
-* The [Microchip ATSAME54-XPro](https://www.microchip.com/development-tool/atsame54-xpro)
+* The [Microchip ATSAME54-XPro](https://www.microchip.com/en-us/development-tool/atsame54-xpro)
 * USB 2.0 A male to Micro USB male cable
 * Wired Ethernet access
 * Ethernet cable
 * Optional (for temperature reporting):
     * [Weather Click](https://www.mikroe.com/weather-click) sensor. You can add this sensor to the device to monitor weather conditions. If you don't have this sensor, you can still complete this tutorial.
-    * [mikroBUS Xplained Pro](https://www.microchip.com/development-tool/atmbusadapter-xpro) adapter. Use this adapter to attach the Weather Click sensor to the Microchip E54. If you don't have the sensor and this.
+    * [mikroBUS Xplained Pro](https://www.microchip.com/en-us/development-tool/atmbusadapter-xpro) adapter. Use this adapter to attach the Weather Click sensor to the Microchip E54. If you don't have the sensor and this.
 
 ## Steps
 
