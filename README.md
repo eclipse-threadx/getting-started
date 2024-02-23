@@ -1,13 +1,12 @@
-# Getting Started with Azure RTOS and Azure IoT
+# Getting Started with Eclipse ThreadX and Azure IoT
 
-![](https://github.com/azure-rtos/getting-started/workflows/Markdown%20links/badge.svg)
+![](https://github.com/eclipse-threadx/getting-started/workflows/Markdown%20links/badge.svg)
 
-The Getting Started guides will help you get started with Azure RTOS. Each guide will step through from toolchain installation to connecting the device to Azure IoT using IoT Plug and Play.
+The Getting Started guides will help you get started with Eclipse ThreadX. Each guide will step through from toolchain installation to connecting the device to Azure IoT using IoT Plug and Play.
 
 For more information on Azure IoT Device Development:
 * [Azure IoT Device Development Documentation](https://docs.microsoft.com/azure/iot-develop) - Get started with Azure IoT device development
-* For product issues, bugs, or feature requests please use our GitHub issues pages for the dedicated middleware (e.g. for ThreadX: https://github.com/azure-rtos/threadx/issues).
-* [Azure RTOS Q&A](https://aka.ms/QnA/azure-rtos) - Ask a question
+* For product issues, bugs, or feature requests please use our GitHub issues pages for the dedicated middleware (e.g. for ThreadX: https://github.com/eclipse-threadx/threadx/issues).
 
 ## Getting Started Guides
 
@@ -39,8 +38,13 @@ For details on contributing to this repository, see the [contributing](CONTRIBUT
 
 ## Reporting Security Vulnerabilities
 
-If you believe you have found a security vulnerability in any Microsoft-owned repository that meets Microsoft's definition of a security vulnerability, please report it to the [Microsoft Security Response Center](SECURITY.md).
+If you think you have found a vulnerability in Eclipse ThreadX repos you can report it using one of the following ways:
+
+* Contact the [Eclipse Foundation Security Team](mailto:security@eclipse-foundation.org)
+* [Report a Vulnerability](https://github.com/eclipse-threadx/threadx/security/advisories/new)
+
+You can find more information about reporting and disclosure at the [Eclipse Foundation Security page](https://www.eclipse.org/security/).
 
 ## License
 
-The Azure RTOS Getting Started guides are licensed under the [MIT](LICENSE.txt) license.
+The Eclipse ThreadX Getting Started guides are licensed under the [MIT](LICENSE.txt) license.
