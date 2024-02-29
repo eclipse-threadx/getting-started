@@ -1,6 +1,6 @@
 <h1>Getting started with the Renesas Synergy Platform</h1>
 
-Renesas provides commercially qualified software developed and optimized for the [Synergy Platform](https://www.renesas.com/products/synergy.html) with no additional fees or royalties. The Synergy Software Package (SSP) integrates all the functionality needed to build IoT applications including Microsoft’s Azure RTOS, Application Frameworks, Libraries, HAL drivers, and Board Support Packages for the Synergy kits. 
+Renesas provides commercially qualified software developed and optimized for the [Synergy Platform](https://www.renesas.com/products/synergy.html) with no additional fees or royalties. The Synergy Software Package (SSP) integrates all the functionality needed to build IoT applications including Eclipse ThreadX, Application Frameworks, Libraries, HAL drivers, and Board Support Packages for the Synergy kits. 
 
 Visit the [Synergy Software](https://www.renesas.com/products/synergy/software.html) website to get started with Azure RTOS and the Synergy Platform.
 
@@ -11,7 +11,7 @@ The Renesas Synergy™ [AE-Cloud2 Kit](https://www.renesas.com/products/microcon
 ## AE-Cloud2 Application Example
 Download the [Synergy MQTT/TLS Azure Cloud Connectivity Solution](https://www.renesas.com/document/scd/synergy-mqtttls-azure-cloud-connectivity-solution-application-project-0) application example.
 
-This application example uses Azure RTOS to connect to Azure IoT Hub. Using detailed steps, this document instructs first-time Microsoft Azure users how to configure the Azure IoT Hub platform to run this application example demonstration.
+This application example uses Eclipse ThreadX to connect to Azure IoT Hub. Using detailed steps, this document instructs first-time Microsoft Azure users how to configure the Azure IoT Hub platform to run this application example demonstration.
 
 Upon completion of this guide, you will be able to add the MQTT/TLS module to your own design, configure it correctly for the target application, and write code using the included application example code as a reference and efficient starting point. References to more detailed API descriptions, and other application projects that demonstrate more advanced uses of the module, are in the Synergy Software Package (SSP) User’s Manual, and serve as valuable resources in creating more complex designs.
 
