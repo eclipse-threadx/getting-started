@@ -1,12 +1,11 @@
 ---
 page_type: sample
-description: Connecting a Renesas RX65N Cloud Kit to Azure IoT using Azure RTOS
+description: Connecting a Renesas RX65N Cloud Kit to Azure IoT
 languages:
 - c
 products:
 - azure-iot
 - azure-iot-pnp
-- azure-rtos
 - azure-iot-central
 ---
 
@@ -24,7 +23,7 @@ This guide steps through the basic process to flash a device and connect to Azur
 
 1. Recursively clone the repository:
     ```shell
-    git clone --recursive https://github.com/azure-rtos/getting-started.git
+    git clone --recursive https://github.com/eclipse-threadx/getting-started.git
     ```
 
 1. Install the development tools:
