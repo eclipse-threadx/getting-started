@@ -37,7 +37,3 @@ For details on contributing to this repository, see the [contributing](CONTRIBUT
 ## Reporting Security Vulnerabilities
 
 If you believe you have found a security vulnerability in any Microsoft-owned repository that meets Microsoft's definition of a security vulnerability, please report it to the [Microsoft Security Response Center](SECURITY.md).
-
-## License
-
-The Azure RTOS Getting Started guides are licensed under the [MIT](LICENSE.txt) license.
