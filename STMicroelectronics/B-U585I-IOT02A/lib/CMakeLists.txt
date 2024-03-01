@@ -15,7 +15,6 @@ set(NX_AZURE_DISABLE_IOT_SECURITY_MODULE ON CACHE BOOL "Disable Security Center"
 # Core libraries
 add_subdirectory(${SHARED_LIB_DIR}/threadx threadx)
 add_subdirectory(${SHARED_LIB_DIR}/netxduo netxduo)
-add_subdirectory(${SHARED_LIB_DIR}/jsmn jsmn)
 
 add_subdirectory(stm32cubeu5)
 

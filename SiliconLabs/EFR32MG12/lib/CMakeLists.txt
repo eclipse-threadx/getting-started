@@ -15,7 +15,6 @@ set(NX_AZURE_DISABLE_IOT_SECURITY_MODULE ON CACHE BOOL "Disable ASC")
 # Core libraries
 add_subdirectory(${SHARED_LIB_DIR}/threadx threadx)
 add_subdirectory(${SHARED_LIB_DIR}/netxduo netxduo)
-add_subdirectory(${SHARED_LIB_DIR}/jsmn jsmn)
 
 # Gecko SDK & WFX200 network driver
 add_subdirectory(gecko_sdk_3.0.0_efr32mg12)

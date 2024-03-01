@@ -22,7 +22,6 @@ target_link_libraries(${PROJECT_NAME}
 
     stm32cubeu5
     app_common
-    jsmn
 )
 
 target_include_directories(${PROJECT_NAME} 

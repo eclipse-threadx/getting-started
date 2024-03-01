@@ -11,7 +11,6 @@
 #include "networking.h"
 #include "sntp_client.h"
 
-#include "legacy/mqtt.h"
 #include "nx_client.h"
 
 #include "azure_config.h"
@@ -26,7 +25,7 @@ static void azure_thread_entry(ULONG parameter)
 {
     UINT status;
 
-    printf("Starting Azure thread\r\n\r\n");
+    printf("Starting thread\r\n\r\n");
 
     // Initialize the network
     if ((status = network_init(nx_driver_rx_fit)))
@@ -34,11 +33,7 @@ static void azure_thread_entry(ULONG parameter)
         printf("ERROR: Failed to initialize the network (0x%08x)\r\n", status);
     }
 
-#ifdef ENABLE_LEGACY_MQTT
-    else if ((status = azure_iot_mqtt_entry(&nx_ip, &nx_pool, &nx_dns_client, sntp_time_get)))
-#else
     else if ((status = azure_iot_nx_client_entry(&nx_ip, &nx_pool, &nx_dns_client, sntp_time)))
-#endif
     {
         printf("Failed to run Azure IoT (0x%04x)\r\n", status);
     }
@@ -46,7 +41,7 @@ static void azure_thread_entry(ULONG parameter)
 
 void tx_application_define(void* first_unused_memory)
 {
-    // Create Azure thread
+    // Create thread
     UINT status = tx_thread_create(&azure_thread,
         "Azure Thread",
         azure_thread_entry,

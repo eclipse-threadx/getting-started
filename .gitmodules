@@ -1,9 +1,6 @@
 [submodule "shared/lib/threadx"]
 	path = shared/lib/threadx
-	url = https://github.com/azure-rtos/threadx.git
+	url = https://github.com/eclipse-threadx/threadx.git
 [submodule "shared/lib/netxduo"]
 	path = shared/lib/netxduo
-	url = https://github.com/azure-rtos/netxduo.git
-[submodule "shared/lib/jsmn/src"]
-	path = shared/lib/jsmn/src
-	url = https://github.com/zserge/jsmn
+	url = https://github.com/eclipse-threadx/netxduo.git

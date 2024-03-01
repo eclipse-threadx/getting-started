@@ -52,7 +52,7 @@ void azure_thread_entry(ULONG thread_input)
 {
     UINT status;
 
-    printf("Starting Azure thread\r\n\r\n");
+    printf("Starting thread\r\n\r\n");
 
     // Set wifi network information
     if ((status = wifi_init()))
@@ -74,7 +74,7 @@ void azure_thread_entry(ULONG thread_input)
 
 void tx_application_define(void* first_unused_memory)
 {
-    // Create Azure thread
+    // Create thread
     UINT status = tx_thread_create(&azure_thread,
         "Azure Thread",
         azure_thread_entry,

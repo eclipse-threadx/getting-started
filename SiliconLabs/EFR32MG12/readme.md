@@ -194,7 +194,7 @@ You can use the **Termite** utility to monitor communication and confirm that yo
 1. In the **Termite** console, check the following checkpoint values to confirm that the device is initialized and connected to Azure IoT.
 
     ```output
-    Starting Azure thread
+    Starting thread
     WF200 Firmware version 3.7.0
     WF200 initialization successful
     Connecting to SSID: ***
