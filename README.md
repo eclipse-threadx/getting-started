@@ -2,12 +2,9 @@
 
 ![](https://github.com/azure-rtos/getting-started/workflows/Markdown%20links/badge.svg)
 
-The Getting Started guides will help you get started with Azure RTOS. Each guide will step through from toolchain installation to connecting the device to Azure IoT using IoT Plug and Play.
+The Getting Started guides will help you get started with Eclipse ThreadX. Each guide steps through from toolchain installation to connecting the device.
 
-For more information on Azure IoT Device Development:
-* [Azure IoT Device Development Documentation](https://docs.microsoft.com/azure/iot-develop) - Get started with Azure IoT device development
 * For product issues, bugs, or feature requests please use our GitHub issues pages for the dedicated middleware (e.g. for ThreadX: https://github.com/azure-rtos/threadx/issues).
-* [Azure RTOS Q&A](https://aka.ms/QnA/azure-rtos) - Ask a question
 
 ## Getting Started Guides
 
@@ -40,7 +37,3 @@ For details on contributing to this repository, see the [contributing](CONTRIBUT
 ## Reporting Security Vulnerabilities
 
 If you believe you have found a security vulnerability in any Microsoft-owned repository that meets Microsoft's definition of a security vulnerability, please report it to the [Microsoft Security Response Center](SECURITY.md).
-
-## License
-
-The Azure RTOS Getting Started guides are licensed under the [MIT](LICENSE.txt) license.

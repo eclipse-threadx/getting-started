@@ -1,20 +1,17 @@
 ---
 page_type: sample
-description: Connecting a Silicon Labs SLWSTK6000B EFR32MG12 to Azure IoT using Azure RTOS
+description: Connecting a Silicon Labs SLWSTK6000B EFR32MG12 to Azure IoT
 languages:
 - c
 products:
 - azure-iot
 - azure-iot-pnp
-- azure-rtos
 - azure-iot-central
 ---
 
 # Getting started with the Silicon Labs SLWSTK6000B EFR32MG12 Starter Kit
 
-**Total completion time**:  30 minutes
-
-In this tutorial you use Azure RTOS to connect the Silicon Labs EFR32MG12 MCU Starter Kit to Azure IoT. The article is part of the series [Getting started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824). The series introduces device developers to Azure RTOS, and shows how to connect several device evaluation kits to Azure IoT.
+In this guide you use Eclipse ThreadX to connect the Silicon Labs EFR32MG12 MCU Starter Kit to Azure IoT. 
 
 You will complete the following tasks:
 
@@ -44,7 +41,7 @@ Clone the following repo to download all sample device code, setup scripts, and 
 To clone the repo, run the following command:
 
 ```shell
-git clone --recursive https://github.com/azure-rtos/getting-started.git
+git clone --recursive https://github.com/eclipse-threadx/getting-started.git
 ```
 
 ### Install the tools
@@ -292,11 +289,3 @@ To remove the entire Azure IoT Central sample application and all its devices an
 1. Select **Administration** > **Your application**.
 1. Select **Delete**.
 
-## Next Steps
-
-In this tutorial you built a custom image that contains Azure RTOS sample code, and then flashed the image to the EFR32MG12 MCU Starter Kit. You also used the IoT Central portal to create Azure resources, connect the EFR32MG12 MCU Starter Kit securely to Azure, view telemetry, and send messages.
-
-* For device developers, the suggested next step is to see the other tutorials in the series [Getting started with Azure RTOS](https://go.microsoft.com/fwlink/p/?linkid=2129824).
-* If you have issues getting your device to initialize or connect after following the steps in this guide, see [Troubleshooting](https://docs.microsoft.com/azure/iot-develop/troubleshoot-embedded-device-quickstarts).
-* To learn more about how Azure RTOS components are used in the sample code for this tutorial, see [Using Azure RTOS in the Getting Started Guides](../../docs/using-azure-rtos.md).
-    >Note: Azure RTOS provides OEMs with components to secure communication and to create code and data isolation using underlying MCU/MPU hardware protection mechanisms. However, each OEM is ultimately responsible for ensuring that their device meets evolving security requirements.
