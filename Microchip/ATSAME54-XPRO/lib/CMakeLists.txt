@@ -15,7 +15,6 @@ set(NX_AZURE_DISABLE_IOT_SECURITY_MODULE OFF CACHE BOOL "Security Module")
 # Core libraries
 add_subdirectory(${SHARED_LIB_DIR}/threadx threadx)
 add_subdirectory(${SHARED_LIB_DIR}/netxduo netxduo)
-add_subdirectory(${SHARED_LIB_DIR}/jsmn jsmn)
 
 add_subdirectory(netx_driver)
 add_subdirectory(atmel_start)

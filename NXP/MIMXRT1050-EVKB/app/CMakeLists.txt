@@ -4,7 +4,6 @@
 set(SOURCES
     startup/${THREADX_TOOLCHAIN}/startup_MIMXRT1052.S
     startup/${THREADX_TOOLCHAIN}/tx_initialize_low_level.S
-    legacy/mqtt.c
     azure_config.h
     nx_client.c
     board_init.c
@@ -20,7 +19,6 @@ target_link_libraries(${PROJECT_NAME}
         azrtos::netxduo
 
         app_common
-        jsmn
         MIMXRT1050-evk
         netx_driver
 )

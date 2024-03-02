@@ -24,7 +24,6 @@ target_link_libraries(${PROJECT_NAME}
     stm32cubel4
     netx_driver
     app_common
-    jsmn
 )
 
 target_include_directories(${PROJECT_NAME} 

@@ -1,3 +1,8 @@
 {
-    "aliveStatusCodes": [0, 200]
+    "aliveStatusCodes": [0, 200],
+    "ignorePatterns": [
+        {
+            "pattern": "https://www.microchip.com/development-tool/.*"
+        }
+    ]    
 }

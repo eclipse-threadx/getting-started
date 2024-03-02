@@ -6,7 +6,6 @@
 set(SOURCES
     startup/${THREADX_TOOLCHAIN}/tx_initialize_low_level.S
 
-    legacy/mqtt.c
     azure_config.h
     nx_client.c
     board_init.c
@@ -22,7 +21,6 @@ target_link_libraries(${PROJECT_NAME}
         azrtos::netxduo
 
         app_common
-        jsmn
         rx_driver_package
         netx_driver
 )

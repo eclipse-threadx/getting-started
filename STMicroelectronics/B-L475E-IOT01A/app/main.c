@@ -23,7 +23,7 @@ static void azure_thread_entry(ULONG parameter)
 {
     UINT status;
 
-    printf("Starting Azure thread\r\n\r\n");
+    printf("Starting thread\r\n\r\n");
 
     // Initialize the network
     if ((status = stm_network_init(WIFI_SSID, WIFI_PASSWORD, WIFI_MODE)))
@@ -39,7 +39,7 @@ static void azure_thread_entry(ULONG parameter)
 
 void tx_application_define(void* first_unused_memory)
 {
-    // Create Azure thread
+    // Create thread
     UINT status = tx_thread_create(&azure_thread,
         "Azure Thread",
         azure_thread_entry,

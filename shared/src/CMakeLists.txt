@@ -4,13 +4,6 @@
 set(TARGET app_common)
 
 set(SOURCES
-    azure_iot_mqtt/azure_iot_mqtt.c
-    azure_iot_mqtt/azure_iot_dps_mqtt.c
-    azure_iot_mqtt/hmac_sha256.c
-    azure_iot_mqtt/sas_token.c
-    azure_iot_mqtt/sha256.c
-    azure_iot_mqtt/json_utils.c
-
     azure_iot_nx_client.c
     azure_iot_connect.c
     azure_iot_cert.c
@@ -45,5 +38,4 @@ target_include_directories(${TARGET}
 target_link_libraries(${TARGET}
     azrtos::threadx
     azrtos::netxduo
-    jsmn
 )

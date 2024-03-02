@@ -51,6 +51,9 @@
 #ifndef TX_USER_H
 #define TX_USER_H
 
+// add to enable netxduo to compile due to ptp requiring this variable
+typedef unsigned long long                      ULONG64;
+
 /* Define various build options for the ThreadX port.  The application should either make changes
    here by commenting or un-commenting the conditional compilation defined OR supply the defines 
    though the compiler's equivalent of the -D option.  

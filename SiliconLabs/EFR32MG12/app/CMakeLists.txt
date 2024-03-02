@@ -24,7 +24,6 @@ target_link_libraries(${PROJECT_NAME}
     azrtos::netxduo
     
     app_common
-    jsmn
     gecko_sdk_3.0.0_efr32mg12
     netx_driver
 )

@@ -4,7 +4,6 @@
 set(SOURCES
     startup/${THREADX_TOOLCHAIN}/tx_initialize_low_level.S
     startup/${THREADX_TOOLCHAIN}/startup_same54.c
-    legacy/mqtt.c
     azure_config.h
     nx_client.c
     board_init.c
@@ -17,10 +16,8 @@ target_link_libraries(${PROJECT_NAME}
     PUBLIC
         azrtos::threadx
         azrtos::netxduo
-         
         atmel_start
         app_common
-        jsmn
         netxdriver
         bme280
 )
