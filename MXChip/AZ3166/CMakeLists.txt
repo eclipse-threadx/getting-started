@@ -30,6 +30,14 @@ project(mxchip_azure_iot C CXX ASM)
 # Disable common networking component, MXCHIP has it's own
 set(DISABLE_COMMON_NETWORK true)
 
+# Remove -Werror if it's already set, then apply our compile options
+if(CMAKE_CXX_FLAGS MATCHES "-Werror")
+    string(REPLACE "-Werror" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+endif()
+
+# Add compile options to disable the misleading indentation warning
+add_compile_options(-Wno-misleading-indentation)
+
 add_subdirectory(${SHARED_SRC_DIR} shared_src)
 add_subdirectory(lib)
 add_subdirectory(app)
