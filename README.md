@@ -1,3 +1,5 @@
+# This repository has been archived. Look at SampleX instead.
+
 # Getting Started with Azure RTOS and Azure IoT
 
 ![](https://github.com/azure-rtos/getting-started/workflows/Markdown%20links/badge.svg)
